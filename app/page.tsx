@@ -108,64 +108,80 @@ export default function Home() {
       </header>
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="pt-32 pb-20 px-4 md:px-0 relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl" />
+      <section className="pt-28 pb-20 px-4 md:px-0 relative overflow-hidden">
+
+        {/* Glows de fondo */}
+        <div className="absolute inset-0 -z-10 pointer-events-none">
+          <div className="absolute top-10 right-[15%] w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-[10%] w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
         </div>
 
-        <div className="container max-w-4xl mx-auto text-center">
-          <div className="mb-6 flex justify-center">
-            {/* Logo animado — lemniscata en movimiento */}
-            <video
-              autoPlay muted loop playsInline
-              className="h-28 w-auto"
-              src="/logo-animated.mp4"
-            />
-          </div>
+        <div className="container max-w-5xl mx-auto">
 
-          <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15">
-            <MapPin className="w-3 h-3 mr-1" /> Hecho en México · Para PyMES locales
-          </Badge>
+          {/* Layout: texto izquierda + logo derecha en desktop */}
+          <div className="flex flex-col-reverse md:flex-row items-center gap-10 md:gap-16">
 
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground leading-tight">
-            Automatización inteligente para tu{" "}
-            <span className="text-primary">negocio local</span>
-          </h1>
+            {/* Columna de texto */}
+            <div className="flex-1 text-center md:text-left">
+              <Badge className="mb-5 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 inline-flex">
+                <MapPin className="w-3 h-3 mr-1" /> Hecho en México · Para PyMES locales
+              </Badge>
 
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Tintorerías, fotógrafos, estéticas, productores… damos a tu micro PyME el mismo poder
-            digital que las grandes: WhatsApp automático, agenda online, contenido con IA y reportes
-            en tiempo real.
-          </p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-5 text-foreground leading-tight">
+                Automatización inteligente para tu{" "}
+                <span className="text-primary">negocio local</span>
+              </h1>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button
-              onClick={() => scrollToSection("contact")}
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-white"
-            >
-              Agendar diagnóstico gratis <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            <Button onClick={() => scrollToSection("verticals")} variant="outline" size="lg">
-              Ver demos por industria
-            </Button>
-          </div>
+              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl">
+                Tintorerías, fotógrafos, estéticas, productores… damos a tu micro PyME el mismo poder
+                digital que las grandes: WhatsApp automático, agenda online, contenido con IA y
+                reportes en tiempo real.
+              </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 max-w-3xl mx-auto">
-            {[
-              { icon: Zap,       title: "Implementación rápida",  sub: "De diagnóstico a live en semanas" },
-              { icon: Bot,       title: "Impulsado por IA",       sub: "Contenido y respuestas inteligentes" },
-              { icon: TrendingUp,title: "Crecimiento escalable",  sub: "Más clientes sin más operación" },
-            ].map(({ icon: Icon, title, sub }) => (
-              <div key={title} className="flex flex-col items-center">
-                <div className="bg-primary/10 rounded-full p-3 mb-3">
-                  <Icon className="h-6 w-6 text-primary" />
-                </div>
-                <p className="font-semibold text-foreground">{title}</p>
-                <p className="text-sm text-muted-foreground">{sub}</p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mb-10">
+                <Button
+                  onClick={() => scrollToSection("contact")}
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 text-white"
+                >
+                  Agendar diagnóstico gratis <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <Button onClick={() => scrollToSection("verticals")} variant="outline" size="lg">
+                  Ver demos por industria
+                </Button>
               </div>
-            ))}
+
+              <div className="flex flex-col sm:flex-row gap-6 justify-center md:justify-start">
+                {[
+                  { icon: Zap,        label: "Implementación rápida"  },
+                  { icon: Bot,        label: "Impulsado por IA"       },
+                  { icon: TrendingUp, label: "Crecimiento escalable"  },
+                ].map(({ icon: Icon, label }) => (
+                  <div key={label} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Icon className="h-4 w-4 text-primary shrink-0" />
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Logo vertical — elemento visual principal */}
+            <div className="flex-shrink-0 flex items-center justify-center">
+              <div className="relative">
+                {/* Halo detrás del logo */}
+                <div className="absolute inset-0 rounded-full bg-primary/10 blur-2xl scale-125" />
+                <Image
+                  src="/logo-vertical.svg"
+                  alt="FishFlow"
+                  width={220}
+                  height={220}
+                  priority
+                  className="relative w-48 md:w-56 h-auto drop-shadow-lg"
+                />
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
