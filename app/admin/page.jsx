@@ -6,9 +6,10 @@
 // ============================================================
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
+import { useRouter } from 'next/navigation'
 
-const supabase = createClient(
+const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
@@ -56,8 +57,14 @@ function fechaInfo(f) {
 }
 
 export default function CRMPage() {
+  const router = useRouter()
   const [deals,   setDeals]   = useState([])
   const [loading, setLoading] = useState(true)
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
   const [search,  setSearch]  = useState('')
   const [modal,   setModal]   = useState({ open: false, editId: null })
   const [form,    setForm]    = useState(EMPTY_FORM)
@@ -184,6 +191,7 @@ export default function CRMPage() {
             <input className="ff-search" placeholder="Buscar cliente, giro..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           <button className="ff-btn-primary" onClick={() => openModal()}>+ Nueva Oportunidad</button>
+          <button className="ff-btn-logout" onClick={handleLogout} title="Cerrar sesión">⎋ Salir</button>
         </div>
       </header>
 
@@ -361,6 +369,8 @@ const CSS = `
   .ff-btn-primary:hover { background:#4a59e0; }
   .ff-btn-secondary { background:transparent; color:#8b8fa8; border:1px solid #2e3150; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; }
   .ff-btn-secondary:hover { color:#e8eaf6; border-color:#8b8fa8; }
+  .ff-btn-logout { background:transparent; color:#8b8fa8; border:1px solid #2e3150; border-radius:8px; padding:8px 14px; font-size:12px; cursor:pointer; }
+  .ff-btn-logout:hover { color:#ef4444; border-color:#ef4444; }
   .ff-metrics { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; padding:16px 24px; background:#1a1d2e; border-bottom:1px solid #2e3150; }
   .ff-metric-card { background:#252840; border:1px solid #2e3150; border-radius:10px; padding:14px 16px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
   .ff-metric-label { font-size:10px; color:#8b8fa8; text-transform:uppercase; letter-spacing:.8px; font-weight:600; margin-bottom:4px; }

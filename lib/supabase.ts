@@ -1,9 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Cliente para componentes del browser — mantiene la sesión sincronizada con el middleware
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 
 export type PaymentMethod = "efectivo" | "tarjeta" | "transferencia";
 

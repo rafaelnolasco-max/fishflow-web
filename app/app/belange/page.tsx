@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase, type BelangeTransaction, type PaymentMethod } from "@/lib/supabase";
 
 // ─── FishFlow brand colors ────────────────────────────────────────────────────
@@ -84,6 +85,13 @@ const PAYMENT_META: Record<PaymentMethod, { label: string; bg: string; color: st
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function BelangePage() {
+  const router = useRouter();
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
+
   const [clientName, setClientName] = useState("");
   const [service,    setService]    = useState("");
   const [price,      setPrice]      = useState("");
@@ -154,10 +162,27 @@ export default function BelangePage() {
             <p style={{ fontSize: 11, color: "#888", margin: 0 }}>Panel de ingresos</p>
           </div>
         </div>
-        <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.5 }}>
-          <FishFlowMark size={22} />
-          <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
-        </a>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.5 }}>
+            <FishFlowMark size={22} />
+            <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
+          </a>
+          <button
+            onClick={handleLogout}
+            title="Cerrar sesión"
+            style={{
+              background: "transparent",
+              border: "0.5px solid #e5e4df",
+              borderRadius: 6,
+              padding: "5px 10px",
+              fontSize: 11,
+              color: "#aaa",
+              cursor: "pointer",
+            }}
+          >
+            ⎋ Salir
+          </button>
+        </div>
       </header>
 
       {/* Body */}

@@ -1,0 +1,178 @@
+"use client";
+
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createBrowserClient } from "@supabase/ssr";
+import Image from "next/image";
+
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "/";
+
+  const [email, setEmail]       = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      setError("Correo o contraseña incorrectos.");
+      setLoading(false);
+      return;
+    }
+
+    router.push(next);
+    router.refresh();
+  }
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "#f8f8f6",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: "var(--font-outfit, system-ui, sans-serif)",
+      padding: "1rem",
+    }}>
+      <div style={{
+        background: "#fff",
+        border: "0.5px solid #e5e4df",
+        borderRadius: 16,
+        padding: "2.5rem 2rem",
+        width: "100%",
+        maxWidth: 380,
+      }}>
+
+        {/* Logo */}
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+            <Image
+              src="/logo-horizontal.svg"
+              alt="FishFlow"
+              width={140}
+              height={36}
+              priority
+            />
+          </div>
+          <p style={{ fontSize: 13, color: "#999", margin: 0 }}>
+            Acceso privado
+          </p>
+        </div>
+
+        <form onSubmit={handleLogin}>
+          {/* Email */}
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", marginBottom: 6 }}>
+              Correo electrónico
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="tu@correo.com"
+              required
+              autoFocus
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                border: "0.5px solid #ddd",
+                borderRadius: 8,
+                fontSize: 14,
+                fontFamily: "inherit",
+                outline: "none",
+                boxSizing: "border-box",
+                color: "#1a1a1a",
+              }}
+            />
+          </div>
+
+          {/* Password */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", marginBottom: 6 }}>
+              Contraseña
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                border: "0.5px solid #ddd",
+                borderRadius: 8,
+                fontSize: 14,
+                fontFamily: "inherit",
+                outline: "none",
+                boxSizing: "border-box",
+                color: "#1a1a1a",
+              }}
+            />
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div style={{
+              background: "#fff0f0",
+              border: "0.5px solid #ffb3b3",
+              borderRadius: 8,
+              padding: "10px 12px",
+              fontSize: 13,
+              color: "#c0392b",
+              marginBottom: 14,
+            }}>
+              {error}
+            </div>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "11px 0",
+              background: loading ? "#aaa" : "#00B8CC",
+              border: "none",
+              borderRadius: 8,
+              color: "#fff",
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: loading ? "not-allowed" : "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            {loading ? "Ingresando…" : "Ingresar"}
+          </button>
+        </form>
+
+        {/* Footer */}
+        <p style={{ textAlign: "center", fontSize: 11, color: "#ccc", marginTop: "1.5rem", marginBottom: 0 }}>
+          Solo usuarios autorizados por FishFlow
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
