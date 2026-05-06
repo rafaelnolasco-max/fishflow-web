@@ -1,0 +1,707 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  supabase,
+  type TBAOpportunity,
+  type OpportunityStage,
+  type ProductType,
+  type Currency,
+} from "@/lib/supabase";
+
+// ─── Brand colors ──────────────────────────────────────────────────────────────
+const FF_CYAN   = "#00B8CC";
+const FF_ORANGE = "#FF7200";
+
+// ─── Stage metadata ───────────────────────────────────────────────────────────
+const STAGE_META: Record<
+  OpportunityStage,
+  { label: string; bg: string; color: string; prob: number }
+> = {
+  prospecto:       { label: "Prospecto",   bg: "#ededfc", color: "#4040b0", prob: 0.20 },
+  propuesta:       { label: "Propuesta",   bg: "#e4f8fb", color: "#0a7a8a", prob: 0.40 },
+  negociacion:     { label: "Negociación", bg: "#fff3e0", color: "#b35900", prob: 0.70 },
+  cerrado_ganado:  { label: "✓ Ganado",   bg: "#eaf3de", color: "#3b6d11", prob: 1.00 },
+  cerrado_perdido: { label: "Perdido",     bg: "#fce4e4", color: "#b00020", prob: 0.00 },
+};
+
+const STAGE_ORDER: OpportunityStage[] = [
+  "prospecto", "propuesta", "negociacion", "cerrado_ganado", "cerrado_perdido",
+];
+
+// ─── Product type ─────────────────────────────────────────────────────────────
+const PRODUCT_META: Record<ProductType, { label: string }> = {
+  hardware:          { label: "Hardware" },
+  licencia:          { label: "Licencia" },
+  hardware_licencia: { label: "HW + Lic" },
+};
+
+// ─── Filter tabs ──────────────────────────────────────────────────────────────
+type StageFilter = OpportunityStage | "todas" | "activas";
+
+const FILTER_TABS: { key: StageFilter; label: string }[] = [
+  { key: "todas",           label: "Todas" },
+  { key: "activas",         label: "Activo" },
+  { key: "prospecto",       label: "Prospecto" },
+  { key: "propuesta",       label: "Propuesta" },
+  { key: "negociacion",     label: "Negociación" },
+  { key: "cerrado_ganado",  label: "Ganadas" },
+  { key: "cerrado_perdido", label: "Perdidas" },
+];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function formatAmount(amount: number, currency: Currency): string {
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("es-MX", {
+    day: "2-digit", month: "short", year: "numeric",
+  });
+}
+
+function formatCloseDate(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("es-MX", {
+    day: "2-digit", month: "short", year: "numeric",
+  });
+}
+
+function sumAmount(list: TBAOpportunity[], cur: Currency): number {
+  return list.filter(o => o.currency === cur).reduce((s, o) => s + o.amount, 0);
+}
+
+function pipelineLabel(usd: number, mxn: number): string {
+  if (usd > 0 && mxn > 0) return `${formatAmount(usd, "USD")} + ${formatAmount(mxn, "MXN")}`;
+  if (usd > 0) return formatAmount(usd, "USD");
+  if (mxn > 0) return formatAmount(mxn, "MXN");
+  return "—";
+}
+
+// ─── FishFlow mark ────────────────────────────────────────────────────────────
+function FishFlowMark({ size = 32 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size * 0.52}
+      viewBox="0 0 68 36"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="FishFlow"
+    >
+      <path
+        d="M34 18 C34 9 25 3 15 6 C6 9 4 19 11 24 C19 30 34 27 34 18Z"
+        stroke={FF_CYAN} strokeWidth="2.5" strokeLinecap="round" fill="none"
+      />
+      <path
+        d="M34 18 C34 9 43 3 53 6 C62 9 64 19 57 24 C49 30 34 27 34 18Z"
+        stroke={FF_ORANGE} strokeWidth="2.5" strokeLinecap="round" fill="none"
+      />
+      <path
+        d="M64 14 L68 10 M64 22 L68 26"
+        stroke={FF_ORANGE} strokeWidth="2" strokeLinecap="round" fill="none"
+      />
+    </svg>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+export default function TBAPage() {
+  const router = useRouter();
+
+  // ── Form state ──
+  const [company,     setCompany]     = useState("");
+  const [contact,     setContact]     = useState("");
+  const [productType, setProductType] = useState<ProductType>("hardware");
+  const [vendor,      setVendor]      = useState("");
+  const [amount,      setAmount]      = useState("");
+  const [currency,    setCurrency]    = useState<Currency>("USD");
+  const [stage,       setStage]       = useState<OpportunityStage>("prospecto");
+  const [closeDate,   setCloseDate]   = useState("");
+  const [notes,       setNotes]       = useState("");
+  const [saving,      setSaving]      = useState(false);
+  const [ok,          setOk]          = useState("");
+  const [err,         setErr]         = useState("");
+
+  // ── Data state ──
+  const [opps,    setOpps]   = useState<TBAOpportunity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter,  setFilter]  = useState<StageFilter>("activas");
+
+  const firstInputRef = useRef<HTMLInputElement>(null);
+
+  async function fetchAll() {
+    setLoading(true);
+    const { data } = await supabase
+      .from("tba_opportunities")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (data) setOpps(data as TBAOpportunity[]);
+    setLoading(false);
+  }
+
+  useEffect(() => { fetchAll(); }, []);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const num = parseFloat(amount.replace(/,/g, ""));
+    if (!company.trim() || !contact.trim() || !vendor.trim() || isNaN(num) || num <= 0) {
+      setErr("Completa todos los campos obligatorios (*).");
+      return;
+    }
+    setSaving(true); setErr("");
+    const { error } = await supabase.from("tba_opportunities").insert({
+      company_name: company.trim(),
+      contact_name: contact.trim(),
+      product_type: productType,
+      vendor: vendor.trim(),
+      amount: num,
+      currency,
+      stage,
+      close_date: closeDate || null,
+      notes: notes.trim() || null,
+    });
+    setSaving(false);
+    if (error) { setErr("Error al guardar. Intenta de nuevo."); return; }
+    setOk(`✓ Oportunidad con ${company.trim()} registrada`);
+    setCompany(""); setContact(""); setVendor(""); setAmount("");
+    setCloseDate(""); setNotes("");
+    setProductType("hardware"); setCurrency("USD"); setStage("prospecto");
+    firstInputRef.current?.focus();
+    fetchAll();
+    setTimeout(() => setOk(""), 3500);
+  }
+
+  async function handleStageChange(id: string, newStage: OpportunityStage) {
+    await supabase
+      .from("tba_opportunities")
+      .update({ stage: newStage, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    setOpps(prev => prev.map(o => o.id === id ? { ...o, stage: newStage } : o));
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
+
+  // ── Computed metrics ──
+  const activeOpps = opps.filter(
+    o => o.stage !== "cerrado_ganado" && o.stage !== "cerrado_perdido"
+  );
+  const wonOpps  = opps.filter(o => o.stage === "cerrado_ganado");
+
+  const pipelineUSD  = sumAmount(activeOpps, "USD");
+  const pipelineMXN  = sumAmount(activeOpps, "MXN");
+  const forecastUSD  = activeOpps.filter(o => o.currency === "USD")
+    .reduce((s, o) => s + o.amount * STAGE_META[o.stage].prob, 0);
+  const forecastMXN  = activeOpps.filter(o => o.currency === "MXN")
+    .reduce((s, o) => s + o.amount * STAGE_META[o.stage].prob, 0);
+  const wonUSD = sumAmount(wonOpps, "USD");
+  const wonMXN = sumAmount(wonOpps, "MXN");
+
+  // ── Funnel max for bar scaling ──
+  const funnelStages: OpportunityStage[] = ["prospecto", "propuesta", "negociacion"];
+  const maxFunnelVal = Math.max(
+    ...funnelStages.map(s =>
+      opps.filter(o => o.stage === s).reduce((sum, o) => sum + (o.currency === "USD" ? o.amount : 0), 0)
+    ),
+    1
+  );
+
+  // ── Filtered table ──
+  const filtered =
+    filter === "todas"   ? opps :
+    filter === "activas" ? activeOpps :
+    opps.filter(o => o.stage === filter);
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  return (
+    <div style={{ minHeight: "100vh", background: "#f8f8f6", fontFamily: "var(--font-outfit, system-ui, sans-serif)" }}>
+
+      {/* ── Header ── */}
+      <header style={{
+        background: "#fff", borderBottom: "0.5px solid #e5e4df",
+        height: 56, padding: "0 1.5rem",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: "50%",
+            background: "linear-gradient(135deg,#e8f0fe,#c7d8fc)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 11, fontWeight: 700, color: "#1a56cc", letterSpacing: "0.03em",
+          }}>
+            TBA
+          </div>
+          <div>
+            <p style={{ fontSize: 15, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>TBA Telecom</p>
+            <p style={{ fontSize: 11, color: "#888", margin: 0 }}>CRM de oportunidades</p>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <a
+            href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.5 }}
+          >
+            <FishFlowMark size={22} />
+            <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
+          </a>
+          <button
+            onClick={handleLogout}
+            title="Cerrar sesión"
+            style={{
+              background: "transparent", border: "0.5px solid #e5e4df",
+              borderRadius: 6, padding: "5px 10px",
+              fontSize: 11, color: "#aaa", cursor: "pointer",
+            }}
+          >
+            ⎋ Salir
+          </button>
+        </div>
+      </header>
+
+      {/* ── Body ── */}
+      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "1.5rem 1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: "1.5rem", alignItems: "start" }}>
+
+          {/* ── Formulario ── */}
+          <div>
+            <p style={sectionLabel}>Nueva oportunidad</p>
+            <form onSubmit={handleSubmit} style={card}>
+
+              <Field label="Empresa / Prospect *">
+                <input
+                  ref={firstInputRef} type="text" value={company}
+                  onChange={e => setCompany(e.target.value)}
+                  placeholder="Ej. Telmex, Banorte, PEMEX"
+                  style={inputStyle} required
+                />
+              </Field>
+
+              <Field label="Contacto *">
+                <input
+                  type="text" value={contact}
+                  onChange={e => setContact(e.target.value)}
+                  placeholder="Nombre del comprador o decisor"
+                  style={inputStyle} required
+                />
+              </Field>
+
+              <Field label="Tipo de producto">
+                <div style={{ display: "flex", gap: 5 }}>
+                  {(["hardware", "licencia", "hardware_licencia"] as ProductType[]).map(pt => (
+                    <button
+                      key={pt} type="button" onClick={() => setProductType(pt)}
+                      style={{
+                        flex: 1, padding: "9px 4px",
+                        border: productType === pt ? `1.5px solid ${FF_CYAN}` : "0.5px solid #ddd",
+                        borderRadius: 8,
+                        background: productType === pt ? "#e4f8fb" : "#fff",
+                        color: productType === pt ? "#0a7a8a" : "#555",
+                        fontSize: 11, fontWeight: productType === pt ? 700 : 400,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {PRODUCT_META[pt].label}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+
+              <Field label="Vendor / Marca *">
+                <input
+                  type="text" value={vendor}
+                  onChange={e => setVendor(e.target.value)}
+                  placeholder="Ej. Cisco, Juniper, Fortinet, HP"
+                  style={inputStyle} required
+                />
+              </Field>
+
+              <Field label="Monto de la oportunidad *">
+                <div style={{ display: "flex", gap: 6 }}>
+                  <div style={{ position: "relative", flex: 1 }}>
+                    <span style={{
+                      position: "absolute", left: 12, top: "50%",
+                      transform: "translateY(-50%)", color: "#aaa", fontSize: 13,
+                    }}>$</span>
+                    <input
+                      type="number" value={amount}
+                      onChange={e => setAmount(e.target.value)}
+                      placeholder="0" min="1" step="0.01"
+                      style={{ ...inputStyle, paddingLeft: 24 }} required
+                    />
+                  </div>
+                  <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                    {(["USD", "MXN"] as Currency[]).map(c => (
+                      <button
+                        key={c} type="button" onClick={() => setCurrency(c)}
+                        style={{
+                          padding: "9px 12px",
+                          border: currency === c ? `1.5px solid ${FF_ORANGE}` : "0.5px solid #ddd",
+                          borderRadius: 8,
+                          background: currency === c ? "#fff5ec" : "#fff",
+                          color: currency === c ? "#b35900" : "#555",
+                          fontSize: 12, fontWeight: currency === c ? 700 : 400,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </Field>
+
+              <Field label="Etapa del pipeline">
+                <select
+                  value={stage}
+                  onChange={e => setStage(e.target.value as OpportunityStage)}
+                  style={{ ...inputStyle, cursor: "pointer" }}
+                >
+                  {STAGE_ORDER.map(s => (
+                    <option key={s} value={s}>
+                      {STAGE_META[s].label} ({Math.round(STAGE_META[s].prob * 100)}% prob.)
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
+              <Field label="Fecha estimada de cierre">
+                <input
+                  type="date" value={closeDate}
+                  onChange={e => setCloseDate(e.target.value)}
+                  style={inputStyle}
+                />
+              </Field>
+
+              <Field label="Notas (opcional)">
+                <textarea
+                  value={notes} onChange={e => setNotes(e.target.value)}
+                  placeholder="Situación del deal, competidores, siguiente paso…"
+                  rows={3}
+                  style={{ ...inputStyle, resize: "vertical", minHeight: 68 }}
+                />
+              </Field>
+
+              {err && <p style={{ fontSize: 12, color: "#c0392b", marginBottom: 8 }}>{err}</p>}
+              {ok  && <p style={{ fontSize: 12, color: "#27ae60", marginBottom: 8 }}>{ok}</p>}
+
+              <button
+                type="submit" disabled={saving}
+                style={{
+                  width: "100%", padding: "11px 0",
+                  background: saving ? "#aaa" : FF_CYAN,
+                  border: "none", borderRadius: 8, color: "#fff",
+                  fontSize: 14, fontWeight: 700,
+                  cursor: saving ? "not-allowed" : "pointer", marginTop: 2,
+                }}
+              >
+                {saving ? "Guardando…" : "Registrar oportunidad"}
+              </button>
+            </form>
+          </div>
+
+          {/* ── Dashboard ── */}
+          <div>
+            <p style={sectionLabel}>Pipeline</p>
+
+            {/* Metric cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: "1.25rem" }}>
+              <MetricCard
+                label="Pipeline activo"
+                value={pipelineLabel(pipelineUSD, pipelineMXN)}
+                sub={`${activeOpps.length} opp${activeOpps.length !== 1 ? "s" : ""} activa${activeOpps.length !== 1 ? "s" : ""}`}
+                accentColor={FF_CYAN}
+              />
+              <MetricCard
+                label="Forecast ponderado"
+                value={pipelineLabel(forecastUSD, forecastMXN)}
+                sub="Probabilidad × monto"
+                accentColor={FF_ORANGE}
+              />
+              <MetricCard
+                label="Cerrado ganado"
+                value={wonOpps.length > 0 ? pipelineLabel(wonUSD, wonMXN) : "—"}
+                sub={`${wonOpps.length} deal${wonOpps.length !== 1 ? "s" : ""} ganado${wonOpps.length !== 1 ? "s" : ""}`}
+                accentColor="#27ae60"
+              />
+            </div>
+
+            {/* Pipeline funnel */}
+            <div style={{ ...card, marginBottom: 0 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: "#888", marginBottom: 14 }}>
+                Embudo de pipeline
+              </p>
+
+              {funnelStages.map((s, i) => {
+                const stageOpps   = opps.filter(o => o.stage === s);
+                const stageUSD    = stageOpps.filter(o => o.currency === "USD").reduce((sum, o) => sum + o.amount, 0);
+                const stageMXN    = stageOpps.filter(o => o.currency === "MXN").reduce((sum, o) => sum + o.amount, 0);
+                const barPct      = Math.round((stageUSD / maxFunnelVal) * 100);
+                const barColors   = [STAGE_META.prospecto.color, FF_CYAN, FF_ORANGE];
+                const hasData     = stageOpps.length > 0;
+
+                return (
+                  <div key={s} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < funnelStages.length - 1 ? 12 : 0 }}>
+                    <span style={{ width: 88, fontSize: 12, color: "#666", flexShrink: 0 }}>
+                      {STAGE_META[s].label}
+                    </span>
+                    <div style={{ flex: 1, height: 8, background: "#f0efeb", borderRadius: 4, overflow: "hidden" }}>
+                      <div style={{
+                        height: "100%",
+                        width: `${hasData ? Math.max(barPct, 4) : 0}%`,
+                        background: barColors[i],
+                        borderRadius: 4,
+                        transition: "width .4s",
+                      }} />
+                    </div>
+                    <div style={{ minWidth: 160, textAlign: "right" }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#444" }}>
+                        {pipelineLabel(stageUSD, stageMXN)}
+                      </span>
+                      <span style={{ fontSize: 11, color: "#bbb", marginLeft: 6 }}>
+                        ({stageOpps.length})
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Tabla de oportunidades ── */}
+        <div style={{ marginTop: "1.75rem" }}>
+          <p style={sectionLabel}>Oportunidades</p>
+
+          {/* Tabs de filtro */}
+          <div style={{
+            display: "flex", gap: 4, flexWrap: "wrap",
+            background: "#eeede9", borderRadius: 8, padding: 4,
+            marginBottom: "1rem",
+          }}>
+            {FILTER_TABS.map(({ key, label }) => (
+              <button
+                key={key} onClick={() => setFilter(key)}
+                style={{
+                  padding: "7px 13px",
+                  border: filter === key ? "0.5px solid #ddd" : "none",
+                  borderRadius: 6,
+                  background: filter === key ? "#fff" : "transparent",
+                  color: filter === key ? "#222" : "#777",
+                  fontSize: 12, fontWeight: filter === key ? 700 : 400,
+                  cursor: "pointer", whiteSpace: "nowrap",
+                }}
+              >
+                {label}
+                {key !== "todas" && key !== "activas" && (
+                  <span style={{ marginLeft: 5, fontSize: 10, color: filter === key ? STAGE_META[key as OpportunityStage].color : "#bbb", fontWeight: 700 }}>
+                    {opps.filter(o => o.stage === key).length}
+                  </span>
+                )}
+                {key === "activas" && (
+                  <span style={{ marginLeft: 5, fontSize: 10, color: filter === key ? FF_CYAN : "#bbb", fontWeight: 700 }}>
+                    {activeOpps.length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+            {loading ? (
+              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>
+                Cargando…
+              </p>
+            ) : filtered.length === 0 ? (
+              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>
+                {opps.length === 0
+                  ? "Aún no hay oportunidades. ¡Registra la primera!"
+                  : "No hay oportunidades en esta etapa."}
+              </p>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ borderBottom: "0.5px solid #e5e4df" }}>
+                      {["Empresa", "Contacto", "Tipo", "Vendor", "Monto", "Etapa", "Cierre", "Registrado"].map(h => (
+                        <th
+                          key={h}
+                          style={{
+                            padding: "10px 14px", textAlign: "left",
+                            fontSize: 11, fontWeight: 700, color: "#999",
+                            textTransform: "uppercase", letterSpacing: "0.04em",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map(o => (
+                      <tr key={o.id} style={{ borderBottom: "0.5px solid #f0efeb" }}>
+
+                        {/* Empresa */}
+                        <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>
+                          {o.company_name}
+                          {o.notes && (
+                            <span
+                              title={o.notes}
+                              style={{ marginLeft: 6, fontSize: 11, color: "#bbb", cursor: "help" }}
+                            >
+                              📝
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Contacto */}
+                        <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>
+                          {o.contact_name}
+                        </td>
+
+                        {/* Tipo */}
+                        <td style={{ padding: "10px 14px" }}>
+                          <span style={{
+                            fontSize: 11, color: "#888",
+                            background: "#f5f4f0", borderRadius: 4,
+                            padding: "2px 7px", whiteSpace: "nowrap",
+                          }}>
+                            {PRODUCT_META[o.product_type].label}
+                          </span>
+                        </td>
+
+                        {/* Vendor */}
+                        <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>
+                          {o.vendor}
+                        </td>
+
+                        {/* Monto */}
+                        <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>
+                          {formatAmount(o.amount, o.currency)}
+                        </td>
+
+                        {/* Etapa — inline select */}
+                        <td style={{ padding: "10px 14px" }}>
+                          <select
+                            value={o.stage}
+                            onChange={e => handleStageChange(o.id, e.target.value as OpportunityStage)}
+                            style={{
+                              padding: "4px 10px",
+                              border: "none",
+                              borderRadius: 20,
+                              background: STAGE_META[o.stage].bg,
+                              color: STAGE_META[o.stage].color,
+                              fontSize: 11, fontWeight: 700,
+                              cursor: "pointer",
+                              outline: "none",
+                              appearance: "none",
+                            }}
+                          >
+                            {STAGE_ORDER.map(s => (
+                              <option key={s} value={s}>{STAGE_META[s].label}</option>
+                            ))}
+                          </select>
+                        </td>
+
+                        {/* Cierre */}
+                        <td style={{ padding: "10px 14px", color: "#888", fontSize: 12, whiteSpace: "nowrap" }}>
+                          {formatCloseDate(o.close_date)}
+                        </td>
+
+                        {/* Fecha de registro */}
+                        <td style={{ padding: "10px 14px", color: "#bbb", fontSize: 11, whiteSpace: "nowrap" }}>
+                          {formatDate(o.created_at)}
+                        </td>
+
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Footer ── */}
+        <footer style={{
+          marginTop: "2rem", paddingTop: "1.25rem",
+          borderTop: "0.5px solid #e5e4df",
+          display: "flex", justifyContent: "center",
+        }}>
+          <a
+            href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.35 }}
+          >
+            <FishFlowMark size={18} />
+            <span style={{ fontSize: 11, color: "#666" }}>Potenciado por FishFlow</span>
+          </a>
+        </footer>
+      </main>
+    </div>
+  );
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function MetricCard({
+  label, value, sub, accentColor,
+}: {
+  label: string; value: string; sub: string; accentColor?: string;
+}) {
+  return (
+    <div style={{ background: "#f5f4f0", borderRadius: 8, padding: "0.875rem 1rem" }}>
+      <p style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{label}</p>
+      <p style={{
+        fontSize: 18, fontWeight: 700,
+        color: accentColor ?? "#1a1a1a",
+        margin: 0, lineHeight: 1.3, wordBreak: "break-word",
+      }}>
+        {value}
+      </p>
+      <p style={{ fontSize: 11, color: "#bbb", marginTop: 3 }}>{sub}</p>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <label style={{ display: "block", fontSize: 12, color: "#777", marginBottom: 5 }}>
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+// ─── Shared styles ────────────────────────────────────────────────────────────
+
+const sectionLabel: React.CSSProperties = {
+  fontSize: 11, fontWeight: 700, color: "#aaa",
+  letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 10,
+};
+
+const card: React.CSSProperties = {
+  background: "#fff",
+  border: "0.5px solid #e5e4df",
+  borderRadius: 12,
+  padding: "1.25rem",
+};
+
+const inputStyle: React.CSSProperties = {
+  width: "100%", padding: "9px 12px",
+  border: "0.5px solid #ddd", borderRadius: 8,
+  background: "#fff", color: "#1a1a1a",
+  fontSize: 14, fontFamily: "inherit",
+  outline: "none", boxSizing: "border-box",
+};

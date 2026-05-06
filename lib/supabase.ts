@@ -16,3 +16,31 @@ export interface BelangeTransaction {
   payment_method: PaymentMethod;
   created_at: string;
 }
+
+// ─── TBA Telecom ──────────────────────────────────────────────────────────────
+
+export type OpportunityStage =
+  | "prospecto"
+  | "propuesta"
+  | "negociacion"
+  | "cerrado_ganado"
+  | "cerrado_perdido";
+
+export type ProductType = "hardware" | "licencia" | "hardware_licencia";
+
+export type Currency = "MXN" | "USD";
+
+export interface TBAOpportunity {
+  id: string;
+  company_name: string;
+  contact_name: string;
+  product_type: ProductType;
+  vendor: string;
+  amount: number;
+  currency: Currency;
+  stage: OpportunityStage;
+  close_date: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
