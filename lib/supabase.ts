@@ -41,6 +41,11 @@ export interface TBAOpportunity {
   stage: OpportunityStage;
   close_date: string | null;
   notes: string | null;
+  // Comisiones
+  commission_rafa: number | null;
+  commission_charly: number | null;
+  commission_currency: Currency | null;
+  commission_paid_date: string | null;
   created_at: string;
   updated_at: string;
 }

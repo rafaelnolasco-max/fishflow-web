@@ -30,14 +30,12 @@ const STAGE_ORDER: OpportunityStage[] = [
   "prospecto", "propuesta", "negociacion", "cerrado_ganado", "cerrado_perdido",
 ];
 
-// ─── Product type ─────────────────────────────────────────────────────────────
 const PRODUCT_META: Record<ProductType, { label: string }> = {
   hardware:          { label: "Hardware" },
   licencia:          { label: "Licencia" },
   hardware_licencia: { label: "HW + Lic" },
 };
 
-// ─── Filter tabs ──────────────────────────────────────────────────────────────
 type StageFilter = OpportunityStage | "todas" | "activas";
 
 const FILTER_TABS: { key: StageFilter; label: string }[] = [
@@ -53,9 +51,7 @@ const FILTER_TABS: { key: StageFilter; label: string }[] = [
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatAmount(amount: number, currency: Currency): string {
   return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
+    style: "currency", currency, maximumFractionDigits: 0,
   }).format(amount);
 }
 
@@ -84,29 +80,26 @@ function pipelineLabel(usd: number, mxn: number): string {
   return "—";
 }
 
+function commissionLabel(usd: number, mxn: number): string {
+  if (usd === 0 && mxn === 0) return "—";
+  if (usd > 0 && mxn > 0) return `${formatAmount(usd, "USD")} + ${formatAmount(mxn, "MXN")}`;
+  if (usd > 0) return formatAmount(usd, "USD");
+  return formatAmount(mxn, "MXN");
+}
+
+function isOverdue(dateStr: string | null): boolean {
+  if (!dateStr) return false;
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d) < new Date();
+}
+
 // ─── FishFlow mark ────────────────────────────────────────────────────────────
 function FishFlowMark({ size = 32 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size * 0.52}
-      viewBox="0 0 68 36"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="FishFlow"
-    >
-      <path
-        d="M34 18 C34 9 25 3 15 6 C6 9 4 19 11 24 C19 30 34 27 34 18Z"
-        stroke={FF_CYAN} strokeWidth="2.5" strokeLinecap="round" fill="none"
-      />
-      <path
-        d="M34 18 C34 9 43 3 53 6 C62 9 64 19 57 24 C49 30 34 27 34 18Z"
-        stroke={FF_ORANGE} strokeWidth="2.5" strokeLinecap="round" fill="none"
-      />
-      <path
-        d="M64 14 L68 10 M64 22 L68 26"
-        stroke={FF_ORANGE} strokeWidth="2" strokeLinecap="round" fill="none"
-      />
+    <svg width={size} height={size * 0.52} viewBox="0 0 68 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="FishFlow">
+      <path d="M34 18 C34 9 25 3 15 6 C6 9 4 19 11 24 C19 30 34 27 34 18Z" stroke={FF_CYAN} strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      <path d="M34 18 C34 9 43 3 53 6 C62 9 64 19 57 24 C49 30 34 27 34 18Z" stroke={FF_ORANGE} strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      <path d="M64 14 L68 10 M64 22 L68 26" stroke={FF_ORANGE} strokeWidth="2" strokeLinecap="round" fill="none" />
     </svg>
   );
 }
@@ -130,9 +123,15 @@ export default function TBAPage() {
   const [err,         setErr]         = useState("");
 
   // ── Data state ──
-  const [opps,    setOpps]   = useState<TBAOpportunity[]>([]);
+  const [opps,    setOpps]    = useState<TBAOpportunity[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter,  setFilter]  = useState<StageFilter>("activas");
+
+  // ── Commission editing state (keyed by opportunity id) ──
+  const [commEdits, setCommEdits] = useState<Record<string, {
+    rafa: string; charly: string; currency: Currency; paidDate: string;
+  }>>({});
+  const [commSaving, setCommSaving] = useState<Record<string, boolean>>({});
 
   const firstInputRef = useRef<HTMLInputElement>(null);
 
@@ -148,6 +147,25 @@ export default function TBAPage() {
 
   useEffect(() => { fetchAll(); }, []);
 
+  // ── Initialize commission edit state when opps load ──
+  useEffect(() => {
+    const initial: typeof commEdits = {};
+    opps.filter(o => o.stage === "cerrado_ganado").forEach(o => {
+      if (!commEdits[o.id]) {
+        initial[o.id] = {
+          rafa:     o.commission_rafa?.toString()   ?? "",
+          charly:   o.commission_charly?.toString() ?? "",
+          currency: o.commission_currency ?? o.currency,
+          paidDate: o.commission_paid_date ?? "",
+        };
+      }
+    });
+    if (Object.keys(initial).length > 0) {
+      setCommEdits(prev => ({ ...initial, ...prev }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opps]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const num = parseFloat(amount.replace(/,/g, ""));
@@ -157,13 +175,9 @@ export default function TBAPage() {
     }
     setSaving(true); setErr("");
     const { error } = await supabase.from("tba_opportunities").insert({
-      company_name: company.trim(),
-      contact_name: contact.trim(),
-      product_type: productType,
-      vendor: vendor.trim(),
-      amount: num,
-      currency,
-      stage,
+      company_name: company.trim(), contact_name: contact.trim(),
+      product_type: productType, vendor: vendor.trim(),
+      amount: num, currency, stage,
       close_date: closeDate || null,
       notes: notes.trim() || null,
     });
@@ -186,46 +200,76 @@ export default function TBAPage() {
     setOpps(prev => prev.map(o => o.id === id ? { ...o, stage: newStage } : o));
   }
 
+  async function handleSaveCommission(id: string) {
+    const edit = commEdits[id];
+    if (!edit) return;
+    setCommSaving(prev => ({ ...prev, [id]: true }));
+    const payload = {
+      commission_rafa:      edit.rafa   ? parseFloat(edit.rafa)   : null,
+      commission_charly:    edit.charly ? parseFloat(edit.charly) : null,
+      commission_currency:  edit.currency,
+      commission_paid_date: edit.paidDate || null,
+      updated_at:           new Date().toISOString(),
+    };
+    await supabase.from("tba_opportunities").update(payload).eq("id", id);
+    setOpps(prev => prev.map(o => o.id === id ? { ...o, ...payload } : o));
+    setCommSaving(prev => ({ ...prev, [id]: false }));
+  }
+
+  function updateCommEdit(id: string, field: string, value: string) {
+    setCommEdits(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
+  }
+
   async function handleLogout() {
     await supabase.auth.signOut();
     router.push("/login");
   }
 
-  // ── Computed metrics ──
-  const activeOpps = opps.filter(
-    o => o.stage !== "cerrado_ganado" && o.stage !== "cerrado_perdido"
-  );
-  const wonOpps  = opps.filter(o => o.stage === "cerrado_ganado");
+  // ── Metrics ──
+  const activeOpps = opps.filter(o => o.stage !== "cerrado_ganado" && o.stage !== "cerrado_perdido");
+  const wonOpps    = opps.filter(o => o.stage === "cerrado_ganado");
 
-  const pipelineUSD  = sumAmount(activeOpps, "USD");
-  const pipelineMXN  = sumAmount(activeOpps, "MXN");
-  const forecastUSD  = activeOpps.filter(o => o.currency === "USD")
+  const pipelineUSD = sumAmount(activeOpps, "USD");
+  const pipelineMXN = sumAmount(activeOpps, "MXN");
+  const forecastUSD = activeOpps.filter(o => o.currency === "USD")
     .reduce((s, o) => s + o.amount * STAGE_META[o.stage].prob, 0);
-  const forecastMXN  = activeOpps.filter(o => o.currency === "MXN")
+  const forecastMXN = activeOpps.filter(o => o.currency === "MXN")
     .reduce((s, o) => s + o.amount * STAGE_META[o.stage].prob, 0);
   const wonUSD = sumAmount(wonOpps, "USD");
   const wonMXN = sumAmount(wonOpps, "MXN");
 
-  // ── Funnel max for bar scaling ──
+  // Commission totals
+  function sumComm(person: "rafa" | "charly", cur: Currency): number {
+    return wonOpps
+      .filter(o => (o.commission_currency ?? o.currency) === cur)
+      .reduce((s, o) => s + (person === "rafa" ? (o.commission_rafa ?? 0) : (o.commission_charly ?? 0)), 0);
+  }
+  const commRafaUSD   = sumComm("rafa",   "USD");
+  const commRafaMXN   = sumComm("rafa",   "MXN");
+  const commCharlyUSD = sumComm("charly", "USD");
+  const commCharlyMXN = sumComm("charly", "MXN");
+
+  // Funnel
   const funnelStages: OpportunityStage[] = ["prospecto", "propuesta", "negociacion"];
   const maxFunnelVal = Math.max(
     ...funnelStages.map(s =>
-      opps.filter(o => o.stage === s).reduce((sum, o) => sum + (o.currency === "USD" ? o.amount : 0), 0)
-    ),
-    1
+      opps.filter(o => o.stage === s && o.currency === "USD").reduce((sum, o) => sum + o.amount, 0)
+    ), 1
   );
 
-  // ── Filtered table ──
   const filtered =
     filter === "todas"   ? opps :
     filter === "activas" ? activeOpps :
     opps.filter(o => o.stage === filter);
 
-  // ─────────────────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight: "100vh", background: "#f8f8f6", fontFamily: "var(--font-outfit, system-ui, sans-serif)" }}>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <header style={{
         background: "#fff", borderBottom: "0.5px solid #e5e4df",
         height: 56, padding: "0 1.5rem",
@@ -236,39 +280,27 @@ export default function TBAPage() {
             width: 34, height: 34, borderRadius: "50%",
             background: "linear-gradient(135deg,#e8f0fe,#c7d8fc)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 11, fontWeight: 700, color: "#1a56cc", letterSpacing: "0.03em",
-          }}>
-            TBA
-          </div>
+            fontSize: 11, fontWeight: 700, color: "#1a56cc",
+          }}>TBA</div>
           <div>
             <p style={{ fontSize: 15, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>TBA Telecom</p>
             <p style={{ fontSize: 11, color: "#888", margin: 0 }}>CRM de oportunidades</p>
           </div>
         </div>
-
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <a
-            href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
-            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.5 }}
-          >
+          <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.5 }}>
             <FishFlowMark size={22} />
             <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
           </a>
-          <button
-            onClick={handleLogout}
-            title="Cerrar sesión"
-            style={{
-              background: "transparent", border: "0.5px solid #e5e4df",
-              borderRadius: 6, padding: "5px 10px",
-              fontSize: 11, color: "#aaa", cursor: "pointer",
-            }}
-          >
-            ⎋ Salir
-          </button>
+          <button onClick={handleLogout} style={{
+            background: "transparent", border: "0.5px solid #e5e4df",
+            borderRadius: 6, padding: "5px 10px", fontSize: 11, color: "#aaa", cursor: "pointer",
+          }}>⎋ Salir</button>
         </div>
       </header>
 
-      {/* ── Body ── */}
+      {/* Body */}
       <main style={{ maxWidth: 1200, margin: "0 auto", padding: "1.5rem 1.25rem" }}>
         <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: "1.5rem", alignItems: "start" }}>
 
@@ -278,38 +310,27 @@ export default function TBAPage() {
             <form onSubmit={handleSubmit} style={card}>
 
               <Field label="Empresa / Prospect *">
-                <input
-                  ref={firstInputRef} type="text" value={company}
+                <input ref={firstInputRef} type="text" value={company}
                   onChange={e => setCompany(e.target.value)}
-                  placeholder="Ej. Telmex, Banorte, PEMEX"
-                  style={inputStyle} required
-                />
+                  placeholder="Ej. Telmex, Banorte, PEMEX" style={inputStyle} required />
               </Field>
 
               <Field label="Contacto *">
-                <input
-                  type="text" value={contact}
-                  onChange={e => setContact(e.target.value)}
-                  placeholder="Nombre del comprador o decisor"
-                  style={inputStyle} required
-                />
+                <input type="text" value={contact} onChange={e => setContact(e.target.value)}
+                  placeholder="Nombre del comprador o decisor" style={inputStyle} required />
               </Field>
 
               <Field label="Tipo de producto">
                 <div style={{ display: "flex", gap: 5 }}>
                   {(["hardware", "licencia", "hardware_licencia"] as ProductType[]).map(pt => (
-                    <button
-                      key={pt} type="button" onClick={() => setProductType(pt)}
-                      style={{
-                        flex: 1, padding: "9px 4px",
-                        border: productType === pt ? `1.5px solid ${FF_CYAN}` : "0.5px solid #ddd",
-                        borderRadius: 8,
-                        background: productType === pt ? "#e4f8fb" : "#fff",
-                        color: productType === pt ? "#0a7a8a" : "#555",
-                        fontSize: 11, fontWeight: productType === pt ? 700 : 400,
-                        cursor: "pointer",
-                      }}
-                    >
+                    <button key={pt} type="button" onClick={() => setProductType(pt)} style={{
+                      flex: 1, padding: "9px 4px",
+                      border: productType === pt ? `1.5px solid ${FF_CYAN}` : "0.5px solid #ddd",
+                      borderRadius: 8,
+                      background: productType === pt ? "#e4f8fb" : "#fff",
+                      color: productType === pt ? "#0a7a8a" : "#555",
+                      fontSize: 11, fontWeight: productType === pt ? 700 : 400, cursor: "pointer",
+                    }}>
                       {PRODUCT_META[pt].label}
                     </button>
                   ))}
@@ -317,93 +338,62 @@ export default function TBAPage() {
               </Field>
 
               <Field label="Vendor / Marca *">
-                <input
-                  type="text" value={vendor}
-                  onChange={e => setVendor(e.target.value)}
-                  placeholder="Ej. Cisco, Juniper, Fortinet, HP"
-                  style={inputStyle} required
-                />
+                <input type="text" value={vendor} onChange={e => setVendor(e.target.value)}
+                  placeholder="Ej. Cisco, Juniper, Fortinet, HP" style={inputStyle} required />
               </Field>
 
               <Field label="Monto de la oportunidad *">
                 <div style={{ display: "flex", gap: 6 }}>
                   <div style={{ position: "relative", flex: 1 }}>
-                    <span style={{
-                      position: "absolute", left: 12, top: "50%",
-                      transform: "translateY(-50%)", color: "#aaa", fontSize: 13,
-                    }}>$</span>
-                    <input
-                      type="number" value={amount}
-                      onChange={e => setAmount(e.target.value)}
+                    <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 13 }}>$</span>
+                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)}
                       placeholder="0" min="1" step="0.01"
-                      style={{ ...inputStyle, paddingLeft: 24 }} required
-                    />
+                      style={{ ...inputStyle, paddingLeft: 24 }} required />
                   </div>
                   <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
                     {(["USD", "MXN"] as Currency[]).map(c => (
-                      <button
-                        key={c} type="button" onClick={() => setCurrency(c)}
-                        style={{
-                          padding: "9px 12px",
-                          border: currency === c ? `1.5px solid ${FF_ORANGE}` : "0.5px solid #ddd",
-                          borderRadius: 8,
-                          background: currency === c ? "#fff5ec" : "#fff",
-                          color: currency === c ? "#b35900" : "#555",
-                          fontSize: 12, fontWeight: currency === c ? 700 : 400,
-                          cursor: "pointer",
-                        }}
-                      >
-                        {c}
-                      </button>
+                      <button key={c} type="button" onClick={() => setCurrency(c)} style={{
+                        padding: "9px 12px",
+                        border: currency === c ? `1.5px solid ${FF_ORANGE}` : "0.5px solid #ddd",
+                        borderRadius: 8,
+                        background: currency === c ? "#fff5ec" : "#fff",
+                        color: currency === c ? "#b35900" : "#555",
+                        fontSize: 12, fontWeight: currency === c ? 700 : 400, cursor: "pointer",
+                      }}>{c}</button>
                     ))}
                   </div>
                 </div>
               </Field>
 
               <Field label="Etapa del pipeline">
-                <select
-                  value={stage}
-                  onChange={e => setStage(e.target.value as OpportunityStage)}
-                  style={{ ...inputStyle, cursor: "pointer" }}
-                >
+                <select value={stage} onChange={e => setStage(e.target.value as OpportunityStage)}
+                  style={{ ...inputStyle, cursor: "pointer" }}>
                   {STAGE_ORDER.map(s => (
-                    <option key={s} value={s}>
-                      {STAGE_META[s].label} ({Math.round(STAGE_META[s].prob * 100)}% prob.)
-                    </option>
+                    <option key={s} value={s}>{STAGE_META[s].label} ({Math.round(STAGE_META[s].prob * 100)}% prob.)</option>
                   ))}
                 </select>
               </Field>
 
               <Field label="Fecha estimada de cierre">
-                <input
-                  type="date" value={closeDate}
-                  onChange={e => setCloseDate(e.target.value)}
-                  style={inputStyle}
-                />
+                <input type="date" value={closeDate} onChange={e => setCloseDate(e.target.value)} style={inputStyle} />
               </Field>
 
               <Field label="Notas (opcional)">
-                <textarea
-                  value={notes} onChange={e => setNotes(e.target.value)}
+                <textarea value={notes} onChange={e => setNotes(e.target.value)}
                   placeholder="Situación del deal, competidores, siguiente paso…"
-                  rows={3}
-                  style={{ ...inputStyle, resize: "vertical", minHeight: 68 }}
-                />
+                  rows={3} style={{ ...inputStyle, resize: "vertical", minHeight: 68 }} />
               </Field>
 
               {err && <p style={{ fontSize: 12, color: "#c0392b", marginBottom: 8 }}>{err}</p>}
               {ok  && <p style={{ fontSize: 12, color: "#27ae60", marginBottom: 8 }}>{ok}</p>}
 
-              <button
-                type="submit" disabled={saving}
-                style={{
-                  width: "100%", padding: "11px 0",
-                  background: saving ? "#aaa" : FF_CYAN,
-                  border: "none", borderRadius: 8, color: "#fff",
-                  fontSize: 14, fontWeight: 700,
-                  cursor: saving ? "not-allowed" : "pointer", marginTop: 2,
-                }}
-              >
+              <button type="submit" disabled={saving} style={{
+                width: "100%", padding: "11px 0",
+                background: saving ? "#aaa" : FF_CYAN,
+                border: "none", borderRadius: 8, color: "#fff",
+                fontSize: 14, fontWeight: 700,
+                cursor: saving ? "not-allowed" : "pointer", marginTop: 2,
+              }}>
                 {saving ? "Guardando…" : "Registrar oportunidad"}
               </button>
             </form>
@@ -413,8 +403,8 @@ export default function TBAPage() {
           <div>
             <p style={sectionLabel}>Pipeline</p>
 
-            {/* Metric cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: "1.25rem" }}>
+            {/* Metric cards — row 1: pipeline */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 10 }}>
               <MetricCard
                 label="Pipeline activo"
                 value={pipelineLabel(pipelineUSD, pipelineMXN)}
@@ -435,41 +425,46 @@ export default function TBAPage() {
               />
             </div>
 
-            {/* Pipeline funnel */}
-            <div style={{ ...card, marginBottom: 0 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: "#888", marginBottom: 14 }}>
-                Embudo de pipeline
-              </p>
+            {/* Metric cards — row 2: comisiones */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "1.25rem" }}>
+              <MetricCard
+                label="💰 Comisión Rafa"
+                value={commissionLabel(commRafaUSD, commRafaMXN)}
+                sub="Total acumulado ganado"
+                accentColor="#1a56cc"
+              />
+              <MetricCard
+                label="💰 Comisión Gran Charly"
+                value={commissionLabel(commCharlyUSD, commCharlyMXN)}
+                sub="Total acumulado ganado"
+                accentColor="#7c3aed"
+              />
+            </div>
 
+            {/* Funnel */}
+            <div style={card}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: "#888", marginBottom: 14 }}>Embudo de pipeline</p>
               {funnelStages.map((s, i) => {
-                const stageOpps   = opps.filter(o => o.stage === s);
-                const stageUSD    = stageOpps.filter(o => o.currency === "USD").reduce((sum, o) => sum + o.amount, 0);
-                const stageMXN    = stageOpps.filter(o => o.currency === "MXN").reduce((sum, o) => sum + o.amount, 0);
-                const barPct      = Math.round((stageUSD / maxFunnelVal) * 100);
-                const barColors   = [STAGE_META.prospecto.color, FF_CYAN, FF_ORANGE];
-                const hasData     = stageOpps.length > 0;
-
+                const stageOpps = opps.filter(o => o.stage === s);
+                const stageUSD  = stageOpps.filter(o => o.currency === "USD").reduce((sum, o) => sum + o.amount, 0);
+                const stageMXN  = stageOpps.filter(o => o.currency === "MXN").reduce((sum, o) => sum + o.amount, 0);
+                const barPct    = Math.round((stageUSD / maxFunnelVal) * 100);
+                const colors    = [STAGE_META.prospecto.color, FF_CYAN, FF_ORANGE];
                 return (
-                  <div key={s} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < funnelStages.length - 1 ? 12 : 0 }}>
-                    <span style={{ width: 88, fontSize: 12, color: "#666", flexShrink: 0 }}>
-                      {STAGE_META[s].label}
-                    </span>
+                  <div key={s} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 2 ? 12 : 0 }}>
+                    <span style={{ width: 88, fontSize: 12, color: "#666", flexShrink: 0 }}>{STAGE_META[s].label}</span>
                     <div style={{ flex: 1, height: 8, background: "#f0efeb", borderRadius: 4, overflow: "hidden" }}>
                       <div style={{
                         height: "100%",
-                        width: `${hasData ? Math.max(barPct, 4) : 0}%`,
-                        background: barColors[i],
-                        borderRadius: 4,
-                        transition: "width .4s",
+                        width: `${stageOpps.length > 0 ? Math.max(barPct, 4) : 0}%`,
+                        background: colors[i], borderRadius: 4, transition: "width .4s",
                       }} />
                     </div>
                     <div style={{ minWidth: 160, textAlign: "right" }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#444" }}>
                         {pipelineLabel(stageUSD, stageMXN)}
                       </span>
-                      <span style={{ fontSize: 11, color: "#bbb", marginLeft: 6 }}>
-                        ({stageOpps.length})
-                      </span>
+                      <span style={{ fontSize: 11, color: "#bbb", marginLeft: 6 }}>({stageOpps.length})</span>
                     </div>
                   </div>
                 );
@@ -482,16 +477,13 @@ export default function TBAPage() {
         <div style={{ marginTop: "1.75rem" }}>
           <p style={sectionLabel}>Oportunidades</p>
 
-          {/* Tabs de filtro */}
-          <div style={{
-            display: "flex", gap: 4, flexWrap: "wrap",
-            background: "#eeede9", borderRadius: 8, padding: 4,
-            marginBottom: "1rem",
-          }}>
-            {FILTER_TABS.map(({ key, label }) => (
-              <button
-                key={key} onClick={() => setFilter(key)}
-                style={{
+          <div style={{ display: "flex", gap: 4, flexWrap: "wrap", background: "#eeede9", borderRadius: 8, padding: 4, marginBottom: "1rem" }}>
+            {FILTER_TABS.map(({ key, label }) => {
+              const count = key === "activas" ? activeOpps.length
+                : key === "todas" ? undefined
+                : opps.filter(o => o.stage === key).length;
+              return (
+                <button key={key} onClick={() => setFilter(key)} style={{
                   padding: "7px 13px",
                   border: filter === key ? "0.5px solid #ddd" : "none",
                   borderRadius: 6,
@@ -499,33 +491,27 @@ export default function TBAPage() {
                   color: filter === key ? "#222" : "#777",
                   fontSize: 12, fontWeight: filter === key ? 700 : 400,
                   cursor: "pointer", whiteSpace: "nowrap",
-                }}
-              >
-                {label}
-                {key !== "todas" && key !== "activas" && (
-                  <span style={{ marginLeft: 5, fontSize: 10, color: filter === key ? STAGE_META[key as OpportunityStage].color : "#bbb", fontWeight: 700 }}>
-                    {opps.filter(o => o.stage === key).length}
-                  </span>
-                )}
-                {key === "activas" && (
-                  <span style={{ marginLeft: 5, fontSize: 10, color: filter === key ? FF_CYAN : "#bbb", fontWeight: 700 }}>
-                    {activeOpps.length}
-                  </span>
-                )}
-              </button>
-            ))}
+                }}>
+                  {label}
+                  {count !== undefined && (
+                    <span style={{ marginLeft: 5, fontSize: 10, fontWeight: 700,
+                      color: filter === key
+                        ? (key === "activas" ? FF_CYAN : key !== "todas" ? STAGE_META[key as OpportunityStage].color : "#888")
+                        : "#bbb" }}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           <div style={{ ...card, padding: 0, overflow: "hidden" }}>
             {loading ? (
-              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>
-                Cargando…
-              </p>
+              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>Cargando…</p>
             ) : filtered.length === 0 ? (
               <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>
-                {opps.length === 0
-                  ? "Aún no hay oportunidades. ¡Registra la primera!"
-                  : "No hay oportunidades en esta etapa."}
+                {opps.length === 0 ? "Aún no hay oportunidades. ¡Registra la primera!" : "No hay oportunidades en esta etapa."}
               </p>
             ) : (
               <div style={{ overflowX: "auto" }}>
@@ -533,96 +519,42 @@ export default function TBAPage() {
                   <thead>
                     <tr style={{ borderBottom: "0.5px solid #e5e4df" }}>
                       {["Empresa", "Contacto", "Tipo", "Vendor", "Monto", "Etapa", "Cierre", "Registrado"].map(h => (
-                        <th
-                          key={h}
-                          style={{
-                            padding: "10px 14px", textAlign: "left",
-                            fontSize: 11, fontWeight: 700, color: "#999",
-                            textTransform: "uppercase", letterSpacing: "0.04em",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {h}
-                        </th>
+                        <th key={h} style={{
+                          padding: "10px 14px", textAlign: "left",
+                          fontSize: 11, fontWeight: 700, color: "#999",
+                          textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap",
+                        }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(o => (
                       <tr key={o.id} style={{ borderBottom: "0.5px solid #f0efeb" }}>
-
-                        {/* Empresa */}
                         <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>
                           {o.company_name}
-                          {o.notes && (
-                            <span
-                              title={o.notes}
-                              style={{ marginLeft: 6, fontSize: 11, color: "#bbb", cursor: "help" }}
-                            >
-                              📝
-                            </span>
-                          )}
+                          {o.notes && <span title={o.notes} style={{ marginLeft: 6, fontSize: 11, color: "#bbb", cursor: "help" }}>📝</span>}
                         </td>
-
-                        {/* Contacto */}
-                        <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>
-                          {o.contact_name}
-                        </td>
-
-                        {/* Tipo */}
+                        <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>{o.contact_name}</td>
                         <td style={{ padding: "10px 14px" }}>
-                          <span style={{
-                            fontSize: 11, color: "#888",
-                            background: "#f5f4f0", borderRadius: 4,
-                            padding: "2px 7px", whiteSpace: "nowrap",
-                          }}>
+                          <span style={{ fontSize: 11, color: "#888", background: "#f5f4f0", borderRadius: 4, padding: "2px 7px" }}>
                             {PRODUCT_META[o.product_type].label}
                           </span>
                         </td>
-
-                        {/* Vendor */}
-                        <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>
-                          {o.vendor}
-                        </td>
-
-                        {/* Monto */}
-                        <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>
-                          {formatAmount(o.amount, o.currency)}
-                        </td>
-
-                        {/* Etapa — inline select */}
+                        <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>{o.vendor}</td>
+                        <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>{formatAmount(o.amount, o.currency)}</td>
                         <td style={{ padding: "10px 14px" }}>
-                          <select
-                            value={o.stage}
+                          <select value={o.stage}
                             onChange={e => handleStageChange(o.id, e.target.value as OpportunityStage)}
                             style={{
-                              padding: "4px 10px",
-                              border: "none",
-                              borderRadius: 20,
-                              background: STAGE_META[o.stage].bg,
-                              color: STAGE_META[o.stage].color,
-                              fontSize: 11, fontWeight: 700,
-                              cursor: "pointer",
-                              outline: "none",
-                              appearance: "none",
-                            }}
-                          >
-                            {STAGE_ORDER.map(s => (
-                              <option key={s} value={s}>{STAGE_META[s].label}</option>
-                            ))}
+                              padding: "4px 10px", border: "none", borderRadius: 20,
+                              background: STAGE_META[o.stage].bg, color: STAGE_META[o.stage].color,
+                              fontSize: 11, fontWeight: 700, cursor: "pointer", outline: "none", appearance: "none",
+                            }}>
+                            {STAGE_ORDER.map(s => <option key={s} value={s}>{STAGE_META[s].label}</option>)}
                           </select>
                         </td>
-
-                        {/* Cierre */}
-                        <td style={{ padding: "10px 14px", color: "#888", fontSize: 12, whiteSpace: "nowrap" }}>
-                          {formatCloseDate(o.close_date)}
-                        </td>
-
-                        {/* Fecha de registro */}
-                        <td style={{ padding: "10px 14px", color: "#bbb", fontSize: 11, whiteSpace: "nowrap" }}>
-                          {formatDate(o.created_at)}
-                        </td>
-
+                        <td style={{ padding: "10px 14px", color: "#888", fontSize: 12, whiteSpace: "nowrap" }}>{formatCloseDate(o.close_date)}</td>
+                        <td style={{ padding: "10px 14px", color: "#bbb", fontSize: 11, whiteSpace: "nowrap" }}>{formatDate(o.created_at)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -632,16 +564,166 @@ export default function TBAPage() {
           </div>
         </div>
 
-        {/* ── Footer ── */}
-        <footer style={{
-          marginTop: "2rem", paddingTop: "1.25rem",
-          borderTop: "0.5px solid #e5e4df",
-          display: "flex", justifyContent: "center",
-        }}>
-          <a
-            href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
-            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.35 }}
-          >
+        {/* ── Sección Comisiones ── */}
+        <div style={{ marginTop: "1.75rem" }}>
+          <p style={sectionLabel}>Comisiones — deals ganados</p>
+
+          {wonOpps.length === 0 ? (
+            <div style={{ ...card, textAlign: "center", color: "#bbb", fontSize: 14, padding: "2rem" }}>
+              Las comisiones aparecerán aquí cuando marques una oportunidad como ganada.
+            </div>
+          ) : (
+            <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ borderBottom: "0.5px solid #e5e4df" }}>
+                      {["Empresa", "Deal", "Comisión Rafa", "Comisión Gran Charly", "Moneda", "Fecha de pago", "Estado", ""].map(h => (
+                        <th key={h} style={{
+                          padding: "10px 14px", textAlign: "left",
+                          fontSize: 11, fontWeight: 700, color: "#999",
+                          textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap",
+                        }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {wonOpps.map(o => {
+                      const edit    = commEdits[o.id] ?? { rafa: "", charly: "", currency: o.currency, paidDate: "" };
+                      const saving  = commSaving[o.id] ?? false;
+                      const isPaid  = o.commission_paid_date ? !isOverdue(o.commission_paid_date) : null;
+                      const overdue = o.commission_paid_date ? isOverdue(o.commission_paid_date) : false;
+
+                      return (
+                        <tr key={o.id} style={{ borderBottom: "0.5px solid #f0efeb" }}>
+                          {/* Empresa */}
+                          <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>{o.company_name}</td>
+
+                          {/* Monto del deal */}
+                          <td style={{ padding: "10px 14px", fontWeight: 700, color: "#3b6d11", whiteSpace: "nowrap" }}>
+                            {formatAmount(o.amount, o.currency)}
+                          </td>
+
+                          {/* Comisión Rafa */}
+                          <td style={{ padding: "8px 14px" }}>
+                            <div style={{ position: "relative" }}>
+                              <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 12 }}>$</span>
+                              <input
+                                type="number" min="0" step="0.01"
+                                value={edit.rafa}
+                                onChange={e => updateCommEdit(o.id, "rafa", e.target.value)}
+                                placeholder="0"
+                                style={{ ...inputStyle, paddingLeft: 20, fontSize: 13, padding: "6px 8px 6px 20px", width: 110 }}
+                              />
+                            </div>
+                          </td>
+
+                          {/* Comisión Gran Charly */}
+                          <td style={{ padding: "8px 14px" }}>
+                            <div style={{ position: "relative" }}>
+                              <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 12 }}>$</span>
+                              <input
+                                type="number" min="0" step="0.01"
+                                value={edit.charly}
+                                onChange={e => updateCommEdit(o.id, "charly", e.target.value)}
+                                placeholder="0"
+                                style={{ ...inputStyle, paddingLeft: 20, fontSize: 13, padding: "6px 8px 6px 20px", width: 110 }}
+                              />
+                            </div>
+                          </td>
+
+                          {/* Moneda comisión */}
+                          <td style={{ padding: "8px 14px" }}>
+                            <div style={{ display: "flex", gap: 4 }}>
+                              {(["USD", "MXN"] as Currency[]).map(c => (
+                                <button key={c} type="button"
+                                  onClick={() => updateCommEdit(o.id, "currency", c)}
+                                  style={{
+                                    padding: "4px 8px",
+                                    border: edit.currency === c ? `1.5px solid ${FF_ORANGE}` : "0.5px solid #ddd",
+                                    borderRadius: 6,
+                                    background: edit.currency === c ? "#fff5ec" : "#fff",
+                                    color: edit.currency === c ? "#b35900" : "#888",
+                                    fontSize: 11, fontWeight: edit.currency === c ? 700 : 400,
+                                    cursor: "pointer",
+                                  }}>{c}</button>
+                              ))}
+                            </div>
+                          </td>
+
+                          {/* Fecha de pago */}
+                          <td style={{ padding: "8px 14px" }}>
+                            <input
+                              type="date"
+                              value={edit.paidDate}
+                              onChange={e => updateCommEdit(o.id, "paidDate", e.target.value)}
+                              style={{ ...inputStyle, fontSize: 12, padding: "6px 10px", width: 140 }}
+                            />
+                          </td>
+
+                          {/* Estado */}
+                          <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
+                            {!edit.paidDate ? (
+                              <span style={{ fontSize: 11, color: "#bbb" }}>Sin fecha</span>
+                            ) : overdue ? (
+                              <span style={{ fontSize: 11, fontWeight: 700, color: "#b00020", background: "#fce4e4", borderRadius: 20, padding: "3px 10px" }}>
+                                ⚠ Vencido
+                              </span>
+                            ) : (
+                              <span style={{ fontSize: 11, fontWeight: 700, color: "#3b6d11", background: "#eaf3de", borderRadius: 20, padding: "3px 10px" }}>
+                                ⏳ Pendiente
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Guardar */}
+                          <td style={{ padding: "8px 14px" }}>
+                            <button
+                              onClick={() => handleSaveCommission(o.id)}
+                              disabled={saving}
+                              style={{
+                                padding: "6px 14px",
+                                background: saving ? "#aaa" : "#1a1a1a",
+                                border: "none", borderRadius: 6,
+                                color: "#fff", fontSize: 12, fontWeight: 700,
+                                cursor: saving ? "not-allowed" : "pointer",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {saving ? "…" : "Guardar"}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+
+                  {/* Totals footer */}
+                  <tfoot>
+                    <tr style={{ borderTop: "1px solid #e5e4df", background: "#fafaf8" }}>
+                      <td style={{ padding: "10px 14px", fontWeight: 700, fontSize: 12, color: "#666" }}>Total</td>
+                      <td style={{ padding: "10px 14px", fontWeight: 700, color: "#3b6d11" }}>
+                        {pipelineLabel(wonUSD, wonMXN)}
+                      </td>
+                      <td style={{ padding: "10px 14px", fontWeight: 700, color: "#1a56cc" }}>
+                        {commissionLabel(commRafaUSD, commRafaMXN)}
+                      </td>
+                      <td style={{ padding: "10px 14px", fontWeight: 700, color: "#7c3aed" }}>
+                        {commissionLabel(commCharlyUSD, commCharlyMXN)}
+                      </td>
+                      <td colSpan={4} />
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <footer style={{ marginTop: "2rem", paddingTop: "1.25rem", borderTop: "0.5px solid #e5e4df", display: "flex", justifyContent: "center" }}>
+          <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.35 }}>
             <FishFlowMark size={18} />
             <span style={{ fontSize: 11, color: "#666" }}>Potenciado por FishFlow</span>
           </a>
@@ -653,19 +735,13 @@ export default function TBAPage() {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function MetricCard({
-  label, value, sub, accentColor,
-}: {
+function MetricCard({ label, value, sub, accentColor }: {
   label: string; value: string; sub: string; accentColor?: string;
 }) {
   return (
     <div style={{ background: "#f5f4f0", borderRadius: 8, padding: "0.875rem 1rem" }}>
       <p style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{label}</p>
-      <p style={{
-        fontSize: 18, fontWeight: 700,
-        color: accentColor ?? "#1a1a1a",
-        margin: 0, lineHeight: 1.3, wordBreak: "break-word",
-      }}>
+      <p style={{ fontSize: 18, fontWeight: 700, color: accentColor ?? "#1a1a1a", margin: 0, lineHeight: 1.3, wordBreak: "break-word" }}>
         {value}
       </p>
       <p style={{ fontSize: 11, color: "#bbb", marginTop: 3 }}>{sub}</p>
@@ -676,26 +752,20 @@ function MetricCard({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: 14 }}>
-      <label style={{ display: "block", fontSize: 12, color: "#777", marginBottom: 5 }}>
-        {label}
-      </label>
+      <label style={{ display: "block", fontSize: 12, color: "#777", marginBottom: 5 }}>{label}</label>
       {children}
     </div>
   );
 }
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
-
 const sectionLabel: React.CSSProperties = {
   fontSize: 11, fontWeight: 700, color: "#aaa",
   letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 10,
 };
 
 const card: React.CSSProperties = {
-  background: "#fff",
-  border: "0.5px solid #e5e4df",
-  borderRadius: 12,
-  padding: "1.25rem",
+  background: "#fff", border: "0.5px solid #e5e4df", borderRadius: 12, padding: "1.25rem",
 };
 
 const inputStyle: React.CSSProperties = {

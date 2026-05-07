@@ -4,6 +4,12 @@ import { NextResponse, type NextRequest } from "next/server";
 // ─── Email del administrador (solo Rafa puede entrar a /admin) ────────────────
 const ADMIN_EMAIL = "rafaelnolasco@gmail.com";
 
+// ─── Acceso por ruta de cliente — vacío = cualquier autenticado ───────────────
+const CLIENT_EMAILS: Record<string, string[]> = {
+  "/app/tba":     ["andres@telecomba.com", "rafaelnolasco@gmail.com"],
+  "/app/belange": [], // cualquier usuario autenticado
+};
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -49,13 +55,25 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // ── /app/* → cualquier usuario autenticado ───────────────────────────────────
+  // ── /app/* → usuario autenticado + restricción por ruta ─────────────────────
   if (pathname.startsWith("/app/")) {
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
+    }
+
+    // Verificar restricción de email por ruta de cliente
+    const matchedRoute = Object.keys(CLIENT_EMAILS).find(route =>
+      pathname.startsWith(route)
+    );
+    if (matchedRoute) {
+      const allowed = CLIENT_EMAILS[matchedRoute];
+      if (allowed.length > 0 && !allowed.includes(user.email ?? "")) {
+        // Usuario autenticado pero no tiene acceso a este cliente → landing
+        return NextResponse.redirect(new URL("/", request.url));
+      }
     }
   }
 
