@@ -188,7 +188,7 @@ export default function BelangePage() {
             <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
           </a>
           <button
-            onClick={async () => { await supabase.auth.signOut(); router.push("/login"); }}
+            onClick={async () => { await supabase.auth.signOut(); router.push("/login?next=/app/belange"); }}
             style={{ background: "transparent", border: "0.5px solid #e5e4df", borderRadius: 6, padding: "5px 10px", fontSize: 11, color: "#aaa", cursor: "pointer" }}>
             ⎋ Salir
           </button>

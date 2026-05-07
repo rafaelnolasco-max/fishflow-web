@@ -8,7 +8,15 @@ import Image from "next/image";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/";
+  const nextParam = searchParams.get("next");
+
+  // ── Mapa email → ruta de destino (fallback cuando no hay ?next) ─────────────
+  const EMAIL_TO_ROUTE: Record<string, string> = {
+    "andres@telecomba.com":       "/app/tba",
+    "carlosnolascocas@gmail.com": "/app/tba",
+    "belangestudio@gmail.com":    "/app/belange",
+    "rafaelnolasco@gmail.com":    "/admin",
+  };
 
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +33,7 @@ function LoginForm() {
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setError("Correo o contraseña incorrectos.");
@@ -33,7 +41,13 @@ function LoginForm() {
       return;
     }
 
-    router.push(next);
+    // Si hay ?next explícito, usarlo; si no, derivar la ruta del email del usuario
+    const destination =
+      nextParam && nextParam !== "/"
+        ? nextParam
+        : (EMAIL_TO_ROUTE[data.user?.email ?? ""] ?? "/");
+
+    router.push(destination);
     router.refresh();
   }
 
