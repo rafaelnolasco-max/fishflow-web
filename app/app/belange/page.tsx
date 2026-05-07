@@ -4,42 +4,19 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, type BelangeTransaction, type PaymentMethod } from "@/lib/supabase";
 
-// ─── FishFlow brand colors ────────────────────────────────────────────────────
+// ─── Brand ────────────────────────────────────────────────────────────────────
 const FF_CYAN   = "#00B8CC";
 const FF_ORANGE = "#FF7200";
 
-// ─── FishFlow lemniscate mark ─────────────────────────────────────────────────
 function FishFlowMark({ size = 32 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size * 0.52}
-      viewBox="0 0 68 36"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="FishFlow"
-    >
-      <path
-        d="M34 18 C34 9 25 3 15 6 C6 9 4 19 11 24 C19 30 34 27 34 18Z"
-        stroke={FF_CYAN}
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M34 18 C34 9 43 3 53 6 C62 9 64 19 57 24 C49 30 34 27 34 18Z"
-        stroke={FF_ORANGE}
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M64 14 L68 10 M64 22 L68 26"
-        stroke={FF_ORANGE}
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-      />
+    <svg width={size} height={size * 0.52} viewBox="0 0 68 36" fill="none" aria-label="FishFlow">
+      <path d="M34 18 C34 9 25 3 15 6 C6 9 4 19 11 24 C19 30 34 27 34 18Z"
+        stroke={FF_CYAN} strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      <path d="M34 18 C34 9 43 3 53 6 C62 9 64 19 57 24 C49 30 34 27 34 18Z"
+        stroke={FF_ORANGE} strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      <path d="M64 14 L68 10 M64 22 L68 26"
+        stroke={FF_ORANGE} strokeWidth="2" strokeLinecap="round" fill="none" />
     </svg>
   );
 }
@@ -47,7 +24,7 @@ function FishFlowMark({ size = 32 }: { size?: number }) {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function startOf(period: "day" | "week" | "month"): Date {
   const now = new Date();
-  if (period === "day")   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (period === "day") return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   if (period === "week") {
     const d = now.getDay();
     return new Date(now.getFullYear(), now.getMonth(), now.getDate() - d + (d === 0 ? -6 : 1));
@@ -55,51 +32,71 @@ function startOf(period: "day" | "week" | "month"): Date {
   return new Date(now.getFullYear(), now.getMonth(), 1);
 }
 
-function formatMXN(n: number) {
+function fmt(n: number) {
   return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
 }
 
-function formatDate(iso: string) {
+function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-MX", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
-function downloadCSV(rows: BelangeTransaction[], label: string) {
-  const header = ["Fecha", "Cliente", "Servicio", "Precio", "Método de pago"];
-  const body   = rows.map(t => [formatDate(t.created_at), t.client_name, t.service, t.price.toFixed(2), t.payment_method]);
-  const csv    = [header, ...body].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
-  const blob   = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
-  const url    = URL.createObjectURL(blob);
-  const a      = Object.assign(document.createElement("a"), { href: url, download: `belange_${label}_${new Date().toISOString().slice(0,10)}.csv` });
-  a.click();
-  URL.revokeObjectURL(url);
+function toRows(rows: BelangeTransaction[]) {
+  return [
+    ["Fecha", "Cliente", "Servicio", "$ Servicio", "Producto", "$ Producto", "Total", "Método de pago"],
+    ...rows.map(t => [
+      fmtDate(t.created_at),
+      t.client_name,
+      t.service,
+      t.price,
+      t.producto || "",
+      t.precio_producto ?? "",
+      t.price + (t.precio_producto ?? 0),
+      t.payment_method,
+    ]),
+  ];
 }
 
+async function downloadExcel(all: BelangeTransaction[]) {
+  const xlsx = await import("xlsx");
+  const now  = new Date();
+  const wb   = xlsx.utils.book_new();
+  const filter = (start: Date) => all.filter(t => new Date(t.created_at) >= start);
+  xlsx.utils.book_append_sheet(wb, xlsx.utils.aoa_to_sheet(toRows(filter(startOf("day")))),   "Hoy");
+  xlsx.utils.book_append_sheet(wb, xlsx.utils.aoa_to_sheet(toRows(filter(startOf("week")))),  "Semana");
+  xlsx.utils.book_append_sheet(wb, xlsx.utils.aoa_to_sheet(toRows(filter(startOf("month")))), "Mes");
+  xlsx.writeFile(wb, `belange_${now.toISOString().slice(0, 10)}.xlsx`);
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
 type Tab = "day" | "week" | "month";
 const TAB_LABELS: Record<Tab, string> = { day: "Hoy", week: "Semana", month: "Mes" };
 
-const PAYMENT_META: Record<PaymentMethod, { label: string; bg: string; color: string }> = {
+const PM: Record<PaymentMethod, { label: string; bg: string; color: string }> = {
   efectivo:      { label: "Efectivo",      bg: "#eaf3de", color: "#3b6d11" },
   tarjeta:       { label: "Tarjeta",       bg: "#e6f1fb", color: "#185fa5" },
   transferencia: { label: "Transferencia", bg: "#faeeda", color: "#854f0b" },
+};
+
+const BAR_COLOR: Record<PaymentMethod, string> = {
+  efectivo: "#639922", tarjeta: FF_CYAN, transferencia: FF_ORANGE,
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function BelangePage() {
   const router = useRouter();
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
-  }
+  // Form
+  const [clientName,     setClientName]     = useState("");
+  const [service,        setService]        = useState("");
+  const [price,          setPrice]          = useState("");
+  const [producto,       setProducto]       = useState("");
+  const [precioProducto, setPrecioProducto] = useState("");
+  const [payment,        setPayment]        = useState<PaymentMethod>("efectivo");
+  const [saving,         setSaving]         = useState(false);
+  const [ok,             setOk]             = useState("");
+  const [err,            setErr]            = useState("");
 
-  const [clientName, setClientName] = useState("");
-  const [service,    setService]    = useState("");
-  const [price,      setPrice]      = useState("");
-  const [payment,    setPayment]    = useState<PaymentMethod>("efectivo");
-  const [saving,     setSaving]     = useState(false);
-  const [ok,         setOk]         = useState("");
-  const [err,        setErr]        = useState("");
-
+  // Data
   const [tab,          setTab]          = useState<Tab>("day");
   const [transactions, setTransactions] = useState<BelangeTransaction[]>([]);
   const [loading,      setLoading]      = useState(true);
@@ -120,101 +117,122 @@ export default function BelangePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const num = parseFloat(price.replace(/,/g, ""));
-    if (!clientName.trim() || !service.trim() || isNaN(num) || num <= 0) {
-      setErr("Completa todos los campos correctamente.");
+    const numServ = parseFloat(price.replace(/,/g, ""));
+    if (!clientName.trim() || !service.trim() || isNaN(numServ) || numServ <= 0) {
+      setErr("Completa nombre del cliente, servicio y precio de servicio.");
+      return;
+    }
+    const numProd = precioProducto ? parseFloat(precioProducto.replace(/,/g, "")) : null;
+    if (producto.trim() && (numProd === null || isNaN(numProd) || numProd <= 0)) {
+      setErr("Si ingresas un producto, también agrega su precio.");
       return;
     }
     setSaving(true); setErr("");
     const { error } = await supabase.from("belange_transactions").insert({
-      client_name: clientName.trim(), service: service.trim(), price: num, payment_method: payment,
+      client_name:     clientName.trim(),
+      service:         service.trim(),
+      price:           numServ,
+      payment_method:  payment,
+      producto:        producto.trim() || null,
+      precio_producto: numProd,
     });
     setSaving(false);
     if (error) { setErr("Error al guardar. Intenta de nuevo."); return; }
-    setOk(`✓ Servicio de ${clientName.trim()} registrado`);
-    setClientName(""); setService(""); setPrice(""); setPayment("efectivo");
+    setOk(`✓ Transacción de ${clientName.trim()} registrada`);
+    setClientName(""); setService(""); setPrice(""); setProducto(""); setPrecioProducto(""); setPayment("efectivo");
     inputRef.current?.focus();
     fetchAll();
     setTimeout(() => setOk(""), 3500);
   }
 
+  // ── Derived ──
   const cutoff   = startOf(tab);
   const filtered = transactions.filter(t => new Date(t.created_at) >= cutoff);
-  const total    = filtered.reduce((s, t) => s + t.price, 0);
-  const count    = filtered.length;
-  const avg      = count ? total / count : 0;
 
-  const byM = (m: PaymentMethod) => filtered.filter(t => t.payment_method === m).reduce((s, t) => s + t.price, 0);
-  const ef = byM("efectivo"), ta = byM("tarjeta"), tr = byM("transferencia");
+  const totalServicios = filtered.reduce((s, t) => s + t.price, 0);
+  const totalProductos = filtered.reduce((s, t) => s + (t.precio_producto ?? 0), 0);
+  const total          = totalServicios + totalProductos;
+  const countServ      = filtered.length;
+  const countProd      = filtered.filter(t => (t.precio_producto ?? 0) > 0).length;
+  const avgServ        = countServ ? totalServicios / countServ : 0;
+
+  const byM   = (m: PaymentMethod) => filtered.filter(t => t.payment_method === m).reduce((s, t) => s + t.price + (t.precio_producto ?? 0), 0);
+  const ef    = byM("efectivo"), ta = byM("tarjeta"), tr = byM("transferencia");
   const maxBar = Math.max(ef, ta, tr, 1);
-
-  const barColor: Record<PaymentMethod, string> = { efectivo: "#639922", tarjeta: FF_CYAN, transferencia: FF_ORANGE };
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8f8f6", fontFamily: "var(--font-outfit, system-ui, sans-serif)" }}>
 
-      {/* Header */}
+      {/* ── Header ── */}
       <header style={{ background: "#fff", borderBottom: "0.5px solid #e5e4df", height: 56, padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#fbeaf0,#f4c0d1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#72243e" }}>BS</div>
+          <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#fbeaf0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#72243e" }}>BS</div>
           <div>
             <p style={{ fontSize: 15, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>Belange Studio</p>
             <p style={{ fontSize: 11, color: "#888", margin: 0 }}>Panel de ingresos</p>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.5 }}>
+          <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.45 }}>
             <FishFlowMark size={22} />
             <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
           </a>
           <button
-            onClick={handleLogout}
-            title="Cerrar sesión"
-            style={{
-              background: "transparent",
-              border: "0.5px solid #e5e4df",
-              borderRadius: 6,
-              padding: "5px 10px",
-              fontSize: 11,
-              color: "#aaa",
-              cursor: "pointer",
-            }}
-          >
+            onClick={async () => { await supabase.auth.signOut(); router.push("/login"); }}
+            style={{ background: "transparent", border: "0.5px solid #e5e4df", borderRadius: 6, padding: "5px 10px", fontSize: 11, color: "#aaa", cursor: "pointer" }}>
             ⎋ Salir
           </button>
         </div>
       </header>
 
-      {/* Body */}
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "1.5rem 1.25rem" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "1.5rem", alignItems: "start" }}>
+      {/* ── Body ── */}
+      <main style={{ maxWidth: 1140, margin: "0 auto", padding: "1.5rem 1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: "1.5rem", alignItems: "start" }}>
 
-          {/* ── Formulario ── */}
+          {/* ────────────────── FORMULARIO ────────────────── */}
           <div>
-            <p style={sectionLabel}>Registrar servicio</p>
+            <p style={secLabel}>Registrar transacción</p>
             <form onSubmit={handleSubmit} style={card}>
 
               <Field label="Nombre del cliente">
                 <input ref={inputRef} type="text" value={clientName} onChange={e => setClientName(e.target.value)}
-                  placeholder="Ej. María González" style={inputStyle} required />
+                  placeholder="Ej. María González" style={inp} required />
               </Field>
 
-              <Field label="Servicio realizado">
-                <input type="text" value={service} onChange={e => setService(e.target.value)}
-                  placeholder="Ej. Corte + tinte raíz" style={inputStyle} required />
-              </Field>
+              {/* Servicio */}
+              <div style={{ border: "1px solid #caf4f8", borderRadius: 10, padding: "12px 14px", marginBottom: 14, background: "#f7fdfe" }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#007a88", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 14 }}>💈</span> Servicio
+                  <span style={{ marginLeft: "auto", fontSize: 10, background: "#d6f4f8", color: "#007a88", padding: "2px 8px", borderRadius: 20, fontWeight: 500 }}>requerido</span>
+                </p>
+                <Field label="Servicio realizado">
+                  <input type="text" value={service} onChange={e => setService(e.target.value)}
+                    placeholder="Ej. Tinte completo + hidratación" style={inp} required />
+                </Field>
+                <Field label="Precio de servicio ($)">
+                  <PriceInput value={price} onChange={setPrice} required />
+                </Field>
+              </div>
 
-              <Field label="Precio cobrado ($)">
-                <div style={{ position: "relative" }}>
-                  <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 14 }}>$</span>
-                  <input type="number" value={price} onChange={e => setPrice(e.target.value)}
-                    placeholder="0" min="1" step="1" style={{ ...inputStyle, paddingLeft: 26 }} required />
-                </div>
-              </Field>
+              {/* Producto */}
+              <div style={{ border: "1px solid #ffe0c2", borderRadius: 10, padding: "12px 14px", marginBottom: 14, background: "#fffaf5" }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#b05200", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 14 }}>🧴</span> Producto
+                  <span style={{ marginLeft: "auto", fontSize: 10, background: "#ffe8d0", color: "#b05200", padding: "2px 8px", borderRadius: 20, fontWeight: 500 }}>opcional</span>
+                </p>
+                <Field label="Producto adquirido">
+                  <input type="text" value={producto} onChange={e => setProducto(e.target.value)}
+                    placeholder="Ej. Shampoo Kerastase 250ml" style={inp} />
+                </Field>
+                <Field label="Precio de producto ($)">
+                  <PriceInput value={precioProducto} onChange={setPrecioProducto} required={false} />
+                </Field>
+              </div>
 
               <Field label="Método de pago">
                 <div style={{ display: "flex", gap: 6 }}>
-                  {(["efectivo","tarjeta","transferencia"] as PaymentMethod[]).map(m => (
+                  {(["efectivo", "tarjeta", "transferencia"] as PaymentMethod[]).map(m => (
                     <button key={m} type="button" onClick={() => setPayment(m)} style={{
                       flex: 1, padding: "9px 4px",
                       border: payment === m ? `1.5px solid ${FF_CYAN}` : "0.5px solid #ddd",
@@ -223,7 +241,7 @@ export default function BelangePage() {
                       color: payment === m ? "#0a7a8a" : "#555",
                       fontSize: 12, fontWeight: payment === m ? 700 : 400, cursor: "pointer",
                     }}>
-                      {PAYMENT_META[m].label}
+                      {PM[m].label}
                     </button>
                   ))}
                 </div>
@@ -238,30 +256,30 @@ export default function BelangePage() {
                 border: "none", borderRadius: 8, color: "#fff",
                 fontSize: 14, fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", marginTop: 2,
               }}>
-                {saving ? "Guardando…" : "Registrar servicio"}
+                {saving ? "Guardando…" : "Registrar transacción"}
               </button>
             </form>
           </div>
 
-          {/* ── Dashboard ── */}
+          {/* ────────────────── DASHBOARD ────────────────── */}
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <p style={sectionLabel}>Ingresos</p>
-              <button onClick={() => downloadCSV(filtered, TAB_LABELS[tab].toLowerCase())} style={{
-                display: "flex", alignItems: "center", gap: 5,
+              <p style={secLabel}>Ingresos</p>
+              <button onClick={() => downloadExcel(transactions)} style={{
+                display: "flex", alignItems: "center", gap: 6,
                 padding: "6px 12px", border: "0.5px solid #ddd", borderRadius: 8,
                 background: "#fff", color: "#555", fontSize: 12, cursor: "pointer",
               }}>
                 <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
-                Descargar Excel
+                Excel — 3 hojas
               </button>
             </div>
 
             {/* Tabs */}
             <div style={{ display: "flex", gap: 4, background: "#eeede9", borderRadius: 8, padding: 4, marginBottom: "1rem" }}>
-              {(["day","week","month"] as Tab[]).map(t => (
+              {(["day", "week", "month"] as Tab[]).map(t => (
                 <button key={t} onClick={() => setTab(t)} style={{
                   flex: 1, padding: "7px 0",
                   border: tab === t ? "0.5px solid #ddd" : "none",
@@ -279,64 +297,77 @@ export default function BelangePage() {
               <p style={{ color: "#bbb", fontSize: 14, textAlign: "center", padding: "2rem 0" }}>Cargando…</p>
             ) : (
               <>
-                {/* Metric cards */}
+                {/* Metrics */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: "1rem" }}>
-                  <MetricCard label="Total" value={formatMXN(total)} sub={`${count} servicio${count !== 1 ? "s" : ""}`} />
-                  <MetricCard label="Ticket promedio" value={formatMXN(avg)} sub="por servicio" />
-                  <MetricCard
-                    label="Método principal"
-                    value={ef >= ta && ef >= tr ? "Efectivo" : ta >= tr ? "Tarjeta" : "Transferencia"}
-                    sub={count ? `${Math.round((Math.max(ef,ta,tr) / (total||1)) * 100)}% del total` : "—"}
-                  />
+                  <MCard label="Total del período"  value={fmt(total)}          sub={`${countServ} transacción${countServ !== 1 ? "es" : ""}`} accent="#1a1a1a" />
+                  <MCard label="Servicios"           value={fmt(totalServicios)} sub={`ticket prom. ${fmt(avgServ)}`}                          accent={FF_CYAN}   />
+                  <MCard label="Productos"           value={fmt(totalProductos)} sub={`${countProd} venta${countProd !== 1 ? "s" : ""}`}        accent={FF_ORANGE} />
                 </div>
 
-                {/* Breakdown */}
+                {/* Payment breakdown */}
                 <div style={card}>
                   <p style={{ fontSize: 12, fontWeight: 600, color: "#888", marginBottom: 12 }}>Desglose por método de pago</p>
-                  {([["efectivo", ef],["tarjeta", ta],["transferencia", tr]] as [PaymentMethod, number][]).map(([m, val]) => (
-                    <div key={m} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                      <span style={{ width: 90, fontSize: 12, color: "#666" }}>{PAYMENT_META[m].label}</span>
-                      <div style={{ flex: 1, height: 6, background: "#f0efeb", borderRadius: 4, overflow: "hidden" }}>
-                        <div style={{ height: "100%", width: `${Math.round((val/maxBar)*100)}%`, background: barColor[m], borderRadius: 4, transition: "width .4s" }} />
+                  {(["efectivo", "tarjeta", "transferencia"] as PaymentMethod[]).map(m => {
+                    const val = m === "efectivo" ? ef : m === "tarjeta" ? ta : tr;
+                    return (
+                      <div key={m} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                        <span style={{ width: 92, fontSize: 12, color: "#666" }}>{PM[m].label}</span>
+                        <div style={{ flex: 1, height: 6, background: "#f0efeb", borderRadius: 4, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${Math.round((val / maxBar) * 100)}%`, background: BAR_COLOR[m], borderRadius: 4, transition: "width .4s" }} />
+                        </div>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "#444", minWidth: 68, textAlign: "right" }}>{fmt(val)}</span>
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#444", minWidth: 64, textAlign: "right" }}>{formatMXN(val)}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             )}
           </div>
         </div>
 
-        {/* ── Tabla recientes ── */}
+        {/* ────────────────── TABLA ────────────────── */}
         <div style={{ marginTop: "1.5rem" }}>
-          <p style={sectionLabel}>Últimos servicios registrados</p>
-          <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+          <p style={secLabel}>Últimas transacciones</p>
+          <div style={{ ...card, padding: 0, overflow: "hidden", overflowX: "auto" }}>
             {loading ? (
               <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>Cargando…</p>
             ) : transactions.length === 0 ? (
-              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>Aún no hay servicios. ¡Registra el primero!</p>
+              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>Aún no hay transacciones. ¡Registra la primera!</p>
             ) : (
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ borderBottom: "0.5px solid #e5e4df" }}>
-                    {["Fecha","Cliente","Servicio","Pago","Precio"].map(h => (
-                      <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</th>
+                    {["Fecha", "Cliente", "Servicio", "$ Serv.", "Producto", "$ Prod.", "Pago", "Total"].map(h => (
+                      <th key={h} style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {transactions.slice(0,12).map(t => (
+                  {transactions.slice(0, 15).map(t => (
                     <tr key={t.id} style={{ borderBottom: "0.5px solid #f0efeb" }}>
-                      <td style={{ padding: "10px 16px", color: "#999", fontSize: 12, whiteSpace: "nowrap" }}>{formatDate(t.created_at)}</td>
-                      <td style={{ padding: "10px 16px", fontWeight: 700 }}>{t.client_name}</td>
-                      <td style={{ padding: "10px 16px", color: "#555" }}>{t.service}</td>
-                      <td style={{ padding: "10px 16px" }}>
-                        <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: PAYMENT_META[t.payment_method].bg, color: PAYMENT_META[t.payment_method].color }}>
-                          {PAYMENT_META[t.payment_method].label}
+                      <td style={{ padding: "10px 12px", color: "#999", fontSize: 12, whiteSpace: "nowrap" }}>{fmtDate(t.created_at)}</td>
+                      <td style={{ padding: "10px 12px", fontWeight: 700, whiteSpace: "nowrap" }}>{t.client_name}</td>
+                      <td style={{ padding: "10px 12px", color: "#555", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <Tag color="cyan" />
+                        {t.service}
+                      </td>
+                      <td style={{ padding: "10px 12px", fontWeight: 600, color: "#007a88", whiteSpace: "nowrap" }}>{fmt(t.price)}</td>
+                      <td style={{ padding: "10px 12px", color: "#555", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {t.producto
+                          ? <><Tag color="orange" />{t.producto}</>
+                          : <span style={{ color: "#ccc" }}>—</span>}
+                      </td>
+                      <td style={{ padding: "10px 12px", fontWeight: 600, whiteSpace: "nowrap", color: t.precio_producto ? FF_ORANGE : "#ccc" }}>
+                        {t.precio_producto ? fmt(t.precio_producto) : "—"}
+                      </td>
+                      <td style={{ padding: "10px 12px" }}>
+                        <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: PM[t.payment_method].bg, color: PM[t.payment_method].color }}>
+                          {PM[t.payment_method].label}
                         </span>
                       </td>
-                      <td style={{ padding: "10px 16px", fontWeight: 700 }}>{formatMXN(t.price)}</td>
+                      <td style={{ padding: "10px 12px", fontWeight: 700, whiteSpace: "nowrap" }}>
+                        {fmt(t.price + (t.precio_producto ?? 0))}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -347,7 +378,8 @@ export default function BelangePage() {
 
         {/* Footer */}
         <footer style={{ marginTop: "2rem", paddingTop: "1.25rem", borderTop: "0.5px solid #e5e4df", display: "flex", justifyContent: "center" }}>
-          <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.35 }}>
+          <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.35 }}>
             <FishFlowMark size={18} />
             <span style={{ fontSize: 11, color: "#666" }}>Potenciado por FishFlow</span>
           </a>
@@ -358,9 +390,9 @@ export default function BelangePage() {
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-function MetricCard({ label, value, sub }: { label: string; value: string; sub: string }) {
+function MCard({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
   return (
-    <div style={{ background: "#f5f4f0", borderRadius: 8, padding: "0.875rem 1rem" }}>
+    <div style={{ background: "#f5f4f0", borderRadius: 8, padding: "0.875rem 1rem", borderTop: `2px solid ${accent}` }}>
       <p style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{label}</p>
       <p style={{ fontSize: 22, fontWeight: 700, color: "#1a1a1a", margin: 0 }}>{value}</p>
       <p style={{ fontSize: 11, color: "#bbb", marginTop: 3 }}>{sub}</p>
@@ -370,17 +402,39 @@ function MetricCard({ label, value, sub }: { label: string; value: string; sub: 
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: 14 }}>
+    <div style={{ marginBottom: 12 }}>
       <label style={{ display: "block", fontSize: 12, color: "#777", marginBottom: 5 }}>{label}</label>
       {children}
     </div>
   );
 }
 
+function PriceInput({ value, onChange, required }: { value: string; onChange: (v: string) => void; required?: boolean }) {
+  return (
+    <div style={{ position: "relative" }}>
+      <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 14 }}>$</span>
+      <input type="number" value={value} onChange={e => onChange(e.target.value)}
+        placeholder="0" min="1" step="1" required={required}
+        style={{ ...inp, paddingLeft: 26 }} />
+    </div>
+  );
+}
+
+function Tag({ color }: { color: "cyan" | "orange" }) {
+  const styles = {
+    cyan:   { background: "#d6f4f8", color: "#007a88" },
+    orange: { background: "#ffe8d0", color: "#b05200" },
+  }[color];
+  const label = color === "cyan" ? "serv" : "prod";
+  return (
+    <span style={{ display: "inline-block", padding: "1px 5px", borderRadius: 10, fontSize: 10, fontWeight: 600, marginRight: 4, ...styles }}>{label}</span>
+  );
+}
+
 // ─── Shared styles ────────────────────────────────────────────────────────────
-const sectionLabel: React.CSSProperties = {
-  fontSize: 11, fontWeight: 700, color: "#aaa", letterSpacing: "0.06em",
-  textTransform: "uppercase", marginBottom: 10,
+const secLabel: React.CSSProperties = {
+  fontSize: 11, fontWeight: 700, color: "#aaa",
+  letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 10,
 };
 
 const card: React.CSSProperties = {
@@ -388,7 +442,7 @@ const card: React.CSSProperties = {
   borderRadius: 12, padding: "1.25rem",
 };
 
-const inputStyle: React.CSSProperties = {
+const inp: React.CSSProperties = {
   width: "100%", padding: "9px 12px",
   border: "0.5px solid #ddd", borderRadius: 8,
   background: "#fff", color: "#1a1a1a",

@@ -13,6 +13,8 @@ export interface BelangeTransaction {
   client_name: string;
   service: string;
   price: number;
+  producto?: string | null;
+  precio_producto?: number | null;
   payment_method: PaymentMethod;
   created_at: string;
 }
