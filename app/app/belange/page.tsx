@@ -117,21 +117,30 @@ export default function BelangePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const numServ = parseFloat(price.replace(/,/g, ""));
-    if (!clientName.trim() || !service.trim() || isNaN(numServ) || numServ <= 0) {
-      setErr("Completa nombre del cliente, servicio y precio de servicio.");
+    const numServ = price ? parseFloat(price.replace(/,/g, "")) : null;
+    const numProd = precioProducto ? parseFloat(precioProducto.replace(/,/g, "")) : null;
+
+    if (!clientName.trim()) {
+      setErr("Agrega el nombre del cliente.");
       return;
     }
-    const numProd = precioProducto ? parseFloat(precioProducto.replace(/,/g, "")) : null;
+    if (!service.trim() && !producto.trim()) {
+      setErr("Agrega al menos un servicio o un producto.");
+      return;
+    }
+    if (service.trim() && (numServ === null || isNaN(numServ) || numServ <= 0)) {
+      setErr("Agrega el precio del servicio.");
+      return;
+    }
     if (producto.trim() && (numProd === null || isNaN(numProd) || numProd <= 0)) {
-      setErr("Si ingresas un producto, también agrega su precio.");
+      setErr("Agrega el precio del producto.");
       return;
     }
     setSaving(true); setErr("");
     const { error } = await supabase.from("belange_transactions").insert({
       client_name:     clientName.trim(),
-      service:         service.trim(),
-      price:           numServ,
+      service:         service.trim() || null,
+      price:           numServ ?? 0,
       payment_method:  payment,
       producto:        producto.trim() || null,
       precio_producto: numProd,
@@ -204,7 +213,7 @@ export default function BelangePage() {
               <div style={{ border: "1px solid #caf4f8", borderRadius: 10, padding: "12px 14px", marginBottom: 14, background: "#f7fdfe" }}>
                 <p style={{ fontSize: 12, fontWeight: 700, color: "#007a88", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
                   <span style={{ fontSize: 14 }}>💈</span> Servicio
-                  <span style={{ marginLeft: "auto", fontSize: 10, background: "#d6f4f8", color: "#007a88", padding: "2px 8px", borderRadius: 20, fontWeight: 500 }}>requerido</span>
+                  <span style={{ marginLeft: "auto", fontSize: 10, background: "#d6f4f8", color: "#007a88", padding: "2px 8px", borderRadius: 20, fontWeight: 500 }}>si aplica</span>
                 </p>
                 <Field label="Servicio realizado">
                   <input type="text" value={service} onChange={e => setService(e.target.value)}
@@ -219,7 +228,7 @@ export default function BelangePage() {
               <div style={{ border: "1px solid #ffe0c2", borderRadius: 10, padding: "12px 14px", marginBottom: 14, background: "#fffaf5" }}>
                 <p style={{ fontSize: 12, fontWeight: 700, color: "#b05200", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
                   <span style={{ fontSize: 14 }}>🧴</span> Producto
-                  <span style={{ marginLeft: "auto", fontSize: 10, background: "#ffe8d0", color: "#b05200", padding: "2px 8px", borderRadius: 20, fontWeight: 500 }}>opcional</span>
+                  <span style={{ marginLeft: "auto", fontSize: 10, background: "#ffe8d0", color: "#b05200", padding: "2px 8px", borderRadius: 20, fontWeight: 500 }}>si aplica</span>
                 </p>
                 <Field label="Producto adquirido">
                   <input type="text" value={producto} onChange={e => setProducto(e.target.value)}
