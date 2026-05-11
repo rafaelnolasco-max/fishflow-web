@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   supabase,
   type TBAOpportunity,
+  type TBAOpportunityLog,
   type OpportunityStage,
   type ProductType,
   type Currency,
@@ -13,6 +14,26 @@ import {
 // ─── Brand colors ──────────────────────────────────────────────────────────────
 const FF_CYAN   = "#00B8CC";
 const FF_ORANGE = "#FF7200";
+
+// ─── User identity ────────────────────────────────────────────────────────────
+const RAFA_EMAIL   = "rafaelnolasco@gmail.com";
+const CHARLY_EMAIL = "carlosnolascocas@gmail.com";
+
+const USER_LABELS: Record<string, string> = {
+  [RAFA_EMAIL]:   "Rafa",
+  [CHARLY_EMAIL]: "Gran Charly",
+};
+
+function userLabel(email: string | undefined | null): string {
+  if (!email) return "—";
+  return USER_LABELS[email] ?? email.split("@")[0];
+}
+
+function userColor(email: string | undefined | null): string {
+  if (email === RAFA_EMAIL)   return "#1a56cc";
+  if (email === CHARLY_EMAIL) return "#7c3aed";
+  return "#999";
+}
 
 // ─── Stage metadata ───────────────────────────────────────────────────────────
 const STAGE_META: Record<
@@ -36,7 +57,46 @@ const PRODUCT_META: Record<ProductType, { label: string }> = {
   hardware_licencia: { label: "HW + Lic" },
 };
 
+// ─── Field display names for the audit log ───────────────────────────────────
+const FIELD_LABELS: Record<string, string> = {
+  company_name:         "Empresa",
+  contact_name:         "Contacto",
+  product_type:         "Tipo de producto",
+  vendor:               "Vendor",
+  amount:               "Monto",
+  currency:             "Moneda",
+  stage:                "Etapa",
+  close_date:           "Fecha cierre",
+  notes:                "Notas",
+  commission_rafa:      "Comisión Rafa",
+  commission_charly:    "Comisión Gran Charly",
+  commission_currency:  "Moneda comisión",
+  commission_paid_date: "Fecha de pago",
+};
+
+function fieldLabel(f: string): string {
+  return FIELD_LABELS[f] ?? f;
+}
+
+function formatLogValue(field: string, val: string | null): string {
+  if (val === null || val === "") return "vacío";
+  if (field === "stage") {
+    const meta = STAGE_META[val as OpportunityStage];
+    return meta ? meta.label : val;
+  }
+  if (field === "amount") {
+    const n = parseFloat(val);
+    return isNaN(n) ? val : n.toLocaleString("es-MX");
+  }
+  if (field === "close_date" || field === "commission_paid_date") {
+    return formatCloseDate(val);
+  }
+  return val;
+}
+
+// ─── Filter types ─────────────────────────────────────────────────────────────
 type StageFilter = OpportunityStage | "todas" | "activas";
+type UserFilter  = "todas" | "rafa" | "charly";
 
 const FILTER_TABS: { key: StageFilter; label: string }[] = [
   { key: "todas",           label: "Todas" },
@@ -46,6 +106,12 @@ const FILTER_TABS: { key: StageFilter; label: string }[] = [
   { key: "negociacion",     label: "Negociación" },
   { key: "cerrado_ganado",  label: "Ganadas" },
   { key: "cerrado_perdido", label: "Perdidas" },
+];
+
+const USER_FILTER_TABS: { key: UserFilter; label: string; activeColor: string; activeBg: string }[] = [
+  { key: "todas",  label: "Todos",       activeColor: "#555",    activeBg: "#f5f4f0" },
+  { key: "rafa",   label: "Rafa",        activeColor: "#1a56cc", activeBg: "#e8f0fe" },
+  { key: "charly", label: "Gran Charly", activeColor: "#7c3aed", activeBg: "#f3e8ff" },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -58,6 +124,13 @@ function formatAmount(amount: number, currency: Currency): string {
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("es-MX", {
     day: "2-digit", month: "short", year: "numeric",
+  });
+}
+
+function formatDateTime(iso: string): string {
+  return new Date(iso).toLocaleString("es-MX", {
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
   });
 }
 
@@ -123,9 +196,12 @@ export default function TBAPage() {
   const [err,         setErr]         = useState("");
 
   // ── Data state ──
-  const [opps,    setOpps]    = useState<TBAOpportunity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter,  setFilter]  = useState<StageFilter>("activas");
+  const [opps,        setOpps]        = useState<TBAOpportunity[]>([]);
+  const [auditLog,    setAuditLog]    = useState<TBAOpportunityLog[]>([]);
+  const [loading,     setLoading]     = useState(true);
+  const [filter,      setFilter]      = useState<StageFilter>("activas");
+  const [userFilter,  setUserFilter]  = useState<UserFilter>("todas");
+  const [expandedOpp, setExpandedOpp] = useState<string | null>(null);
 
   // ── Commission editing state (keyed by opportunity id) ──
   const [commEdits, setCommEdits] = useState<Record<string, {
@@ -135,6 +211,7 @@ export default function TBAPage() {
 
   const firstInputRef = useRef<HTMLInputElement>(null);
 
+  // ── Fetch opportunities ──
   async function fetchAll() {
     setLoading(true);
     const { data } = await supabase
@@ -145,7 +222,35 @@ export default function TBAPage() {
     setLoading(false);
   }
 
-  useEffect(() => { fetchAll(); }, []);
+  // ── Fetch audit log ──
+  async function fetchLog() {
+    const { data } = await supabase
+      .from("tba_opportunities_log")
+      .select("*")
+      .order("changed_at", { ascending: false });
+    if (data) setAuditLog(data as TBAOpportunityLog[]);
+  }
+
+  useEffect(() => {
+    fetchAll();
+    fetchLog();
+  }, []);
+
+  // ── Derived: opp_id → { createdByEmail, updatedByEmail }
+  // Log is ordered DESC → first "updated" entry per opp encountered is the most recent
+  const oppUserMap = useMemo(() => {
+    const map: Record<string, { createdByEmail?: string; updatedByEmail?: string }> = {};
+    auditLog.forEach(entry => {
+      if (!map[entry.opportunity_id]) map[entry.opportunity_id] = {};
+      if (entry.action === "created" && !map[entry.opportunity_id].createdByEmail) {
+        map[entry.opportunity_id].createdByEmail = entry.changed_by_email;
+      }
+      if (entry.action === "updated" && !map[entry.opportunity_id].updatedByEmail) {
+        map[entry.opportunity_id].updatedByEmail = entry.changed_by_email;
+      }
+    });
+    return map;
+  }, [auditLog]);
 
   // ── Initialize commission edit state when opps load ──
   useEffect(() => {
@@ -180,6 +285,7 @@ export default function TBAPage() {
       amount: num, currency, stage,
       close_date: closeDate || null,
       notes: notes.trim() || null,
+      // created_by / updated_by → manejados automáticamente por el trigger
     });
     setSaving(false);
     if (error) { setErr("Error al guardar. Intenta de nuevo."); return; }
@@ -188,7 +294,8 @@ export default function TBAPage() {
     setCloseDate(""); setNotes("");
     setProductType("hardware"); setCurrency("USD"); setStage("prospecto");
     firstInputRef.current?.focus();
-    fetchAll();
+    await fetchAll();
+    await fetchLog();
     setTimeout(() => setOk(""), 3500);
   }
 
@@ -198,6 +305,7 @@ export default function TBAPage() {
       .update({ stage: newStage, updated_at: new Date().toISOString() })
       .eq("id", id);
     setOpps(prev => prev.map(o => o.id === id ? { ...o, stage: newStage } : o));
+    await fetchLog();
   }
 
   async function handleSaveCommission(id: string) {
@@ -214,6 +322,7 @@ export default function TBAPage() {
     await supabase.from("tba_opportunities").update(payload).eq("id", id);
     setOpps(prev => prev.map(o => o.id === id ? { ...o, ...payload } : o));
     setCommSaving(prev => ({ ...prev, [id]: false }));
+    await fetchLog();
   }
 
   function updateCommEdit(id: string, field: string, value: string) {
@@ -226,6 +335,10 @@ export default function TBAPage() {
   async function handleLogout() {
     await supabase.auth.signOut();
     router.push("/login?next=/app/tba");
+  }
+
+  function toggleExpand(id: string) {
+    setExpandedOpp(prev => prev === id ? null : id);
   }
 
   // ── Metrics ──
@@ -241,7 +354,6 @@ export default function TBAPage() {
   const wonUSD = sumAmount(wonOpps, "USD");
   const wonMXN = sumAmount(wonOpps, "MXN");
 
-  // Commission totals
   function sumComm(person: "rafa" | "charly", cur: Currency): number {
     return wonOpps
       .filter(o => (o.commission_currency ?? o.currency) === cur)
@@ -260,10 +372,18 @@ export default function TBAPage() {
     ), 1
   );
 
+  // ── Filtering ──
+  // 1. User filter
+  const userFiltered =
+    userFilter === "todas"  ? opps :
+    userFilter === "rafa"   ? opps.filter(o => oppUserMap[o.id]?.createdByEmail === RAFA_EMAIL) :
+    opps.filter(o => oppUserMap[o.id]?.createdByEmail === CHARLY_EMAIL);
+
+  // 2. Stage filter
   const filtered =
-    filter === "todas"   ? opps :
-    filter === "activas" ? activeOpps :
-    opps.filter(o => o.stage === filter);
+    filter === "todas"   ? userFiltered :
+    filter === "activas" ? userFiltered.filter(o => o.stage !== "cerrado_ganado" && o.stage !== "cerrado_perdido") :
+    userFiltered.filter(o => o.stage === filter);
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
@@ -477,7 +597,8 @@ export default function TBAPage() {
         <div style={{ marginTop: "1.75rem" }}>
           <p style={sectionLabel}>Oportunidades</p>
 
-          <div style={{ display: "flex", gap: 4, flexWrap: "wrap", background: "#eeede9", borderRadius: 8, padding: 4, marginBottom: "1rem" }}>
+          {/* Stage filter */}
+          <div style={{ display: "flex", gap: 4, flexWrap: "wrap", background: "#eeede9", borderRadius: 8, padding: 4, marginBottom: 8 }}>
             {FILTER_TABS.map(({ key, label }) => {
               const count = key === "activas" ? activeOpps.length
                 : key === "todas" ? undefined
@@ -506,20 +627,42 @@ export default function TBAPage() {
             })}
           </div>
 
+          {/* User filter */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: "1rem" }}>
+            <span style={{ fontSize: 11, color: "#bbb", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", flexShrink: 0 }}>
+              Vendedor
+            </span>
+            <div style={{ display: "flex", gap: 4 }}>
+              {USER_FILTER_TABS.map(({ key, label, activeColor, activeBg }) => (
+                <button key={key} onClick={() => setUserFilter(key)} style={{
+                  padding: "5px 14px",
+                  border: userFilter === key ? `1.5px solid ${activeColor}` : "0.5px solid #ddd",
+                  borderRadius: 20,
+                  background: userFilter === key ? activeBg : "#fff",
+                  color: userFilter === key ? activeColor : "#aaa",
+                  fontSize: 11, fontWeight: userFilter === key ? 700 : 400,
+                  cursor: "pointer",
+                }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div style={{ ...card, padding: 0, overflow: "hidden" }}>
             {loading ? (
               <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>Cargando…</p>
             ) : filtered.length === 0 ? (
               <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>
-                {opps.length === 0 ? "Aún no hay oportunidades. ¡Registra la primera!" : "No hay oportunidades en esta etapa."}
+                {opps.length === 0 ? "Aún no hay oportunidades. ¡Registra la primera!" : "No hay oportunidades en esta vista."}
               </p>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead>
                     <tr style={{ borderBottom: "0.5px solid #e5e4df" }}>
-                      {["Empresa", "Contacto", "Tipo", "Vendor", "Monto", "Etapa", "Cierre", "Registrado"].map(h => (
-                        <th key={h} style={{
+                      {["Empresa", "Contacto", "Tipo", "Vendor", "Monto", "Etapa", "Cierre", "Creó", "Modificó", ""].map((h, i) => (
+                        <th key={i} style={{
                           padding: "10px 14px", textAlign: "left",
                           fontSize: 11, fontWeight: 700, color: "#999",
                           textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap",
@@ -528,35 +671,143 @@ export default function TBAPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map(o => (
-                      <tr key={o.id} style={{ borderBottom: "0.5px solid #f0efeb" }}>
-                        <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>
-                          {o.company_name}
-                          {o.notes && <span title={o.notes} style={{ marginLeft: 6, fontSize: 11, color: "#bbb", cursor: "help" }}>📝</span>}
-                        </td>
-                        <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>{o.contact_name}</td>
-                        <td style={{ padding: "10px 14px" }}>
-                          <span style={{ fontSize: 11, color: "#888", background: "#f5f4f0", borderRadius: 4, padding: "2px 7px" }}>
-                            {PRODUCT_META[o.product_type].label}
-                          </span>
-                        </td>
-                        <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>{o.vendor}</td>
-                        <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>{formatAmount(o.amount, o.currency)}</td>
-                        <td style={{ padding: "10px 14px" }}>
-                          <select value={o.stage}
-                            onChange={e => handleStageChange(o.id, e.target.value as OpportunityStage)}
-                            style={{
-                              padding: "4px 10px", border: "none", borderRadius: 20,
-                              background: STAGE_META[o.stage].bg, color: STAGE_META[o.stage].color,
-                              fontSize: 11, fontWeight: 700, cursor: "pointer", outline: "none", appearance: "none",
-                            }}>
-                            {STAGE_ORDER.map(s => <option key={s} value={s}>{STAGE_META[s].label}</option>)}
-                          </select>
-                        </td>
-                        <td style={{ padding: "10px 14px", color: "#888", fontSize: 12, whiteSpace: "nowrap" }}>{formatCloseDate(o.close_date)}</td>
-                        <td style={{ padding: "10px 14px", color: "#bbb", fontSize: 11, whiteSpace: "nowrap" }}>{formatDate(o.created_at)}</td>
-                      </tr>
-                    ))}
+                    {filtered.map(o => {
+                      const userInfo   = oppUserMap[o.id];
+                      const oppLog     = auditLog.filter(e => e.opportunity_id === o.id);
+                      const isExpanded = expandedOpp === o.id;
+
+                      return (
+                        <Fragment key={o.id}>
+                          <tr style={{ borderBottom: isExpanded ? "none" : "0.5px solid #f0efeb" }}>
+                            <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>
+                              {o.company_name}
+                              {o.notes && <span title={o.notes} style={{ marginLeft: 6, fontSize: 11, color: "#bbb", cursor: "help" }}>📝</span>}
+                            </td>
+                            <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>{o.contact_name}</td>
+                            <td style={{ padding: "10px 14px" }}>
+                              <span style={{ fontSize: 11, color: "#888", background: "#f5f4f0", borderRadius: 4, padding: "2px 7px" }}>
+                                {PRODUCT_META[o.product_type].label}
+                              </span>
+                            </td>
+                            <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>{o.vendor}</td>
+                            <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>{formatAmount(o.amount, o.currency)}</td>
+                            <td style={{ padding: "10px 14px" }}>
+                              <select value={o.stage}
+                                onChange={e => handleStageChange(o.id, e.target.value as OpportunityStage)}
+                                style={{
+                                  padding: "4px 10px", border: "none", borderRadius: 20,
+                                  background: STAGE_META[o.stage].bg, color: STAGE_META[o.stage].color,
+                                  fontSize: 11, fontWeight: 700, cursor: "pointer", outline: "none", appearance: "none",
+                                }}>
+                                {STAGE_ORDER.map(s => <option key={s} value={s}>{STAGE_META[s].label}</option>)}
+                              </select>
+                            </td>
+                            <td style={{ padding: "10px 14px", color: "#888", fontSize: 12, whiteSpace: "nowrap" }}>
+                              {formatCloseDate(o.close_date)}
+                            </td>
+                            {/* Creó */}
+                            <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
+                              <span style={{ fontSize: 11, fontWeight: 600, color: userColor(userInfo?.createdByEmail) }}>
+                                {userLabel(userInfo?.createdByEmail)}
+                              </span>
+                            </td>
+                            {/* Modificó */}
+                            <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
+                              {userInfo?.updatedByEmail ? (
+                                <span style={{ fontSize: 11, color: userColor(userInfo.updatedByEmail) }}>
+                                  {userLabel(userInfo.updatedByEmail)}
+                                </span>
+                              ) : (
+                                <span style={{ fontSize: 11, color: "#ddd" }}>—</span>
+                              )}
+                            </td>
+                            {/* Historial toggle */}
+                            <td style={{ padding: "10px 14px" }}>
+                              <button
+                                onClick={() => toggleExpand(o.id)}
+                                title={isExpanded ? "Ocultar historial" : "Ver historial"}
+                                style={{
+                                  background: isExpanded ? "#f0efeb" : "transparent",
+                                  border: "0.5px solid #e5e4df",
+                                  borderRadius: 6, padding: "4px 9px",
+                                  fontSize: 11, color: isExpanded ? "#444" : "#bbb",
+                                  cursor: "pointer", whiteSpace: "nowrap",
+                                }}
+                              >
+                                {isExpanded ? "▲ Cerrar" : "⏱"}
+                                {!isExpanded && oppLog.length > 0 && (
+                                  <span style={{ marginLeft: 3, fontSize: 10, color: "#ccc" }}>
+                                    {oppLog.length}
+                                  </span>
+                                )}
+                              </button>
+                            </td>
+                          </tr>
+
+                          {/* ── Audit history panel ── */}
+                          {isExpanded && (
+                            <tr>
+                              <td colSpan={10} style={{ padding: "0 14px 14px 14px", background: "#fafaf8", borderBottom: "0.5px solid #f0efeb" }}>
+                                <div style={{ borderTop: "0.5px solid #eee", paddingTop: 12 }}>
+                                  <p style={{
+                                    fontSize: 11, fontWeight: 700, color: "#bbb",
+                                    textTransform: "uppercase", letterSpacing: "0.05em",
+                                    marginBottom: 10,
+                                  }}>
+                                    Historial de cambios
+                                  </p>
+                                  {oppLog.length === 0 ? (
+                                    <p style={{ fontSize: 12, color: "#ccc" }}>Sin registros de auditoría aún.</p>
+                                  ) : (
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                                      {oppLog.map(entry => (
+                                        <div key={entry.id} style={{
+                                          display: "flex", alignItems: "center", gap: 10,
+                                          fontSize: 12, padding: "7px 10px",
+                                          background: "#fff", borderRadius: 6,
+                                          border: "0.5px solid #eee",
+                                        }}>
+                                          <span style={{ fontSize: 13, flexShrink: 0 }}>
+                                            {entry.action === "created" ? "🟢" : "✏️"}
+                                          </span>
+                                          <span style={{
+                                            fontWeight: 700, flexShrink: 0, fontSize: 12,
+                                            color: userColor(entry.changed_by_email),
+                                          }}>
+                                            {userLabel(entry.changed_by_email)}
+                                          </span>
+                                          <span style={{ flex: 1, color: "#777" }}>
+                                            {entry.action === "created"
+                                              ? "creó la oportunidad"
+                                              : (
+                                                <>
+                                                  cambió <strong style={{ color: "#444" }}>{fieldLabel(entry.field ?? "")}</strong>
+                                                  {": "}
+                                                  <span style={{ color: "#c0392b", textDecoration: "line-through" }}>
+                                                    {formatLogValue(entry.field ?? "", entry.old_value)}
+                                                  </span>
+                                                  {" → "}
+                                                  <span style={{ color: "#27ae60", fontWeight: 600 }}>
+                                                    {formatLogValue(entry.field ?? "", entry.new_value)}
+                                                  </span>
+                                                </>
+                                              )
+                                            }
+                                          </span>
+                                          <span style={{ fontSize: 11, color: "#bbb", flexShrink: 0, whiteSpace: "nowrap" }}>
+                                            {formatDateTime(entry.changed_at)}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -591,20 +842,14 @@ export default function TBAPage() {
                     {wonOpps.map(o => {
                       const edit    = commEdits[o.id] ?? { rafa: "", charly: "", currency: o.currency, paidDate: "" };
                       const saving  = commSaving[o.id] ?? false;
-                      const isPaid  = o.commission_paid_date ? !isOverdue(o.commission_paid_date) : null;
                       const overdue = o.commission_paid_date ? isOverdue(o.commission_paid_date) : false;
 
                       return (
                         <tr key={o.id} style={{ borderBottom: "0.5px solid #f0efeb" }}>
-                          {/* Empresa */}
                           <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>{o.company_name}</td>
-
-                          {/* Monto del deal */}
                           <td style={{ padding: "10px 14px", fontWeight: 700, color: "#3b6d11", whiteSpace: "nowrap" }}>
                             {formatAmount(o.amount, o.currency)}
                           </td>
-
-                          {/* Comisión Rafa */}
                           <td style={{ padding: "8px 14px" }}>
                             <div style={{ position: "relative" }}>
                               <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 12 }}>$</span>
@@ -617,8 +862,6 @@ export default function TBAPage() {
                               />
                             </div>
                           </td>
-
-                          {/* Comisión Gran Charly */}
                           <td style={{ padding: "8px 14px" }}>
                             <div style={{ position: "relative" }}>
                               <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 12 }}>$</span>
@@ -631,8 +874,6 @@ export default function TBAPage() {
                               />
                             </div>
                           </td>
-
-                          {/* Moneda comisión */}
                           <td style={{ padding: "8px 14px" }}>
                             <div style={{ display: "flex", gap: 4 }}>
                               {(["USD", "MXN"] as Currency[]).map(c => (
@@ -650,8 +891,6 @@ export default function TBAPage() {
                               ))}
                             </div>
                           </td>
-
-                          {/* Fecha de pago */}
                           <td style={{ padding: "8px 14px" }}>
                             <input
                               type="date"
@@ -660,8 +899,6 @@ export default function TBAPage() {
                               style={{ ...inputStyle, fontSize: 12, padding: "6px 10px", width: 140 }}
                             />
                           </td>
-
-                          {/* Estado */}
                           <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
                             {!edit.paidDate ? (
                               <span style={{ fontSize: 11, color: "#bbb" }}>Sin fecha</span>
@@ -675,8 +912,6 @@ export default function TBAPage() {
                               </span>
                             )}
                           </td>
-
-                          {/* Guardar */}
                           <td style={{ padding: "8px 14px" }}>
                             <button
                               onClick={() => handleSaveCommission(o.id)}

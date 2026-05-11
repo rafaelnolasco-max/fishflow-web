@@ -48,6 +48,22 @@ export interface TBAOpportunity {
   commission_charly: number | null;
   commission_currency: Currency | null;
   commission_paid_date: string | null;
+  // Auditoría — manejados por triggers en Supabase
+  created_by: string | null;
+  updated_by: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface TBAOpportunityLog {
+  id: string;
+  opportunity_id: string;
+  action: "created" | "updated";
+  changed_by: string;
+  changed_by_email: string;
+  changed_at: string;
+  field: string | null;
+  old_value: string | null;
+  new_value: string | null;
+  snapshot: Record<string, unknown> | null;
 }
