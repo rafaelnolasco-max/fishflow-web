@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>El Chato — Sistema FishFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:       #0D1B2A;
+    --card:     #112236;
+    --card2:    #0F1E30;
+    --border:   #1E3A52;
+    --orange:   #FF8C35;
+    --cyan:     #67D4E8;
+    --green:    #6EE7A0;
+    --red:      #F87171;
+    --text:     #FFFFFF;
+    --sub:      #94A3B8;
+    --dim:      #4A6178;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; }
+
+  /* ── HEADER ── */
+  header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 28px; background:var(--card);
+    border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;
+  }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .brand-logo { font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800; color:var(--orange); }
+  .brand-sep { color:var(--dim); font-size:18px; }
+  .brand-client { font-size:14px; font-weight:600; color:var(--sub); }
+  .tabs { display:flex; gap:4px; background:#091522; border-radius:10px; padding:4px; }
+  .tab {
+    padding:8px 22px; border-radius:7px; font-size:13px; font-weight:600;
+    cursor:pointer; border:none; color:var(--sub); background:transparent; transition:.2s;
+  }
+  .tab.active { background:var(--orange); color:#fff; }
+  .tab:hover:not(.active) { color:var(--text); }
+  .header-date { font-size:12px; color:var(--dim); }
+
+  /* ── LAYOUT ── */
+  .view { display:none; padding:24px 28px; }
+  .view.active { display:block; }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+  .kpi-card {
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:20px; display:flex; flex-direction:column; gap:8px;
+  }
+  .kpi-label { font-size:11px; font-weight:600; color:var(--sub); text-transform:uppercase; letter-spacing:.8px; }
+  .kpi-value { font-size:28px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; }
+  .kpi-sub { font-size:12px; color:var(--sub); }
+  .kpi-up { color:var(--green); }
+  .kpi-card.accent-orange { border-color:var(--orange); }
+  .kpi-card.accent-cyan { border-color:var(--cyan); }
+  .kpi-card.accent-green { border-color:var(--green); }
+
+  /* ── GRID 3+1 ── */
+  .dash-row { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-bottom:24px; }
+  .dash-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:24px; }
+
+  /* ── SECTION CARD ── */
+  .section-card {
+    background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px;
+  }
+  .section-title {
+    font-size:12px; font-weight:700; color:var(--sub); text-transform:uppercase;
+    letter-spacing:.8px; margin-bottom:16px;
+  }
+
+  /* ── CANAL BARS ── */
+  .canal-row { display:flex; flex-direction:column; gap:12px; }
+  .canal-item {}
+  .canal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .canal-name { font-size:13px; font-weight:600; }
+  .canal-amount { font-size:13px; font-weight:700; }
+  .canal-bar-bg { height:8px; background:#091522; border-radius:99px; overflow:hidden; }
+  .canal-bar { height:8px; border-radius:99px; transition:width 1s ease; }
+  .canal-meta { font-size:11px; color:var(--sub); margin-top:4px; }
+
+  /* ── TOP PLATILLOS ── */
+  .platillo-list { display:flex; flex-direction:column; gap:10px; }
+  .platillo-row { display:flex; align-items:center; gap:10px; }
+  .platillo-rank { font-size:11px; font-weight:700; color:var(--dim); width:18px; }
+  .platillo-name { flex:1; font-size:13px; }
+  .platillo-count { font-size:12px; color:var(--sub); margin-right:8px; }
+  .platillo-bar-bg { width:80px; height:6px; background:#091522; border-radius:99px; overflow:hidden; }
+  .platillo-bar { height:6px; border-radius:99px; background:var(--orange); }
+  .platillo-total { font-size:13px; font-weight:700; color:var(--orange); min-width:56px; text-align:right; }
+
+  /* ── TABLA TRANSACCIONES ── */
+  .tx-table { width:100%; border-collapse:collapse; }
+  .tx-table th { font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.6px; padding:0 0 10px; text-align:left; }
+  .tx-table td { font-size:13px; padding:10px 0; border-top:1px solid var(--border); }
+  .badge {
+    display:inline-block; padding:3px 9px; border-radius:20px;
+    font-size:11px; font-weight:600;
+  }
+  .badge-mesa    { background:#1a3550; color:var(--cyan); }
+  .badge-llevar  { background:#2a3820; color:var(--green); }
+  .badge-uber    { background:#2d2010; color:#FBBF24; }
+  .badge-efectivo { background:#1a3550; color:var(--sub); }
+  .badge-tarjeta  { background:#1E3A52; color:var(--cyan); }
+  .tx-amount { font-weight:700; text-align:right; }
+
+  /* ── HORA CHART ── */
+  .hora-chart { display:flex; align-items:flex-end; gap:6px; height:80px; }
+  .hora-bar-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
+  .hora-bar { width:100%; border-radius:4px 4px 0 0; background:var(--orange); opacity:.7; min-height:4px; transition:.8s; }
+  .hora-bar.peak { opacity:1; }
+  .hora-label { font-size:9px; color:var(--dim); }
+
+  /* ══════════════════════════════════════
+     POS
+  ══════════════════════════════════════ */
+  .pos-wrap { display:grid; grid-template-columns:1fr 380px; gap:16px; height:calc(100vh - 80px); }
+  .pos-left { display:flex; flex-direction:column; gap:16px; overflow:hidden; }
+  .pos-right { background:var(--card); border:1px solid var(--border); border-radius:14px; display:flex; flex-direction:column; }
+
+  /* ── Mesa selector ── */
+  .mesa-section { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; }
+  .mesa-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:12px; }
+  .mesa-btn {
+    aspect-ratio:1; border-radius:10px; border:2px solid var(--border);
+    background:var(--card2); cursor:pointer; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:3px; transition:.15s;
+    font-family:'Inter',sans-serif;
+  }
+  .mesa-btn:hover { border-color:var(--orange); }
+  .mesa-btn.selected { border-color:var(--orange); background:#1a2f1a; }
+  .mesa-btn.ocupada { border-color:var(--cyan); background:#0e2030; }
+  .mesa-btn.para-llevar { border-color:var(--green); background:#0d2218; }
+  .mesa-btn.para-llevar.selected { border-color:var(--green); background:#1a3020; }
+  .mesa-icon { font-size:20px; }
+  .mesa-label { font-size:10px; font-weight:600; color:var(--sub); }
+  .mesa-total { font-size:9px; color:var(--cyan); font-weight:600; }
+
+  /* ── Menú POS ── */
+  .menu-section { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; flex:1; overflow:hidden; display:flex; flex-direction:column; }
+  .menu-cats { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+  .menu-cat {
+    padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600;
+    cursor:pointer; border:1px solid var(--border); color:var(--sub);
+    background:var(--card2); transition:.15s;
+  }
+  .menu-cat.active { background:var(--orange); color:#fff; border-color:var(--orange); }
+  .menu-items { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; overflow-y:auto; flex:1; padding-right:4px; }
+  .menu-item {
+    background:var(--card2); border:1px solid var(--border); border-radius:10px;
+    padding:12px; cursor:pointer; transition:.15s; display:flex; flex-direction:column; gap:4px;
+  }
+  .menu-item:hover { border-color:var(--orange); background:#14243a; }
+  .menu-item-name { font-size:12px; font-weight:600; line-height:1.3; }
+  .menu-item-desc { font-size:10px; color:var(--sub); line-height:1.3; }
+  .menu-item-price { font-size:14px; font-weight:800; color:var(--orange); margin-top:4px; }
+
+  /* ── Orden (right panel) ── */
+  .orden-header { padding:16px 18px; border-bottom:1px solid var(--border); }
+  .orden-title { font-size:14px; font-weight:700; }
+  .orden-sub { font-size:12px; color:var(--sub); margin-top:2px; }
+  .orden-items { flex:1; overflow-y:auto; padding:12px 18px; display:flex; flex-direction:column; gap:8px; }
+  .orden-empty { color:var(--dim); font-size:13px; text-align:center; margin:auto; padding:40px 0; }
+  .orden-item { display:flex; align-items:center; gap:8px; }
+  .orden-item-name { flex:1; font-size:13px; }
+  .orden-qty-wrap { display:flex; align-items:center; gap:6px; }
+  .qty-btn {
+    width:24px; height:24px; border-radius:50%; border:1px solid var(--border);
+    background:var(--card2); color:var(--text); cursor:pointer; font-size:14px;
+    display:flex; align-items:center; justify-content:center; transition:.15s;
+  }
+  .qty-btn:hover { border-color:var(--orange); color:var(--orange); }
+  .qty-num { font-size:13px; font-weight:700; min-width:16px; text-align:center; }
+  .orden-item-total { font-size:13px; font-weight:700; color:var(--orange); min-width:52px; text-align:right; }
+
+  .orden-footer { padding:16px 18px; border-top:1px solid var(--border); }
+  .orden-subtotal { display:flex; justify-content:space-between; font-size:13px; color:var(--sub); margin-bottom:6px; }
+  .orden-total-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .orden-total-label { font-size:15px; font-weight:700; }
+  .orden-total-val { font-size:22px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; color:var(--orange); }
+  .cobrar-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .cobrar-btn {
+    padding:12px; border-radius:10px; font-size:13px; font-weight:700;
+    cursor:pointer; border:none; transition:.15s; font-family:'Inter',sans-serif;
+  }
+  .cobrar-efectivo { background:#1a3550; color:var(--green); border:1px solid #2a5040; }
+  .cobrar-efectivo:hover { background:#1f4060; }
+  .cobrar-tarjeta { background:var(--orange); color:#fff; }
+  .cobrar-tarjeta:hover { background:#ff7a1a; }
+  .cobrar-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+  /* ── MODAL COBRO ── */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.7); display:flex;
+    align-items:center; justify-content:center; z-index:1000; display:none;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:var(--card); border:1px solid var(--border); border-radius:16px;
+    padding:28px; width:340px; text-align:center;
+  }
+  .modal-icon { font-size:48px; margin-bottom:12px; }
+  .modal-title { font-size:18px; font-weight:800; margin-bottom:6px; }
+  .modal-sub { font-size:13px; color:var(--sub); margin-bottom:20px; }
+  .modal-amount { font-size:32px; font-weight:800; color:var(--orange); font-family:'Plus Jakarta Sans',sans-serif; margin-bottom:20px; }
+  .modal-actions { display:flex; gap:10px; }
+  .modal-btn {
+    flex:1; padding:12px; border-radius:10px; font-size:14px; font-weight:700;
+    cursor:pointer; border:none; font-family:'Inter',sans-serif; transition:.15s;
+  }
+  .modal-cancel { background:#091522; color:var(--sub); border:1px solid var(--border); }
+  .modal-confirm { background:var(--orange); color:#fff; }
+  .modal-confirm:hover { background:#ff7a1a; }
+
+  /* ── TOAST ── */
+  .toast {
+    position:fixed; bottom:28px; right:28px; background:#1a3a28;
+    border:1px solid var(--green); border-radius:12px; padding:14px 20px;
+    display:flex; align-items:center; gap:10px; transform:translateY(80px);
+    opacity:0; transition:.3s; z-index:2000; pointer-events:none;
+  }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast-icon { font-size:20px; }
+  .toast-text { font-size:13px; font-weight:600; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:99px; }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:900px) {
+    .kpi-grid { grid-template-columns:repeat(2,1fr); }
+    .dash-row { grid-template-columns:1fr; }
+    .dash-row-3 { grid-template-columns:1fr; }
+    .pos-wrap { grid-template-columns:1fr; }
+    .mesa-grid { grid-template-columns:repeat(3,1fr); }
+    .menu-items { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════ HEADER ══════════════════════ -->
+<header>
+  <div class="brand">
+    <span class="brand-logo">FishFlow</span>
+    <span class="brand-sep">/</span>
+    <span class="brand-client">🍲 Pozolería El Chato</span>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchView('dashboard')">📊 Dashboard</button>
+    <button class="tab" onclick="switchView('pos')">🧾 Punto de Venta</button>
+  </div>
+  <div class="header-date" id="header-date"></div>
+</header>
+
+<!-- ══════════════════════ DASHBOARD ══════════════════════ -->
+<div class="view active" id="view-dashboard">
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card accent-orange">
+      <div class="kpi-label">Ventas hoy</div>
+      <div class="kpi-value" style="color:var(--orange)">$4,850</div>
+      <div class="kpi-sub kpi-up">↑ 12% vs ayer</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Pedidos totales</div>
+      <div class="kpi-value">28</div>
+      <div class="kpi-sub">Mesa 18 · Llevar 5 · Uber 5</div>
+    </div>
+    <div class="kpi-card accent-cyan">
+      <div class="kpi-label">Ticket promedio</div>
+      <div class="kpi-value" style="color:var(--cyan)">$173</div>
+      <div class="kpi-sub">Mesa $195 · Uber $220</div>
+    </div>
+    <div class="kpi-card accent-green">
+      <div class="kpi-label">Efectivo vs Tarjeta</div>
+      <div class="kpi-value" style="color:var(--green)">58/42</div>
+      <div class="kpi-sub">$2,813 ef · $2,037 tje</div>
+    </div>
+  </div>
+
+  <!-- Canales + Hora -->
+  <div class="dash-row">
+    <!-- Canales -->
+    <div class="section-card">
+      <div class="section-title">Ventas por Canal</div>
+      <div class="canal-row">
+        <div class="canal-item">
+          <div class="canal-header">
+            <span class="canal-name">🪑 Consumo en mesa</span>
+            <span class="canal-amount" style="color:var(--orange)">$2,800</span>
+          </div>
+          <div class="canal-bar-bg"><div class="canal-bar" style="width:58%;background:var(--orange)"></div></div>
+          <div class="canal-meta">18 órdenes · Ticket prom. $155 · 8 mesas activas hoy</div>
+        </div>
+        <div class="canal-item">
+          <div class="canal-header">
+            <span class="canal-name">🥡 Para llevar</span>
+            <span class="canal-amount" style="color:var(--cyan)">$890</span>
+          </div>
+          <div class="canal-bar-bg"><div class="canal-bar" style="width:18%;background:var(--cyan)"></div></div>
+          <div class="canal-meta">5 órdenes · Ticket prom. $178 · 2 en efectivo, 3 tarjeta</div>
+        </div>
+        <div class="canal-item">
+          <div class="canal-header">
+            <span class="canal-name" style="color:#FBBF24">🛵 Uber Eats</span>
+            <span class="canal-amount" style="color:#FBBF24">$1,160</span>
+          </div>
+          <div class="canal-bar-bg"><div class="canal-bar" style="width:24%;background:#FBBF24"></div></div>
+          <div class="canal-meta">5 pedidos · Ticket prom. $232 · Integración automática</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ventas por hora -->
+    <div class="section-card">
+      <div class="section-title">Ventas por Hora</div>
+      <div class="hora-chart" id="hora-chart"></div>
+      <div style="margin-top:10px;font-size:11px;color:var(--sub)">Pico: 1pm–3pm · Segundo pico: 7pm–9pm</div>
+    </div>
+  </div>
+
+  <!-- Top platillos + últimas transacciones -->
+  <div class="dash-row">
+    <!-- Top platillos -->
+    <div class="section-card">
+      <div class="section-title">Top Platillos del Día</div>
+      <div class="platillo-list">
+        <div class="platillo-row">
+          <span class="platillo-rank">1</span>
+          <span class="platillo-name">Pozole Mediano</span>
+          <span class="platillo-count">12 pzas</span>
+          <div class="platillo-bar-bg"><div class="platillo-bar" style="width:100%"></div></div>
+          <span class="platillo-total">$1,680</span>
+        </div>
+        <div class="platillo-row">
+          <span class="platillo-rank">2</span>
+          <span class="platillo-name">Pozole Grande</span>
+          <span class="platillo-count">8 pzas</span>
+          <div class="platillo-bar-bg"><div class="platillo-bar" style="width:66%"></div></div>
+          <span class="platillo-total">$1,600</span>
+        </div>
+        <div class="platillo-row">
+          <span class="platillo-rank">3</span>
+          <span class="platillo-name">Tostada de Pata</span>
+          <span class="platillo-count">9 pzas</span>
+          <div class="platillo-bar-bg"><div class="platillo-bar" style="width:55%"></div></div>
+          <span class="platillo-total">$540</span>
+        </div>
+        <div class="platillo-row">
+          <span class="platillo-rank">4</span>
+          <span class="platillo-name">Cerveza en Lata</span>
+          <span class="platillo-count">7 pzas</span>
+          <div class="platillo-bar-bg"><div class="platillo-bar" style="width:40%"></div></div>
+          <span class="platillo-total">$420</span>
+        </div>
+        <div class="platillo-row">
+          <span class="platillo-rank">5</span>
+          <span class="platillo-name">Pozole Chico</span>
+          <span class="platillo-count">5 pzas</span>
+          <div class="platillo-bar-bg"><div class="platillo-bar" style="width:30%"></div></div>
+          <span class="platillo-total">$500</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Últimas transacciones -->
+    <div class="section-card">
+      <div class="section-title">Últimas Transacciones</div>
+      <table class="tx-table">
+        <thead>
+          <tr>
+            <th>Hora</th><th>Canal</th><th>Detalle</th><th>Pago</th><th style="text-align:right">Total</th>
+          </tr>
+        </thead>
+        <tbody id="tx-body">
+          <tr>
+            <td>3:14 pm</td>
+            <td><span class="badge badge-mesa">Mesa 4</span></td>
+            <td style="color:var(--sub);font-size:12px">2 Pozole Med · 1 Pata</td>
+            <td><span class="badge badge-tarjeta">Zettle</span></td>
+            <td class="tx-amount" style="color:var(--orange)">$340</td>
+          </tr>
+          <tr>
+            <td>2:58 pm</td>
+            <td><span class="badge badge-uber">Uber Eats</span></td>
+            <td style="color:var(--sub);font-size:12px">1 Pozole Grande · 2 Tostadas</td>
+            <td><span class="badge badge-tarjeta" style="color:#FBBF24;background:#2d2010">App</span></td>
+            <td class="tx-amount" style="color:var(--orange)">$320</td>
+          </tr>
+          <tr>
+            <td>2:41 pm</td>
+            <td><span class="badge badge-llevar">Para llevar</span></td>
+            <td style="color:var(--sub);font-size:12px">2 Pozole Chico · 1 Agua 1L</td>
+            <td><span class="badge badge-efectivo">Efectivo</span></td>
+            <td class="tx-amount" style="color:var(--orange)">$260</td>
+          </tr>
+          <tr>
+            <td>2:20 pm</td>
+            <td><span class="badge badge-mesa">Mesa 7</span></td>
+            <td style="color:var(--sub);font-size:12px">1 Pozole Grande · 1 Cerveza</td>
+            <td><span class="badge badge-efectivo">Efectivo</span></td>
+            <td class="tx-amount" style="color:var(--orange)">$260</td>
+          </tr>
+          <tr>
+            <td>1:55 pm</td>
+            <td><span class="badge badge-uber">Uber Eats</span></td>
+            <td style="color:var(--sub);font-size:12px">2 Pozole Med · 2 Pata · 2 Cerveza</td>
+            <td><span class="badge badge-tarjeta" style="color:#FBBF24;background:#2d2010">App</span></td>
+            <td class="tx-amount" style="color:var(--orange)">$460</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /view-dashboard -->
+
+
+<!-- ══════════════════════ POS ══════════════════════ -->
+<div class="view" id="view-pos">
+  <div class="pos-wrap">
+
+    <!-- LEFT: Mesa + Menú -->
+    <div class="pos-left">
+
+      <!-- Selector de mesa -->
+      <div class="mesa-section">
+        <div class="section-title">Selecciona Mesa o Para Llevar</div>
+        <div class="mesa-grid" id="mesa-grid"></div>
+      </div>
+
+      <!-- Menú -->
+      <div class="menu-section">
+        <div class="menu-cats" id="menu-cats"></div>
+        <div class="menu-items" id="menu-items"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Orden actual -->
+    <div class="pos-right">
+      <div class="orden-header">
+        <div class="orden-title" id="orden-title">Selecciona una mesa</div>
+        <div class="orden-sub" id="orden-sub">Elige dónde se va a consumir</div>
+      </div>
+      <div class="orden-items" id="orden-items">
+        <div class="orden-empty">👈 Selecciona una mesa<br>para empezar la orden</div>
+      </div>
+      <div class="orden-footer">
+        <div class="orden-subtotal">
+          <span>Subtotal</span><span id="subtotal-val">$0.00</span>
+        </div>
+        <div class="orden-total-row">
+          <span class="orden-total-label">Total</span>
+          <span class="orden-total-val" id="total-val">$0.00</span>
+        </div>
+        <div class="cobrar-btns">
+          <button class="cobrar-btn cobrar-efectivo" id="btn-efectivo" disabled onclick="abrirModal('efectivo')">💵 Cobrar Efectivo</button>
+          <button class="cobrar-btn cobrar-tarjeta" id="btn-tarjeta" disabled onclick="abrirModal('tarjeta')">💳 Zettle</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /view-pos -->
+
+
+<!-- ══════════════════════ MODAL ══════════════════════ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon" id="modal-icon"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <div class="modal-amount" id="modal-amount"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="modal-btn modal-confirm" id="modal-confirm-btn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ TOAST ══════════════════════ -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✅</span>
+  <span class="toast-text" id="toast-text"></span>
+</div>
+
+
+<script>
+// ────────────────────────────────────────
+// DATA
+// ────────────────────────────────────────
+const MENU = {
+  'Pozoles': [
+    { name:'Pozole Grande', desc:'1.6L aprox. Rojo / Blanco / Verde', price:200 },
+    { name:'Pozole Mediano', desc:'1.0L aprox. Rojo / Blanco / Verde', price:140 },
+    { name:'Pozole Chico', desc:'0.7L aprox. Rojo / Blanco / Verde', price:100 },
+    { name:'Carne Extra', desc:'Cabeza, Maciza, Surtida o Pollo 130g', price:50 },
+    { name:'Caldo Extra', desc:'½ litro aprox.', price:50 },
+  ],
+  'Tostadas': [
+    { name:'Tostada Tinga de Pollo', desc:'1 pieza', price:60 },
+    { name:'Tostada de Pata', desc:'1 pieza', price:60 },
+  ],
+  'Complementos': [
+    { name:'Aguacate', desc:'½ pieza', price:25 },
+    { name:'Crema', desc:'80 grs aprox.', price:25 },
+    { name:'Queso', desc:'50 grs aprox.', price:25 },
+    { name:'Tostadas Extra', desc:'5 piezas', price:15 },
+    { name:'Verdura Extra', desc:'Contenedor', price:40 },
+  ],
+  'Bebidas': [
+    { name:'Agua Jamaica / Tamarindo 1L', desc:'Natural', price:60 },
+    { name:'Agua Jamaica / Tamarindo ½L', desc:'Natural', price:40 },
+    { name:'Refresco en Lata', desc:'', price:40 },
+    { name:'Cerveza en Lata', desc:'', price:60 },
+  ],
+  'Postres': [
+    { name:'Pay de Limón', desc:'230 grs aprox.', price:60 },
+    { name:'Flan Napolitano', desc:'200 grs aprox.', price:60 },
+  ],
+};
+
+const MESAS = [
+  {id:1,label:'Mesa 1',icon:'🍲',ocupada:true,total:340},
+  {id:2,label:'Mesa 2',icon:'🍲',ocupada:false},
+  {id:3,label:'Mesa 3',icon:'🍲',ocupada:true,total:200},
+  {id:4,label:'Mesa 4',icon:'🍲',ocupada:false},
+  {id:5,label:'Mesa 5',icon:'🍲',ocupada:false},
+  {id:6,label:'Mesa 6',icon:'🍲',ocupada:true,total:480},
+  {id:7,label:'Mesa 7',icon:'🍲',ocupada:false},
+  {id:8,label:'Mesa 8',icon:'🍲',ocupada:false},
+  {id:'llevar',label:'Para Llevar',icon:'🥡',ocupada:false,esLlevar:true},
+];
+
+const HORAS = [
+  {h:'12pm',v:8},{h:'1pm',v:32},{h:'2pm',v:42},{h:'3pm',v:38},
+  {h:'4pm',v:15},{h:'5pm',v:8},{h:'6pm',v:14},{h:'7pm',v:35},
+  {h:'8pm',v:44},{h:'9pm',v:28},{h:'10pm',v:10},
+];
+
+// ────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────
+let selectedMesa = null;
+let currentCat = 'Pozoles';
+let orden = {}; // { 'Pozole Mediano': { price:140, qty:2 }, ... }
+let modalPago = null;
+
+// ────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  setDate();
+  buildHoraChart();
+  buildMesas();
+  buildMenuCats();
+  buildMenuItems('Pozoles');
+});
+
+function setDate(){
+  const now = new Date();
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+  document.getElementById('header-date').textContent = now.toLocaleDateString('es-MX', opts);
+}
+
+function switchView(v){
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── Hora chart ──
+function buildHoraChart(){
+  const max = Math.max(...HORAS.map(h=>h.v));
+  const wrap = document.getElementById('hora-chart');
+  wrap.innerHTML = HORAS.map(h => `
+    <div class="hora-bar-wrap">
+      <div class="hora-bar${h.v>=40?' peak':''}" style="height:${Math.round((h.v/max)*72)}px;"></div>
+      <span class="hora-label">${h.h}</span>
+    </div>
+  `).join('');
+}
+
+// ── Mesas ──
+function buildMesas(){
+  const grid = document.getElementById('mesa-grid');
+  grid.innerHTML = MESAS.map(m => `
+    <button class="mesa-btn${m.ocupada?' ocupada':''}${m.esLlevar?' para-llevar':''}"
+      onclick="selectMesa(${JSON.stringify(m.id)})"
+      id="mesa-btn-${m.id}">
+      <span class="mesa-icon">${m.icon}</span>
+      <span class="mesa-label">${m.label}</span>
+      ${m.ocupada ? `<span class="mesa-total">$${m.total}</span>` : ''}
+    </button>
+  `).join('');
+}
+
+function selectMesa(id){
+  selectedMesa = id;
+  orden = {};
+  document.querySelectorAll('.mesa-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('mesa-btn-'+id).classList.add('selected');
+  const m = MESAS.find(x => x.id === id);
+  document.getElementById('orden-title').textContent = m.esLlevar ? '🥡 Para Llevar' : `🍲 ${m.label}`;
+  document.getElementById('orden-sub').textContent = 'Agrega platillos del menú';
+  renderOrden();
+}
+
+// ── Menú ──
+function buildMenuCats(){
+  const wrap = document.getElementById('menu-cats');
+  wrap.innerHTML = Object.keys(MENU).map(cat => `
+    <button class="menu-cat${cat===currentCat?' active':''}" onclick="selectCat('${cat}')">${cat}</button>
+  `).join('');
+}
+
+function selectCat(cat){
+  currentCat = cat;
+  document.querySelectorAll('.menu-cat').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  buildMenuItems(cat);
+}
+
+function buildMenuItems(cat){
+  const wrap = document.getElementById('menu-items');
+  wrap.innerHTML = MENU[cat].map(item => `
+    <div class="menu-item" onclick="addItem('${item.name.replace(/'/g,"\\'")}', ${item.price})">
+      <span class="menu-item-name">${item.name}</span>
+      ${item.desc ? `<span class="menu-item-desc">${item.desc}</span>` : ''}
+      <span class="menu-item-price">$${item.price}.00</span>
+    </div>
+  `).join('');
+}
+
+// ── Orden ──
+function addItem(name, price){
+  if(!selectedMesa){ showToast('Selecciona una mesa primero', '⚠️'); return; }
+  if(orden[name]){ orden[name].qty++; } else { orden[name] = { price, qty:1 }; }
+  renderOrden();
+}
+
+function changeQty(name, delta){
+  if(!orden[name]) return;
+  orden[name].qty += delta;
+  if(orden[name].qty <= 0) delete orden[name];
+  renderOrden();
+}
+
+function renderOrden(){
+  const wrap = document.getElementById('orden-items');
+  const keys = Object.keys(orden);
+  if(!keys.length){
+    wrap.innerHTML = '<div class="orden-empty">Agrega platillos<br>del menú 👈</div>';
+    document.getElementById('subtotal-val').textContent = '$0.00';
+    document.getElementById('total-val').textContent = '$0.00';
+    document.getElementById('btn-efectivo').disabled = true;
+    document.getElementById('btn-tarjeta').disabled = true;
+    return;
+  }
+  let total = 0;
+  wrap.innerHTML = keys.map(name => {
+    const item = orden[name];
+    const sub = item.price * item.qty;
+    total += sub;
+    return `
+      <div class="orden-item">
+        <span class="orden-item-name">${name}</span>
+        <div class="orden-qty-wrap">
+          <button class="qty-btn" onclick="changeQty('${name.replace(/'/g,"\\'")}', -1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${name.replace(/'/g,"\\'")}', 1)">+</button>
+        </div>
+        <span class="orden-item-total">$${sub}</span>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('subtotal-val').textContent = `$${total}.00`;
+  document.getElementById('total-val').textContent = `$${total}.00`;
+  document.getElementById('btn-efectivo').disabled = false;
+  document.getElementById('btn-tarjeta').disabled = false;
+}
+
+function getTotal(){
+  return Object.values(orden).reduce((s,i) => s + i.price*i.qty, 0);
+}
+
+// ── Modal cobro ──
+function abrirModal(tipo){
+  modalPago = tipo;
+  const total = getTotal();
+  const m = MESAS.find(x => x.id === selectedMesa);
+  document.getElementById('modal-icon').textContent = tipo==='efectivo' ? '💵' : '💳';
+  document.getElementById('modal-title').textContent = tipo==='efectivo' ? 'Cobro en Efectivo' : 'Cobro con Zettle';
+  document.getElementById('modal-sub').textContent = tipo==='efectivo'
+    ? `${m?.label||'Para Llevar'} · Recibe efectivo del cliente`
+    : `${m?.label||'Para Llevar'} · Presenta la terminal Zettle`;
+  document.getElementById('modal-amount').textContent = `$${total}.00`;
+  document.getElementById('modal-confirm-btn').onclick = confirmarCobro;
+  document.getElementById('modal').classList.add('open');
+}
+
+function cerrarModal(){
+  document.getElementById('modal').classList.remove('open');
+  modalPago = null;
+}
+
+function confirmarCobro(){
+  cerrarModal();
+  const m = MESAS.find(x => x.id === selectedMesa);
+  const label = m?.esLlevar ? 'Para Llevar' : m?.label;
+  // Agrega a tabla de transacciones
+  addTxRow(label, modalPago);
+  // Libera mesa
+  if(m && !m.esLlevar){ m.ocupada = false; m.total = undefined; }
+  buildMesas();
+  selectedMesa = null;
+  orden = {};
+  document.getElementById('orden-title').textContent = 'Selecciona una mesa';
+  document.getElementById('orden-sub').textContent = 'Elige dónde se va a consumir';
+  renderOrden();
+  showToast(`${label} cobrada con éxito ✓`);
+}
+
+function addTxRow(label, pago){
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const am = h >= 12 ? 'pm' : 'am';
+  const h12 = h > 12 ? h-12 : h;
+  const timeStr = `${h12}:${m.toString().padStart(2,'0')} ${am}`;
+  const total = getTotal();
+  const esLlevar = label === 'Para Llevar';
+  const esUber = false;
+  const badgeClass = esLlevar ? 'badge-llevar' : 'badge-mesa';
+  const pagoClass = pago === 'tarjeta' ? 'badge-tarjeta' : 'badge-efectivo';
+  const pagoLabel = pago === 'tarjeta' ? 'Zettle' : 'Efectivo';
+  const items = Object.keys(orden).slice(0,2).join(' · ');
+  const tbody = document.getElementById('tx-body');
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${timeStr}</td>
+    <td><span class="badge ${badgeClass}">${label}</span></td>
+    <td style="color:var(--sub);font-size:12px">${items||'—'}</td>
+    <td><span class="badge ${pagoClass}">${pagoLabel}</span></td>
+    <td class="tx-amount" style="color:var(--orange)">$${total}</td>
+  `;
+  tbody.insertBefore(row, tbody.firstChild);
+}
+
+// ── Toast ──
+function showToast(msg, icon='✅'){
+  const t = document.getElementById('toast');
+  document.querySelector('.toast-icon').textContent = icon;
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

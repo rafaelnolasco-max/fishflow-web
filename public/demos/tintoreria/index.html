@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tintorería — FishFlow</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #0066FF;
+      --primary-dark: #0052CC;
+      --success: #22C55E;
+      --warning: #F59E0B;
+      --info: #3B82F6;
+      --gray-50: #F8FAFC;
+      --gray-100: #F1F5F9;
+      --gray-200: #E2E8F0;
+      --gray-400: #94A3B8;
+      --gray-600: #475569;
+      --gray-800: #1E293B;
+      --white: #FFFFFF;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* HEADER */
+    .header {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+    .header-logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+    .header-logo span { color: var(--gray-800); }
+    .header-subtitle {
+      font-size: 13px;
+      color: var(--gray-400);
+      margin-top: 1px;
+    }
+    .header-badge {
+      margin-left: auto;
+      background: #EFF6FF;
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 16px;
+      gap: 4px;
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-400);
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* CONTENT */
+    .content {
+      padding: 20px 16px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* CARDS */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* FORM */
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-600);
+      margin-bottom: 6px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--gray-800);
+      background: var(--white);
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    .form-textarea { resize: none; height: 80px; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 20px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--white);
+    }
+    .btn-primary:active { background: var(--primary-dark); transform: scale(0.98); }
+    .btn-ghost {
+      background: var(--gray-100);
+      color: var(--gray-600);
+    }
+
+    /* ESTADO BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-recibida   { background: #FEF9C3; color: #854D0E; }
+    .badge-proceso    { background: #DBEAFE; color: #1E40AF; }
+    .badge-lista      { background: #D1FAE5; color: #065F46; }
+    .badge-entregada  { background: var(--gray-100); color: var(--gray-400); }
+
+    /* PRENDA CARD */
+    .prenda-card {
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: box-shadow 0.15s;
+    }
+    .prenda-card:hover { box-shadow: var(--shadow-md); }
+    .prenda-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .prenda-folio {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.3px;
+    }
+    .prenda-fecha {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-top: 2px;
+    }
+    .prenda-cliente {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 3px;
+    }
+    .prenda-tel {
+      font-size: 13px;
+      color: var(--gray-400);
+      margin-bottom: 8px;
+    }
+    .prenda-desc {
+      font-size: 13px;
+      color: var(--gray-600);
+      margin-bottom: 12px;
+      background: var(--gray-50);
+      padding: 8px 10px;
+      border-radius: 8px;
+    }
+    .prenda-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-estado {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      min-width: 100px;
+    }
+    .btn-avanzar {
+      background: var(--primary);
+      color: var(--white);
+    }
+    .btn-avanzar:active { transform: scale(0.97); }
+    .btn-avanzar:disabled {
+      background: var(--gray-100);
+      color: var(--gray-400);
+      cursor: default;
+    }
+    .btn-eliminar {
+      background: #FEE2E2;
+      color: #DC2626;
+      flex: 0;
+      padding: 9px 14px;
+    }
+
+    /* ESTADÍSTICAS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--gray-400);
+      font-weight: 500;
+    }
+
+    /* FILTROS */
+    .filtros {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .filtro-btn {
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1.5px solid var(--gray-200);
+      background: var(--white);
+      color: var(--gray-600);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .filtro-btn.active {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+    }
+
+    /* HISTORIAL */
+    .search-box {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: var(--gray-400);
+    }
+    .search-input {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
+      font-size: 15px;
+      background: var(--white);
+    }
+    .search-input:focus { outline: none; border-color: var(--primary); }
+
+    /* WHATSAPP PREVIEW */
+    .wa-preview {
+      background: #E7F5E9;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      border-left: 4px solid #25D366;
+    }
+    .wa-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .wa-icon {
+      width: 32px;
+      height: 32px;
+      background: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .wa-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #128C7E;
+    }
+    .wa-sublabel { font-size: 11px; color: #25D366; }
+    .wa-bubble {
+      background: var(--white);
+      border-radius: 0 10px 10px 10px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: var(--gray-800);
+      line-height: 1.5;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .wa-time { font-size: 11px; color: var(--gray-400); text-align: right; margin-top: 6px; }
+
+    /* EMPTY STATE */
+    .empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--gray-400);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-text { font-size: 15px; font-weight: 500; margin-bottom: 6px; color: var(--gray-600); }
+    .empty-sub { font-size: 13px; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--gray-800);
+      color: var(--white);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 999;
+      white-space: nowrap;
+      box-shadow: var(--shadow-md);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white);
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px 40px;
+      width: 100%;
+      max-width: 500px;
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: var(--gray-800);
+    }
+
+    /* DIVIDER */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--gray-100);
+      margin: 16px 0;
+    }
+
+    .text-muted { font-size: 13px; color: var(--gray-400); }
+    .mt-8 { margin-top: 8px; }
+    .fw-600 { font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-logo">Fish<span>Flow</span></div>
+    <div class="header-subtitle">Tintorería</div>
+  </div>
+  <div class="header-badge">✦ Demo</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('registrar')">＋ Registrar</button>
+  <button class="tab" onclick="showTab('prendas')">📋 Prendas</button>
+  <button class="tab" onclick="showTab('historial')">🕐 Historial</button>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- TAB: REGISTRAR -->
+  <div class="section active" id="tab-registrar">
+
+    <div class="card">
+      <div class="card-title">🧺 Nueva prenda</div>
+
+      <div class="form-group">
+        <label class="form-label">Nombre del cliente</label>
+        <input class="form-input" id="inp-nombre" type="text" placeholder="Ej. María González" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Teléfono (WhatsApp)</label>
+        <input class="form-input" id="inp-tel" type="tel" placeholder="Ej. 8112345678" maxlength="10" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descripción de la prenda</label>
+        <textarea class="form-textarea" id="inp-desc" placeholder="Ej. Vestido negro largo, manchas en el frente"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Servicio</label>
+        <select class="form-select" id="inp-servicio">
+          <option value="Lavado en seco">Lavado en seco</option>
+          <option value="Lavado normal">Lavado normal</option>
+          <option value="Planchado">Planchado</option>
+          <option value="Lavado + planchado">Lavado + planchado</option>
+          <option value="Desmanchado">Desmanchado</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" onclick="registrarPrenda()">
+        ＋ Registrar prenda
+      </button>
+    </div>
+
+    <!-- Folio preview -->
+    <div class="card" id="wa-folio-preview" style="display:none">
+      <div class="card-title">✅ Prenda registrada</div>
+      <div id="folio-generado" style="font-size:24px; font-weight:800; color:var(--primary); margin-bottom:4px;"></div>
+      <div class="text-muted" id="folio-detalle"></div>
+
+      <div class="wa-preview">
+        <div class="wa-header">
+          <div class="wa-icon">💬</div>
+          <div>
+            <div class="wa-label">WhatsApp enviado</div>
+            <div class="wa-sublabel">Confirmación de recepción</div>
+          </div>
+        </div>
+        <div class="wa-bubble" id="wa-confirmacion"></div>
+        <div class="wa-time" id="wa-hora"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB: PRENDAS -->
+  <div class="section" id="tab-prendas">
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">Total activas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-listas">0</div>
+        <div class="stat-label">Listas 🟢</div>
+      </div>
+    </div>
+
+    <div class="filtros">
+      <button class="filtro-btn active" onclick="filtrar('todas', this)">Todas</button>
+      <button class="filtro-btn" onclick="filtrar('Recibida', this)">Recibidas</button>
+      <button class="filtro-btn" onclick="filtrar('En proceso', this)">En proceso</button>
+      <button class="filtro-btn" onclick="filtrar('Lista', this)">Listas</button>
+    </div>
+
+    <div id="lista-prendas"></div>
+
+  </div>
+
+  <!-- TAB: HISTORIAL -->
+  <div class="section" id="tab-historial">
+
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="inp-buscar" type="tel"
+        placeholder="Buscar por teléfono..." oninput="buscarHistorial()" maxlength="10" />
+    </div>
+
+    <div id="historial-resultado"></div>
+
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL WA (estado Lista) -->
+<div class="modal-overlay" id="modal-wa">
+  <div class="modal">
+    <div class="modal-title">🟢 Prenda lista — Notificación enviada</div>
+    <div class="wa-preview">
+      <div class="wa-header">
+        <div class="wa-icon">💬</div>
+        <div>
+          <div class="wa-label">WhatsApp automático</div>
+          <div class="wa-sublabel">Aviso al cliente</div>
+        </div>
+      </div>
+      <div class="wa-bubble" id="wa-modal-msg"></div>
+      <div class="wa-time" id="wa-modal-hora"></div>
+    </div>
+    <div style="margin-top:16px">
+      <button class="btn btn-primary" onclick="cerrarModal()">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // ESTADO GLOBAL
+  // ─────────────────────────────────────────────
+  const ESTADOS = ['Recibida', 'En proceso', 'Lista', 'Entregada'];
+  let filtroActivo = 'todas';
+
+  function getPrendas() {
+    return JSON.parse(localStorage.getItem('prendas') || '[]');
+  }
+  function setPrendas(p) {
+    localStorage.setItem('prendas', JSON.stringify(p));
+  }
+
+  // ─────────────────────────────────────────────
+  // NAVEGACIÓN
+  // ─────────────────────────────────────────────
+  function showTab(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.target.classList.add('active');
+
+    if (id === 'prendas') renderPrendas();
+    if (id === 'historial') { document.getElementById('historial-resultado').innerHTML = ''; }
+    if (id === 'registrar') {
+      document.getElementById('wa-folio-preview').style.display = 'none';
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // REGISTRAR PRENDA
+  // ─────────────────────────────────────────────
+  function registrarPrenda() {
+    const nombre = document.getElementById('inp-nombre').value.trim();
+    const tel    = document.getElementById('inp-tel').value.trim();
+    const desc   = document.getElementById('inp-desc').value.trim();
+    const serv   = document.getElementById('inp-servicio').value;
+
+    if (!nombre || !tel || !desc) {
+      toast('⚠️ Completa todos los campos');
+      return;
+    }
+    if (tel.length < 10) {
+      toast('⚠️ Teléfono debe tener 10 dígitos');
+      return;
+    }
+
+    const prendas = getPrendas();
+    const num = prendas.length + 1;
+    const folio = 'TIN-' + String(num).padStart(4, '0');
+    const ahora = new Date();
+
+    const prenda = {
+      folio, nombre, tel, desc, servicio: serv,
+      estado: 'Recibida',
+      fecha: ahora.toISOString(),
+      historial: [{ estado: 'Recibida', fecha: ahora.toISOString() }]
+    };
+
+    prendas.push(prenda);
+    setPrendas(prendas);
+
+    // Mostrar confirmación
+    document.getElementById('folio-generado').textContent = folio;
+    document.getElementById('folio-detalle').textContent = serv + ' · ' + nombre;
+    document.getElementById('wa-confirmacion').innerHTML =
+      `Hola <strong>${nombre}</strong>, recibimos tu prenda en <strong>Tintorería FishFlow</strong> 🧺<br><br>` +
+      `📋 Folio: <strong>${folio}</strong><br>` +
+      `👕 ${desc}<br>` +
+      `🔧 Servicio: ${serv}<br><br>` +
+      `Te avisaremos cuando esté lista. ¡Gracias por tu preferencia!`;
+    document.getElementById('wa-hora').textContent = formatHora(ahora);
+    document.getElementById('wa-folio-preview').style.display = 'block';
+
+    // Limpiar form
+    document.getElementById('inp-nombre').value = '';
+    document.getElementById('inp-tel').value = '';
+    document.getElementById('inp-desc').value = '';
+
+    toast('✅ ' + folio + ' registrado');
+  }
+
+  // ─────────────────────────────────────────────
+  // RENDER PRENDAS
+  // ─────────────────────────────────────────────
+  function renderPrendas() {
+    const prendas = getPrendas().filter(p => p.estado !== 'Entregada');
+    const lista = document.getElementById('lista-prendas');
+
+    // Stats
+    document.getElementById('stat-total').textContent = prendas.length;
+    document.getElementById('stat-listas').textContent = prendas.filter(p => p.estado === 'Lista').length;
+
+    let filtradas = filtroActivo === 'todas'
+      ? prendas
+      : prendas.filter(p => p.estado === filtroActivo);
+
+    if (filtradas.length === 0) {
+      lista.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">🧺</div>
+          <div class="empty-text">Sin prendas en este filtro</div>
+          <div class="empty-sub">Registra una nueva prenda en la pestaña ＋ Registrar</div>
+        </div>`;
+      return;
+    }
+
+    lista.innerHTML = filtradas.map(p => {
+      const idxEstado = ESTADOS.indexOf(p.estado);
+      const puedeAvanzar = idxEstado < ESTADOS.length - 1;
+      const siguienteEstado = puedeAvanzar ? ESTADOS[idxEstado + 1] : null;
+      const fecha = new Date(p.fecha);
+
+      return `
+        <div class="prenda-card">
+          <div class="prenda-header">
+            <div>
+              <div class="prenda-folio">${p.folio}</div>
+              <div class="prenda-fecha">${formatFecha(fecha)}</div>
+            </div>
+            <span class="badge badge-${badgeClass(p.estado)}">${estadoIcon(p.estado)} ${p.estado}</span>
+          </div>
+          <div class="prenda-cliente">${p.nombre}</div>
+          <div class="prenda-tel">📱 ${formatTel(p.tel)}</div>
+          <div class="prenda-desc">${p.servicio}: ${p.desc}</div>
+          <div class="prenda-actions">
+            ${puedeAvanzar
+              ? `<button class="btn-estado btn-avanzar" onclick="avanzarEstado('${p.folio}')">
+                  ${estadoIcon(siguienteEstado)} Marcar como "${siguienteEstado}"
+                </button>`
+              : `<button class="btn-estado btn-avanzar" disabled>✅ Entregada</button>`
+            }
+            <button class="btn-estado btn-eliminar" onclick="eliminarPrenda('${p.folio}')">🗑</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function avanzarEstado(folio) {
+    const prendas = getPrendas();
+    const idx = prendas.findIndex(p => p.folio === folio);
+    if (idx === -1) return;
+
+    const p = prendas[idx];
+    const idxEstado = ESTADOS.indexOf(p.estado);
+    if (idxEstado >= ESTADOS.length - 1) return;
+
+    const nuevoEstado = ESTADOS[idxEstado + 1];
+    p.estado = nuevoEstado;
+    p.historial.push({ estado: nuevoEstado, fecha: new Date().toISOString() });
+    setPrendas(prendas);
+
+    // Si pasa a Lista → mostrar modal WA
+    if (nuevoEstado === 'Lista') {
+      const ahora = new Date();
+      document.getElementById('wa-modal-msg').innerHTML =
+        `¡Hola <strong>${p.nombre}</strong>! 🎉<br><br>` +
+        `Tu prenda está <strong>lista para recoger</strong> en Tintorería FishFlow.<br><br>` +
+        `📋 Folio: <strong>${p.folio}</strong><br>` +
+        `👕 ${p.desc}<br><br>` +
+        `⏰ Horario: Lun–Sáb 9am–7pm<br>` +
+        `📍 ¡Te esperamos!`;
+      document.getElementById('wa-modal-hora').textContent = formatHora(ahora);
+      document.getElementById('modal-wa').classList.add('open');
+    }
+
+    toast('Estado actualizado: ' + nuevoEstado);
+    renderPrendas();
+  }
+
+  function eliminarPrenda(folio) {
+    if (!confirm('¿Eliminar la prenda ' + folio + '? Esta acción no se puede deshacer.')) return;
+    const prendas = getPrendas().filter(p => p.folio !== folio);
+    setPrendas(prendas);
+    renderPrendas();
+    toast('🗑 ' + folio + ' eliminada');
+  }
+
+  function filtrar(estado, btn) {
+    filtroActivo = estado;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderPrendas();
+  }
+
+  // ─────────────────────────────────────────────
+  // HISTORIAL
+  // ─────────────────────────────────────────────
+  function buscarHistorial() {
+    const tel = document.getElementById('inp-buscar').value.trim();
+    const resultado = document.getElementById('historial-resultado');
+
+    if (tel.length < 3) { resultado.innerHTML = ''; return; }
+
+    const todas = getPrendas().filter(p => p.tel.includes(tel));
+
+    if (todas.length === 0) {
+      resultado.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-text">Sin resultados</div>
+          <div class="empty-sub">No hay prendas con ese teléfono</div>
+        </div>`;
+      return;
+    }
+
+    resultado.innerHTML = `
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title">👤 ${todas[0].nombre}</div>
+        <div class="text-muted">📱 ${formatTel(todas[0].tel)} · ${todas.length} prenda(s)</div>
+      </div>
+      ${todas.map(p => `
+        <div class="prenda-card">
+          <div class="prenda-header">
+            <div>
+              <div class="prenda-folio">${p.folio}</div>
+              <div class="prenda-fecha">${formatFecha(new Date(p.fecha))}</div>
+            </div>
+            <span class="badge badge-${badgeClass(p.estado)}">${estadoIcon(p.estado)} ${p.estado}</span>
+          </div>
+          <div class="prenda-desc">${p.servicio}: ${p.desc}</div>
+          <div class="text-muted mt-8">
+            ${p.historial.map(h =>
+              `<span style="margin-right:8px">${estadoIcon(h.estado)} ${h.estado} · ${formatHora(new Date(h.fecha))}</span>`
+            ).join('<br>')}
+          </div>
+        </div>`).join('')}`;
+  }
+
+  // ─────────────────────────────────────────────
+  // MODAL
+  // ─────────────────────────────────────────────
+  function cerrarModal() {
+    document.getElementById('modal-wa').classList.remove('open');
+  }
+
+  // ─────────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────────
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function badgeClass(estado) {
+    return { 'Recibida': 'recibida', 'En proceso': 'proceso', 'Lista': 'lista', 'Entregada': 'entregada' }[estado] || 'recibida';
+  }
+
+  function estadoIcon(estado) {
+    return { 'Recibida': '🟡', 'En proceso': '🔵', 'Lista': '🟢', 'Entregada': '✅' }[estado] || '';
+  }
+
+  function formatFecha(d) {
+    return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function formatHora(d) {
+    return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatTel(t) {
+    return t.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+
+  // Init
+  renderPrendas();
+</script>
+</body>
+</html>

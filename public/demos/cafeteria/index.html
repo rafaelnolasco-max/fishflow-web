@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Café Ritual — Sistema de Gestión</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --espresso:   #1C0A00;
+    --coffee:     #3D1C02;
+    --mocha:      #6B3A2A;
+    --caramel:    #C47A2E;
+    --cream:      #F5E6D0;
+    --latte:      #EDD5B0;
+    --white:      #FFF9F2;
+    --muted:      #9C7B5C;
+    --border:     rgba(196,122,46,0.2);
+    --success:    #5C9E6E;
+    --warning:    #E09030;
+    --danger:     #C05050;
+    --sidebar-w:  240px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--espresso);
+    color: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--coffee);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    height: 100vh;
+  }
+
+  .sidebar-logo {
+    padding: 28px 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .logo-cup {
+    font-size: 24px;
+    line-height: 1;
+  }
+  .logo-name {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--latte);
+    letter-spacing: -0.5px;
+  }
+  .logo-powered {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .ff-drop {
+    width: 7px; height: 10px;
+    background: var(--caramel);
+    clip-path: polygon(50% 0%, 100% 40%, 50% 100%, 0% 40%);
+    display: inline-block;
+  }
+
+  .sidebar-section {
+    padding: 20px 16px 8px;
+  }
+  .sidebar-section label {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: rgba(245,230,208,0.55);
+    font-size: 13.5px;
+    font-weight: 400;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: rgba(196,122,46,0.1); color: var(--cream); }
+  .nav-item.active {
+    background: rgba(196,122,46,0.18);
+    color: var(--latte);
+    font-weight: 500;
+  }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--caramel);
+    color: var(--espresso);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 20px;
+    min-width: 20px;
+    text-align: center;
+  }
+  .nav-badge.green { background: var(--success); color: white; }
+
+  .sidebar-stats {
+    margin: 12px 16px;
+    background: rgba(196,122,46,0.12);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .stat-row:last-child { margin-bottom: 0; }
+  .stat-label { font-size: 11px; color: var(--muted); }
+  .stat-value { font-size: 13px; font-weight: 600; color: var(--latte); }
+  .stat-value.up { color: var(--success); }
+
+  .fishflow-badge {
+    margin-top: auto;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ff-text { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); line-height: 1.5; }
+  .ff-text strong { display: block; color: var(--caramel); font-weight: 600; letter-spacing: 0.12em; }
+
+  /* ─── MAIN ─── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #120500;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--coffee);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .topbar-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--latte);
+  }
+  .topbar-meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(92,158,110,0.12);
+    border: 1px solid rgba(92,158,110,0.3);
+    color: var(--success);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--mocha);
+    border: 2px solid var(--caramel);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; color: var(--latte);
+    cursor: pointer;
+  }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    display: flex;
+    gap: 20px;
+  }
+
+  /* KPI STRIP */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+    flex-shrink: 0;
+  }
+  .kpi-card {
+    background: var(--coffee);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .kpi-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-family: 'Fraunces', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--latte);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .kpi-sub .up { color: var(--success); }
+  .kpi-sub .down { color: var(--danger); }
+
+  /* TABLES GRID */
+  .col-left { flex: 1; display: flex; flex-direction: column; gap: 18px; }
+  .col-right { width: 300px; display: flex; flex-direction: column; gap: 18px; }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--latte);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-title .count {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* MESAS GRID */
+  .mesas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .mesa-card {
+    background: var(--coffee);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .mesa-card:hover { border-color: var(--caramel); transform: translateY(-1px); }
+  .mesa-card.ocupada { border-color: rgba(196,122,46,0.4); }
+  .mesa-card.urgente { border-color: rgba(192,80,80,0.5); background: rgba(192,80,80,0.06); }
+  .mesa-card.libre {
+    border-style: dashed;
+    opacity: 0.55;
+  }
+  .mesa-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .mesa-bar.amarilla { background: var(--caramel); }
+  .mesa-bar.roja { background: var(--danger); }
+  .mesa-bar.verde { background: var(--success); }
+
+  .mesa-num {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .mesa-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    color: var(--latte);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .mesa-items {
+    font-size: 11.5px;
+    color: rgba(245,230,208,0.6);
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+  .mesa-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mesa-time {
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .mesa-time.late { color: var(--danger); }
+  .mesa-total {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--caramel);
+  }
+  .mesa-status {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .ms-prep { background: rgba(224,144,48,0.15); color: var(--warning); }
+  .ms-listo { background: rgba(92,158,110,0.15); color: var(--success); }
+  .ms-libre { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+  /* PEDIDOS RECIENTES */
+  .order-list { display: flex; flex-direction: column; gap: 8px; }
+  .order-item {
+    background: var(--coffee);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .order-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: rgba(196,122,46,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .order-info { flex: 1; }
+  .order-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--latte);
+    margin-bottom: 2px;
+  }
+  .order-detail {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .order-right { text-align: right; }
+  .order-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--caramel);
+  }
+  .order-time {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* PRODUCTOS TOP */
+  .product-list { display: flex; flex-direction: column; gap: 8px; }
+  .product-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .product-row:last-child { border-bottom: none; }
+  .product-rank {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--mocha);
+    width: 20px;
+  }
+  .product-emoji { font-size: 20px; width: 30px; text-align: center; }
+  .product-name { flex: 1; font-size: 13px; color: var(--cream); }
+  .product-sold { font-size: 11px; color: var(--muted); text-align: right; }
+  .product-sold strong { display: block; font-size: 13px; font-weight: 600; color: var(--caramel); }
+
+  /* CAJA CARD */
+  .caja-card {
+    background: linear-gradient(135deg, #3D1C02 0%, #5C2E10 100%);
+    border: 1px solid rgba(196,122,46,0.3);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .caja-header {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .caja-total {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--caramel);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .caja-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .caja-divider { height: 1px; background: var(--border); margin-bottom: 16px; }
+  .caja-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 12.5px;
+  }
+  .caja-row:last-child { margin-bottom: 0; }
+  .caja-row .label { color: var(--muted); }
+  .caja-row .value { font-weight: 600; color: var(--latte); }
+
+  /* TURNO BARISTA */
+  .barista-card {
+    background: var(--coffee);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .barista-header {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .barista-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .barista-item:last-child { border-bottom: none; }
+  .barista-av {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--mocha);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--latte);
+    flex-shrink: 0;
+  }
+  .barista-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--cream);
+    flex: 1;
+  }
+  .barista-role {
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .barista-orders {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--caramel);
+    text-align: right;
+  }
+  .barista-orders span {
+    display: block;
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  /* SCROLLBAR */
+  .content::-webkit-scrollbar { width: 4px; }
+  .content::-webkit-scrollbar-track { background: transparent; }
+  .content::-webkit-scrollbar-thumb { background: var(--mocha); border-radius: 2px; }
+
+  .card-wrap {
+    background: var(--coffee);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+
+  .full-col {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <span class="logo-cup">☕</span>
+      <span class="logo-name">Café Ritual</span>
+    </div>
+    <div class="logo-powered">
+      <span class="ff-drop"></span>
+      Gestionado con FishFlow
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <label>Principal</label>
+    <div class="nav-item active">
+      <span class="icon">🏠</span> Dashboard
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item">
+      <span class="icon">📋</span> Pedidos
+      <span class="nav-badge green">12</span>
+    </div>
+    <div class="nav-item">
+      <span class="icon">🍽️</span> Mesas
+    </div>
+    <div class="nav-item">
+      <span class="icon">📦</span> Menú
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <label>Administración</label>
+    <div class="nav-item"><span class="icon">💰</span> Caja</div>
+    <div class="nav-item"><span class="icon">📊</span> Reportes</div>
+    <div class="nav-item"><span class="icon">👥</span> Clientes</div>
+    <div class="nav-item"><span class="icon">🔔</span> Notificaciones</div>
+  </div>
+
+  <div class="sidebar-stats">
+    <div class="stat-row">
+      <span class="stat-label">Mesas ocupadas</span>
+      <span class="stat-value">7 / 10</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Pedidos activos</span>
+      <span class="stat-value">12</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Ticket promedio</span>
+      <span class="stat-value up">$148</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Ocupación hoy</span>
+      <span class="stat-value up">87%</span>
+    </div>
+  </div>
+
+  <div class="fishflow-badge">
+    <span class="ff-drop" style="width:9px;height:12px"></span>
+    <div class="ff-text">
+      <strong>FishFlow</strong>
+      Sistema activo · v2.1
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Panel del día ☀️</div>
+      <div class="topbar-meta">Lunes 5 de mayo, 2025 · Turno matutino 08:00–16:00</div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        Cocina en línea
+      </div>
+      <div class="avatar">MR</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" style="flex-direction:column;">
+
+    <!-- KPI STRIP -->
+    <div class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-label">Ventas del día</div>
+        <div class="kpi-value">$3,840</div>
+        <div class="kpi-sub"><span class="up">↑ 12%</span> vs. ayer</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pedidos hoy</div>
+        <div class="kpi-value">47</div>
+        <div class="kpi-sub"><span class="up">↑ 5</span> más que ayer</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Tiempo prom. mesa</div>
+        <div class="kpi-value">38<span style="font-size:1rem;color:var(--muted)">min</span></div>
+        <div class="kpi-sub"><span class="down">↑ 4min</span> lento hoy</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Clientes frecuentes</div>
+        <div class="kpi-value">11</div>
+        <div class="kpi-sub"><span style="color:var(--caramel)">★</span> 3 VIP presentes</div>
+      </div>
+    </div>
+
+    <!-- MAIN BODY -->
+    <div style="display:flex; gap:20px; flex:1;">
+
+      <!-- LEFT -->
+      <div class="col-left">
+
+        <!-- MESAS -->
+        <div class="card-wrap">
+          <div class="section-title">
+            Mesas activas
+            <span class="count">7 ocupadas · 3 libres</span>
+          </div>
+          <div class="mesas-grid">
+
+            <div class="mesa-card ocupada">
+              <div class="mesa-bar amarilla"></div>
+              <div class="mesa-num">Mesa 01</div>
+              <div class="mesa-title">2 personas</div>
+              <div class="mesa-items">2× Americano<br>1× Croissant mantequilla<br>1× Jugo naranja</div>
+              <div class="mesa-footer">
+                <span class="mesa-time">⏱ 24 min</span>
+                <span class="mesa-status ms-prep">Preparando</span>
+              </div>
+              <div class="mesa-total" style="text-align:right;margin-top:6px;">$186</div>
+            </div>
+
+            <div class="mesa-card ocupada urgente">
+              <div class="mesa-bar roja"></div>
+              <div class="mesa-num">Mesa 02 · ⚠️</div>
+              <div class="mesa-title">4 personas</div>
+              <div class="mesa-items">4× Cappuccino<br>2× Avocado toast<br>1× Matcha latte</div>
+              <div class="mesa-footer">
+                <span class="mesa-time late">⏱ 47 min</span>
+                <span class="mesa-status ms-prep">Preparando</span>
+              </div>
+              <div class="mesa-total" style="text-align:right;margin-top:6px;">$520</div>
+            </div>
+
+            <div class="mesa-card ocupada">
+              <div class="mesa-bar verde"></div>
+              <div class="mesa-num">Mesa 03</div>
+              <div class="mesa-title">1 persona</div>
+              <div class="mesa-items">1× Cold brew<br>1× Brownie chocolate</div>
+              <div class="mesa-footer">
+                <span class="mesa-time">⏱ 12 min</span>
+                <span class="mesa-status ms-listo">Listo</span>
+              </div>
+              <div class="mesa-total" style="text-align:right;margin-top:6px;">$148</div>
+            </div>
+
+            <div class="mesa-card ocupada">
+              <div class="mesa-bar amarilla"></div>
+              <div class="mesa-num">Mesa 04</div>
+              <div class="mesa-title">3 personas</div>
+              <div class="mesa-items">3× Flat white<br>2× Pan tostado<br>1× Ensalada frutas</div>
+              <div class="mesa-footer">
+                <span class="mesa-time">⏱ 19 min</span>
+                <span class="mesa-status ms-prep">Preparando</span>
+              </div>
+              <div class="mesa-total" style="text-align:right;margin-top:6px;">$340</div>
+            </div>
+
+            <div class="mesa-card libre">
+              <div class="mesa-num">Mesa 05</div>
+              <div class="mesa-title" style="color:var(--muted)">Disponible</div>
+              <div class="mesa-items" style="margin-bottom:30px;"> </div>
+              <div class="mesa-footer">
+                <span class="mesa-status ms-libre">Libre</span>
+              </div>
+            </div>
+
+            <div class="mesa-card ocupada">
+              <div class="mesa-bar verde"></div>
+              <div class="mesa-num">Mesa 06</div>
+              <div class="mesa-title">2 personas</div>
+              <div class="mesa-items">2× Latte vainilla<br>2× Muffin arándano</div>
+              <div class="mesa-footer">
+                <span class="mesa-time">⏱ 8 min</span>
+                <span class="mesa-status ms-listo">Listo</span>
+              </div>
+              <div class="mesa-total" style="text-align:right;margin-top:6px;">$210</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- PEDIDOS RECIENTES -->
+        <div class="card-wrap">
+          <div class="section-title">
+            Últimos pedidos
+            <span class="count">actualizado hace 2 min</span>
+          </div>
+          <div class="order-list">
+            <div class="order-item">
+              <div class="order-icon">☕</div>
+              <div class="order-info">
+                <div class="order-name">2× Americano + Croissant</div>
+                <div class="order-detail">Mesa 01 · Barista: Daniela</div>
+              </div>
+              <div class="order-right">
+                <div class="order-price">$186</div>
+                <div class="order-time">hace 3 min</div>
+              </div>
+            </div>
+            <div class="order-item">
+              <div class="order-icon">🥑</div>
+              <div class="order-info">
+                <div class="order-name">Avocado toast x2 + 4 Cappuccinos</div>
+                <div class="order-detail">Mesa 02 · Barista: Rodrigo</div>
+              </div>
+              <div class="order-right">
+                <div class="order-price">$520</div>
+                <div class="order-time">hace 47 min</div>
+              </div>
+            </div>
+            <div class="order-item">
+              <div class="order-icon">🧋</div>
+              <div class="order-info">
+                <div class="order-name">Cold brew + Brownie</div>
+                <div class="order-detail">Mesa 03 · Para llevar</div>
+              </div>
+              <div class="order-right">
+                <div class="order-price">$148</div>
+                <div class="order-time">hace 12 min</div>
+              </div>
+            </div>
+            <div class="order-item">
+              <div class="order-icon">🍞</div>
+              <div class="order-info">
+                <div class="order-name">3× Flat white + Pan tostado</div>
+                <div class="order-detail">Mesa 04 · Cliente frecuente ★</div>
+              </div>
+              <div class="order-right">
+                <div class="order-price">$340</div>
+                <div class="order-time">hace 19 min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /col-left -->
+
+      <!-- RIGHT -->
+      <div class="col-right">
+
+        <!-- CAJA DEL DÍA -->
+        <div class="caja-card">
+          <div class="caja-header">💵 Caja del día</div>
+          <div class="caja-total">$3,840</div>
+          <div class="caja-sub">de $5,000 meta · 77% completado</div>
+          <div style="height:8px;background:rgba(0,0,0,0.3);border-radius:4px;overflow:hidden;margin-bottom:18px;">
+            <div style="height:100%;width:77%;background:linear-gradient(90deg,var(--mocha),var(--caramel));border-radius:4px;"></div>
+          </div>
+          <div class="caja-divider"></div>
+          <div class="caja-row"><span class="label">Efectivo</span><span class="value">$2,100</span></div>
+          <div class="caja-row"><span class="label">Tarjeta</span><span class="value">$1,480</span></div>
+          <div class="caja-row"><span class="label">Transferencia</span><span class="value">$260</span></div>
+          <div class="caja-divider" style="margin-top:12px;"></div>
+          <div class="caja-row" style="margin-top:4px;">
+            <span class="label">Propinas</span>
+            <span class="value" style="color:var(--success)">+$320</span>
+          </div>
+        </div>
+
+        <!-- TOP PRODUCTOS -->
+        <div class="card-wrap">
+          <div class="section-title" style="margin-bottom:4px;">Top productos hoy</div>
+          <div class="product-list">
+            <div class="product-row">
+              <span class="product-rank">1</span>
+              <span class="product-emoji">☕</span>
+              <span class="product-name">Americano</span>
+              <span class="product-sold"><strong>18</strong> vendidos</span>
+            </div>
+            <div class="product-row">
+              <span class="product-rank">2</span>
+              <span class="product-emoji">🥛</span>
+              <span class="product-name">Flat white</span>
+              <span class="product-sold"><strong>12</strong> vendidos</span>
+            </div>
+            <div class="product-row">
+              <span class="product-rank">3</span>
+              <span class="product-emoji">🥑</span>
+              <span class="product-name">Avocado toast</span>
+              <span class="product-sold"><strong>9</strong> vendidos</span>
+            </div>
+            <div class="product-row">
+              <span class="product-rank">4</span>
+              <span class="product-emoji">🧋</span>
+              <span class="product-name">Cold brew</span>
+              <span class="product-sold"><strong>8</strong> vendidos</span>
+            </div>
+            <div class="product-row">
+              <span class="product-rank">5</span>
+              <span class="product-emoji">🍫</span>
+              <span class="product-name">Brownie chocolate</span>
+              <span class="product-sold"><strong>7</strong> vendidos</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BARISTAS -->
+        <div class="barista-card">
+          <div class="barista-header">👨‍🍳 Equipo en turno</div>
+          <div class="barista-item">
+            <div class="barista-av" style="background:#5C2E10;">DA</div>
+            <div>
+              <div class="barista-name">Daniela Arreola</div>
+              <div class="barista-role">Barista Senior</div>
+            </div>
+            <div class="barista-orders">21<span>pedidos</span></div>
+          </div>
+          <div class="barista-item">
+            <div class="barista-av" style="background:#3D1C02;border:1px solid var(--caramel)">RV</div>
+            <div>
+              <div class="barista-name">Rodrigo Vargas</div>
+              <div class="barista-role">Barista · Cocina</div>
+            </div>
+            <div class="barista-orders">18<span>pedidos</span></div>
+          </div>
+          <div class="barista-item">
+            <div class="barista-av">LP</div>
+            <div>
+              <div class="barista-name">Lupita Pérez</div>
+              <div class="barista-role">Servicio a mesa</div>
+            </div>
+            <div class="barista-orders">8<span>mesas</span></div>
+          </div>
+        </div>
+
+      </div><!-- /col-right -->
+
+    </div><!-- /body -->
+  </div><!-- /content -->
+</div><!-- /main -->
+
+</body>
+</html>

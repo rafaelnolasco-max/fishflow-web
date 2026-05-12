@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>M&M Champions — Inventario</title>
+<style>
+  :root {
+    --orange: #FF8C35;
+    --cyan: #67D4E8;
+    --dark: #0D1B2A;
+    --dark2: #132338;
+    --dark3: #1C3050;
+    --text: #E8F0F8;
+    --text2: #8BAAC8;
+    --green: #34D399;
+    --red: #F87171;
+    --yellow: #FBBF24;
+    --card: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--dark2);
+    padding: 14px 18px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-logo { font-size:13px; color:var(--orange); font-weight:700; letter-spacing:.5px; }
+  .topbar-title { font-size:15px; font-weight:700; color:var(--text); }
+  .topbar-date { font-size:11px; color:var(--text2); }
+
+  /* PAGES */
+  .page { display:none; padding: 0 0 82px; }
+  .page.active { display:block; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: var(--dark2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 100;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0 8px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--text2);
+    font-size: 10px;
+    font-weight: 500;
+    gap: 4px;
+    transition: color .2s;
+  }
+  .nav-item.active { color: var(--orange); }
+  .nav-item svg { width:22px; height:22px; }
+  .nav-add-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 2px;
+  }
+  .nav-add {
+    background: var(--orange);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -18px;
+    box-shadow: 0 4px 16px rgba(255,140,53,.5);
+    cursor: pointer;
+    border: none;
+    transition: transform .15s;
+  }
+  .nav-add:active { transform: scale(.94); }
+  .nav-add svg { width:22px; height:22px; color:#fff; }
+
+  /* SECTION HEADER */
+  .section-hdr {
+    padding: 18px 18px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ── DASHBOARD ── */
+  .kpi-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px 18px; }
+  .kpi-card {
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .kpi-card.full { grid-column: 1 / -1; }
+  .kpi-label { font-size:11px; color:var(--text2); margin-bottom:6px; font-weight:500; }
+  .kpi-value { font-size:22px; font-weight:800; color:var(--text); line-height:1; }
+  .kpi-value.orange { color:var(--orange); }
+  .kpi-value.cyan { color:var(--cyan); }
+  .kpi-value.green { color:var(--green); }
+  .kpi-sub { font-size:11px; color:var(--text2); margin-top:4px; }
+
+  .dept-list { padding: 0 18px 10px; }
+  .dept-row {
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .dept-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .dept-name { font-size:13px; font-weight:700; }
+  .dept-val { font-size:13px; font-weight:700; color:var(--orange); }
+  .dept-bar-bg { background:rgba(255,255,255,.08); border-radius:99px; height:6px; overflow:hidden; }
+  .dept-bar-fill { height:100%; border-radius:99px; }
+  .dept-meta { display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:var(--text2); }
+
+  .top-prod-list { padding: 0 18px 10px; }
+  .top-prod-row {
+    display:flex; align-items:center;
+    padding: 10px 14px;
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    gap: 12px;
+  }
+  .top-prod-num { font-size:14px; font-weight:800; color:var(--text2); width:18px; flex-shrink:0; }
+  .top-prod-info { flex:1; min-width:0; }
+  .top-prod-name { font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .top-prod-dept { font-size:11px; color:var(--text2); margin-top:2px; }
+  .top-prod-val { font-size:13px; font-weight:700; color:var(--orange); flex-shrink:0; }
+
+  /* ── INVENTARIO ── */
+  .search-bar { padding:12px 18px 8px; position:sticky; top:53px; background:var(--dark); z-index:50; }
+  .search-wrap { position:relative; }
+  .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text2); width:16px; height:16px; }
+  .search-input {
+    width:100%; background:var(--dark2); border:1px solid var(--border); border-radius:12px;
+    padding:10px 14px 10px 36px; color:var(--text); font-size:14px; outline:none;
+  }
+  .search-input::placeholder { color:var(--text2); }
+  .filter-tabs {
+    display:flex; gap:8px; padding:0 18px 12px; overflow-x:auto; scrollbar-width:none;
+  }
+  .filter-tabs::-webkit-scrollbar { display:none; }
+  .filter-tab {
+    white-space:nowrap; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:600;
+    cursor:pointer; border:1.5px solid var(--border); background:transparent; color:var(--text2); flex-shrink:0;
+  }
+  .filter-tab.active { background:var(--orange); border-color:var(--orange); color:#fff; }
+
+  .prod-list { padding: 0 18px; }
+  .prod-item {
+    background:var(--dark2); border:1px solid var(--border); border-radius:14px;
+    padding:13px 14px; margin-bottom:8px;
+  }
+  .prod-item-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .prod-item-name { font-size:13px; font-weight:600; line-height:1.3; flex:1; }
+  .prod-item-stock { font-size:20px; font-weight:800; flex-shrink:0; }
+  .stock-ok { color:var(--green); }
+  .stock-low { color:var(--yellow); }
+  .stock-zero { color:var(--red); }
+  .prod-item-bottom { display:flex; justify-content:space-between; align-items:center; margin-top:7px; }
+  .prod-dept-badge {
+    font-size:10px; font-weight:700; padding:3px 9px; border-radius:99px;
+    text-transform:uppercase; letter-spacing:.3px;
+  }
+  .badge-bobinas { background:rgba(103,212,232,.15); color:var(--cyan); }
+  .badge-texturas { background:rgba(255,140,53,.15); color:var(--orange); }
+  .badge-quimicos { background:rgba(52,211,153,.15); color:var(--green); }
+  .badge-productos { background:rgba(251,191,36,.15); color:var(--yellow); }
+  .badge-otros { background:rgba(255,255,255,.08); color:var(--text2); }
+  .prod-item-price { font-size:12px; color:var(--text2); }
+  .prod-item-price span { color:var(--text); font-weight:600; }
+  .empty-state { text-align:center; padding:48px 24px; color:var(--text2); }
+  .empty-icon { width:48px; height:48px; margin:0 auto 12px; opacity:.4; }
+
+  /* ── MOVIMIENTOS ── */
+  .mov-list { padding: 0 18px; }
+  .mov-item {
+    background:var(--dark2); border:1px solid var(--border); border-radius:14px;
+    padding:13px 14px; margin-bottom:8px; display:flex; gap:12px; align-items:center;
+  }
+  .mov-icon {
+    width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .mov-icon.entrada { background:rgba(52,211,153,.15); }
+  .mov-icon.salida { background:rgba(248,113,113,.15); }
+  .mov-icon svg { width:18px; height:18px; }
+  .mov-icon.entrada svg { color:var(--green); }
+  .mov-icon.salida svg { color:var(--red); }
+  .mov-info { flex:1; min-width:0; }
+  .mov-prod { font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mov-meta { font-size:11px; color:var(--text2); margin-top:2px; }
+  .mov-right { text-align:right; flex-shrink:0; }
+  .mov-qty { font-size:16px; font-weight:800; }
+  .mov-qty.entrada { color:var(--green); }
+  .mov-qty.salida { color:var(--red); }
+  .mov-date { font-size:11px; color:var(--text2); margin-top:2px; }
+
+  /* ── FORMULARIO ── */
+  .form-wrap { padding:16px 18px; }
+  .form-title { font-size:18px; font-weight:800; margin-bottom:4px; }
+  .form-subtitle { font-size:13px; color:var(--text2); margin-bottom:20px; }
+  .form-group { margin-bottom:16px; }
+  .form-label {
+    font-size:12px; font-weight:600; color:var(--text2); margin-bottom:7px; display:block;
+    text-transform:uppercase; letter-spacing:.5px;
+  }
+  .form-control {
+    width:100%; background:var(--dark2); border:1.5px solid var(--border); border-radius:12px;
+    padding:12px 14px; color:var(--text); font-size:14px; outline:none; transition:border-color .2s;
+    -webkit-appearance:none;
+  }
+  .form-control:focus { border-color:var(--orange); }
+  .form-control option { background:var(--dark2); }
+  .type-toggle { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .type-btn {
+    padding:12px; border-radius:12px; border:1.5px solid var(--border); background:transparent;
+    color:var(--text2); font-size:13px; font-weight:600; cursor:pointer; display:flex;
+    align-items:center; justify-content:center; gap:8px;
+  }
+  .type-btn svg { width:16px; height:16px; }
+  .type-btn.active-entrada { background:rgba(52,211,153,.12); border-color:var(--green); color:var(--green); }
+  .type-btn.active-salida { background:rgba(248,113,113,.12); border-color:var(--red); color:var(--red); }
+  .submit-btn {
+    width:100%; padding:15px; background:var(--orange); border:none; border-radius:14px;
+    color:#fff; font-size:15px; font-weight:700; cursor:pointer; margin-top:8px;
+    box-shadow:0 4px 14px rgba(255,140,53,.35);
+  }
+  .submit-btn:active { transform:scale(.97); }
+
+  .toast {
+    position:fixed; bottom:92px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--green); color:#0a2c1f; padding:12px 22px; border-radius:12px;
+    font-size:13px; font-weight:700; opacity:0; transition:all .3s; z-index:200; white-space:nowrap;
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .powered-by { text-align:center; padding:14px; font-size:11px; color:var(--text2); }
+  .powered-by span { color:var(--orange); font-weight:700; }
+
+  /* ── ALERTAS STOCK ── */
+  .alert-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 18px 8px;
+  }
+  .alert-header-left {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .alert-badge {
+    background: rgba(248,113,113,.18);
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+  .alert-list { padding: 0 18px 4px; }
+  .alert-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 13px;
+    margin-bottom: 7px;
+  }
+  .alert-item.critical { border-color: rgba(248,113,113,.35); }
+  .alert-item.warning  { border-color: rgba(251,191,36,.25); }
+  .alert-item.watch    { border-color: rgba(255,140,53,.2); }
+  .alert-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-critical { background: var(--red); box-shadow: 0 0 6px rgba(248,113,113,.6); }
+  .dot-warning  { background: var(--yellow); box-shadow: 0 0 6px rgba(251,191,36,.5); }
+  .dot-watch    { background: var(--orange); }
+  .alert-info { flex: 1; min-width: 0; }
+  .alert-name {
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .alert-dept { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .alert-stock {
+    font-size: 18px;
+    font-weight: 800;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .alert-stock.critical { color: var(--red); }
+  .alert-stock.warning  { color: var(--yellow); }
+  .alert-stock.watch    { color: var(--orange); }
+  .alert-stock-label {
+    font-size: 10px;
+    color: var(--text2);
+    text-align: right;
+    margin-top: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">FishFlow</div>
+  <div class="topbar-title">M&amp;M Champions</div>
+  <div class="topbar-date" id="topDate"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="kpi-row">
+    <div class="kpi-card full">
+      <div class="kpi-label">Valor Total del Inventario</div>
+      <div class="kpi-value orange">$11,686,293</div>
+      <div class="kpi-sub">67 productos con stock activo · 435 en catálogo</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Productos activos</div>
+      <div class="kpi-value cyan">67</div>
+      <div class="kpi-sub">con existencia</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Movimientos hoy</div>
+      <div class="kpi-value green">8</div>
+      <div class="kpi-sub">5 salidas · 3 entradas</div>
+    </div>
+  </div>
+
+  <div class="alert-header">
+    <div class="alert-header-left">⚠️ Stock Bajo — Comprar pronto</div>
+    <div class="alert-badge">11 productos</div>
+  </div>
+  <div class="alert-list">
+    <div class="alert-item critical">
+      <div class="alert-dot dot-critical"></div>
+      <div class="alert-info">
+        <div class="alert-name">24x93 Mitsubishi Lustre</div>
+        <div class="alert-dept">Bobinas · $6,350 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock critical">1</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+    <div class="alert-item critical">
+      <div class="alert-dot dot-critical"></div>
+      <div class="alert-info">
+        <div class="alert-name">Laminadora Lbs 750 M&amp;M</div>
+        <div class="alert-dept">Texturas · $2,900 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock critical">1</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+    <div class="alert-item critical">
+      <div class="alert-dot dot-critical"></div>
+      <div class="alert-info">
+        <div class="alert-name">Laminado Arena Fina 25x</div>
+        <div class="alert-dept">Productos · $1,500 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock critical">2</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+    <div class="alert-item critical">
+      <div class="alert-dot dot-critical"></div>
+      <div class="alert-info">
+        <div class="alert-name">1 GL DEKCTOL DEVELOPER</div>
+        <div class="alert-dept">Químicos · $350 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock critical">3</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+    <div class="alert-item warning">
+      <div class="alert-dot dot-warning"></div>
+      <div class="alert-info">
+        <div class="alert-name">N1 REVELADOR DE PELICULA M&amp;M</div>
+        <div class="alert-dept">Químicos · $960 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock warning">8</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+    <div class="alert-item warning">
+      <div class="alert-dot dot-warning"></div>
+      <div class="alert-info">
+        <div class="alert-name">BOBINA 30 X 93 Mitsubishi Lustre</div>
+        <div class="alert-dept">Bobinas · $8,200 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock warning">10</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+    <div class="alert-item warning">
+      <div class="alert-dot dot-warning"></div>
+      <div class="alert-info">
+        <div class="alert-name">BOBINA 6 X167.6 VELVET MATE ID</div>
+        <div class="alert-dept">Bobinas · $4,400 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock warning">10</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+    <div class="alert-item warning">
+      <div class="alert-dot dot-warning"></div>
+      <div class="alert-info">
+        <div class="alert-name">30x Lustrehd Centurion</div>
+        <div class="alert-dept">Bobinas · $4,800 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock warning">15</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+    <div class="alert-item watch">
+      <div class="alert-dot dot-watch"></div>
+      <div class="alert-info">
+        <div class="alert-name">CP49 FUJI LR</div>
+        <div class="alert-dept">Químicos · $2,950 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock watch">16</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+    <div class="alert-item watch">
+      <div class="alert-dot dot-watch"></div>
+      <div class="alert-info">
+        <div class="alert-name">10 X86 MTS Brillo</div>
+        <div class="alert-dept">Bobinas · $2,300 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock watch">20</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+    <div class="alert-item watch">
+      <div class="alert-dot dot-watch"></div>
+      <div class="alert-info">
+        <div class="alert-name">24x 86 Lucky Lustre</div>
+        <div class="alert-dept">Bobinas · $4,800 venta</div>
+      </div>
+      <div>
+        <div class="alert-stock watch">20</div>
+        <div class="alert-stock-label">pzas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-hdr">Inventario por Departamento</div>
+  <div class="dept-list">
+    <div class="dept-row">
+      <div class="dept-top">
+        <div class="dept-name" style="color:var(--cyan)">📦 Bobinas</div>
+        <div class="dept-val">$9,050,826</div>
+      </div>
+      <div class="dept-bar-bg"><div class="dept-bar-fill" style="width:77.4%;background:var(--cyan)"></div></div>
+      <div class="dept-meta"><span>40 productos con stock</span><span>77.4%</span></div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-top">
+        <div class="dept-name" style="color:var(--orange)">🖼 Texturas</div>
+        <div class="dept-val">$1,194,188</div>
+      </div>
+      <div class="dept-bar-bg"><div class="dept-bar-fill" style="width:10.2%;background:var(--orange)"></div></div>
+      <div class="dept-meta"><span>10 productos con stock</span><span>10.2%</span></div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-top">
+        <div class="dept-name" style="color:var(--green)">🧪 Químicos</div>
+        <div class="dept-val">$1,027,813</div>
+      </div>
+      <div class="dept-bar-bg"><div class="dept-bar-fill" style="width:8.8%;background:var(--green)"></div></div>
+      <div class="dept-meta"><span>12 productos con stock</span><span>8.8%</span></div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-top">
+        <div class="dept-name" style="color:var(--yellow)">📁 Productos</div>
+        <div class="dept-val">$413,466</div>
+      </div>
+      <div class="dept-bar-bg"><div class="dept-bar-fill" style="width:3.5%;background:var(--yellow)"></div></div>
+      <div class="dept-meta"><span>5 productos con stock</span><span>3.5%</span></div>
+    </div>
+  </div>
+
+  <div class="section-hdr">Top 5 por Valor en Inventario</div>
+  <div class="top-prod-list">
+    <div class="top-prod-row">
+      <div class="top-prod-num">#1</div>
+      <div class="top-prod-info">
+        <div class="top-prod-name">Bobina 6 X LUSTRE PREMIER 172 Mts Kodak</div>
+        <div class="top-prod-dept">Bobinas · 634 pzas</div>
+      </div>
+      <div class="top-prod-val">$1.14M</div>
+    </div>
+    <div class="top-prod-row">
+      <div class="top-prod-num">#2</div>
+      <div class="top-prod-info">
+        <div class="top-prod-name">BOBINA 6 X186 Mts LUSTRE HdF</div>
+        <div class="top-prod-dept">Bobinas · 413 pzas</div>
+      </div>
+      <div class="top-prod-val">$822K</div>
+    </div>
+    <div class="top-prod-row">
+      <div class="top-prod-num">#3</div>
+      <div class="top-prod-info">
+        <div class="top-prod-name">6 X156 Mts BRILLO PREMIER KODAK</div>
+        <div class="top-prod-dept">Texturas · 298 pzas</div>
+      </div>
+      <div class="top-prod-val">$536K</div>
+    </div>
+    <div class="top-prod-row">
+      <div class="top-prod-num">#4</div>
+      <div class="top-prod-info">
+        <div class="top-prod-name">BOBINA 6 X 186 Mts BRILLO HDF</div>
+        <div class="top-prod-dept">Bobinas · 266 pzas</div>
+      </div>
+      <div class="top-prod-val">$529K</div>
+    </div>
+    <div class="top-prod-row">
+      <div class="top-prod-num">#5</div>
+      <div class="top-prod-info">
+        <div class="top-prod-name">6 X186 Mts Eurolight Lustre</div>
+        <div class="top-prod-dept">Bobinas · 289 pzas</div>
+      </div>
+      <div class="top-prod-val">$477K</div>
+    </div>
+  </div>
+  <div class="powered-by">Powered by <span>FishFlow</span> · fishflow.mx</div>
+</div>
+
+<!-- INVENTARIO -->
+<div class="page" id="page-inventario">
+  <div class="search-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+      <input class="search-input" type="text" placeholder="Buscar producto..." id="searchInput" oninput="filterProducts()">
+    </div>
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setFilter(this,'Todos')">Todos (67)</button>
+    <button class="filter-tab" onclick="setFilter(this,'Bobinas')">Bobinas (40)</button>
+    <button class="filter-tab" onclick="setFilter(this,'Quimicos')">Químicos (12)</button>
+    <button class="filter-tab" onclick="setFilter(this,'texturas')">Texturas (10)</button>
+    <button class="filter-tab" onclick="setFilter(this,'Productos')">Productos (5)</button>
+  </div>
+  <div class="prod-list" id="prodList"></div>
+</div>
+
+<!-- MOVIMIENTOS -->
+<div class="page" id="page-movimientos">
+  <div class="section-hdr">Hoy — 7 May 2026</div>
+  <div class="mov-list">
+    <div class="mov-item">
+      <div class="mov-icon salida"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">Bobina 6 X LUSTRE PREMIER 172 Mts Kodak</div><div class="mov-meta">Venta · Collado</div></div>
+      <div class="mov-right"><div class="mov-qty salida">-30</div><div class="mov-date">09:14</div></div>
+    </div>
+    <div class="mov-item">
+      <div class="mov-icon salida"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">6 X156 Mts BRILLO PREMIER KODAK</div><div class="mov-meta">Venta · Victor Mejia</div></div>
+      <div class="mov-right"><div class="mov-qty salida">-10</div><div class="mov-date">09:14</div></div>
+    </div>
+    <div class="mov-item">
+      <div class="mov-icon salida"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">REVELADOR 20 LITROS M&amp;M K BIDON</div><div class="mov-meta">Venta · Victor Mejia</div></div>
+      <div class="mov-right"><div class="mov-qty salida">-1</div><div class="mov-date">09:15</div></div>
+    </div>
+    <div class="mov-item">
+      <div class="mov-icon salida"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">Blanqueador Fijador 10 Lts Tipo Loor</div><div class="mov-meta">Venta · Collado</div></div>
+      <div class="mov-right"><div class="mov-qty salida">-20</div><div class="mov-date">11:30</div></div>
+    </div>
+    <div class="mov-item">
+      <div class="mov-icon entrada"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">P1 REVELADOR DE PAPEL 10 Lts Hd Lucky</div><div class="mov-meta">Compra · Lucky Foto</div></div>
+      <div class="mov-right"><div class="mov-qty entrada">+100</div><div class="mov-date">12:05</div></div>
+    </div>
+    <div class="mov-item">
+      <div class="mov-icon salida"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">12x Lustre Super Hd</div><div class="mov-meta">Venta · Juan Fresnec</div></div>
+      <div class="mov-right"><div class="mov-qty salida">-8</div><div class="mov-date">14:22</div></div>
+    </div>
+    <div class="mov-item">
+      <div class="mov-icon entrada"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">BOBINA 5 X BRILLO</div><div class="mov-meta">Compra · Distribuidor</div></div>
+      <div class="mov-right"><div class="mov-qty entrada">+50</div><div class="mov-date">15:40</div></div>
+    </div>
+    <div class="mov-item">
+      <div class="mov-icon entrada"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">CP49-48 HD FRONTIER</div><div class="mov-meta">Ajuste de inventario</div></div>
+      <div class="mov-right"><div class="mov-qty entrada">+10</div><div class="mov-date">16:10</div></div>
+    </div>
+  </div>
+  <div class="section-hdr">6 May 2026</div>
+  <div class="mov-list">
+    <div class="mov-item">
+      <div class="mov-icon salida"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">BOBINA 6 X186 Mts LUSTRE HdF</div><div class="mov-meta">Venta · Juan Fresnec</div></div>
+      <div class="mov-right"><div class="mov-qty salida">-15</div><div class="mov-date">10:22</div></div>
+    </div>
+    <div class="mov-item">
+      <div class="mov-icon entrada"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">5x Lustre Kodak Premier 172 Mts</div><div class="mov-meta">Compra · Kodak México</div></div>
+      <div class="mov-right"><div class="mov-qty entrada">+48</div><div class="mov-date">15:40</div></div>
+    </div>
+    <div class="mov-item">
+      <div class="mov-icon salida"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"/></svg></div>
+      <div class="mov-info"><div class="mov-prod">Textura Santex De 50x41</div><div class="mov-meta">Venta · Collado</div></div>
+      <div class="mov-right"><div class="mov-qty salida">-5</div><div class="mov-date">17:03</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- AGREGAR -->
+<div class="page" id="page-agregar">
+  <div class="form-wrap">
+    <div class="form-title">Registrar Movimiento</div>
+    <div class="form-subtitle">Entrada de compra o salida por venta</div>
+    <div class="form-group">
+      <label class="form-label">Tipo de movimiento</label>
+      <div class="type-toggle">
+        <button class="type-btn active-entrada" id="btnEntrada" onclick="setType('entrada')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg>
+          Entrada
+        </button>
+        <button class="type-btn" id="btnSalida" onclick="setType('salida')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"/></svg>
+          Salida
+        </button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Departamento</label>
+      <select class="form-control" id="deptSelect" onchange="populateProdSelect()">
+        <option value="">Selecciona departamento...</option>
+        <option value="Bobinas">Bobinas</option>
+        <option value="texturas">Texturas</option>
+        <option value="Quimicos">Químicos</option>
+        <option value="Productos">Productos</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Producto</label>
+      <select class="form-control" id="prodSelect">
+        <option value="">Primero selecciona departamento...</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cantidad</label>
+      <input class="form-control" type="number" id="cantInput" placeholder="0" min="1" inputmode="numeric">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Referencia (cliente / proveedor)</label>
+      <input class="form-control" type="text" id="refInput" placeholder="Ej: Collado, Lucky Foto...">
+    </div>
+    <button class="submit-btn" onclick="submitMov()">Registrar Movimiento</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('dashboard',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>
+    Dashboard
+  </button>
+  <button class="nav-item" onclick="showPage('inventario',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"/></svg>
+    Inventario
+  </button>
+  <div class="nav-add-wrap">
+    <button class="nav-add" onclick="showPage('agregar', document.querySelector('.nav-item.active'))">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+    </button>
+  </div>
+  <button class="nav-item" onclick="showPage('movimientos',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"/></svg>
+    Movimientos
+  </button>
+  <button class="nav-item" onclick="showPage('dashboard',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+    Mi cuenta
+  </button>
+</nav>
+
+<div class="toast" id="toast">✓ Movimiento registrado</div>
+
+<script>
+const PRODUCTOS = [
+  {codigo:"350",nombre:"Bobina 6 X LUSTRE PREMIER 172 Mts Kodak",costo:1800,venta:2700,stock:634,dept:"Bobinas"},
+  {codigo:"9",nombre:"BOBINA 6 X186 Mts LUSTRE HdF",costo:1990,venta:2950,stock:413,dept:"Bobinas"},
+  {codigo:"958",nombre:"6 X156 Mts BRILLO PREMIER KODAK",costo:1800,venta:3500,stock:298,dept:"texturas"},
+  {codigo:"8",nombre:"BOBINA 6 X 186 Mts BRILLO HDF",costo:1990,venta:2920,stock:266,dept:"Bobinas"},
+  {codigo:"3003",nombre:"6 X186 Mts Eurolight Lustre",costo:1650,venta:2900,stock:289,dept:"Bobinas"},
+  {codigo:"3002",nombre:"BOBINA 6 X186 MTS BRILLO EUROLIGHT",costo:1650,venta:2900,stock:280,dept:"Bobinas"},
+  {codigo:"35",nombre:"BOBINA 11 X 86 Mts Kodak Profesional",costo:1780,venta:2971,stock:254,dept:"Bobinas"},
+  {codigo:"34",nombre:"BOBINA 11 X BRILLO Premier Kodak",costo:1600,venta:2671,stock:268,dept:"Bobinas"},
+  {codigo:"5",nombre:"BOBINA 5 X BRILLO",costo:1650,venta:2900,stock:224,dept:"Bobinas"},
+  {codigo:"213",nombre:"P1 REVELADOR DE PAPEL 10 Lts Hd Lucky",costo:463,venta:950,stock:736,dept:"Quimicos"},
+  {codigo:"473",nombre:"Blanqueador Fijador 10 Lts Tipo Loor",costo:437.5,venta:650,stock:728,dept:"Quimicos"},
+  {codigo:"7",nombre:"BOBINA 6 X MATE HdF",costo:2300,venta:3950,stock:134,dept:"Bobinas"},
+  {codigo:"441",nombre:"20x86 Mts Lustre Kodak Premier",costo:2850,venta:3700,stock:102,dept:"Bobinas"},
+  {codigo:"2060",nombre:"PAPEL INYECCION 24 Lustre X 30 Mts",costo:980,venta:1500,stock:277,dept:"Productos"},
+  {codigo:"448",nombre:"5x Brillo Kodak Premier 172 Mts",costo:1600,venta:1930,stock:162,dept:"Bobinas"},
+  {codigo:"445",nombre:"12x Lustre Super Hd",costo:1770,venta:2200,stock:128,dept:"Bobinas"},
+  {codigo:"32",nombre:"BOBINA 10 X LUSTRE Hd",costo:1575,venta:1900,stock:142,dept:"Bobinas"},
+  {codigo:"447",nombre:"20x Lustre Super Hd",costo:2520,venta:3900,stock:81,dept:"Bobinas"},
+  {codigo:"38",nombre:"BOBINA 24 X76 KODAK Premier",costo:3300,venta:4700,stock:58,dept:"Bobinas"},
+  {codigo:"3005",nombre:"8 X124 MTS Lustre EURO LIGTH",costo:1720,venta:3500,stock:109,dept:"Bobinas"},
+  {codigo:"37",nombre:"20x88 Mts Brillo Kodak Premier",costo:2950,venta:6000,stock:60,dept:"Bobinas"},
+  {codigo:"469",nombre:"5x Lustre 184 Mts Digital Max",costo:1550,venta:2600,stock:114,dept:"Bobinas"},
+  {codigo:"443",nombre:"5x Lustre Kodak Premier 172 Mts",costo:1600,venta:1900,stock:108,dept:"Bobinas"},
+  {codigo:"444",nombre:"8x Lustre Super Hd",costo:1150,venta:1450,stock:145,dept:"Bobinas"},
+  {codigo:"26",nombre:"BOBINA 5 X 186 Mts Brillo Mitsubishi",costo:1538,venta:1956,stock:106,dept:"Bobinas"},
+  {codigo:"504",nombre:"8x Brillo Hd",costo:1150,venta:1700,stock:140,dept:"Bobinas"},
+  {codigo:"3001",nombre:"Bobina 5 X Brillo EURO LIGTH",costo:1550,venta:1900,stock:102,dept:"Bobinas"},
+  {codigo:"183",nombre:"BOBINA 12 X 86 Mts Kodak Premier Lustre",costo:1870,venta:2500,stock:82,dept:"Bobinas"},
+  {codigo:"51",nombre:"BOBINA 10 X 124 EURO LIGTH LUSTRE 25.4",costo:1700,venta:2861,stock:88,dept:"Bobinas"},
+  {codigo:"484",nombre:"5x184 Mts Digital Max Brillo",costo:1350,venta:2200,stock:102,dept:"Bobinas"},
+  {codigo:"6",nombre:"BOBINA 5 X 186 Mts LUSTRE HdF",costo:1680,venta:2900,stock:76,dept:"Bobinas"},
+  {codigo:"12",nombre:"BOBINA 8 X 124 Mts LUSTRE FUJI",costo:1800,venta:2300,stock:66,dept:"Bobinas"},
+  {codigo:"208",nombre:"P1 Revelador Champions 10 Lts Refuerzo",costo:625,venta:825,stock:188,dept:"Quimicos"},
+  {codigo:"956",nombre:"ROLLO 20 X DE PAPEL INYECCION M&M",costo:850,venta:1500,stock:132,dept:"texturas"},
+  {codigo:"300",nombre:"Textura Lino Fino 50 X M&M 1.27x40",costo:2000,venta:2900,stock:47,dept:"texturas"},
+  {codigo:"404",nombre:"Adesivo 25x40 Super",costo:1250,venta:2200,stock:75,dept:"texturas"},
+  {codigo:"291",nombre:"Textura Santex De 50x41",costo:2050,venta:3950,stock:42,dept:"texturas"},
+  {codigo:"16",nombre:"BOBINA 11 X 124 Mts Lustre Eurolight",costo:2150,venta:4150,stock:38,dept:"Bobinas"},
+  {codigo:"217",nombre:"CP49-48 HD FRONTIER",costo:1075,venta:2500,stock:74,dept:"Quimicos"},
+  {codigo:"486",nombre:"30x60 Lustre 93 Mts EURO LIGHT",costo:2800,venta:3880,stock:28,dept:"Bobinas"},
+  {codigo:"427",nombre:"ADESHIVO 50x40",costo:2700,venta:4500,stock:28,dept:"texturas"},
+  {codigo:"953",nombre:"ROLLO LAMINADO PIEL M&M 50x40",costo:2000,venta:3500,stock:37,dept:"texturas"},
+  {codigo:"470",nombre:"24x 86 Lucky Lustre",costo:3660,venta:4800,stock:20,dept:"Bobinas"},
+  {codigo:"464",nombre:"Super Arena Fina 25x40",costo:950,venta:1800,stock:76,dept:"Productos"},
+  {codigo:"301",nombre:"Blanqueador De Papel 20 Lts M&M K",costo:1200,venta:2850,stock:60,dept:"Quimicos"},
+  {codigo:"952",nombre:"Rollo Laminado Lino Fino M&M",costo:950,venta:1500,stock:66,dept:"texturas"},
+  {codigo:"3009",nombre:"12 X 124 MtsLustre EURO LIGTH",costo:2500,venta:4200,stock:25,dept:"Bobinas"},
+  {codigo:"446",nombre:"11x Lustre Super Hd",costo:1620,venta:2250,stock:36,dept:"Bobinas"},
+  {codigo:"950",nombre:"12x86 Mts Brillo Lhd",costo:1920,venta:2950,stock:30,dept:"Bobinas"},
+  {codigo:"434",nombre:"Laminado 25 PIEL",costo:950,venta:1350,stock:60,dept:"texturas"},
+  {codigo:"2012",nombre:"TEXTURA Santex FLO 25x41",costo:950,venta:1780,stock:59,dept:"Productos"},
+  {codigo:"485",nombre:"30x Lustrehd Centurion",costo:3720,venta:4800,stock:15,dept:"Bobinas"},
+  {codigo:"48",nombre:"BOBINA 30 X 93 Mitsubishi Lustre",costo:4725,venta:8200,stock:10,dept:"Bobinas"},
+  {codigo:"302",nombre:"REVELADOR 20 LITROS M&M K BIDON",costo:3150,venta:6800,stock:11,dept:"Quimicos"},
+  {codigo:"18",nombre:"BOBINA 12 X 93 Digital Max",costo:1553,venta:3580,stock:22,dept:"Bobinas"},
+  {codigo:"55",nombre:"BOBINA 6 X167.6 VELVET MATE ID",costo:3250,venta:4400,stock:10,dept:"Bobinas"},
+  {codigo:"1999",nombre:"10 X86 MTS Brillo",costo:1500,venta:2300,stock:20,dept:"Bobinas"},
+  {codigo:"218",nombre:"CP49 FUJI LR",costo:1727,venta:2950,stock:16,dept:"Quimicos"},
+  {codigo:"240",nombre:"Iniciador",costo:650,venta:2800,stock:40,dept:"Quimicos"},
+  {codigo:"105",nombre:"PILA KODAK AA-4",costo:19,venta:40,stock:624,dept:"Productos"},
+  {codigo:"214",nombre:"P1 REVELADOR DE PAPEL CHAMPION 10 LTS LR",costo:292,venta:692,stock:24,dept:"Quimicos"},
+  {codigo:"488",nombre:"24x93 Mitsubishi Lustre",costo:3802,venta:6350,stock:1,dept:"Bobinas"},
+  {codigo:"205",nombre:"N1 REVELADOR DE PELICULA M&M FA1008",costo:437.5,venta:960,stock:8,dept:"Quimicos"},
+  {codigo:"1500",nombre:"Laminadora Lbs 750 M&M",costo:2438,venta:2900,stock:1,dept:"texturas"},
+  {codigo:"2013",nombre:"Laminado Arena Fina 25x",costo:950,venta:1500,stock:2,dept:"Productos"},
+  {codigo:"1100",nombre:"1 GL PROFESIONAL DEKCTOL DEVELOPER",costo:235,venta:350,stock:3,dept:"Quimicos"},
+  {codigo:"483",nombre:"Revelador 20 Lts M Y M 60 Tipo Loor",costo:0,venta:1960,stock:167,dept:"Quimicos"}
+];
+
+let currentFilter = 'Todos';
+let movType = 'entrada';
+
+// Date
+const d = new Date();
+document.getElementById('topDate').textContent = d.toLocaleDateString('es-MX',{day:'2-digit',month:'short'});
+
+// Navigation
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if(el && el.classList.contains('nav-item')) el.classList.add('active');
+}
+
+// Dept badge
+function deptBadge(dept) {
+  const map = {Bobinas:'badge-bobinas',texturas:'badge-texturas',Quimicos:'badge-quimicos',Productos:'badge-productos'};
+  const cls = map[dept] || 'badge-otros';
+  const lbl = dept === 'texturas' ? 'Texturas' : dept;
+  return `<span class="prod-dept-badge ${cls}">${lbl}</span>`;
+}
+
+// Stock class
+function stockClass(s) {
+  if(s <= 0) return 'stock-zero';
+  if(s <= 10) return 'stock-low';
+  return 'stock-ok';
+}
+
+// Render products
+function renderProducts(list) {
+  const c = document.getElementById('prodList');
+  if(!list.length){
+    c.innerHTML='<div class="empty-state"><div>Sin resultados</div></div>';
+    return;
+  }
+  c.innerHTML = list.map(p => `
+    <div class="prod-item">
+      <div class="prod-item-top">
+        <div class="prod-item-name">${p.nombre}</div>
+        <div class="prod-item-stock ${stockClass(p.stock)}">${p.stock}</div>
+      </div>
+      <div class="prod-item-bottom">
+        ${deptBadge(p.dept)}
+        <div class="prod-item-price">Venta: <span>$${p.venta.toLocaleString('es-MX')}</span></div>
+      </div>
+    </div>`).join('');
+}
+
+function setFilter(el, dept) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = dept;
+  filterProducts();
+}
+
+function filterProducts() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let list = PRODUCTOS;
+  if(currentFilter !== 'Todos') list = list.filter(p => p.dept === currentFilter);
+  if(q) list = list.filter(p => p.nombre.toLowerCase().includes(q));
+  renderProducts(list);
+}
+
+// Form
+function setType(t) {
+  movType = t;
+  document.getElementById('btnEntrada').className = 'type-btn' + (t==='entrada' ? ' active-entrada' : '');
+  document.getElementById('btnSalida').className = 'type-btn' + (t==='salida' ? ' active-salida' : '');
+}
+
+function populateProdSelect() {
+  const dept = document.getElementById('deptSelect').value;
+  const sel = document.getElementById('prodSelect');
+  sel.innerHTML = '<option value="">Selecciona producto...</option>';
+  if(!dept) return;
+  PRODUCTOS.filter(p => p.dept === dept).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.codigo;
+    opt.textContent = p.nombre + ' (Stock: ' + p.stock + ')';
+    sel.appendChild(opt);
+  });
+}
+
+function submitMov() {
+  const prod = document.getElementById('prodSelect').value;
+  const cant = document.getElementById('cantInput').value;
+  if(!prod || !cant || cant <= 0) { alert('Selecciona un producto e ingresa una cantidad.'); return; }
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+  document.getElementById('deptSelect').value = '';
+  document.getElementById('prodSelect').innerHTML = '<option>Primero selecciona departamento...</option>';
+  document.getElementById('cantInput').value = '';
+  document.getElementById('refInput').value = '';
+}
+
+// Init
+renderProducts(PRODUCTOS);
+</script>
+</body>
+</html>

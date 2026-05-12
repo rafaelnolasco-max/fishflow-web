@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TherapyOS — Mario Citalán</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage: #7A9E7E;
+    --sage-light: #A8C5AC;
+    --sage-dark: #4A6B4E;
+    --cream: #F5F0E8;
+    --warm-white: #FAFAF7;
+    --charcoal: #2C2C2C;
+    --muted: #7A7A72;
+    --accent: #C4956A;
+    --alert: #D4726A;
+    --border: #E0DDD5;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--warm-white); color: var(--charcoal); min-height: 100vh; }
+  .app { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar { width: 260px; background: var(--charcoal); padding: 32px 20px; flex-shrink: 0; display: flex; flex-direction: column; gap: 28px; }
+  .sidebar-logo { font-family: 'Playfair Display', serif; color: var(--cream); font-size: 20px; letter-spacing: 0.02em; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .sidebar-logo span { display: block; font-size: 11px; font-family: 'DM Sans', sans-serif; color: var(--muted); font-weight: 300; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px; }
+  .sidebar-section label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 12px; }
+  .patient-list { display: flex; flex-direction: column; gap: 6px; }
+  .patient-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background 0.2s; color: rgba(255,255,255,0.6); font-size: 14px; }
+  .patient-item.active { background: rgba(122,158,126,0.2); color: var(--sage-light); }
+  .patient-item:hover:not(.active) { background: rgba(255,255,255,0.05); }
+  .patient-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--sage-dark); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: white; flex-shrink: 0; }
+  .patient-avatar.active-avatar { background: var(--sage); }
+  .sessions-count { margin-left: auto; font-size: 10px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 10px; color: var(--muted); }
+
+  /* PRÓXIMAS SESIONES sidebar */
+  #sidebar-upcoming { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.8; }
+  #sidebar-upcoming .day-label { color: rgba(255,255,255,0.8); font-weight: 500; }
+
+  /* FISHFLOW BRANDING */
+  .fishflow-badge { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 8px; }
+  .ff-dot { width: 8px; height: 11px; background: var(--sage); clip-path: polygon(50% 0%, 100% 35%, 50% 100%, 0% 35%); flex-shrink: 0; }
+  .ff-text { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); line-height: 1.4; }
+  .ff-text strong { display: block; color: var(--sage-light); font-weight: 500; letter-spacing: 0.12em; }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* TOP BAR */
+  .topbar { background: white; border-bottom: 1px solid var(--border); padding: 20px 36px; display: flex; align-items: center; justify-content: space-between; }
+  .patient-header { display: flex; align-items: center; gap: 16px; }
+  .patient-big-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--sage); display: flex; align-items: center; justify-content: center; color: white; font-size: 15px; font-weight: 500; }
+  .patient-info h2 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 400; }
+  .patient-info p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .topbar-actions { display: flex; gap: 10px; }
+  .btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; border: none; font-weight: 500; transition: all 0.2s; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--charcoal); }
+  .btn-primary { background: var(--sage); color: white; }
+  .btn-primary:hover { background: var(--sage-dark); }
+  .btn-outline:hover { border-color: var(--sage); color: var(--sage); }
+
+  /* CONTENT */
+  .content { flex: 1; overflow-y: auto; padding: 32px 36px; display: flex; gap: 24px; }
+  .left-col { flex: 1.4; display: flex; flex-direction: column; gap: 20px; }
+  .right-col { width: 320px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* CARDS */
+  .card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .card-header { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-header h3 { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 400; color: var(--charcoal); }
+  .card-header .badge { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 20px; font-weight: 500; }
+  .badge-sage { background: rgba(122,158,126,0.12); color: var(--sage-dark); }
+  .badge-new { background: var(--sage); color: white; }
+  .badge-ff { background: rgba(122,158,126,0.15); color: var(--sage-dark); border: 1px solid rgba(122,158,126,0.3); }
+  .card-body { padding: 20px 22px; }
+
+  /* BRIEFING */
+  .briefing-card { background: linear-gradient(135deg, var(--sage-dark) 0%, #2D4A30 100%); border: none; color: white; }
+  .briefing-card .card-header { border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .briefing-card .card-header h3 { color: white; }
+  .briefing-meta { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+  .briefing-content { padding: 20px 22px; }
+  .briefing-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .briefing-item:last-child { border-bottom: none; }
+  .briefing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sage-light); margin-top: 6px; flex-shrink: 0; }
+  .briefing-item p { font-size: 13px; color: rgba(255,255,255,0.82); line-height: 1.6; }
+  .briefing-item strong { color: white; font-weight: 500; }
+
+  /* SESSION */
+  .session-date { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .session-date::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .topic-list { display: flex; flex-direction: column; gap: 12px; }
+  .topic-item { display: flex; gap: 12px; padding: 12px 14px; background: var(--cream); border-radius: 8px; border-left: 3px solid var(--sage); }
+  .topic-item.yellow { border-left-color: var(--accent); }
+  .topic-item.purple { border-left-color: #9B8EC4; }
+  .topic-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage-dark); font-weight: 500; margin-bottom: 4px; }
+  .topic-item.yellow .topic-label { color: var(--accent); }
+  .topic-item.purple .topic-label { color: #6B5DA4; }
+  .topic-item p { font-size: 13px; line-height: 1.6; color: var(--charcoal); }
+
+  /* EMOTIONS */
+  .emotion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .emotion-chip { padding: 10px 14px; border-radius: 8px; background: var(--cream); display: flex; align-items: center; gap: 8px; }
+  .emotion-chip .emoji { font-size: 16px; }
+  .emotion-chip .emo-label { font-size: 12px; color: var(--muted); display: block; }
+  .emotion-chip .emo-value { font-size: 13px; font-weight: 500; color: var(--charcoal); }
+  .emo-note { margin-top: 16px; padding: 14px; background: rgba(122,158,126,0.06); border-radius: 8px; border: 1px solid rgba(122,158,126,0.15); }
+  .emo-note-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage-dark); font-weight: 500; margin-bottom: 6px; }
+  .emo-note p { font-size: 13px; color: var(--charcoal); line-height: 1.6; }
+
+  /* COMPROMISOS */
+  .commit-list { display: flex; flex-direction: column; gap: 8px; }
+  .commit-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; line-height: 1.5; }
+  .commit-check { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--sage); flex-shrink: 0; margin-top: 1px; }
+  .commit-who { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 3px; display: block; }
+
+  /* PATIENT NOTE */
+  .patient-note { background: linear-gradient(135deg, #F5F0E8 0%, #EDE8DC 100%); border: 1px solid #DDD8CC; border-radius: 12px; padding: 22px; }
+  .patient-note .note-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .patient-note p { font-family: 'Playfair Display', serif; font-size: 14px; line-height: 1.75; color: var(--charcoal); font-style: italic; }
+  .patient-note .note-footer { margin-top: 14px; font-size: 11px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-style: normal; }
+
+  /* TIMELINE */
+  .timeline { display: flex; flex-direction: column; }
+  .timeline-item { display: flex; gap: 14px; padding-bottom: 18px; position: relative; }
+  .timeline-item::before { content: ''; position: absolute; left: 18px; top: 24px; bottom: 0; width: 1px; background: var(--border); }
+  .timeline-item:last-child::before { display: none; }
+  .timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--sage); margin-top: 5px; flex-shrink: 0; margin-left: 14px; }
+  .timeline-dot.dim { background: var(--border); }
+  .timeline-content { flex: 1; }
+  .timeline-date { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+  .timeline-text { font-size: 13px; line-height: 1.5; color: var(--charcoal); }
+  .timeline-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: rgba(122,158,126,0.1); color: var(--sage-dark); border: 1px solid rgba(122,158,126,0.2); }
+
+  /* PATTERNS */
+  .pattern-list { display: flex; flex-direction: column; gap: 8px; }
+  .pattern-item { padding: 12px 14px; border-radius: 8px; background: var(--cream); font-size: 13px; line-height: 1.5; color: var(--charcoal); border-left: 2px solid var(--sage-light); }
+
+  /* PRIVATE NOTE */
+  .private-note { background: rgba(212,114,106,0.04); border: 1px solid rgba(212,114,106,0.2); border-radius: 10px; padding: 14px 16px; }
+  .private-note .private-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--alert); font-weight: 500; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+  .private-note p { font-size: 13px; line-height: 1.6; color: var(--charcoal); }
+
+  /* STATS */
+  .stats-row { display: flex; gap: 10px; }
+  .stat-box { flex: 1; padding: 14px; background: var(--cream); border-radius: 8px; text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--sage-dark); display: block; }
+  .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; display: block; }
+  .next-session { padding: 14px 16px; background: rgba(122,158,126,0.08); border: 1px solid rgba(122,158,126,0.2); border-radius: 10px; }
+  .next-session .ns-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage-dark); font-weight: 500; margin-bottom: 6px; }
+  .next-session .ns-date { font-size: 15px; font-weight: 500; color: var(--charcoal); }
+  .next-session .ns-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* TABS */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 22px; }
+  .tab { padding: 12px 16px; font-size: 12px; letter-spacing: 0.05em; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; user-select: none; }
+  .tab.active { color: var(--sage-dark); border-bottom-color: var(--sage); font-weight: 500; }
+  .tab:hover:not(.active) { color: var(--charcoal); background: rgba(122,158,126,0.04); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      TherapyOS
+      <span>Mario Citalán · Psicólogo</span>
+    </div>
+
+    <div class="sidebar-section">
+      <label>Pacientes activos</label>
+      <div class="patient-list" id="patient-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <label>Próximas sesiones</label>
+      <div id="sidebar-upcoming"></div>
+    </div>
+
+    <div class="fishflow-badge">
+      <div class="ff-dot"></div>
+      <div class="ff-text">
+        Powered by
+        <strong>FishFlow</strong>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="patient-header">
+        <div class="patient-big-avatar" id="topbar-avatar"></div>
+        <div class="patient-info">
+          <h2 id="topbar-name"></h2>
+          <p id="topbar-meta"></p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-outline">📤 Enviar resumen a paciente</button>
+        <button class="btn btn-primary">+ Nueva sesión</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="left-col">
+
+        <!-- BRIEFING -->
+        <div class="card briefing-card">
+          <div class="card-header">
+            <h3>⚡ Briefing · Próxima sesión</h3>
+            <span class="briefing-meta" id="briefing-date"></span>
+          </div>
+          <div class="briefing-content" id="briefing-content"></div>
+        </div>
+
+        <!-- RESUMEN SESIÓN -->
+        <div class="card">
+          <div class="card-header">
+            <h3 id="session-title"></h3>
+            <span class="badge badge-new" id="session-date-badge"></span>
+          </div>
+          <div class="tabs">
+            <div class="tab active" onclick="switchTab('temas', this)">Temas &amp; Análisis</div>
+            <div class="tab" onclick="switchTab('emocional', this)">Estado emocional</div>
+            <div class="tab" onclick="switchTab('compromisos', this)">Compromisos</div>
+          </div>
+          <div class="card-body">
+            <div class="session-date" id="session-duration"></div>
+            <div class="tab-panel active" id="panel-temas"></div>
+            <div class="tab-panel" id="panel-emocional"></div>
+            <div class="tab-panel" id="panel-compromisos"></div>
+          </div>
+        </div>
+
+        <!-- NOTA PRIVADA -->
+        <div class="private-note">
+          <div class="private-label">🔒 Nota clínica privada · Solo Mario</div>
+          <p id="private-note-text"></p>
+        </div>
+
+      </div>
+
+      <div class="right-col">
+
+        <!-- RESUMEN PACIENTE -->
+        <div class="patient-note">
+          <div class="note-label">💬 <span id="patient-note-label"></span></div>
+          <p id="patient-note-text"></p>
+          <div class="note-footer">Generado automáticamente · Listo para enviar por email o WhatsApp</div>
+        </div>
+
+        <!-- STATS -->
+        <div class="card">
+          <div class="card-header"><h3>Estadísticas</h3></div>
+          <div class="card-body">
+            <div class="stats-row" id="stats-row"></div>
+            <div style="margin-top:16px;" id="next-session-box"></div>
+          </div>
+        </div>
+
+        <!-- HISTORIAL -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Historial de temas</h3>
+            <span class="badge badge-sage">Acumulativo</span>
+          </div>
+          <div class="card-body">
+            <div class="timeline" id="timeline"></div>
+          </div>
+        </div>
+
+        <!-- PATRONES -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Patrones identificados</h3>
+            <span class="badge badge-ff">✦ TherapyOS · IA</span>
+          </div>
+          <div class="card-body">
+            <div class="pattern-list" id="pattern-list"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  DATA — 4 PACIENTES FICTICIOS
+// ══════════════════════════════════════
+const patients = {
+
+  CM: {
+    initials: 'CM',
+    name: 'Carlos Mendoza',
+    sessions: 8,
+    meta: '8 sesiones · Inicio: Noviembre 2024 · Última: 28 Abr 2025',
+    nextDate: 'Martes 29 Abr · 11:00',
+    briefing: [
+      { label: 'Última sesión (28 Abr)', text: 'Procesó su despido laboral. Lloró por primera vez sin beber — gran avance emocional. Está explorando emprendimiento en tecnología.' },
+      { label: 'Temas pendientes', text: 'Dinámica con su padre (conmiseración / manipulación). Abuelo paterno con salud deteriorada. Liquidación laboral pendiente.' },
+      { label: 'Tarea que quedó', text: 'Practicar confrontar a su padre con preguntas, no con juicio directo. Técnica de "la pregunta que desarma."' },
+      { label: 'A explorar', text: '¿Cómo va el proyecto de emprendimiento? ¿Algún episodio con su padre esta semana?' }
+    ],
+    sessionNum: '#8',
+    sessionDate: '28 Abr 2025',
+    sessionDuration: 'Sesión del 28 de abril · 50 min aprox.',
+    temas: [
+      { type: '', label: 'Tema principal · Trabajo', text: 'Carlos fue despedido tras más de 15 años de carrera sin un solo despido previo. Aceptó la decisión reconociendo que era inevitable. Pendiente firma de carta hasta incluir su liquidación completa.' },
+      { type: '', label: 'Avance terapéutico significativo', text: 'Por primera vez en su vida procesó una emoción dolorosa <strong>llorando sobrio</strong> — en un café y caminando al día siguiente. Reconoce el contraste con su patrón anterior de beber para canalizar el enojo.' },
+      { type: 'yellow', label: 'Tema · Familia / Padre', text: 'El abuelo paterno (90 años) está con oxígeno permanente. El padre reacciona con conmiseración y búsqueda de atención. Carlos percibe esto como manipulación.' },
+      { type: 'purple', label: 'Insight de Mario · Conmiseración', text: 'La conmiseración amplifica si se confronta directo. Estrategia: hacer preguntas que obliguen a reflexionar ("¿Y tú qué propondrías?").' }
+    ],
+    emociones: [
+      { emoji: '✅', label: 'Sobriedad', value: 'Estable' },
+      { emoji: '🌱', label: 'Madurez emocional', value: 'En progreso' },
+      { emoji: '⚡', label: 'Energía / Dirección', value: 'Alta' },
+      { emoji: '🔶', label: 'Familia', value: 'Con tensión' },
+      { emoji: '💼', label: 'Situación laboral', value: 'Transitando' },
+      { emoji: '🎯', label: 'Motivación', value: 'Alta' }
+    ],
+    emoNota: 'Estado general positivo a pesar del estresor laboral. La crisis funciona como catalizador. Vigilar posibles episodios de recaída emocional cuando se resuelva el duelo laboral.',
+    compromisos: [
+      { text: 'Practicar confrontación con preguntas al hablar con su padre sobre el abuelo', quien: 'Para Carlos · antes de próxima sesión' },
+      { text: 'Continuar avanzando en el proyecto de emprendimiento', quien: 'Para Carlos · en proceso' },
+      { text: 'Seguimiento a carta de liquidación (comisiones y prestaciones pendientes)', quien: 'Para Carlos · administrativo' }
+    ],
+    notaPacienteLabel: 'Resumen para Carlos',
+    notaPaciente: 'Hoy hablamos de cómo manejaste el despido — y lo que más me importa destacar es que lo viviste diferente. Lloraste, lo sentiste, y lo procesaste sin necesitar nada más. Eso es crecimiento real. También exploramos por qué la actitud de tu papá te genera tensión, y te doy una herramienta concreta: responde con preguntas, no con juicio.',
+    notaPrivada: 'El despido funcionó como catalizador positivo. Carlos procesó el duelo de forma funcional por primera vez. La correlación entre crisis laboral y surgimiento de proyectos creativos merece explorarse. La dinámica con el padre podría estar conectada con su propio patrón histórico de codependencia emocional.',
+    stats: { s1: '8', l1: 'Sesiones', s2: '6m', l2: 'En proceso', s3: '100%', l3: 'Asistencia' },
+    proximaSesion: { date: 'Martes 29 de Abril', sub: '11:00 AM · Zoom' },
+    historial: [
+      { dim: false, date: '28 Abr 2025 · Sesión #8', text: 'Despido laboral. Procesó emoción llorando sobrio (hito). Emprendimiento. Conmiseración del padre.', tags: ['trabajo', 'duelo', 'familia', 'hito'] },
+      { dim: true, date: 'Sesiones #5 – #7', text: 'Tensión con el jefe. Reflexión sobre identidad profesional. Primeros pasos en nuevo proyecto.', tags: ['trabajo', 'identidad'] },
+      { dim: true, date: 'Sesiones #2 – #4', text: 'Relación con el padre. Patrones de codependencia. Historia con el alcohol.', tags: ['familia', 'sobriedad'] },
+      { dim: true, date: 'Nov 2024 · Sesión #1', text: 'Inicio del proceso. Presentación de motivos. Relación con el alcohol y la familia de origen.', tags: ['inicio', 'diagnóstico'] }
+    ],
+    patrones: [
+      '🔁 Tendencia a intelectualizar las emociones antes de sentirlas (análisis excesivo antes de llorar).',
+      '💪 Las crisis disparan creatividad y acción — patrón positivo a reforzar.',
+      '🔶 Dificultad para separarse emocionalmente de la figura paterna sin caer en codependencia.',
+      '✅ Sobriedad como ancla estable — ningún episodio de tentativa en crisis hasta la fecha.'
+    ]
+  },
+
+  AM: {
+    initials: 'AM',
+    name: 'Ana Martínez',
+    sessions: 14,
+    meta: '14 sesiones · Inicio: Agosto 2024 · Última: 25 Abr 2025',
+    nextDate: 'Miércoles 30 Abr · 10:00',
+    briefing: [
+      { label: 'Última sesión (25 Abr)', text: 'Ana logró por primera vez delegar un proyecto completo sin revisarlo compulsivamente. Reporta menos episodios de insomnio. Pareja más comprensiva tras conversación honesta.' },
+      { label: 'Temas pendientes', text: 'Límites con la directora de área. Sentimiento de "impostora" en reuniones ejecutivas. Miedo a decepcionar a su equipo.' },
+      { label: 'Tarea que quedó', text: 'Registrar en diario: momentos donde diga "sí" cuando quiere decir "no". Traer 3 ejemplos a sesión.' },
+      { label: 'A explorar', text: '¿Cómo fue la semana delegando? ¿Hubo momentos de ansiedad alta? ¿Cómo durmió?' }
+    ],
+    sessionNum: '#14',
+    sessionDate: '25 Abr 2025',
+    sessionDuration: 'Sesión del 25 de abril · 55 min aprox.',
+    temas: [
+      { type: '', label: 'Tema principal · Burnout & Control', text: 'Ana fue promovida a Directora de Marketing hace 8 meses pero no ajustó su mentalidad de ejecutora. Sigue haciendo el trabajo de su equipo por desconfianza. La carga es insostenible.' },
+      { type: '', label: 'Avance — Primera delegación real', text: 'Delegó el lanzamiento del Q2 sin intervenir. Reconoce que el equipo lo resolvió bien. Momento de quiebre cognitivo importante.' },
+      { type: 'yellow', label: 'Tema · Relación de pareja', text: 'Su pareja Luis siente que Ana "no está presente" en casa. Conversación directa la semana pasada mejoró la comunicación. Ambos acordaron proteger los fines de semana.' },
+      { type: 'purple', label: 'Insight de Mario · Síndrome de impostora', text: 'La sensación de "no merecer" el puesto alimenta la sobrecompensación. El antídoto no es trabajar más, sino registrar evidencia concreta de sus logros semanalmente.' }
+    ],
+    emociones: [
+      { emoji: '😤', label: 'Estrés laboral', value: 'Moderado' },
+      { emoji: '😴', label: 'Calidad de sueño', value: 'Mejorando' },
+      { emoji: '❤️', label: 'Relación de pareja', value: 'Estabilizando' },
+      { emoji: '🏆', label: 'Autoeficacia', value: 'En proceso' },
+      { emoji: '😮‍💨', label: 'Carga emocional', value: 'Alta' },
+      { emoji: '🌿', label: 'Autocuidado', value: 'Iniciando' }
+    ],
+    emoNota: 'El patrón de control compulsivo está cediendo. La delegación fue un hito real. Continuar trabajando el síndrome de impostora con ejercicios de registro de logros concretos.',
+    compromisos: [
+      { text: 'Llevar diario de momentos donde dice "sí" cuando quiere decir "no"', quien: 'Para Ana · antes de próxima sesión' },
+      { text: 'Proteger el sábado completo sin trabajo — acuerdo con Luis', quien: 'Para Ana · compromiso de pareja' },
+      { text: 'Registrar 3 logros concretos de la semana como directora', quien: 'Para Ana · ejercicio antiimpostora' }
+    ],
+    notaPacienteLabel: 'Resumen para Ana',
+    notaPaciente: 'Hoy fue una sesión importante. Delegaste de verdad — y resultó bien. Eso no es suerte, eso es evidencia de que tu equipo puede y de que tú puedes soltar el control. El agotamiento que sientes no viene de falta de capacidad, viene de exigirte dos roles al mismo tiempo. Sigues siendo tú quien decide cuánto cargar.',
+    notaPrivada: 'Ana está en un punto de inflexión positivo. El burnout está cediendo pero el síndrome de impostora sigue activo. La relación con Luis es un factor protector importante — debe mantenerse. Explorar en próximas sesiones la figura de la madre como modelo de "deber ser" que Ana replicate inconscientemente.',
+    stats: { s1: '14', l1: 'Sesiones', s2: '9m', l2: 'En proceso', s3: '93%', l3: 'Asistencia' },
+    proximaSesion: { date: 'Miércoles 30 de Abril', sub: '10:00 AM · Presencial' },
+    historial: [
+      { dim: false, date: '25 Abr 2025 · Sesión #14', text: 'Primera delegación real. Mejora en sueño. Conversación de pareja exitosa.', tags: ['trabajo', 'hito', 'pareja'] },
+      { dim: true, date: 'Sesiones #9 – #13', text: 'Exploración del síndrome de impostora. Patrones de perfeccionismo. Inicio del trabajo de límites.', tags: ['identidad', 'trabajo'] },
+      { dim: true, date: 'Sesiones #4 – #8', text: 'Dinámica con equipo de trabajo. Sobrecompensación. Tensión con la pareja.', tags: ['trabajo', 'pareja'] },
+      { dim: true, date: 'Ago 2024 · Sesión #1', text: 'Consulta inicial: ansiedad aguda tras promoción. Insomnio. Sensación de no poder parar.', tags: ['inicio', 'ansiedad'] }
+    ],
+    patrones: [
+      '🔄 Patrón de sobrecompensación laboral como respuesta al miedo al fracaso.',
+      '🪞 Síndrome de impostora activo — los logros son externalizados ("fue suerte"), los errores internalizados ("soy yo").',
+      '❤️ La relación de pareja es factor protector clave — Luis es aliado terapéutico involuntario.',
+      '🌱 Cuando delega y resulta bien, el cambio cognitivo ocurre rápido — aprende con evidencia concreta.'
+    ]
+  },
+
+  JG: {
+    initials: 'JG',
+    name: 'Jorge García',
+    sessions: 3,
+    meta: '3 sesiones · Inicio: Marzo 2025 · Última: 22 Abr 2025',
+    nextDate: 'Miércoles 30 Abr · 13:00',
+    briefing: [
+      { label: 'Última sesión (22 Abr)', text: 'Tercera sesión. Jorge rompió contacto con su ex por primera vez en 3 semanas. Durmió mejor dos noches. Empezó a salir con amigos.' },
+      { label: 'Temas pendientes', text: 'Identidad propia fuera de la relación. Patrón de urgencia de conectar emocionalmente. Red social débil — pocos amigos cercanos.' },
+      { label: 'Tarea que quedó', text: 'Hacer UNA actividad nueva que siempre quiso hacer solo (clase de algo, deporte, lugar nuevo). Sin agenda de reportarlo a nadie.' },
+      { label: 'A explorar', text: '¿Hizo la actividad nueva? ¿Hubo contacto con la ex? ¿Cómo está el sueño esta semana?' }
+    ],
+    sessionNum: '#3',
+    sessionDate: '22 Abr 2025',
+    sessionDuration: 'Sesión del 22 de abril · 50 min aprox.',
+    temas: [
+      { type: '', label: 'Tema principal · Ruptura', text: 'Jorge (27 años) terminó una relación de 4 años hace 6 semanas. Fue una relación donde él ponía la mayor carga emocional. La ex lo dejó por "agotamiento." Es su primera terapia.' },
+      { type: '', label: 'Avance — Sin contacto', text: 'Logró 3 semanas sin contactar a su ex después de intentos repetidos. Reconoce que el contacto lo dejaba peor, no mejor. Primer insight real del proceso.' },
+      { type: 'yellow', label: 'Tema · Soledad estructural', text: 'Fuera de la relación, Jorge tiene muy poca red social. Sus amigos se fueron "diluyendo" durante los 4 años de pareja. Ahora siente que no tiene a quién llamar.' },
+      { type: 'purple', label: 'Insight de Mario · Dependencia emocional', text: 'Jorge confunde intensidad emocional con conexión auténtica. Buscaba en la relación lo que no construyó en otras áreas de su vida. El trabajo es construir desde adentro, no desde la pareja.' }
+    ],
+    emociones: [
+      { emoji: '💔', label: 'Duelo ruptura', value: 'Activo' },
+      { emoji: '😴', label: 'Calidad de sueño', value: 'Irregular' },
+      { emoji: '😶', label: 'Soledad', value: 'Alta' },
+      { emoji: '🌱', label: 'Motivación cambio', value: 'Emergiendo' },
+      { emoji: '😤', label: 'Ansiedad social', value: 'Moderada' },
+      { emoji: '🔍', label: 'Autoconocimiento', value: 'Iniciando' }
+    ],
+    emoNota: 'Paciente en etapa inicial. El dolor es genuino y funcional — no hay señales de alarma. El aislamiento es el factor de riesgo más importante a monitorear. El interés en hacer cosas nuevas es señal positiva.',
+    compromisos: [
+      { text: 'Hacer UNA actividad nueva que siempre quiso hacer — sin reportarlo a nadie', quien: 'Para Jorge · esta semana' },
+      { text: 'Si hay urgencia de contactar a la ex: esperar 10 minutos y escribir en el cuaderno', quien: 'Para Jorge · protocolo de urgencia' },
+      { text: 'Revisar en próxima sesión: ¿hay alguien del pasado con quien retomar contacto?', quien: 'Para Mario · agenda' }
+    ],
+    notaPacienteLabel: 'Resumen para Jorge',
+    notaPaciente: 'Lo que sientes es real — y tiene sentido que duela. Cuatro años no se procesan en seis semanas. Pero lo que hiciste esta semana, no contactarla, fue más poderoso de lo que crees. No porque la estés olvidando, sino porque estás eligiendo empezar a conocerte a ti solo. Eso es el trabajo de esta etapa.',
+    notaPrivada: 'Jorge es un paciente con alta capacidad de insight cuando se siente en confianza. El riesgo principal es el aislamiento sostenido que pueda derivar en episodio depresivo. La dependencia emocional tiene raíces en la dinámica familiar (madre sobreprotectora, padre ausente) — terreno para explorar en próximas sesiones cuando haya más vínculo terapéutico.',
+    stats: { s1: '3', l1: 'Sesiones', s2: '2m', l2: 'En proceso', s3: '100%', l3: 'Asistencia' },
+    proximaSesion: { date: 'Miércoles 30 de Abril', sub: '1:00 PM · Zoom' },
+    historial: [
+      { dim: false, date: '22 Abr 2025 · Sesión #3', text: '3 semanas sin contacto con ex. Primeras salidas con amigos. Mejor sueño.', tags: ['ruptura', 'avance', 'aislamiento'] },
+      { dim: true, date: '8 Abr 2025 · Sesión #2', text: 'Exploración de la dinámica de la relación. Patrón de urgencia emocional. Primer acuerdo de no-contacto.', tags: ['ruptura', 'dependencia'] },
+      { dim: true, date: 'Mar 2025 · Sesión #1', text: 'Primera consulta. Ruptura reciente, insomnio, aislamiento. Alta motivación para el proceso.', tags: ['inicio', 'duelo'] }
+    ],
+    patrones: [
+      '🔗 Dependencia emocional — busca en parejas la regulación que no genera internamente.',
+      '📱 Patrón de contacto-ruptura-contacto con la ex como forma de aliviar ansiedad a corto plazo.',
+      '🤝 Red social débil: sacrificó amistades durante la relación — trabajo de reconstrucción necesario.',
+      '✨ Alta capacidad de insight cuando está en un espacio seguro — buen pronóstico terapéutico.'
+    ]
+  },
+
+  LP: {
+    initials: 'LP',
+    name: 'Laura Pérez',
+    sessions: 22,
+    meta: '22 sesiones · Inicio: Junio 2023 · Última: 24 Abr 2025',
+    nextDate: 'Jueves 1 May · 16:00',
+    briefing: [
+      { label: 'Última sesión (24 Abr)', text: 'Laura habló por primera vez de su madre sin llorar — con ternura y humor. Refirió sentirse "lista para cerrar algo." Pidió explorar espaciar las sesiones.' },
+      { label: 'Temas pendientes', text: 'Decisión sobre espaciar sesiones (propuesta de Laura). Identidad post-duelo: quién es Laura sin el rol de "cuidadora." Relación con sus hijos adultos.' },
+      { label: 'Tarea que quedó', text: 'Escribir una carta a su madre que no enviará — lo que no le dijo en vida. Traerla a sesión si quiere leerla.' },
+      { label: 'A explorar', text: '¿Escribió la carta? ¿Cómo se sintió al hacerlo? ¿Qué significa para ella "cerrar" esta etapa?' }
+    ],
+    sessionNum: '#22',
+    sessionDate: '24 Abr 2025',
+    sessionDuration: 'Sesión del 24 de abril · 50 min aprox.',
+    temas: [
+      { type: '', label: 'Tema principal · Duelo en resolución', text: 'Laura perdió a su madre hace 20 meses. El proceso de duelo fue largo y complejo — su madre era también su mejor amiga. Hoy Laura puede recordarla con alegría además de tristeza.' },
+      { type: '', label: 'Hito — Hablar sin llorar', text: 'Por primera vez en 22 sesiones, Laura contó una anécdota de su madre sonriendo. Describió el platillo favorito de su mamá con humor. Momento clínico significativo de integración del duelo.' },
+      { type: 'yellow', label: 'Tema · Identidad propia', text: 'Laura cuidó a su madre los últimos 2 años de vida. Ahora que el rol terminó, no sabe bien quién es sin esa carga. Está redescubriendo intereses propios: pintura, viajes sola, tiempo sin dar cuentas.' },
+      { type: 'purple', label: 'Insight de Mario · Duelo integrado', text: 'El duelo integrado no significa que el dolor desaparece — significa que ya cabe junto con el amor, el humor y la memoria. Laura está en ese lugar. La terapia puede comenzar a espaciarse.' }
+    ],
+    emociones: [
+      { emoji: '🌸', label: 'Duelo', value: 'Integrado' },
+      { emoji: '😊', label: 'Estado general', value: 'Estable' },
+      { emoji: '🎨', label: 'Identidad propia', value: 'Emergiendo' },
+      { emoji: '👨‍👩‍👧', label: 'Familia', value: 'En equilibrio' },
+      { emoji: '🌍', label: 'Proyectos nuevos', value: 'Activos' },
+      { emoji: '💪', label: 'Autonomía', value: 'Alta' }
+    ],
+    emoNota: 'Laura está en la fase de cierre terapéutico. El duelo está integrado de manera saludable. La propuesta de espaciar sesiones viene de ella — señal de autonomía. Evaluar cierre formal en 2-3 sesiones más.',
+    compromisos: [
+      { text: 'Escribir carta a su madre — lo que no le dijo en vida', quien: 'Para Laura · esta semana' },
+      { text: 'Explorar opción de clases de pintura (algo mencionado en sesión)', quien: 'Para Laura · proyecto personal' },
+      { text: 'Evaluar en próxima sesión: plan de cierre terapéutico o espaciado a sesiones mensuales', quien: 'Para Mario · decisión compartida' }
+    ],
+    notaPacienteLabel: 'Resumen para Laura',
+    notaPaciente: 'Hoy pasó algo que vale la pena nombrar: hablaste de tu mamá y te brillaron los ojos de una forma diferente. No solo de tristeza, también de cariño y de risa. Eso es lo que se llama llevarla contigo sin que pese. No la estás soltando — la estás integrando. Y tú estás lista para lo que sigue.',
+    notaPrivada: 'Laura está en el mejor momento de su proceso. El duelo ha avanzado a integración plena. La pregunta por la identidad propia es el trabajo que queda — pero tiene los recursos para hacerlo sola o con mucho menos acompañamiento. Preparar protocolo de cierre: 2 sesiones de cierre formal, luego disponibilidad abierta.',
+    stats: { s1: '22', l1: 'Sesiones', s2: '23m', l2: 'En proceso', s3: '96%', l3: 'Asistencia' },
+    proximaSesion: { date: 'Jueves 1 de Mayo', sub: '4:00 PM · Presencial' },
+    historial: [
+      { dim: false, date: '24 Abr 2025 · Sesión #22', text: 'Habló de mamá sin llorar — con humor y ternura. Propone espaciar sesiones. Carta pendiente.', tags: ['duelo', 'hito', 'cierre'] },
+      { dim: true, date: 'Sesiones #15 – #21', text: 'Trabajo de identidad post-cuidadora. Redescubrimiento de intereses propios. Viaje sola.', tags: ['identidad', 'autonomía'] },
+      { dim: true, date: 'Sesiones #7 – #14', text: 'Duelo activo. Trabajo con memorias. Manejo de fechas difíciles (cumpleaños, aniversario).', tags: ['duelo', 'memoria'] },
+      { dim: true, date: 'Jun 2023 · Sesiones #1–6', text: 'Consulta inicial: pérdida reciente, incapacidad de volver a rutina. Duelo complicado.', tags: ['inicio', 'duelo', 'diagnóstico'] }
+    ],
+    patrones: [
+      '🌸 Duelo integrado de forma saludable — puede sentir tristeza y amor simultáneamente.',
+      '🧹 Patrón histórico de rol cuidadora: necesita permiso explícito para priorizar sus propias necesidades.',
+      '🎨 La creatividad (pintura, viajes) es su lenguaje de autocuidado — reforzar consistentemente.',
+      '✅ Alta resiliencia y capacidad de mentalización — recurso clínico importante.'
+    ]
+  }
+
+};
+
+// ══════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════
+let currentPatient = 'CM';
+
+function renderPatientList() {
+  const list = document.getElementById('patient-list');
+  list.innerHTML = Object.keys(patients).map(id => {
+    const p = patients[id];
+    const active = id === currentPatient;
+    return `
+      <div class="patient-item ${active ? 'active' : ''}" onclick="loadPatient('${id}')">
+        <div class="patient-avatar ${active ? 'active-avatar' : ''}">${p.initials}</div>
+        ${p.name}
+        <span class="sessions-count">${p.sessions}</span>
+      </div>`;
+  }).join('');
+}
+
+function renderSidebarUpcoming() {
+  const el = document.getElementById('sidebar-upcoming');
+  const lines = Object.values(patients).map(p =>
+    `<div class="day-label">${p.nextDate.split('·')[0].trim()}</div>${p.name} · ${p.nextDate.split('·')[1].trim()}<br>`
+  );
+  el.innerHTML = lines.slice(0,4).join('<br>');
+}
+
+function renderMain(id) {
+  const p = patients[id];
+
+  // Topbar
+  document.getElementById('topbar-avatar').textContent = p.initials;
+  document.getElementById('topbar-name').textContent = p.name;
+  document.getElementById('topbar-meta').textContent = p.meta;
+
+  // Briefing
+  document.getElementById('briefing-date').textContent = p.nextDate;
+  document.getElementById('briefing-content').innerHTML = p.briefing.map(b =>
+    `<div class="briefing-item">
+      <div class="briefing-dot"></div>
+      <p><strong>${b.label}:</strong> ${b.text}</p>
+    </div>`
+  ).join('');
+
+  // Session header
+  document.getElementById('session-title').textContent = `Resumen · Sesión ${p.sessionNum}`;
+  document.getElementById('session-date-badge').textContent = p.sessionDate;
+  document.getElementById('session-duration').textContent = p.sessionDuration;
+
+  // Panel: Temas
+  document.getElementById('panel-temas').innerHTML = `<div class="topic-list">${p.temas.map(t =>
+    `<div class="topic-item ${t.type}">
+      <div>
+        <div class="topic-label">${t.label}</div>
+        <p>${t.text}</p>
+      </div>
+    </div>`
+  ).join('')}</div>`;
+
+  // Panel: Emocional
+  document.getElementById('panel-emocional').innerHTML = `
+    <div class="emotion-grid">${p.emociones.map(e =>
+      `<div class="emotion-chip">
+        <span class="emoji">${e.emoji}</span>
+        <div>
+          <span class="emo-label">${e.label}</span>
+          <span class="emo-value">${e.value}</span>
+        </div>
+      </div>`
+    ).join('')}</div>
+    <div class="emo-note" style="margin-top:16px">
+      <div class="emo-note-label">Nota del terapeuta</div>
+      <p>${p.emoNota}</p>
+    </div>`;
+
+  // Panel: Compromisos
+  document.getElementById('panel-compromisos').innerHTML = `<div class="commit-list">${p.compromisos.map(c =>
+    `<div class="commit-item">
+      <div class="commit-check"></div>
+      <div>${c.text}<span class="commit-who">${c.quien}</span></div>
+    </div>`
+  ).join('')}</div>`;
+
+  // Nota privada
+  document.getElementById('private-note-text').textContent = p.notaPrivada;
+
+  // Nota paciente
+  document.getElementById('patient-note-label').textContent = p.notaPacienteLabel;
+  document.getElementById('patient-note-text').textContent = p.notaPaciente;
+
+  // Stats
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-box"><span class="stat-num">${p.stats.s1}</span><span class="stat-label">${p.stats.l1}</span></div>
+    <div class="stat-box"><span class="stat-num">${p.stats.s2}</span><span class="stat-label">${p.stats.l2}</span></div>
+    <div class="stat-box"><span class="stat-num">${p.stats.s3}</span><span class="stat-label">${p.stats.l3}</span></div>`;
+
+  document.getElementById('next-session-box').innerHTML = `
+    <div class="next-session">
+      <div class="ns-label">Próxima sesión</div>
+      <div class="ns-date">${p.proximaSesion.date}</div>
+      <div class="ns-sub">${p.proximaSesion.sub}</div>
+    </div>`;
+
+  // Historial
+  document.getElementById('timeline').innerHTML = p.historial.map(h =>
+    `<div class="timeline-item">
+      <div class="timeline-dot ${h.dim ? 'dim' : ''}"></div>
+      <div class="timeline-content">
+        <div class="timeline-date">${h.date}</div>
+        <div class="timeline-text">${h.text}</div>
+        <div class="timeline-tags">${h.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+    </div>`
+  ).join('');
+
+  // Patrones
+  document.getElementById('pattern-list').innerHTML = p.patrones.map(pt =>
+    `<div class="pattern-item">${pt}</div>`
+  ).join('');
+
+  // Reset tabs
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === 0));
+}
+
+function loadPatient(id) {
+  currentPatient = id;
+  renderPatientList();
+  renderMain(id);
+  window.scrollTo(0, 0);
+}
+
+function switchTab(tabName, clickedTab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  clickedTab.classList.add('active');
+  document.getElementById('panel-' + tabName).classList.add('active');
+}
+
+// INIT
+renderPatientList();
+renderSidebarUpcoming();
+renderMain('CM');
+</script>
+</body>
+</html>
