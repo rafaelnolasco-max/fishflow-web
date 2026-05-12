@@ -34,6 +34,7 @@ export type Currency = "MXN" | "USD";
 
 export interface TBAOpportunity {
   id: string;
+  opportunity_name: string;
   company_name: string;
   contact_name: string;
   product_type: ProductType;

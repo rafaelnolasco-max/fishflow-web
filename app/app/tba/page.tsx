@@ -59,6 +59,7 @@ const PRODUCT_META: Record<ProductType, { label: string }> = {
 
 // ─── Field display names for the audit log ───────────────────────────────────
 const FIELD_LABELS: Record<string, string> = {
+  opportunity_name:     "Nombre de oportunidad",
   company_name:         "Empresa",
   contact_name:         "Contacto",
   product_type:         "Tipo de producto",
@@ -182,6 +183,7 @@ export default function TBAPage() {
   const router = useRouter();
 
   // ── Form state ──
+  const [oppName,     setOppName]     = useState("");
   const [company,     setCompany]     = useState("");
   const [contact,     setContact]     = useState("");
   const [productType, setProductType] = useState<ProductType>("hardware");
@@ -274,23 +276,23 @@ export default function TBAPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const num = parseFloat(amount.replace(/,/g, ""));
-    if (!company.trim() || !contact.trim() || !vendor.trim() || isNaN(num) || num <= 0) {
+    if (!oppName.trim() || !company.trim() || !contact.trim() || !vendor.trim() || isNaN(num) || num <= 0) {
       setErr("Completa todos los campos obligatorios (*).");
       return;
     }
     setSaving(true); setErr("");
     const { error } = await supabase.from("tba_opportunities").insert({
+      opportunity_name: oppName.trim(),
       company_name: company.trim(), contact_name: contact.trim(),
       product_type: productType, vendor: vendor.trim(),
       amount: num, currency, stage,
       close_date: closeDate || null,
       notes: notes.trim() || null,
-      // created_by / updated_by → manejados automáticamente por el trigger
     });
     setSaving(false);
     if (error) { setErr("Error al guardar. Intenta de nuevo."); return; }
-    setOk(`✓ Oportunidad con ${company.trim()} registrada`);
-    setCompany(""); setContact(""); setVendor(""); setAmount("");
+    setOk(`✓ "${oppName.trim()}" registrada`);
+    setOppName(""); setCompany(""); setContact(""); setVendor(""); setAmount("");
     setCloseDate(""); setNotes("");
     setProductType("hardware"); setCurrency("USD"); setStage("prospecto");
     firstInputRef.current?.focus();
@@ -429,8 +431,14 @@ export default function TBAPage() {
             <p style={sectionLabel}>Nueva oportunidad</p>
             <form onSubmit={handleSubmit} style={card}>
 
+              <Field label="Nombre de la oportunidad *">
+                <input ref={firstInputRef} type="text" value={oppName}
+                  onChange={e => setOppName(e.target.value)}
+                  placeholder="Ej. Renovación switches campus, Proyecto Red Core 2026" style={inputStyle} required />
+              </Field>
+
               <Field label="Empresa / Prospect *">
-                <input ref={firstInputRef} type="text" value={company}
+                <input type="text" value={company}
                   onChange={e => setCompany(e.target.value)}
                   placeholder="Ej. Telmex, Banorte, PEMEX" style={inputStyle} required />
               </Field>
@@ -679,9 +687,11 @@ export default function TBAPage() {
                       return (
                         <Fragment key={o.id}>
                           <tr style={{ borderBottom: isExpanded ? "none" : "0.5px solid #f0efeb" }}>
-                            <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>
-                              {o.company_name}
+                            <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
+                              <span style={{ fontWeight: 700 }}>{o.company_name}</span>
                               {o.notes && <span title={o.notes} style={{ marginLeft: 6, fontSize: 11, color: "#bbb", cursor: "help" }}>📝</span>}
+                              <br />
+                              <span style={{ fontSize: 11, color: "#888", fontWeight: 400 }}>{o.opportunity_name}</span>
                             </td>
                             <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>{o.contact_name}</td>
                             <td style={{ padding: "10px 14px" }}>
