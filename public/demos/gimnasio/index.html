@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FishFlow — GymForce CDMX</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --orange:     #FF8C35;
+    --orange-dim: rgba(255,140,53,0.12);
+    --orange-glow:rgba(255,140,53,0.25);
+    --cyan:       #67D4E8;
+    --cyan-dim:   rgba(103,212,232,0.10);
+    --dark:       #0D1B2A;
+    --dark2:      #0F2034;
+    --dark3:      #152844;
+    --dark4:      #1C3358;
+    --white:      #F0F6FF;
+    --white2:     #A8BFCF;
+    --muted:      #5E7A8F;
+    --border:     rgba(103,212,232,0.14);
+    --border2:    rgba(255,255,255,0.06);
+    --success:    #2ECC71;
+    --warning:    #F7A04B;
+    --danger:     #E05050;
+    --sidebar-w:  240px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Inter', sans-serif;
+    background:var(--dark);
+    color:var(--white);
+    min-height:100vh;
+    display:flex;
+    overflow:hidden;
+  }
+
+  /* ════════════════════════════════
+     SIDEBAR
+  ════════════════════════════════ */
+  .sidebar {
+    width:var(--sidebar-w);
+    background:var(--dark2);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0;
+    height:100vh;
+    position:fixed;
+    left:0; top:0;
+    z-index:20;
+  }
+
+  .sidebar-logo {
+    padding:24px 20px 20px;
+    border-bottom:1px solid var(--border2);
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo-drop {
+    width:28px; height:28px;
+    background:var(--orange);
+    clip-path:polygon(50% 0%,100% 40%,50% 100%,0% 40%);
+    flex-shrink:0;
+  }
+  .logo-text { line-height:1.2; }
+  .logo-name {
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-weight:800; font-size:14px; color:var(--white);
+    letter-spacing:-.2px;
+  }
+  .logo-client { font-size:10px; color:var(--orange); font-weight:500; letter-spacing:.1em; text-transform:uppercase; }
+
+  .nav { flex:1; padding:16px 10px; display:flex; flex-direction:column; gap:4px; overflow-y:auto; }
+
+  .nav-section-label {
+    font-size:10px; color:var(--muted); letter-spacing:.12em;
+    text-transform:uppercase; font-weight:600;
+    padding:12px 10px 6px;
+  }
+
+  .nav-item {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px; border-radius:10px;
+    cursor:pointer; transition:all .15s;
+    font-size:13.5px; font-weight:500; color:var(--white2);
+    border:1px solid transparent;
+  }
+  .nav-item:hover { background:var(--dark3); color:var(--white); }
+  .nav-item.active {
+    background:var(--orange-dim);
+    border-color:var(--orange-glow);
+    color:var(--orange);
+  }
+  .nav-icon { font-size:16px; width:20px; text-align:center; flex-shrink:0; }
+  .nav-badge {
+    margin-left:auto; background:var(--danger);
+    color:white; font-size:10px; font-weight:700;
+    padding:2px 6px; border-radius:20px; min-width:20px; text-align:center;
+  }
+
+  .sidebar-footer {
+    padding:16px 20px;
+    border-top:1px solid var(--border2);
+    display:flex; align-items:center; gap:8px;
+  }
+  .ff-dot { width:7px; height:10px; background:var(--orange); clip-path:polygon(50% 0%,100% 35%,50% 100%,0% 35%); flex-shrink:0; }
+  .ff-text { font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); line-height:1.5; }
+  .ff-text strong { display:block; color:var(--white2); font-weight:600; letter-spacing:.08em; font-size:10px; }
+
+  /* ════════════════════════════════
+     MAIN
+  ════════════════════════════════ */
+  .main {
+    margin-left:var(--sidebar-w);
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    overflow:hidden;
+  }
+
+  .topbar {
+    background:var(--dark2);
+    border-bottom:1px solid var(--border);
+    padding:0 28px;
+    height:60px;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-shrink:0;
+  }
+  .topbar-left { display:flex; align-items:center; gap:8px; }
+  .page-title {
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-size:16px; font-weight:700; color:var(--white);
+  }
+  .topbar-date { font-size:12px; color:var(--muted); }
+
+  .topbar-right { display:flex; align-items:center; gap:10px; }
+  .status-pill {
+    background:rgba(46,204,113,.12);
+    border:1px solid rgba(46,204,113,.3);
+    color:var(--success);
+    font-size:11px; font-weight:600;
+    padding:4px 10px; border-radius:20px;
+    display:flex; align-items:center; gap:5px;
+  }
+  .status-dot { width:6px; height:6px; border-radius:50%; background:var(--success); animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .avatar {
+    width:34px; height:34px; border-radius:50%;
+    background:linear-gradient(135deg,var(--orange),var(--cyan));
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:white; cursor:pointer;
+  }
+
+  .content {
+    flex:1; overflow-y:auto;
+    padding:24px 28px;
+  }
+
+  /* ════════════════════════════════
+     VIEWS
+  ════════════════════════════════ */
+  .view { display:none; }
+  .view.active { display:block; }
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .kpi-card {
+    background:var(--dark2);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px;
+    position:relative;
+    overflow:hidden;
+    transition:border-color .2s;
+  }
+  .kpi-card:hover { border-color:var(--orange-glow); }
+  .kpi-card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,var(--orange),var(--cyan));
+    opacity:0;
+    transition:opacity .2s;
+  }
+  .kpi-card:hover::before { opacity:1; }
+  .kpi-icon { font-size:22px; margin-bottom:10px; display:block; }
+  .kpi-val {
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-size:26px; font-weight:800; line-height:1;
+    color:var(--white);
+    font-variant-numeric:tabular-nums;
+  }
+  .kpi-label { font-size:11px; color:var(--muted); margin-top:4px; font-weight:500; }
+  .kpi-delta {
+    font-size:11px; font-weight:600; margin-top:8px;
+    display:flex; align-items:center; gap:3px;
+  }
+  .kpi-delta.up { color:var(--success); }
+  .kpi-delta.down { color:var(--danger); }
+  .kpi-delta.warn { color:var(--warning); }
+
+  /* ── TWO-COL GRID ── */
+  .two-col { display:grid; grid-template-columns:1fr 320px; gap:16px; margin-bottom:24px; }
+
+  /* ── CARD ── */
+  .card {
+    background:var(--dark2);
+    border:1px solid var(--border);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  .card-header {
+    padding:16px 20px;
+    border-bottom:1px solid var(--border2);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .card-title {
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-size:13px; font-weight:700; color:var(--white);
+    display:flex; align-items:center; gap:8px;
+  }
+  .card-title span { font-size:15px; }
+  .card-action {
+    font-size:11px; color:var(--cyan); cursor:pointer;
+    font-weight:500; letter-spacing:.05em;
+  }
+  .card-action:hover { text-decoration:underline; }
+  .card-body { padding:20px; }
+
+  /* ── ASISTENCIA HOY ── */
+  .today-classes { display:flex; flex-direction:column; gap:8px; }
+  .class-row {
+    display:flex; align-items:center; gap:12px;
+    padding:12px 14px;
+    background:var(--dark3); border-radius:10px;
+    border:1px solid var(--border2);
+    transition:border-color .15s;
+  }
+  .class-row:hover { border-color:var(--border); }
+  .class-time { font-size:12px; font-weight:600; color:var(--cyan); width:50px; flex-shrink:0; font-variant-numeric:tabular-nums; }
+  .class-info { flex:1; }
+  .class-name { font-size:13px; font-weight:600; color:var(--white); }
+  .class-instructor { font-size:11px; color:var(--muted); margin-top:1px; }
+  .class-capacity { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+  .cap-bar { width:70px; height:4px; background:var(--dark4); border-radius:2px; overflow:hidden; }
+  .cap-fill { height:100%; border-radius:2px; background:var(--cyan); transition:width .3s; }
+  .cap-fill.full { background:var(--danger); }
+  .cap-fill.almost { background:var(--warning); }
+  .cap-text { font-size:10px; color:var(--muted); }
+
+  /* ── ACTIVITY FEED ── */
+  .activity-list { display:flex; flex-direction:column; }
+  .activity-item {
+    display:flex; align-items:flex-start; gap:12px;
+    padding:12px 0; border-bottom:1px solid var(--border2);
+  }
+  .activity-item:last-child { border-bottom:none; }
+  .act-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+  .act-dot.orange { background:var(--orange); }
+  .act-dot.cyan { background:var(--cyan); }
+  .act-dot.green { background:var(--success); }
+  .act-dot.red { background:var(--danger); }
+  .act-dot.warn { background:var(--warning); }
+  .act-text { font-size:12.5px; color:var(--white2); line-height:1.5; flex:1; }
+  .act-text strong { color:var(--white); font-weight:600; }
+  .act-time { font-size:11px; color:var(--muted); flex-shrink:0; margin-top:2px; }
+
+  /* ── MEMBRESÍAS TABLE ── */
+  .table-toolbar {
+    padding:14px 20px;
+    border-bottom:1px solid var(--border2);
+    display:flex; align-items:center; gap:10px;
+  }
+  .search-box {
+    flex:1; background:var(--dark3); border:1px solid var(--border2);
+    border-radius:8px; padding:8px 12px;
+    color:var(--white); font-family:'Inter', sans-serif; font-size:13px;
+    outline:none; transition:border-color .2s;
+  }
+  .search-box::placeholder { color:var(--muted); }
+  .search-box:focus { border-color:var(--cyan); }
+  .filter-btn {
+    background:var(--dark3); border:1px solid var(--border2);
+    border-radius:8px; padding:8px 14px;
+    color:var(--white2); font-size:12px; font-weight:500;
+    cursor:pointer; transition:all .15s; white-space:nowrap;
+  }
+  .filter-btn:hover, .filter-btn.active { border-color:var(--orange); color:var(--orange); }
+
+  table { width:100%; border-collapse:collapse; }
+  thead th {
+    text-align:left; font-size:10px; font-weight:600;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+    padding:12px 16px; border-bottom:1px solid var(--border2);
+  }
+  tbody tr { border-bottom:1px solid var(--border2); transition:background .12s; cursor:default; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:rgba(103,212,232,.04); }
+  td { padding:12px 16px; font-size:13px; color:var(--white2); vertical-align:middle; }
+  td.name { color:var(--white); font-weight:500; }
+
+  .badge {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:3px 10px; border-radius:20px;
+    font-size:11px; font-weight:600; letter-spacing:.02em;
+  }
+  .badge-active  { background:rgba(46,204,113,.12); color:var(--success); border:1px solid rgba(46,204,113,.3); }
+  .badge-warning { background:rgba(247,160,75,.12);  color:var(--warning); border:1px solid rgba(247,160,75,.3); }
+  .badge-expired { background:rgba(224,80,80,.12);   color:var(--danger);  border:1px solid rgba(224,80,80,.3); }
+  .badge-dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+  .plan-tag {
+    background:var(--dark3); border:1px solid var(--border2);
+    border-radius:6px; padding:2px 8px;
+    font-size:11px; color:var(--white2); font-weight:500;
+  }
+
+  /* ── CLASES ── */
+  .day-tabs {
+    display:flex; gap:6px;
+    padding:14px 20px;
+    border-bottom:1px solid var(--border2);
+    overflow-x:auto;
+  }
+  .day-tab {
+    padding:6px 14px; border-radius:8px; border:1px solid var(--border2);
+    font-size:12px; font-weight:500; color:var(--white2);
+    cursor:pointer; transition:all .15s; white-space:nowrap;
+  }
+  .day-tab.active { background:var(--orange-dim); border-color:var(--orange-glow); color:var(--orange); }
+  .day-tab:hover:not(.active) { border-color:var(--border); color:var(--white); }
+
+  .classes-grid { display:flex; flex-direction:column; gap:10px; padding:20px; }
+  .class-card {
+    background:var(--dark3);
+    border:1px solid var(--border2);
+    border-radius:12px;
+    padding:16px;
+    display:grid;
+    grid-template-columns:80px 1fr auto;
+    gap:12px;
+    align-items:center;
+    transition:border-color .15s;
+  }
+  .class-card:hover { border-color:var(--border); }
+  .class-card-time {
+    font-size:18px; font-weight:800; color:var(--white);
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-variant-numeric:tabular-nums;
+    line-height:1.1;
+  }
+  .class-card-am { font-size:11px; font-weight:500; color:var(--muted); }
+  .class-card-name { font-size:14px; font-weight:700; color:var(--white); margin-bottom:3px; }
+  .class-card-meta { font-size:12px; color:var(--muted); }
+  .class-card-right { text-align:right; }
+  .class-slots {
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-size:22px; font-weight:800; color:var(--cyan);
+    line-height:1;
+  }
+  .class-slots-label { font-size:10px; color:var(--muted); margin-top:2px; }
+  .progress-ring { margin-top:6px; }
+  .prog-bar { height:4px; background:var(--dark4); border-radius:2px; overflow:hidden; margin-top:4px; }
+  .prog-fill { height:100%; border-radius:2px; }
+  .prog-fill.cyan { background:var(--cyan); }
+  .prog-fill.orange { background:var(--orange); }
+  .prog-fill.red { background:var(--danger); }
+
+  /* ── ALERTAS ── */
+  .alert-grid { display:flex; flex-direction:column; gap:10px; padding:20px; }
+  .alert-card {
+    background:var(--dark3); border:1px solid var(--border2);
+    border-radius:12px; padding:16px;
+    display:flex; align-items:center; gap:14px;
+    transition:border-color .15s;
+  }
+  .alert-card:hover { border-color:var(--warning); }
+  .alert-avatar {
+    width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:700; color:white; flex-shrink:0;
+    font-family:'Plus Jakarta Sans', sans-serif;
+  }
+  .alert-info { flex:1; }
+  .alert-name { font-size:14px; font-weight:600; color:var(--white); }
+  .alert-meta { font-size:12px; color:var(--muted); margin-top:2px; }
+  .alert-days {
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-size:11px; font-weight:700; padding:4px 10px;
+    border-radius:20px; flex-shrink:0; text-align:center;
+  }
+  .days-1 { background:rgba(224,80,80,.15); color:var(--danger); border:1px solid rgba(224,80,80,.3); }
+  .days-3 { background:rgba(247,160,75,.15); color:var(--warning); border:1px solid rgba(247,160,75,.3); }
+  .days-7 { background:rgba(103,212,232,.12); color:var(--cyan); border:1px solid rgba(103,212,232,.25); }
+  .wa-btn {
+    background:#25D366; border:none; border-radius:8px;
+    padding:8px 14px; color:white; font-size:12px; font-weight:600;
+    cursor:pointer; display:flex; align-items:center; gap:6px;
+    transition:opacity .15s; flex-shrink:0;
+  }
+  .wa-btn:hover { opacity:.85; }
+
+  .alert-summary {
+    margin:0 20px 16px;
+    background:rgba(247,160,75,.08);
+    border:1px solid rgba(247,160,75,.2);
+    border-radius:12px; padding:14px 18px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .alert-summary-icon { font-size:22px; }
+  .alert-summary-text { font-size:13px; color:var(--white2); line-height:1.6; }
+  .alert-summary-text strong { color:var(--warning); font-weight:700; }
+
+  /* ── CHART ── */
+  .chart-wrap { padding:8px 0 4px; height:190px; position:relative; }
+
+  /* ── SCROLL ── */
+  .content::-webkit-scrollbar { width:4px; }
+  .content::-webkit-scrollbar-track { background:transparent; }
+  .content::-webkit-scrollbar-thumb { background:var(--dark4); border-radius:4px; }
+
+  /* ── WA TOAST ── */
+  #wa-toast {
+    position:fixed; bottom:24px; right:24px;
+    background:#128C7E; color:white;
+    padding:12px 20px; border-radius:12px;
+    font-size:13px; font-weight:600;
+    box-shadow:0 8px 32px rgba(0,0,0,.4);
+    transform:translateY(80px); opacity:0;
+    transition:all .3s ease;
+    z-index:100;
+    display:flex; align-items:center; gap:8px;
+  }
+  #wa-toast.show { transform:translateY(0); opacity:1; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width:900px) {
+    .kpi-grid { grid-template-columns:repeat(2,1fr); }
+    .two-col { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-drop"></div>
+    <div class="logo-text">
+      <div class="logo-name">FishFlow</div>
+      <div class="logo-client">GymForce CDMX</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section-label">Principal</div>
+
+    <div class="nav-item active" onclick="showView('dashboard', this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showView('membresias', this)">
+      <span class="nav-icon">🏷️</span> Membresías
+    </div>
+    <div class="nav-item" onclick="showView('clases', this)">
+      <span class="nav-icon">🗓️</span> Clases
+    </div>
+    <div class="nav-item" onclick="showView('alertas', this)">
+      <span class="nav-icon">🔔</span> Alertas
+      <span class="nav-badge">5</span>
+    </div>
+
+    <div class="nav-section-label" style="margin-top:8px;">Reportes</div>
+    <div class="nav-item">
+      <span class="nav-icon">💰</span> Ingresos
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📈</span> Asistencia
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="ff-dot"></div>
+    <div class="ff-text">
+      Powered by
+      <strong>FishFlow</strong>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="topbar-date" style="margin-left:12px;">— Martes 12 de mayo, 2026</div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        Sistema activo
+      </div>
+      <div class="avatar">RF</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ════ DASHBOARD ════ -->
+    <div class="view active" id="view-dashboard">
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-icon">💪</span>
+          <div class="kpi-val">147</div>
+          <div class="kpi-label">Miembros activos</div>
+          <div class="kpi-delta up">↑ +8 este mes</div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-icon">💵</span>
+          <div class="kpi-val">$87,450</div>
+          <div class="kpi-label">Ingresos del mes</div>
+          <div class="kpi-delta up">↑ +12% vs abril</div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-icon">🏃</span>
+          <div class="kpi-val">63</div>
+          <div class="kpi-label">Asistencias hoy</div>
+          <div class="kpi-delta up">↑ vs 54 ayer</div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-icon">⚠️</span>
+          <div class="kpi-val">5</div>
+          <div class="kpi-label">Membresías por vencer</div>
+          <div class="kpi-delta warn">→ próximos 7 días</div>
+        </div>
+      </div>
+
+      <!-- Two col -->
+      <div class="two-col">
+
+        <!-- Asistencia semanal chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span>📈</span> Asistencia esta semana</div>
+            <div class="card-action">Ver detalle →</div>
+          </div>
+          <div class="card-body">
+            <div class="chart-wrap">
+              <canvas id="attendanceChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actividad reciente -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span>⚡</span> Actividad reciente</div>
+          </div>
+          <div class="card-body" style="padding:0 20px;">
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="act-dot green"></div>
+                <div class="act-text"><strong>Miguel Ángel Torres</strong> renovó membresía mensual</div>
+                <div class="act-time">09:14</div>
+              </div>
+              <div class="activity-item">
+                <div class="act-dot cyan"></div>
+                <div class="act-text"><strong>CrossFit 7AM</strong> completó clase — 18/20 asistentes</div>
+                <div class="act-time">08:55</div>
+              </div>
+              <div class="activity-item">
+                <div class="act-dot orange"></div>
+                <div class="act-text"><strong>Valeria Castillo</strong> registró nuevo ingreso</div>
+                <div class="act-time">08:30</div>
+              </div>
+              <div class="activity-item">
+                <div class="act-dot warn"></div>
+                <div class="act-text"><strong>Ana Karen Vega</strong> — membresía vence en 3 días</div>
+                <div class="act-time">08:00</div>
+              </div>
+              <div class="activity-item">
+                <div class="act-dot cyan"></div>
+                <div class="act-text"><strong>Spinning 7PM</strong> — 22/25 cupos reservados</div>
+                <div class="act-time">07:45</div>
+              </div>
+              <div class="activity-item">
+                <div class="act-dot red"></div>
+                <div class="act-text"><strong>Jorge Morales</strong> — membresía vencida hace 7 días</div>
+                <div class="act-time">07:00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Clases del día -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span>🗓️</span> Clases de hoy — Martes 12 mayo</div>
+          <div class="card-action" onclick="showView('clases', document.querySelector('[onclick*=clases]'))">Ver agenda →</div>
+        </div>
+        <div class="card-body" style="padding:14px 20px;">
+          <div class="today-classes">
+            <div class="class-row">
+              <div class="class-time">6:00 AM</div>
+              <div class="class-info">
+                <div class="class-name">Funcional</div>
+                <div class="class-instructor">Ana Torres</div>
+              </div>
+              <div class="class-capacity">
+                <div class="cap-bar"><div class="cap-fill" style="width:75%; background:var(--warning);"></div></div>
+                <div class="cap-text">9 / 12 cupos</div>
+              </div>
+            </div>
+            <div class="class-row">
+              <div class="class-time">8:00 AM</div>
+              <div class="class-info">
+                <div class="class-name">Yoga</div>
+                <div class="class-instructor">Diana Peña</div>
+              </div>
+              <div class="class-capacity">
+                <div class="cap-bar"><div class="cap-fill" style="width:60%;"></div></div>
+                <div class="cap-text">9 / 15 cupos</div>
+              </div>
+            </div>
+            <div class="class-row">
+              <div class="class-time">10:00 AM</div>
+              <div class="class-info">
+                <div class="class-name">Pilates</div>
+                <div class="class-instructor">Sandra López</div>
+              </div>
+              <div class="class-capacity">
+                <div class="cap-bar"><div class="cap-fill" style="width:80%; background:var(--warning);"></div></div>
+                <div class="cap-text">8 / 10 cupos</div>
+              </div>
+            </div>
+            <div class="class-row">
+              <div class="class-time">7:00 PM</div>
+              <div class="class-info">
+                <div class="class-name">Spinning</div>
+                <div class="class-instructor">Carlos Vega</div>
+              </div>
+              <div class="class-capacity">
+                <div class="cap-bar"><div class="cap-fill cap-fill almost" style="width:88%;"></div></div>
+                <div class="cap-text">22 / 25 cupos</div>
+              </div>
+            </div>
+            <div class="class-row">
+              <div class="class-time">8:00 PM</div>
+              <div class="class-info">
+                <div class="class-name">Box</div>
+                <div class="class-instructor">Roberto Díaz</div>
+              </div>
+              <div class="class-capacity">
+                <div class="cap-bar"><div class="cap-fill" style="width:40%;"></div></div>
+                <div class="cap-text">6 / 15 cupos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dashboard -->
+
+
+    <!-- ════ MEMBRESÍAS ════ -->
+    <div class="view" id="view-membresias">
+      <div class="card" style="margin-bottom:0;">
+        <div class="table-toolbar">
+          <input class="search-box" type="text" placeholder="🔍  Buscar socio..." oninput="filterTable(this.value)">
+          <button class="filter-btn active" onclick="filterStatus('all', this)">Todos (20)</button>
+          <button class="filter-btn" onclick="filterStatus('Activo', this)">Activos</button>
+          <button class="filter-btn" onclick="filterStatus('Por vencer', this)">Por vencer</button>
+          <button class="filter-btn" onclick="filterStatus('Vencido', this)">Vencidos</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table id="members-table">
+            <thead>
+              <tr>
+                <th>Socio</th>
+                <th>Plan</th>
+                <th>Vencimiento</th>
+                <th>Estado</th>
+                <th>Monto</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="members-tbody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ════ CLASES ════ -->
+    <div class="view" id="view-clases">
+      <div class="card" style="margin-bottom:0;">
+        <div class="day-tabs">
+          <div class="day-tab" onclick="showDay('lun', this)">Lun 11</div>
+          <div class="day-tab active" onclick="showDay('mar', this)">Mar 12</div>
+          <div class="day-tab" onclick="showDay('mie', this)">Mié 13</div>
+          <div class="day-tab" onclick="showDay('jue', this)">Jue 14</div>
+          <div class="day-tab" onclick="showDay('vie', this)">Vie 15</div>
+          <div class="day-tab" onclick="showDay('sab', this)">Sáb 16</div>
+        </div>
+        <div id="classes-grid" class="classes-grid"></div>
+      </div>
+    </div>
+
+
+    <!-- ════ ALERTAS ════ -->
+    <div class="view" id="view-alertas">
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-header">
+          <div class="card-title"><span>⚠️</span> Membresías por vencer — próximos 7 días</div>
+          <div class="card-action" onclick="sendAllWA()">Enviar a todos →</div>
+        </div>
+        <div class="alert-summary">
+          <div class="alert-summary-icon">💡</div>
+          <div class="alert-summary-text">
+            <strong>5 socios</strong> tienen membresía venciendo esta semana.<br>
+            Envíales un recordatorio por WhatsApp para aumentar renovaciones.
+          </div>
+        </div>
+        <div class="alert-grid" id="alerts-list"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- WA Toast -->
+<div id="wa-toast">✅ Recordatorio enviado por WhatsApp</div>
+
+<script>
+// ═══════════════════════════════
+// DATA
+// ═══════════════════════════════
+
+const members = [
+  { name:'Carlos Mendoza',       plan:'Mensual',     vence:'2026-05-28', status:'Activo',     monto:650 },
+  { name:'Sofía Ramírez',        plan:'Trimestral',  vence:'2026-06-15', status:'Activo',     monto:1700 },
+  { name:'Miguel Ángel Torres',  plan:'Mensual',     vence:'2026-05-15', status:'Por vencer', monto:650 },
+  { name:'Fernanda López',       plan:'Anual',       vence:'2026-12-01', status:'Activo',     monto:5800 },
+  { name:'Roberto Gutiérrez',    plan:'Mensual',     vence:'2026-05-14', status:'Por vencer', monto:650 },
+  { name:'Ana Karen Vega',       plan:'Mensual',     vence:'2026-05-15', status:'Por vencer', monto:650 },
+  { name:'Diego Hernández',      plan:'Trimestral',  vence:'2026-07-03', status:'Activo',     monto:1700 },
+  { name:'Valeria Castillo',     plan:'Mensual',     vence:'2026-06-01', status:'Activo',     monto:650 },
+  { name:'Héctor Flores',        plan:'Mensual',     vence:'2026-05-16', status:'Por vencer', monto:650 },
+  { name:'Paola Jiménez',        plan:'Anual',       vence:'2026-11-20', status:'Activo',     monto:5800 },
+  { name:'Jorge Morales',        plan:'Mensual',     vence:'2026-05-05', status:'Vencido',    monto:650 },
+  { name:'Daniela Reyes',        plan:'Mensual',     vence:'2026-05-30', status:'Activo',     monto:650 },
+  { name:'Alejandro Cruz',       plan:'Trimestral',  vence:'2026-06-22', status:'Activo',     monto:1700 },
+  { name:'Mónica Salinas',       plan:'Mensual',     vence:'2026-05-18', status:'Por vencer', monto:650 },
+  { name:'Luis García',          plan:'Mensual',     vence:'2026-05-25', status:'Activo',     monto:650 },
+  { name:'Ximena Martínez',      plan:'Anual',       vence:'2026-10-15', status:'Activo',     monto:5800 },
+  { name:'Eduardo Sánchez',      plan:'Mensual',     vence:'2026-05-09', status:'Vencido',    monto:650 },
+  { name:'Gabriela Ruiz',        plan:'Mensual',     vence:'2026-05-22', status:'Activo',     monto:650 },
+  { name:'Ricardo Méndez',       plan:'Trimestral',  vence:'2026-05-18', status:'Por vencer', monto:1700 },
+  { name:'Lucía Ortega',         plan:'Mensual',     vence:'2026-06-05', status:'Activo',     monto:650 },
+];
+
+const classSchedule = {
+  lun: [
+    { time:'07:00', period:'AM', name:'CrossFit', instructor:'Jorge Méndez', slots:20, taken:16 },
+    { time:'07:00', period:'PM', name:'Spinning',  instructor:'Carlos Vega',  slots:25, taken:22 },
+    { time:'08:00', period:'PM', name:'Box',       instructor:'Roberto Díaz', slots:15, taken:11 },
+  ],
+  mar: [
+    { time:'06:00', period:'AM', name:'Funcional', instructor:'Ana Torres',  slots:12, taken:9 },
+    { time:'08:00', period:'AM', name:'Yoga',      instructor:'Diana Peña',   slots:15, taken:9 },
+    { time:'10:00', period:'AM', name:'Pilates',   instructor:'Sandra López', slots:10, taken:8 },
+    { time:'07:00', period:'PM', name:'Spinning',  instructor:'Carlos Vega',  slots:25, taken:22 },
+    { time:'08:00', period:'PM', name:'Box',       instructor:'Roberto Díaz', slots:15, taken:6 },
+  ],
+  mie: [
+    { time:'07:00', period:'AM', name:'CrossFit', instructor:'Jorge Méndez', slots:20, taken:18 },
+    { time:'07:00', period:'PM', name:'Spinning',  instructor:'Carlos Vega',  slots:25, taken:20 },
+    { time:'08:00', period:'PM', name:'Box',       instructor:'Roberto Díaz', slots:15, taken:13 },
+  ],
+  jue: [
+    { time:'06:00', period:'AM', name:'Funcional', instructor:'Ana Torres',  slots:12, taken:10 },
+    { time:'08:00', period:'AM', name:'Yoga',      instructor:'Diana Peña',   slots:15, taken:12 },
+    { time:'07:00', period:'PM', name:'Spinning',  instructor:'Carlos Vega',  slots:25, taken:19 },
+  ],
+  vie: [
+    { time:'07:00', period:'AM', name:'CrossFit', instructor:'Jorge Méndez', slots:20, taken:20 },
+    { time:'07:00', period:'PM', name:'Spinning',  instructor:'Carlos Vega',  slots:25, taken:24 },
+    { time:'08:00', period:'PM', name:'Box',       instructor:'Roberto Díaz', slots:15, taken:9 },
+  ],
+  sab: [
+    { time:'06:00', period:'AM', name:'Funcional', instructor:'Ana Torres',  slots:12, taken:7 },
+    { time:'10:00', period:'AM', name:'Pilates',   instructor:'Sandra López', slots:10, taken:6 },
+    { time:'11:00', period:'AM', name:'Yoga',      instructor:'Diana Peña',   slots:15, taken:11 },
+  ],
+};
+
+const alerts = [
+  { name:'Roberto Gutiérrez', plan:'Mensual', vence:'2026-05-14', dias:2, initials:'RG', color:'#E05050' },
+  { name:'Miguel Ángel Torres', plan:'Mensual', vence:'2026-05-15', dias:3, initials:'MT', color:'#F7A04B' },
+  { name:'Ana Karen Vega', plan:'Mensual', vence:'2026-05-15', dias:3, initials:'AV', color:'#F7A04B' },
+  { name:'Héctor Flores', plan:'Mensual', vence:'2026-05-16', dias:4, initials:'HF', color:'#F7A04B' },
+  { name:'Mónica Salinas', plan:'Mensual', vence:'2026-05-18', dias:6, initials:'MS', color:'#67D4E8' },
+];
+
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+
+const titles = { dashboard:'Dashboard', membresias:'Membresías', clases:'Clases', alertas:'Alertas' };
+
+function showView(id, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = titles[id] || id;
+}
+
+// ═══════════════════════════════
+// MEMBERS TABLE
+// ═══════════════════════════════
+
+let currentFilter = 'all';
+
+function initTable() {
+  renderTable(members);
+}
+
+function badgeHtml(status) {
+  const map = {
+    'Activo':     ['badge-active',  'Activo'],
+    'Por vencer': ['badge-warning', 'Por vencer'],
+    'Vencido':    ['badge-expired', 'Vencido'],
+  };
+  const [cls, label] = map[status] || ['badge-active', status];
+  return `<span class="badge ${cls}"><span class="badge-dot"></span>${label}</span>`;
+}
+
+function initials(name) {
+  return name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('members-tbody');
+  tbody.innerHTML = data.map(m => `
+    <tr data-status="${m.status}">
+      <td class="name">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF8C35,#67D4E8);
+               display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0;font-family:'Plus Jakarta Sans',sans-serif;">
+            ${initials(m.name)}
+          </div>
+          ${m.name}
+        </div>
+      </td>
+      <td><span class="plan-tag">${m.plan}</span></td>
+      <td>${formatDate(m.vence)}</td>
+      <td>${badgeHtml(m.status)}</td>
+      <td>$${m.monto.toLocaleString()}</td>
+      <td>
+        <button class="wa-btn" onclick="sendWA('${m.name}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Recordar
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterTable(query) {
+  const q = query.toLowerCase();
+  const filtered = members.filter(m => {
+    const matchStatus = currentFilter === 'all' || m.status === currentFilter;
+    const matchQuery = m.name.toLowerCase().includes(q) || m.plan.toLowerCase().includes(q);
+    return matchStatus && matchQuery;
+  });
+  renderTable(filtered);
+}
+
+function filterStatus(status, btn) {
+  currentFilter = status;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const q = document.querySelector('.search-box').value;
+  filterTable(q);
+}
+
+function formatDate(d) {
+  const [y,m,day] = d.split('-');
+  const months = ['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${parseInt(day)} ${months[parseInt(m)]} ${y}`;
+}
+
+// ═══════════════════════════════
+// CLASSES
+// ═══════════════════════════════
+
+function showDay(day, el) {
+  document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderClasses(day);
+}
+
+function renderClasses(day) {
+  const classes = classSchedule[day] || [];
+  const grid = document.getElementById('classes-grid');
+  grid.innerHTML = classes.map(c => {
+    const pct = Math.round(c.taken / c.slots * 100);
+    const colorClass = pct >= 95 ? 'red' : pct >= 80 ? 'orange' : 'cyan';
+    const avail = c.slots - c.taken;
+    return `
+      <div class="class-card">
+        <div>
+          <div class="class-card-time">${c.time}</div>
+          <div class="class-card-am">${c.period}</div>
+        </div>
+        <div>
+          <div class="class-card-name">${c.name}</div>
+          <div class="class-card-meta">👤 ${c.instructor} &nbsp;·&nbsp; ${c.slots} cupos máx.</div>
+          <div class="prog-bar" style="margin-top:10px;width:200px;">
+            <div class="prog-fill ${colorClass}" style="width:${pct}%;"></div>
+          </div>
+        </div>
+        <div class="class-card-right">
+          <div class="class-slots">${avail}</div>
+          <div class="class-slots-label">disponibles</div>
+          <div style="margin-top:8px;">
+            <span class="badge ${pct>=95 ? 'badge-expired' : pct>=80 ? 'badge-warning' : 'badge-active'}">${pct}% ocupado</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ═══════════════════════════════
+// ALERTAS
+// ═══════════════════════════════
+
+function renderAlerts() {
+  const list = document.getElementById('alerts-list');
+  list.innerHTML = alerts.map(a => {
+    const diasClass = a.dias <= 2 ? 'days-1' : a.dias <= 4 ? 'days-3' : 'days-7';
+    const diasLabel = a.dias === 1 ? 'Vence mañana' : `${a.dias} días`;
+    return `
+      <div class="alert-card">
+        <div class="alert-avatar" style="background:${a.color}22;border:1.5px solid ${a.color}55;color:${a.color};">
+          ${a.initials}
+        </div>
+        <div class="alert-info">
+          <div class="alert-name">${a.name}</div>
+          <div class="alert-meta">Plan ${a.plan} · Vence: ${formatDate(a.vence)}</div>
+        </div>
+        <div class="alert-days ${diasClass}">${diasLabel}</div>
+        <button class="wa-btn" onclick="sendWA('${a.name}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Recordatorio
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+// ═══════════════════════════════
+// WHATSAPP TOAST
+// ═══════════════════════════════
+
+function sendWA(name) {
+  const toast = document.getElementById('wa-toast');
+  toast.textContent = `✅ Recordatorio enviado a ${name}`;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function sendAllWA() {
+  const toast = document.getElementById('wa-toast');
+  toast.textContent = `✅ Recordatorio enviado a 5 socios`;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+// ═══════════════════════════════
+// CHART
+// ═══════════════════════════════
+
+function initChart() {
+  const ctx = document.getElementById('attendanceChart').getContext('2d');
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+      datasets:[
+        {
+          label:'Asistencias',
+          data:[54, 63, 0, 0, 0, 0],
+          backgroundColor: ctx => {
+            const i = ctx.dataIndex;
+            return i < 2 ? 'rgba(103,212,232,0.7)' : 'rgba(103,212,232,0.1)';
+          },
+          borderColor: ctx => {
+            const i = ctx.dataIndex;
+            return i < 2 ? '#67D4E8' : 'rgba(103,212,232,0.2)';
+          },
+          borderWidth:1.5,
+          borderRadius:6,
+          borderSkipped:false,
+        },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{
+          grid:{ color:'rgba(255,255,255,0.04)' },
+          ticks:{ color:'#5E7A8F', font:{ size:11 } }
+        },
+        y:{
+          grid:{ color:'rgba(255,255,255,0.04)' },
+          ticks:{ color:'#5E7A8F', font:{ size:11 }, stepSize:20 },
+          min:0, max:100,
+        }
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════
+// INIT
+// ═══════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  initTable();
+  renderClasses('mar');
+  renderAlerts();
+  initChart();
+});
+</script>
+</body>
+</html>
