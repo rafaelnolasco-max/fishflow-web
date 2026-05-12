@@ -49,6 +49,12 @@ export interface TBAOpportunity {
   commission_charly: number | null;
   commission_currency: Currency | null;
   commission_paid_date: string | null;
+  // Fulfillment post-venta
+  shipped: boolean;
+  delivered: boolean;
+  invoiced: boolean;
+  paid: boolean;
+  fulfillment_notes: string | null;
   // Auditoría — manejados por triggers en Supabase
   created_by: string | null;
   updated_by: string | null;

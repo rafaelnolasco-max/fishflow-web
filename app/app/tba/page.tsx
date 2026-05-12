@@ -207,7 +207,7 @@ export default function TBAPage() {
 
   // ── Commission editing state (keyed by opportunity id) ──
   const [commEdits, setCommEdits] = useState<Record<string, {
-    rafa: string; charly: string; currency: Currency; paidDate: string;
+    rafa: string; charly: string; currency: Currency; paidDate: string; fulfillmentNotes: string;
   }>>({});
   const [commSaving, setCommSaving] = useState<Record<string, boolean>>({});
 
@@ -266,10 +266,11 @@ export default function TBAPage() {
     opps.filter(o => o.stage === "cerrado_ganado").forEach(o => {
       if (!commEdits[o.id]) {
         initial[o.id] = {
-          rafa:     o.commission_rafa?.toString()   ?? "",
-          charly:   o.commission_charly?.toString() ?? "",
-          currency: o.commission_currency ?? o.currency,
-          paidDate: o.commission_paid_date ?? "",
+          rafa:             o.commission_rafa?.toString()   ?? "",
+          charly:           o.commission_charly?.toString() ?? "",
+          currency:         o.commission_currency ?? o.currency,
+          paidDate:         o.commission_paid_date ?? "",
+          fulfillmentNotes: o.fulfillment_notes ?? "",
         };
       }
     });
@@ -364,6 +365,7 @@ export default function TBAPage() {
       commission_charly:    edit.charly ? parseFloat(edit.charly) : null,
       commission_currency:  edit.currency,
       commission_paid_date: edit.paidDate || null,
+      fulfillment_notes:    edit.fulfillmentNotes.trim() || null,
       updated_at:           new Date().toISOString(),
     };
     await supabase.from("tba_opportunities").update(payload).eq("id", id);
@@ -384,6 +386,14 @@ export default function TBAPage() {
       ...prev,
       [id]: { ...prev[id], [field]: value },
     }));
+  }
+
+  async function handleToggleFulfillment(id: string, field: "shipped" | "delivered" | "invoiced" | "paid", current: boolean) {
+    const newVal = !current;
+    await supabase.from("tba_opportunities")
+      .update({ [field]: newVal, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    setOpps(prev => prev.map(o => o.id === id ? { ...o, [field]: newVal } : o));
   }
 
   async function handleLogout() {
@@ -953,7 +963,7 @@ export default function TBAPage() {
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead>
                     <tr style={{ borderBottom: "0.5px solid #e5e4df" }}>
-                      {["Empresa", "Deal", "Comisión Rafa", "Comisión Gran Charly", "Moneda", "Fecha de pago", "Estado", ""].map(h => (
+                      {["Empresa", "Deal", "Entrega", "Comisión Rafa", "Comisión Gran Charly", "Moneda", "Fecha de pago", "Estado", ""].map(h => (
                         <th key={h} style={{
                           padding: "10px 14px", textAlign: "left",
                           fontSize: 11, fontWeight: 700, color: "#999",
@@ -964,7 +974,7 @@ export default function TBAPage() {
                   </thead>
                   <tbody>
                     {wonOpps.map(o => {
-                      const edit    = commEdits[o.id] ?? { rafa: "", charly: "", currency: o.currency, paidDate: "" };
+                      const edit    = commEdits[o.id] ?? { rafa: "", charly: "", currency: o.currency, paidDate: "", fulfillmentNotes: "" };
                       const saving  = commSaving[o.id] ?? false;
                       const overdue = o.commission_paid_date ? isOverdue(o.commission_paid_date) : false;
 
@@ -978,6 +988,63 @@ export default function TBAPage() {
                           <td style={{ padding: "10px 14px", fontWeight: 700, color: "#3b6d11", whiteSpace: "nowrap" }}>
                             {formatAmount(o.amount, o.currency)}
                           </td>
+
+                          {/* ── Fulfillment tracker ── */}
+                          <td style={{ padding: "8px 14px", minWidth: 220 }}>
+                            {(() => {
+                              const steps: { key: "shipped" | "delivered" | "invoiced" | "paid"; icon: string; label: string }[] = [
+                                { key: "shipped",   icon: "📦", label: "Embarcado" },
+                                { key: "delivered", icon: "🏢", label: "En cliente" },
+                                { key: "invoiced",  icon: "🧾", label: "Facturado" },
+                                { key: "paid",      icon: "💰", label: "Pagado" },
+                              ];
+                              const allDone = steps.every(s => o[s.key]);
+                              return (
+                                <div>
+                                  {allDone && (
+                                    <div style={{
+                                      fontSize: 11, fontWeight: 700, color: "#3b6d11",
+                                      background: "#eaf3de", borderRadius: 20,
+                                      padding: "2px 10px", display: "inline-block", marginBottom: 6,
+                                    }}>✓ Completo</div>
+                                  )}
+                                  <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                                    {steps.map(s => {
+                                      const done = o[s.key] as boolean;
+                                      return (
+                                        <button key={s.key} type="button"
+                                          onClick={() => handleToggleFulfillment(o.id, s.key, done)}
+                                          title={done ? `Desmarcar: ${s.label}` : `Marcar: ${s.label}`}
+                                          style={{
+                                            display: "flex", alignItems: "center", gap: 3,
+                                            padding: "3px 8px",
+                                            border: done ? "1.5px solid #4caf50" : "0.5px solid #ddd",
+                                            borderRadius: 20,
+                                            background: done ? "#eaf3de" : "#f5f4f0",
+                                            color: done ? "#3b6d11" : "#aaa",
+                                            fontSize: 11, fontWeight: done ? 700 : 400,
+                                            cursor: "pointer", whiteSpace: "nowrap",
+                                            transition: "all .15s",
+                                          }}>
+                                          <span>{s.icon}</span>
+                                          <span>{s.label}</span>
+                                          {done && <span style={{ fontSize: 10 }}>✓</span>}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                  <input
+                                    type="text"
+                                    value={edit.fulfillmentNotes ?? ""}
+                                    onChange={e => updateCommEdit(o.id, "fulfillmentNotes", e.target.value)}
+                                    placeholder="Notas de entrega…"
+                                    style={{ ...inputStyle, fontSize: 11, padding: "4px 8px", marginTop: 6, color: "#666" }}
+                                  />
+                                </div>
+                              );
+                            })()}
+                          </td>
+
                           <td style={{ padding: "8px 14px" }}>
                             <div style={{ position: "relative" }}>
                               <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 12 }}>$</span>
@@ -1074,7 +1141,7 @@ export default function TBAPage() {
                       <td style={{ padding: "10px 14px", fontWeight: 700, color: "#7c3aed" }}>
                         {commissionLabel(commCharlyUSD, commCharlyMXN)}
                       </td>
-                      <td colSpan={4} />
+                      <td colSpan={5} />
                     </tr>
                   </tfoot>
                 </table>
