@@ -211,6 +211,12 @@ export default function TBAPage() {
   }>>({});
   const [commSaving, setCommSaving] = useState<Record<string, boolean>>({});
 
+  // ── Inline row editing state (keyed by opportunity id) ──
+  const [rowEdits, setRowEdits] = useState<Record<string, {
+    closeDate: string; amount: string; currency: Currency; notes: string;
+  }>>({});
+  const [rowSaving, setRowSaving] = useState<Record<string, boolean>>({});
+
   const firstInputRef = useRef<HTMLInputElement>(null);
 
   // ── Fetch opportunities ──
@@ -273,6 +279,25 @@ export default function TBAPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opps]);
 
+  // ── Initialize row inline edit state when opps load ──
+  useEffect(() => {
+    const initial: typeof rowEdits = {};
+    opps.forEach(o => {
+      if (!rowEdits[o.id]) {
+        initial[o.id] = {
+          closeDate: o.close_date ?? "",
+          amount:    o.amount?.toString() ?? "",
+          currency:  o.currency,
+          notes:     o.notes ?? "",
+        };
+      }
+    });
+    if (Object.keys(initial).length > 0) {
+      setRowEdits(prev => ({ ...initial, ...prev }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opps]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const num = parseFloat(amount.replace(/,/g, ""));
@@ -310,6 +335,24 @@ export default function TBAPage() {
     await fetchLog();
   }
 
+  async function handleSaveRowFields(id: string) {
+    const edit = rowEdits[id];
+    if (!edit) return;
+    setRowSaving(prev => ({ ...prev, [id]: true }));
+    const num = parseFloat(edit.amount.replace(/,/g, ""));
+    const payload: Partial<TBAOpportunity> = {
+      close_date:  edit.closeDate || null,
+      amount:      isNaN(num) ? undefined : num,
+      currency:    edit.currency,
+      notes:       edit.notes.trim() || null,
+      updated_at:  new Date().toISOString(),
+    };
+    await supabase.from("tba_opportunities").update(payload).eq("id", id);
+    setOpps(prev => prev.map(o => o.id === id ? { ...o, ...payload } : o));
+    setRowSaving(prev => ({ ...prev, [id]: false }));
+    await fetchLog();
+  }
+
   async function handleSaveCommission(id: string) {
     const edit = commEdits[id];
     if (!edit) return;
@@ -329,6 +372,13 @@ export default function TBAPage() {
 
   function updateCommEdit(id: string, field: string, value: string) {
     setCommEdits(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
+  }
+
+  function updateRowEdit(id: string, field: string, value: string) {
+    setRowEdits(prev => ({
       ...prev,
       [id]: { ...prev[id], [field]: value },
     }));
@@ -687,11 +737,18 @@ export default function TBAPage() {
                       return (
                         <Fragment key={o.id}>
                           <tr style={{ borderBottom: isExpanded ? "none" : "0.5px solid #f0efeb" }}>
-                            <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
+                            <td style={{ padding: "10px 14px", minWidth: 180 }}>
                               <span style={{ fontWeight: 700 }}>{o.company_name}</span>
-                              {o.notes && <span title={o.notes} style={{ marginLeft: 6, fontSize: 11, color: "#bbb", cursor: "help" }}>📝</span>}
                               <br />
                               <span style={{ fontSize: 11, color: "#888", fontWeight: 400 }}>{o.opportunity_name}</span>
+                              <br />
+                              <input
+                                type="text"
+                                value={rowEdits[o.id]?.notes ?? ""}
+                                onChange={e => updateRowEdit(o.id, "notes", e.target.value)}
+                                placeholder="Descripción / notas…"
+                                style={{ ...inputStyle, fontSize: 11, padding: "4px 8px", marginTop: 5, color: "#666", width: "100%" }}
+                              />
                             </td>
                             <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>{o.contact_name}</td>
                             <td style={{ padding: "10px 14px" }}>
@@ -700,7 +757,35 @@ export default function TBAPage() {
                               </span>
                             </td>
                             <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>{o.vendor}</td>
-                            <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>{formatAmount(o.amount, o.currency)}</td>
+                            <td style={{ padding: "8px 14px" }}>
+                              <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                                <div style={{ position: "relative" }}>
+                                  <span style={{ position: "absolute", left: 7, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 12 }}>$</span>
+                                  <input
+                                    type="number"
+                                    value={rowEdits[o.id]?.amount ?? ""}
+                                    onChange={e => updateRowEdit(o.id, "amount", e.target.value)}
+                                    min="1" step="0.01"
+                                    style={{ ...inputStyle, paddingLeft: 18, fontSize: 12, padding: "5px 6px 5px 18px", width: 96 }}
+                                  />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                  {(["USD", "MXN"] as Currency[]).map(c => (
+                                    <button key={c} type="button"
+                                      onClick={() => updateRowEdit(o.id, "currency", c)}
+                                      style={{
+                                        padding: "2px 6px",
+                                        border: (rowEdits[o.id]?.currency ?? o.currency) === c ? `1.5px solid ${FF_ORANGE}` : "0.5px solid #ddd",
+                                        borderRadius: 4,
+                                        background: (rowEdits[o.id]?.currency ?? o.currency) === c ? "#fff5ec" : "#fff",
+                                        color: (rowEdits[o.id]?.currency ?? o.currency) === c ? "#b35900" : "#888",
+                                        fontSize: 10, fontWeight: (rowEdits[o.id]?.currency ?? o.currency) === c ? 700 : 400,
+                                        cursor: "pointer", lineHeight: 1.5,
+                                      }}>{c}</button>
+                                  ))}
+                                </div>
+                              </div>
+                            </td>
                             <td style={{ padding: "10px 14px" }}>
                               <select value={o.stage}
                                 onChange={e => handleStageChange(o.id, e.target.value as OpportunityStage)}
@@ -712,8 +797,13 @@ export default function TBAPage() {
                                 {STAGE_ORDER.map(s => <option key={s} value={s}>{STAGE_META[s].label}</option>)}
                               </select>
                             </td>
-                            <td style={{ padding: "10px 14px", color: "#888", fontSize: 12, whiteSpace: "nowrap" }}>
-                              {formatCloseDate(o.close_date)}
+                            <td style={{ padding: "8px 14px" }}>
+                              <input
+                                type="date"
+                                value={rowEdits[o.id]?.closeDate ?? ""}
+                                onChange={e => updateRowEdit(o.id, "closeDate", e.target.value)}
+                                style={{ ...inputStyle, fontSize: 12, padding: "5px 8px", width: 140 }}
+                              />
                             </td>
                             {/* Creó */}
                             <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
@@ -731,26 +821,43 @@ export default function TBAPage() {
                                 <span style={{ fontSize: 11, color: "#ddd" }}>—</span>
                               )}
                             </td>
-                            {/* Historial toggle */}
-                            <td style={{ padding: "10px 14px" }}>
-                              <button
-                                onClick={() => toggleExpand(o.id)}
-                                title={isExpanded ? "Ocultar historial" : "Ver historial"}
-                                style={{
-                                  background: isExpanded ? "#f0efeb" : "transparent",
-                                  border: "0.5px solid #e5e4df",
-                                  borderRadius: 6, padding: "4px 9px",
-                                  fontSize: 11, color: isExpanded ? "#444" : "#bbb",
-                                  cursor: "pointer", whiteSpace: "nowrap",
-                                }}
-                              >
-                                {isExpanded ? "▲ Cerrar" : "⏱"}
-                                {!isExpanded && oppLog.length > 0 && (
-                                  <span style={{ marginLeft: 3, fontSize: 10, color: "#ccc" }}>
-                                    {oppLog.length}
-                                  </span>
-                                )}
-                              </button>
+                            {/* Guardar + Historial toggle */}
+                            <td style={{ padding: "8px 14px" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                <button
+                                  onClick={() => handleSaveRowFields(o.id)}
+                                  disabled={rowSaving[o.id]}
+                                  style={{
+                                    padding: "5px 12px",
+                                    background: rowSaving[o.id] ? "#aaa" : "#1a1a1a",
+                                    border: "none", borderRadius: 6,
+                                    color: "#fff", fontSize: 11, fontWeight: 700,
+                                    cursor: rowSaving[o.id] ? "not-allowed" : "pointer",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {rowSaving[o.id] ? "…" : "Guardar"}
+                                </button>
+                                <button
+                                  onClick={() => toggleExpand(o.id)}
+                                  title={isExpanded ? "Ocultar historial" : "Ver historial"}
+                                  style={{
+                                    background: isExpanded ? "#f0efeb" : "transparent",
+                                    border: "0.5px solid #e5e4df",
+                                    borderRadius: 6, padding: "4px 9px",
+                                    fontSize: 11, color: isExpanded ? "#444" : "#bbb",
+                                    cursor: "pointer", whiteSpace: "nowrap",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {isExpanded ? "▲ Cerrar" : "⏱"}
+                                  {!isExpanded && oppLog.length > 0 && (
+                                    <span style={{ marginLeft: 3, fontSize: 10, color: "#ccc" }}>
+                                      {oppLog.length}
+                                    </span>
+                                  )}
+                                </button>
+                              </div>
                             </td>
                           </tr>
 
