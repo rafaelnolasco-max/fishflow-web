@@ -213,7 +213,7 @@ export default function TBAPage() {
 
   // ── Inline row editing state (keyed by opportunity id) ──
   const [rowEdits, setRowEdits] = useState<Record<string, {
-    closeDate: string; amount: string; currency: Currency; notes: string;
+    oppName: string; closeDate: string; amount: string; currency: Currency; notes: string;
   }>>({});
   const [rowSaving, setRowSaving] = useState<Record<string, boolean>>({});
 
@@ -285,6 +285,7 @@ export default function TBAPage() {
     opps.forEach(o => {
       if (!rowEdits[o.id]) {
         initial[o.id] = {
+          oppName:   o.opportunity_name ?? "",
           closeDate: o.close_date ?? "",
           amount:    o.amount?.toString() ?? "",
           currency:  o.currency,
@@ -341,11 +342,12 @@ export default function TBAPage() {
     setRowSaving(prev => ({ ...prev, [id]: true }));
     const num = parseFloat(edit.amount.replace(/,/g, ""));
     const payload: Partial<TBAOpportunity> = {
-      close_date:  edit.closeDate || null,
-      amount:      isNaN(num) ? undefined : num,
-      currency:    edit.currency,
-      notes:       edit.notes.trim() || null,
-      updated_at:  new Date().toISOString(),
+      opportunity_name: edit.oppName.trim() || undefined,
+      close_date:       edit.closeDate || null,
+      amount:           isNaN(num) ? undefined : num,
+      currency:         edit.currency,
+      notes:            edit.notes.trim() || null,
+      updated_at:       new Date().toISOString(),
     };
     await supabase.from("tba_opportunities").update(payload).eq("id", id);
     setOpps(prev => prev.map(o => o.id === id ? { ...o, ...payload } : o));
@@ -737,17 +739,22 @@ export default function TBAPage() {
                       return (
                         <Fragment key={o.id}>
                           <tr style={{ borderBottom: isExpanded ? "none" : "0.5px solid #f0efeb" }}>
-                            <td style={{ padding: "10px 14px", minWidth: 180 }}>
+                            <td style={{ padding: "10px 14px", minWidth: 200 }}>
                               <span style={{ fontWeight: 700 }}>{o.company_name}</span>
                               <br />
-                              <span style={{ fontSize: 11, color: "#888", fontWeight: 400 }}>{o.opportunity_name}</span>
-                              <br />
+                              <input
+                                type="text"
+                                value={rowEdits[o.id]?.oppName ?? ""}
+                                onChange={e => updateRowEdit(o.id, "oppName", e.target.value)}
+                                placeholder="Nombre de la oportunidad…"
+                                style={{ ...inputStyle, fontSize: 12, padding: "4px 8px", marginTop: 4, fontWeight: 500 }}
+                              />
                               <input
                                 type="text"
                                 value={rowEdits[o.id]?.notes ?? ""}
                                 onChange={e => updateRowEdit(o.id, "notes", e.target.value)}
                                 placeholder="Descripción / notas…"
-                                style={{ ...inputStyle, fontSize: 11, padding: "4px 8px", marginTop: 5, color: "#666", width: "100%" }}
+                                style={{ ...inputStyle, fontSize: 11, padding: "4px 8px", marginTop: 4, color: "#666" }}
                               />
                             </td>
                             <td style={{ padding: "10px 14px", color: "#555", whiteSpace: "nowrap" }}>{o.contact_name}</td>
@@ -963,7 +970,11 @@ export default function TBAPage() {
 
                       return (
                         <tr key={o.id} style={{ borderBottom: "0.5px solid #f0efeb" }}>
-                          <td style={{ padding: "10px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>{o.company_name}</td>
+                          <td style={{ padding: "10px 14px" }}>
+                            <span style={{ fontWeight: 700 }}>{o.company_name}</span>
+                            <br />
+                            <span style={{ fontSize: 11, color: "#888", fontWeight: 400 }}>{o.opportunity_name}</span>
+                          </td>
                           <td style={{ padding: "10px 14px", fontWeight: 700, color: "#3b6d11", whiteSpace: "nowrap" }}>
                             {formatAmount(o.amount, o.currency)}
                           </td>
