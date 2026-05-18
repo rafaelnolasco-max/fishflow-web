@@ -118,13 +118,16 @@ export default function CRMPage() {
     setLoading(false)
   }, [])
 
-  // ── Fetch clients para dropdown ────────────────────────────────────────────
+  // ── Fetch clients para dropdown (usa service role vía API) ─────────────────
   const fetchClients = useCallback(async () => {
-    const { data } = await supabase
-      .from('clients')
-      .select('id, name')
-      .order('name')
-    if (data) setClients(data)
+    try {
+      const res = await fetch('/api/admin/clients')
+      if (!res.ok) return
+      const data = await res.json()
+      setClients(data)
+    } catch (e) {
+      console.error('fetchClients error:', e)
+    }
   }, [])
 
   // ── Fetch historial de transacciones ──────────────────────────────────────
