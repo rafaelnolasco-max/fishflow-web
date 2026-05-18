@@ -57,6 +57,7 @@
   </div>
 
   <div class="hero__mark">
+    <!-- Animated brand mark: stylized 3-wave motif with traveling particles -->
     <div class="markstage" id="markstage" data-mode="spark">
       <svg viewBox="0 0 400 320" class="markstage__svg" aria-label="Onda neuronal animada">
         <defs>
@@ -71,17 +72,45 @@
             <stop offset="100%" stop-color="var(--brand-soft)" stop-opacity="0"/>
           </radialGradient>
         </defs>
+
         <circle cx="200" cy="160" r="140" fill="url(#aura)" class="markstage__aura"/>
-        <path class="leaf" d="M200 70 C 188 88, 188 102, 200 118 C 212 102, 212 88, 200 70 Z" fill="var(--brand)"/>
-        <path class="wave wave--1" d="M40 145 C 110 105, 170 185, 240 145 S 360 105, 360 145" fill="none" stroke="url(#strokeFade)" stroke-width="9" stroke-linecap="round"/>
-        <path class="wave wave--2" d="M40 180 C 110 140, 170 220, 240 180 S 360 140, 360 180" fill="none" stroke="url(#strokeFade)" stroke-width="9" stroke-linecap="round"/>
-        <path class="wave wave--3" d="M40 215 C 110 175, 170 255, 240 215 S 360 175, 360 215" fill="none" stroke="url(#strokeFade)" stroke-width="9" stroke-linecap="round"/>
+
+        <!-- top "spark" leaf -->
+        <path class="leaf"
+          d="M200 70 C 188 88, 188 102, 200 118 C 212 102, 212 88, 200 70 Z"
+          fill="var(--brand)"/>
+
+        <!-- 3 stacked wave ribbons -->
+        <path class="wave wave--1"
+              d="M40 145 C 110 105, 170 185, 240 145 S 360 105, 360 145"
+              fill="none" stroke="url(#strokeFade)" stroke-width="9"
+              stroke-linecap="round"/>
+        <path class="wave wave--2"
+              d="M40 180 C 110 140, 170 220, 240 180 S 360 140, 360 180"
+              fill="none" stroke="url(#strokeFade)" stroke-width="9"
+              stroke-linecap="round"/>
+        <path class="wave wave--3"
+              d="M40 215 C 110 175, 170 255, 240 215 S 360 175, 360 215"
+              fill="none" stroke="url(#strokeFade)" stroke-width="9"
+              stroke-linecap="round"/>
+
+        <!-- traveling spark dots (one per wave, animateMotion) -->
         <g class="sparks">
-          <circle r="6" fill="var(--accent)"><animateMotion dur="4s" repeatCount="indefinite" path="M40 145 C 110 105, 170 185, 240 145 S 360 105, 360 145"/></circle>
-          <circle r="6" fill="var(--accent)"><animateMotion dur="5s" repeatCount="indefinite" begin="-1s" path="M40 180 C 110 140, 170 220, 240 180 S 360 140, 360 180"/></circle>
-          <circle r="6" fill="var(--accent)"><animateMotion dur="6s" repeatCount="indefinite" begin="-2.2s" path="M40 215 C 110 175, 170 255, 240 215 S 360 175, 360 215"/></circle>
+          <circle r="6" fill="var(--accent)">
+            <animateMotion dur="4s" repeatCount="indefinite"
+              path="M40 145 C 110 105, 170 185, 240 145 S 360 105, 360 145"/>
+          </circle>
+          <circle r="6" fill="var(--accent)">
+            <animateMotion dur="5s" repeatCount="indefinite" begin="-1s"
+              path="M40 180 C 110 140, 170 220, 240 180 S 360 140, 360 180"/>
+          </circle>
+          <circle r="6" fill="var(--accent)">
+            <animateMotion dur="6s" repeatCount="indefinite" begin="-2.2s"
+              path="M40 215 C 110 175, 170 255, 240 215 S 360 175, 360 215"/>
+          </circle>
         </g>
       </svg>
+
       <p class="markstage__caption">
         <span class="caption__dot" aria-hidden="true"></span>
         Logo animado · pasa el cursor o usa <strong>Tweaks</strong> para cambiar el modo
@@ -117,12 +146,23 @@
   <article class="mv mv--mision">
     <span class="kicker kicker--light">02 · Misión</span>
     <h3>Acompañar con ciencia y calidez.</h3>
-    <p>Brindar atención psicológica profesional, humana y basada en evidencia a niños, adolescentes y adultos, promoviendo el bienestar emocional y cognitivo a través de la psicoterapia y el neurofeedback. En CANE nos comprometemos a crear un espacio seguro donde cada persona pueda entrenar su mente, fortalecer sus habilidades y transformar su vida.</p>
+    <p>
+      Brindar atención psicológica profesional, humana y basada en evidencia
+      a niños, adolescentes y adultos, promoviendo el bienestar emocional y
+      cognitivo a través de la psicoterapia y el neurofeedback. En CANE nos
+      comprometemos a crear un espacio seguro donde cada persona pueda
+      entrenar su mente, fortalecer sus habilidades y transformar su vida.
+    </p>
   </article>
   <article class="mv mv--vision">
     <span class="kicker">03 · Visión</span>
     <h3>Un referente en entrenamiento cerebral.</h3>
-    <p>Ser un centro de referencia en el tratamiento del TDAH, la ansiedad y la depresión, integrando tecnología y ciencia con calidez humana. Aspiramos a crecer como un espacio confiable e innovador, expandiendo nuestros servicios y ayudando a más personas a descubrir su potencial.</p>
+    <p>
+      Ser un centro de referencia en el tratamiento del TDAH, la ansiedad y
+      la depresión, integrando tecnología y ciencia con calidez humana.
+      Aspiramos a crecer como un espacio confiable e innovador, expandiendo
+      nuestros servicios y ayudando a más personas a descubrir su potencial.
+    </p>
   </article>
 </section>
 
@@ -133,13 +173,41 @@
     <h2 class="section__title">Siete principios que guían cada sesión.</h2>
   </div>
   <ul class="values">
-    <li class="value"><span class="value__num">i</span><h4>Ciencia</h4><p>Métodos y herramientas validadas científicamente para intervenciones efectivas y éticas.</p></li>
-    <li class="value"><span class="value__num">ii</span><h4>Calidez humana</h4><p>El vínculo terapéutico es la base. Acompañamos con empatía, comprensión, respeto y cercanía.</p></li>
-    <li class="value"><span class="value__num">iii</span><h4>Seguridad</h4><p>Un espacio donde cada paciente se siente cuidado, escuchado y libre de juicios.</p></li>
-    <li class="value"><span class="value__num">iv</span><h4>Compromiso</h4><p>Nos involucramos activamente en el proceso de cada persona, adaptándonos a sus objetivos.</p></li>
-    <li class="value"><span class="value__num">v</span><h4>Innovación</h4><p>Integramos tecnología de vanguardia, como el neurofeedback, para potenciar los resultados.</p></li>
-    <li class="value"><span class="value__num">vi</span><h4>Confianza</h4><p>Comunicación honesta, clara y respetuosa que construye relaciones terapéuticas sólidas.</p></li>
-    <li class="value"><span class="value__num">vii</span><h4>Inclusividad</h4><p>Atendemos con sensibilidad la diversidad de identidades, contextos y formas de habitar el mundo.</p></li>
+    <li class="value">
+      <span class="value__num">i</span>
+      <h4>Ciencia</h4>
+      <p>Métodos y herramientas validadas científicamente para intervenciones efectivas y éticas.</p>
+    </li>
+    <li class="value">
+      <span class="value__num">ii</span>
+      <h4>Calidez humana</h4>
+      <p>El vínculo terapéutico es la base. Acompañamos con empatía, comprensión, respeto y cercanía.</p>
+    </li>
+    <li class="value">
+      <span class="value__num">iii</span>
+      <h4>Seguridad</h4>
+      <p>Un espacio donde cada paciente se siente cuidado, escuchado y libre de juicios.</p>
+    </li>
+    <li class="value">
+      <span class="value__num">iv</span>
+      <h4>Compromiso</h4>
+      <p>Nos involucramos activamente en el proceso de cada persona, adaptándonos a sus objetivos.</p>
+    </li>
+    <li class="value">
+      <span class="value__num">v</span>
+      <h4>Innovación</h4>
+      <p>Integramos tecnología de vanguardia, como el neurofeedback, para potenciar los resultados.</p>
+    </li>
+    <li class="value">
+      <span class="value__num">vi</span>
+      <h4>Confianza</h4>
+      <p>Comunicación honesta, clara y respetuosa que construye relaciones terapéuticas sólidas.</p>
+    </li>
+    <li class="value">
+      <span class="value__num">vii</span>
+      <h4>Inclusividad</h4>
+      <p>Atendemos con sensibilidad la diversidad de identidades, contextos y formas de habitar el mundo.</p>
+    </li>
   </ul>
 </section>
 
@@ -149,22 +217,55 @@
     <span class="kicker">05 · Servicios</span>
     <h2 class="section__title">Tres caminos hacia<br/>el mismo objetivo: <em>tu bienestar</em>.</h2>
   </div>
+
   <div class="services">
     <article class="service service--01">
-      <header><span class="service__index">01</span><h3>Psicoterapia individual</h3></header>
-      <p>Para niños, adolescentes y adultos. Especialidad en TDAH, ansiedad, depresión, regulación emocional y modificación conductual. Terapia basada en evidencia, con herramientas prácticas desde la Terapia Cognitivo Conductual.</p>
-      <ul class="service__tags"><li>TDAH</li><li>Ansiedad</li><li>Depresión</li><li>TCC</li></ul>
+      <header>
+        <span class="service__index">01</span>
+        <h3>Psicoterapia individual</h3>
+      </header>
+      <p>
+        Para niños, adolescentes y adultos. Especialidad en TDAH, ansiedad,
+        depresión, regulación emocional y modificación conductual. Terapia
+        basada en evidencia, con herramientas prácticas desde la Terapia
+        Cognitivo Conductual.
+      </p>
+      <ul class="service__tags">
+        <li>TDAH</li><li>Ansiedad</li><li>Depresión</li><li>TCC</li>
+      </ul>
     </article>
+
     <article class="service service--02 service--feature">
-      <header><span class="service__index">02</span><h3>Neurofeedback</h3></header>
-      <p>Entrenamiento cerebral no invasivo que mejora la autorregulación. Enfocado en TDAH, ansiedad, ataques de pánico, depresión, fibromialgia, migrañas e insomnio. Ideal como tratamiento complementario.</p>
-      <ul class="service__tags"><li>No invasivo</li><li>Autorregulación</li><li>Complementario</li></ul>
-      <a class="btn btn--text service__more" href="#neurofeedback">Aprende cómo funciona <span aria-hidden="true">→</span></a>
+      <header>
+        <span class="service__index">02</span>
+        <h3>Neurofeedback</h3>
+      </header>
+      <p>
+        Entrenamiento cerebral no invasivo que mejora la autorregulación.
+        Enfocado en TDAH, ansiedad, ataques de pánico, depresión, fibromialgia,
+        migrañas e insomnio. Ideal como tratamiento complementario.
+      </p>
+      <ul class="service__tags">
+        <li>No invasivo</li><li>Autorregulación</li><li>Complementario</li>
+      </ul>
+      <a class="btn btn--text service__more" href="#neurofeedback">
+        Aprende cómo funciona <span aria-hidden="true">→</span>
+      </a>
     </article>
+
     <article class="service service--03">
-      <header><span class="service__index">03</span><h3>Evaluaciones neuropsicológicas</h3></header>
-      <p>Baterías estandarizadas para detectar dificultades cognitivas, intelectuales, neurológicas y emocionales o conductuales. Dirigido a niños, adolescentes y adultos.</p>
-      <ul class="service__tags"><li>Niños</li><li>Adolescentes</li><li>Adultos</li></ul>
+      <header>
+        <span class="service__index">03</span>
+        <h3>Evaluaciones neuropsicológicas</h3>
+      </header>
+      <p>
+        Baterías estandarizadas para detectar dificultades cognitivas,
+        intelectuales, neurológicas y emocionales o conductuales. Dirigido a
+        niños, adolescentes y adultos.
+      </p>
+      <ul class="service__tags">
+        <li>Niños</li><li>Adolescentes</li><li>Adultos</li>
+      </ul>
     </article>
   </div>
 </section>
@@ -175,8 +276,16 @@
     <header class="nfb__head">
       <span class="kicker kicker--light">06 · Neurofeedback</span>
       <h2>Es como ir al gimnasio.<br/><em>Pero para tu cerebro.</em></h2>
-      <p class="nfb__intro">En CANE utilizamos el Neurofeedback como una herramienta innovadora y no invasiva que entrena el cerebro para autorregularse y funcionar de forma más equilibrada. A través de sensores colocados en el cuero cabelludo, medimos la actividad eléctrica del cerebro en tiempo real y, mediante estímulos visuales o auditivos, ayudamos al paciente a fortalecer patrones cerebrales más saludables.</p>
+      <p class="nfb__intro">
+        En CANE utilizamos el Neurofeedback como una herramienta innovadora y no
+        invasiva que entrena el cerebro para autorregularse y funcionar de forma
+        más equilibrada. A través de sensores colocados en el cuero cabelludo,
+        medimos la actividad eléctrica del cerebro en tiempo real y, mediante
+        estímulos visuales o auditivos, ayudamos al paciente a fortalecer
+        patrones cerebrales más saludables.
+      </p>
     </header>
+
     <div class="nfb__grid">
       <details class="qa" open>
         <summary><span class="qa__q">¿Para qué sirve?</span><span class="qa__icon" aria-hidden="true"></span></summary>
@@ -193,6 +302,7 @@
           </ul>
         </div>
       </details>
+
       <details class="qa">
         <summary><span class="qa__q">¿Cuáles son los beneficios?</span><span class="qa__icon" aria-hidden="true"></span></summary>
         <div class="qa__body">
@@ -205,10 +315,17 @@
           </ul>
         </div>
       </details>
+
       <details class="qa">
         <summary><span class="qa__q">¿Cómo es una sesión?</span><span class="qa__icon" aria-hidden="true"></span></summary>
         <div class="qa__body">
-          <p>Las sesiones son relajadas, cómodas y sin dolor. El paciente se sienta frente a una pantalla, mientras ve una película, un video o juega con una animación controlada por su propia actividad cerebral. A través del entrenamiento, el cerebro aprende a autorregularse sin necesidad de esfuerzo consciente.</p>
+          <p>
+            Las sesiones son relajadas, cómodas y sin dolor. El paciente se sienta
+            frente a una pantalla, mientras ve una película, un video o juega con
+            una animación controlada por su propia actividad cerebral. A través
+            del entrenamiento, el cerebro aprende a autorregularse sin necesidad
+            de esfuerzo consciente.
+          </p>
           <dl class="meta">
             <div><dt>Duración</dt><dd>30 a 45 minutos</dd></div>
             <div><dt>Frecuencia</dt><dd>2 veces por semana</dd></div>
@@ -217,10 +334,16 @@
           <p class="note">*Depende del problema a tratar y la sintomatología.</p>
         </div>
       </details>
+
       <details class="qa">
         <summary><span class="qa__q">¿Es invasivo o doloroso?</span><span class="qa__icon" aria-hidden="true"></span></summary>
         <div class="qa__body">
-          <p>No. El Neurofeedback es <strong>completamente seguro</strong>, no invasivo y no utiliza medicamentos ni descargas eléctricas. Simplemente mide la actividad cerebral y entrega retroalimentación para que el cerebro aprenda a mejorar su funcionamiento.</p>
+          <p>
+            No. El Neurofeedback es <strong>completamente seguro</strong>, no invasivo
+            y no utiliza medicamentos ni descargas eléctricas. Simplemente mide la
+            actividad cerebral y entrega retroalimentación para que el cerebro
+            aprenda a mejorar su funcionamiento.
+          </p>
         </div>
       </details>
     </div>
@@ -273,8 +396,8 @@
     </h2>
     <p class="cta__sub">Agenda una cita con nosotros y resuelve todas tus dudas.</p>
     <div class="cta__actions">
-      <a class="btn btn--primary btn--lg" href="mailto:karlal_ruiz@hotmail.com">Agenda tu cita</a>
-      <a class="btn btn--ghost btn--lg btn--ghost-light" href="mailto:karlal_ruiz@hotmail.com">karlal_ruiz@hotmail.com</a>
+      <a class="btn btn--primary btn--lg" href="#agenda">Agenda tu cita</a>
+      <a class="btn btn--ghost btn--lg btn--ghost-light" href="mailto:contacto@cane.mx">contacto@cane.mx</a>
     </div>
   </div>
 </section>
@@ -322,8 +445,18 @@
 
 </main>
 
+<!-- ============== TWEAKS PANEL ============== -->
+<div id="tweaks-root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="tweaks.jsx"></script>
+
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
+// nav scroll shadow
 (() => {
   const nav = document.getElementById('topnav');
   const onScroll = () => nav.classList.toggle('is-scrolled', window.scrollY > 12);

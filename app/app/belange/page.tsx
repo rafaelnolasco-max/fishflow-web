@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase, type BelangeTransaction, type PaymentMethod } from "@/lib/supabase";
+import {
+  supabase,
+  type BelangeTransaction,
+  type PaymentMethod,
+  type PosTransaction,
+  BELANGE_CLIENT_ID,
+  posToBelangeTransaction,
+} from "@/lib/supabase";
 
 // ─── Brand ────────────────────────────────────────────────────────────────────
 const FF_CYAN   = "#00B8CC";
@@ -106,10 +113,11 @@ export default function BelangePage() {
   async function fetchAll() {
     setLoading(true);
     const { data } = await supabase
-      .from("belange_transactions")
+      .from("pos_transactions")
       .select("*")
+      .eq("client_id", BELANGE_CLIENT_ID)
       .order("created_at", { ascending: false });
-    if (data) setTransactions(data as BelangeTransaction[]);
+    if (data) setTransactions((data as PosTransaction[]).map(posToBelangeTransaction));
     setLoading(false);
   }
 
@@ -137,13 +145,21 @@ export default function BelangePage() {
       return;
     }
     setSaving(true); setErr("");
-    const { error } = await supabase.from("belange_transactions").insert({
-      client_name:     clientName.trim(),
-      service:         service.trim() || null,
-      price:           numServ ?? 0,
-      payment_method:  payment,
-      producto:        producto.trim() || null,
-      precio_producto: numProd,
+    const { error } = await supabase.from("pos_transactions").insert({
+      client_id:      BELANGE_CLIENT_ID,
+      provider:       "manual",
+      amount:         (numServ ?? 0) + (numProd ?? 0),
+      currency:       "MXN",
+      status:         "paid",
+      payment_method: payment,
+      service:        service.trim() || null,
+      vertical:       "estetica",
+      metadata: {
+        client_name:    clientName.trim(),
+        price_service:  numServ ?? 0,
+        producto:       producto.trim() || null,
+        precio_producto: numProd,
+      },
     });
     setSaving(false);
     if (error) { setErr("Error al guardar. Intenta de nuevo."); return; }
