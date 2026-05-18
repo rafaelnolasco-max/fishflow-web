@@ -50,6 +50,9 @@ export interface BelangeTransaction {
 // Client ID de Belange en la tabla clients (Belange Estética, CDMX)
 export const BELANGE_CLIENT_ID = "33933663-79d2-4caa-86fe-7ea046082b7f";
 
+// Client ID de Lukon Telemática en la tabla clients
+export const LUKON_CLIENT_ID = "1aa4a82b-e524-40f4-808e-c02e87e82427";
+
 /** Mapea un PosTransaction de Belange al shape BelangeTransaction para el UI */
 export function posToBelangeTransaction(t: PosTransaction): BelangeTransaction {
   const meta = (t.metadata ?? {}) as Record<string, unknown>;

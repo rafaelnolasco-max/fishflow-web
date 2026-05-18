@@ -8,6 +8,7 @@ const ADMIN_EMAIL = "rafaelnolasco@gmail.com";
 const CLIENT_EMAILS: Record<string, string[]> = {
   "/app/tba":     ["andres@telecomba.com", "rafaelnolasco@gmail.com", "carlosnolascocas@gmail.com"],
   "/app/belange": [], // cualquier usuario autenticado
+  "/app/lukon":   ["rafaelnolasco@gmail.com", "aalmarazmo@lukon.com.mx"],
 };
 
 export async function middleware(request: NextRequest) {
