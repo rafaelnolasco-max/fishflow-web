@@ -797,6 +797,17 @@ export default function TherapyOSPage() {
           }}>
             + Nueva sesión
           </button>
+
+          {/* Cerrar sesión */}
+          <button
+            onClick={async () => { await supabase.auth.signOut(); router.push("/login?next=/app/therapyos"); }}
+            style={{
+              marginTop: "auto", padding: "8px 12px", borderRadius: 8,
+              background: "transparent", border: "1px solid rgba(255,255,255,.12)",
+              color: C.muted, fontSize: 12, cursor: "pointer", letterSpacing: ".04em",
+            }}>
+            ⎋ Cerrar sesión
+          </button>
         </aside>
 
         {/* ─── MAIN ─────────────────────────────────────────────────────────── */}
