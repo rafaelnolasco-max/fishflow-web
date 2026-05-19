@@ -68,6 +68,91 @@ export function posToBelangeTransaction(t: PosTransaction): BelangeTransaction {
   };
 }
 
+// ─── TherapyOS ────────────────────────────────────────────────────────────────
+
+export const MARIO_CLIENT_ID = "d4e5f6a7-b8c9-4012-def0-123456789abc";
+
+export interface TherapyPatient {
+  id: string;
+  client_id: string;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  started_at: string | null;         // date ISO
+  active: boolean;
+  session_fee: number | null;        // tarifa por sesión
+  next_session_at: string | null;    // timestamptz ISO
+  created_at: string;
+  // Campos calculados (no en DB, se agregan en el fetch)
+  session_count?: number;
+}
+
+export interface EmotionalState {
+  sobriedad: "Estable" | "En riesgo" | "No aplica";
+  madurez_emocional: "Alta" | "Media" | "Baja" | "En proceso";
+  ansiedad: "Alta" | "Moderada" | "Baja";
+  energia_vital: "Alta" | "Media" | "Baja";
+  notas_emocionales: string;
+}
+
+export interface Commitment {
+  texto: string;
+  quien: "paciente" | "terapeuta";
+  completado: boolean;
+}
+
+export interface Pattern {
+  emoji: string;
+  es_nuevo: boolean;
+  descripcion: string;
+}
+
+export interface SessionTopic {
+  label: string;
+  tipo: "principal" | "insight" | "familiar" | "laboral" | "clinico";
+  descripcion: string;
+}
+
+export interface SessionConnection {
+  hay_conexion: boolean;
+  descripcion: string;
+  evolucion: string;
+}
+
+export interface TherapySession {
+  id: string;
+  patient_id: string;
+  client_id: string;
+  session_number: number;
+  session_date: string;              // date ISO
+  transcript: string | null;
+  raw_summary: unknown | null;
+  session_title: string | null;
+  clinical_summary: string | null;
+  patient_summary: string | null;
+  briefing_next: string | null;
+  private_notes: string | null;
+  emotional_state: EmotionalState | null;
+  commitments: Commitment[] | null;
+  patterns_detected: Pattern[] | null;
+  topics: SessionTopic[] | null;
+  connections_to_prev: SessionConnection | null;
+  payment_link: string | null;
+  payment_status: "pending" | "sent" | "paid";
+  ai_processed: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TherapySessionLog {
+  id: string;
+  session_id: string;
+  action: "created" | "updated" | "ai_processed";
+  changed_by: string | null;
+  changed_at: string;
+  snapshot: unknown | null;
+}
+
 // ─── TBA Telecom ──────────────────────────────────────────────────────────────
 
 export type OpportunityStage =
