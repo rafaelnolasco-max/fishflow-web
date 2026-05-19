@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { MercadoPagoConfig, Preference } from 'mercadopago'
+import Stripe from 'stripe'
 import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
@@ -7,7 +7,6 @@ import { cookies } from 'next/headers'
 // ─── Solo Rafa puede usar este endpoint ──────────────────────────────────────
 const ADMIN_EMAIL = 'rafaelnolasco@gmail.com'
 
-// Admin client — bypasa RLS
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -30,15 +29,9 @@ export async function POST(req: NextRequest) {
     // ── 2. Parsear y validar body ─────────────────────────────────────────────
     const { client_id, description, amount, payer_email } = await req.json()
 
-    if (!client_id) {
-      return NextResponse.json({ error: 'client_id es requerido' }, { status: 400 })
-    }
-    if (!description?.trim()) {
-      return NextResponse.json({ error: 'description es requerido' }, { status: 400 })
-    }
-    if (!amount || Number(amount) <= 0) {
-      return NextResponse.json({ error: 'amount debe ser mayor a 0' }, { status: 400 })
-    }
+    if (!client_id)              return NextResponse.json({ error: 'client_id es requerido' }, { status: 400 })
+    if (!description?.trim())    return NextResponse.json({ error: 'description es requerido' }, { status: 400 })
+    if (!amount || Number(amount) <= 0) return NextResponse.json({ error: 'amount debe ser mayor a 0' }, { status: 400 })
 
     // ── 3. Verificar que el cliente existe ────────────────────────────────────
     const { data: client, error: clientError } = await supabaseAdmin
@@ -56,7 +49,7 @@ export async function POST(req: NextRequest) {
       .from('pos_transactions')
       .insert({
         client_id,
-        provider:  'mercadopago',
+        provider:  'stripe',
         amount:    Number(amount),
         currency:  'MXN',
         status:    'pending',
@@ -72,77 +65,71 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (txnError || !txn) {
-      console.error('[admin/charge] insert txn:', txnError)
+      console.error('[stripe/checkout] insert txn:', txnError)
       return NextResponse.json({ error: 'Error al crear transacción' }, { status: 500 })
     }
 
-    // ── 5. Crear Preference en MercadoPago ────────────────────────────────────
-    const mpToken = process.env.MERCADOPAGO_ACCESS_TOKEN
-    if (!mpToken) {
-      console.error('[admin/charge] MERCADOPAGO_ACCESS_TOKEN no configurado en Vercel')
-      return NextResponse.json({ error: 'Gateway no configurado. Contacta al administrador.' }, { status: 500 })
-    }
-    const isTestToken = mpToken.startsWith('TEST-')
-    const mp = new MercadoPagoConfig({ accessToken: mpToken })
-    const preference = new Preference(mp)
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://fishflow.mx'
-
-    const pref = await preference.create({
-      body: {
-        items: [{
-          id:          txn.id,
-          title:       description.trim(),
-          quantity:    1,
-          unit_price:  Number(amount),
-          currency_id: 'MXN',
-        }],
-        payer:              payer_email ? { email: payer_email } : undefined,
-        external_reference: txn.id,
-        notification_url:   `${appUrl}/api/payments/mercadopago/webhook`,
-        back_urls: {
-          success: `${appUrl}/pay/success`,
-          failure: `${appUrl}/pay/error`,
-          pending: `${appUrl}/pay/pendiente`,
-        },
-        auto_return: 'approved',
-      },
+    // ── 5. Crear Stripe Checkout Session ──────────────────────────────────────
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2025-04-30.basil',
     })
 
-    // ── 6. Actualizar transacción con el link de pago ─────────────────────────
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://fishflow.mx'
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: [
+        {
+          price_data: {
+            currency: 'mxn',
+            product_data: {
+              name: description.trim(),
+              metadata: { client: client.name },
+            },
+            unit_amount: Math.round(Number(amount) * 100), // Stripe usa centavos
+          },
+          quantity: 1,
+        },
+      ],
+      ...(payer_email ? { customer_email: payer_email } : {}),
+      metadata: {
+        transaction_id: txn.id,
+        client_id,
+        client_name:    client.name,
+        created_by:     user.email,
+      },
+      success_url: `${appUrl}/pay/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${appUrl}/pay/error`,
+    })
+
+    // ── 6. Actualizar transacción con el session id ───────────────────────────
     await supabaseAdmin
       .from('pos_transactions')
       .update({
-        external_id: pref.id,
+        external_id: session.id,
         metadata: {
-          description:    description.trim(),
-          payer_email:    payer_email ?? null,
-          preference_id:  pref.id,
-          payment_url:    pref.init_point,      // ← guardamos para /pay/[slug]
-          created_by:     user.email,
-          created_from:   'admin_panel',
+          description:  description.trim(),
+          payer_email:  payer_email ?? null,
+          session_id:   session.id,
+          payment_url:  session.url,
+          created_by:   user.email,
+          created_from: 'admin_panel',
         },
       })
       .eq('id', txn.id)
 
-    // Si el token es de prueba, usar sandbox_init_point para evitar CPT01
-    const paymentUrl = isTestToken ? pref.sandbox_init_point : pref.init_point
-
     return NextResponse.json({
       transaction_id: txn.id,
-      payment_url:    paymentUrl,
-      sandbox_url:    pref.sandbox_init_point,
-      preference_id:  pref.id,
+      payment_url:    session.url,
+      session_id:     session.id,
       client_name:    client.name,
-      is_test:        isTestToken,
     })
 
   } catch (err: any) {
-    // Loguear el error real de MP para diagnóstico
-    const mpError = err?.cause ?? err?.message ?? err
-    console.error('[admin/charge] MercadoPago error:', JSON.stringify(mpError))
-    const userMsg = err?.message?.includes('unauthorized')
-      ? 'Token de MercadoPago inválido — verifica la variable MERCADOPAGO_ACCESS_TOKEN en Vercel'
-      : `Error al generar link: ${err?.message ?? 'Error desconocido'}`
-    return NextResponse.json({ error: userMsg }, { status: 500 })
+    console.error('[stripe/checkout] error:', err)
+    // Exponer mensaje de Stripe en desarrollo para diagnóstico
+    const msg = err?.message ?? 'Error interno del servidor'
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

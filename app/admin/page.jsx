@@ -31,7 +31,7 @@ const EMPTY_FORM = {
 }
 
 const EMPTY_CHARGE = {
-  client_id: '', description: '', amount: '', payer_email: '',
+  client_id: '', description: '', amount: '', payer_email: '', gateway: 'stripe',
 }
 
 function tcv(d) {
@@ -97,6 +97,7 @@ export default function CRMPage() {
   const [transactions,  setTransactions]  = useState([])
   const [txLoading,     setTxLoading]     = useState(false)
   const [copied,        setCopied]        = useState(false)
+  const [syncingId,     setSyncingId]     = useState(null)
 
   // ── Toast ──────────────────────────────────────────────────────────────────
   const [toast,   setToast]   = useState({ msg: '', type: '', show: false })
@@ -219,15 +220,19 @@ export default function CRMPage() {
   function setChargeField(key, val) { setChargeForm(f => ({ ...f, [key]: val })) }
 
   async function generateCharge() {
-    if (!chargeForm.client_id)        { showToast('❌ Selecciona un cliente', 'error'); return }
+    if (!chargeForm.client_id)          { showToast('❌ Selecciona un cliente', 'error'); return }
     if (!chargeForm.description.trim()) { showToast('❌ Ingresa un concepto', 'error'); return }
     if (!chargeForm.amount || Number(chargeForm.amount) <= 0) { showToast('❌ Ingresa un monto válido', 'error'); return }
 
     setChargeLoading(true)
     setChargeResult(null)
 
+    const endpoint = chargeForm.gateway === 'stripe'
+      ? '/api/payments/stripe/checkout'
+      : '/api/payments/admin/charge'
+
     try {
-      const res = await fetch('/api/payments/admin/charge', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -240,7 +245,7 @@ export default function CRMPage() {
       const data = await res.json()
       if (!res.ok) { showToast(`❌ ${data.error}`, 'error'); return }
 
-      setChargeResult(data)
+      setChargeResult({ ...data, gateway: chargeForm.gateway })
       showToast('✅ Link generado correctamente', 'success')
       fetchTransactions()
       setChargeForm(EMPTY_CHARGE)
@@ -248,6 +253,29 @@ export default function CRMPage() {
       showToast('❌ Error de conexión', 'error')
     } finally {
       setChargeLoading(false)
+    }
+  }
+
+  async function syncTransaction(txId) {
+    setSyncingId(txId)
+    try {
+      const res = await fetch('/api/payments/admin/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transaction_id: txId }),
+      })
+      const data = await res.json()
+      if (!res.ok) { showToast(`❌ ${data.error}`, 'error'); return }
+      if (data.changed) {
+        showToast(`✅ Estado actualizado: ${data.new_status}`, 'success')
+        fetchTransactions()
+      } else {
+        showToast(`ℹ️ Sin cambios — MP dice: ${data.new_status}`, '')
+      }
+    } catch {
+      showToast('❌ Error al sincronizar', 'error')
+    } finally {
+      setSyncingId(null)
     }
   }
 
@@ -429,10 +457,21 @@ export default function CRMPage() {
                 />
               </Field>
 
-              <div className="co-gateway-badge">
-                <span className="co-gateway-icon">🟦</span>
-                MercadoPago
-                <span className="co-gateway-note">Stripe disponible próximamente</span>
+              {/* Selector de gateway */}
+              <div className="co-gateway-selector">
+                <button
+                  className={`co-gw-btn ${chargeForm.gateway === 'stripe' ? 'active' : ''}`}
+                  onClick={() => setChargeField('gateway', 'stripe')}
+                >
+                  <span>💳</span> Stripe
+                  <span className="co-gw-badge">Recomendado</span>
+                </button>
+                <button
+                  className={`co-gw-btn ${chargeForm.gateway === 'mercadopago' ? 'active' : ''}`}
+                  onClick={() => setChargeField('gateway', 'mercadopago')}
+                >
+                  <span>🟦</span> MercadoPago
+                </button>
               </div>
 
               <button
@@ -447,7 +486,10 @@ export default function CRMPage() {
             {/* Resultado */}
             {chargeResult && (
               <div className="co-result">
-                <div className="co-result-title">✅ Link generado para <strong>{chargeResult.client_name}</strong></div>
+                <div className="co-result-title">
+                  ✅ Link generado para <strong>{chargeResult.client_name}</strong>
+                  {chargeResult.is_test && <span className="co-test-badge">TEST</span>}
+                </div>
                 <div className="co-result-url">{chargeResult.payment_url}</div>
                 <div className="co-result-actions">
                   <button className="co-btn-copy" onClick={() => copyLink(chargeResult.payment_url)}>
@@ -458,6 +500,12 @@ export default function CRMPage() {
                   </a>
                 </div>
                 <div className="co-result-id">ID transacción: {chargeResult.transaction_id}</div>
+                {chargeResult.is_test && (
+                  <div className="co-test-warning">
+                    ⚠️ Token de prueba detectado — este link es de sandbox, no cobra dinero real.
+                    Para producción, actualiza MERCADOPAGO_ACCESS_TOKEN en Vercel con tu token de producción.
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -499,10 +547,20 @@ export default function CRMPage() {
                           <td className="co-td-amount">{fmtCurrency(tx.amount)}</td>
                           <td><span className="co-provider">{tx.provider}</span></td>
                           <td><span className="co-status" style={{ color: st.color, borderColor: st.color + '44', background: st.color + '18' }}>{st.label}</span></td>
-                          <td>
-                            {payUrl ? (
+                          <td className="co-td-actions">
+                            {payUrl && (
                               <button className="co-link-btn" onClick={() => copyLink(payUrl)} title="Copiar link">📋</button>
-                            ) : '—'}
+                            )}
+                            {tx.status === 'pending' && tx.provider === 'mercadopago' && (
+                              <button
+                                className="co-sync-btn"
+                                onClick={() => syncTransaction(tx.id)}
+                                disabled={syncingId === tx.id}
+                                title="Sincronizar estado con MercadoPago"
+                              >
+                                {syncingId === tx.id ? '⏳' : '↻'}
+                              </button>
+                            )}
                           </td>
                         </tr>
                       )
@@ -726,9 +784,12 @@ const CSS = `
 
   .co-form { padding:20px; display:flex; flex-direction:column; gap:2px; }
 
-  .co-gateway-badge { display:flex; align-items:center; gap:8px; background:#252840; border:1px solid #2e3150; border-radius:8px; padding:10px 14px; font-size:13px; color:#e8eaf6; font-weight:600; margin:6px 0 14px; }
-  .co-gateway-icon { font-size:16px; }
-  .co-gateway-note { margin-left:auto; font-size:11px; color:#8b8fa8; font-weight:400; }
+  /* Gateway selector */
+  .co-gateway-selector { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:6px 0 14px; }
+  .co-gw-btn { display:flex; align-items:center; gap:7px; background:#252840; border:1.5px solid #2e3150; border-radius:9px; padding:10px 13px; font-size:13px; font-weight:600; color:#8b8fa8; cursor:pointer; transition:all .15s; position:relative; }
+  .co-gw-btn:hover { border-color:#5b6af0; color:#e8eaf6; }
+  .co-gw-btn.active { border-color:#22c55e; color:#e8eaf6; background:rgba(34,197,94,.08); }
+  .co-gw-badge { margin-left:auto; font-size:9px; font-weight:700; background:#22c55e22; color:#4ade80; border:1px solid #22c55e44; border-radius:4px; padding:1px 5px; text-transform:uppercase; letter-spacing:.4px; }
 
   .co-btn-generate { width:100%; background:linear-gradient(135deg,#5b6af0,#4a59e0); color:white; border:none; border-radius:10px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; transition:opacity .15s; }
   .co-btn-generate:hover:not(:disabled) { opacity:.88; }
@@ -743,6 +804,8 @@ const CSS = `
   .co-btn-open { flex:1; background:transparent; color:#8b8fa8; border:1px solid #2e3150; border-radius:7px; padding:8px; font-size:13px; font-weight:600; cursor:pointer; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; }
   .co-btn-open:hover { color:#e8eaf6; border-color:#8b8fa8; }
   .co-result-id { font-size:10px; color:#8b8fa8; font-family:monospace; }
+  .co-test-badge { margin-left:8px; font-size:9px; font-weight:700; background:#f9731622; color:#fb923c; border:1px solid #f9731644; border-radius:4px; padding:1px 6px; text-transform:uppercase; }
+  .co-test-warning { margin-top:8px; font-size:11px; color:#fbbf24; background:rgba(234,179,8,.1); border:1px solid rgba(234,179,8,.3); border-radius:6px; padding:8px 10px; }
 
   .co-history { background:#1a1d2e; border:1px solid #2e3150; border-radius:14px; overflow:hidden; }
   .co-history-header { display:flex; align-items:center; justify-content:space-between; padding:18px 20px 14px; border-bottom:1px solid #2e3150; }
@@ -763,6 +826,10 @@ const CSS = `
   .co-td-amount { font-weight:700; color:#22c55e; white-space:nowrap; }
   .co-provider { font-size:10px; font-weight:600; color:#06b6d4; background:rgba(6,182,212,.12); border-radius:5px; padding:2px 7px; text-transform:capitalize; }
   .co-status { font-size:10px; font-weight:700; border-radius:5px; padding:2px 8px; border:1px solid; }
+  .co-td-actions { display:flex; gap:4px; align-items:center; }
   .co-link-btn { background:transparent; border:1px solid #2e3150; color:#8b8fa8; border-radius:5px; padding:3px 7px; cursor:pointer; font-size:13px; }
   .co-link-btn:hover { color:#e8eaf6; border-color:#5b6af0; }
+  .co-sync-btn { background:transparent; border:1px solid #2e3150; color:#8b8fa8; border-radius:5px; padding:3px 7px; cursor:pointer; font-size:13px; transition:all .15s; }
+  .co-sync-btn:hover:not(:disabled) { color:#06b6d4; border-color:#06b6d4; }
+  .co-sync-btn:disabled { opacity:.5; cursor:not-allowed; }
 `
