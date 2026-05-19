@@ -131,15 +131,18 @@ export default function CRMPage() {
     }
   }, [])
 
-  // ── Fetch historial de transacciones ──────────────────────────────────────
+  // ── Fetch historial de transacciones (vía API con service role → join clients funciona) ──
   const fetchTransactions = useCallback(async () => {
     setTxLoading(true)
-    const { data } = await supabase
-      .from('pos_transactions')
-      .select('id, client_id, service, amount, currency, status, provider, metadata, created_at, clients(name)')
-      .order('created_at', { ascending: false })
-      .limit(30)
-    if (data) setTransactions(data)
+    try {
+      const res = await fetch('/api/payments/admin/transactions')
+      if (res.ok) {
+        const data = await res.json()
+        setTransactions(data)
+      }
+    } catch (e) {
+      console.error('fetchTransactions error:', e)
+    }
     setTxLoading(false)
   }, [])
 
