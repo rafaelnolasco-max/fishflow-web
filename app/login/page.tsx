@@ -16,6 +16,7 @@ function LoginForm() {
     "carlosnolascocas@gmail.com": "/app/tba",
     "belangestudio@gmail.com":    "/app/belange",
     "mariocitalan@gmail.com":     "/app/therapyos",
+    "aalmarazmo@lukon.com.mx":    "/app/lukon",
     "rafaelnolasco@gmail.com":    "/admin",
   };
 
@@ -24,6 +25,7 @@ function LoginForm() {
     "/app/therapyos": { label: "TherapyOS", color: "#1a6b4a" },
     "/app/tba":       { label: "TBA Telecom CRM", color: "#1a4a6b" },
     "/app/belange":   { label: "Belange Studio", color: "#6b1a4a" },
+    "/app/lukon":     { label: "Lukon Telemática", color: "#4a6b1a" },
     "/admin":         { label: "FishFlow Admin", color: "#333" },
   };
 

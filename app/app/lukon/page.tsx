@@ -246,7 +246,7 @@ function LukonDashboard() {
   // ── Cerrar sesión ────────────────────────────────────────────────────────────
   async function handleSignOut() {
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push("/login?next=/app/lukon");
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
