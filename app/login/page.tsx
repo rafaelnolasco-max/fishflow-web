@@ -15,8 +15,21 @@ function LoginForm() {
     "andres@telecomba.com":       "/app/tba",
     "carlosnolascocas@gmail.com": "/app/tba",
     "belangestudio@gmail.com":    "/app/belange",
+    "mariocitalan@gmail.com":     "/app/therapyos",
     "rafaelnolasco@gmail.com":    "/admin",
   };
+
+  // ── Contexto visual por ruta de destino ──────────────────────────────────────
+  const APP_CONTEXT: Record<string, { label: string; color: string }> = {
+    "/app/therapyos": { label: "TherapyOS", color: "#1a6b4a" },
+    "/app/tba":       { label: "TBA Telecom CRM", color: "#1a4a6b" },
+    "/app/belange":   { label: "Belange Studio", color: "#6b1a4a" },
+    "/admin":         { label: "FishFlow Admin", color: "#333" },
+  };
+
+  const appCtx = nextParam
+    ? Object.entries(APP_CONTEXT).find(([route]) => nextParam.startsWith(route))?.[1]
+    : null;
 
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
@@ -81,9 +94,25 @@ function LoginForm() {
               priority
             />
           </div>
-          <p style={{ fontSize: 13, color: "#999", margin: 0 }}>
-            Acceso privado
-          </p>
+          {appCtx ? (
+            <div style={{
+              display: "inline-block",
+              background: appCtx.color + "18",
+              border: `1px solid ${appCtx.color}44`,
+              borderRadius: 20,
+              padding: "3px 12px",
+              fontSize: 12,
+              fontWeight: 600,
+              color: appCtx.color,
+              marginTop: 4,
+            }}>
+              {appCtx.label}
+            </div>
+          ) : (
+            <p style={{ fontSize: 13, color: "#999", margin: 0 }}>
+              Acceso privado
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleLogin}>
