@@ -272,9 +272,10 @@ export default function CRMPage() {
       const data = await res.json()
       if (!res.ok) { showToast(`❌ ${data.error}`, 'error'); return }
       if (!data.synced) {
-        showToast(`⏳ ${data.message ?? 'Pago no encontrado en MP todavía'}`, '')
+        showToast(`⏳ ${data.message ?? 'Pago no encontrado todavía'}`, '')
       } else if (data.changed) {
-        showToast(`✅ Pagado ✓`, 'success')
+        const label = data.new_status === 'paid' ? '✅ Pagado ✓' : `✅ Actualizado: ${data.new_status}`
+        showToast(label, 'success')
         // Actualización optimista inmediata — no esperar el re-fetch
         setTransactions(prev => prev.map(t =>
           t.id === txId ? { ...t, status: data.new_status } : t
@@ -282,8 +283,8 @@ export default function CRMPage() {
         // Re-fetch con delay para confirmar desde DB
         setTimeout(fetchTransactions, 800)
       } else {
-        // MP dice approved pero DB ya tiene ese valor — forzar re-fetch
-        showToast(`ℹ️ MP confirma: ${data.mp_status}`, '')
+        const gateway = data.mp_status ? `MP: ${data.mp_status}` : `Stripe: ${data.stripe_status}`
+        showToast(`ℹ️ Sin cambios — ${gateway}`, '')
         setTimeout(fetchTransactions, 400)
       }
     } catch {
@@ -565,12 +566,12 @@ export default function CRMPage() {
                             {payUrl && (
                               <button className="co-link-btn" onClick={() => copyLink(payUrl)} title="Copiar link">📋</button>
                             )}
-                            {(tx.status === 'pending') && tx.provider === 'mercadopago' && (
+                            {tx.status === 'pending' && (tx.provider === 'mercadopago' || tx.provider === 'stripe') && (
                               <button
                                 className="co-sync-btn"
                                 onClick={() => syncTransaction(tx.id)}
                                 disabled={syncingId === tx.id}
-                                title="Sincronizar estado con MercadoPago"
+                                title={`Sincronizar estado con ${tx.provider === 'stripe' ? 'Stripe' : 'MercadoPago'}`}
                               >
                                 {syncingId === tx.id ? '⏳' : '↻'}
                               </button>
