@@ -272,10 +272,17 @@ export default function CRMPage() {
       if (!data.synced) {
         showToast(`⏳ ${data.message ?? 'Pago no encontrado en MP todavía'}`, '')
       } else if (data.changed) {
-        showToast(`✅ Estado actualizado a: ${data.new_status}`, 'success')
-        fetchTransactions()
+        showToast(`✅ Pagado ✓`, 'success')
+        // Actualización optimista inmediata — no esperar el re-fetch
+        setTransactions(prev => prev.map(t =>
+          t.id === txId ? { ...t, status: data.new_status } : t
+        ))
+        // Re-fetch con delay para confirmar desde DB
+        setTimeout(fetchTransactions, 800)
       } else {
-        showToast(`ℹ️ Sin cambios — MP confirma: ${data.mp_status}`, '')
+        // MP dice approved pero DB ya tiene ese valor — forzar re-fetch
+        showToast(`ℹ️ MP confirma: ${data.mp_status}`, '')
+        setTimeout(fetchTransactions, 400)
       }
     } catch {
       showToast('❌ Error al sincronizar', 'error')
