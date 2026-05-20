@@ -269,11 +269,13 @@ export default function CRMPage() {
       })
       const data = await res.json()
       if (!res.ok) { showToast(`❌ ${data.error}`, 'error'); return }
-      if (data.changed) {
-        showToast(`✅ Estado actualizado: ${data.new_status}`, 'success')
+      if (!data.synced) {
+        showToast(`⏳ ${data.message ?? 'Pago no encontrado en MP todavía'}`, '')
+      } else if (data.changed) {
+        showToast(`✅ Estado actualizado a: ${data.new_status}`, 'success')
         fetchTransactions()
       } else {
-        showToast(`ℹ️ Sin cambios — MP dice: ${data.new_status}`, '')
+        showToast(`ℹ️ Sin cambios — MP confirma: ${data.mp_status}`, '')
       }
     } catch {
       showToast('❌ Error al sincronizar', 'error')
