@@ -25,9 +25,11 @@ export async function GET(req: NextRequest) {
     }
 
     // ── Fetch con service role (bypasa RLS → join con clients funciona) ────────
+    // Solo cobros generados desde el admin de FishFlow — excluye transacciones del POS de clientes
     const { data, error } = await supabaseAdmin
       .from('pos_transactions')
       .select('id, client_id, service, amount, currency, status, provider, metadata, created_at, clients(name)')
+      .eq('metadata->>created_from', 'admin_panel')
       .order('created_at', { ascending: false })
       .limit(50)
 

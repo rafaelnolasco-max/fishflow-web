@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: '2025-04-30.basil',
+      apiVersion: '2026-04-22.dahlia',
     })
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err: any) {
@@ -55,9 +55,4 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ received: true })
-}
-
-// Stripe requiere el body sin parsear para verificar la firma
-export const config = {
-  api: { bodyParser: false },
 }
