@@ -11,11 +11,15 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-/**
- * Consulta el estado de una transacción directamente en MercadoPago
- * y actualiza pos_transactions en Supabase.
- * Body: { transaction_id: string }
- */
+const STATUS_MAP: Record<string, string> = {
+  approved:   'approved',
+  rejected:   'rejected',
+  cancelled:  'cancelled',
+  pending:    'pending',
+  in_process: 'pending',
+  authorized: 'pending',
+}
+
 export async function POST(req: NextRequest) {
   try {
     // ── 1. Verificar sesión de Rafa ───────────────────────────────────────────
@@ -46,66 +50,80 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Transacción no encontrada' }, { status: 404 })
     }
 
-    // ── 3. Buscar el pago en MercadoPago por external_reference ──────────────
     const mp = new MercadoPagoConfig({
       accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
     })
-
     const mpPayment = new Payment(mp)
 
-    // MP guarda external_reference = transaction_id, buscamos por ahí
-    const searchResult = await mpPayment.search({
-      options: {
-        criteria:      'desc',
-        external_reference: transaction_id,
-      },
-    })
+    let mpStatus: string | undefined
+    let mpPaymentId: string | undefined
 
-    const payments = searchResult?.results ?? []
+    // ── 3a. Si tenemos el payment_id directo, consultarlo directamente ─────────
+    //       external_id puede ser el preference_id (pref.id) o el payment_id real.
+    //       Después del pago, MP actualiza external_id con el payment id numérico.
+    const numericId = txn.external_id && /^\d+$/.test(String(txn.external_id))
+      ? txn.external_id
+      : null
 
-    if (payments.length === 0) {
+    if (numericId) {
+      try {
+        const paymentData = await mpPayment.get({ id: numericId })
+        mpStatus    = paymentData.status ?? undefined
+        mpPaymentId = String(paymentData.id)
+      } catch (e) {
+        console.warn('[sync] get by id failed, falling back to search:', e)
+      }
+    }
+
+    // ── 3b. Si no, buscar por external_reference (= nuestro transaction_id UUID) ─
+    if (!mpStatus) {
+      try {
+        const searchResult = await mpPayment.search({
+          options: { external_reference: transaction_id, sort: 'date_created', criteria: 'desc', range: 'date_created' },
+        })
+        const payments = (searchResult as any)?.results ?? []
+        if (payments.length > 0) {
+          mpStatus    = payments[0].status
+          mpPaymentId = String(payments[0].id)
+        }
+      } catch (e) {
+        console.warn('[sync] search failed:', e)
+      }
+    }
+
+    // ── 4. Si no encontramos nada en MP ──────────────────────────────────────
+    if (!mpStatus) {
       return NextResponse.json({
-        message: 'Sin pagos encontrados en MercadoPago aún',
-        status:  txn.status,
         synced:  false,
+        message: 'No se encontró el pago en MercadoPago todavía. Puede que aún esté procesando.',
+        status:  txn.status,
       })
     }
 
-    // Tomar el pago más reciente
-    const latestPayment = payments[0]
-    const mpStatus = latestPayment.status
+    const newStatus = STATUS_MAP[mpStatus] ?? 'pending'
 
-    const statusMap: Record<string, string> = {
-      approved: 'approved',
-      rejected: 'rejected',
-      cancelled: 'cancelled',
-      pending:  'pending',
-      in_process: 'pending',
-    }
-    const newStatus = statusMap[mpStatus ?? ''] ?? 'pending'
-
-    // ── 4. Actualizar si cambió ───────────────────────────────────────────────
+    // ── 5. Actualizar si cambió ───────────────────────────────────────────────
     if (newStatus !== txn.status) {
       await supabaseAdmin
         .from('pos_transactions')
         .update({
-          status:         newStatus,
-          external_id:    String(latestPayment.id),
-          payment_method: latestPayment.payment_method_id ?? null,
+          status:      newStatus,
+          ...(mpPaymentId ? { external_id: mpPaymentId } : {}),
         })
         .eq('id', transaction_id)
     }
 
     return NextResponse.json({
-      synced:      true,
-      old_status:  txn.status,
-      new_status:  newStatus,
-      mp_payment_id: latestPayment.id,
-      changed:     newStatus !== txn.status,
+      synced:        true,
+      old_status:    txn.status,
+      new_status:    newStatus,
+      mp_status:     mpStatus,
+      mp_payment_id: mpPaymentId,
+      changed:       newStatus !== txn.status,
     })
 
   } catch (err: any) {
-    console.error('[admin/sync] error:', err)
+    console.error('[admin/sync] error:', err?.message ?? err)
     return NextResponse.json({ error: err?.message ?? 'Error interno' }, { status: 500 })
   }
 }
