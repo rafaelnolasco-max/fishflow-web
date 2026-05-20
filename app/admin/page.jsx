@@ -72,8 +72,10 @@ function fechaInfo(f) {
 
 const STATUS_LABELS = {
   pending:   { label: 'Pendiente',  color: '#eab308' },
-  approved:  { label: 'Pagado',     color: '#22c55e' },
+  paid:      { label: 'Pagado ✓',   color: '#22c55e' },
+  approved:  { label: 'Pagado ✓',   color: '#22c55e' }, // alias legacy
   rejected:  { label: 'Rechazado',  color: '#ef4444' },
+  failed:    { label: 'Fallido',     color: '#ef4444' },
   cancelled: { label: 'Cancelado',  color: '#8b8fa8' },
 }
 
@@ -563,7 +565,7 @@ export default function CRMPage() {
                             {payUrl && (
                               <button className="co-link-btn" onClick={() => copyLink(payUrl)} title="Copiar link">📋</button>
                             )}
-                            {tx.status === 'pending' && tx.provider === 'mercadopago' && (
+                            {(tx.status === 'pending') && tx.provider === 'mercadopago' && (
                               <button
                                 className="co-sync-btn"
                                 onClick={() => syncTransaction(tx.id)}

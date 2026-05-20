@@ -11,7 +11,7 @@ const supabaseAdmin = createClient(
 )
 
 const STATUS_MAP: Record<string, string> = {
-  approved:   'approved',
+  approved:   'paid',       // lo que acepta la DB
   rejected:   'rejected',
   cancelled:  'cancelled',
   pending:    'pending',
