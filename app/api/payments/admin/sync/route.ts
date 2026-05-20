@@ -12,7 +12,7 @@ const supabaseAdmin = createClient(
 
 const STATUS_MAP: Record<string, string> = {
   approved:   'paid',       // lo que acepta la DB
-  rejected:   'rejected',
+  rejected:   'failed',     // DB no acepta 'rejected'
   cancelled:  'cancelled',
   pending:    'pending',
   in_process: 'pending',
@@ -113,14 +113,32 @@ export async function POST(req: NextRequest) {
     const newStatus = STATUS_MAP[mpStatus] ?? 'pending'
 
     // ── 5. Actualizar Supabase si cambió ──────────────────────────────────────
+    let updateError: any = null
     if (newStatus !== txn.status) {
-      await supabaseAdmin
+      const { error: dbErr, data: dbData } = await supabaseAdmin
         .from('pos_transactions')
         .update({
           status:    newStatus,
           ...(mpPaymentId ? { external_id: mpPaymentId } : {}),
         })
         .eq('id', transaction_id)
+        .select('id, status')
+
+      updateError = dbErr
+      console.log('[sync] DB update result — error:', dbErr, 'data:', dbData)
+
+      if (dbErr) {
+        console.error('[sync] DB update failed:', dbErr)
+        return NextResponse.json({
+          synced:        false,
+          old_status:    txn.status,
+          new_status:    newStatus,
+          mp_status:     mpStatus,
+          mp_payment_id: mpPaymentId,
+          db_error:      dbErr.message,
+          db_code:       dbErr.code,
+        }, { status: 500 })
+      }
     }
 
     return NextResponse.json({

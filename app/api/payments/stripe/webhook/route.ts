@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     const { error } = await supabaseAdmin
       .from('pos_transactions')
       .update({
-        status:         'approved',
+        status:         'paid',
         payment_method: session.payment_method_types?.[0] ?? 'card',
         external_id:    session.payment_intent as string ?? session.id,
       })
