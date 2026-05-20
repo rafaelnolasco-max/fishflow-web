@@ -77,7 +77,10 @@ export async function POST(req: NextRequest) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://fishflow.mx'
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: ['card', 'oxxo'],
+      payment_method_options: {
+        oxxo: { expires_after_days: 3 }, // cliente tiene 72h para pagar en tienda
+      },
       mode: 'payment',
       line_items: [
         {
