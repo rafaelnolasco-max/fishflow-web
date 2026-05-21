@@ -53,6 +53,20 @@ export const BELANGE_CLIENT_ID = "33933663-79d2-4caa-86fe-7ea046082b7f";
 // Client ID de Lukon Telemática en la tabla clients
 export const LUKON_CLIENT_ID = "1aa4a82b-e524-40f4-808e-c02e87e82427";
 
+/**
+ * Normaliza el payment_method crudo de pos_transactions al tipo PaymentMethod
+ * que conoce la UI. Los proveedores externos (Stripe, MercadoPago) usan sus
+ * propios valores ("card", "oxxo", "account_money", etc.) que hay que mapear.
+ */
+function normalizePaymentMethod(raw: string | null | undefined): PaymentMethod {
+  if (!raw) return "efectivo";
+  const v = raw.toLowerCase();
+  if (v === "tarjeta" || v === "card" || v.includes("card") || v.includes("credit") || v.includes("debit")) return "tarjeta";
+  if (v === "transferencia" || v.includes("transfer") || v === "account_money" || v === "pix") return "transferencia";
+  if (v === "efectivo" || v === "cash" || v === "oxxo") return "efectivo";
+  return "tarjeta"; // fallback seguro para valores desconocidos
+}
+
 /** Mapea un PosTransaction de Belange al shape BelangeTransaction para el UI */
 export function posToBelangeTransaction(t: PosTransaction): BelangeTransaction {
   const meta = (t.metadata ?? {}) as Record<string, unknown>;
@@ -64,7 +78,7 @@ export function posToBelangeTransaction(t: PosTransaction): BelangeTransaction {
     price:           (meta.price_service as number)   ?? 0,
     producto:        (meta.producto as string)        ?? null,
     precio_producto: (meta.precio_producto as number) ?? null,
-    payment_method:  (t.payment_method as PaymentMethod) ?? "efectivo",
+    payment_method:  normalizePaymentMethod(t.payment_method),
   };
 }
 

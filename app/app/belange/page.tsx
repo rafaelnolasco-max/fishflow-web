@@ -386,8 +386,8 @@ export default function BelangePage() {
                         {t.precio_producto ? fmt(t.precio_producto) : "—"}
                       </td>
                       <td style={{ padding: "10px 12px" }}>
-                        <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: PM[t.payment_method].bg, color: PM[t.payment_method].color }}>
-                          {PM[t.payment_method].label}
+                        <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: (PM[t.payment_method] ?? PM.tarjeta).bg, color: (PM[t.payment_method] ?? PM.tarjeta).color }}>
+                          {(PM[t.payment_method] ?? PM.tarjeta).label}
                         </span>
                       </td>
                       <td style={{ padding: "10px 12px", fontWeight: 700, whiteSpace: "nowrap" }}>
