@@ -2,17 +2,178 @@
 // Triggered by DB trigger notify_auto_invoice() via pg_net when
 // pos_transactions.status changes to 'paid'.
 //
-// Payload: { record: { id, client_id, amount, currency, service, provider, payment_method } }
+// Payload: { record: { id, client_id, amount, currency, service, provider, payment_method, metadata } }
+//
+// MODO ACTUAL (Opción A):
+//   Envía un email con el link al recibo usando Resend.
+//   Destinatarios: payer_email (del metadata) + rafaelnolasco@gmail.com
+//
+// FUTURO (Opción B):
+//   Agregar emisión de CFDI via Facturapi cuando factura_auto esté activo.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const FACTURAPI_URL = 'https://www.facturapi.io/v2'
+// ─── Constantes ───────────────────────────────────────────────────────────────
 
-// SAT product key for "Servicios de apoyo empresarial" — fits most B2B services
-const DEFAULT_PRODUCT_KEY = '85121800'
-// SAT unit key for "Servicio" (unidad de servicio)
-const DEFAULT_UNIT_KEY = 'E48'
+const RAFA_EMAIL   = 'rafaelnolasco@gmail.com'
+const APP_URL      = Deno.env.get('APP_URL') ?? 'https://fishflow.mx'
+const RESEND_URL   = 'https://api.resend.com/emails'
+const FROM_ADDRESS = 'FishFlow <recibos@fishflow.mx>'
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatMXN(amount: number): string {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+    minimumFractionDigits: 2,
+  }).format(amount).replace('MX$', '$')
+}
+
+function labelMetodo(provider: string, method: string | null): string {
+  if (provider === 'stripe') {
+    return method === 'oxxo' ? 'OXXO Pay' : 'Tarjeta'
+  }
+  if (!method) return 'Transferencia'
+  if (method.includes('credit_card'))  return 'Tarjeta de crédito'
+  if (method.includes('debit_card'))   return 'Tarjeta de débito'
+  if (method === 'account_money')       return 'Cuenta MercadoPago'
+  return method
+}
+
+// ─── Email HTML ───────────────────────────────────────────────────────────────
+
+function buildEmailHtml(params: {
+  clienteNombre: string
+  concepto: string
+  monto: string
+  metodo: string
+  receiptUrl: string
+  folio: string
+}): string {
+  const { clienteNombre, concepto, monto, metodo, receiptUrl, folio } = params
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recibo de pago · FishFlow</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:system-ui,-apple-system,sans-serif;color:#0E2A36;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="520" cellpadding="0" cellspacing="0" style="background:white;border-radius:4px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.10);">
+
+          <!-- Header naranja -->
+          <tr>
+            <td style="background:#F26B17;padding:28px 32px 24px;">
+              <p style="margin:0;font-size:22px;font-weight:700;color:white;letter-spacing:-0.3px;">FishFlow</p>
+              <p style="margin:6px 0 0;font-size:12px;color:rgba(255,255,255,0.75);letter-spacing:0.12em;text-transform:uppercase;">Recibo de Pago Confirmado</p>
+            </td>
+          </tr>
+
+          <!-- Cuerpo -->
+          <tr>
+            <td style="padding:32px 32px 24px;">
+              <p style="margin:0 0 8px;font-size:15px;color:#6B7B82;">Estimado/a ${clienteNombre ? `<strong style="color:#0E2A36;">${clienteNombre}</strong>` : 'cliente'},</p>
+              <p style="margin:0 0 28px;font-size:14px;line-height:1.6;color:#444;">
+                Hemos recibido tu pago correctamente. A continuación encontrarás el resumen de tu transacción.
+              </p>
+
+              <!-- Tabla de datos -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E5E1D6;border-radius:4px;overflow:hidden;font-size:13px;">
+                <tr style="background:#FAFAF7;">
+                  <td style="padding:10px 16px;color:#6B7B82;border-bottom:1px solid #E5E1D6;">Folio</td>
+                  <td style="padding:10px 16px;font-weight:600;text-align:right;border-bottom:1px solid #E5E1D6;font-family:monospace;">${folio}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 16px;color:#6B7B82;border-bottom:1px solid #E5E1D6;">Concepto</td>
+                  <td style="padding:10px 16px;font-weight:500;text-align:right;border-bottom:1px solid #E5E1D6;">${concepto}</td>
+                </tr>
+                <tr style="background:#FAFAF7;">
+                  <td style="padding:10px 16px;color:#6B7B82;border-bottom:1px solid #E5E1D6;">Método</td>
+                  <td style="padding:10px 16px;text-align:right;border-bottom:1px solid #E5E1D6;">${metodo}</td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 16px;font-size:15px;font-weight:700;">Total Pagado</td>
+                  <td style="padding:14px 16px;font-size:20px;font-weight:700;color:#F26B17;text-align:right;">${monto}</td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <div style="margin-top:28px;text-align:center;">
+                <a href="${receiptUrl}"
+                   style="display:inline-block;background:#F26B17;color:white;text-decoration:none;padding:14px 32px;border-radius:4px;font-weight:600;font-size:14px;letter-spacing:0.02em;">
+                  Ver Recibo Completo
+                </a>
+                <p style="margin:12px 0 0;font-size:11px;color:#6B7B82;">
+                  O copia este link: <a href="${receiptUrl}" style="color:#1FA9D6;">${receiptUrl}</a>
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 32px;border-top:1px solid #E5E1D6;background:#FAFAF7;">
+              <p style="margin:0;font-size:11px;color:#6B7B82;line-height:1.6;">
+                FishFlow · CDMX, México · rafaelnolasco@gmail.com<br>
+                Este es un recibo automático generado al confirmar tu pago.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+}
+
+// ─── Enviar email via Resend ──────────────────────────────────────────────────
+
+async function sendReceiptEmail(params: {
+  to: string[]
+  subject: string
+  html: string
+}): Promise<{ ok: boolean; error?: string }> {
+  const resendKey = Deno.env.get('RESEND_API_KEY')
+  if (!resendKey) {
+    console.warn('[auto-invoice] RESEND_API_KEY no configurado — saltando email')
+    return { ok: false, error: 'RESEND_API_KEY not set' }
+  }
+
+  const resp = await fetch(RESEND_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${resendKey}`,
+    },
+    body: JSON.stringify({
+      from:     FROM_ADDRESS,
+      reply_to: RAFA_EMAIL,
+      to:       params.to,
+      subject:  params.subject,
+      html:     params.html,
+    }),
+  })
+
+  if (!resp.ok) {
+    const text = await resp.text()
+    console.error('[auto-invoice] Resend error:', text)
+    return { ok: false, error: text }
+  }
+
+  const result = await resp.json()
+  console.log('[auto-invoice] Email enviado via Resend:', result.id)
+  return { ok: true }
+}
+
+// ─── Serve ────────────────────────────────────────────────────────────────────
 
 serve(async (req: Request) => {
   try {
@@ -25,6 +186,10 @@ serve(async (req: Request) => {
         service: string | null
         provider: string
         payment_method: string | null
+        metadata?: {
+          payer_email?: string | null
+          description?: string | null
+        }
       }
     }
 
@@ -40,165 +205,56 @@ serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    // ── 1. Get client fiscal data ──────────────────────────────────────
-    const { data: client, error: clientErr } = await supabase
+    // ── 1. Obtener nombre del cliente ────────────────────────────────────────
+    const { data: client } = await supabase
       .from('clients')
-      .select('rfc, razon_social, regimen_fiscal, email_factura, cp, factura_auto')
+      .select('name')
       .eq('id', record.client_id)
       .single()
 
-    if (clientErr || !client) {
-      console.error('[auto-invoice] Client not found:', clientErr)
-      return new Response(
-        JSON.stringify({ error: 'Client not found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      )
+    const clienteNombre = client?.name ?? ''
+
+    // ── 2. Construir datos del recibo ────────────────────────────────────────
+    const folio      = `FF-${record.id.replace(/-/g, '').slice(0, 8).toUpperCase()}`
+    const concepto   = record.service ?? record.metadata?.description ?? 'Servicio FishFlow'
+    const monto      = formatMXN(Number(record.amount))
+    const metodo     = labelMetodo(record.provider, record.payment_method)
+    const receiptUrl = `${APP_URL}/receipt/${record.id}`
+
+    // ── 3. Construir lista de destinatarios ──────────────────────────────────
+    const payerEmail = record.metadata?.payer_email
+    const recipients: string[] = [RAFA_EMAIL]
+    if (payerEmail && payerEmail !== RAFA_EMAIL) {
+      recipients.push(payerEmail)
     }
 
-    // ── 2. Check factura_auto flag ─────────────────────────────────────
-    if (!client.factura_auto) {
-      console.log('[auto-invoice] factura_auto disabled for client', record.client_id)
+    console.log('[auto-invoice] Enviando recibo a:', recipients.join(', '))
+
+    // ── 4. Armar y enviar email ──────────────────────────────────────────────
+    const emailHtml = buildEmailHtml({ clienteNombre, concepto, monto, metodo, receiptUrl, folio })
+
+    const nombreCliente = clienteNombre ? ` — ${clienteNombre}` : ''
+    const { ok, error: emailError } = await sendReceiptEmail({
+      to:      recipients,
+      subject: `Recibo de pago ${folio}${nombreCliente} · ${monto}`,
+      html:    emailHtml,
+    })
+
+    if (!ok) {
+      // No es error fatal — el pago ya se registró en DB
       return new Response(
-        JSON.stringify({ skipped: 'factura_auto is disabled for this client' }),
+        JSON.stringify({ partial: true, warning: 'Email no enviado', detail: emailError, folio, receiptUrl }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       )
     }
 
-    // ── 3. Check fiscal data is complete ──────────────────────────────
-    if (!client.rfc || !client.razon_social || !client.cp) {
-      const msg = 'Incomplete fiscal data — missing rfc, razon_social, or cp'
-      console.error('[auto-invoice]', msg, 'client_id:', record.client_id)
-
-      // Create invoice record in error state so Rafa can see it in the dashboard
-      await supabase.from('invoices').insert({
-        transaction_id: record.id,
-        client_id: record.client_id,
-        amount: record.amount,
-        currency: record.currency,
-        status: 'error',
-        error_message: msg,
-      })
-
-      return new Response(
-        JSON.stringify({ error: msg }),
-        { status: 422, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // ── 4. Create invoice record as pending ────────────────────────────
-    const { data: invoice, error: invoiceErr } = await supabase
-      .from('invoices')
-      .insert({
-        transaction_id: record.id,
-        client_id: record.client_id,
-        amount: record.amount,
-        currency: record.currency,
-        status: 'pending',
-        cfdi_type: 'I',
-      })
-      .select()
-      .single()
-
-    if (invoiceErr || !invoice) {
-      console.error('[auto-invoice] Failed to create invoice record:', invoiceErr)
-      return new Response(
-        JSON.stringify({ error: 'Failed to create invoice record' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // ── 5. Emit CFDI via Facturapi ─────────────────────────────────────
-    const facturapiKey = Deno.env.get('FACTURAPI_SECRET_KEY')!
-
-    // Map payment method to SAT form code
-    // MP payment methods: 'account_money', 'credit_card', 'debit_card', 'cash', etc.
-    const pm = record.payment_method ?? ''
-    let formaPA = '03'  // 03 = Transferencia electrónica (default)
-    if (pm === 'cash' || pm === 'efectivo') formaPA = '01'      // 01 = Efectivo
-    else if (pm.includes('credit_card')) formaPA = '04'          // 04 = Tarjeta de crédito
-    else if (pm.includes('debit_card')) formaPA = '28'           // 28 = Tarjeta de débito
-
-    const facturapiBody = {
-      customer: {
-        legal_name: client.razon_social,
-        tax_id: client.rfc,
-        tax_system: client.regimen_fiscal ?? '626', // 626 = RESICO (más común en PyMES)
-        email: client.email_factura ?? undefined,
-        address: { zip: client.cp },
-      },
-      items: [
-        {
-          product: {
-            description: record.service ?? 'Servicio',
-            product_key: DEFAULT_PRODUCT_KEY,
-            unit_key: DEFAULT_UNIT_KEY,
-            price: Number(record.amount),
-          },
-          quantity: 1,
-        },
-      ],
-      use: 'G03',           // G03 = Gastos en general
-      payment_form: formaPA,
-      payment_method: 'PUE', // PUE = Pago en una sola exhibición
-      currency: record.currency ?? 'MXN',
-    }
-
-    const facturapiResp = await fetch(`${FACTURAPI_URL}/invoices`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${facturapiKey}`,
-      },
-      body: JSON.stringify(facturapiBody),
-    })
-
-    // ── 6. Handle Facturapi response ───────────────────────────────────
-    if (!facturapiResp.ok) {
-      const errText = await facturapiResp.text()
-      console.error('[auto-invoice] Facturapi error:', errText)
-
-      await supabase
-        .from('invoices')
-        .update({ status: 'error', error_message: errText })
-        .eq('id', invoice.id)
-
-      return new Response(
-        JSON.stringify({ error: 'Facturapi rejected the invoice', detail: errText }),
-        { status: 502, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
-
-    const cfdi = await facturapiResp.json()
-
-    // ── 7. Persist CFDI data ───────────────────────────────────────────
-    const { error: updateErr } = await supabase
-      .from('invoices')
-      .update({
-        facturapi_id: cfdi.id,
-        uuid_sat: cfdi.uuid,
-        status: 'valid',
-        pdf_url: cfdi.pdf_url ?? cfdi.pdf ?? null,
-        xml_url: cfdi.xml_url ?? cfdi.xml ?? null,
-      })
-      .eq('id', invoice.id)
-
-    if (updateErr) {
-      console.error('[auto-invoice] Failed to update invoice with CFDI data:', updateErr)
-    }
-
-    console.log('[auto-invoice] CFDI emitido:', cfdi.uuid, '— invoice_id:', invoice.id)
-
     return new Response(
-      JSON.stringify({
-        success: true,
-        invoice_id: invoice.id,
-        uuid_sat: cfdi.uuid,
-        facturapi_id: cfdi.id,
-      }),
+      JSON.stringify({ success: true, folio, receiptUrl, recipients }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     )
+
   } catch (err) {
-    console.error('[auto-invoice] Unexpected error:', err)
+    console.error('[auto-invoice] Error inesperado:', err)
     return new Response(
       JSON.stringify({ error: String(err) }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
