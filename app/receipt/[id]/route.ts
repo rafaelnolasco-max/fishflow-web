@@ -26,11 +26,22 @@ const MESES = [
 ]
 
 function formatFecha(iso: string): string {
+  const TZ = 'America/Mexico_City'
   const d = new Date(iso)
-  const dia  = d.getDate()
-  const mes  = MESES[d.getMonth()]
-  const año  = d.getFullYear()
-  const hora = d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false })
+  const partes = new Intl.DateTimeFormat('es-MX', {
+    timeZone: TZ,
+    day:    'numeric',
+    month:  'numeric',
+    year:   'numeric',
+    hour:   '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(d)
+  const get = (type: string) => partes.find(p => p.type === type)?.value ?? ''
+  const dia = get('day')
+  const mes = MESES[parseInt(get('month'), 10) - 1]
+  const año = get('year')
+  const hora = `${get('hour')}:${get('minute')}`
   return `${dia} de ${mes} de ${año} · ${hora}`
 }
 
