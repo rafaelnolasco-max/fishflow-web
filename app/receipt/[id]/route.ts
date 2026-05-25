@@ -98,6 +98,7 @@ function buildHtml(data: {
   clienteNombre: string
   concepto: string
   monto: string
+  amount: number
   metodo: string
   referencia: string
   payerEmail: string | null
@@ -281,10 +282,88 @@ function buildHtml(data: {
       font-weight: 500;
     }
 
+    /* ── Factura ── */
+    .r-factura-btn {
+      display: block;
+      width: 100%;
+      margin: 20px 0 0;
+      padding: 11px 0;
+      background: transparent;
+      border: 1.5px solid var(--tide-cyan);
+      border-radius: 4px;
+      color: var(--tide-cyan);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .r-factura-btn:hover { background: var(--tide-cyan); color: white; }
+
+    .r-factura-form {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: #f9f8f5;
+      border-radius: 4px;
+      border: 1px solid var(--rule-strong);
+    }
+    .r-factura-form.open { display: block; }
+    .r-factura-form h4 {
+      margin: 0 0 12px;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .r-factura-form label {
+      display: block;
+      font-size: 10px;
+      color: var(--muted);
+      margin: 10px 0 3px;
+    }
+    .r-factura-form input,
+    .r-factura-form select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 10px;
+      border: 1px solid var(--rule-strong);
+      border-radius: 3px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--ink);
+      background: white;
+    }
+    .r-factura-submit {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 10px 0;
+      background: var(--tide-orange);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .r-factura-submit:disabled { opacity: 0.6; cursor: default; }
+    .r-factura-msg {
+      margin-top: 10px;
+      font-size: 11px;
+      text-align: center;
+      min-height: 16px;
+    }
+    .r-factura-msg.ok  { color: #2a9d3e; }
+    .r-factura-msg.err { color: #c0392b; }
+
     @media print {
       body { background: white; padding: 0; }
       .receipt { box-shadow: none; }
       .receipt::after { display: none; }
+      .r-factura-btn, .r-factura-form { display: none !important; }
     }
   </style>
 </head>
@@ -323,6 +402,50 @@ function buildHtml(data: {
 
   <div class="r-stamp">— · — · — pagado · — · — · —</div>
 
+  <!-- Sección de factura -->
+  <button class="r-factura-btn" onclick="document.getElementById('facturaForm').classList.toggle('open')">
+    ¿Necesitas factura? Solicítala aquí
+  </button>
+
+  <div class="r-factura-form" id="facturaForm">
+    <h4>Datos de facturación</h4>
+
+    <label>RFC *</label>
+    <input id="f-rfc" type="text" placeholder="XAXX010101000" maxlength="13" style="text-transform:uppercase">
+
+    <label>Razón social *</label>
+    <input id="f-razon" type="text" placeholder="Como aparece en el SAT">
+
+    <label>Régimen fiscal *</label>
+    <select id="f-regimen">
+      <option value="616">616 — Sin actividad empresarial (persona física)</option>
+      <option value="601">601 — General de Ley (persona moral)</option>
+      <option value="612">612 — Personas Físicas con Actividad Empresarial</option>
+      <option value="621">621 — Incorporación Fiscal</option>
+      <option value="626">626 — Simplificado de Confianza</option>
+    </select>
+
+    <label>Código postal *</label>
+    <input id="f-cp" type="text" placeholder="06600" maxlength="5">
+
+    <label>Email (para recibir el CFDI)</label>
+    <input id="f-email" type="email" placeholder="correo@empresa.com">
+
+    <label>Uso del CFDI</label>
+    <select id="f-uso">
+      <option value="G03">G03 — Gastos en general</option>
+      <option value="G01">G01 — Adquisición de mercancias</option>
+      <option value="G02">G02 — Devoluciones, descuentos o bonificaciones</option>
+      <option value="I01">I01 — Construcciones</option>
+      <option value="S01">S01 — Sin efectos fiscales</option>
+    </select>
+
+    <button class="r-factura-submit" id="f-submit" onclick="solicitarFactura()">
+      Generar factura
+    </button>
+    <div class="r-factura-msg" id="f-msg"></div>
+  </div>
+
   <div class="r-foot">
     FishFlow · CDMX, México<br>
     rafaelnolasco@gmail.com
@@ -331,6 +454,66 @@ function buildHtml(data: {
 
 </div>
 
+<script>
+async function solicitarFactura() {
+  const rfc    = document.getElementById('f-rfc').value.trim().toUpperCase()
+  const razon  = document.getElementById('f-razon').value.trim()
+  const regimen= document.getElementById('f-regimen').value
+  const cp     = document.getElementById('f-cp').value.trim()
+  const email  = document.getElementById('f-email').value.trim()
+  const uso    = document.getElementById('f-uso').value
+  const msg    = document.getElementById('f-msg')
+  const btn    = document.getElementById('f-submit')
+
+  if (!rfc || !razon || !cp) {
+    msg.className = 'r-factura-msg err'
+    msg.textContent = 'RFC, razón social y código postal son requeridos.'
+    return
+  }
+
+  btn.disabled = true
+  btn.textContent = 'Generando...'
+  msg.className = 'r-factura-msg'
+  msg.textContent = ''
+
+  try {
+    const res = await fetch('/api/invoices', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        layer:          'fishflow',
+        transaction_id: '${data.txnId}',
+        rfc,
+        razon_social:   razon,
+        regimen_fiscal: regimen,
+        cp,
+        email:          email || undefined,
+        cfdi_use:       uso,
+        concepto:       '${data.concepto.replace(/'/g, "\\'")}',
+        amount:         ${data.amount},
+      }),
+    })
+
+    const json = await res.json()
+
+    if (!res.ok) {
+      throw new Error(json.error ?? 'Error al generar la factura')
+    }
+
+    msg.className = 'r-factura-msg ok'
+    msg.innerHTML = '✓ Factura generada. ' +
+      (json.pdf_url ? '<a href="' + json.pdf_url + '" target="_blank">Descargar PDF</a> · ' : '') +
+      (json.xml_url ? '<a href="' + json.xml_url + '" target="_blank">Descargar XML</a>' : '')
+    btn.textContent = 'Factura generada ✓'
+
+  } catch (err) {
+    msg.className = 'r-factura-msg err'
+    msg.textContent = err.message ?? 'Error inesperado. Intenta de nuevo.'
+    btn.disabled = false
+    btn.textContent = 'Generar factura'
+  }
+}
+</script>
 </body>
 </html>`
 }
@@ -381,6 +564,7 @@ export async function GET(
     clienteNombre,
     concepto,
     monto,
+    amount: Number(txn.amount),
     metodo,
     referencia,
     payerEmail,
