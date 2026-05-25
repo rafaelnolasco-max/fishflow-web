@@ -500,10 +500,11 @@ async function solicitarFactura() {
       throw new Error(json.error ?? 'Error al generar la factura')
     }
 
+    const base = '/api/invoices/' + json.invoice_id
     msg.className = 'r-factura-msg ok'
     msg.innerHTML = '✓ Factura generada. ' +
-      (json.pdf_url ? '<a href="' + json.pdf_url + '" target="_blank">Descargar PDF</a> · ' : '') +
-      (json.xml_url ? '<a href="' + json.xml_url + '" target="_blank">Descargar XML</a>' : '')
+      '<a href="' + base + '/pdf" target="_blank">Descargar PDF</a>' +
+      ' · <a href="' + base + '/xml" target="_blank">Descargar XML</a>'
     btn.textContent = 'Factura generada ✓'
 
   } catch (err) {
