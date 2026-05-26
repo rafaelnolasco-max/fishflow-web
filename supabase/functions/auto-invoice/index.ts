@@ -69,9 +69,9 @@ function buildEmailHtml(params: {
 
           <!-- Header naranja -->
           <tr>
-            <td style="background:#F26B17;padding:28px 32px 24px;">
-              <p style="margin:0;font-size:22px;font-weight:700;color:white;letter-spacing:-0.3px;">FishFlow</p>
-              <p style="margin:6px 0 0;font-size:12px;color:rgba(255,255,255,0.75);letter-spacing:0.12em;text-transform:uppercase;">Recibo de Pago Confirmado</p>
+            <td style="background:#F26B17;padding:24px 32px 20px;">
+              <img src="https://fishflow.mx/logo-horizontal.svg" alt="FishFlow" width="160" style="display:block;height:auto;margin-bottom:10px;" />
+              <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.85);letter-spacing:0.12em;text-transform:uppercase;">Recibo de Pago Confirmado</p>
             </td>
           </tr>
 

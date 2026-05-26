@@ -12,10 +12,7 @@ function SuccessContent() {
       <style>{CSS}</style>
       <div className="ps-root">
         <header className="ps-header">
-          <div className="ps-logo">
-            <div className="ps-logo-icon">🐟</div>
-            <span className="ps-logo-name">FishFlow</span>
-          </div>
+          <img src="/logo-horizontal.svg" alt="FishFlow" className="ps-logo-img" />
         </header>
 
         <main className="ps-main">
@@ -58,10 +55,8 @@ const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   .ps-root { min-height:100vh; background:#0D1B2A; color:#e8eaf6; font-family:'Inter',-apple-system,sans-serif; display:flex; flex-direction:column; }
-  .ps-header { display:flex; align-items:center; padding:16px 24px; border-bottom:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); }
-  .ps-logo { display:flex; align-items:center; gap:10px; }
-  .ps-logo-icon { width:36px; height:36px; background:linear-gradient(135deg,#FF8C35,#e07020); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
-  .ps-logo-name { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:18px; color:#fff; }
+  .ps-header { display:flex; align-items:center; padding:16px 28px; border-bottom:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); }
+  .ps-logo-img { height:32px; width:auto; display:block; }
   .ps-main { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; text-align:center; }
   .ps-icon { font-size:72px; margin-bottom:20px; }
   .ps-title { font-family:'Plus Jakarta Sans',sans-serif; font-size:28px; font-weight:800; color:#fff; margin-bottom:12px; }
