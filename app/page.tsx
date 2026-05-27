@@ -47,7 +47,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const EMAIL = "rafaelnolasco@gmail.com";
+const EMAIL = "raf@fishflow.mx";
 const MAILTO_GENERIC = `mailto:${EMAIL}?subject=Quiero%20conocer%20m%C3%A1s%20de%20FishFlow`;
 const MAILTO_DEMO = `mailto:${EMAIL}?subject=Agendemos%20una%20llamada%20-%20FishFlow&body=Hola%20Rafa%2C%20me%20gustar%C3%ADa%20agendar%20una%20llamada%20para%20conocer%20FishFlow.`;
 
@@ -407,6 +407,10 @@ export default function Home() {
                 icon: Brain, color: "primary", title: "Centro de Terapias", slug: "terapias",
                 features: ["Agenda de citas por especialidad","Expediente básico del paciente","Notificaciones automáticas de cita"],
               },
+              {
+                icon: Building2, color: "accent", title: "CondOS · Condominios", slug: "condos",
+                features: ["Portal de residentes y pagos de mantenimiento","Reportes de incidencias y seguimiento","Tablero de administración para el comité"],
+              },
             ].map((v) => (
               <Card key={v.title} className="overflow-hidden hover:shadow-xl transition-all group">
                 <div className={`relative h-40 bg-gradient-to-br ${v.color === "primary" ? "from-primary/30 via-primary/15 to-primary/5" : "from-accent/30 via-accent/15 to-accent/5"} flex items-center justify-center`}>
@@ -460,12 +464,12 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Featured — RiskFlow · Hospital Oftalmológico */}
+          {/* Featured — RiskFlow · Hospital */}
           <Card className="border-2 border-accent/30 mb-8 overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-3">
               <div className="bg-gradient-to-br from-accent/15 to-primary/10 p-8 flex flex-col justify-center md:col-span-1">
                 <Badge className="w-fit mb-3 bg-accent text-white hover:bg-accent">En desarrollo</Badge>
-                <h3 className="text-xl font-bold mb-2 text-foreground">RiskFlow · Hospital Oftalmológico</h3>
+                <h3 className="text-xl font-bold mb-2 text-foreground">RiskFlow · Hospital</h3>
                 <p className="text-sm text-muted-foreground mb-4">Flow IA — Gestión de Riesgos y Controles · Auditoría interna digital</p>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Eye className="h-4 w-4 text-accent" /> CDMX · Sector salud
@@ -474,7 +478,7 @@ export default function Home() {
               <div className="md:col-span-2 p-8">
                 <CardTitle className="text-lg mb-3">Del Excel al ciclo de auditoría 100% digital, colaborativo y trazable</CardTitle>
                 <p className="text-sm text-muted-foreground mb-4">
-                  El equipo de Auditoría Interna de un hospital oftalmológico de referencia en CDMX gestionaba
+                  El equipo de Auditoría Interna de un hospital de referencia en CDMX gestionaba
                   riesgos y controles en Excel — sin flujo de trabajo separado, sin historial, sin trazabilidad.
                   Preparar el reporte para la certificadora tomaba días de consolidación manual. Con FishFlow
                   construimos una app en tres fases: un cuestionario guiado que el Dueño del Proceso completa

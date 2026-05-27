@@ -71,10 +71,13 @@ function buildEmailHtml(name: string, aiResponse: string): string {
             <div style="background:rgba(103,212,232,0.08);border-left:3px solid #67D4E8;border-radius:4px;padding:20px 24px;margin-bottom:28px;">
               <p style="margin:0;font-size:15px;color:#e2e8f0;line-height:1.7;">${aiResponse}</p>
             </div>
-            <a href="mailto:rafaelnolasco@gmail.com?subject=Diagnóstico%20gratuito%20FishFlow"
+            <a href="mailto:raf@fishflow.mx?subject=Diagnóstico%20gratuito%20FishFlow"
                style="display:inline-block;background:#FF8C35;color:#fff;font-weight:700;font-size:14px;padding:12px 28px;border-radius:8px;text-decoration:none;">
               Agendar diagnóstico gratuito
             </a>
+            <p style="margin:12px 0 0;font-size:12px;color:#475569;">
+              O escríbeme directo: <a href="mailto:raf@fishflow.mx" style="color:#67D4E8;">raf@fishflow.mx</a>
+            </p>
           </td>
         </tr>
         <!-- Footer -->
@@ -135,7 +138,7 @@ export async function POST(req: NextRequest) {
     const { error: emailError } = await resend.emails.send({
       from:     'FishFlow <recibos@fishflow.mx>',
       to:       [email.trim().toLowerCase()],
-      replyTo:  'rafaelnolasco@gmail.com',
+      replyTo:  'raf@fishflow.mx',
       subject:  `${name.trim()}, aquí está tu diagnóstico de FishFlow`,
       html:     buildEmailHtml(name.trim(), aiResponse),
     })

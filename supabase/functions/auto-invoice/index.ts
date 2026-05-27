@@ -16,7 +16,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
-const RAFA_EMAIL   = 'rafaelnolasco@gmail.com'
+const RAFA_EMAIL   = 'raf@fishflow.mx'
 const APP_URL      = Deno.env.get('APP_URL') ?? 'https://fishflow.mx'
 const RESEND_URL   = 'https://api.resend.com/emails'
 const FROM_ADDRESS = 'FishFlow <recibos@fishflow.mx>'
@@ -125,7 +125,7 @@ function buildEmailHtml(params: {
           <tr>
             <td style="padding:20px 32px;border-top:1px solid #E5E1D6;background:#FAFAF7;">
               <p style="margin:0;font-size:11px;color:#6B7B82;line-height:1.6;">
-                FishFlow · CDMX, México · rafaelnolasco@gmail.com<br>
+                FishFlow · CDMX, México · raf@fishflow.mx<br>
                 Este es un recibo automático generado al confirmar tu pago.
               </p>
             </td>
