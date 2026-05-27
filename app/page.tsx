@@ -10,6 +10,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Image from "next/image";
+import LeadForm from "@/components/LeadForm";
 import {
   Mail,
   ArrowRight,
@@ -647,6 +648,9 @@ export default function Home() {
           </Accordion>
         </div>
       </section>
+
+      {/* ── Diagnóstico IA ──────────────────────────────────────────────── */}
+      <LeadForm />
 
       {/* ── Contacto ────────────────────────────────────────────────────── */}
       <section id="contact" className="py-20 px-4 md:px-0 bg-gradient-to-br from-primary/10 via-white to-accent/10">
