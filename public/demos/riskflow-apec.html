@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>RiskFlow — Autoevaluación de Proceso | APEC</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:#FF8C35; --cyan:#67D4E8; --dark:#0D1B2A;
+  --card:#162032; --border:#1E3048; --text:#E8EFF7;
+  --muted:#8A9BB5; --green:#2ECC71; --red:#E74C3C; --yellow:#F39C12;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden}
+h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
+
+/* ── PROGRESS BAR ── */
+#pgbar{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--card);
+  border-bottom:1px solid var(--border);padding:11px 20px;
+  display:flex;align-items:center;gap:12px;transition:opacity .3s}
+#pgbar.hidden{opacity:0;pointer-events:none}
+.logo-sm{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;white-space:nowrap;flex-shrink:0}
+.logo-sm .r{color:var(--orange)}.logo-sm .f{color:var(--cyan)}
+.prog-track{flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--orange));
+  border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%}
+.prog-label{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap;min-width:48px;text-align:right}
+
+/* ── SCREENS ── */
+.ws{display:none;min-height:100vh;align-items:center;justify-content:center;
+  padding:76px 20px 40px;flex-direction:column}
+.ws.active{display:flex}
+.ws.fo{animation:fadeOut .22s ease forwards}
+.ws.fi{animation:fadeIn .28s ease forwards}
+@keyframes fadeOut{to{opacity:0;transform:translateX(-28px)}}
+@keyframes fadeIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── WELCOME ── */
+#sw{background:radial-gradient(ellipse at top,rgba(103,212,232,.07) 0%,transparent 60%)}
+.wc{text-align:center;max-width:520px}
+.wi{font-size:76px;margin-bottom:20px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.wc h1{font-size:36px;line-height:1.2;margin-bottom:10px}
+.wc h1 span{color:var(--orange)}
+.wc>p{color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:6px}
+.wmeta{display:flex;gap:10px;justify-content:center;margin:18px 0 28px;flex-wrap:wrap}
+.wchip{background:var(--card);border:1px solid var(--border);border-radius:99px;
+  padding:5px 12px;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.wchip b{color:var(--text)}
+
+/* ── QUESTION CARD ── */
+.qcard{width:100%;max-width:600px}
+.qsec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--cyan);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.qsec::before{content:'';display:block;width:3px;height:12px;background:var(--cyan);border-radius:2px}
+.qemoji{font-size:52px;margin-bottom:14px;display:block}
+.qtext{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:24px;
+  line-height:1.25;margin-bottom:6px}
+.qhint{color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6}
+.qinp{width:100%;background:var(--card);border:2px solid var(--border);border-radius:12px;
+  padding:13px 15px;font-family:'Inter',sans-serif;font-size:15px;color:var(--text);
+  outline:none;transition:border-color .2s,background .2s;resize:vertical;min-height:52px}
+.qinp:focus{border-color:var(--orange);background:rgba(255,140,53,.04)}
+.qinp::placeholder{color:var(--muted);font-size:14px}
+select.qinp{cursor:pointer;appearance:none;-webkit-appearance:none}
+.selwrap{position:relative}
+.selwrap::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  color:var(--muted);pointer-events:none;font-size:16px}
+select.qinp option{background:#0D1B2A}
+select.qinp optgroup{color:var(--muted);font-style:normal;font-size:11px}
+
+/* Code badge shown after process selection */
+.code-badge{display:inline-flex;align-items:center;gap:7px;
+  background:rgba(103,212,232,.12);border:1px solid rgba(103,212,232,.3);
+  border-radius:8px;padding:8px 14px;font-size:14px;font-weight:700;
+  color:var(--cyan);margin-top:10px}
+.code-badge span{color:var(--muted);font-weight:400;font-size:12px}
+
+/* ── RATING SCALE ── */
+.rating-wrap{display:flex;flex-direction:column;gap:10px}
+.rating-label-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.rating-btns{display:flex;gap:5px;flex-wrap:wrap}
+.rb{width:46px;height:46px;border-radius:8px;border:2px solid var(--border);
+  background:var(--card);color:var(--muted);font-size:14px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
+.rb:hover{transform:translateY(-2px)}
+.rb.sel-green{background:rgba(46,204,113,.2);border-color:var(--green);color:var(--green)}
+.rb.sel-yellow{background:rgba(243,156,18,.2);border-color:var(--yellow);color:var(--yellow)}
+.rb.sel-orange{background:rgba(255,140,53,.25);border-color:var(--orange);color:var(--orange)}
+.rb.sel-red{background:rgba(231,76,60,.2);border-color:var(--red);color:var(--red)}
+.rating-meaning{font-size:12px;color:var(--muted);margin-top:4px;min-height:18px;
+  transition:all .2s;font-style:italic}
+
+/* ── ACTIONS ── */
+.qactions{display:flex;align-items:center;gap:10px;margin-top:20px}
+.btnp{background:var(--orange);color:#fff;border:none;border-radius:10px;
+  padding:12px 26px;font-size:14px;font-weight:700;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:opacity .2s,transform .1s;
+  display:flex;align-items:center;gap:6px}
+.btnp:hover{opacity:.88}.btnp:active{transform:scale(.97)}
+.btns{background:transparent;color:var(--muted);border:1px solid var(--border);
+  border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.btns:hover{border-color:var(--muted);color:var(--text)}
+.enterhint{font-size:11px;color:var(--muted);margin-top:7px}
+kbd{background:var(--border);border-radius:4px;padding:1px 5px;font-size:10px;font-family:monospace}
+
+/* ── ACTIVITY COUNTER ── */
+.cntcard{text-align:center;max-width:500px}
+.cntcard h2{font-size:24px;margin-bottom:8px}
+.cntcard>p{color:var(--muted);font-size:13px;margin-bottom:28px;line-height:1.6}
+.cntwrap{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:28px}
+.cntbtn{width:50px;height:50px;border-radius:50%;border:2px solid var(--border);
+  background:var(--card);color:var(--text);font-size:24px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+  font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
+.cntbtn:hover{border-color:var(--orange);color:var(--orange)}
+.cntnum{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:60px;
+  color:var(--orange);min-width:76px;text-align:center}
+.cntdots{display:flex;gap:6px;justify-content:center;margin-bottom:32px}
+.cntdot{width:11px;height:11px;border-radius:50%;background:var(--border);transition:all .2s}
+.cntdot.on{background:var(--orange);transform:scale(1.3)}
+
+/* ── ACTIVITY FORM ── */
+.actcard{width:100%;max-width:600px}
+.acthdr{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.actn{width:42px;height:42px;border-radius:50%;background:rgba(255,140,53,.15);
+  border:2px solid rgba(255,140,53,.35);display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:16px;color:var(--orange);flex-shrink:0}
+.acthdr h3{font-size:17px}.acthdr p{font-size:12px;color:var(--muted);margin-top:2px}
+.actfields{display:flex;flex-direction:column;gap:14px}
+.af label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--muted);margin-bottom:5px}
+.af label .req{color:var(--orange)}
+.af label .opt{font-weight:400;text-transform:none;letter-spacing:0}
+.af textarea,.af input,.af select{width:100%;background:rgba(255,255,255,.04);
+  border:1px solid var(--border);border-radius:8px;padding:9px 11px;
+  font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;
+  transition:border-color .2s;resize:vertical}
+.af textarea{min-height:60px}
+.af textarea:focus,.af input:focus,.af select:focus{border-color:var(--orange)}
+.af textarea::placeholder,.af input::placeholder{color:var(--muted)}
+.af select{appearance:none;-webkit-appearance:none;cursor:pointer}
+.af .selwrap::after{top:50%;transform:translateY(-50%);font-size:14px}
+.af select option{background:#0D1B2A}
+
+/* ── ADD-MORE SCREEN ── */
+.addmore-card{max-width:540px;text-align:center}
+.addmore-card h2{font-size:24px;margin-bottom:10px}
+.addmore-card>p{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:28px}
+.act-review{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px;margin-bottom:24px;text-align:left;max-height:260px;overflow-y:auto}
+.arrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.arrow:last-child{border-bottom:none}
+.arnum{width:26px;height:26px;border-radius:50%;background:rgba(255,140,53,.15);
+  color:var(--orange);font-weight:800;font-size:11px;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0}
+.artext{flex:1;color:var(--text);line-height:1.4}
+.ar-btns{display:flex;flex-direction:column;gap:8px}
+.arnav{background:transparent;border:1px solid var(--border);border-radius:8px;
+  padding:4px 8px;cursor:pointer;color:var(--muted);font-size:14px;
+  transition:all .15s}
+.arnav:hover{border-color:var(--muted);color:var(--text)}
+.arnav:disabled{opacity:.3;cursor:default}
+.addmore-actions{display:flex;flex-direction:column;gap:10px}
+
+/* ── ACHIEVEMENT OVERLAY ── */
+#ach{position:fixed;inset:0;z-index:500;display:none;align-items:center;
+  justify-content:center;padding:20px;background:rgba(13,27,42,.9);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#ach.show{display:flex}
+.achcard{background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:38px 32px;max-width:400px;width:100%;text-align:center;
+  animation:achpop .38s cubic-bezier(.34,1.56,.64,1) forwards;position:relative;overflow:hidden}
+@keyframes achpop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.achglow{position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+  width:200px;height:200px;border-radius:50%;filter:blur(60px);opacity:.22;pointer-events:none}
+.achemoji{font-size:68px;display:block;margin-bottom:12px;
+  animation:aepop .45s .1s ease both}
+@keyframes aepop{from{transform:scale(0) rotate(-15deg)}to{transform:scale(1) rotate(0)}}
+.achtitle{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:21px;
+  margin-bottom:8px}
+.achinsight{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:20px}
+.achcode{background:rgba(103,212,232,.12);border:1px solid rgba(103,212,232,.25);
+  border-radius:8px;padding:8px 14px;font-size:15px;font-weight:800;color:var(--cyan);
+  margin-bottom:18px;display:none}
+.achbtn{background:var(--orange);color:#fff;border:none;border-radius:10px;
+  padding:12px 26px;font-size:14px;font-weight:700;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:opacity .2s;width:100%}
+.achbtn:hover{opacity:.88}
+.achprog{margin-top:14px;font-size:12px;color:var(--muted)}
+.achprog b{color:var(--text)}
+.cfetti{position:absolute;width:7px;height:7px;border-radius:50%;
+  animation:cfall linear forwards}
+@keyframes cfall{from{transform:translateY(-20px) rotate(0deg);opacity:1}
+  to{transform:translateY(200px) rotate(360deg);opacity:0}}
+
+/* ── COMPLETE ── */
+#scomplete{background:radial-gradient(ellipse at center,rgba(46,204,113,.07) 0%,transparent 60%)}
+.compcard{text-align:center;max-width:540px}
+.compicon{font-size:84px;margin-bottom:18px;
+  animation:compfloat 2.5s ease-in-out infinite}
+@keyframes compfloat{0%,100%{transform:translateY(0) rotate(-3deg)}
+  50%{transform:translateY(-9px) rotate(3deg)}}
+.compcard h1{font-size:30px;margin-bottom:9px}
+.compcard h1 span{color:var(--green)}
+.compcard>p{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:24px}
+.sumgrid{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:18px;text-align:left;margin-bottom:20px}
+.sumrow{display:flex;align-items:flex-start;gap:10px;padding:8px 0;
+  border-bottom:1px solid var(--border);font-size:13px}
+.sumrow:last-child{border-bottom:none}
+.sumlbl{color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.4px;min-width:120px;flex-shrink:0;padding-top:1px}
+.sumval{color:var(--text);line-height:1.5}
+.cbadge{background:rgba(103,212,232,.15);color:var(--cyan);border:1px solid rgba(103,212,232,.25);
+  border-radius:6px;padding:1px 8px;font-size:12px;font-weight:700}
+.actbadge{background:rgba(255,140,53,.12);color:var(--orange);border-radius:6px;
+  padding:2px 8px;font-size:12px;font-weight:700}
+.compactions{display:flex;flex-direction:column;gap:9px}
+.btnfin{background:var(--green);color:#fff;border:none;border-radius:10px;
+  padding:13px 26px;font-size:14px;font-weight:700;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:opacity .2s;
+  display:flex;align-items:center;justify-content:center;gap:7px}
+.btnfin:hover{opacity:.88}
+.btnrst{background:transparent;color:var(--muted);border:1px solid var(--border);
+  border-radius:10px;padding:11px 22px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.btnrst:hover{border-color:var(--muted);color:var(--text)}
+.savedpill{display:none;align-items:center;justify-content:center;gap:6px;
+  background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.25);
+  border-radius:8px;padding:10px 14px;font-size:12px;color:var(--green);font-weight:600}
+
+@media(max-width:600px){
+  .qtext{font-size:20px}.qemoji{font-size:42px}
+  .wc h1{font-size:26px}.compcard h1{font-size:24px}
+  .achcard{padding:28px 20px}.achemoji{font-size:54px}
+  .rb{width:38px;height:38px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div id="pgbar" class="hidden">
+  <div class="logo-sm"><span class="r">Risk</span><span class="f">Flow</span></div>
+  <div class="prog-track"><div class="prog-fill" id="progfill"></div></div>
+  <div class="prog-label" id="proglbl">0/0</div>
+</div>
+
+<!-- ACHIEVEMENT OVERLAY -->
+<div id="ach">
+  <div class="achcard" id="achcard">
+    <div class="achglow" id="achglow"></div>
+    <span class="achemoji" id="achemoji">🎯</span>
+    <div class="achtitle" id="achtitle">¡Listo!</div>
+    <div class="achinsight" id="achinsight"></div>
+    <div class="achcode" id="achcode"></div>
+    <button class="achbtn" id="achbtn">Continuar →</button>
+    <div class="achprog" id="achprog"></div>
+  </div>
+</div>
+
+<!-- ══ WELCOME ══ -->
+<div class="ws active" id="sw">
+  <div class="wc">
+    <div class="wi">🏥</div>
+    <h1>Autoevaluación<br>de <span>Proceso</span></h1>
+    <p>Contestaremos juntos algunas preguntas sobre el proceso a documentar.<br>Una pregunta a la vez, sin tecnicismos.</p>
+    <div class="wmeta">
+      <div class="wchip">📋 <b id="wmtotal">—</b>&nbsp;preguntas base</div>
+      <div class="wchip">⏱ <b>~8 min</b></div>
+      <div class="wchip">🔒 <b>APEC · MOCEBPASS</b></div>
+    </div>
+    <button class="btnp" style="margin:0 auto;font-size:15px;padding:14px 34px" onclick="startWizard()">
+      Comenzar →
+    </button>
+    <p style="font-size:11px;color:var(--muted);margin-top:12px">Ciclo de Auditoría 2026</p>
+  </div>
+</div>
+
+<!-- ══ QUESTION ══ -->
+<div class="ws" id="sq">
+  <div class="qcard">
+    <div class="qsec" id="qsec"></div>
+    <span class="qemoji" id="qemoji"></span>
+    <div class="qtext" id="qtext"></div>
+    <div class="qhint" id="qhint"></div>
+    <div id="qinpwrap"></div>
+    <div class="qactions">
+      <button class="btnp" id="btnnext" onclick="submitAnswer()">Siguiente →</button>
+      <button class="btns" id="btnskip" style="display:none" onclick="skipAnswer()">Omitir</button>
+    </div>
+    <div class="enterhint" id="enterhint"></div>
+  </div>
+</div>
+
+<!-- ══ ACTIVITY COUNT ══ -->
+<div class="ws" id="sactcnt">
+  <div class="cntcard">
+    <span style="font-size:58px;display:block;margin-bottom:14px">⚙️</span>
+    <h2>Actividades del Proceso</h2>
+    <p>¿Cuántas actividades principales tiene este proceso?<br>
+    Documentaremos cada una con su responsable, riesgos y controles.</p>
+    <div class="cntwrap">
+      <button class="cntbtn" onclick="chgCnt(-1)">−</button>
+      <div class="cntnum" id="cntnum">3</div>
+      <button class="cntbtn" onclick="chgCnt(1)">+</button>
+    </div>
+    <div class="cntdots" id="cntdots"></div>
+    <button class="btnp" style="margin:0 auto;padding:13px 32px" onclick="startActivities()">
+      Documentar actividades →
+    </button>
+  </div>
+</div>
+
+<!-- ══ ACTIVITY FORM ══ -->
+<div class="ws" id="sact">
+  <div class="actcard">
+    <div class="qsec" id="actsec"></div>
+    <div class="acthdr">
+      <div class="actn" id="actnum">1</div>
+      <div><h3 id="acttitle">Actividad 1</h3><p id="actsubt">Describe esta etapa del proceso</p></div>
+    </div>
+    <div class="actfields">
+      <div class="af">
+        <label>Descripción de la actividad <span class="req">*</span></label>
+        <textarea id="a-desc" rows="2"
+          placeholder="Usa verbos y acciones. Menciona qué sistemas, formatos o herramientas se usan.">
+        </textarea>
+      </div>
+      <div class="af">
+        <label>¿Quién la ejecuta? <span class="req">*</span></label>
+        <div class="selwrap">
+          <select id="a-exec">
+            <option value="">— Selecciona el responsable —</option>
+          </select>
+        </div>
+      </div>
+      <div class="af">
+        <label>Errores o riesgos más comunes <span class="req">*</span></label>
+        <textarea id="a-risk" rows="2"
+          placeholder="¿Qué podría impedir que se concluya o retrase esta actividad?">
+        </textarea>
+      </div>
+
+      <!-- FRECUENCIA 1-10 -->
+      <div class="af">
+        <label>¿Qué tan frecuentemente ocurre este riesgo? <span class="req">*</span>
+          <span class="opt">&nbsp;(1 = casi nunca · 10 = todo el tiempo)</span>
+        </label>
+        <div class="rating-wrap">
+          <div class="rating-btns" id="rb-freq"></div>
+          <div class="rating-meaning" id="rm-freq"></div>
+        </div>
+      </div>
+
+      <!-- IMPACTO 1-10 -->
+      <div class="af">
+        <label>¿Qué tanto impacto tiene para la institución? <span class="req">*</span>
+          <span class="opt">&nbsp;(1 = insignificante · 10 = muy importante)</span>
+        </label>
+        <div class="rating-wrap">
+          <div class="rating-btns" id="rb-imp"></div>
+          <div class="rating-meaning" id="rm-imp"></div>
+        </div>
+      </div>
+
+      <div class="af">
+        <label>Control existente <span class="opt">(opcional)</span></label>
+        <textarea id="a-ctrl" rows="2"
+          placeholder="¿Se requiere autorización, bitácora, checklist, presupuesto o registro en esta actividad?">
+        </textarea>
+      </div>
+    </div>
+    <div class="qactions" style="margin-top:20px">
+      <button class="btnp" onclick="submitActivity()">
+        <span id="actbtnlbl">Siguiente actividad →</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD MORE / REORDER ══ -->
+<div class="ws" id="saddmore">
+  <div class="addmore-card">
+    <span style="font-size:60px;display:block;margin-bottom:14px">📋</span>
+    <h2>Actividades registradas</h2>
+    <p>Revisa las actividades capturadas. Puedes reordenarlas, agregar más o continuar.</p>
+    <div class="act-review" id="act-review-list"></div>
+    <div class="addmore-actions">
+      <button class="btnp" onclick="addOneMore()">＋ Agregar actividad</button>
+      <button class="btnp" style="background:var(--cyan);color:var(--dark)" onclick="proceedToFinalQs()">
+        Continuar con el proceso →
+      </button>
+      <button class="btns" onclick="proceedToFinalQs()">Las actividades están completas</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMPLETE ══ -->
+<div class="ws" id="scomplete">
+  <div class="compcard">
+    <div class="compicon">🏆</div>
+    <h1>¡Autoevaluación <span>completada!</span></h1>
+    <p>Toda la información del proceso ha sido registrada y está lista para que el Auditor Interno construya la Matriz de Riesgos.</p>
+    <div class="sumgrid" id="sumgrid"></div>
+    <div class="compactions">
+      <div class="savedpill" id="savedpill">✅ Información guardada · Lista para el Auditor Interno</div>
+      <button class="btnfin" onclick="finishWizard()">✓ Guardar y finalizar autoevaluación</button>
+      <button class="btnrst" onclick="restartWizard()">↺ Iniciar nuevo proceso</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── PROCESS LIST ─────────────────────────────────────────────────────────────
+// Martha: reemplaza esta lista con los procesos oficiales de APEC
+const PROCESSES = [
+  'Admisión de Pacientes',
+  'Consulta Externa Oftalmológica',
+  'Cirugía de Cataratas',
+  'Cirugía Vitreoretinal',
+  'Urgencias Oftalmológicas',
+  'Hospitalización',
+  'Farmacia Hospitalaria',
+  'Laboratorio Clínico',
+  'Imagenología y Optometría',
+  'Quirófano y Esterilización',
+  'Facturación y Cobranza',
+  'Gestión de Recursos Humanos',
+  'Compras y Abastecimiento',
+  'Mantenimiento de Equipos Médicos',
+  'Control de Calidad MOCEBPASS',
+  'Docencia y Residencias Médicas',
+  'Investigación Clínica',
+  'Atención al Paciente (Trabajo Social)',
+];
+
+// ─── CODE GENERATOR ──────────────────────────────────────────────────────────
+function genCode(proc) {
+  const stop = ['de','del','la','el','los','las','y','a','en','con','por','para','un','una','lo','al'];
+  const words = proc.split(' ').filter(w => w.length > 2 && !stop.includes(w.toLowerCase()));
+  const inits = words.map(w => w[0].toUpperCase()).join('');
+  return inits + '-APEC';
+}
+
+// ─── RATING SCALE HELPERS ────────────────────────────────────────────────────
+const FREQ_MEANINGS = {
+  1:'Casi nunca ocurre',2:'Muy rara vez',3:'Pocas veces al año',
+  4:'Algunas veces',5:'Aproximadamente la mitad de las veces',
+  6:'Más de la mitad de las veces',7:'Con frecuencia',
+  8:'Muy frecuente',9:'Casi siempre',10:'Ocurre todo el tiempo'
+};
+const IMP_MEANINGS = {
+  1:'Impacto insignificante',2:'Impacto mínimo',3:'Impacto leve',
+  4:'Impacto menor',5:'Impacto moderado',
+  6:'Impacto notable',7:'Impacto significativo',
+  8:'Impacto alto',9:'Impacto crítico',10:'Impacto institucional muy alto'
+};
+function ratingColor(v){
+  if(v<=3) return 'sel-green';
+  if(v<=6) return 'sel-yellow';
+  if(v<=8) return 'sel-orange';
+  return 'sel-red';
+}
+function buildRating(containerId, meaningId, stateKey, meanings) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = '';
+  for(let i=1;i<=10;i++){
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'rb';
+    btn.textContent = i;
+    btn.dataset.val = i;
+    btn.onclick = () => selectRating(containerId, meaningId, stateKey, i, meanings);
+    wrap.appendChild(btn);
+  }
+}
+let ratingState = { freq: 0, imp: 0 };
+function selectRating(containerId, meaningId, stateKey, val, meanings) {
+  ratingState[stateKey] = val;
+  document.querySelectorAll('#'+containerId+' .rb').forEach(b=>{
+    b.className='rb';
+    if(parseInt(b.dataset.val)===val) b.classList.add(ratingColor(val));
+  });
+  document.getElementById(meaningId).textContent = meanings[val];
+}
+
+// ─── QUESTIONS DEFINITION ────────────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    id:'elaborado', section:'Datos del Proceso', type:'text', emoji:'✍️',
+    question:'¿Quién está elaborando esta autoevaluación?',
+    hint:'Escribe tu nombre completo y puesto dentro de APEC.',
+    placeholder:'Ej. María González — Jefa de Admisión',
+    required:true,
+    ach:{emoji:'👤',title:'¡Responsable registrado!',
+      insight:'Tener un responsable identificado garantiza que existe un punto de contacto para aclaraciones durante la revisión del Auditor Interno.',
+      color:'#67D4E8'}
+  },
+  {
+    id:'proceso', section:'Datos del Proceso', type:'process-select', emoji:'📋',
+    question:'¿Cuál es el proceso que vamos a documentar?',
+    hint:'Selecciona el proceso de la lista oficial de APEC.',
+    required:true,
+    ach:{emoji:'🏷️',title:'¡Proceso identificado!',
+      insight:'El código del proceso se ha asignado automáticamente.',
+      color:'#67D4E8', showCode:true}
+  },
+  {
+    id:'dueno', section:'Datos del Proceso', type:'text', emoji:'👥',
+    question:'¿Quién es el dueño del proceso y qué puestos participan en él?',
+    hint:'Lista todos los roles o puestos, separados por comas. Esta lista se usará para asignar responsables en cada actividad.',
+    placeholder:'Ej. Jefe de Admisión, Enfermera de triaje, Médico de guardia, Cajero',
+    required:true,
+    ach:{emoji:'🤝',title:'¡Equipo documentado!',
+      insight:'Esta lista de participantes será el menú de opciones al asignar responsables en cada actividad del proceso.',
+      color:'#2ECC71'}
+  },
+  {
+    id:'objetivo', section:'Vinculación Estratégica', type:'textarea', emoji:'🎯',
+    question:'¿Cuál es el objetivo de este proceso?',
+    hint:'¿Cuál es la finalidad? ¿Por qué lo hacen? ¿Qué beneficio o necesidad cubre?',
+    placeholder:'Ej. Garantizar que cada paciente sea registrado correctamente, asignado al médico adecuado y atendido dentro del tiempo establecido.',
+    required:true,
+    ach:{emoji:'🎯',title:'¡Objetivo documentado!',
+      insight:'Este objetivo será el punto de referencia durante la auditoría para evaluar si los controles son suficientes para proteger el resultado esperado.',
+      color:'#FF8C35'}
+  },
+  {
+    id:'riesgoPrincipal', section:'Contexto del Proceso', type:'textarea', emoji:'⚠️',
+    question:'¿Qué pasaría si este proceso no se logra?',
+    hint:'¿Hay consecuencias? ¿Impacta a personas, pacientes, o finanzas? ¿Cuál sería el peor escenario?',
+    placeholder:'Ej. Un paciente puede ser asignado al servicio incorrecto, generando un diagnóstico inadecuado y un riesgo clínico grave...',
+    required:true,
+    ach:{emoji:'🛡️',title:'¡Riesgo principal identificado!',
+      insight:'Este escenario aparecerá destacado en la matriz. Identificarlo es el primer paso para construir controles efectivos.',
+      color:'#E74C3C'}
+  },
+  {
+    id:'eventos', section:'Contexto del Proceso', type:'textarea', emoji:'⚡',
+    question:'¿Qué eventos detonan que inicie este proceso?',
+    hint:'¿Cuál es la entrada? ¿Una solicitud, un correo, una llamada, un reporte, una acción? Descríbela.',
+    placeholder:'Ej. Llegada de un paciente a recepción, llamada para agendar cita, referencia de otro médico...',
+    required:true,
+    ach:{emoji:'⚡',title:'¡Disparadores registrados!',
+      insight:'Conocer qué activa el proceso nos permite identificar riesgos desde el primer paso del flujo.',
+      color:'#67D4E8'}
+  },
+  {
+    id:'evidencia', section:'Contexto del Proceso', type:'textarea', emoji:'📄',
+    question:'¿Qué queda como soporte al concluir el proceso?',
+    hint:'¿Queda algo al finalizar? ¿Un documento, un registro, un reporte, una firma en sistema?',
+    placeholder:'Ej. Expediente clínico actualizado en sistema HIS, consentimiento informado firmado, ticket de caja...',
+    required:false,
+    ach:{emoji:'📁',title:'¡Evidencias documentadas!',
+      insight:'Los documentos y registros son el principal respaldo durante una auditoría. Sin evidencia, un control bien diseñado no puede demostrarse.',
+      color:'#2ECC71'}
+  },
+  {
+    id:'resultados', section:'Resultados del Proceso', type:'textarea', emoji:'✅',
+    question:'¿Qué se obtiene al finalizar satisfactoriamente el proceso?',
+    hint:'Describe el resultado final cuando todo sale bien.',
+    placeholder:'Ej. Paciente correctamente admitido con expediente abierto, turno asignado y notificación al médico enviada...',
+    required:true,
+    ach:{emoji:'🏁',title:'¡Resultado documentado!',
+      insight:'Conocer el resultado esperado nos permite verificar durante la auditoría si el proceso está entregando lo que debe entregar.',
+      color:'#2ECC71'}
+  },
+  {
+    id:'documentacion', section:'Documentación Formal', type:'textarea', emoji:'📚',
+    question:'¿Existe alguna ley, norma, política o regla que rija este proceso?',
+    hint:'Puede ser interna o externa. Por ejemplo: NOM, política institucional, manual de procedimientos, lineamiento de la certificadora MOCEBPASS...',
+    placeholder:'Ej. NOM-004-SSA3-2012 (expediente clínico), Manual de Calidad APEC versión 3, Criterios de certificación MOCEBPASS eje C1...',
+    required:false,
+    ach:{emoji:'📖',title:'¡Marco normativo registrado!',
+      insight:'Vincular el proceso a su normativa de respaldo es un requisito clave para la certificación MOCEBPASS y para demostrar cumplimiento durante la auditoría.',
+      color:'#67D4E8'}
+  }
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let curQ=0, answers={}, activities=[], numActs=3, curAct=0;
+let generatedCode='';
+let participantList=[];
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+function init(){
+  document.getElementById('wmtotal').textContent = QUESTIONS.length;
+  answers['fecha'] = new Date().toISOString().split('T')[0];
+}
+
+function startWizard(){
+  document.getElementById('pgbar').classList.remove('hidden');
+  curQ=0;
+  showQ(curQ);
+  showScreen('sq');
+}
+
+// ─── SCREENS ─────────────────────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.ws').forEach(s=>s.classList.remove('active'));
+  const s=document.getElementById(id);
+  if(s){s.classList.add('active');window.scrollTo(0,0)}
+}
+
+// ─── QUESTION RENDERING ──────────────────────────────────────────────────────
+function showQ(idx){
+  const q=QUESTIONS[idx];
+  document.getElementById('qsec').textContent   = q.section;
+  document.getElementById('qemoji').textContent  = q.emoji;
+  document.getElementById('qtext').textContent   = q.question;
+  document.getElementById('qhint').textContent   = q.hint||'';
+
+  const wrap=document.getElementById('qinpwrap');
+  wrap.innerHTML='';
+  document.getElementById('enterhint').innerHTML='';
+
+  if(q.type==='process-select'){
+    const sw=document.createElement('div'); sw.className='selwrap';
+    const sel=document.createElement('select'); sel.className='qinp'; sel.id='qcurinp';
+    const def=document.createElement('option'); def.value=''; def.textContent='— Selecciona el proceso —';
+    sel.appendChild(def);
+    PROCESSES.forEach(p=>{
+      const op=document.createElement('option'); op.value=p; op.textContent=p;
+      if(answers['proceso']===p) op.selected=true;
+      sel.appendChild(op);
+    });
+    sel.addEventListener('change', ()=>{
+      document.querySelectorAll('.code-badge').forEach(b=>b.remove());
+      if(sel.value){
+        const code=genCode(sel.value);
+        const badge=document.createElement('div'); badge.className='code-badge';
+        badge.innerHTML=`<span>Código asignado:</span> ${code}`;
+        wrap.appendChild(badge);
+      }
+    });
+    // Trigger if already selected
+    if(answers['proceso']){
+      const code=genCode(answers['proceso']);
+      const badge=document.createElement('div'); badge.className='code-badge';
+      badge.innerHTML=`<span>Código asignado:</span> ${code}`;
+      wrap.appendChild(badge);
+    }
+    sw.appendChild(sel); wrap.insertBefore(sw, wrap.firstChild);
+    document.getElementById('enterhint').innerHTML='';
+    setTimeout(()=>sel.focus(),100);
+
+  } else if(q.type==='textarea'){
+    const ta=document.createElement('textarea');
+    ta.className='qinp'; ta.id='qcurinp'; ta.rows=4;
+    ta.placeholder=q.placeholder||''; ta.value=answers[q.id]||'';
+    ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)) submitAnswer()});
+    wrap.appendChild(ta);
+    document.getElementById('enterhint').innerHTML='<kbd>Ctrl</kbd>+<kbd>Enter</kbd> para avanzar';
+    setTimeout(()=>ta.focus(),100);
+
+  } else {
+    const inp=document.createElement('input');
+    inp.type='text'; inp.className='qinp'; inp.id='qcurinp';
+    inp.placeholder=q.placeholder||''; inp.value=answers[q.id]||'';
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter') submitAnswer()});
+    wrap.appendChild(inp);
+    document.getElementById('enterhint').innerHTML='<kbd>Enter</kbd> para avanzar';
+    setTimeout(()=>inp.focus(),100);
+  }
+
+  document.getElementById('btnskip').style.display = q.required ? 'none' : 'inline-flex';
+  updateProg();
+}
+
+// ─── ANSWER SUBMISSION ────────────────────────────────────────────────────────
+function submitAnswer(){
+  const q=QUESTIONS[curQ];
+  const inp=document.getElementById('qcurinp');
+  const val=inp?inp.value.trim():'';
+
+  if(q.required && !val){
+    inp.style.borderColor='var(--red)';
+    inp.style.background='rgba(231,76,60,.05)';
+    setTimeout(()=>{inp.style.borderColor='';inp.style.background=''},1200);
+    inp.focus(); return;
+  }
+
+  answers[q.id]=val;
+
+  // Process selection: generate code + parse participants later
+  if(q.id==='proceso' && val){
+    generatedCode=genCode(val);
+    answers['codigo']=generatedCode;
+  }
+  if(q.id==='dueno' && val){
+    participantList=val.split(/[,;]/).map(s=>s.trim()).filter(Boolean);
+  }
+
+  const achData={...q.ach};
+  if(q.id==='proceso' && generatedCode) achData._code=generatedCode;
+
+  showAch(achData, ()=>{
+    curQ++;
+    if(curQ<QUESTIONS.length){ showQ(curQ); }
+    else { showScreen('sactcnt'); renderDots(); updateProg(true); }
+  });
+}
+
+function skipAnswer(){
+  answers[QUESTIONS[curQ].id]='';
+  curQ++;
+  if(curQ<QUESTIONS.length){ showQ(curQ); }
+  else { showScreen('sactcnt'); renderDots(); updateProg(true); }
+}
+
+// ─── ACHIEVEMENT ─────────────────────────────────────────────────────────────
+function showAch(a, cb){
+  document.getElementById('achemoji').textContent   = a.emoji;
+  document.getElementById('achtitle').textContent   = a.title;
+  document.getElementById('achinsight').textContent = a.insight;
+  document.getElementById('achglow').style.background = a.color;
+
+  const codeEl=document.getElementById('achcode');
+  if(a._code){ codeEl.textContent=a._code; codeEl.style.display='block'; }
+  else { codeEl.style.display='none'; }
+
+  const done=curQ+1, total=QUESTIONS.length;
+  document.getElementById('achprog').innerHTML=
+    `<b>${done}</b> de <b>${total}</b> preguntas respondidas`;
+
+  // confetti
+  const card=document.getElementById('achcard');
+  card.querySelectorAll('.cfetti').forEach(d=>d.remove());
+  const cols=[a.color,'#FF8C35','#67D4E8','#2ECC71','#F39C12'];
+  for(let i=0;i<14;i++){
+    const d=document.createElement('div'); d.className='cfetti';
+    d.style.cssText=`left:${10+Math.random()*80}%;top:${3+Math.random()*18}%;
+      background:${cols[Math.floor(Math.random()*cols.length)]};
+      animation-duration:${.9+Math.random()*1.2}s;
+      animation-delay:${Math.random()*.3}s`;
+    card.appendChild(d);
+  }
+
+  const ov=document.getElementById('ach'); ov.classList.add('show');
+  let tmr=setTimeout(()=>closeAch(ov,cb),2400);
+  document.getElementById('achbtn').onclick=()=>{clearTimeout(tmr);closeAch(ov,cb)};
+}
+function closeAch(ov,cb){ov.classList.remove('show');setTimeout(cb,150)}
+
+// ─── COUNTER ─────────────────────────────────────────────────────────────────
+function renderDots(){
+  const w=document.getElementById('cntdots'); w.innerHTML='';
+  for(let i=0;i<10;i++){
+    const d=document.createElement('div');
+    d.className='cntdot'+(i<numActs?' on':'');
+    w.appendChild(d);
+  }
+  document.getElementById('cntnum').textContent=numActs;
+}
+function chgCnt(d){ numActs=Math.min(10,Math.max(1,numActs+d)); renderDots(); }
+
+function startActivities(){
+  activities=[]; curAct=0;
+  buildParticipantDropdown();
+  buildRating('rb-freq','rm-freq','freq',FREQ_MEANINGS);
+  buildRating('rb-imp','rm-imp','imp',IMP_MEANINGS);
+  ratingState={freq:0,imp:0};
+  showActForm(0);
+  showScreen('sact');
+}
+
+// ─── ACTIVITY FORM ───────────────────────────────────────────────────────────
+function buildParticipantDropdown(){
+  const sel=document.getElementById('a-exec');
+  sel.innerHTML='<option value="">— Selecciona el responsable —</option>';
+  const opts = participantList.length>0 ? participantList
+    : ['Responsable principal','Personal de apoyo','Supervisor','Otro'];
+  opts.forEach(p=>{
+    const op=document.createElement('option'); op.value=p; op.textContent=p; sel.appendChild(op);
+  });
+  // "Otro" fallback
+  const other=document.createElement('option'); other.value='Otro'; other.textContent='Otro';
+  sel.appendChild(other);
+}
+
+function showActForm(idx){
+  document.getElementById('actsec').textContent  = `Actividades · ${idx+1} de ${numActs}`;
+  document.getElementById('actnum').textContent  = idx+1;
+  document.getElementById('acttitle').textContent= `Actividad ${idx+1}`;
+  document.getElementById('actsubt').textContent = `Etapa ${idx+1} del proceso`;
+  document.getElementById('a-desc').value='';
+  document.getElementById('a-exec').value='';
+  document.getElementById('a-risk').value='';
+  document.getElementById('a-ctrl').value='';
+
+  // Reset ratings
+  ratingState={freq:0,imp:0};
+  buildRating('rb-freq','rm-freq','freq',FREQ_MEANINGS);
+  buildRating('rb-imp','rm-imp','imp',IMP_MEANINGS);
+
+  const isLast=idx===numActs-1;
+  document.getElementById('actbtnlbl').textContent=
+    isLast ? 'Revisar actividades →' : 'Siguiente actividad →';
+  updateProg(false,idx);
+  setTimeout(()=>document.getElementById('a-desc').focus(),100);
+}
+
+function submitActivity(){
+  const desc=document.getElementById('a-desc').value.trim();
+  const exec=document.getElementById('a-exec').value.trim();
+  const risk=document.getElementById('a-risk').value.trim();
+  const freq=ratingState.freq;
+  const imp =ratingState.imp;
+
+  // Validation
+  if(!desc){ flash('a-desc'); return; }
+  if(!exec){ flash('a-exec'); return; }
+  if(!risk){ flash('a-risk'); return; }
+  if(!freq){ flashEl(document.querySelector('#rb-freq')); return; }
+  if(!imp)  { flashEl(document.querySelector('#rb-imp'));  return; }
+
+  activities.push({
+    descripcion:desc,
+    ejecuta:exec,
+    riesgos:risk,
+    frecuencia:freq,
+    impacto:imp,
+    control:document.getElementById('a-ctrl').value.trim()
+  });
+
+  const isLast=curAct===numActs-1;
+  showAch({
+    emoji: isLast?'🎉':'✅',
+    title: isLast?`¡${numActs} actividad${numActs>1?'es':''} documentada${numActs>1?'s':''}!`:`¡Actividad ${curAct+1} capturada!`,
+    insight: isLast
+      ? 'Has documentado todas las actividades. Ahora revisa, agrega o reordena si lo necesitas.'
+      : `Vas ${curAct+1} de ${numActs}. Cada actividad documentada es un punto de control para la auditoría.`,
+    color: isLast?'#2ECC71':'#FF8C35'
+  }, ()=>{
+    curAct++;
+    if(curAct<numActs){ showActForm(curAct); }
+    else { showAddMore(); }
+  });
+}
+
+function flash(id){
+  const el=document.getElementById(id);
+  el.style.borderColor='var(--red)';el.style.background='rgba(231,76,60,.05)';
+  setTimeout(()=>{el.style.borderColor='';el.style.background=''},1200);el.focus();
+}
+function flashEl(el){
+  if(!el)return;
+  el.style.outline='2px solid var(--red)';
+  setTimeout(()=>el.style.outline='',1200);
+}
+
+// ─── ADD MORE / REORDER ───────────────────────────────────────────────────────
+function showAddMore(){
+  const list=document.getElementById('act-review-list');
+  list.innerHTML='';
+  activities.forEach((a,i)=>{
+    const row=document.createElement('div'); row.className='arrow';
+    row.innerHTML=`
+      <div class="arnum">${i+1}</div>
+      <div class="artext">${a.descripcion.slice(0,70)}${a.descripcion.length>70?'...':''}</div>
+      <div class="ar-btns">
+        <button class="arnav" onclick="moveAct(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button class="arnav" onclick="moveAct(${i},1)"  ${i===activities.length-1?'disabled':''}>↓</button>
+      </div>`;
+    list.appendChild(row);
+  });
+  showScreen('saddmore');
+  updateProg(true);
+}
+
+function moveAct(idx,dir){
+  const ni=idx+dir;
+  if(ni<0||ni>=activities.length)return;
+  [activities[idx],activities[ni]]=[activities[ni],activities[idx]];
+  showAddMore();
+}
+
+function addOneMore(){
+  numActs++;
+  buildParticipantDropdown();
+  showActForm(curAct);
+  showScreen('sact');
+}
+
+function proceedToFinalQs(){
+  buildSummary();
+  showScreen('scomplete');
+  updateProg(true);
+  document.getElementById('pgbar').classList.add('hidden');
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
+function updateProg(done=false, actIdx=-1){
+  const fill=document.getElementById('progfill');
+  const lbl =document.getElementById('proglbl');
+  if(done){ fill.style.width='100%'; lbl.textContent='Listo'; return; }
+  if(actIdx>=0){
+    const p=75+(actIdx/Math.max(numActs,1))*20;
+    fill.style.width=p+'%'; lbl.textContent=`Act ${actIdx+1}/${numActs}`; return;
+  }
+  const p=Math.round((curQ/QUESTIONS.length)*70);
+  fill.style.width=p+'%'; lbl.textContent=`${curQ}/${QUESTIONS.length}`;
+}
+
+// ─── SUMMARY ─────────────────────────────────────────────────────────────────
+function buildSummary(){
+  const g=document.getElementById('sumgrid');
+  const objEst=answers.objetivoEst||'';
+  const rows=[
+    {l:'Proceso',  v: answers.proceso||'—'},
+    {l:'Código',   v: answers.codigo  ? `<span class="cbadge">${answers.codigo}</span>` : '—'},
+    {l:'Elaborado por', v: answers.elaborado||'—'},
+    {l:'Objetivo', v: (answers.objetivo||'—').slice(0,80)+(answers.objetivo&&answers.objetivo.length>80?'...':'')},
+    {l:'Actividades', v: `<span class="actbadge">⚙️ ${activities.length} actividades documentadas</span>`},
+    {l:'Resultados', v: (answers.resultados||'—').slice(0,60)+(answers.resultados&&answers.resultados.length>60?'...':'')},
+  ];
+  g.innerHTML=rows.map(r=>`<div class="sumrow"><div class="sumlbl">${r.l}</div><div class="sumval">${r.v}</div></div>`).join('');
+}
+
+// ─── SAVE & FINISH ────────────────────────────────────────────────────────────
+function finishWizard(){
+  const data={
+    meta:{ fecha:answers.fecha, elaborado:answers.elaborado, fechaGuardado:new Date().toISOString() },
+    proceso:{ nombre:answers.proceso, codigo:answers.codigo },
+    caratula:{
+      dueno:       answers.dueno,
+      objetivo:    answers.objetivo,
+      riesgoPrincipal: answers.riesgoPrincipal,
+      eventos:     answers.eventos,
+      evidencia:   answers.evidencia,
+      resultados:  answers.resultados,
+      documentacion: answers.documentacion
+    },
+    actividades: activities.map((a,i)=>({
+      numero:i+1,
+      descripcion:a.descripcion,
+      ejecuta:a.ejecuta,
+      riesgos:a.riesgos,
+      frecuencia:a.frecuencia,   // → Probabilidad inherente
+      impacto:a.impacto,          // → Importancia
+      nivelRiesgo: a.frecuencia * a.impacto, // pre-cálculo para Fase 2
+      control:a.control
+    }))
+  };
+  localStorage.setItem('riskflow_caratula', JSON.stringify(data));
+  const p=document.getElementById('savedpill');
+  p.style.display='flex';
+}
+
+function restartWizard(){
+  answers={}; activities=[]; curQ=0; curAct=0; numActs=3;
+  generatedCode=''; participantList=[];
+  document.getElementById('savedpill').style.display='none';
+  document.getElementById('pgbar').classList.remove('hidden');
+  showQ(0); showScreen('sq');
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
