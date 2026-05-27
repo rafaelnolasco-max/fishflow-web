@@ -91,6 +91,11 @@ export default function CRMPage() {
   const [form,    setForm]    = useState(EMPTY_FORM)
   const dragId  = useRef(null)
 
+  // ── Leads state ───────────────────────────────────────────────────────────
+  const [leads,        setLeads]        = useState([])
+  const [leadsLoading, setLeadsLoading] = useState(false)
+  const [expandedLead, setExpandedLead] = useState(null) // id del lead expandido
+
   // ── Cobros state ───────────────────────────────────────────────────────────
   const [clients,       setClients]       = useState([])
   const [chargeForm,    setChargeForm]    = useState(EMPTY_CHARGE)
@@ -119,6 +124,17 @@ export default function CRMPage() {
       .order('created_at', { ascending: false })
     if (!error) setDeals(data || [])
     setLoading(false)
+  }, [])
+
+  // ── Fetch leads de la landing ─────────────────────────────────────────────
+  const fetchLeads = useCallback(async () => {
+    setLeadsLoading(true)
+    const { data, error } = await supabase
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (!error) setLeads(data || [])
+    setLeadsLoading(false)
   }, [])
 
   // ── Fetch clients para dropdown (usa service role vía API) ─────────────────
@@ -154,6 +170,10 @@ export default function CRMPage() {
   useEffect(() => {
     if (activeTab === 'cobros') fetchTransactions()
   }, [activeTab, fetchTransactions])
+
+  useEffect(() => {
+    if (activeTab === 'leads') fetchLeads()
+  }, [activeTab, fetchLeads])
 
   useEffect(() => {
     const channel = supabase
@@ -206,6 +226,17 @@ export default function CRMPage() {
   }
 
   function openModal(etapa = 'prospecto') { setForm({ ...EMPTY_FORM, etapa }); setModal({ open: true, editId: null }) }
+
+  function convertLeadToDeal(lead) {
+    setForm({
+      ...EMPTY_FORM,
+      contacto: lead.name || '',
+      notas: `[Lead IA — ${fmtDate(lead.created_at)}]\n\nProblema: ${lead.problem}\n\nRespuesta FishFlow:\n${lead.ai_response || ''}`,
+      etapa: 'prospecto',
+    })
+    setModal({ open: true, editId: null })
+    setActiveTab('crm')
+  }
   function editDeal(d) {
     setForm({ empresa: d.empresa||'', giro: d.giro||'', contacto: d.contacto||'', cargo: d.cargo||'',
       etapa: d.etapa||'prospecto', prob: d.prob??50, fecha: d.fecha||'',
@@ -346,6 +377,9 @@ export default function CRMPage() {
           </button>
           <button className={`ff-tab ${activeTab === 'cobros' ? 'active' : ''}`} onClick={() => setActiveTab('cobros')}>
             💳 Cobros
+          </button>
+          <button className={`ff-tab ${activeTab === 'leads' ? 'active' : ''}`} onClick={() => setActiveTab('leads')}>
+            🎯 Leads {leads.length > 0 && <span className="ff-tab-badge">{leads.length}</span>}
           </button>
         </div>
         <div className="ff-header-right">
@@ -585,6 +619,86 @@ export default function CRMPage() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ── Tab Leads ─────────────────────────────────────────────────────── */}
+      {activeTab === 'leads' && (
+        <div className="ld-wrap">
+          <div className="ld-header">
+            <div>
+              <div className="ld-title">🎯 Leads desde la landing</div>
+              <div className="ld-sub">Prospectos que usaron el formulario de diagnóstico IA</div>
+            </div>
+            <button className="co-btn-refresh" onClick={fetchLeads} title="Actualizar">↻</button>
+          </div>
+
+          {leadsLoading ? (
+            <div className="ff-loading">Cargando leads...</div>
+          ) : leads.length === 0 ? (
+            <div className="ld-empty">
+              <div className="ld-empty-icon">🎯</div>
+              <div>Aún no hay leads. Cuando alguien llene el formulario de diagnóstico en la landing aparecerá aquí.</div>
+            </div>
+          ) : (
+            <div className="ld-table-wrap">
+              <table className="ld-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Problema</th>
+                    <th>Respuesta IA</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leads.map(lead => {
+                    const isExpanded = expandedLead === lead.id
+                    return (
+                      <tr key={lead.id}>
+                        <td className="co-td-date">{fmtDate(lead.created_at)}</td>
+                        <td className="ld-td-name">{lead.name}</td>
+                        <td>
+                          <a href={`mailto:${lead.email}`} className="ld-email">{lead.email}</a>
+                        </td>
+                        <td className="ld-td-text">
+                          <div className={isExpanded ? '' : 'ld-truncate'}>{lead.problem}</div>
+                          {lead.problem?.length > 80 && (
+                            <button className="ld-toggle" onClick={() => setExpandedLead(isExpanded ? null : lead.id)}>
+                              {isExpanded ? 'Ver menos ↑' : 'Ver más ↓'}
+                            </button>
+                          )}
+                        </td>
+                        <td className="ld-td-text">
+                          {lead.ai_response ? (
+                            <>
+                              <div className={isExpanded ? '' : 'ld-truncate'}>{lead.ai_response}</div>
+                              {lead.ai_response?.length > 80 && (
+                                <button className="ld-toggle" onClick={() => setExpandedLead(isExpanded ? null : lead.id)}>
+                                  {isExpanded ? 'Ver menos ↑' : 'Ver más ↓'}
+                                </button>
+                              )}
+                            </>
+                          ) : <span style={{ color: '#2e3150' }}>—</span>}
+                        </td>
+                        <td>
+                          <button
+                            className="ld-convert-btn"
+                            onClick={() => convertLeadToDeal(lead)}
+                            title="Pasar al CRM como oportunidad"
+                          >
+                            + CRM
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
@@ -847,4 +961,30 @@ const CSS = `
   .co-sync-btn { background:transparent; border:1px solid #2e3150; color:#8b8fa8; border-radius:5px; padding:3px 7px; cursor:pointer; font-size:13px; transition:all .15s; }
   .co-sync-btn:hover:not(:disabled) { color:#06b6d4; border-color:#06b6d4; }
   .co-sync-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+  /* ── Tab badge ───────────────────────────────────────────────────────────── */
+  .ff-tab-badge { display:inline-flex; align-items:center; justify-content:center; background:#FF8C35; color:#fff; border-radius:20px; font-size:10px; font-weight:700; padding:1px 6px; margin-left:5px; min-width:18px; }
+
+  /* ── Tab Leads ───────────────────────────────────────────────────────────── */
+  .ld-wrap { padding:24px; }
+  .ld-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .ld-title { font-size:18px; font-weight:700; color:#e8eaf6; margin-bottom:4px; }
+  .ld-sub { font-size:12px; color:#8b8fa8; }
+  .ld-empty { display:flex; flex-direction:column; align-items:center; gap:12px; color:#8b8fa8; font-size:13px; padding:60px 0; text-align:center; max-width:340px; margin:0 auto; }
+  .ld-empty-icon { font-size:36px; }
+  .ld-table-wrap { background:#1a1d2e; border:1px solid #2e3150; border-radius:14px; overflow:hidden; }
+  .ld-table { width:100%; border-collapse:collapse; font-size:12px; color:#e8eaf6; }
+  .ld-table th { background:#252840; color:#8b8fa8; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; padding:10px 14px; text-align:left; border-bottom:1px solid #2e3150; white-space:nowrap; }
+  .ld-table td { padding:12px 14px; border-bottom:1px solid #1a1d2e; vertical-align:top; }
+  .ld-table tr:last-child td { border-bottom:none; }
+  .ld-table tr:hover td { background:rgba(255,255,255,.02); }
+  .ld-td-name { font-weight:700; white-space:nowrap; }
+  .ld-email { color:#67D4E8; text-decoration:none; font-size:11px; }
+  .ld-email:hover { text-decoration:underline; }
+  .ld-td-text { max-width:260px; }
+  .ld-truncate { overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; color:#c4c9e8; line-height:1.5; }
+  .ld-toggle { background:none; border:none; color:#5b6af0; font-size:11px; cursor:pointer; padding:2px 0; margin-top:3px; }
+  .ld-toggle:hover { text-decoration:underline; }
+  .ld-convert-btn { background:rgba(255,140,53,.15); border:1px solid rgba(255,140,53,.4); color:#FF8C35; border-radius:7px; padding:5px 12px; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; transition:all .15s; }
+  .ld-convert-btn:hover { background:rgba(255,140,53,.25); border-color:#FF8C35; }
 `
