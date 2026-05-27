@@ -82,6 +82,32 @@ export function posToBelangeTransaction(t: PosTransaction): BelangeTransaction {
   };
 }
 
+// ─── Belange — Inventario de productos ───────────────────────────────────────
+// Tabla belange_inventory: catálogo de productos con stock y precios.
+// El campo `cost` NUNCA debe exponerse en la UI del cliente.
+
+export type BelangeCategory = "capilares" | "afeitado" | "tratamientos" | "coloracion";
+
+export interface BelangeInventoryProduct {
+  id:              string;
+  client_id:       string;
+  name:            string;
+  brand:           string | null;
+  category:        BelangeCategory | null;
+  // cost — campo omitido intencionalmente del tipo cliente; solo se usa server-side
+  suggested_price: number | null;
+  stock_qty:       number;
+  min_stock:       number;
+  active:          boolean;
+  created_at:      string;
+  updated_at:      string;
+}
+
+/** Devuelve true si el producto está en stock crítico */
+export function isBelangeLowStock(p: BelangeInventoryProduct): boolean {
+  return p.stock_qty <= p.min_stock;
+}
+
 // ─── TherapyOS ────────────────────────────────────────────────────────────────
 
 export const MARIO_CLIENT_ID = "d4e5f6a7-b8c9-4012-def0-123456789abc";

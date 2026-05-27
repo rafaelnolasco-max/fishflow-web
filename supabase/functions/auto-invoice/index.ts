@@ -67,11 +67,16 @@ function buildEmailHtml(params: {
       <td align="center">
         <table width="520" cellpadding="0" cellspacing="0" style="background:white;border-radius:4px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.10);">
 
-          <!-- Header naranja -->
+          <!-- Barra naranja superior -->
           <tr>
-            <td style="background:#F26B17;padding:24px 32px 20px;">
-              <img src="https://fishflow.mx/logo-horizontal.svg" alt="FishFlow" width="160" style="display:block;height:auto;margin-bottom:10px;" />
-              <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.85);letter-spacing:0.12em;text-transform:uppercase;">Recibo de Pago Confirmado</p>
+            <td style="background:#F26B17;height:6px;font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
+
+          <!-- Header blanco con logo -->
+          <tr>
+            <td style="background:#ffffff;padding:24px 32px 20px;border-bottom:1px solid #E5E1D6;">
+              <img src="https://fishflow.mx/logo-horizontal-mono.svg" alt="FishFlow" width="160" style="display:block;height:auto;margin-bottom:10px;" />
+              <p style="margin:0;font-size:12px;color:#F26B17;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;">Recibo de Pago Confirmado</p>
             </td>
           </tr>
 
@@ -134,29 +139,24 @@ function buildEmailHtml(params: {
 </html>`
 }
 
-// ─── Enviar email via Resend ──────────────────────────────────────────────────
+// ─── Enviar UN email a UN destinatario via Resend ────────────────────────────
 
-async function sendReceiptEmail(params: {
-  to: string[]
+async function sendOneEmail(params: {
+  to: string
   subject: string
   html: string
-}): Promise<{ ok: boolean; error?: string }> {
-  const resendKey = Deno.env.get('RESEND_API_KEY')
-  if (!resendKey) {
-    console.warn('[auto-invoice] RESEND_API_KEY no configurado — saltando email')
-    return { ok: false, error: 'RESEND_API_KEY not set' }
-  }
-
+  resendKey: string
+}): Promise<{ ok: boolean; id?: string; error?: string }> {
   const resp = await fetch(RESEND_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${resendKey}`,
+      Authorization: `Bearer ${params.resendKey}`,
     },
     body: JSON.stringify({
       from:     FROM_ADDRESS,
       reply_to: RAFA_EMAIL,
-      to:       params.to,
+      to:       [params.to],
       subject:  params.subject,
       html:     params.html,
     }),
@@ -164,13 +164,47 @@ async function sendReceiptEmail(params: {
 
   if (!resp.ok) {
     const text = await resp.text()
-    console.error('[auto-invoice] Resend error:', text)
+    console.error(`[auto-invoice] Resend error para ${params.to}:`, text)
     return { ok: false, error: text }
   }
 
   const result = await resp.json()
-  console.log('[auto-invoice] Email enviado via Resend:', result.id)
-  return { ok: true }
+  console.log(`[auto-invoice] Email enviado a ${params.to} — Resend ID: ${result.id}`)
+  return { ok: true, id: result.id }
+}
+
+// ─── Enviar emails a todos los destinatarios (individualmente) ────────────────
+
+async function sendReceiptEmails(params: {
+  recipients: string[]
+  subject: string
+  html: string
+}): Promise<{ ok: boolean; results: Record<string, string>; errors: Record<string, string> }> {
+  const resendKey = Deno.env.get('RESEND_API_KEY')
+  if (!resendKey) {
+    console.warn('[auto-invoice] RESEND_API_KEY no configurado — saltando email')
+    return { ok: false, results: {}, errors: { all: 'RESEND_API_KEY not set' } }
+  }
+
+  const results: Record<string, string> = {}
+  const errors: Record<string, string>  = {}
+
+  for (const to of params.recipients) {
+    const { ok, id, error } = await sendOneEmail({
+      to,
+      subject: params.subject,
+      html:    params.html,
+      resendKey,
+    })
+    if (ok && id) {
+      results[to] = id
+    } else {
+      errors[to] = error ?? 'unknown error'
+    }
+  }
+
+  const allOk = Object.keys(errors).length === 0
+  return { ok: allOk, results, errors }
 }
 
 // ─── Serve ────────────────────────────────────────────────────────────────────
@@ -230,26 +264,27 @@ serve(async (req: Request) => {
 
     console.log('[auto-invoice] Enviando recibo a:', recipients.join(', '))
 
-    // ── 4. Armar y enviar email ──────────────────────────────────────────────
+    // ── 4. Armar y enviar emails individuales ───────────────────────────────
     const emailHtml = buildEmailHtml({ clienteNombre, concepto, monto, metodo, receiptUrl, folio })
 
     const nombreCliente = clienteNombre ? ` — ${clienteNombre}` : ''
-    const { ok, error: emailError } = await sendReceiptEmail({
-      to:      recipients,
+    const { ok, results, errors } = await sendReceiptEmails({
+      recipients,
       subject: `Recibo de pago ${folio}${nombreCliente} · ${monto}`,
       html:    emailHtml,
     })
 
-    if (!ok) {
-      // No es error fatal — el pago ya se registró en DB
-      return new Response(
-        JSON.stringify({ partial: true, warning: 'Email no enviado', detail: emailError, folio, receiptUrl }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
+    const hasErrors = Object.keys(errors).length > 0
 
     return new Response(
-      JSON.stringify({ success: true, folio, receiptUrl, recipients }),
+      JSON.stringify({
+        success: true,
+        folio,
+        receiptUrl,
+        recipients,
+        emailResults: results,
+        emailErrors: hasErrors ? errors : undefined,
+      }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     )
 
