@@ -37,6 +37,12 @@ import {
   Scissors,
   Store,
   Building2,
+  Trophy,
+  Utensils,
+  Brain,
+  Navigation,
+  LayoutDashboard,
+  Eye,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -87,7 +93,7 @@ export default function Home() {
             {[
               { label: "Cómo funciona", id: "how" },
               { label: "Servicios",     id: "services" },
-              { label: "Verticales",    id: "verticals" },
+              { label: "Apps",          id: "apps" },
               { label: "Por qué FishFlow", id: "why" },
               { label: "FAQ",           id: "faq" },
             ].map((item) => (
@@ -151,8 +157,8 @@ export default function Home() {
                 >
                   Agendar diagnóstico gratis <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-                <Button onClick={() => scrollToSection("verticals")} variant="outline" size="lg">
-                  Ver demos por industria
+                <Button onClick={() => scrollToSection("apps")} variant="outline" size="lg">
+                  Ver apps por industria
                 </Button>
               </div>
 
@@ -204,7 +210,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { step: "01", icon: Search,  title: "Diagnóstico",        desc: "Llamada inicial gratuita: revisamos tu operación, identificamos cuellos de botella y proponemos qué automatizar primero." },
-              { step: "02", icon: PenTool, title: "Mockup a la medida", desc: "Diseñamos un mockup funcional pensado para tu vertical (cafetería, autolavado, tintorería, restaurante…) y lo aprobamos juntos." },
+              { step: "02", icon: PenTool, title: "Prototipo funcional a la medida", desc: "Diseñamos una web app funcional pensada para tu vertical (cafetería, autolavado, tintorería, hospital…) y la aprobamos juntos antes de implementar." },
               { step: "03", icon: Cog,     title: "Implementación",     desc: "Conectamos WhatsApp, agenda, base de datos y dashboards. Migramos tus clientes y capacitamos al equipo." },
               { step: "04", icon: Activity,title: "Operación y mejora", desc: "Monitoreamos métricas, te entregamos reportes y vamos optimizando flujos mes con mes." },
             ].map((item) => (
@@ -231,29 +237,29 @@ export default function Home() {
           <div className="text-center mb-14">
             <Badge variant="outline" className="mb-3 border-primary/30 text-primary">Paquetes</Badge>
             <h2 className="text-3xl md:text-5xl font-bold mb-4 text-foreground">
-              Flow SaaS — Elige el nivel que necesitas
+              Elige el nivel que necesita tu negocio
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Plataforma en la nube que tú o tu equipo operan. Tres niveles para crecer sin cambiar de herramienta.
+              Desde presencia digital hasta automatización con inteligencia artificial. Tres niveles para crecer sin cambiar de herramienta.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
 
-            {/* Básico */}
+            {/* Flow Básico */}
             <Card className="border-2 border-primary/20 hover:border-primary/40 transition-colors">
               <CardHeader>
                 <Badge className="w-fit mb-2 bg-primary/10 text-primary border-primary/20">Básico</Badge>
                 <CardTitle className="text-2xl text-primary">Flow Básico</CardTitle>
-                <CardDescription>Todo lo que necesitas para empezar a automatizar tu negocio desde el primer día.</CardDescription>
+                <CardDescription>Presencia digital profesional para negocios que están dando su primer paso digital.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   {[
-                    { t: "CRM de clientes",            d: "Registro, historial y fichas de contacto" },
-                    { t: "Notificaciones WhatsApp",    d: "Avisos automáticos de estatus" },
-                    { t: "Dashboard operativo",        d: "Vista diaria de tu negocio" },
-                    { t: "Capacitación inicial",       d: "2 sesiones de onboarding en vivo" },
+                    { t: "Landing page profesional",      d: "Hasta 4 actualizaciones al año incluidas" },
+                    { t: "Dominio + hosting gestionados", d: "FishFlow lo administra por ti, sin complicaciones" },
+                    { t: "Formulario de contacto",        d: "Tus prospectos te escriben directo desde el sitio" },
+                    { t: "Capacitación inicial",          d: "1 sesión de onboarding en vivo" },
                   ].map((b) => (
                     <div key={b.t} className="flex gap-3">
                       <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
@@ -274,7 +280,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {/* Intermedio */}
+            {/* Flow Pro */}
             <Card className="border-2 border-primary/50 hover:border-primary transition-colors relative shadow-lg">
               <div className="absolute -top-3 right-5">
                 <Badge className="bg-primary text-white hover:bg-primary">
@@ -284,17 +290,17 @@ export default function Home() {
               <CardHeader>
                 <Badge className="w-fit mb-2 bg-primary/15 text-primary border-primary/30">Intermedio</Badge>
                 <CardTitle className="text-2xl text-primary">Flow Pro</CardTitle>
-                <CardDescription>Automatización completa del ciclo de cliente: desde la cita hasta el seguimiento postventa.</CardDescription>
+                <CardDescription>Operación digitalizada: ventas, clientes y pagos integrados en un solo lugar.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   {[
-                    { t: "Todo Flow Básico",           d: "CRM, WhatsApp, dashboard, capacitación" },
-                    { t: "Agenda online",              d: "Reservas y citas desde el celular del cliente" },
-                    { t: "Notificaciones SMS + email", d: "Multi-canal para mayor tasa de apertura" },
-                    { t: "Reportes automáticos",       d: "Resumen mensual de KPIs por correo" },
-                    { t: "Flujos postventa",           d: "Seguimiento, recompra y NPS automatizados" },
-                    { t: "Soporte mensual dedicado",   d: "Sesión mensual de revisión y mejora" },
+                    { t: "Landing page + SEO básico",   d: "Hasta 8 actualizaciones al año incluidas" },
+                    { t: "Dashboard operativo",         d: "Ventas, reportes y métricas clave de tu negocio" },
+                    { t: "CRM de clientes",             d: "Pipeline y gestión de oportunidades · hasta 3 usuarios" },
+                    { t: "Integración de pago",         d: "MercadoPago o Stripe conectados a tu app" },
+                    { t: "Notificaciones automáticas",  d: "WhatsApp o email sin que levantes un dedo" },
+                    { t: "Soporte mensual dedicado",    d: "Sesión mensual de revisión y mejora" },
                   ].map((b) => (
                     <div key={b.t} className="flex gap-3">
                       <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
@@ -314,22 +320,22 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {/* Avanzado */}
+            {/* Flow IA */}
             <Card className="border-2 border-accent/30 hover:border-accent/60 transition-colors bg-gradient-to-br from-accent/5 to-transparent">
               <CardHeader>
                 <Badge className="w-fit mb-2 bg-accent/10 text-accent border-accent/20">Avanzado</Badge>
-                <CardTitle className="text-2xl text-accent">Flow Enterprise</CardTitle>
-                <CardDescription>La solución completa para negocios con mayor volumen, múltiples usuarios o flujos complejos.</CardDescription>
+                <CardTitle className="text-2xl text-accent">Flow IA</CardTitle>
+                <CardDescription>Automatización completa con inteligencia artificial aplicada a tu operación real.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   {[
-                    { t: "Todo Flow Pro",              d: "Agenda, SMS, reportes, postventa, soporte" },
-                    { t: "CRM avanzado",               d: "Segmentación, etiquetas y automatizaciones" },
-                    { t: "Portal o catálogo digital",  d: "Página o app a la medida del negocio" },
-                    { t: "IA para respuestas",         d: "Bot entrenado con tu catálogo y preguntas frecuentes" },
-                    { t: "Métricas en tiempo real",    d: "Alertas y dashboards con KPIs personalizados" },
-                    { t: "Integraciones a la medida",  d: "Cobros, inventario, ERP ligero" },
+                    { t: "Landing page + SEO + optimización continua", d: "Hasta 12 actualizaciones al año incluidas" },
+                    { t: "Dashboard en tiempo real",   d: "Alertas, KPIs personalizados y reportes ejecutivos" },
+                    { t: "CRM avanzado + automatización", d: "Flujos, segmentación y seguimiento sin intervención manual" },
+                    { t: "IA aplicada a tu negocio",   d: "Resúmenes automáticos, priorización de pipeline, respuestas inteligentes" },
+                    { t: "Integraciones a la medida",  d: "Facturación, inventario, GPS, auditoría y más" },
+                    { t: "Usuarios ilimitados",        d: "Todo tu equipo en la misma plataforma" },
                     { t: "Revisión trimestral",        d: "Sesión estratégica con reporte ejecutivo" },
                   ].map((b) => (
                     <div key={b.t} className="flex gap-3">
@@ -342,11 +348,11 @@ export default function Home() {
                   ))}
                 </div>
                 <Button
-                  onClick={() => window.open(`mailto:${EMAIL}?subject=Cotizaci%C3%B3n%20Flow%20Enterprise`)}
+                  onClick={() => window.open(`mailto:${EMAIL}?subject=Cotizaci%C3%B3n%20Flow%20IA`)}
                   variant="outline"
                   className="w-full mt-4 border-accent text-accent hover:bg-accent hover:text-white"
                 >
-                  Cotizar Flow Enterprise
+                  Cotizar Flow IA
                 </Button>
               </CardContent>
             </Card>
@@ -358,56 +364,59 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Verticales / Demos ──────────────────────────────────────────── */}
-      <section id="verticals" className="py-20 px-4 md:px-0 bg-gradient-to-b from-secondary/30 to-white">
+      {/* ── Web apps por industria ──────────────────────────────────────── */}
+      <section id="apps" className="py-20 px-4 md:px-0 bg-gradient-to-b from-secondary/30 to-white">
         <div className="container max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <Badge variant="outline" className="mb-3 border-accent/40 text-accent">Demos por industria</Badge>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-foreground">Mockups en construcción</h2>
+            <Badge variant="outline" className="mb-3 border-accent/40 text-accent">Demos en vivo</Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-foreground">Web apps a la medida</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Estamos puliendo tres demos verticales para que puedas ver exactamente cómo se ve
-              FishFlow en tu industria. ¿Quieres que el siguiente sea para tu negocio?
+              No son imágenes — son apps reales que puedes explorar ahora mismo. Mira exactamente
+              cómo se vería FishFlow en tu industria.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                icon: Shirt, color: "primary", title: "Tintorería", domain: "tintoreria.fishflow.mx",
+                icon: Shirt, color: "primary", title: "Tintorería", slug: "tintoreria",
                 features: ["Seguimiento de prendas con folio","Aviso por WhatsApp cuando esté lista","Historial y CRM de clientes"],
               },
               {
-                icon: Car, color: "accent", title: "Autolavado", domain: "autolavado.fishflow.mx",
+                icon: Car, color: "accent", title: "Autolavado", slug: "autolavado",
                 features: ["SMS/WhatsApp automático al entrar y salir","Control de turnos y tiempos","Dashboard de tickets diarios"],
               },
               {
-                icon: Coffee, color: "primary", title: "Cafetería", domain: "cafeteria.fishflow.mx",
+                icon: Coffee, color: "primary", title: "Cafetería", slug: "cafeteria",
                 features: ["Pedidos por WhatsApp o QR","Programa de lealtad digital","Reportes de ventas por turno"],
               },
               {
-                icon: Scissors, color: "accent", title: "Estética / Barbería", domain: "estetica.fishflow.mx",
+                icon: Scissors, color: "accent", title: "Estética / Barbería", slug: "barberia",
                 features: ["Agenda online 24/7 para clientes","Recordatorio automático de cita","CRM con historial de servicios"],
               },
               {
-                icon: Store, color: "primary", title: "Tienda Online", domain: "tienda.fishflow.mx",
-                features: ["Catálogo digital con carrito por WhatsApp","Gestión de pedidos e inventario","Notificaciones de envío automáticas"],
+                icon: Utensils, color: "primary", title: "Pozolería", slug: "pozoleria",
+                features: ["Menú digital accesible desde el celular","Pedidos y reservaciones online","Control de platillos y ventas del día"],
               },
               {
-                icon: Building2, color: "accent", title: "CRM a la Medida", domain: "empresa.fishflow.mx",
-                features: ["Pipeline de ventas personalizado","Automatización de seguimiento a prospectos","Reportes ejecutivos y métricas de equipo"],
+                icon: Trophy, color: "accent", title: "MMChampions", slug: "mmchampions",
+                features: ["Gestión de torneos y equipos","Registro de resultados en tiempo real","Dashboard de estadísticas del campeonato"],
+              },
+              {
+                icon: Brain, color: "primary", title: "Centro de Terapias", slug: "terapias",
+                features: ["Agenda de citas por especialidad","Expediente básico del paciente","Notificaciones automáticas de cita"],
               },
             ].map((v) => (
               <Card key={v.title} className="overflow-hidden hover:shadow-xl transition-all group">
                 <div className={`relative h-40 bg-gradient-to-br ${v.color === "primary" ? "from-primary/30 via-primary/15 to-primary/5" : "from-accent/30 via-accent/15 to-accent/5"} flex items-center justify-center`}>
                   <v.icon className={`h-16 w-16 ${v.color === "primary" ? "text-primary/70" : "text-accent/80"} group-hover:scale-110 transition-transform`} />
-                  <Badge className="absolute top-3 right-3 bg-white/90 text-foreground border-0">Próximamente</Badge>
+                  <Badge className="absolute top-3 right-3 bg-white/90 text-foreground border-0 text-xs">Demo en vivo</Badge>
                 </div>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base">{v.title}</CardTitle>
-                  <CardDescription className="text-xs">{v.domain}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="text-sm space-y-1.5 text-muted-foreground">
+                  <ul className="text-sm space-y-1.5 text-muted-foreground mb-4">
                     {v.features.map((f) => (
                       <li key={f} className="flex gap-2">
                         <CheckCircle2 className={`h-4 w-4 ${v.color === "primary" ? "text-primary" : "text-accent"} flex-shrink-0 mt-0.5`} />
@@ -415,6 +424,14 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
+                  <Button
+                    onClick={() => window.open(`/demos/${v.slug}`, "_blank")}
+                    variant="outline"
+                    size="sm"
+                    className={`w-full ${v.color === "primary" ? "border-primary text-primary hover:bg-primary hover:text-white" : "border-accent text-accent hover:bg-accent hover:text-white"}`}
+                  >
+                    Ver demo <ExternalLink className="ml-2 h-3 w-3" />
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -442,33 +459,35 @@ export default function Home() {
             </p>
           </div>
 
-          <Card className="border-2 border-primary/30 mb-8 overflow-hidden">
+          {/* Featured — RiskFlow · Hospital Oftalmológico */}
+          <Card className="border-2 border-accent/30 mb-8 overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-3">
-              <div className="bg-gradient-to-br from-primary/15 to-accent/10 p-8 flex flex-col justify-center md:col-span-1">
-                <Badge className="w-fit mb-3 bg-primary text-white hover:bg-primary">Caso destacado</Badge>
-                <h3 className="text-xl font-bold mb-2 text-foreground">Autolavado en GDL</h3>
-                <p className="text-sm text-muted-foreground mb-4">Flow Pro — Automatización de operación y comunicación con el cliente</p>
+              <div className="bg-gradient-to-br from-accent/15 to-primary/10 p-8 flex flex-col justify-center md:col-span-1">
+                <Badge className="w-fit mb-3 bg-accent text-white hover:bg-accent">En desarrollo</Badge>
+                <h3 className="text-xl font-bold mb-2 text-foreground">RiskFlow · Hospital Oftalmológico</h3>
+                <p className="text-sm text-muted-foreground mb-4">Flow IA — Gestión de Riesgos y Controles · Auditoría interna digital</p>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Sparkles className="h-4 w-4 text-primary" /> Cliente activo
+                  <Eye className="h-4 w-4 text-accent" /> CDMX · Sector salud
                 </div>
               </div>
               <div className="md:col-span-2 p-8">
-                <CardTitle className="text-lg mb-3">Del "¿ya está listo mi carro?" al aviso automático antes de que lo pregunten</CardTitle>
+                <CardTitle className="text-lg mb-3">Del Excel al ciclo de auditoría 100% digital, colaborativo y trazable</CardTitle>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Un autolavado express en Guadalajara recibía decenas de llamadas diarias de clientes
-                  preguntando por su vehículo. Con FishFlow integramos su sistema de tickets para que, al
-                  registrar la entrada del carro, el cliente reciba un WhatsApp de confirmación; y al
-                  marcarlo como listo, un segundo mensaje automático le indica que puede pasar a recogerlo.
-                  Cero llamadas entrantes, mejor experiencia y menos carga para el personal.
+                  El equipo de Auditoría Interna de un hospital oftalmológico de referencia en CDMX gestionaba
+                  riesgos y controles en Excel — sin flujo de trabajo separado, sin historial, sin trazabilidad.
+                  Preparar el reporte para la certificadora tomaba días de consolidación manual. Con FishFlow
+                  construimos una app en tres fases: un cuestionario guiado que el Dueño del Proceso completa
+                  solo (sin capacitación previa), generación automática de la Matriz de Riesgos y Controles,
+                  y un Mapa de Calor en tiempo real por nivel inherente y residual. Sin Excel, desde cualquier dispositivo.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
                   {[
-                    { label: "Antes",     text: "30+ llamadas diarias de \"¿ya está?\"" },
-                    { label: "Después",   text: "WhatsApp automático al entrar y al salir" },
-                    { label: "Resultado", text: "Cero llamadas de seguimiento + clientes satisfechos" },
+                    { label: "Antes",        text: "Excel compartido manualmente, sin historial ni trazabilidad" },
+                    { label: "Con FishFlow", text: "Cuestionario guiado → Matriz automática → Mapa de calor" },
+                    { label: "Resultado",    text: "Ciclo de auditoría colaborativo, trazable y auditable desde cualquier dispositivo" },
                   ].map((r) => (
-                    <div key={r.label} className="bg-primary/5 p-3 rounded-lg">
-                      <p className="text-xs font-semibold text-primary uppercase mb-1">{r.label}</p>
+                    <div key={r.label} className="bg-accent/5 p-3 rounded-lg">
+                      <p className="text-xs font-semibold text-accent uppercase mb-1">{r.label}</p>
                       <p className="text-sm text-foreground">{r.text}</p>
                     </div>
                   ))}
@@ -477,18 +496,70 @@ export default function Home() {
             </div>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Grid — 6 clientes activos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { title: "Tintorería: cero llamadas de '¿ya está listo?'",     desc: "Notificaciones automáticas de WhatsApp cuando la prenda está lista. Menos llamadas, mejor experiencia para el cliente.", tag: "Operación", color: "primary" },
-              { title: "Cafetería: programa de lealtad sin app ni tarjetas", desc: "Sellos digitales por WhatsApp: cada compra suma puntos automáticamente. El cliente regresa más, sin que el barista levante un dedo extra.", tag: "Comercial", color: "accent" },
-              { title: "Tienda local: pedidos por WhatsApp 24/7",            desc: "Catálogo digital y carrito por WhatsApp. Los pedidos llegan listos para empacar, sin teléfonos cruzados ni hojas de papel.", tag: "Ventas", color: "primary" },
+              {
+                icon: LayoutDashboard, color: "accent",
+                title: "FishFlow Admin CRM",
+                tag: "Gestión",
+                desc: "Panel central para gestionar clientes, ingresos y operaciones de todos los negocios desde un solo lugar — en tiempo real, desde cualquier dispositivo.",
+                ai: false,
+              },
+              {
+                icon: ShoppingBag, color: "primary",
+                title: "App Belange · Estética CDMX",
+                tag: "Operación",
+                desc: "Dashboard de contabilidad de productos vendidos por día, semana y mes. Integración con MercadoPago para control de ingresos sin hojas de cálculo.",
+                ai: false,
+              },
+              {
+                icon: Navigation, color: "accent",
+                title: "App Lukon · Telemática GPS",
+                tag: "Tecnología",
+                desc: "Plataforma de monitoreo GPS con dashboard en tiempo real, gestión de contratos, facturación integrada y checkout digital con MercadoPago.",
+                ai: false,
+              },
+              {
+                icon: TrendingUp, color: "primary",
+                title: "App TBA · Telecom CRM",
+                tag: "Ventas + IA",
+                desc: "CRM de oportunidades para equipos comerciales de telecomunicaciones — con inteligencia artificial que prioriza el pipeline y acelera el cierre de ventas.",
+                ai: true,
+              },
+              {
+                icon: Brain, color: "accent",
+                title: "App TherapyOS",
+                tag: "Clínico + IA",
+                desc: "Expediente clínico digital con IA que resume sesiones automáticamente, organiza notas clínicas y lleva el historial del paciente sesión a sesión.",
+                ai: true,
+              },
+              {
+                icon: Activity, color: "primary",
+                title: "CANE Neurofeedback",
+                tag: "Presencia digital",
+                desc: "Landing page clínica profesional con actualizaciones continuas. Pacientes nuevos llegan con información clara y confianza — sin que el dueño tenga que tocar nada.",
+                ai: false,
+              },
             ].map((c, i) => (
               <Card key={i} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <Badge variant="outline" className={`w-fit mb-2 ${c.color === "primary" ? "border-primary/30 text-primary" : "border-accent/40 text-accent"}`}>
-                    {c.tag}
-                  </Badge>
-                  <CardTitle className="text-base">{c.title}</CardTitle>
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="outline" className={`w-fit ${c.color === "primary" ? "border-primary/30 text-primary" : "border-accent/40 text-accent"}`}>
+                      {c.tag}
+                    </Badge>
+                    {c.ai && (
+                      <Badge className="bg-accent/10 text-accent border border-accent/20 text-xs">
+                        <Bot className="w-3 h-3 mr-1" /> IA
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className={`rounded-lg p-2 shrink-0 ${c.color === "primary" ? "bg-primary/10" : "bg-accent/10"}`}>
+                      <c.icon className={`h-5 w-5 ${c.color === "primary" ? "text-primary" : "text-accent"}`} />
+                    </div>
+                    <CardTitle className="text-base leading-snug">{c.title}</CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">{c.desc}</p>
@@ -663,10 +734,10 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-white mb-3">Navegación</h4>
               <ul className="space-y-2 text-sm text-white/70">
-                {["how","services","verticals","cases","faq"].map((id) => (
+                {["how","services","apps","cases","faq"].map((id) => (
                   <li key={id}>
                     <button onClick={() => scrollToSection(id)} className="hover:text-white transition-colors capitalize">
-                      {id === "how" ? "Cómo funciona" : id === "services" ? "Servicios" : id === "verticals" ? "Verticales" : id === "cases" ? "Casos" : "FAQ"}
+                      {id === "how" ? "Cómo funciona" : id === "services" ? "Servicios" : id === "apps" ? "Apps" : id === "cases" ? "Casos" : "FAQ"}
                     </button>
                   </li>
                 ))}
