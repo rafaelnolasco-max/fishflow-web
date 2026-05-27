@@ -230,12 +230,13 @@ export default function CRMPage() {
   function convertLeadToDeal(lead) {
     setForm({
       ...EMPTY_FORM,
+      empresa:  lead.name || '',   // requerido — editar al nombre del negocio antes de guardar
       contacto: lead.name || '',
       notas: `[Lead IA — ${fmtDate(lead.created_at)}]\n\nProblema: ${lead.problem}\n\nRespuesta FishFlow:\n${lead.ai_response || ''}`,
       etapa: 'prospecto',
     })
-    setModal({ open: true, editId: null })
     setActiveTab('crm')
+    setModal({ open: true, editId: null })
   }
   function editDeal(d) {
     setForm({ empresa: d.empresa||'', giro: d.giro||'', contacto: d.contacto||'', cargo: d.cargo||'',
