@@ -8,7 +8,7 @@ const BELANGE_CLIENT_ID = "33933663-79d2-4caa-86fe-7ea046082b7f";
 // Correos que reciben alerta de stock bajo
 const STOCK_ALERT_EMAILS = [
   "rafaelnolasco@gmail.com",
-  // Alberto — agregar cuando Rafa confirme su email
+  "belangestudio@gmail.com",
 ];
 
 function makeSupabase() {
