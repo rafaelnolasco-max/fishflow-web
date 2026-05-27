@@ -72,7 +72,7 @@ function toRows(rows: BelangeTransaction[]) {
       t.service,
       t.price,
       t.producto || "",
-      (t.metadata as Record<string,unknown>)?.qty ?? 1,
+      t.qty ?? 1,
       t.precio_producto ?? "",
       t.price + (t.precio_producto ?? 0),
       t.payment_method,
@@ -611,9 +611,8 @@ export default function BelangePage() {
                 </thead>
                 <tbody>
                   {transactions.slice(0, 15).map(t => {
-                    const meta = (t as unknown as { metadata?: Record<string,unknown> }).metadata ?? {};
-                    const qtyVal = Number(meta.qty ?? 1);
-                    const esPrecEsp = meta.precio_sugerido && t.precio_producto && (t.precio_producto as number) < (meta.precio_sugerido as number);
+                    const qtyVal = t.qty ?? 1;
+                    const esPrecEsp = t.precio_sugerido && t.precio_producto && t.precio_producto < t.precio_sugerido;
                     return (
                       <tr key={t.id} style={{ borderBottom: "0.5px solid #f0efeb" }}>
                         <td style={{ padding: "10px 12px", color: "#999", fontSize: 12, whiteSpace: "nowrap" }}>{fmtDate(t.created_at)}</td>

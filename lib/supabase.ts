@@ -43,6 +43,8 @@ export interface BelangeTransaction {
   price:           number;         // precio del servicio (metadata.price_service)
   producto?:       string | null;
   precio_producto?: number | null;
+  qty:             number;         // cantidad de producto vendida (metadata.qty, default 1)
+  precio_sugerido?: number | null; // precio de lista al momento de la venta (metadata.precio_sugerido)
   payment_method:  PaymentMethod;
   created_at:      string;
 }
@@ -73,11 +75,13 @@ export function posToBelangeTransaction(t: PosTransaction): BelangeTransaction {
   return {
     id:              t.id,
     created_at:      t.created_at,
-    client_name:     (meta.client_name as string)     ?? "",
-    service:         t.service                        ?? "",
-    price:           (meta.price_service as number)   ?? 0,
-    producto:        (meta.producto as string)        ?? null,
-    precio_producto: (meta.precio_producto as number) ?? null,
+    client_name:     (meta.client_name as string)      ?? "",
+    service:         t.service                         ?? "",
+    price:           (meta.price_service as number)    ?? 0,
+    producto:        (meta.producto as string)         ?? null,
+    precio_producto: (meta.precio_producto as number)  ?? null,
+    qty:             (meta.qty as number)              ?? 1,
+    precio_sugerido: (meta.precio_sugerido as number)  ?? null,
     payment_method:  normalizePaymentMethod(t.payment_method),
   };
 }
