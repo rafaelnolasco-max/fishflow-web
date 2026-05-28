@@ -228,6 +228,8 @@ export default function BelangePage() {
   const [transactions, setTransactions] = useState<BelangeTransaction[]>([]);
   const [products,     setProducts]     = useState<BelangeInventoryProduct[]>([]);
   const [loading,      setLoading]      = useState(true);
+  const [view,         setView]         = useState<"ingresos" | "inventario">("ingresos");
+  const [invSearch,    setInvSearch]    = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -509,6 +511,25 @@ export default function BelangePage() {
           {/* ────────────────── DASHBOARD ────────────────── */}
           <div>
 
+            {/* ── Toggle de vista ── */}
+            <div style={{ display: "flex", gap: 4, background: "#eeede9", borderRadius: 8, padding: 4, marginBottom: "1rem" }}>
+              {([
+                { id: "ingresos",    label: "📊 Ingresos" },
+                { id: "inventario",  label: "🧴 Inventario" },
+              ] as { id: "ingresos" | "inventario"; label: string }[]).map(v => (
+                <button key={v.id} onClick={() => setView(v.id)} style={{
+                  flex: 1, padding: "7px 0",
+                  border: view === v.id ? "0.5px solid #ddd" : "none",
+                  borderRadius: 6,
+                  background: view === v.id ? "#fff" : "transparent",
+                  color: view === v.id ? "#222" : "#777",
+                  fontSize: 13, fontWeight: view === v.id ? 700 : 400, cursor: "pointer",
+                }}>
+                  {v.label}
+                </button>
+              ))}
+            </div>
+
             {/* Alerta stock bajo */}
             {lowStockProducts.length > 0 && (
               <div style={{ ...card, marginBottom: "1rem", borderLeft: `3px solid ${FF_ORANGE}`, background: "#fffaf5" }}>
@@ -530,65 +551,158 @@ export default function BelangePage() {
               </div>
             )}
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <p style={secLabel}>Ingresos</p>
-              <button onClick={() => downloadExcel(transactions)} style={{
-                display: "flex", alignItems: "center", gap: 6,
-                padding: "6px 12px", border: "0.5px solid #ddd", borderRadius: 8,
-                background: "#fff", color: "#555", fontSize: 12, cursor: "pointer",
-              }}>
-                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                Excel — 3 hojas
-              </button>
-            </div>
-
-            {/* Tabs */}
-            <div style={{ display: "flex", gap: 4, background: "#eeede9", borderRadius: 8, padding: 4, marginBottom: "1rem" }}>
-              {(["day", "week", "month"] as Tab[]).map(t => (
-                <button key={t} onClick={() => setTab(t)} style={{
-                  flex: 1, padding: "7px 0",
-                  border: tab === t ? "0.5px solid #ddd" : "none",
-                  borderRadius: 6,
-                  background: tab === t ? "#fff" : "transparent",
-                  color: tab === t ? "#222" : "#777",
-                  fontSize: 13, fontWeight: tab === t ? 700 : 400, cursor: "pointer",
+            {view === "ingresos" && (<>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <p style={secLabel}>Ingresos</p>
+                <button onClick={() => downloadExcel(transactions)} style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "6px 12px", border: "0.5px solid #ddd", borderRadius: 8,
+                  background: "#fff", color: "#555", fontSize: 12, cursor: "pointer",
                 }}>
-                  {TAB_LABELS[t]}
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                  Excel — 3 hojas
                 </button>
-              ))}
-            </div>
+              </div>
 
-            {loading ? (
-              <p style={{ color: "#bbb", fontSize: 14, textAlign: "center", padding: "2rem 0" }}>Cargando…</p>
-            ) : (
-              <>
-                {/* Metrics */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: "1rem" }}>
-                  <MCard label="Total del período"  value={fmt(total)}          sub={`${countServ} transacción${countServ !== 1 ? "es" : ""}`} accent="#1a1a1a" />
-                  <MCard label="Servicios"           value={fmt(totalServicios)} sub={`ticket prom. ${fmt(avgServ)}`}                          accent={FF_CYAN}   />
-                  <MCard label="Productos"           value={fmt(totalProductos)} sub={`${countProd} venta${countProd !== 1 ? "s" : ""}`}        accent={FF_ORANGE} />
-                </div>
+              {/* Tabs período */}
+              <div style={{ display: "flex", gap: 4, background: "#eeede9", borderRadius: 8, padding: 4, marginBottom: "1rem" }}>
+                {(["day", "week", "month"] as Tab[]).map(t => (
+                  <button key={t} onClick={() => setTab(t)} style={{
+                    flex: 1, padding: "7px 0",
+                    border: tab === t ? "0.5px solid #ddd" : "none",
+                    borderRadius: 6,
+                    background: tab === t ? "#fff" : "transparent",
+                    color: tab === t ? "#222" : "#777",
+                    fontSize: 13, fontWeight: tab === t ? 700 : 400, cursor: "pointer",
+                  }}>
+                    {TAB_LABELS[t]}
+                  </button>
+                ))}
+              </div>
 
-                {/* Payment breakdown */}
-                <div style={card}>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: "#888", marginBottom: 12 }}>Desglose por método de pago</p>
-                  {(["efectivo", "tarjeta", "transferencia"] as PaymentMethod[]).map(m => {
-                    const val = m === "efectivo" ? ef : m === "tarjeta" ? ta : tr;
-                    return (
-                      <div key={m} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                        <span style={{ width: 92, fontSize: 12, color: "#666" }}>{PM[m].label}</span>
-                        <div style={{ flex: 1, height: 6, background: "#f0efeb", borderRadius: 4, overflow: "hidden" }}>
-                          <div style={{ height: "100%", width: `${Math.round((val / maxBar) * 100)}%`, background: BAR_COLOR[m], borderRadius: 4, transition: "width .4s" }} />
+              {loading ? (
+                <p style={{ color: "#bbb", fontSize: 14, textAlign: "center", padding: "2rem 0" }}>Cargando…</p>
+              ) : (
+                <>
+                  {/* Metrics */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: "1rem" }}>
+                    <MCard label="Total del período"  value={fmt(total)}          sub={`${countServ} transacción${countServ !== 1 ? "es" : ""}`} accent="#1a1a1a" />
+                    <MCard label="Servicios"           value={fmt(totalServicios)} sub={`ticket prom. ${fmt(avgServ)}`}                          accent={FF_CYAN}   />
+                    <MCard label="Productos"           value={fmt(totalProductos)} sub={`${countProd} venta${countProd !== 1 ? "s" : ""}`}        accent={FF_ORANGE} />
+                  </div>
+
+                  {/* Payment breakdown */}
+                  <div style={card}>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: "#888", marginBottom: 12 }}>Desglose por método de pago</p>
+                    {(["efectivo", "tarjeta", "transferencia"] as PaymentMethod[]).map(m => {
+                      const val = m === "efectivo" ? ef : m === "tarjeta" ? ta : tr;
+                      return (
+                        <div key={m} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                          <span style={{ width: 92, fontSize: 12, color: "#666" }}>{PM[m].label}</span>
+                          <div style={{ flex: 1, height: 6, background: "#f0efeb", borderRadius: 4, overflow: "hidden" }}>
+                            <div style={{ height: "100%", width: `${Math.round((val / maxBar) * 100)}%`, background: BAR_COLOR[m], borderRadius: 4, transition: "width .4s" }} />
+                          </div>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#444", minWidth: 68, textAlign: "right" }}>{fmt(val)}</span>
                         </div>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: "#444", minWidth: 68, textAlign: "right" }}>{fmt(val)}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </>)}
+
+            {view === "inventario" && (<>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <p style={secLabel}>Inventario disponible</p>
+                <span style={{ fontSize: 12, color: "#aaa" }}>{products.length} producto{products.length !== 1 ? "s" : ""}</span>
+              </div>
+
+              {/* Resumen rápido */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: "1rem" }}>
+                <MCard
+                  label="Total productos"
+                  value={String(products.length)}
+                  sub="en catálogo"
+                  accent="#1a1a1a"
+                />
+                <MCard
+                  label="Stock bajo"
+                  value={String(products.filter(p => p.stock_qty > 0 && p.stock_qty <= p.min_stock).length)}
+                  sub="por reponer"
+                  accent={FF_ORANGE}
+                />
+                <MCard
+                  label="Sin stock"
+                  value={String(products.filter(p => p.stock_qty === 0).length)}
+                  sub="agotados"
+                  accent="#c0392b"
+                />
+              </div>
+
+              {/* Buscador */}
+              <div style={{ marginBottom: 12 }}>
+                <input
+                  type="text"
+                  value={invSearch}
+                  onChange={e => setInvSearch(e.target.value)}
+                  placeholder="Buscar por nombre o marca…"
+                  style={{ ...inp, background: "#fff" }}
+                />
+              </div>
+
+              {/* Tabla de inventario */}
+              <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ borderBottom: "0.5px solid #e5e4df" }}>
+                      {["Producto", "Marca", "Stock", "Precio", "Estado"].map(h => (
+                        <th key={h} style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products
+                      .filter(p => {
+                        const q = invSearch.toLowerCase();
+                        return !q || p.name.toLowerCase().includes(q) || (p.brand ?? "").toLowerCase().includes(q);
+                      })
+                      .map(p => {
+                        const isOut = p.stock_qty === 0;
+                        const isLow = !isOut && p.stock_qty <= p.min_stock;
+                        const statusBg    = isOut ? "#fde8e8" : isLow ? "#fff3e0" : "#eaf5e9";
+                        const statusColor = isOut ? "#c0392b" : isLow ? "#e65100" : "#2e7d32";
+                        const statusLabel = isOut ? "Sin stock" : isLow ? "Stock bajo" : "Disponible";
+                        return (
+                          <tr key={p.id} style={{ borderBottom: "0.5px solid #f0efeb" }}>
+                            <td style={{ padding: "10px 12px", fontWeight: 600, color: "#1a1a1a" }}>{p.name}</td>
+                            <td style={{ padding: "10px 12px", color: "#888", fontSize: 12 }}>{p.brand ?? "—"}</td>
+                            <td style={{ padding: "10px 12px", fontWeight: 700, color: isOut ? "#c0392b" : isLow ? "#e65100" : "#333", textAlign: "center" }}>
+                              {p.stock_qty}
+                            </td>
+                            <td style={{ padding: "10px 12px", fontWeight: 600, color: FF_ORANGE, whiteSpace: "nowrap" }}>
+                              {fmt(p.suggested_price ?? 0)}
+                            </td>
+                            <td style={{ padding: "10px 12px" }}>
+                              <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: statusBg, color: statusColor }}>
+                                {statusLabel}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    }
+                  </tbody>
+                </table>
+                {products.filter(p => {
+                  const q = invSearch.toLowerCase();
+                  return !q || p.name.toLowerCase().includes(q) || (p.brand ?? "").toLowerCase().includes(q);
+                }).length === 0 && (
+                  <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>Sin resultados</p>
+                )}
+              </div>
+            </>)}
           </div>
         </div>
 
