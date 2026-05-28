@@ -6,11 +6,13 @@ const ADMIN_EMAIL = "rafaelnolasco@gmail.com";
 
 // ─── Acceso por ruta de cliente — vacío = cualquier autenticado ───────────────
 const CLIENT_EMAILS: Record<string, string[]> = {
-  "/app/tba":       ["andres@telecomba.com", "rafaelnolasco@gmail.com", "carlosnolascocas@gmail.com"],
-  "/app/belange":   [], // cualquier usuario autenticado
-  "/app/lukon":     ["rafaelnolasco@gmail.com", "aalmarazmo@lukon.com.mx"],
+  "/app/tba":         ["andres@telecomba.com", "rafaelnolasco@gmail.com", "carlosnolascocas@gmail.com"],
+  "/app/belange":     [], // cualquier usuario autenticado
+  "/app/lukon":       ["rafaelnolasco@gmail.com", "aalmarazmo@lukon.com.mx"],
   // TherapyOS — Mario Citalán
-  "/app/therapyos": ["mariocitalan@gmail.com", "rafaelnolasco@gmail.com"],
+  "/app/therapyos":   ["mariocitalan@gmail.com", "rafaelnolasco@gmail.com"],
+  // Autolavado — Carlos Alonso
+  "/app/autolavado":  ["alonsoalonso68@hotmail.com", "rafaelnolasco@gmail.com"],
 };
 
 export async function middleware(request: NextRequest) {

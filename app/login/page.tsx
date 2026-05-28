@@ -12,21 +12,23 @@ function LoginForm() {
 
   // ── Mapa email → ruta de destino (fallback cuando no hay ?next) ─────────────
   const EMAIL_TO_ROUTE: Record<string, string> = {
-    "andres@telecomba.com":       "/app/tba",
-    "carlosnolascocas@gmail.com": "/app/tba",
-    "belangestudio@gmail.com":    "/app/belange",
-    "mariocitalan@gmail.com":     "/app/therapyos",
-    "aalmarazmo@lukon.com.mx":    "/app/lukon",
-    "rafaelnolasco@gmail.com":    "/admin",
+    "andres@telecomba.com":        "/app/tba",
+    "carlosnolascocas@gmail.com":  "/app/tba",
+    "belangestudio@gmail.com":     "/app/belange",
+    "mariocitalan@gmail.com":      "/app/therapyos",
+    "aalmarazmo@lukon.com.mx":     "/app/lukon",
+    "alonsoalonso68@hotmail.com":  "/app/autolavado",
+    "rafaelnolasco@gmail.com":     "/admin",
   };
 
   // ── Contexto visual por ruta de destino ──────────────────────────────────────
   const APP_CONTEXT: Record<string, { label: string; color: string }> = {
-    "/app/therapyos": { label: "TherapyOS", color: "#1a6b4a" },
-    "/app/tba":       { label: "TBA Telecom CRM", color: "#1a4a6b" },
-    "/app/belange":   { label: "Belange Studio", color: "#6b1a4a" },
-    "/app/lukon":     { label: "Lukon Telemática", color: "#4a6b1a" },
-    "/admin":         { label: "FishFlow Admin", color: "#333" },
+    "/app/therapyos":  { label: "TherapyOS",           color: "#1a6b4a" },
+    "/app/tba":        { label: "TBA Telecom CRM",      color: "#1a4a6b" },
+    "/app/belange":    { label: "Belange Studio",        color: "#6b1a4a" },
+    "/app/lukon":      { label: "Lukon Telemática",      color: "#4a6b1a" },
+    "/app/autolavado": { label: "Autolavado",            color: "#0052CC" },
+    "/admin":          { label: "FishFlow Admin",        color: "#333"    },
   };
 
   const appCtx = nextParam
