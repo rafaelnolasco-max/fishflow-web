@@ -253,9 +253,11 @@ export default function AutolavadoPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          telefono: ticket.cliente_tel, placa: ticket.placa,
-          modelo: ticket.modelo, paquete: `${ticket.paquete_nombre} ${ticket.tamanio}`,
-          folio: ticket.folio, event, es_gratis: ticket.es_gratis ?? false,
+          tel: ticket.cliente_tel,
+          folio: ticket.folio,
+          paquete: `${ticket.paquete_nombre} ${ticket.tamanio}`,
+          evento: event,
+          es_gratis: ticket.es_gratis ?? false,
         }),
       });
     } catch (e) { console.warn("SMS error:", e); }
