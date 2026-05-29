@@ -36,6 +36,8 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
 .ws.fi{animation:fadeIn .28s ease forwards}
 @keyframes fadeOut{to{opacity:0;transform:translateX(-28px)}}
 @keyframes fadeIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
+@keyframes qSlideIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.qcard.q-enter{animation:qSlideIn .35s cubic-bezier(.4,0,.2,1) forwards}
 
 /* ── WELCOME ── */
 #sw{background:radial-gradient(ellipse at top,rgba(103,212,232,.07) 0%,transparent 60%)}
@@ -273,7 +275,7 @@ kbd{background:var(--border);border-radius:4px;padding:1px 5px;font-size:10px;fo
     <div class="wmeta">
       <div class="wchip">📋 <b id="wmtotal">—</b>&nbsp;preguntas base</div>
       <div class="wchip">⏱ <b>~8 min</b></div>
-      <div class="wchip">🔒 <b>APEC · MOCEBPASS</b></div>
+      <div class="wchip">🔒 <b>APEC · Gestión de Riesgos</b></div>
     </div>
     <button class="btnp" style="margin:0 auto;font-size:15px;padding:14px 34px" onclick="startWizard()">
       Comenzar →
@@ -406,11 +408,11 @@ kbd{background:var(--border);border-radius:4px;padding:1px 5px;font-size:10px;fo
   <div class="compcard">
     <div class="compicon">🏆</div>
     <h1>¡Autoevaluación <span>completada!</span></h1>
-    <p>Toda la información del proceso ha sido registrada y está lista para que el Auditor Interno construya la Matriz de Riesgos.</p>
+    <p>La autoevaluación del proceso ha sido registrada. Ahora el equipo de <strong>Calidad y Auditoría</strong> recibirá esta información para concluir la <strong>Matriz de Riesgos</strong>.</p>
     <div class="sumgrid" id="sumgrid"></div>
     <div class="compactions">
-      <div class="savedpill" id="savedpill">✅ Información guardada · Lista para el Auditor Interno</div>
-      <button class="btnfin" onclick="finishWizard()">✓ Guardar y finalizar autoevaluación</button>
+      <div class="savedpill" id="savedpill">✅ Lista para Calidad y Auditoría · Matriz de Riesgos pendiente</div>
+      <button class="btnfin" onclick="finishWizard()">✓ Guardar y enviar a Auditoría</button>
       <button class="btnrst" onclick="restartWizard()">↺ Iniciar nuevo proceso</button>
     </div>
   </div>
@@ -434,7 +436,7 @@ const PROCESSES = [
   'Gestión de Recursos Humanos',
   'Compras y Abastecimiento',
   'Mantenimiento de Equipos Médicos',
-  'Control de Calidad MOCEBPASS',
+  'Control de Calidad del Proceso',
   'Docencia y Residencias Médicas',
   'Investigación Clínica',
   'Atención al Paciente (Trabajo Social)',
@@ -574,11 +576,11 @@ const QUESTIONS = [
   {
     id:'documentacion', section:'Documentación Formal', type:'textarea', emoji:'📚',
     question:'¿Existe alguna ley, norma, política o regla que rija este proceso?',
-    hint:'Puede ser interna o externa. Por ejemplo: NOM, política institucional, manual de procedimientos, lineamiento de la certificadora MOCEBPASS...',
-    placeholder:'Ej. NOM-004-SSA3-2012 (expediente clínico), Manual de Calidad APEC versión 3, Criterios de certificación MOCEBPASS eje C1...',
+    hint:'Puede ser interna o externa. Por ejemplo: NOM, política institucional, manual de procedimientos, lineamiento de la certificadora de calidad...',
+    placeholder:'Ej. NOM-004-SSA3-2012 (expediente clínico), Manual de Calidad APEC versión 3, Criterios de certificación de calidad eje C1...',
     required:false,
     ach:{emoji:'📖',title:'¡Marco normativo registrado!',
-      insight:'Vincular el proceso a su normativa de respaldo es un requisito clave para la certificación MOCEBPASS y para demostrar cumplimiento durante la auditoría.',
+      insight:'Vincular el proceso a su normativa de respaldo es un requisito clave para la certificación y para demostrar cumplimiento durante la auditoría.',
       color:'#67D4E8'}
   }
 ];
@@ -611,6 +613,9 @@ function showScreen(id){
 // ─── QUESTION RENDERING ──────────────────────────────────────────────────────
 function showQ(idx){
   const q=QUESTIONS[idx];
+  // Animación de entrada — hace visible el cambio de pregunta
+  const qcard=document.querySelector('.qcard');
+  if(qcard){qcard.classList.remove('q-enter');void qcard.offsetWidth;qcard.classList.add('q-enter');}
   document.getElementById('qsec').textContent   = q.section;
   document.getElementById('qemoji').textContent  = q.emoji;
   document.getElementById('qtext').textContent   = q.question;
@@ -839,6 +844,7 @@ function submitActivity(){
     color: isLast?'#2ECC71':'#FF8C35'
   }, ()=>{
     curAct++;
+    window.scrollTo({top:0,behavior:'smooth'});
     if(curAct<numActs){ showActForm(curAct); }
     else { showAddMore(); }
   });
