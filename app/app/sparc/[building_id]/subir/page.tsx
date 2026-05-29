@@ -49,19 +49,51 @@ function NavBar({ buildingName, buildingId, active }: { buildingName: string; bu
 
 type Stage = "idle" | "file_loaded" | "uploading" | "processing" | "done" | "error";
 
+const PERIOD_OPTIONS = [
+  { label: "Hoy",          days: 1  },
+  { label: "Últimos 7 días",  days: 7  },
+  { label: "Últimos 15 días", days: 15 },
+  { label: "Últimos 30 días", days: 30 },
+];
+
+// Filtra el texto del chat a solo los mensajes dentro de los últimos N días
+function filterByDays(text: string, days: number): string {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  cutoff.setHours(0, 0, 0, 0);
+
+  const lines = text.split("\n");
+  const result: string[] = [];
+  let include = false;
+
+  for (const line of lines) {
+    const match = line.match(/^\[(\d{1,2})\/(\d{1,2})\/(\d{2,4}),/)
+    if (match) {
+      const [, m, d, y] = match;
+      const fullYear = y.length === 2 ? `20${y}` : y;
+      const msgDate = new Date(`${fullYear}-${m.padStart(2,"0")}-${d.padStart(2,"0")}T00:00:00`);
+      include = msgDate >= cutoff;
+    }
+    if (include) result.push(line);
+  }
+  return result.join("\n");
+}
+
 export default function SparcSubir() {
   const router     = useRouter();
   const params     = useParams();
   const buildingId = params.building_id as string;
 
-  const [building,   setBuilding]   = useState<Building | null>(null);
-  const [stage,      setStage]      = useState<Stage>("idle");
-  const [dragOver,   setDragOver]   = useState(false);
-  const [fileName,   setFileName]   = useState("");
-  const [fileText,   setFileText]   = useState("");
-  const [preview,    setPreview]    = useState({ lines: 0, firstDate: "", lastDate: "" });
-  const [statusMsg,  setStatusMsg]  = useState("");
-  const [uploadId,   setUploadId]   = useState("");
+  const [building,    setBuilding]    = useState<Building | null>(null);
+  const [stage,       setStage]       = useState<Stage>("idle");
+  const [dragOver,    setDragOver]    = useState(false);
+  const [fileName,    setFileName]    = useState("");
+  const [fileText,    setFileText]    = useState("");      // texto completo original
+  const [preview,     setPreview]     = useState({ lines: 0, firstDate: "", lastDate: "" });
+  const [statusMsg,   setStatusMsg]   = useState("");
+  const [uploadId,    setUploadId]    = useState("");
+  const [selectedDays, setSelectedDays] = useState<number>(7);
+  const [filteredPreview, setFilteredPreview] = useState({ lines: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -73,6 +105,15 @@ export default function SparcSubir() {
     }
     load();
   }, [buildingId, router]);
+
+  // Recalcular preview filtrado cuando cambia el período
+  useEffect(() => {
+    if (!fileText) return;
+    const filtered = filterByDays(fileText, selectedDays);
+    const regex = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),/gm;
+    const count = [...filtered.matchAll(regex)].length;
+    setFilteredPreview({ lines: count });
+  }, [fileText, selectedDays]);
 
   function parsePreview(text: string) {
     const regex = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),/gm;
@@ -109,13 +150,21 @@ export default function SparcSubir() {
     setStage("uploading");
     setStatusMsg("Guardando chat en base de datos…");
 
+    // Filtrar solo el período seleccionado
+    const textToProcess = filterByDays(fileText, selectedDays);
+    if (!textToProcess.trim()) {
+      setStage("error");
+      setStatusMsg(`No hay mensajes en los últimos ${selectedDays} días en este chat.`);
+      return;
+    }
+
     // 1. Insertar upload
     const { data: upload, error: upErr } = await supabase
       .from("sparc_chat_uploads")
       .insert({
         building_id: buildingId,
         client_id:   SPARC_CLIENT_ID,
-        raw_text:    fileText,
+        raw_text:    textToProcess,
         whatsapp_group_name: fileName.replace("_chat.txt", "").replace(".txt", ""),
       })
       .select("id")
@@ -200,27 +249,63 @@ export default function SparcSubir() {
           </>
         )}
 
-        {/* Preview */}
+        {/* Preview + selector de período */}
         {stage === "file_loaded" && (
           <div style={{ background: "#112233", border: "1px solid #1e3048", borderRadius: 12, padding: "24px" }}>
+            <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 16 }}>📄 {fileName}</div>
+
+            {/* Stats del archivo completo */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 24 }}>
+              {[
+                { label: "Total mensajes",  value: preview.lines.toLocaleString() },
+                { label: "Primer mensaje",  value: preview.firstDate || "—" },
+                { label: "Último mensaje",  value: preview.lastDate  || "—" },
+              ].map(item => (
+                <div key={item.label} style={{ background: "#0d1b2a", borderRadius: 8, padding: "12px 16px" }}>
+                  <div style={{ color: "#5a7a9a", fontSize: 12, marginBottom: 4 }}>{item.label}</div>
+                  <div style={{ fontWeight: 700, fontSize: 16 }}>{item.value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Selector de período */}
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 12 }}>📄 {fileName}</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-                {[
-                  { label: "Mensajes detectados", value: preview.lines.toLocaleString() },
-                  { label: "Primera fecha",        value: preview.firstDate || "—" },
-                  { label: "Última fecha",         value: preview.lastDate  || "—" },
-                ].map(item => (
-                  <div key={item.label} style={{ background: "#0d1b2a", borderRadius: 8, padding: "12px 16px" }}>
-                    <div style={{ color: "#5a7a9a", fontSize: 12, marginBottom: 4 }}>{item.label}</div>
-                    <div style={{ fontWeight: 700, fontSize: 18 }}>{item.value}</div>
-                  </div>
+              <div style={{ fontSize: 13, color: "#5a7a9a", marginBottom: 10 }}>
+                ¿Qué período quieres analizar?
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                {PERIOD_OPTIONS.map(opt => (
+                  <button key={opt.days} onClick={() => setSelectedDays(opt.days)}
+                    style={{
+                      border: `2px solid ${selectedDays === opt.days ? FF_CYAN : "#1e3048"}`,
+                      borderRadius: 10, padding: "12px 8px", background: selectedDays === opt.days ? "#091d2a" : "transparent",
+                      color: selectedDays === opt.days ? FF_CYAN : "#5a7a9a",
+                      fontWeight: selectedDays === opt.days ? 700 : 400,
+                      cursor: "pointer", fontSize: 13, transition: "all 0.15s",
+                    }}>
+                    {opt.label}
+                  </button>
                 ))}
               </div>
             </div>
+
+            {/* Preview filtrado */}
+            <div style={{ background: "#0d1b2a", borderRadius: 8, padding: "12px 16px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ color: "#5a7a9a", fontSize: 13 }}>Mensajes a procesar:</span>
+              <span style={{ fontWeight: 800, fontSize: 20, color: filteredPreview.lines > 0 ? FF_CYAN : "#ff6b6b" }}>
+                {filteredPreview.lines.toLocaleString()}
+              </span>
+            </div>
+
+            {filteredPreview.lines === 0 && (
+              <div style={{ background: "#2a1111", borderRadius: 8, padding: "10px 14px", marginBottom: 16, color: "#ff6b6b", fontSize: 13 }}>
+                No hay mensajes en este período. Prueba con un rango mayor.
+              </div>
+            )}
+
             <div style={{ display: "flex", gap: 12 }}>
-              <button onClick={procesar}
-                style={{ flex: 1, background: FF_CYAN, border: "none", borderRadius: 10, padding: "14px", color: "#0D1B2A", fontWeight: 800, fontSize: 15, cursor: "pointer" }}>
+              <button onClick={procesar} disabled={filteredPreview.lines === 0}
+                style={{ flex: 1, background: filteredPreview.lines > 0 ? FF_CYAN : "#1e3048", border: "none", borderRadius: 10, padding: "14px", color: filteredPreview.lines > 0 ? "#0D1B2A" : "#5a7a9a", fontWeight: 800, fontSize: 15, cursor: filteredPreview.lines > 0 ? "pointer" : "not-allowed" }}>
                 Procesar con IA →
               </button>
               <button onClick={() => { setStage("idle"); setFileText(""); setFileName(""); }}
