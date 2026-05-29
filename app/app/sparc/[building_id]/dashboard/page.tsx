@@ -12,6 +12,7 @@ interface Summary   {
   summary_date: string; total_messages: number;
   urgent_count: number; medium_count: number; low_count: number;
   executive_summary: string; action_items: string[];
+  urgent_summary: string; medium_summary: string; low_summary: string;
 }
 interface UploadInfo { id: string; uploaded_at: string; total_messages: number; date_range_start: string; date_range_end: string; processed: boolean }
 
@@ -152,28 +153,50 @@ export default function SparcDashboard() {
 
         {/* Resumen del día más reciente */}
         {latestSummary && (
-          <div style={{ background: "#112233", border: "1px solid #1e3048", borderRadius: 12, padding: "24px", marginBottom: 24 }}>
-            <div style={{ fontSize: 12, color: "#5a7a9a", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>
-              Resumen IA — {fmt(latestSummary.summary_date)}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 12, color: "#5a7a9a", marginBottom: 14, textTransform: "uppercase", letterSpacing: 1 }}>
+              Reporte IA — {fmt(latestSummary.summary_date)}
             </div>
-            <p style={{ lineHeight: 1.7, color: "#c8d8e8", marginBottom: 16, fontSize: 15 }}>
-              {latestSummary.executive_summary}
-            </p>
 
-            {Array.isArray(latestSummary.action_items) && latestSummary.action_items.length > 0 && (
-              <>
-                <div style={{ fontSize: 12, color: "#5a7a9a", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>
-                  Acciones pendientes
+            {/* Resumen general */}
+            <div style={{ background: "#112233", border: "1px solid #1e3048", borderRadius: 12, padding: "20px 24px", marginBottom: 12 }}>
+              <div style={{ fontSize: 12, color: "#5a7a9a", marginBottom: 6, fontWeight: 600 }}>RESUMEN GENERAL</div>
+              <p style={{ lineHeight: 1.7, color: "#c8d8e8", fontSize: 14, margin: 0 }}>
+                {latestSummary.executive_summary}
+              </p>
+            </div>
+
+            {/* 3 secciones por prioridad */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10, marginBottom: 16 }}>
+              {[
+                { key: "urgent_summary",  label: "🔴 LO MÁS URGENTE",  color: "#ff4444", bg: "#2a1111", border: "#ff444433", text: latestSummary.urgent_summary  },
+                { key: "medium_summary",  label: "🟡 TEMAS MEDIOS",     color: "#ffaa00", bg: "#231c00", border: "#ffaa0033", text: latestSummary.medium_summary  },
+                { key: "low_summary",     label: "🟢 TEMAS MENORES",    color: "#44cc88", bg: "#0f2318", border: "#44cc8833", text: latestSummary.low_summary     },
+              ].map(s => (
+                <div key={s.key} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10, padding: "16px 20px" }}>
+                  <div style={{ fontSize: 11, color: s.color, fontWeight: 700, marginBottom: 8, letterSpacing: 1 }}>{s.label}</div>
+                  <p style={{ color: "#c8d8e8", fontSize: 14, lineHeight: 1.65, margin: 0 }}>
+                    {s.text || "—"}
+                  </p>
                 </div>
-                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
+              ))}
+            </div>
+
+            {/* Acciones pendientes */}
+            {Array.isArray(latestSummary.action_items) && latestSummary.action_items.length > 0 && (
+              <div style={{ background: "#112233", border: "1px solid #1e3048", borderRadius: 12, padding: "20px 24px" }}>
+                <div style={{ fontSize: 12, color: "#5a7a9a", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>
+                  ✅ Acciones pendientes para el administrador
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {(latestSummary.action_items as string[]).map((item, i) => (
-                    <li key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "#0d1b2a", borderRadius: 8, padding: "10px 14px", fontSize: 14 }}>
-                      <span style={{ color: FF_ORANGE, flexShrink: 0, fontWeight: 700 }}>{i + 1}.</span>
+                    <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "#0d1b2a", borderRadius: 8, padding: "10px 14px", fontSize: 14 }}>
+                      <span style={{ color: FF_ORANGE, flexShrink: 0, fontWeight: 800 }}>{i + 1}.</span>
                       <span style={{ color: "#c8d8e8" }}>{item}</span>
-                    </li>
+                    </div>
                   ))}
-                </ul>
-              </>
+                </div>
+              </div>
             )}
           </div>
         )}

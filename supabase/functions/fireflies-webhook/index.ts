@@ -72,7 +72,7 @@ Deno.serve(async (req: Request) => {
   }))
 
   // Solo procesar transcripciones completadas
-  if (payload.eventType !== 'Transcription completed') {
+  if (payload.eventType !== 'meeting.transcribed') {
     return new Response(JSON.stringify({ skipped: true, reason: 'not a transcription event' }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
