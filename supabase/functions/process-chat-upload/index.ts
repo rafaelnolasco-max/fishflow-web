@@ -202,36 +202,52 @@ async function generateDailySummary(
   date: string,
   messages: ClassifiedMessage[],
   anthropicKey: string
-): Promise<{ executive_summary: string; action_items: string[] }> {
-  const urgentMessages = messages.filter(m => m.priority === 'urgent')
-  const actionableMessages = messages.filter(m => m.is_actionable)
+): Promise<{
+  executive_summary: string
+  action_items: string[]
+  urgent_summary: string
+  medium_summary: string
+  low_summary: string
+}> {
+  const urgent  = messages.filter(m => m.priority === 'urgent')
+  const medium  = messages.filter(m => m.priority === 'medium')
+  const low     = messages.filter(m => m.priority === 'low')
 
-  const context = [
-    ...urgentMessages.map(m => `[URGENTE] ${m.sender_name}: ${m.message_text.substring(0, 200)}`),
-    ...actionableMessages
-      .filter(m => m.priority !== 'urgent')
-      .map(m => `[ACCIÓN] ${m.sender_name}: ${m.message_text.substring(0, 200)}`),
-  ].slice(0, 20).join('\n')
+  const urgentCtx = urgent.map(m => `- ${m.sender_name}: ${m.message_text.substring(0, 180)}`).slice(0, 15).join('\n')
+  const mediumCtx = medium.map(m => `- ${m.sender_name}: ${m.message_text.substring(0, 180)}`).slice(0, 15).join('\n')
+  const lowCtx    = low.map(m    => `- ${m.sender_name}: ${m.message_text.substring(0, 120)}`).slice(0, 10).join('\n')
 
-  if (!context.trim()) {
+  const hasContent = urgent.length > 0 || medium.length > 0
+
+  if (!hasContent) {
     return {
       executive_summary: 'Sin mensajes urgentes ni acciones pendientes este día.',
       action_items: [],
+      urgent_summary: urgent.length === 0 ? 'Sin mensajes urgentes.' : '',
+      medium_summary: medium.length === 0 ? 'Sin temas de atención media.' : '',
+      low_summary:    low.length    === 0 ? 'Sin mensajes de baja prioridad.' : '',
     }
   }
 
-  const prompt = `Eres el asistente de un administrador de edificio en México.
-Genera un resumen ejecutivo del día ${date} basado en estos mensajes del grupo de vecinos:
+  const prompt = `Eres el asistente de un administrador de edificio residencial en México.
+Analiza los mensajes del día ${date} y genera un reporte ejecutivo estructurado.
 
-${context}
+${urgent.length > 0 ? `MENSAJES URGENTES (${urgent.length}):\n${urgentCtx}` : 'MENSAJES URGENTES: ninguno'}
 
-Responde en JSON con este formato exacto:
+${medium.length > 0 ? `MENSAJES MEDIOS (${medium.length}):\n${mediumCtx}` : 'MENSAJES MEDIOS: ninguno'}
+
+${low.length > 0 ? `MENSAJES BAJOS (${low.length}):\n${lowCtx}` : 'MENSAJES BAJOS: ninguno'}
+
+Responde en JSON con este formato exacto (sin texto antes ni después):
 {
-  "executive_summary": "Resumen en 2-3 oraciones del estado del edificio y temas principales del día.",
-  "action_items": ["Acción concreta 1", "Acción concreta 2"]
+  "executive_summary": "Resumen general del día en 2 oraciones. Qué pasó y cuál es el estado del edificio.",
+  "urgent_summary": "Lo más crítico e inmediato. Si no hay urgentes, escribe: Sin situaciones urgentes este día.",
+  "medium_summary": "Los temas que requieren seguimiento pero no son emergencia. Si no hay, escribe: Sin temas de atención media.",
+  "low_summary": "Temas menores o conversación general relevante. Si no hay, escribe: Sin actividad de baja prioridad.",
+  "action_items": ["Acción concreta 1 para el administrador", "Acción concreta 2"]
 }
 
-Máximo 5 action items. Solo incluir acciones reales y concretas para el administrador.`
+Reglas: máximo 5 action_items. Cada summary en 1-3 oraciones. En español. Orientado al administrador.`
 
   const response = await fetch(CLAUDE_API_URL, {
     method: 'POST',
@@ -242,22 +258,33 @@ Máximo 5 action items. Solo incluir acciones reales y concretas para el adminis
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 512,
+      max_tokens: 800,
       messages: [{ role: 'user', content: prompt }],
     }),
   })
 
-  if (!response.ok) return { executive_summary: 'Error generando resumen.', action_items: [] }
+  if (!response.ok) return {
+    executive_summary: 'Error generando resumen.',
+    action_items: [],
+    urgent_summary: '', medium_summary: '', low_summary: '',
+  }
 
   const data = await response.json()
   const content = data.content?.[0]?.text ?? '{}'
   const jsonMatch = content.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) return { executive_summary: content.substring(0, 300), action_items: [] }
+  if (!jsonMatch) return {
+    executive_summary: content.substring(0, 300),
+    action_items: [],
+    urgent_summary: '', medium_summary: '', low_summary: '',
+  }
 
   const result = JSON.parse(jsonMatch[0])
   return {
     executive_summary: result.executive_summary ?? '',
-    action_items: Array.isArray(result.action_items) ? result.action_items : [],
+    action_items:      Array.isArray(result.action_items) ? result.action_items : [],
+    urgent_summary:    result.urgent_summary  ?? '',
+    medium_summary:    result.medium_summary  ?? '',
+    low_summary:       result.low_summary     ?? '',
   }
 }
 
@@ -360,7 +387,7 @@ serve(async (req) => {
         actionable: msgs.filter(m => m.is_actionable).map(m => m.ai_summary),
       }
 
-      const { executive_summary, action_items } = await generateDailySummary(day, msgs, anthropicKey)
+      const { executive_summary, action_items, urgent_summary, medium_summary, low_summary } = await generateDailySummary(day, msgs, anthropicKey)
 
       summaryRows.push({
         building_id: upload.building_id,
@@ -373,6 +400,9 @@ serve(async (req) => {
         low_count: counts.low,
         executive_summary,
         action_items,
+        urgent_summary,
+        medium_summary,
+        low_summary,
       })
     }
 
