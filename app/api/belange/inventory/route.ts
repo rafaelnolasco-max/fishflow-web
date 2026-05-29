@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
 
   // ── Agregar producto nuevo al catálogo ──
   if (body.action === "add_product") {
-    const { name, brand, category, suggested_price, stock_qty = 0, min_stock = 2 } = body;
+    const { name, brand, category, cost, suggested_price, stock_qty = 0, min_stock = 2 } = body;
     if (!name) return NextResponse.json({ error: "name requerido" }, { status: 400 });
 
     const { data, error } = await supabase
@@ -101,10 +101,36 @@ export async function POST(req: NextRequest) {
         name: name.trim(),
         brand: brand?.trim() || null,
         category: category || null,
+        cost: cost || null,
         suggested_price: suggested_price || null,
         stock_qty,
         min_stock,
       })
+      .select("id, name, brand, category, suggested_price, stock_qty, min_stock, active, created_at, updated_at")
+      .single();
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ product: data });
+  }
+
+  // ── Actualizar datos de un producto ──
+  if (body.action === "update_product") {
+    const { product_id, name, brand, category, cost, suggested_price, min_stock } = body;
+    if (!product_id) return NextResponse.json({ error: "product_id requerido" }, { status: 400 });
+
+    const patch: Record<string, unknown> = {};
+    if (name            !== undefined) patch.name            = name?.trim() || null;
+    if (brand           !== undefined) patch.brand           = brand?.trim() || null;
+    if (category        !== undefined) patch.category        = category || null;
+    if (cost            !== undefined) patch.cost            = cost || null;
+    if (suggested_price !== undefined) patch.suggested_price = suggested_price || null;
+    if (min_stock       !== undefined) patch.min_stock       = min_stock;
+
+    const { data, error } = await supabase
+      .from("belange_inventory")
+      .update(patch)
+      .eq("id", product_id)
+      .eq("client_id", BELANGE_CLIENT_ID)
       .select("id, name, brand, category, suggested_price, stock_qty, min_stock, active, created_at, updated_at")
       .single();
 
