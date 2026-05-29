@@ -50,9 +50,12 @@ function sentencesToText(
 // ─── Extraer meeting ID desde URL o ID directo ────────────────────────────────
 function parseMeetingId(input: string): string {
   const trimmed = input.trim();
-  // URL tipo: https://app.fireflies.ai/view/titulo--MEETING_ID
-  const urlMatch = trimmed.match(/--([a-zA-Z0-9_-]{10,})(?:\?|$)/);
-  if (urlMatch) return urlMatch[1];
+  // URL tipo: https://app.fireflies.ai/view/titulo::MEETING_ID
+  const colonMatch = trimmed.match(/::([A-Z0-9]{10,})(?:\?|$)/);
+  if (colonMatch) return colonMatch[1];
+  // URL tipo: https://app.fireflies.ai/view/titulo--MEETING_ID (fallback)
+  const dashMatch = trimmed.match(/--([a-zA-Z0-9_-]{10,})(?:\?|$)/);
+  if (dashMatch) return dashMatch[1];
   return trimmed;
 }
 
