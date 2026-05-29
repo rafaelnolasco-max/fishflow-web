@@ -9,6 +9,7 @@ const FF_ORANGE = "#FF7200";
 
 type Priority = "urgent" | "medium" | "low";
 type Category = "estructural" | "mantenimiento" | "administrativo" | "pagos" | "seguridad" | "social";
+type Tab = "pendientes" | "respondidos" | "todos";
 
 interface Message {
   id: string; sender_name: string; sent_at: string;
@@ -18,18 +19,18 @@ interface Message {
 interface Building { id: string; name: string }
 
 const PRIORITY_META: Record<Priority, { label: string; color: string; bg: string }> = {
-  urgent: { label: "🔴 Urgente",  color: "#ff4444", bg: "#2a1111" },
-  medium: { label: "🟡 Medio",    color: "#ffaa00", bg: "#231c00" },
-  low:    { label: "🟢 Bajo",     color: "#44cc88", bg: "#0f2318" },
+  urgent: { label: "🔴 Urgente", color: "#ff4444", bg: "#2a1111" },
+  medium: { label: "🟡 Medio",   color: "#ffaa00", bg: "#231c00" },
+  low:    { label: "🟢 Bajo",    color: "#44cc88", bg: "#0f2318" },
 };
 
 const CATEGORY_LABELS: Record<Category, string> = {
-  estructural:   "Estructural",
-  mantenimiento: "Mantenimiento",
-  administrativo:"Administrativo",
-  pagos:         "Pagos",
-  seguridad:     "Seguridad",
-  social:        "Social",
+  estructural:    "Estructural",
+  mantenimiento:  "Mantenimiento",
+  administrativo: "Administrativo",
+  pagos:          "Pagos",
+  seguridad:      "Seguridad",
+  social:         "Social",
 };
 
 function FishFlowMark({ size = 28 }: { size?: number }) {
@@ -77,22 +78,19 @@ export default function SparcMensajes() {
   const [building,  setBuilding]  = useState<Building | null>(null);
   const [messages,  setMessages]  = useState<Message[]>([]);
   const [loading,   setLoading]   = useState(true);
+  const [tab,       setTab]       = useState<Tab>("pendientes");
   const [search,    setSearch]    = useState("");
   const [filterPri, setFilterPri] = useState<Priority | "all">("all");
-  const [filterCat, setFilterCat] = useState<Category | "all">("all");
-  const [onlyAction, setOnlyAction] = useState(false);
   const [expanded,  setExpanded]  = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
-
       const [bRes, mRes] = await Promise.all([
         supabase.from("sparc_buildings").select("id,name").eq("id", buildingId).single(),
-        supabase.from("sparc_chat_messages").select("*").eq("building_id", buildingId).order("sent_at", { ascending: false }).limit(500),
+        supabase.from("sparc_chat_messages").select("*").eq("building_id", buildingId).order("sent_at", { ascending: false }).limit(1000),
       ]);
-
       if (bRes.data) setBuilding(bRes.data);
       if (mRes.data) setMessages(mRes.data);
       setLoading(false);
@@ -102,21 +100,32 @@ export default function SparcMensajes() {
 
   async function toggleAttended(msg: Message) {
     const newVal = !msg.attended;
-    await supabase.from("sparc_chat_messages").update({ attended: newVal, attended_at: newVal ? new Date().toISOString() : null }).eq("id", msg.id);
+    await supabase.from("sparc_chat_messages")
+      .update({ attended: newVal, attended_at: newVal ? new Date().toISOString() : null })
+      .eq("id", msg.id);
     setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, attended: newVal } : m));
   }
 
+  // Solo mensajes accionables (para tabs pendientes/respondidos)
+  const actionable = useMemo(() => messages.filter(m => m.is_actionable), [messages]);
+
   const filtered = useMemo(() => {
-    return messages.filter(m => {
-      if (filterPri !== "all"  && m.priority !== filterPri)       return false;
-      if (filterCat !== "all"  && m.category !== filterCat)       return false;
-      if (onlyAction && !m.is_actionable)                         return false;
+    let base: Message[];
+    if (tab === "pendientes")  base = actionable.filter(m => !m.attended);
+    else if (tab === "respondidos") base = actionable.filter(m => m.attended);
+    else base = messages; // todos
+
+    return base.filter(m => {
+      if (filterPri !== "all" && m.priority !== filterPri) return false;
       if (search && !m.message_text.toLowerCase().includes(search.toLowerCase()) &&
           !m.sender_name.toLowerCase().includes(search.toLowerCase()) &&
           !m.ai_summary.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [messages, filterPri, filterCat, onlyAction, search]);
+  }, [messages, actionable, tab, filterPri, search]);
+
+  const pendingCount    = actionable.filter(m => !m.attended).length;
+  const respondedCount  = actionable.filter(m =>  m.attended).length;
 
   function fmtDate(d: string) {
     return new Date(d).toLocaleString("es-MX", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -130,14 +139,34 @@ export default function SparcMensajes() {
     <div style={{ minHeight: "100vh", background: "#0D1B2A", color: "#f0f4f8", fontFamily: "Inter, sans-serif" }}>
       <NavBar buildingName={building?.name ?? "…"} buildingId={buildingId} active="mensajes" />
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px" }}>
-        {/* Filtros */}
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20, alignItems: "center" }}>
-          <input
-            value={search} onChange={e => setSearch(e.target.value)}
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "24px 24px" }}>
+
+        {/* Tabs principales */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 20, background: "#112233", borderRadius: 12, padding: 6 }}>
+          {([
+            { key: "pendientes",  label: "Pendientes",  count: pendingCount,   color: FF_ORANGE },
+            { key: "respondidos", label: "Respondidos", count: respondedCount, color: "#44cc88" },
+            { key: "todos",       label: "Todos los mensajes", count: messages.length, color: "#5a7a9a" },
+          ] as { key: Tab; label: string; count: number; color: string }[]).map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              style={{
+                flex: 1, background: tab === t.key ? "#0D1B2A" : "transparent",
+                border: tab === t.key ? "1px solid #1e3048" : "1px solid transparent",
+                borderRadius: 8, padding: "10px 16px", cursor: "pointer",
+                color: tab === t.key ? "#f0f4f8" : "#5a7a9a",
+                transition: "all 0.15s",
+              }}>
+              <div style={{ fontSize: 13, fontWeight: tab === t.key ? 700 : 400 }}>{t.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: tab === t.key ? t.color : "#3a5a7a", marginTop: 2 }}>{t.count}</div>
+            </button>
+          ))}
+        </div>
+
+        {/* Barra de búsqueda y filtro de prioridad */}
+        <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+          <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Buscar en mensajes…"
-            style={{ flex: "1 1 220px", background: "#112233", border: "1px solid #1e3048", borderRadius: 8, padding: "8px 14px", color: "#f0f4f8", fontSize: 14, outline: "none" }}
-          />
+            style={{ flex: "1 1 200px", background: "#112233", border: "1px solid #1e3048", borderRadius: 8, padding: "8px 14px", color: "#f0f4f8", fontSize: 14, outline: "none" }} />
           <select value={filterPri} onChange={e => setFilterPri(e.target.value as any)}
             style={{ background: "#112233", border: "1px solid #1e3048", borderRadius: 8, padding: "8px 14px", color: "#f0f4f8", fontSize: 14 }}>
             <option value="all">Todas las prioridades</option>
@@ -145,65 +174,80 @@ export default function SparcMensajes() {
             <option value="medium">🟡 Medios</option>
             <option value="low">🟢 Bajos</option>
           </select>
-          <select value={filterCat} onChange={e => setFilterCat(e.target.value as any)}
-            style={{ background: "#112233", border: "1px solid #1e3048", borderRadius: 8, padding: "8px 14px", color: "#f0f4f8", fontSize: 14 }}>
-            <option value="all">Todas las categorías</option>
-            {(Object.keys(CATEGORY_LABELS) as Category[]).map(c => (
-              <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
-            ))}
-          </select>
-          <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, color: "#5a7a9a", cursor: "pointer" }}>
-            <input type="checkbox" checked={onlyAction} onChange={e => setOnlyAction(e.target.checked)} />
-            Solo accionables
-          </label>
-          <span style={{ color: "#5a7a9a", fontSize: 13, marginLeft: "auto" }}>{filtered.length} mensajes</span>
+          <span style={{ color: "#5a7a9a", fontSize: 13, alignSelf: "center", marginLeft: "auto" }}>
+            {filtered.length} mensaje{filtered.length !== 1 ? "s" : ""}
+          </span>
         </div>
 
-        {/* Tabla de mensajes */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {filtered.length === 0 && (
-            <div style={{ color: "#5a7a9a", textAlign: "center", padding: "40px" }}>No hay mensajes con estos filtros.</div>
-          )}
+        {/* Estado vacío */}
+        {filtered.length === 0 && (
+          <div style={{ textAlign: "center", padding: "60px 24px", color: "#5a7a9a" }}>
+            {tab === "pendientes"
+              ? <><div style={{ fontSize: 40, marginBottom: 12 }}>✅</div><div style={{ fontWeight: 600 }}>Sin mensajes pendientes</div><div style={{ fontSize: 13, marginTop: 4 }}>Todo está atendido.</div></>
+              : tab === "respondidos"
+              ? <><div style={{ fontSize: 40, marginBottom: 12 }}>📭</div><div style={{ fontWeight: 600 }}>Aún no hay mensajes respondidos</div></>
+              : <><div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div><div>Sin resultados para esta búsqueda.</div></>
+            }
+          </div>
+        )}
+
+        {/* Lista de mensajes */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {filtered.map(msg => {
-            const pm   = PRIORITY_META[msg.priority];
+            const pm  = PRIORITY_META[msg.priority];
             const isEx = expanded === msg.id;
             return (
-              <div key={msg.id}
-                style={{ background: msg.attended ? "#0d1b2a" : "#112233", border: `1px solid ${msg.attended ? "#1a2e42" : "#1e3048"}`, borderRadius: 10, padding: "12px 16px", opacity: msg.attended ? 0.6 : 1 }}>
+              <div key={msg.id} style={{
+                background: msg.attended ? "#0a1520" : "#112233",
+                border: `1px solid ${msg.attended ? "#152030" : msg.priority === "urgent" ? "#ff444433" : "#1e3048"}`,
+                borderRadius: 10, padding: "14px 16px",
+                opacity: msg.attended ? 0.65 : 1,
+                transition: "opacity 0.2s",
+              }}>
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  {/* Prioridad badge */}
-                  <span style={{ background: pm.bg, color: pm.color, borderRadius: 6, padding: "2px 8px", fontSize: 12, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>
+                  {/* Prioridad */}
+                  <span style={{ background: pm.bg, color: pm.color, borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 3 }}>
                     {msg.priority === "urgent" ? "🔴" : msg.priority === "medium" ? "🟡" : "🟢"}
                   </span>
+
                   {/* Contenido */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 4 }}>
                       <span style={{ fontWeight: 700, fontSize: 14 }}>{msg.sender_name}</span>
                       <span style={{ color: "#5a7a9a", fontSize: 12 }}>{fmtDate(msg.sent_at)}</span>
                       <span style={{ background: "#1a2e42", color: "#5a9abf", borderRadius: 4, padding: "1px 7px", fontSize: 11 }}>{CATEGORY_LABELS[msg.category]}</span>
-                      {msg.is_actionable && <span style={{ background: "#1a2a1a", color: "#44cc88", borderRadius: 4, padding: "1px 7px", fontSize: 11 }}>✓ Accionable</span>}
                     </div>
-                    {/* AI summary */}
+
                     {msg.ai_summary && (
-                      <div style={{ color: "#8ab0cc", fontSize: 13, marginBottom: 6, fontStyle: "italic" }}>{msg.ai_summary}</div>
+                      <div style={{ color: "#8ab0cc", fontSize: 13, marginBottom: 5, fontStyle: "italic" }}>{msg.ai_summary}</div>
                     )}
-                    {/* Texto expandible */}
+
                     <div style={{ fontSize: 13, color: "#c8d8e8", lineHeight: 1.5 }}>
-                      {isEx ? msg.message_text : msg.message_text.substring(0, 120) + (msg.message_text.length > 120 ? "…" : "")}
+                      {isEx ? msg.message_text : msg.message_text.substring(0, 140) + (msg.message_text.length > 140 ? "…" : "")}
                     </div>
-                    {msg.message_text.length > 120 && (
+                    {msg.message_text.length > 140 && (
                       <button onClick={() => setExpanded(isEx ? null : msg.id)}
                         style={{ background: "none", border: "none", color: FF_CYAN, fontSize: 12, cursor: "pointer", padding: "4px 0", marginTop: 2 }}>
                         {isEx ? "Ver menos" : "Ver más"}
                       </button>
                     )}
                   </div>
-                  {/* Botón atendido */}
-                  <button onClick={() => toggleAttended(msg)}
-                    title={msg.attended ? "Marcar como pendiente" : "Marcar como atendido"}
-                    style={{ background: msg.attended ? "#1a2e42" : "#0f2318", border: `1px solid ${msg.attended ? "#2a4060" : "#44cc8844"}`, borderRadius: 8, padding: "6px 10px", cursor: "pointer", fontSize: 13, color: msg.attended ? "#5a7a9a" : "#44cc88", flexShrink: 0 }}>
-                    {msg.attended ? "✓ Atendido" : "Atender"}
-                  </button>
+
+                  {/* Botón respuesta */}
+                  {(tab === "pendientes" || tab === "respondidos" || msg.is_actionable) && (
+                    <button onClick={() => toggleAttended(msg)}
+                      title={msg.attended ? "Marcar como pendiente" : "Marcar como respondido"}
+                      style={{
+                        background: msg.attended ? "#152030" : "#0f2318",
+                        border: `1px solid ${msg.attended ? "#2a4060" : "#44cc8855"}`,
+                        borderRadius: 8, padding: "7px 12px", cursor: "pointer",
+                        fontSize: 12, fontWeight: 600, flexShrink: 0,
+                        color: msg.attended ? "#5a7a9a" : "#44cc88",
+                        whiteSpace: "nowrap",
+                      }}>
+                      {msg.attended ? "✓ Respondido" : "Responder"}
+                    </button>
+                  )}
                 </div>
               </div>
             );
