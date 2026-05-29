@@ -231,6 +231,11 @@ export default function BelangePage() {
   const [view,         setView]         = useState<"ingresos" | "inventario">("ingresos");
   const [invSearch,    setInvSearch]    = useState("");
 
+  // ── Edit payment method inline ──
+  const [editingId,    setEditingId]    = useState<string | null>(null);
+  const [editPayment,  setEditPayment]  = useState<PaymentMethod>("efectivo");
+  const [editSaving,   setEditSaving]   = useState(false);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   // ── Fetch transacciones ──
@@ -342,6 +347,20 @@ export default function BelangePage() {
     inputRef.current?.focus();
     fetchAll();
     setTimeout(() => setOk(""), 3500);
+  }
+
+  // ── Guardar cambio de método de pago ──
+  async function handleSavePayment(id: string) {
+    setEditSaving(true);
+    const { error } = await supabase
+      .from("pos_transactions")
+      .update({ payment_method: editPayment })
+      .eq("id", id);
+    if (!error) {
+      setTransactions(prev => prev.map(t => t.id === id ? { ...t, payment_method: editPayment } : t));
+    }
+    setEditingId(null);
+    setEditSaving(false);
   }
 
   // ── Derived ──
@@ -718,7 +737,7 @@ export default function BelangePage() {
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ borderBottom: "0.5px solid #e5e4df" }}>
-                    {["Fecha", "Cliente", "Servicio", "$ Serv.", "Producto", "Cant.", "$ Prod.", "Pago", "Total"].map(h => (
+                    {["Fecha", "Cliente", "Servicio", "$ Serv.", "Producto", "Cant.", "$ Prod.", "Pago", "Total", ""].map(h => (
                       <th key={h} style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>{h}</th>
                     ))}
                   </tr>
@@ -727,8 +746,9 @@ export default function BelangePage() {
                   {transactions.slice(0, 15).map(t => {
                     const qtyVal = t.qty ?? 1;
                     const esPrecEsp = t.precio_sugerido && t.precio_producto && t.precio_producto < t.precio_sugerido;
+                    const isEditing = editingId === t.id;
                     return (
-                      <tr key={t.id} style={{ borderBottom: "0.5px solid #f0efeb" }}>
+                      <tr key={t.id} style={{ borderBottom: "0.5px solid #f0efeb", background: isEditing ? "#fffbf5" : undefined }}>
                         <td style={{ padding: "10px 12px", color: "#999", fontSize: 12, whiteSpace: "nowrap" }}>{fmtDate(t.created_at)}</td>
                         <td style={{ padding: "10px 12px", fontWeight: 700, whiteSpace: "nowrap" }}>{t.client_name}</td>
                         <td style={{ padding: "10px 12px", color: "#555", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -745,12 +765,52 @@ export default function BelangePage() {
                           {t.precio_producto ? fmt(t.precio_producto) : "—"}
                         </td>
                         <td style={{ padding: "10px 12px" }}>
-                          <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: (PM[t.payment_method] ?? PM.tarjeta).bg, color: (PM[t.payment_method] ?? PM.tarjeta).color }}>
-                            {(PM[t.payment_method] ?? PM.tarjeta).label}
-                          </span>
+                          {isEditing ? (
+                            <select
+                              value={editPayment}
+                              onChange={e => setEditPayment(e.target.value as PaymentMethod)}
+                              style={{ fontSize: 12, padding: "3px 6px", borderRadius: 6, border: "1px solid #ddd", background: "#fff", cursor: "pointer" }}
+                            >
+                              <option value="efectivo">Efectivo</option>
+                              <option value="tarjeta">Tarjeta</option>
+                              <option value="transferencia">Transferencia</option>
+                            </select>
+                          ) : (
+                            <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: (PM[t.payment_method] ?? PM.tarjeta).bg, color: (PM[t.payment_method] ?? PM.tarjeta).color }}>
+                              {(PM[t.payment_method] ?? PM.tarjeta).label}
+                            </span>
+                          )}
                         </td>
                         <td style={{ padding: "10px 12px", fontWeight: 700, whiteSpace: "nowrap" }}>
                           {fmt(t.price + (t.precio_producto ?? 0))}
+                        </td>
+                        <td style={{ padding: "10px 12px", whiteSpace: "nowrap" }}>
+                          {isEditing ? (
+                            <div style={{ display: "flex", gap: 6 }}>
+                              <button
+                                onClick={() => handleSavePayment(t.id)}
+                                disabled={editSaving}
+                                style={{ fontSize: 12, padding: "3px 10px", borderRadius: 6, border: "none", background: FF_CYAN, color: "#fff", cursor: editSaving ? "default" : "pointer", fontWeight: 700 }}
+                              >
+                                {editSaving ? "…" : "Guardar"}
+                              </button>
+                              <button
+                                onClick={() => setEditingId(null)}
+                                disabled={editSaving}
+                                style={{ fontSize: 12, padding: "3px 8px", borderRadius: 6, border: "1px solid #ddd", background: "#fff", cursor: "pointer", color: "#888" }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => { setEditingId(t.id); setEditPayment(t.payment_method); }}
+                              style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, border: "1px solid #e5e4df", background: "#fafaf8", cursor: "pointer", color: "#888" }}
+                              title="Editar método de pago"
+                            >
+                              ✏️
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );
