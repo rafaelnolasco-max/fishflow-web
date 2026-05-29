@@ -299,19 +299,26 @@ function NewSessionModal({
   const [processing, setProcessing] = useState(false);
   const [preview, setPreview]       = useState<TherapySession | null>(null);
   const [error, setError]           = useState<string | null>(null);
+  const [importMode, setImportMode] = useState<"manual" | "fireflies">("manual");
+  const [firefliesInput, setFirefliesInput] = useState("");
 
   async function handleProcess() {
-    if (!patientId || !transcript.trim()) {
-      setError("Selecciona un paciente e ingresa la transcripción.");
-      return;
-    }
+    if (!patientId) { setError("Selecciona un paciente."); return; }
+    if (importMode === "manual" && !transcript.trim()) { setError("Ingresa la transcripción."); return; }
+    if (importMode === "fireflies" && !firefliesInput.trim()) { setError("Ingresa el ID o URL de Fireflies."); return; }
     setError(null);
     setProcessing(true);
     try {
-      const res = await fetch("/api/therapyos/process-session", {
+      const endpoint = importMode === "fireflies"
+        ? "/api/therapyos/import-transcript"
+        : "/api/therapyos/process-session";
+      const body = importMode === "fireflies"
+        ? { patient_id: patientId, meeting_id_or_url: firefliesInput, session_date: sessionDate }
+        : { patient_id: patientId, transcript, session_date: sessionDate };
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patient_id: patientId, transcript, session_date: sessionDate }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const e = await res.json();
@@ -401,25 +408,68 @@ function NewSessionModal({
             />
           </div>
 
-          {/* Transcript */}
+          {/* Modo de importación */}
           <div>
             <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
               color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
-              Transcripción
+              Fuente de transcripción
             </label>
-            <textarea
-              value={transcript}
-              onChange={e => setTranscript(e.target.value)}
-              placeholder="Pega aquí la transcripción completa de la sesión..."
-              rows={10}
-              style={{
-                width: "100%", padding: "12px 14px", borderRadius: 8,
-                border: `1px solid ${C.border}`, fontSize: 13,
-                lineHeight: 1.6, resize: "vertical", fontFamily: "inherit",
-                color: C.charcoal,
-              }}
-            />
+            <div style={{ display: "flex", gap: 8 }}>
+              {(["manual", "fireflies"] as const).map(mode => (
+                <button key={mode} onClick={() => setImportMode(mode)} style={{
+                  padding: "8px 16px", borderRadius: 8, fontSize: 13,
+                  border: `1px solid ${importMode === mode ? C.sage : C.border}`,
+                  background: importMode === mode ? `rgba(122,158,126,0.1)` : "white",
+                  color: importMode === mode ? C.sageDark : C.muted,
+                  cursor: "pointer", fontWeight: importMode === mode ? 500 : 400,
+                }}>
+                  {mode === "manual" ? "✏️ Pegar texto" : "🔥 Importar de Fireflies"}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {importMode === "manual" ? (
+            <div>
+              <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
+                color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
+                Transcripción
+              </label>
+              <textarea
+                value={transcript}
+                onChange={e => setTranscript(e.target.value)}
+                placeholder="Pega aquí la transcripción completa de la sesión..."
+                rows={10}
+                style={{
+                  width: "100%", padding: "12px 14px", borderRadius: 8,
+                  border: `1px solid ${C.border}`, fontSize: 13,
+                  lineHeight: 1.6, resize: "vertical", fontFamily: "inherit",
+                  color: C.charcoal,
+                }}
+              />
+            </div>
+          ) : (
+            <div>
+              <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
+                color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
+                ID o URL de la reunión en Fireflies
+              </label>
+              <input
+                type="text"
+                value={firefliesInput}
+                onChange={e => setFirefliesInput(e.target.value)}
+                placeholder="https://app.fireflies.ai/view/... o ID de reunión"
+                style={{
+                  width: "100%", padding: "10px 14px", borderRadius: 8,
+                  border: `1px solid ${C.border}`, fontSize: 13,
+                  fontFamily: "inherit", color: C.charcoal,
+                }}
+              />
+              <p style={{ fontSize: 11, color: C.muted, marginTop: 6, lineHeight: 1.5 }}>
+                Copia el link desde Fireflies o solo el ID. La transcripción debe estar lista (3-5 min después de la llamada).
+              </p>
+            </div>
+          )}
 
           {error && (
             <p style={{ color: C.alert, fontSize: 13, padding: "10px 14px",
@@ -460,7 +510,7 @@ function NewSessionModal({
             {!preview ? (
               <button
                 onClick={handleProcess}
-                disabled={processing || !patientId || !transcript.trim()}
+                disabled={processing || !patientId || (importMode === "manual" ? !transcript.trim() : !firefliesInput.trim())}
                 style={{
                   padding: "10px 24px", borderRadius: 8, border: "none",
                   background: processing ? C.muted : C.sage,
