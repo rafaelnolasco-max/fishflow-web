@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>RiskFlow — Autoevaluación de Proceso | APEC</title>
+<title>Autoevaluación del Proceso | APEC Hospital de la Ceguera</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --orange:#FF8C35; --cyan:#67D4E8; --dark:#0D1B2A;
-  --card:#162032; --border:#1E3048; --text:#E8EFF7;
-  --muted:#8A9BB5; --green:#2ECC71; --red:#E74C3C; --yellow:#F39C12;
+  --orange:#7f2854; --cyan:#8cc9d4; --dark:#221c34;
+  --card:#2d2347; --border:#3d3158; --text:#f4f2f8;
+  --muted:#9b90b5; --green:#00a19a; --red:#ea524c; --yellow:#fcd672;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -21,8 +21,8 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
   border-bottom:1px solid var(--border);padding:11px 20px;
   display:flex;align-items:center;gap:12px;transition:opacity .3s}
 #pgbar.hidden{opacity:0;pointer-events:none}
-.logo-sm{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;white-space:nowrap;flex-shrink:0}
-.logo-sm .r{color:var(--orange)}.logo-sm .f{color:var(--cyan)}
+.logo-sm{display:flex;align-items:center;flex-shrink:0}
+.logo-sm img{height:26px;width:auto;filter:brightness(0) invert(1)}
 .prog-track{flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--orange));
   border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%}
@@ -40,7 +40,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
 .qcard.q-enter{animation:qSlideIn .35s cubic-bezier(.4,0,.2,1) forwards}
 
 /* ── WELCOME ── */
-#sw{background:radial-gradient(ellipse at top,rgba(103,212,232,.07) 0%,transparent 60%)}
+#sw{background:radial-gradient(ellipse at top,rgba(127,40,84,.12) 0%,transparent 60%)}
 .wc{text-align:center;max-width:520px}
 .wi{font-size:76px;margin-bottom:20px;animation:float 3s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
@@ -70,7 +70,7 @@ select.qinp{cursor:pointer;appearance:none;-webkit-appearance:none}
 .selwrap{position:relative}
 .selwrap::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);
   color:var(--muted);pointer-events:none;font-size:16px}
-select.qinp option{background:#0D1B2A}
+select.qinp option{background:#221c34}
 select.qinp optgroup{color:var(--muted);font-style:normal;font-size:11px}
 
 /* Code badge shown after process selection */
@@ -201,7 +201,7 @@ kbd{background:var(--border);border-radius:4px;padding:1px 5px;font-size:10px;fo
   to{transform:translateY(200px) rotate(360deg);opacity:0}}
 
 /* ── COMPLETE ── */
-#scomplete{background:radial-gradient(ellipse at center,rgba(46,204,113,.07) 0%,transparent 60%)}
+#scomplete{background:radial-gradient(ellipse at center,rgba(127,40,84,.1) 0%,transparent 60%)}
 .compcard{text-align:center;max-width:540px}
 .compicon{font-size:84px;margin-bottom:18px;
   animation:compfloat 2.5s ease-in-out infinite}
@@ -248,7 +248,7 @@ kbd{background:var(--border);border-radius:4px;padding:1px 5px;font-size:10px;fo
 
 <!-- PROGRESS BAR -->
 <div id="pgbar" class="hidden">
-  <div class="logo-sm"><span class="r">Risk</span><span class="f">Flow</span></div>
+  <div class="logo-sm"><img src="https://cdn.prod.website-files.com/68c31315c655ab84a0bd7c71/68e605b8aedadd034566667c_apec-logo-horizontal.svg" alt="APEC"></div>
   <div class="prog-track"><div class="prog-fill" id="progfill"></div></div>
   <div class="prog-label" id="proglbl">0/0</div>
 </div>
@@ -269,7 +269,10 @@ kbd{background:var(--border);border-radius:4px;padding:1px 5px;font-size:10px;fo
 <!-- ══ WELCOME ══ -->
 <div class="ws active" id="sw">
   <div class="wc">
-    <div class="wi">🏥</div>
+    <div class="wi">
+      <img src="https://cdn.prod.website-files.com/68c31315c655ab84a0bd7c71/68dbf5a5cea06753399108ae_apec-logo-simple.svg"
+           alt="APEC" style="height:90px;width:auto;filter:brightness(0) invert(1);opacity:.95">
+    </div>
     <h1>Autoevaluación<br>del <span>Proceso</span></h1>
     <p>Contestaremos juntos algunas preguntas sobre el proceso a documentar.<br>Una pregunta a la vez, sin tecnicismos.</p>
     <div class="wmeta">
@@ -280,6 +283,7 @@ kbd{background:var(--border);border-radius:4px;padding:1px 5px;font-size:10px;fo
     <button class="btnp" style="margin:0 auto;font-size:15px;padding:14px 34px" onclick="startWizard()">
       Comenzar →
     </button>
+    <p style="font-size:10px;color:var(--muted);margin-top:24px">Desarrollado por FishFlow · fishflow.mx</p>
   </div>
 </div>
 
