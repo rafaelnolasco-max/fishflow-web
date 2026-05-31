@@ -332,7 +332,6 @@ export default function BelangePage() {
       payment_method: payment,
       service:        service.trim() || null,
       vertical:       "estetica",
-      product_id:     productoId,
       metadata: {
         client_name:      clientName.trim(),
         price_service:    numServ ?? 0,
@@ -343,7 +342,7 @@ export default function BelangePage() {
       },
     });
 
-    if (error) { setSaving(false); setErr(`Error: ${error.message} (code: ${error.code})`); return; }
+    if (error) { setSaving(false); setErr("Error al guardar. Intenta de nuevo."); return; }
 
     // ── Descontar stock si el producto viene del catálogo ──
     if (productoId && numQty > 0) {
