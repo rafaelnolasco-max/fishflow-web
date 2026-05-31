@@ -343,7 +343,7 @@ export default function BelangePage() {
       },
     });
 
-    if (error) { setSaving(false); setErr("Error al guardar. Intenta de nuevo."); return; }
+    if (error) { setSaving(false); setErr(`Error: ${error.message} (code: ${error.code})`); return; }
 
     // ── Descontar stock si el producto viene del catálogo ──
     if (productoId && numQty > 0) {
