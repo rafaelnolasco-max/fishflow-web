@@ -270,7 +270,7 @@ kbd{background:var(--border);border-radius:4px;padding:1px 5px;font-size:10px;fo
 <div class="ws active" id="sw">
   <div class="wc">
     <div class="wi">🏥</div>
-    <h1>Autoevaluación<br>de <span>Proceso</span></h1>
+    <h1>Autoevaluación<br>del <span>Proceso</span></h1>
     <p>Contestaremos juntos algunas preguntas sobre el proceso a documentar.<br>Una pregunta a la vez, sin tecnicismos.</p>
     <div class="wmeta">
       <div class="wchip">📋 <b id="wmtotal">—</b>&nbsp;preguntas base</div>
@@ -280,7 +280,6 @@ kbd{background:var(--border);border-radius:4px;padding:1px 5px;font-size:10px;fo
     <button class="btnp" style="margin:0 auto;font-size:15px;padding:14px 34px" onclick="startWizard()">
       Comenzar →
     </button>
-    <p style="font-size:11px;color:var(--muted);margin-top:12px">Ciclo de Auditoría 2026</p>
   </div>
 </div>
 
@@ -337,10 +336,12 @@ kbd{background:var(--border);border-radius:4px;padding:1px 5px;font-size:10px;fo
       <div class="af">
         <label>¿Quién la ejecuta? <span class="req">*</span></label>
         <div class="selwrap">
-          <select id="a-exec">
+          <select id="a-exec" onchange="toggleOtroExec(this.value)">
             <option value="">— Selecciona el responsable —</option>
           </select>
         </div>
+        <input type="text" id="a-exec-otro" style="display:none;margin-top:8px"
+          placeholder="Escribe el nombre del responsable" />
       </div>
       <div class="af">
         <label>Errores o riesgos más comunes <span class="req">*</span></label>
@@ -748,8 +749,8 @@ function showAch(a, cb){
   }
 
   const ov=document.getElementById('ach'); ov.classList.add('show');
-  let tmr=setTimeout(()=>closeAch(ov,cb),2400);
-  document.getElementById('achbtn').onclick=()=>{clearTimeout(tmr);closeAch(ov,cb)};
+  // Sin auto-avance — el usuario debe hacer click en Continuar
+  document.getElementById('achbtn').onclick=()=>{closeAch(ov,cb)};
 }
 function closeAch(ov,cb){ov.classList.remove('show');setTimeout(cb,150)}
 
@@ -780,13 +781,23 @@ function buildParticipantDropdown(){
   const sel=document.getElementById('a-exec');
   sel.innerHTML='<option value="">— Selecciona el responsable —</option>';
   const opts = participantList.length>0 ? participantList
-    : ['Responsable principal','Personal de apoyo','Supervisor','Otro'];
+    : ['Responsable principal','Personal de apoyo','Supervisor'];
   opts.forEach(p=>{
     const op=document.createElement('option'); op.value=p; op.textContent=p; sel.appendChild(op);
   });
-  // "Otro" fallback
-  const other=document.createElement('option'); other.value='Otro'; other.textContent='Otro';
+  // Siempre agregar "Otro" al final
+  const other=document.createElement('option'); other.value='Otro'; other.textContent='Otro — escribir nombre';
   sel.appendChild(other);
+  // Ocultar campo de texto libre al reiniciar
+  const ot=document.getElementById('a-exec-otro');
+  if(ot){ot.style.display='none';ot.value='';}
+}
+
+function toggleOtroExec(val){
+  const ot=document.getElementById('a-exec-otro');
+  if(!ot)return;
+  if(val==='Otro'){ot.style.display='block';ot.focus();}
+  else{ot.style.display='none';ot.value='';}
 }
 
 function showActForm(idx){
@@ -798,6 +809,8 @@ function showActForm(idx){
   document.getElementById('a-exec').value='';
   document.getElementById('a-risk').value='';
   document.getElementById('a-ctrl').value='';
+  const ot=document.getElementById('a-exec-otro');
+  if(ot){ot.style.display='none';ot.value='';}
 
   // Reset ratings
   ratingState={freq:0,imp:0};
@@ -813,7 +826,12 @@ function showActForm(idx){
 
 function submitActivity(){
   const desc=document.getElementById('a-desc').value.trim();
-  const exec=document.getElementById('a-exec').value.trim();
+  let exec=document.getElementById('a-exec').value.trim();
+  if(exec==='Otro'){
+    const otroVal=document.getElementById('a-exec-otro').value.trim();
+    if(!otroVal){flash('a-exec-otro');return;}
+    exec=otroVal;
+  }
   const risk=document.getElementById('a-risk').value.trim();
   const freq=ratingState.freq;
   const imp =ratingState.imp;
