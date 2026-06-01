@@ -35,19 +35,30 @@ interface DailyCount {
 }
 
 // ─── Parser de WhatsApp ───────────────────────────────────────────────────────
-// Formato: [M/D/YY, H:MM:SS] Nombre: mensaje
-// También maneja: [MM/DD/YYYY, HH:MM:SS] para exports más nuevos
+// Formato Android: [M/D/YY, H:MM:SS] Nombre: mensaje
+// Formato iOS:     DD/MM/YYYY, H:MM a. m. - Nombre: mensaje
 
-const MSG_REGEX = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s(\d{1,2}:\d{2}:\d{2}(?:\s?[AP]M)?)\]\s(.+?):\s([\s\S]*)$/
+// Android: [9/19/17, 17:22:49] o [10/24/17, 11:00:20]
+const MSG_REGEX_ANDROID = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s(\d{1,2}:\d{2}:\d{2}(?:\s?[AP]M)?)\]\s(.+?):\s([\s\S]*)$/
+
+// iOS: 24/11/2020, 10:37 a. m. - Nombre: mensaje
+// También: 24/11/2020, 10:37 a. m. - (espacio fino entre a. m.)
+const MSG_REGEX_IOS = /^(\d{1,2}\/\d{1,2}\/\d{2,4}),\s(\d{1,2}:\d{2}(?::\d{2})?\s?(?:a\.\s?m\.|p\.\s?m\.|AM|PM)?)\s?[-–]\s(.+?):\s([\s\S]*)$/
 
 const SYSTEM_PATTERNS = [
   /Messages and calls are end-to-end encrypted/i,
+  /Los mensajes y las llamadas están cifrados/i,
   /added you/i,
+  /Se te añadió/i,
   /created this group/i,
+  /creó el grupo/i,
   /changed their phone number/i,
+  /cambió su número/i,
   /left$/i,
+  /abandonó el grupo/i,
   /was added$/i,
   /^null$/i,
+  /Más información$/i,
 ]
 
 const MEDIA_PATTERNS = [
@@ -57,16 +68,50 @@ const MEDIA_PATTERNS = [
   /document omitted/i,
   /sticker omitted/i,
   /GIF omitted/i,
+  /\<imagen omitida\>/i,
+  /\<audio omitido\>/i,
+  /\<video omitido\>/i,
+  /\<documento omitido\>/i,
+  /\<sticker omitido\>/i,
 ]
 
-function parseDate(dateStr: string, timeStr: string): Date | null {
+function parseDate(dateStr: string, timeStr: string, isIOS = false): Date | null {
   try {
-    // Normalizar: M/D/YY → MM/DD/YYYY
-    const [month, day, year] = dateStr.split('/')
+    const parts = dateStr.split('/')
+    let day: string, month: string, year: string
+
+    if (isIOS) {
+      // iOS: DD/MM/YYYY
+      ;[day, month, year] = parts
+    } else {
+      // Android: M/D/YY
+      ;[month, day, year] = parts
+    }
+
     const fullYear = year.length === 2 ? `20${year}` : year
-    // Quitar AM/PM si existe (formato 12h)
-    const cleanTime = timeStr.replace(/\s?[AP]M$/i, '').trim()
-    const iso = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${cleanTime}`
+
+    // Normalizar hora: quitar "a. m." / "p. m." y convertir a 24h
+    let cleanTime = timeStr
+      .replace(/\s?a\.\s?m\.?/i, ' AM')
+      .replace(/\s?p\.\s?m\.?/i, ' PM')
+      .replace(/ /g, ' ')  // espacio fino
+      .trim()
+
+    // Si tiene AM/PM, parsear manualmente
+    const ampm = cleanTime.match(/(\d{1,2}:\d{2}(?::\d{2})?)\s?(AM|PM)/i)
+    if (ampm) {
+      const [, time, period] = ampm
+      const [h, m, s = '00'] = time.split(':')
+      let hour = parseInt(h)
+      if (period.toUpperCase() === 'PM' && hour !== 12) hour += 12
+      if (period.toUpperCase() === 'AM' && hour === 12) hour = 0
+      cleanTime = `${String(hour).padStart(2,'0')}:${m}:${s}`
+    } else {
+      // Ya está en 24h — asegurar formato HH:MM:SS
+      cleanTime = cleanTime.replace(/(\d{1,2}:\d{2})$/, '$1:00')
+    }
+
+    const iso = `${fullYear}-${month.padStart(2,'0')}-${day.padStart(2,'0')}T${cleanTime}`
     const d = new Date(iso)
     return isNaN(d.getTime()) ? null : d
   } catch {
@@ -85,8 +130,22 @@ function isMediaOnly(text: string): boolean {
   return MEDIA_PATTERNS.some(p => p.test(text.trim()))
 }
 
+function detectFormat(rawText: string): 'android' | 'ios' {
+  // iOS no usa corchetes — busca el patrón DD/MM/YYYY, H:MM - Nombre:
+  const iosHits     = (rawText.match(/^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}\s(?:a\.|p\.)/m) ?? []).length
+  const androidHits = (rawText.match(/^\[\d{1,2}\/\d{1,2}\/\d{2,4},/m) ?? []).length
+  return iosHits > 0 && androidHits === 0 ? 'ios' : 'android'
+}
+
 function parseWhatsAppChat(rawText: string): ParsedMessage[] {
-  const lines = rawText.split('\n')
+  // Normalizar line endings: quitar \r para manejar archivos CRLF (Windows/Android)
+  const normalized = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+
+  const format = detectFormat(normalized)
+  const MSG_REGEX = format === 'ios' ? MSG_REGEX_IOS : MSG_REGEX_ANDROID
+  const isIOS = format === 'ios'
+
+  const lines = normalized.split('\n')
   const messages: ParsedMessage[] = []
   let current: ParsedMessage | null = null
 
@@ -103,7 +162,7 @@ function parseWhatsAppChat(rawText: string): ParsedMessage[] {
       }
 
       const [, dateStr, timeStr, sender, text] = match
-      const sent_at = parseDate(dateStr, timeStr)
+      const sent_at = parseDate(dateStr, timeStr, isIOS)
       if (!sent_at) continue
 
       // Limpiar el sender (quitar ~ y caracteres especiales de Unicode)
