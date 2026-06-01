@@ -68,10 +68,11 @@ export default function SparcDashboard() {
   const params    = useParams();
   const buildingId = params.building_id as string;
 
-  const [building,   setBuilding]   = useState<Building | null>(null);
-  const [summaries,  setSummaries]  = useState<Summary[]>([]);
-  const [lastUpload, setLastUpload] = useState<UploadInfo | null>(null);
-  const [loading,    setLoading]    = useState(true);
+  const [building,        setBuilding]        = useState<Building | null>(null);
+  const [summaries,       setSummaries]       = useState<Summary[]>([]);
+  const [lastUpload,      setLastUpload]      = useState<UploadInfo | null>(null);
+  const [loading,         setLoading]         = useState(true);
+  const [selectedSummary, setSelectedSummary] = useState<Summary | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -85,7 +86,12 @@ export default function SparcDashboard() {
       ]);
 
       if (bRes.data) setBuilding(bRes.data);
-      if (sRes.data) setSummaries(sRes.data);
+      if (sRes.data) {
+        setSummaries(sRes.data);
+        // Default: día con más urgentes (o el más reciente si no hay urgentes)
+        const mostUrgent = [...sRes.data].sort((a, b) => b.urgent_count - a.urgent_count)[0] ?? sRes.data[0];
+        setSelectedSummary(mostUrgent ?? null);
+      }
       if (uRes.data) setLastUpload(uRes.data);
       setLoading(false);
     }
@@ -99,7 +105,7 @@ export default function SparcDashboard() {
     total:  acc.total  + s.total_messages,
   }), { urgent: 0, medium: 0, low: 0, total: 0 });
 
-  const latestSummary = summaries[0] ?? null;
+  const latestSummary = selectedSummary ?? summaries[0] ?? null;
 
   function fmt(d: string) {
     return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
@@ -201,22 +207,36 @@ export default function SparcDashboard() {
           </div>
         )}
 
-        {/* Historial de días */}
-        {summaries.length > 1 && (
+        {/* Historial de días — clickeable */}
+        {summaries.length > 0 && (
           <div style={{ background: "#112233", border: "1px solid #1e3048", borderRadius: 12, padding: "20px 24px" }}>
             <div style={{ fontSize: 12, color: "#5a7a9a", marginBottom: 14, textTransform: "uppercase", letterSpacing: 1 }}>
-              Historial por día
+              Historial por día — toca un día para ver su reporte
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {summaries.slice(1).map(s => (
-                <div key={s.summary_date} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 0", borderBottom: "1px solid #1a2e42", fontSize: 13 }}>
-                  <span style={{ color: "#5a7a9a", width: 100, flexShrink: 0 }}>{fmt(s.summary_date)}</span>
-                  <span style={{ color: "#ff4444" }}>🔴 {s.urgent_count}</span>
-                  <span style={{ color: "#ffaa00" }}>🟡 {s.medium_count}</span>
-                  <span style={{ color: "#44cc88" }}>🟢 {s.low_count}</span>
-                  <span style={{ color: "#5a7a9a", marginLeft: "auto" }}>{s.total_messages} msgs</span>
-                </div>
-              ))}
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {summaries.map(s => {
+                const isSelected = latestSummary?.summary_date === s.summary_date;
+                return (
+                  <div key={s.summary_date}
+                    onClick={() => setSelectedSummary(s)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 12,
+                      padding: "10px 12px", borderRadius: 8, fontSize: 13,
+                      cursor: "pointer",
+                      background: isSelected ? "#0d1b2a" : "transparent",
+                      border: isSelected ? `1px solid ${FF_CYAN}44` : "1px solid transparent",
+                      transition: "background 0.1s",
+                    }}>
+                    <span style={{ color: isSelected ? FF_CYAN : "#5a7a9a", width: 110, flexShrink: 0, fontWeight: isSelected ? 700 : 400 }}>
+                      {isSelected ? "▶ " : ""}{fmt(s.summary_date)}
+                    </span>
+                    <span style={{ color: s.urgent_count > 0 ? "#ff4444" : "#3a5a7a" }}>🔴 {s.urgent_count}</span>
+                    <span style={{ color: s.medium_count > 0 ? "#ffaa00" : "#3a5a7a" }}>🟡 {s.medium_count}</span>
+                    <span style={{ color: "#44cc88" }}>🟢 {s.low_count}</span>
+                    <span style={{ color: "#5a7a9a", marginLeft: "auto" }}>{s.total_messages} msgs</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
