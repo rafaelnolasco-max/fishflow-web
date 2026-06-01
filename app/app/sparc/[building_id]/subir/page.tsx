@@ -144,8 +144,8 @@ export default function SparcSubir() {
   useEffect(() => {
     if (!fileText) return;
     const filtered = filterByDays(fileText, selectedDays);
-    // Contar líneas que empiezan con fecha — acepta ambos formatos
-    const count = (filtered.match(/^[‎‏  ]*\d{1,2}\/\d{1,2}\/\d{2,4},/gm) ?? []).length;
+    // Contar líneas que empiezan con fecha — acepta iOS (DD/MM/YYYY,) y Android ([M/D/YY,)
+    const count = (filtered.match(/^[^\S\n]*(?:\[)?\d{1,2}\/\d{1,2}\/\d{2,4},/gm) ?? []).length;
     setFilteredPreview({ lines: count });
   }, [fileText, selectedDays]);
 
