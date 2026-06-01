@@ -56,40 +56,57 @@ const PERIOD_OPTIONS = [
   { label: "Últimos 30 días", days: 30 },
 ];
 
-// Detecta si el chat es iOS (DD/MM/YYYY) o Android ([M/D/YY)
+// Detecta formato iOS (DD/MM/YYYY) o Android ([M/D/YY)
+// Limpia caracteres invisibles antes de detectar
 function detectFormat(text: string): "ios" | "android" {
-  const iosHit     = /^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}\s(?:a\.|p\.)/m.test(text);
-  const androidHit = /^\[\d{1,2}\/\d{1,2}\/\d{2,4},/m.test(text);
+  // Tira invisibles del inicio de línea para detección limpia
+  const cleaned = text.replace(/^[‎‏  ﻿]+/gm, "");
+  const iosHit     = /^\d{1,2}\/\d{1,2}\/\d{4},/.test(cleaned);
+  const androidHit = /^\[\d{1,2}\/\d{1,2}\/\d{2,4},/.test(cleaned);
   return iosHit && !androidHit ? "ios" : "android";
 }
 
 // Filtra el texto del chat a solo los mensajes dentro de los últimos N días
+// Compara numéricamente (no usa new Date) para evitar bugs de timezone/parsing
 function filterByDays(text: string, days: number): string {
-  const cutoff = new Date();
+  const now = new Date();
+  const cutY = now.getFullYear();
+  const cutM = now.getMonth() + 1; // 1-based
+  const cutD = now.getDate() - days; // puede ser negativo, lo normalizamos
+
+  // Calcular fecha de corte real
+  const cutoff = new Date(now);
   cutoff.setDate(cutoff.getDate() - days);
-  cutoff.setHours(0, 0, 0, 0);
+  const cutYear  = cutoff.getFullYear();
+  const cutMonth = cutoff.getMonth() + 1;
+  const cutDay   = cutoff.getDate();
 
   const format = detectFormat(text);
-  // Android: [M/D/YY,  → grupos: month, day, year
-  // iOS:     DD/MM/YYYY, → grupos: day, month, year
-  const lineRegex = format === "ios"
-    ? /^(\d{1,2})\/(\d{1,2})\/(\d{4}),/
-    : /^\[(\d{1,2})\/(\d{1,2})\/(\d{2,4}),/;
+  // iOS: DD/MM/YYYY  →  groups: day, month, year
+  // Android: [M/D/YY →  groups: month, day, year
+  const iosRx     = /^[‎‏  ]*(\d{1,2})\/(\d{1,2})\/(\d{4}),/;
+  const androidRx = /^[‎‏  ]*\[(\d{1,2})\/(\d{1,2})\/(\d{2,4}),/;
+  const lineRegex = format === "ios" ? iosRx : androidRx;
 
   const lines = text.split("\n");
   const result: string[] = [];
   let include = false;
 
   for (const line of lines) {
-    const match = line.match(lineRegex);
-    if (match) {
-      const [, a, b, y] = match;
-      const fullYear = y.length === 2 ? `20${y}` : y;
-      let month: string, day: string;
+    const m = line.match(lineRegex);
+    if (m) {
+      const a = parseInt(m[1]), b = parseInt(m[2]);
+      const rawY = m[3];
+      const y = rawY.length === 2 ? 2000 + parseInt(rawY) : parseInt(rawY);
+      let day: number, month: number;
       if (format === "ios") { day = a; month = b; }
       else                  { month = a; day = b; }
-      const msgDate = new Date(`${fullYear}-${month.padStart(2,"0")}-${day.padStart(2,"0")}T00:00:00`);
-      include = msgDate >= cutoff;
+
+      // Comparar numéricamente año-mes-día
+      if (y > cutYear) include = true;
+      else if (y === cutYear && month > cutMonth) include = true;
+      else if (y === cutYear && month === cutMonth && day >= cutDay) include = true;
+      else include = false;
     }
     if (include) result.push(line);
   }
@@ -127,11 +144,8 @@ export default function SparcSubir() {
   useEffect(() => {
     if (!fileText) return;
     const filtered = filterByDays(fileText, selectedDays);
-    const fmt = detectFormat(fileText);
-    const regex = fmt === "ios"
-      ? /^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}/gm
-      : /^\[\d{1,2}\/\d{1,2}\/\d{2,4},/gm;
-    const count = [...filtered.matchAll(regex)].length;
+    // Contar líneas que empiezan con fecha — acepta ambos formatos
+    const count = (filtered.match(/^[‎‏  ]*\d{1,2}\/\d{1,2}\/\d{2,4},/gm) ?? []).length;
     setFilteredPreview({ lines: count });
   }, [fileText, selectedDays]);
 
