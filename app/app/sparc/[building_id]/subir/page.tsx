@@ -56,22 +56,39 @@ const PERIOD_OPTIONS = [
   { label: "Últimos 30 días", days: 30 },
 ];
 
+// Detecta si el chat es iOS (DD/MM/YYYY) o Android ([M/D/YY)
+function detectFormat(text: string): "ios" | "android" {
+  const iosHit     = /^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}\s(?:a\.|p\.)/m.test(text);
+  const androidHit = /^\[\d{1,2}\/\d{1,2}\/\d{2,4},/m.test(text);
+  return iosHit && !androidHit ? "ios" : "android";
+}
+
 // Filtra el texto del chat a solo los mensajes dentro de los últimos N días
 function filterByDays(text: string, days: number): string {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
   cutoff.setHours(0, 0, 0, 0);
 
+  const format = detectFormat(text);
+  // Android: [M/D/YY,  → grupos: month, day, year
+  // iOS:     DD/MM/YYYY, → grupos: day, month, year
+  const lineRegex = format === "ios"
+    ? /^(\d{1,2})\/(\d{1,2})\/(\d{4}),/
+    : /^\[(\d{1,2})\/(\d{1,2})\/(\d{2,4}),/;
+
   const lines = text.split("\n");
   const result: string[] = [];
   let include = false;
 
   for (const line of lines) {
-    const match = line.match(/^\[(\d{1,2})\/(\d{1,2})\/(\d{2,4}),/)
+    const match = line.match(lineRegex);
     if (match) {
-      const [, m, d, y] = match;
+      const [, a, b, y] = match;
       const fullYear = y.length === 2 ? `20${y}` : y;
-      const msgDate = new Date(`${fullYear}-${m.padStart(2,"0")}-${d.padStart(2,"0")}T00:00:00`);
+      let month: string, day: string;
+      if (format === "ios") { day = a; month = b; }
+      else                  { month = a; day = b; }
+      const msgDate = new Date(`${fullYear}-${month.padStart(2,"0")}-${day.padStart(2,"0")}T00:00:00`);
       include = msgDate >= cutoff;
     }
     if (include) result.push(line);
@@ -116,8 +133,12 @@ export default function SparcSubir() {
   }, [fileText, selectedDays]);
 
   function parsePreview(text: string) {
-    const regex = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),/gm;
-    const matches = [...text.matchAll(regex)];
+    // Detectar formato Android [M/D/YY, o iOS DD/MM/YYYY,
+    const androidRegex = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),/gm;
+    const iosRegex     = /^(\d{1,2}\/\d{1,2}\/\d{4}),\s\d{1,2}:\d{2}\s(?:a\.|p\.)/gm;
+    const androidMatches = [...text.matchAll(androidRegex)];
+    const iosMatches     = [...text.matchAll(iosRegex)];
+    const matches = iosMatches.length > androidMatches.length ? iosMatches : androidMatches;
     return { lines: matches.length, firstDate: matches[0]?.[1] ?? "", lastDate: matches[matches.length - 1]?.[1] ?? "" };
   }
 
