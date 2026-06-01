@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FishFlow">
+  <title>FishFlow — Isotipo (mono)</title>
+  <path d="M 600 300 C 760 100, 1000  90, 1000 300 C 1000 510,  760 500, 600 300 C 440 100,  200  90,  200 300 C 200 510,  440 500,  600 300 Z" fill="none" stroke="#FFFFFF" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"></path>
+  <circle cx="880" cy="278" r="9" fill="#FFFFFF"></circle>
+</svg>

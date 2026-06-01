@@ -1,0 +1,76 @@
+/* FishFlow — print/letter document base */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --tide-cyan: #1FA9D6;
+  --tide-orange: #F26B17;
+  --ink: #0E2A36;
+  --ink-soft: #0C3445;
+  --bg-dark: #0A1820;
+  --bg-light: #FAFAF7;
+  --bg-paper: #F4F1EA;
+  --rule: #E5E1D6;
+  --rule-strong: #C9C4B5;
+  --muted: #6B7B82;
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html, body {
+  margin: 0; padding: 0;
+  background: #2a2a2a;
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+/* A4 page */
+.page {
+  width: 794px;            /* 210mm @ 96dpi ≈ */
+  min-height: 1123px;      /* 297mm */
+  margin: 32px auto;
+  background: white;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  position: relative;
+  box-sizing: border-box;
+  padding: 64px 64px 80px;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-letter { /* US Letter alt */
+  width: 816px;
+  min-height: 1056px;
+}
+
+.page.paper { background: var(--bg-paper); }
+.page.dark { background: var(--bg-dark); color: #F4F1EA; }
+
+/* Common doc header */
+.doc-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding-bottom: 28px; border-bottom: 1px solid var(--rule);
+}
+.doc-head .logo { height: 30px; }
+.doc-head .meta { text-align: right; }
+.doc-head .meta .k { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.doc-head .meta .v { font-family: var(--font-display); font-size: 14px; font-weight: 500; margin-top: 2px; }
+
+.doc-foot {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  display: flex; justify-content: space-between; align-items: flex-end;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.mono-k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+
+@media print {
+  body { background: white; }
+  .page { box-shadow: none; margin: 0; }
+}

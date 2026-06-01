@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Social Templates</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  body {
+    margin: 0; background: #1a1a1a; min-height: 100vh; padding: 56px 32px;
+    font-family: var(--font-body);
+  }
+  .stage { max-width: 1280px; margin: 0 auto; }
+  .label-row {
+    text-align: center; color: rgba(255,255,255,0.55);
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    margin: 56px 0 20px;
+  }
+  .label-row:first-child { margin-top: 0; }
+  h2.h-section {
+    font-family: var(--font-display); font-size: 28px; font-weight: 500;
+    color: white; text-align: center; margin: 0 0 32px;
+    letter-spacing: -0.015em;
+  }
+
+  .row { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+
+  /* IG Post — 1080×1080 shown @ 0.4 = 432 */
+  .ig-post {
+    width: 432px; height: 432px;
+    border-radius: 8px; overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    position: relative;
+    box-sizing: border-box;
+    padding: 36px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .ig-post.dark { background: var(--bg-dark); color: #F4F1EA; }
+  .ig-post.light { background: var(--bg-light); color: var(--ink); }
+  .ig-post.paper { background: var(--bg-paper); color: var(--ink); }
+  .ig-post .top { display: flex; justify-content: space-between; align-items: center; }
+  .ig-post .top img { height: 16px; }
+  .ig-post.dark .top img { filter: brightness(0) invert(1); }
+  .ig-post .top .tag {
+    font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--tide-orange);
+  }
+  .ig-post .quote {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: 36px; line-height: 1.05; letter-spacing: -0.025em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .ig-post .quote .o { color: var(--tide-orange); }
+  .ig-post .quote .c { color: var(--tide-cyan); }
+  .ig-post .foot { display: flex; justify-content: space-between; align-items: flex-end; }
+  .ig-post .foot .url {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .ig-post.dark .foot .url { color: rgba(244,241,234,0.55); }
+  .ig-post.light .foot .url, .ig-post.paper .foot .url { color: var(--muted); }
+  .ig-post .iso-bg { position: absolute; right: -60px; bottom: -40px; width: 280px; opacity: 0.06; }
+
+  .ig-post.stat .num {
+    font-family: var(--font-display); font-size: 144px; font-weight: 700; letter-spacing: -0.04em;
+    line-height: 0.9; margin: 0;
+  }
+  .ig-post.stat .num .a { color: var(--tide-orange); }
+  .ig-post.stat .lab {
+    font-family: var(--font-display); font-size: 22px; font-weight: 500; line-height: 1.25;
+    margin: 8px 0 0; max-width: 280px;
+  }
+
+  .ig-post.cover {
+    background: var(--bg-dark); color: #F4F1EA;
+    padding: 0;
+  }
+  .ig-post.cover .cstack {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: flex-start; justify-content: center;
+    padding: 36px;
+  }
+  .ig-post.cover .small {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--tide-orange); margin-bottom: 16px;
+  }
+  .ig-post.cover .word {
+    font-family: var(--font-display); font-size: 88px; font-weight: 700;
+    letter-spacing: -0.035em; line-height: 0.9; margin: 0;
+  }
+  .ig-post.cover .word .a { color: var(--tide-cyan); }
+  .ig-post.cover .word .b { color: var(--tide-orange); }
+  .ig-post.cover .strip {
+    height: 12px;
+    background: linear-gradient(90deg, var(--tide-cyan), var(--tide-orange));
+  }
+
+  /* IG Story — 1080×1920 shown @ 0.25 ≈ 270 × 480 */
+  .ig-story {
+    width: 270px; height: 480px;
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    position: relative;
+    box-sizing: border-box;
+    padding: 28px 22px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .ig-story.dark { background: var(--bg-dark); color: #F4F1EA; }
+  .ig-story.gradient {
+    background: linear-gradient(165deg, var(--bg-dark) 0%, var(--bg-dark) 50%, #15384a 100%);
+    color: #F4F1EA;
+  }
+  .ig-story.light { background: var(--bg-light); color: var(--ink); }
+  .ig-story img.iso { height: 24px; }
+  .ig-story.dark img.iso, .ig-story.gradient img.iso { filter: brightness(0) invert(1); }
+  .ig-story .tag { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--tide-orange); margin-top: 12px; }
+  .ig-story h2 { font-family: var(--font-display); font-size: 32px; font-weight: 700; letter-spacing: -0.025em; line-height: 1; margin: 16px 0 0; text-wrap: balance; }
+  .ig-story h2 .o { color: var(--tide-orange); }
+  .ig-story .swipe {
+    text-align: center; padding: 12px 16px; border: 1px solid currentColor; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    align-self: center;
+    opacity: 0.7;
+  }
+  .ig-story .url { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55; text-align: center; }
+
+  /* LinkedIn — 1200×627 banner @ 0.42 ≈ 504 × 263 */
+  .li-banner {
+    width: 720px; height: 376px;
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    position: relative;
+    box-sizing: border-box;
+    background: var(--bg-dark);
+    color: #F4F1EA;
+    padding: 40px 56px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .li-banner .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .li-banner .top img { height: 22px; filter: brightness(0) invert(1); }
+  .li-banner .top .tag { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--tide-orange); }
+  .li-banner h1 {
+    font-family: var(--font-display); font-size: 56px; font-weight: 700;
+    letter-spacing: -0.03em; line-height: 0.95; margin: 0;
+    max-width: 540px;
+    text-wrap: balance;
+  }
+  .li-banner h1 .a { color: var(--tide-cyan); }
+  .li-banner h1 .b { color: var(--tide-orange); }
+  .li-banner .foot { display: flex; justify-content: space-between; align-items: flex-end; }
+  .li-banner .foot .url { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(244,241,234,0.6); }
+  .li-banner .iso-bg {
+    position: absolute; right: -60px; top: -40px; width: 360px; opacity: 0.08;
+  }
+
+  /* LinkedIn square post — 1080² */
+  .li-square {
+    width: 432px; height: 432px;
+    border-radius: 8px; overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    background: white;
+    color: var(--ink);
+    position: relative;
+    box-sizing: border-box;
+    padding: 36px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .li-square .top img { height: 18px; }
+  .li-square .ey { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--tide-orange); margin-bottom: 12px; }
+  .li-square h2 { font-family: var(--font-display); font-size: 36px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; margin: 0; max-width: 320px; text-wrap: balance;}
+  .li-square .deck { font-family: var(--font-display); font-size: 14px; font-weight: 300; line-height: 1.4; color: var(--muted); margin-top: 14px; max-width: 340px;}
+  .li-square .author { display: flex; align-items: center; gap: 10px; }
+  .li-square .author .av {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--tide-cyan), var(--tide-orange));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-family: var(--font-display); font-weight: 700; font-size: 14px;
+  }
+  .li-square .author .who .n { font-family: var(--font-display); font-size: 12px; font-weight: 600; }
+  .li-square .author .who .r { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+
+  .spec {
+    text-align: center;
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4);
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+<div class="label-row">— Instagram · feed posts (1080 × 1080) —</div>
+
+<div class="row">
+  <!-- Cover / brand -->
+  <div class="ig-post cover">
+    <div class="cstack">
+      <div class="small">— EST. 2025 · CDMX</div>
+      <div class="word"><span class="a">Fish</span><br><span class="b">Flow.</span></div>
+    </div>
+    <div class="strip"></div>
+  </div>
+  <!-- Quote -->
+  <div class="ig-post dark">
+    <div class="top">
+      <img src="assets/logo-horizontal-mono.svg" alt="">
+      <div class="tag">— Founder note · 01</div>
+    </div>
+    <p class="quote">A junior employee<br>that <span class="o">never sleeps.</span></p>
+    <div class="foot">
+      <span class="url">fishflow.mx</span>
+      <span class="url">— @fishflow</span>
+    </div>
+    <img src="assets/isotipo-mono-light.svg" class="iso-bg" alt="">
+  </div>
+  <!-- Stat -->
+  <div class="ig-post stat paper">
+    <div class="top">
+      <img src="assets/logo-horizontal.svg" alt="">
+      <div class="tag">— By the numbers</div>
+    </div>
+    <div>
+      <p class="num">14<span class="a">h</span></p>
+      <p class="lab">per week, lost to manual ops in a small business.</p>
+    </div>
+    <div class="foot">
+      <span class="url">Source · FishFlow research</span>
+      <span class="url">fishflow.mx</span>
+    </div>
+  </div>
+</div>
+<div class="spec">1080 × 1080 px · square feed</div>
+
+<div class="label-row">— Instagram · stories (1080 × 1920) —</div>
+
+<div class="row">
+  <div class="ig-story dark">
+    <img src="assets/logo-horizontal-mono.svg" class="iso" alt="">
+    <div>
+      <div class="tag">— New post</div>
+      <h2>The bakery doesn't need a CRM. It needs <span class="o">its evenings back.</span></h2>
+    </div>
+    <div class="swipe">— Read on the blog —</div>
+    <div class="url">fishflow.mx/blog</div>
+  </div>
+  <div class="ig-story gradient">
+    <img src="assets/isotipo-mono-light.svg" class="iso" alt="">
+    <div>
+      <div class="tag">— Pilot is open</div>
+      <h2>Two weeks.<br>One inbox.<br><span class="o">Free.</span></h2>
+    </div>
+    <div class="swipe">— Swipe up to apply —</div>
+    <div class="url">fishflow.mx/pilot</div>
+  </div>
+  <div class="ig-story light">
+    <img src="assets/logo-horizontal.svg" class="iso" alt="">
+    <div>
+      <div class="tag">— Customer voice</div>
+      <h2 style="font-size: 28px; font-weight: 400;">"It sounds more like me than I do at <span class="o">9pm.</span>"</h2>
+      <div style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-top: 12px;">— Marta L. · Café Pichilingue</div>
+    </div>
+    <div class="url" style="color: var(--muted);">fishflow.mx/customers</div>
+  </div>
+</div>
+<div class="spec">1080 × 1920 px · vertical story</div>
+
+<div class="label-row">— LinkedIn · cover banner (1200 × 627) —</div>
+
+<div class="row">
+  <div class="li-banner">
+    <div class="top">
+      <img src="assets/logo-horizontal-mono.svg" alt="">
+      <div class="tag">— CDMX · 2025</div>
+    </div>
+    <h1>AI operations for the businesses that <span class="b">keep your town running.</span></h1>
+    <div class="foot">
+      <div class="url">— fishflow.mx · we're hiring</div>
+      <div class="url" style="color: var(--tide-orange);">→ pilot free</div>
+    </div>
+    <img src="assets/isotipo-mono-light.svg" class="iso-bg" alt="">
+  </div>
+</div>
+<div class="spec">1200 × 627 px · LinkedIn page cover</div>
+
+<div class="label-row">— LinkedIn · square posts (1080 × 1080) —</div>
+
+<div class="row">
+  <div class="li-square">
+    <div class="top"><img src="assets/logo-horizontal.svg" alt=""></div>
+    <div>
+      <div class="ey">— Founder note · 04</div>
+      <h2>A note on shipping boring software, on purpose.</h2>
+      <p class="deck">Why our quarterly roadmap has just one promise per quarter — and why our accountants test every release before it goes out.</p>
+    </div>
+    <div class="author">
+      <div class="av">RF</div>
+      <div class="who">
+        <div class="n">Rafa Fish</div>
+        <div class="r">Founder · FishFlow</div>
+      </div>
+    </div>
+  </div>
+  <div class="li-square" style="background: var(--bg-paper);">
+    <div class="top"><img src="assets/logo-horizontal.svg" alt=""></div>
+    <div>
+      <div class="ey">— We're hiring</div>
+      <h2>Onboarding lead · Spain.</h2>
+      <p class="deck">Drive a van to a bakery. Set up an inbox. Sit on a stool for two hours. If that sounds like a job, it's yours.</p>
+    </div>
+    <div class="author">
+      <div class="av">RF</div>
+      <div class="who">
+        <div class="n">Apply by 31 May</div>
+        <div class="r">rafaelnolasco@gmail.com</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="spec">1080 × 1080 px · LinkedIn feed</div>
+
+</div>
+
+</body>
+</html>

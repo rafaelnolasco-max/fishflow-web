@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Invoice Templates</title>
+<link rel="stylesheet" href="document.css">
+<style>
+  body { padding-bottom: 80px; }
+  .toolbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(20,20,20,0.85); backdrop-filter: blur(12px);
+    padding: 16px 32px;
+    display: flex; gap: 16px; align-items: center;
+    color: white; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .toolbar .pill {
+    padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,0.1); cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .toolbar .pill.active { background: white; color: black; }
+  .label-row { text-align: center; color: rgba(255,255,255,0.55); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; margin: 24px 0 -8px; }
+
+  /* Invoice A — Editorial / minimalist */
+  .inv-a .doc-head { padding-bottom: 32px; }
+  .inv-a .iv-title {
+    font-family: var(--font-display);
+    font-size: 64px; font-weight: 600; letter-spacing: -0.03em; line-height: 1;
+    margin: 40px 0 8px;
+  }
+  .inv-a .iv-num {
+    font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.16em;
+    color: var(--muted); margin-bottom: 40px;
+  }
+  .inv-a .iv-num strong { color: var(--ink); font-weight: 500; }
+  .iv-parties { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; margin-bottom: 40px; }
+  .iv-party h4 { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; font-weight: 500; }
+  .iv-party .name { font-family: var(--font-display); font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .iv-party p { margin: 2px 0; font-size: 12px; line-height: 1.45; color: var(--ink); }
+  .iv-party .tax { color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+  table.items {
+    width: 100%; border-collapse: collapse; margin-bottom: 32px;
+  }
+  table.items th {
+    text-align: left; font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); font-weight: 500;
+    padding: 12px 0; border-bottom: 1px solid var(--rule-strong);
+  }
+  table.items th.r, table.items td.r { text-align: right; }
+  table.items td {
+    padding: 16px 0; font-size: 12px; border-bottom: 1px solid var(--rule); vertical-align: top;
+  }
+  table.items td.desc { padding-right: 16px; }
+  table.items td.desc .ti { font-family: var(--font-display); font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  table.items td.desc .sub { color: var(--muted); font-size: 11px; line-height: 1.4; }
+  table.items td.amt { font-variant-numeric: tabular-nums; font-weight: 500; }
+
+  .iv-totals { margin-left: auto; width: 320px; }
+  .iv-totals .row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 12px; }
+  .iv-totals .row.muted { color: var(--muted); }
+  .iv-totals .row.total {
+    border-top: 1px solid var(--ink); margin-top: 8px; padding-top: 14px;
+    font-family: var(--font-display); font-size: 24px; font-weight: 600;
+  }
+  .iv-totals .row.total .v { letter-spacing: -0.02em; }
+
+  .iv-pay {
+    margin-top: 40px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+    padding: 24px; background: var(--bg-paper); border-radius: 4px;
+  }
+  .iv-pay h4 { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 500; }
+  .iv-pay p { margin: 2px 0; font-size: 12px; line-height: 1.5; }
+  .iv-pay .iban { font-family: var(--font-mono); font-size: 11px; }
+
+  .iv-note { margin-top: 28px; font-size: 11px; color: var(--muted); line-height: 1.5; max-width: 560px; }
+
+  /* === Invoice B — bold orange band === */
+  .inv-b { padding: 0; overflow: hidden; }
+  .inv-b .band {
+    background: var(--bg-dark); color: #F4F1EA;
+    padding: 56px 64px 64px;
+    position: relative;
+  }
+  .inv-b .band::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
+    background: linear-gradient(90deg, var(--tide-cyan), var(--tide-orange));
+  }
+  .inv-b .band .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
+  .inv-b .band .top img { height: 26px; filter: brightness(0) invert(1); }
+  .inv-b .band .top .iv-pill {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 6px 12px; border: 1px solid rgba(244,241,234,0.3); border-radius: 4px;
+  }
+  .inv-b .band h1 {
+    font-family: var(--font-display); font-size: 88px; font-weight: 700;
+    letter-spacing: -0.035em; line-height: 0.9; margin: 0;
+  }
+  .inv-b .band h1 .o { color: var(--tide-orange); }
+  .inv-b .band .meta {
+    margin-top: 24px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    border-top: 1px solid rgba(244,241,234,0.18);
+    padding-top: 24px;
+  }
+  .inv-b .band .meta .k { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(244,241,234,0.55); margin-bottom: 4px; }
+  .inv-b .band .meta .v { font-family: var(--font-display); font-size: 16px; font-weight: 500; }
+
+  .inv-b .body { padding: 48px 64px 56px; display: flex; flex-direction: column; flex: 1; }
+  .inv-b .body table.items th { color: var(--muted); }
+  .inv-b .body table.items td.amt { font-family: var(--font-mono); font-size: 13px; }
+  .inv-b .iv-pay { background: var(--bg-paper); }
+
+  /* shared bottom strip with "FF" mark */
+  .iso-watermark {
+    position: absolute;
+    right: 64px; bottom: 64px;
+    width: 96px; height: 48px;
+    opacity: 0.08;
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <span style="opacity: 0.6;">Invoice templates</span>
+  <span class="pill active" data-jump="A">Variation A · Editorial light</span>
+  <span class="pill" data-jump="B">Variation B · Dark band</span>
+  <span style="margin-left: auto; opacity: 0.5;">Press Cmd/Ctrl + P to print</span>
+</div>
+
+<div class="label-row" id="anchor-A">— Variation A · Editorial light —</div>
+
+<!-- ====== INVOICE A ====== -->
+<div class="page inv-a">
+  <div class="doc-head">
+    <img src="assets/logo-horizontal.svg" class="logo" alt="FishFlow">
+    <div class="meta">
+      <div class="k">Document</div>
+      <div class="v">Invoice / Factura</div>
+    </div>
+  </div>
+
+  <h1 class="iv-title">Invoice</h1>
+  <div class="iv-num">
+    №&nbsp;<strong>FF-2026-0142</strong>
+    &nbsp;·&nbsp; Issued 04 May 2026
+    &nbsp;·&nbsp; Due 03 Jun 2026
+  </div>
+
+  <div class="iv-parties">
+    <div class="iv-party">
+      <h4>From</h4>
+      <div class="name">FishFlow S.L.</div>
+      <p>Playa Pichilingue 132</p>
+      <p>CP 08840, CDMX, México</p>
+      <p>rafaelnolasco@gmail.com · +52 55 1483 1644</p>
+      <p class="tax">VAT · NOCR841004-790</p>
+    </div>
+    <div class="iv-party">
+      <h4>Bill to</h4>
+      <div class="name">Café Pichilingue</div>
+      <p>Av. División del Norte 1521</p>
+      <p>CP 03100 CDMX, México</p>
+      <p>marta@cafepichilingue.mx</p>
+      <p class="tax">VAT · ESX87654321</p>
+    </div>
+    <div class="iv-party">
+      <h4>For</h4>
+      <p style="margin-top: 4px;">FishFlow Shop plan</p>
+      <p>May 2026 · Annual prepay</p>
+      <p class="tax">Pilot conversion contract</p>
+    </div>
+  </div>
+
+  <table class="items">
+    <thead>
+      <tr>
+        <th style="width: 56%;">Description</th>
+        <th class="r" style="width: 12%;">Qty</th>
+        <th class="r" style="width: 16%;">Unit</th>
+        <th class="r" style="width: 16%;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="desc">
+          <div class="ti">FishFlow Shop · Annual subscription</div>
+          <div class="sub">Up to 5 connected accounts. Unlimited drafts, quotes & POs. Phone support included.</div>
+        </td>
+        <td class="r amt">12</td>
+        <td class="r amt">$249.00</td>
+        <td class="r amt">$2,988.00</td>
+      </tr>
+      <tr>
+        <td class="desc">
+          <div class="ti">Onboarding visit</div>
+          <div class="sub">In-shop install, inbox connection, two-week observation calibration.</div>
+        </td>
+        <td class="r amt">1</td>
+        <td class="r amt">$450.00</td>
+        <td class="r amt">$450.00</td>
+      </tr>
+      <tr>
+        <td class="desc">
+          <div class="ti">Custom quote workflow</div>
+          <div class="sub">Catering inquiry → branded quote PDF → calendar booking, all in your voice.</div>
+        </td>
+        <td class="r amt">1</td>
+        <td class="r amt">$600.00</td>
+        <td class="r amt">$600.00</td>
+      </tr>
+      <tr>
+        <td class="desc">
+          <div class="ti">Annual prepay discount</div>
+          <div class="sub">−10% applied to subscription line.</div>
+        </td>
+        <td class="r amt">—</td>
+        <td class="r amt">—</td>
+        <td class="r amt" style="color: var(--tide-orange);">−$298.80</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="iv-totals">
+    <div class="row muted"><span>Subtotal</span><span class="v">$3,739.20</span></div>
+    <div class="row muted"><span>VAT · 21%</span><span class="v">$785.23</span></div>
+    <div class="row total"><span>Total due</span><span class="v">$4,524.43</span></div>
+  </div>
+
+  <div class="iv-pay">
+    <div>
+      <h4>Bank transfer</h4>
+      <p>FishFlow S.L. · CaixaBank</p>
+      <p class="iban">ES12 2100 0000 0000 0000 0142</p>
+      <p>Reference: FF-2026-0142</p>
+    </div>
+    <div>
+      <h4>Card / SEPA Direct</h4>
+      <p>Pay online — secure link sent with this invoice.</p>
+      <p style="color: var(--tide-orange); font-weight: 500;">fishflow.mx/pay/FF-2026-0142</p>
+    </div>
+  </div>
+
+  <p class="iv-note">Payment due within 30 days of invoice date. Late payments accrue interest at the legal rate per Ley 3/2004. Thank you, Marta — looking forward to a great year.</p>
+
+  <div class="doc-foot">
+    <span>FishFlow.ai</span>
+    <span>Invoice FF-2026-0142 · Page 1 / 1</span>
+  </div>
+  <img src="assets/isotipo.svg" class="iso-watermark" alt="">
+</div>
+
+<div class="label-row" id="anchor-B">— Variation B · Dark band, bold —</div>
+
+<!-- ====== INVOICE B ====== -->
+<div class="page inv-b">
+  <div class="band">
+    <div class="top">
+      <img src="assets/logo-horizontal-mono.svg" alt="FishFlow">
+      <div class="iv-pill">Invoice · Factura</div>
+    </div>
+    <h1>Invoice <span class="o">№&nbsp;0142</span></h1>
+    <div class="meta">
+      <div><div class="k">Issued</div><div class="v">04 May 2026</div></div>
+      <div><div class="k">Due</div><div class="v">03 Jun 2026</div></div>
+      <div><div class="k">Reference</div><div class="v">FF-2026-0142</div></div>
+      <div><div class="k">Amount due</div><div class="v" style="color: var(--tide-orange);">$4,524.43</div></div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="iv-parties" style="margin-top: 8px;">
+      <div class="iv-party">
+        <h4>From</h4>
+        <div class="name">FishFlow S.L.</div>
+        <p>Playa Pichilingue 132</p>
+        <p>CP 08840, CDMX, México</p>
+        <p>rafaelnolasco@gmail.com</p>
+        <p class="tax">VAT · NOCR841004-790</p>
+      </div>
+      <div class="iv-party">
+        <h4>Bill to</h4>
+        <div class="name">Café Pichilingue</div>
+        <p>Av. División del Norte 1521</p>
+        <p>CP 03100 CDMX, México</p>
+        <p>marta@cafepichilingue.mx</p>
+        <p class="tax">VAT · ESX87654321</p>
+      </div>
+      <div class="iv-party">
+        <h4>For period</h4>
+        <p style="margin-top: 4px;">May 2026 · Annual prepay</p>
+        <p>Plan: Shop · 5 accounts</p>
+        <p class="tax">Pilot conversion · Y1</p>
+      </div>
+    </div>
+
+    <table class="items">
+      <thead>
+        <tr>
+          <th style="width: 56%;">Item</th>
+          <th class="r" style="width: 12%;">Qty</th>
+          <th class="r" style="width: 16%;">Unit</th>
+          <th class="r" style="width: 16%;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="desc">
+            <div class="ti">FishFlow Shop · Annual subscription</div>
+            <div class="sub">Up to 5 connected accounts. Unlimited drafts, quotes & POs.</div>
+          </td>
+          <td class="r amt">12</td>
+          <td class="r amt">249.00</td>
+          <td class="r amt">2,988.00</td>
+        </tr>
+        <tr>
+          <td class="desc">
+            <div class="ti">Onboarding visit</div>
+            <div class="sub">In-shop install, inbox connection, calibration.</div>
+          </td>
+          <td class="r amt">1</td>
+          <td class="r amt">450.00</td>
+          <td class="r amt">450.00</td>
+        </tr>
+        <tr>
+          <td class="desc">
+            <div class="ti">Custom quote workflow</div>
+            <div class="sub">Catering inquiry → quote PDF → calendar booking.</div>
+          </td>
+          <td class="r amt">1</td>
+          <td class="r amt">600.00</td>
+          <td class="r amt">600.00</td>
+        </tr>
+        <tr>
+          <td class="desc">
+            <div class="ti">Annual prepay discount</div>
+            <div class="sub">−10%</div>
+          </td>
+          <td class="r amt">—</td>
+          <td class="r amt">—</td>
+          <td class="r amt" style="color: var(--tide-orange);">−298.80</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="iv-totals">
+      <div class="row muted"><span>Subtotal</span><span class="v">$3,739.20</span></div>
+      <div class="row muted"><span>VAT · 21%</span><span class="v">$785.23</span></div>
+      <div class="row total"><span>Total due</span><span class="v" style="color: var(--tide-orange);">$4,524.43</span></div>
+    </div>
+
+    <div class="iv-pay">
+      <div>
+        <h4>Bank transfer</h4>
+        <p>FishFlow S.L. · CaixaBank</p>
+        <p class="iban">ES12 2100 0000 0000 0000 0142</p>
+        <p>Reference: FF-2026-0142</p>
+      </div>
+      <div>
+        <h4>Pay online</h4>
+        <p>Secure link sent with this invoice.</p>
+        <p style="color: var(--tide-orange); font-weight: 500;">fishflow.mx/pay/FF-2026-0142</p>
+      </div>
+    </div>
+
+    <div class="doc-foot" style="margin-top: 28px;">
+      <span>FishFlow.ai · rafaelnolasco@gmail.com</span>
+      <span>FF-2026-0142 · 1 / 1</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.toolbar .pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.toolbar .pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      const el = document.getElementById('anchor-' + p.dataset.jump);
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    });
+  });
+</script>
+</body>
+</html>

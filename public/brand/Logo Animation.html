@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Logo Animation</title>
+<link rel="stylesheet" href="brand.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  body {
+    margin: 0; min-height: 100vh;
+    background: var(--bg-light);
+    color: var(--ink);
+    font-family: var(--font-body);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 60px 32px; box-sizing: border-box; gap: 28px;
+    transition: background 0.3s, color 0.3s;
+  }
+  body.dark { background: var(--bg-dark); color: #F4F1EA; }
+
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(14,42,54,0.5);
+  }
+  body.dark .meta { color: rgba(244,241,234,0.5); }
+
+  .stage {
+    width: min(960px, 100%); aspect-ratio: 2 / 1;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .stage svg { width: 100%; height: 100%; display: block; }
+
+  .cap {
+    font-family: var(--font-display); font-size: 22px; font-weight: 300;
+    color: rgba(14,42,54,0.7); text-align: center;
+    max-width: 600px; line-height: 1.4;
+  }
+  body.dark .cap { color: rgba(244,241,234,0.7); }
+  .cap strong { color: var(--ink); font-weight: 500; }
+  body.dark .cap strong { color: #F4F1EA; }
+
+  .variants {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    width: min(960px, 100%); margin-top: 32px;
+  }
+  .v-card {
+    background: rgba(14,42,54,0.04);
+    border: 1px solid rgba(14,42,54,0.08);
+    border-radius: 8px; padding: 24px;
+    aspect-ratio: 16 / 10;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  body.dark .v-card { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+  .v-card svg { width: 100%; height: 100%; }
+  .v-card .lbl {
+    position: absolute; top: 14px; left: 16px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(14,42,54,0.5);
+  }
+  body.dark .v-card .lbl { color: rgba(244,241,234,0.5); }
+
+  .footnote {
+    margin-top: 8px; font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(14,42,54,0.4);
+  }
+  body.dark .footnote { color: rgba(244,241,234,0.4); }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+  const { useEffect, useMemo } = React;
+
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "primaryColor": "#1FA9D6",
+    "secondaryColor": "#F26B17",
+    "background": "dark",
+    "duration": 6,
+    "variant": "flow",
+    "showEyeHalo": true,
+    "showVariants": true,
+    "strokeWidth": 44
+  }/*EDITMODE-END*/;
+
+  // Path used everywhere
+  const LEMNI_D = "M 600 300 C 760 100, 1000 90, 1000 300 C 1000 510, 760 500, 600 300 C 440 100, 200 90, 200 300 C 200 510, 440 500, 600 300 Z";
+
+  function HeroLogo({ primary, secondary, dur, strokeWidth, showHalo, variant }) {
+    // Re-mount key forces SVG SMIL re-init when params change
+    const key = `${primary}-${secondary}-${dur}-${variant}-${strokeWidth}-${showHalo}`;
+
+    return (
+      <svg key={key} viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg" aria-label="FishFlow animated">
+        <defs>
+          <linearGradient id="ff-base" x1="14%" y1="50%" x2="86%" y2="50%">
+            <stop offset="0%" stopColor={secondary}/>
+            <stop offset="50%" stopColor="#7AA0A4"/>
+            <stop offset="100%" stopColor={primary}/>
+          </linearGradient>
+
+          <linearGradient id="ff-flow" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stopColor={secondary}/>
+            <stop offset="25%"  stopColor={primary}/>
+            <stop offset="50%"  stopColor={secondary}/>
+            <stop offset="75%"  stopColor={primary}/>
+            <stop offset="100%" stopColor={secondary}/>
+            <animateTransform attributeName="gradientTransform" type="translate"
+              from="0 0" to="1200 0" dur={`${dur}s`} repeatCount="indefinite"/>
+          </linearGradient>
+
+          <filter id="ff-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="14"/>
+          </filter>
+        </defs>
+
+        <path d={LEMNI_D}
+              fill="none" stroke="url(#ff-base)"
+              strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+              opacity="0.55"/>
+
+        <path d={LEMNI_D}
+              fill="none" stroke="url(#ff-flow)"
+              strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"/>
+
+        {showHalo && (
+          <circle cx="880" cy="278" r="22" fill={secondary} opacity="0" filter="url(#ff-glow)">
+            <animate attributeName="fill"
+                     values={`${secondary};${secondary};${primary};${primary};${secondary}`}
+                     keyTimes="0;0.45;0.5;0.95;1"
+                     dur={`${dur}s`} repeatCount="indefinite"/>
+            <animate attributeName="opacity"
+                     values="0;0.55;0.7;0.55;0"
+                     keyTimes="0;0.4;0.5;0.6;1"
+                     dur={`${dur}s`} repeatCount="indefinite"/>
+            <animate attributeName="r"
+                     values="14;28;34;28;14"
+                     keyTimes="0;0.4;0.5;0.6;1"
+                     dur={`${dur}s`} repeatCount="indefinite"/>
+          </circle>
+        )}
+
+        <circle cx="880" cy="278" r="11" fill={secondary}>
+          <animate attributeName="fill"
+                   values={`${secondary};${secondary};${primary};${primary};${secondary}`}
+                   keyTimes="0;0.45;0.5;0.95;1"
+                   dur={`${dur}s`} repeatCount="indefinite"/>
+          <animate attributeName="r"
+                   values="9;9;13;13;9;9"
+                   keyTimes="0;0.45;0.5;0.55;0.95;1"
+                   dur={`${dur}s`} repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    );
+  }
+
+  function VariantChase({ primary, secondary, dur }) {
+    const key = `chase-${primary}-${secondary}-${dur}`;
+    return (
+      <svg key={key} viewBox="0 0 1200 600">
+        <defs>
+          <linearGradient id="v1-grad" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%" stopColor={secondary}/>
+            <stop offset="100%" stopColor={primary}/>
+          </linearGradient>
+        </defs>
+        <path d={LEMNI_D} fill="none" stroke="rgba(127,127,127,0.15)" strokeWidth="44" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d={LEMNI_D} fill="none" stroke="url(#v1-grad)" strokeWidth="44" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="600 2400" strokeDashoffset="0">
+          <animate attributeName="stroke-dashoffset" from="0" to="-3000" dur={`${dur}s`} repeatCount="indefinite"/>
+        </path>
+        <circle cx="880" cy="278" r="11" fill={secondary}>
+          <animate attributeName="fill" values={`${secondary};${primary};${secondary}`} dur={`${dur}s`} repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    );
+  }
+
+  function VariantSwap({ primary, secondary, dur }) {
+    const key = `swap-${primary}-${secondary}-${dur}`;
+    return (
+      <svg key={key} viewBox="0 0 1200 600">
+        <defs>
+          <linearGradient id="v2-grad" x1="14%" y1="50%" x2="86%" y2="50%">
+            <stop offset="0%" stopColor={secondary}>
+              <animate attributeName="stop-color" values={`${secondary};${primary};${secondary}`} dur={`${dur}s`} repeatCount="indefinite"/>
+            </stop>
+            <stop offset="50%" stopColor="#7AA0A4"/>
+            <stop offset="100%" stopColor={primary}>
+              <animate attributeName="stop-color" values={`${primary};${secondary};${primary}`} dur={`${dur}s`} repeatCount="indefinite"/>
+            </stop>
+          </linearGradient>
+        </defs>
+        <path d={LEMNI_D} fill="none" stroke="url(#v2-grad)" strokeWidth="44" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="880" cy="278" r="11" fill={primary}>
+          <animate attributeName="fill" values={`${primary};${secondary};${primary}`} dur={`${dur}s`} repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    );
+  }
+
+  function VariantPulse({ primary, secondary, dur }) {
+    const key = `pulse-${primary}-${secondary}-${dur}`;
+    return (
+      <svg key={key} viewBox="0 0 1200 600">
+        <defs>
+          <linearGradient id="v3-grad" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor={secondary}/>
+            <stop offset="50%" stopColor={primary}/>
+            <stop offset="100%" stopColor={secondary}/>
+            <animateTransform attributeName="gradientTransform" type="translate" from="-1200 0" to="1200 0" dur={`${dur}s`} repeatCount="indefinite"/>
+          </linearGradient>
+        </defs>
+        <path d={LEMNI_D} fill="none" stroke="url(#v3-grad)" strokeWidth="44" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="880" cy="278" r="11" fill={secondary}>
+          <animate attributeName="fill" values={`${secondary};${primary};${secondary}`} dur={`${dur}s`} repeatCount="indefinite"/>
+          <animate attributeName="r" values="9;13;9" dur={`${dur}s`} repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    );
+  }
+
+  // V4 — Heartbeat: stroke width pulses in a cardiac rhythm, gradient breathes
+  function VariantHeartbeat({ primary, secondary, dur }) {
+    const key = `beat-${primary}-${secondary}-${dur}`;
+    return (
+      <svg key={key} viewBox="0 0 1200 600">
+        <defs>
+          <linearGradient id="v4-grad" x1="14%" y1="50%" x2="86%" y2="50%">
+            <stop offset="0%" stopColor={secondary}/>
+            <stop offset="50%" stopColor="#7AA0A4"/>
+            <stop offset="100%" stopColor={primary}/>
+          </linearGradient>
+        </defs>
+        <path d={LEMNI_D} fill="none" stroke="url(#v4-grad)" strokeLinecap="round" strokeLinejoin="round">
+          <animate attributeName="stroke-width"
+                   values="44;44;58;44;62;44;44"
+                   keyTimes="0;0.15;0.22;0.3;0.42;0.55;1"
+                   dur={`${dur}s`} repeatCount="indefinite"/>
+          <animate attributeName="opacity"
+                   values="0.85;0.85;1;0.9;1;0.85;0.85"
+                   keyTimes="0;0.15;0.22;0.3;0.42;0.55;1"
+                   dur={`${dur}s`} repeatCount="indefinite"/>
+        </path>
+        <circle cx="880" cy="278" fill={secondary}>
+          <animate attributeName="r"
+                   values="9;9;14;10;15;9;9"
+                   keyTimes="0;0.15;0.22;0.3;0.42;0.55;1"
+                   dur={`${dur}s`} repeatCount="indefinite"/>
+          <animate attributeName="fill" values={`${secondary};${primary};${secondary}`} dur={`${dur}s`} repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    );
+  }
+
+  // V5 — Trace: the lemniscate draws itself on, then erases — like a calligrapher's gesture
+  function VariantTrace({ primary, secondary, dur }) {
+    const key = `trace-${primary}-${secondary}-${dur}`;
+    // approx path length for the lemniscate
+    const LEN = 2400;
+    return (
+      <svg key={key} viewBox="0 0 1200 600">
+        <defs>
+          <linearGradient id="v5-grad" x1="14%" y1="50%" x2="86%" y2="50%">
+            <stop offset="0%" stopColor={secondary}/>
+            <stop offset="100%" stopColor={primary}/>
+          </linearGradient>
+        </defs>
+        {/* faint guide */}
+        <path d={LEMNI_D} fill="none" stroke="rgba(127,127,127,0.10)" strokeWidth="44" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* drawing stroke */}
+        <path d={LEMNI_D} fill="none" stroke="url(#v5-grad)" strokeWidth="44" strokeLinecap="round" strokeLinejoin="round"
+              strokeDasharray={`${LEN} ${LEN}`}>
+          <animate attributeName="stroke-dashoffset"
+                   values={`${LEN};0;0;${-LEN}`}
+                   keyTimes="0;0.45;0.55;1"
+                   dur={`${dur}s`} repeatCount="indefinite"/>
+        </path>
+        <circle cx="880" cy="278" r="11" fill={secondary}>
+          <animate attributeName="opacity"
+                   values="0;0;1;1;0"
+                   keyTimes="0;0.4;0.5;0.55;1"
+                   dur={`${dur}s`} repeatCount="indefinite"/>
+          <animate attributeName="fill" values={`${secondary};${primary};${secondary}`} dur={`${dur}s`} repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    );
+  }
+
+  // V6 — Ripple: concentric waves emanate from the eye, the form holds steady
+  function VariantRipple({ primary, secondary, dur }) {
+    const key = `ripple-${primary}-${secondary}-${dur}`;
+    const ringDur = `${dur}s`;
+    return (
+      <svg key={key} viewBox="0 0 1200 600">
+        <defs>
+          <linearGradient id="v6-grad" x1="14%" y1="50%" x2="86%" y2="50%">
+            <stop offset="0%" stopColor={secondary}/>
+            <stop offset="50%" stopColor="#7AA0A4"/>
+            <stop offset="100%" stopColor={primary}/>
+          </linearGradient>
+          <clipPath id="v6-clip">
+            <path d={LEMNI_D}/>
+          </clipPath>
+        </defs>
+        <path d={LEMNI_D} fill="none" stroke="url(#v6-grad)" strokeWidth="44" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* ripples — three rings staggered */}
+        {[0, 0.33, 0.66].map((delay, i) => (
+          <circle key={i} cx="880" cy="278" fill="none" stroke={primary} strokeWidth="3">
+            <animate attributeName="r" values="6;120" dur={ringDur} begin={`${delay * (typeof dur === 'number' ? dur : 6)}s`} repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.7;0" dur={ringDur} begin={`${delay * (typeof dur === 'number' ? dur : 6)}s`} repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" values="4;0.5" dur={ringDur} begin={`${delay * (typeof dur === 'number' ? dur : 6)}s`} repeatCount="indefinite"/>
+          </circle>
+        ))}
+        <circle cx="880" cy="278" r="11" fill={secondary}>
+          <animate attributeName="r" values="9;14;9;9" keyTimes="0;0.1;0.2;1" dur={`${dur}s`} repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    );
+  }
+
+  function App() {
+    const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+    const dark = tweaks.background === 'dark';
+
+    useEffect(() => {
+      document.body.classList.toggle('dark', dark);
+    }, [dark]);
+
+    const heroProps = {
+      primary: tweaks.primaryColor,
+      secondary: tweaks.secondaryColor,
+      dur: tweaks.duration,
+      strokeWidth: tweaks.strokeWidth,
+      showHalo: tweaks.showEyeHalo,
+      variant: tweaks.variant,
+    };
+
+    let HeroVariant;
+    if (tweaks.variant === 'chase') HeroVariant = VariantChase;
+    else if (tweaks.variant === 'swap') HeroVariant = VariantSwap;
+    else if (tweaks.variant === 'pulse') HeroVariant = VariantPulse;
+    else if (tweaks.variant === 'beat') HeroVariant = VariantHeartbeat;
+    else if (tweaks.variant === 'trace') HeroVariant = VariantTrace;
+    else if (tweaks.variant === 'ripple') HeroVariant = VariantRipple;
+    else HeroVariant = HeroLogo;
+
+    return (
+      <>
+        <div className="meta">— FISHFLOW · LOGO ANIMATION · V1 —</div>
+
+        <div className="stage" id="hero">
+          <HeroVariant {...heroProps} />
+        </div>
+
+        <div className="cap">
+          Two colors traveling the lemniscate, forever. The eye holds <strong>{tweaks.secondaryColor === '#1FA9D6' ? 'cyan' : 'its resting hue'}</strong> when the tide is calm — and turns <strong>{tweaks.primaryColor === '#F26B17' ? 'orange' : 'its accent'}</strong> the moment the wave passes through.
+        </div>
+
+        {tweaks.showVariants && (
+          <div className="variants">
+            <div className="v-card"><span className="lbl">— V1 · Chase</span><VariantChase primary={tweaks.primaryColor} secondary={tweaks.secondaryColor} dur={tweaks.duration}/></div>
+            <div className="v-card"><span className="lbl">— V2 · Tide swap</span><VariantSwap primary={tweaks.primaryColor} secondary={tweaks.secondaryColor} dur={tweaks.duration}/></div>
+            <div className="v-card"><span className="lbl">— V3 · Cross pulse</span><VariantPulse primary={tweaks.primaryColor} secondary={tweaks.secondaryColor} dur={tweaks.duration}/></div>
+            <div className="v-card"><span className="lbl">— V4 · Heartbeat</span><VariantHeartbeat primary={tweaks.primaryColor} secondary={tweaks.secondaryColor} dur={tweaks.duration}/></div>
+            <div className="v-card"><span className="lbl">— V5 · Trace</span><VariantTrace primary={tweaks.primaryColor} secondary={tweaks.secondaryColor} dur={tweaks.duration}/></div>
+            <div className="v-card"><span className="lbl">— V6 · Ripple</span><VariantRipple primary={tweaks.primaryColor} secondary={tweaks.secondaryColor} dur={tweaks.duration}/></div>
+          </div>
+        )}
+
+        <div className="footnote">Pure SVG · no JS animation deps · loops forever</div>
+
+        <TweaksPanel title="Tweaks">
+          <TweakSection title="Color">
+            <TweakColor label="Accent (was orange)" value={tweaks.primaryColor} onChange={v => setTweak('primaryColor', v)} />
+            <TweakColor label="Resting (was cyan)" value={tweaks.secondaryColor} onChange={v => setTweak('secondaryColor', v)} />
+            <TweakButton label="Swap accent ↔ resting" onClick={() => setTweak({ primaryColor: tweaks.secondaryColor, secondaryColor: tweaks.primaryColor })}/>
+            <TweakButton label="Reset brand colors" onClick={() => setTweak({ primaryColor: '#F26B17', secondaryColor: '#1FA9D6' })}/>
+          </TweakSection>
+
+          <TweakSection title="Surface">
+            <TweakRadio label="Background" value={tweaks.background} options={[{label:'Dark', value:'dark'}, {label:'Light', value:'light'}]} onChange={v => setTweak('background', v)} />
+          </TweakSection>
+
+          <TweakSection title="Motion">
+            <TweakSelect label="Variant" value={tweaks.variant} options={[
+              {label:'Hero · Flow', value:'flow'},
+              {label:'V1 · Chase', value:'chase'},
+              {label:'V2 · Tide swap', value:'swap'},
+              {label:'V3 · Cross pulse', value:'pulse'},
+              {label:'V4 · Heartbeat', value:'beat'},
+              {label:'V5 · Trace', value:'trace'},
+              {label:'V6 · Ripple', value:'ripple'},
+            ]} onChange={v => setTweak('variant', v)} />
+            <TweakSlider label="Loop duration" value={tweaks.duration} min={2} max={30} step={1} unit="s" onChange={v => setTweak('duration', v)} />
+            <TweakSlider label="Stroke width" value={tweaks.strokeWidth} min={20} max={80} step={2} unit="px" onChange={v => setTweak('strokeWidth', v)} />
+          </TweakSection>
+
+          <TweakSection title="Detail">
+            <TweakToggle label="Eye halo glow" value={tweaks.showEyeHalo} onChange={v => setTweak('showEyeHalo', v)} />
+            <TweakToggle label="Show variant gallery" value={tweaks.showVariants} onChange={v => setTweak('showVariants', v)} />
+          </TweakSection>
+        </TweaksPanel>
+      </>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+</body>
+</html>

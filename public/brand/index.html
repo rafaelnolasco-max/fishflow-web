@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Brand Kit</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  body { margin: 0; background: var(--bg-dark); color: #F4F1EA; font-family: var(--font-body); min-height: 100vh; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 80px 56px 120px; }
+  .head { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 32px; border-bottom: 1px solid rgba(244,241,234,0.18); margin-bottom: 56px; }
+  .head img { height: 36px; filter: brightness(0) invert(1); }
+  .head .meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(244,241,234,0.55); text-align: right; }
+  h1 { font-family: var(--font-display); font-size: 96px; font-weight: 700; letter-spacing: -0.035em; line-height: 0.95; margin: 0 0 24px; max-width: 900px; text-wrap: balance; }
+  h1 .a { color: var(--tide-cyan); } h1 .b { color: var(--tide-orange); }
+  .deck { font-family: var(--font-display); font-size: 22px; font-weight: 300; line-height: 1.4; max-width: 720px; color: rgba(244,241,234,0.8); margin: 0 0 64px; }
+  .group { margin-bottom: 56px; }
+  .group h3 { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--tide-orange); margin: 0 0 16px; font-weight: 500; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  a.card {
+    display: block; padding: 28px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    text-decoration: none; color: inherit;
+    transition: all 0.18s ease;
+  }
+  a.card:hover { background: rgba(255,255,255,0.07); border-color: var(--tide-orange); transform: translateY(-2px); }
+  a.card .n { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; color: rgba(244,241,234,0.5); margin-bottom: 14px; }
+  a.card h4 { font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 6px; }
+  a.card p { font-size: 13px; line-height: 1.5; color: rgba(244,241,234,0.65); margin: 0; }
+  a.card .arr { display: block; margin-top: 16px; color: var(--tide-orange); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <img src="assets/logo-horizontal-mono.svg" alt="FishFlow">
+    <div class="meta">Brand Kit · v1.0 · May 2026</div>
+  </header>
+
+  <h1>The <span class="a">FishFlow</span><br>brand kit, <span class="b">version one.</span></h1>
+  <p class="deck">Every customer-facing artifact you asked for, plus a few I added. All built on the same Tidal Geometry system. Open any door — they all unlock the same brand.</p>
+
+  <div class="group">
+    <h3>— 01 · Sales</h3>
+    <div class="grid">
+      <a class="card" href="Pitch Deck.html"><div class="n">— 12 slides · EN/ES</div><h4>Pitch Deck</h4><p>Founder-personal sales pitch. Two cover variations, full bilingual toggle.</p><span class="arr">Open →</span></a>
+      <a class="card" href="One-pager.html"><div class="n">— A4 · sell sheet</div><h4>One-pager</h4><p>Single-page summary for cold-leave-behinds and email attachments.</p><span class="arr">Open →</span></a>
+      <a class="card" href="Quote.html"><div class="n">— A4 · 2 pages</div><h4>Quote / Proposal</h4><p>Dark cover, scope, timeline, pricing and signature block.</p><span class="arr">Open →</span></a>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>— 02 · Finance & Ops</h3>
+    <div class="grid">
+      <a class="card" href="Invoice.html"><div class="n">— A4 · 2 variations</div><h4>Invoice</h4><p>Editorial light + dark band. Same data, two voices.</p><span class="arr">Open →</span></a>
+      <a class="card" href="Purchase Order.html"><div class="n">— A4 · 1 page</div><h4>Purchase Order</h4><p>Vendor-side PO with terms, signature, totals.</p><span class="arr">Open →</span></a>
+      <a class="card" href="Receipt.html"><div class="n">— Compact · digital</div><h4>Receipt</h4><p>Thermal-style payment confirmation, brand-aligned.</p><span class="arr">Open →</span></a>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>— 03 · Correspondence</h3>
+    <div class="grid">
+      <a class="card" href="Press Release.html"><div class="n">— A4 · letterhead</div><h4>Press Release</h4><p>For-immediate-release format with About FishFlow + press contact.</p><span class="arr">Open →</span></a>
+      <a class="card" href="Cover Letter.html"><div class="n">— A4 · personal</div><h4>Letterhead / Cover Letter</h4><p>Founder-signed letter with gradient side rule.</p><span class="arr">Open →</span></a>
+      <a class="card" href="Business Cards.html"><div class="n">— 85×55mm + email</div><h4>Cards & Signature</h4><p>Two card variations + HTML email signature.</p><span class="arr">Open →</span></a>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>— 04 · Brand & Reach</h3>
+    <div class="grid">
+      <a class="card" href="Social Templates.html"><div class="n">— IG + LinkedIn</div><h4>Social Templates</h4><p>Feed posts, stories, LinkedIn cover and square posts.</p><span class="arr">Open →</span></a>
+      <a class="card" href="Brand Guidelines.html"><div class="n">— 4 pages</div><h4>Brand Guidelines</h4><p>Mark, lockups, color, type, voice. The reference manual.</p><span class="arr">Open →</span></a>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>— What else you might want</h3>
+    <div class="grid" style="grid-template-columns: 1fr;">
+      <div class="card" style="cursor: default;">
+        <p style="font-size: 14px; line-height: 1.7; color: rgba(244,241,234,0.75); margin: 0;">A few additions worth considering as v2: <strong style="color: white;">Customer onboarding welcome kit</strong> (the physical box that arrives at the bakery) · <strong style="color: white;">SOW / contract template</strong> (matching the proposal voice) · <strong style="color: white;">Pilot recap report</strong> (the data we hand back at the end of the two-week observation) · <strong style="color: white;">Slide section dividers as a stand-alone deck</strong> for re-use · <strong style="color: white;">Branded NDA</strong> · <strong style="color: white;">Investor update template</strong> (monthly mail to your seed cap table) · <strong style="color: white;">Job description template</strong> matching the LinkedIn hiring post · <strong style="color: white;">Customer case study layout</strong> (2-page interview + numbers).</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

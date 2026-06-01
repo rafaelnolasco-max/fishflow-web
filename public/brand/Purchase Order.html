@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Purchase Order</title>
+<link rel="stylesheet" href="document.css">
+<style>
+  .po-band { background: var(--bg-paper); padding: 24px; border-radius: 4px; margin: 24px 0 32px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .po-band .k { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .po-band .v { font-family: var(--font-display); font-size: 16px; font-weight: 500; }
+  .po-title { font-family: var(--font-display); font-size: 56px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; margin: 32px 0 8px; }
+  .po-title .o { color: var(--tide-orange); }
+  .po-num { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em; color: var(--muted); }
+  .po-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin: 32px 0; }
+  .po-party h4 { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 500; }
+  .po-party .name { font-family: var(--font-display); font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .po-party p { margin: 2px 0; font-size: 12px; line-height: 1.45; }
+  table.tbl { width: 100%; border-collapse: collapse; }
+  table.tbl th { text-align: left; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); padding: 10px 0; border-bottom: 1px solid var(--rule-strong); font-weight: 500; }
+  table.tbl th.r, table.tbl td.r { text-align: right; }
+  table.tbl td { padding: 14px 0; font-size: 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  table.tbl td.amt { font-variant-numeric: tabular-nums; font-weight: 500;}
+  table.tbl .ti { font-family: var(--font-display); font-size: 14px; font-weight: 600; }
+  table.tbl .sub { color: var(--muted); font-size: 11px; line-height: 1.4; margin-top: 2px; }
+  .po-tot { display: flex; justify-content: flex-end; margin-top: 16px; }
+  .po-tot .box { width: 280px; }
+  .po-tot .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 12px; }
+  .po-tot .row.muted { color: var(--muted); }
+  .po-tot .row.total { border-top: 1px solid var(--ink); padding-top: 12px; margin-top: 6px; font-family: var(--font-display); font-size: 22px; font-weight: 600; }
+  .po-terms { margin-top: 32px; padding: 20px; background: var(--bg-paper); border-radius: 4px; }
+  .po-terms h4 { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 500; }
+  .po-terms p { font-size: 11px; line-height: 1.6; margin: 0 0 8px; }
+  .po-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 24px; }
+  .po-sign .line { border-bottom: 1px solid var(--ink-soft); height: 36px; margin-bottom: 6px; }
+  .po-sign .k { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase; }
+  .po-sign .row { font-size: 12px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="doc-head">
+    <img src="assets/logo-horizontal.svg" class="logo" alt="FishFlow">
+    <div class="meta">
+      <div class="k">Document</div>
+      <div class="v">Purchase Order</div>
+    </div>
+  </div>
+
+  <h1 class="po-title">Purchase <span class="o">order</span></h1>
+  <div class="po-num">№ FF-PO-2026-0231 · Issued 04 May 2026</div>
+
+  <div class="po-band">
+    <div><div class="k">PO Number</div><div class="v">FF-PO-2026-0231</div></div>
+    <div><div class="k">Issued</div><div class="v">04 May 2026</div></div>
+    <div><div class="k">Required by</div><div class="v">11 May 2026</div></div>
+    <div><div class="k">Payment terms</div><div class="v">Net 30</div></div>
+  </div>
+
+  <div class="po-parties">
+    <div class="po-party">
+      <h4>Buyer</h4>
+      <div class="name">FishFlow S.L.</div>
+      <p>Playa Pichilingue 132</p>
+      <p>CP 08840, CDMX, México</p>
+      <p>rafaelnolasco@gmail.com · +52 55 1483 1644</p>
+      <p style="color: var(--muted); margin-top: 6px;">VAT · NOCR841004-790</p>
+    </div>
+    <div class="po-party">
+      <h4>Vendor</h4>
+      <div class="name">Estudio Norte Diseño</div>
+      <p>Av. Insurgentes Sur 425</p>
+      <p>CP 06100 CDMX, México</p>
+      <p>hola@estudionorte.mx</p>
+      <p style="color: var(--muted); margin-top: 6px;">RFC · ENO980210XYZ</p>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th style="width: 8%;">#</th>
+        <th style="width: 50%;">Item</th>
+        <th class="r" style="width: 12%;">Qty</th>
+        <th class="r" style="width: 15%;">Unit</th>
+        <th class="r" style="width: 15%;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>01</td>
+        <td><div class="ti">Custom illustration set · Onboarding sequence</div><div class="sub">12 line illustrations, 2 revisions, vector + 2x raster delivery.</div></td>
+        <td class="r amt">12</td>
+        <td class="r amt">$220.00</td>
+        <td class="r amt">$2,640.00</td>
+      </tr>
+      <tr>
+        <td>02</td>
+        <td><div class="ti">Brand-aligned iconography · UI</div><div class="sub">36 icons, 2 weights, 24px grid.</div></td>
+        <td class="r amt">36</td>
+        <td class="r amt">$38.00</td>
+        <td class="r amt">$1,368.00</td>
+      </tr>
+      <tr>
+        <td>03</td>
+        <td><div class="ti">Press kit photography · Founder portraits</div><div class="sub">Half-day shoot, 6 retouched selects, full usage rights.</div></td>
+        <td class="r amt">1</td>
+        <td class="r amt">$850.00</td>
+        <td class="r amt">$850.00</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="po-tot">
+    <div class="box">
+      <div class="row muted"><span>Subtotal</span><span>$4,858.00</span></div>
+      <div class="row muted"><span>VAT · 21%</span><span>$1,020.18</span></div>
+      <div class="row total"><span>Total</span><span style="color: var(--tide-orange);">$5,878.18</span></div>
+    </div>
+  </div>
+
+  <div class="po-terms">
+    <h4>Terms</h4>
+    <p>Delivery to rafaelnolasco@gmail.com. Invoice referencing this PO Number must be issued upon delivery acceptance. Payment within 30 days via bank transfer to the IBAN on file. Any change of scope requires written approval and a revised PO before work proceeds.</p>
+  </div>
+
+  <div class="po-sign">
+    <div>
+      <div class="line"></div>
+      <div class="k">Authorized by · Buyer</div>
+      <div class="row">Rafa Fish, Founder · 04 May 2026</div>
+    </div>
+    <div>
+      <div class="line"></div>
+      <div class="k">Accepted by · Vendor</div>
+      <div class="row">Name · Date</div>
+    </div>
+  </div>
+
+  <div class="doc-foot">
+    <span>FishFlow S.L. · NOCR841004-790</span>
+    <span>FF-PO-2026-0231 · Page 1 / 1</span>
+  </div>
+</div>
+
+</body>
+</html>

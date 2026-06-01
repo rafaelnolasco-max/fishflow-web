@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Pitch Deck</title>
+<link rel="stylesheet" href="brand.css">
+<script src="deck-stage.js"></script>
+<style>
+  :root {
+    --slide-bg: var(--bg-light);
+    --slide-fg: var(--ink);
+  }
+  body { margin: 0; background: #111; font-family: var(--font-body); color: var(--slide-fg); }
+  deck-stage { background: #000; }
+
+  section.slide {
+    width: 1920px; height: 1080px;
+    background: var(--slide-bg);
+    color: var(--slide-fg);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  section.slide.dark { background: var(--bg-dark); color: #F4F1EA; --slide-fg: #F4F1EA; }
+  section.slide.dark .mono-label { color: rgba(244,241,234,0.55); }
+
+  /* === Chrome (header / footer) === */
+  .chrome-top, .chrome-bot {
+    position: absolute; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 56px 80px;
+    font-family: var(--font-mono);
+    font-size: 16px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .chrome-top { top: 0; }
+  .chrome-bot { bottom: 0; }
+  section.slide.dark .chrome-top, section.slide.dark .chrome-bot { color: rgba(244,241,234,0.4); }
+  .chrome-logo { height: 28px; }
+  .chrome-logo svg { height: 100%; width: auto; }
+
+  /* === Body content area === */
+  .slide-body {
+    flex: 1;
+    padding: 160px 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  .slide-body.tight { padding: 140px 140px 120px; justify-content: flex-start; }
+
+  h1.eyebrow {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--tide-orange);
+    margin: 0 0 32px;
+    font-weight: 500;
+  }
+  h2.slide-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 96px;
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin: 0 0 48px;
+    max-width: 1500px;
+    text-wrap: balance;
+  }
+  h2.slide-title.smaller { font-size: 72px; }
+  p.lede {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 36px;
+    line-height: 1.35;
+    margin: 0;
+    max-width: 1300px;
+    color: var(--slide-fg);
+    text-wrap: pretty;
+  }
+  p.body {
+    font-size: 24px;
+    line-height: 1.5;
+    color: var(--slide-fg);
+    max-width: 900px;
+    margin: 0;
+  }
+
+  /* === Cover A : minimalist === */
+  .cover-a {
+    background: var(--bg-light);
+    align-items: stretch; justify-content: stretch;
+  }
+  .cover-a .cover-inner {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    align-items: center;
+    padding: 140px;
+    gap: 80px;
+  }
+  .cover-a .lockup-vert { width: 520px; height: auto; }
+  .cover-a .cover-meta {
+    display: flex; flex-direction: column; gap: 22px;
+    border-left: 1px solid var(--rule);
+    padding-left: 60px;
+  }
+  .cover-a .cover-meta .row { display: flex; flex-direction: column; gap: 6px; }
+  .cover-a .cover-meta .k { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+  .cover-a .cover-meta .v { font-family: var(--font-display); font-size: 28px; font-weight: 500; color: var(--ink); }
+  .cover-a .cover-meta .v.small { font-size: 22px; font-weight: 400; }
+
+  /* === Cover B : dark editorial === */
+  .cover-b { background: var(--bg-dark); color: #F4F1EA; }
+  .cover-b .iso-bg {
+    position: absolute; right: -180px; top: 50%; transform: translateY(-50%);
+    width: 1400px; opacity: 0.10;
+  }
+  .cover-b .cover-content {
+    position: relative; z-index: 2;
+    padding: 140px;
+    display: flex; flex-direction: column;
+    justify-content: space-between; height: 100%;
+    box-sizing: border-box;
+  }
+  .cover-b .iso-mark { width: 92px; }
+  .cover-b .b-title {
+    font-family: var(--font-display);
+    font-size: 200px;
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    margin: 0;
+  }
+  .cover-b .b-title .fish { color: var(--tide-cyan); }
+  .cover-b .b-title .flow { color: var(--tide-orange); }
+  .cover-b .b-sub {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 300;
+    margin-top: 32px;
+    color: rgba(244,241,234,0.85);
+    max-width: 1100px;
+    line-height: 1.25;
+  }
+  .cover-b .b-foot {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-top: 1px solid rgba(244,241,234,0.18);
+    padding-top: 36px;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(244,241,234,0.6);
+  }
+
+  /* === Layouts === */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 120px;
+    align-items: start;
+  }
+  .three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 64px;
+  }
+  .stat {
+    border-top: 1px solid var(--rule);
+    padding-top: 32px;
+  }
+  section.slide.dark .stat { border-top-color: rgba(244,241,234,0.18); }
+  .stat .num {
+    font-family: var(--font-display);
+    font-size: 144px;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    margin: 0;
+  }
+  .stat .num .accent { color: var(--tide-orange); }
+  .stat .lab {
+    margin-top: 20px;
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--muted);
+    max-width: 380px;
+  }
+  section.slide.dark .stat .lab { color: rgba(244,241,234,0.65); }
+
+  .pillar {
+    border-top: 1px solid var(--rule);
+    padding-top: 28px;
+  }
+  section.slide.dark .pillar { border-top-color: rgba(244,241,234,0.18); }
+  .pillar .num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    color: var(--tide-orange);
+    margin-bottom: 20px;
+  }
+  .pillar h3 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 600;
+    margin: 0 0 16px;
+    letter-spacing: -0.015em;
+  }
+  .pillar p {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0;
+  }
+  section.slide.dark .pillar p { color: rgba(244,241,234,0.7); }
+
+  /* === Process / flow viz === */
+  .flow-row { display: flex; align-items: center; gap: 32px; margin-top: 40px; }
+  .flow-step {
+    flex: 1;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 32px;
+    background: white;
+  }
+  section.slide.dark .flow-step { background: rgba(255,255,255,0.04); border-color: rgba(244,241,234,0.18); }
+  .flow-step .stp {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--tide-orange);
+    letter-spacing: 0.18em;
+    margin-bottom: 16px;
+  }
+  .flow-step h4 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    margin: 0 0 10px;
+  }
+  .flow-step p { font-size: 16px; line-height: 1.45; color: var(--muted); margin: 0; }
+  section.slide.dark .flow-step p { color: rgba(244,241,234,0.65); }
+  .arrow { font-family: var(--font-mono); color: var(--tide-cyan); font-size: 32px; }
+
+  /* Quote slide */
+  .quote {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 64px;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    max-width: 1500px;
+  }
+  .quote .mark { color: var(--tide-orange); }
+  .quote-by {
+    margin-top: 60px;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Big section divider */
+  .divider .slide-body { justify-content: center; align-items: flex-start; }
+  .divider .num-huge {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    letter-spacing: 0.2em;
+    color: var(--tide-orange);
+    margin-bottom: 32px;
+  }
+  .divider h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 160px;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    margin: 0;
+    max-width: 1500px;
+    text-wrap: balance;
+  }
+
+  /* Pricing table */
+  .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 40px;}
+  .price-card {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 40px;
+    background: white;
+    display: flex; flex-direction: column;
+    min-height: 420px;
+  }
+  .price-card.featured {
+    background: var(--bg-dark);
+    color: #F4F1EA;
+    border-color: var(--bg-dark);
+  }
+  .price-card h4 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .price-card .pblurb { font-size: 16px; color: var(--muted); margin: 0 0 32px; line-height: 1.45; min-height: 50px; }
+  .price-card.featured .pblurb { color: rgba(244,241,234,0.7); }
+  .price-card .pamt {
+    font-family: var(--font-display);
+    font-size: 64px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .price-card .pamt small { font-size: 18px; font-weight: 400; color: var(--muted); margin-left: 6px; }
+  .price-card.featured .pamt small { color: rgba(244,241,234,0.65); }
+  .price-card ul { list-style: none; padding: 0; margin: 28px 0 0; flex: 1; }
+  .price-card li {
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 10px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .price-card.featured li { border-top-color: rgba(244,241,234,0.15); }
+  .price-card li:first-child { border-top: 0; }
+
+  /* Lang toggle */
+  .lang-toggle {
+    position: fixed; right: 16px; top: 16px;
+    z-index: 1000;
+    display: flex; gap: 4px;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    border-radius: 999px; padding: 4px;
+    font-family: var(--font-mono); font-size: 12px;
+  }
+  .lang-toggle button {
+    appearance: none; border: 0; background: transparent;
+    color: rgba(255,255,255,0.6); padding: 6px 12px; border-radius: 999px;
+    cursor: pointer; letter-spacing: 0.1em;
+  }
+  .lang-toggle button.active { background: white; color: black; }
+
+  [data-i18n-en], [data-i18n-es] { display: none; }
+  html[data-lang="en"] [data-i18n-en] { display: revert; }
+  html[data-lang="es"] [data-i18n-es] { display: revert; }
+  html[data-lang="en"] section.slide [data-i18n-en] { display: block; }
+  html[data-lang="es"] section.slide [data-i18n-es] { display: block; }
+  /* inline cases */
+  html[data-lang="en"] .inl[data-i18n-en], html[data-lang="es"] .inl[data-i18n-es] { display: inline; }
+
+  /* End slide */
+  .end .slide-body { justify-content: space-between; }
+  .end .end-cta {
+    font-family: var(--font-display);
+    font-size: 200px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    margin: 0;
+  }
+  .end .end-cta .a { color: var(--tide-cyan); }
+  .end .end-cta .b { color: var(--tide-orange); }
+  .end .end-foot {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 60px;
+    border-top: 1px solid rgba(244,241,234,0.18);
+    padding-top: 40px;
+  }
+  .end .end-foot .k { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(244,241,234,0.5); margin-bottom: 12px; }
+  .end .end-foot .v { font-family: var(--font-display); font-size: 28px; font-weight: 500; }
+
+</style>
+</head>
+<body>
+
+<div class="lang-toggle">
+  <button data-lang="es" class="active">ES</button>
+  <button data-lang="en">EN</button>
+</div>
+
+<deck-stage>
+
+  <!-- 01 — Cover A: minimalist light -->
+  <section class="slide cover-a" data-screen-label="01 Cover A">
+    <div class="cover-inner">
+      <div class="cover-left">
+        <img src="assets/logo-vertical.svg" alt="FishFlow" class="lockup-vert">
+        <div style="margin-top: 64px; font-family: var(--font-display); font-size: 32px; font-weight: 400; color: var(--ink); max-width: 580px; line-height: 1.3;">
+          <span class="inl" data-i18n-es>El mismo poder digital de las grandes,<br>al alcance de tu micro PyME.</span>
+          <span class="inl" data-i18n-en>The digital power of enterprise,<br>within reach of your small business.</span>
+        </div>
+      </div>
+      <div class="cover-meta">
+        <div class="row"><span class="k">Documento</span><span class="v">Sales pitch · 2026</span></div>
+        <div class="row"><span class="k" data-i18n-en>Prepared by</span><span class="k" data-i18n-es>Preparado por</span><span class="v">Rafa Fish · Founder</span></div>
+        <div class="row"><span class="k" data-i18n-en>For</span><span class="k" data-i18n-es>Para</span><span class="v small">{Nombre del cliente}</span></div>
+        <div class="row"><span class="k">CDMX, México</span><span class="v small">v1.0 · May 2026</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — The hello (founder-personal) -->
+  <section class="slide" data-screen-label="02 Hello">
+    <div class="chrome-top">
+      <span><img src="assets/logo-horizontal-mono.svg" class="chrome-logo" alt=""></span>
+      <span data-i18n-en>01 / Hello</span><span data-i18n-es>01 / Hola</span>
+    </div>
+    <div class="slide-body">
+      <h1 class="eyebrow" data-i18n-en>A note from Rafa</h1>
+      <h1 class="eyebrow" data-i18n-es>Una nota de Rafa</h1>
+      <p class="quote" data-i18n-en>I started FishFlow because I watched my dad spend his evenings re-typing invoices into a spreadsheet. <span class="mark">Small businesses don't lack ambition</span> — they lack twenty hours a week.</p>
+      <p class="quote" data-i18n-es>Empecé FishFlow porque vi a mi padre pasar las noches re-escribiendo facturas en una hoja de cálculo. <span class="mark">A los pequeños negocios no les falta ambición</span> — les faltan veinte horas a la semana.</p>
+      <p class="quote-by">Rafa · Founder, FishFlow</p>
+    </div>
+    <div class="chrome-bot"><span>fishflow.mx</span><span>02 / 12</span></div>
+  </section>
+
+  <!-- 03 — Problem -->
+  <section class="slide dark" data-screen-label="03 Problem">
+    <div class="chrome-top">
+      <span><img src="assets/logo-horizontal-mono.svg" class="chrome-logo" alt="" style="filter: invert(1) brightness(2);"></span>
+      <span data-i18n-en>02 / The Problem</span><span data-i18n-es>02 / El Problema</span>
+    </div>
+    <div class="slide-body">
+      <h1 class="eyebrow" data-i18n-en>What we keep hearing</h1>
+      <h1 class="eyebrow" data-i18n-es>Lo que escuchamos</h1>
+      <h2 class="slide-title" data-i18n-en>The bakery, the clinic, the workshop — all running on copy-paste.</h2>
+      <h2 class="slide-title" data-i18n-es>La panadería, la clínica, el taller — todos viven del copia-pega.</h2>
+      <p class="lede" data-i18n-en>Sub-50-employee businesses spend an average of <strong>14 hours a week</strong> on tasks a competent assistant could finish in an afternoon. They don't need a CRM. They need their evenings back.</p>
+      <p class="lede" data-i18n-es>Los negocios de menos de 50 empleados gastan en promedio <strong>14 horas a la semana</strong> en tareas que un asistente competente terminaría en una tarde. No necesitan un CRM. Necesitan recuperar sus noches.</p>
+    </div>
+    <div class="chrome-bot"><span style="color:rgba(244,241,234,0.4)">fishflow.mx</span><span style="color:rgba(244,241,234,0.4)">03 / 12</span></div>
+  </section>
+
+  <!-- 04 — Stats / market -->
+  <section class="slide" data-screen-label="04 Market">
+    <div class="chrome-top">
+      <span><img src="assets/logo-horizontal-mono.svg" class="chrome-logo" alt=""></span>
+      <span data-i18n-en>03 / Market</span><span data-i18n-es>03 / Mercado</span>
+    </div>
+    <div class="slide-body">
+      <h1 class="eyebrow" data-i18n-en>The picture in numbers</h1>
+      <h1 class="eyebrow" data-i18n-es>El panorama en números</h1>
+      <h2 class="slide-title smaller" style="margin-bottom: 80px;" data-i18n-en>A quiet majority of the economy.</h2>
+      <h2 class="slide-title smaller" style="margin-bottom: 80px;" data-i18n-es>Una mayoría silenciosa de la economía.</h2>
+      <div class="three-col">
+        <div class="stat">
+          <p class="num">99<span class="accent">%</span></p>
+          <p class="lab" data-i18n-en>of EU businesses are SMBs. They employ two-thirds of the workforce.</p>
+          <p class="lab" data-i18n-es>de los negocios en la UE son PYMEs. Emplean a dos tercios de la fuerza laboral.</p>
+        </div>
+        <div class="stat">
+          <p class="num">14<span class="accent">h</span></p>
+          <p class="lab" data-i18n-en>per week, per business — lost to manual data entry, scheduling, follow-up emails.</p>
+          <p class="lab" data-i18n-es>por semana, por negocio — perdidas en datos, agendas y seguimientos manuales.</p>
+        </div>
+        <div class="stat">
+          <p class="num">3<span class="accent">%</span></p>
+          <p class="lab" data-i18n-en>of small businesses currently use any AI tool. The wave hasn't reached Main Street yet.</p>
+          <p class="lab" data-i18n-es>de los pequeños negocios usan alguna IA. La ola aún no ha llegado a la calle.</p>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bot"><span>fishflow.mx</span><span>04 / 12</span></div>
+  </section>
+
+  <!-- 05 — Section divider: The Solution -->
+  <section class="slide dark divider" data-screen-label="05 Section / Solution">
+    <div class="chrome-top">
+      <span><img src="assets/isotipo-mono-light.svg" class="chrome-logo" alt=""></span>
+      <span data-i18n-en>Section II</span><span data-i18n-es>Sección II</span>
+    </div>
+    <div class="slide-body">
+      <p class="num-huge">— 04</p>
+      <h2 data-i18n-en>So we built<br>a junior employee<br>that never sleeps.</h2>
+      <h2 data-i18n-es>Construimos un<br>empleado junior<br>que nunca duerme.</h2>
+    </div>
+    <div class="chrome-bot"><span style="color:rgba(244,241,234,0.4)">fishflow.mx</span><span style="color:rgba(244,241,234,0.4)">05 / 12</span></div>
+  </section>
+
+  <!-- 06 — Product / how it works -->
+  <section class="slide" data-screen-label="06 How it works">
+    <div class="chrome-top">
+      <span><img src="assets/logo-horizontal-mono.svg" class="chrome-logo" alt=""></span>
+      <span data-i18n-en>05 / How it works</span><span data-i18n-es>05 / Cómo funciona</span>
+    </div>
+    <div class="slide-body tight">
+      <h1 class="eyebrow" data-i18n-en>Four steps. No engineer required.</h1>
+      <h1 class="eyebrow" data-i18n-es>Cuatro pasos. Sin ingeniero.</h1>
+      <h2 class="slide-title smaller" data-i18n-en>Plug into the tools you already use.</h2>
+      <h2 class="slide-title smaller" data-i18n-es>Conéctalo a las herramientas que ya usas.</h2>
+
+      <div class="flow-row">
+        <div class="flow-step">
+          <div class="stp">01 · Connect</div>
+          <h4 data-i18n-en>Your inbox & calendar</h4>
+          <h4 data-i18n-es>Tu correo y calendario</h4>
+          <p data-i18n-en>Gmail, Outlook, WhatsApp Business. Read-only at first.</p>
+          <p data-i18n-es>Gmail, Outlook, WhatsApp. Solo lectura al inicio.</p>
+        </div>
+        <span class="arrow">→</span>
+        <div class="flow-step">
+          <div class="stp">02 · Observe</div>
+          <h4 data-i18n-en>Learn your patterns</h4>
+          <h4 data-i18n-es>Aprende tus patrones</h4>
+          <p data-i18n-en>Two weeks of watching how you reply, quote, and schedule.</p>
+          <p data-i18n-es>Dos semanas observando cómo respondes, cotizas y agendas.</p>
+        </div>
+        <span class="arrow">→</span>
+        <div class="flow-step">
+          <div class="stp">03 · Suggest</div>
+          <h4 data-i18n-en>Drafts in your voice</h4>
+          <h4 data-i18n-es>Borradores con tu voz</h4>
+          <p data-i18n-en>You approve. We learn from every edit you make.</p>
+          <p data-i18n-es>Tú apruebas. Aprendemos con cada edición.</p>
+        </div>
+        <span class="arrow">→</span>
+        <div class="flow-step">
+          <div class="stp">04 · Run</div>
+          <h4 data-i18n-en>Autopilot, your rules</h4>
+          <h4 data-i18n-es>Autopiloto, tus reglas</h4>
+          <p data-i18n-en>Promote tasks to fully automatic when you trust them.</p>
+          <p data-i18n-es>Promueve tareas a automáticas cuando confíes.</p>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bot"><span>fishflow.mx</span><span>06 / 12</span></div>
+  </section>
+
+  <!-- 07 — Pillars / why us -->
+  <section class="slide" data-screen-label="07 Why us">
+    <div class="chrome-top">
+      <span><img src="assets/logo-horizontal-mono.svg" class="chrome-logo" alt=""></span>
+      <span data-i18n-en>06 / Why FishFlow</span><span data-i18n-es>06 / Por qué FishFlow</span>
+    </div>
+    <div class="slide-body">
+      <h1 class="eyebrow" data-i18n-en>Three commitments</h1>
+      <h1 class="eyebrow" data-i18n-es>Tres compromisos</h1>
+      <h2 class="slide-title smaller" data-i18n-en>What we owe small businesses.</h2>
+      <h2 class="slide-title smaller" data-i18n-es>Lo que les debemos a los pequeños negocios.</h2>
+      <div class="three-col" style="margin-top: 60px;">
+        <div class="pillar">
+          <div class="num">— 01</div>
+          <h3 data-i18n-en>Local-first</h3>
+          <h3 data-i18n-es>Local primero</h3>
+          <p data-i18n-en>Real humans on the phone, in your language. We ship to one neighborhood at a time.</p>
+          <p data-i18n-es>Personas reales al teléfono, en tu idioma. Llegamos barrio por barrio.</p>
+        </div>
+        <div class="pillar">
+          <div class="num">— 02</div>
+          <h3 data-i18n-en>Boring by design</h3>
+          <h3 data-i18n-es>Aburrido por diseño</h3>
+          <p data-i18n-en>No dashboards to learn, no jargon. If your accountant can't use it, it isn't shipped.</p>
+          <p data-i18n-es>Sin dashboards que aprender, sin jerga. Si tu contable no puede usarlo, no se lanza.</p>
+        </div>
+        <div class="pillar">
+          <div class="num">— 03</div>
+          <h3 data-i18n-en>Pay for outcomes</h3>
+          <h3 data-i18n-es>Pago por resultados</h3>
+          <p data-i18n-en>Flat monthly. No per-seat games. Cancel any month — no data hostage.</p>
+          <p data-i18n-es>Tarifa plana mensual. Sin juegos por usuario. Cancela cualquier mes.</p>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bot"><span>fishflow.mx</span><span>07 / 12</span></div>
+  </section>
+
+  <!-- 08 — Use cases -->
+  <section class="slide" data-screen-label="08 Use cases">
+    <div class="chrome-top">
+      <span><img src="assets/logo-horizontal-mono.svg" class="chrome-logo" alt=""></span>
+      <span data-i18n-en>07 / In practice</span><span data-i18n-es>07 / En la práctica</span>
+    </div>
+    <div class="slide-body">
+      <h1 class="eyebrow" data-i18n-en>What it actually does, day to day</h1>
+      <h1 class="eyebrow" data-i18n-es>Lo que hace, día a día</h1>
+      <h2 class="slide-title smaller" data-i18n-en>One agent, every chore.</h2>
+      <h2 class="slide-title smaller" data-i18n-es>Un agente, todas las tareas.</h2>
+      <div class="two-col" style="margin-top: 60px; grid-template-columns: 1fr 1fr 1fr; gap: 60px;">
+        <div>
+          <p class="mono-label" style="color: var(--tide-cyan); margin-bottom: 14px;" data-i18n-en>· The Bakery</p>
+          <p class="mono-label" style="color: var(--tide-cyan); margin-bottom: 14px;" data-i18n-es>· La Panadería</p>
+          <p class="body" data-i18n-en>Reads catering inquiries from email and WhatsApp. Drafts a quote with your prices. Books the slot in the calendar. You glance, approve.</p>
+          <p class="body" data-i18n-es>Lee pedidos de catering por mail y WhatsApp. Redacta un presupuesto con tus precios. Reserva la fecha. Tú miras y apruebas.</p>
+        </div>
+        <div>
+          <p class="mono-label" style="color: var(--tide-orange); margin-bottom: 14px;" data-i18n-en>· The Workshop</p>
+          <p class="mono-label" style="color: var(--tide-orange); margin-bottom: 14px;" data-i18n-es>· El Taller</p>
+          <p class="body" data-i18n-en>Photos of damaged parts come in by SMS. The agent matches them against your supplier catalog and prepares a purchase order to sign.</p>
+          <p class="body" data-i18n-es>Llegan fotos de piezas dañadas por SMS. El agente las cruza con el catálogo del proveedor y prepara una orden de compra.</p>
+        </div>
+        <div>
+          <p class="mono-label" style="color: var(--tide-cyan); margin-bottom: 14px;" data-i18n-en>· The Clinic</p>
+          <p class="mono-label" style="color: var(--tide-cyan); margin-bottom: 14px;" data-i18n-es>· La Clínica</p>
+          <p class="body" data-i18n-en>Confirms appointments the night before, rebooks no-shows, files insurance forms. The receptionist's worst hour, gone.</p>
+          <p class="body" data-i18n-es>Confirma citas la noche anterior, re-agenda ausencias, rellena formularios. La peor hora de recepción, eliminada.</p>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bot"><span>fishflow.mx</span><span>08 / 12</span></div>
+  </section>
+
+  <!-- 09 — Pricing -->
+  <section class="slide" data-screen-label="09 Pricing">
+    <div class="chrome-top">
+      <span><img src="assets/logo-horizontal-mono.svg" class="chrome-logo" alt=""></span>
+      <span data-i18n-en>08 / Pricing</span><span data-i18n-es>08 / Precios</span>
+    </div>
+    <div class="slide-body tight">
+      <h1 class="eyebrow" data-i18n-en>Three sizes. No surprises.</h1>
+      <h1 class="eyebrow" data-i18n-es>Tres tamaños. Sin sorpresas.</h1>
+      <h2 class="slide-title smaller" data-i18n-en>Pay for what an assistant would cost — get one that doesn't sleep.</h2>
+      <h2 class="slide-title smaller" data-i18n-es>Paga lo que costaría un asistente — ten uno que no duerme.</h2>
+      <div class="pricing">
+        <div class="price-card">
+          <h4>Counter</h4>
+          <p class="pblurb" data-i18n-en>Solo operators & freelancers.</p>
+          <p class="pblurb" data-i18n-es>Autónomos y freelancers.</p>
+          <p class="pamt">€89<small>/mo</small></p>
+          <ul>
+            <li data-i18n-en>One inbox · one calendar</li>
+            <li data-i18n-es>Un correo · un calendario</li>
+            <li data-i18n-en>Up to 200 messages/mo</li>
+            <li data-i18n-es>Hasta 200 mensajes/mes</li>
+            <li data-i18n-en>Email + chat support</li>
+            <li data-i18n-es>Soporte por mail y chat</li>
+          </ul>
+        </div>
+        <div class="price-card featured">
+          <h4 style="color: var(--tide-orange);">Shop</h4>
+          <p class="pblurb" data-i18n-en>The default for most local businesses.</p>
+          <p class="pblurb" data-i18n-es>La opción por defecto.</p>
+          <p class="pamt">€249<small>/mo</small></p>
+          <ul>
+            <li data-i18n-en>Up to 5 connected accounts</li>
+            <li data-i18n-es>Hasta 5 cuentas conectadas</li>
+            <li data-i18n-en>Unlimited messages, drafts, POs</li>
+            <li data-i18n-es>Mensajes, borradores, OCs ilimitados</li>
+            <li data-i18n-en>Phone support · onboarding visit</li>
+            <li data-i18n-es>Soporte telefónico · visita de inicio</li>
+            <li data-i18n-en>Custom workflows</li>
+            <li data-i18n-es>Flujos personalizados</li>
+          </ul>
+        </div>
+        <div class="price-card">
+          <h4>Quarter</h4>
+          <p class="pblurb" data-i18n-en>Multi-location, multi-team.</p>
+          <p class="pblurb" data-i18n-es>Multi-local, multi-equipo.</p>
+          <p class="pamt">€599<small>/mo</small></p>
+          <ul>
+            <li data-i18n-en>Unlimited accounts & seats</li>
+            <li data-i18n-es>Cuentas y usuarios ilimitados</li>
+            <li data-i18n-en>SLA · dedicated success</li>
+            <li data-i18n-es>SLA · éxito dedicado</li>
+            <li data-i18n-en>Bookkeeping integration</li>
+            <li data-i18n-es>Integración con contabilidad</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bot"><span>fishflow.mx</span><span>09 / 12</span></div>
+  </section>
+
+  <!-- 10 — Quote / social proof -->
+  <section class="slide" data-screen-label="10 Customer voice">
+    <div class="chrome-top">
+      <span><img src="assets/logo-horizontal-mono.svg" class="chrome-logo" alt=""></span>
+      <span data-i18n-en>09 / In their words</span><span data-i18n-es>09 / En sus palabras</span>
+    </div>
+    <div class="slide-body" style="justify-content: center;">
+      <p class="quote" data-i18n-en><span class="mark">"</span>I was about to hire someone part-time to answer emails. FishFlow does it for a tenth of the cost, and honestly, it sounds more like me than I do at 9pm.<span class="mark">"</span></p>
+      <p class="quote" data-i18n-es><span class="mark">"</span>Iba a contratar a alguien a media jornada para los correos. FishFlow lo hace por una décima parte del coste, y suena más a mí de lo que sueno yo a las 9 de la noche.<span class="mark">"</span></p>
+      <p class="quote-by">Marta L. · Owner, Pastelería Marina · Valencia</p>
+    </div>
+    <div class="chrome-bot"><span>fishflow.mx</span><span>10 / 12</span></div>
+  </section>
+
+  <!-- 11 — Roadmap / what's next -->
+  <section class="slide" data-screen-label="11 Roadmap">
+    <div class="chrome-top">
+      <span><img src="assets/logo-horizontal-mono.svg" class="chrome-logo" alt=""></span>
+      <span data-i18n-en>10 / What's next</span><span data-i18n-es>10 / Qué viene</span>
+    </div>
+    <div class="slide-body">
+      <h1 class="eyebrow" data-i18n-en>The next four quarters</h1>
+      <h1 class="eyebrow" data-i18n-es>Los próximos cuatro trimestres</h1>
+      <h2 class="slide-title smaller" data-i18n-en>One promise per quarter. No surprises.</h2>
+      <h2 class="slide-title smaller" data-i18n-es>Una promesa por trimestre. Sin sorpresas.</h2>
+      <div class="three-col" style="grid-template-columns: repeat(4, 1fr); margin-top: 60px;">
+        <div class="pillar">
+          <div class="num">Q3 · 2026</div>
+          <h3 data-i18n-en>Voice replies</h3>
+          <h3 data-i18n-es>Respuestas por voz</h3>
+          <p data-i18n-en>Pick up missed calls in your voice, take messages, book.</p>
+          <p data-i18n-es>Atiende llamadas perdidas con tu voz, anota recados, agenda.</p>
+        </div>
+        <div class="pillar">
+          <div class="num">Q4 · 2026</div>
+          <h3 data-i18n-en>Bookkeeping bridge</h3>
+          <h3 data-i18n-es>Puente contable</h3>
+          <p data-i18n-en>Files reach your accountant categorized, with VAT.</p>
+          <p data-i18n-es>Los archivos llegan a tu contable categorizados, con IVA.</p>
+        </div>
+        <div class="pillar">
+          <div class="num">Q1 · 2027</div>
+          <h3 data-i18n-en>POS integration</h3>
+          <h3 data-i18n-es>Integración con TPV</h3>
+          <p data-i18n-en>Read sales data, propose stock orders before you run out.</p>
+          <p data-i18n-es>Lee ventas, propone pedidos antes de quedarte sin stock.</p>
+        </div>
+        <div class="pillar">
+          <div class="num">Q2 · 2027</div>
+          <h3 data-i18n-en>Marketplace</h3>
+          <h3 data-i18n-es>Marketplace</h3>
+          <p data-i18n-en>Local plumber needs a part, local supplier has it. We connect.</p>
+          <p data-i18n-es>El fontanero busca pieza, el proveedor la tiene. Conectamos.</p>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bot"><span>fishflow.mx</span><span>11 / 12</span></div>
+  </section>
+
+  <!-- 12 — Close / contact -->
+  <section class="slide dark end" data-screen-label="12 End">
+    <div class="chrome-top">
+      <span><img src="assets/isotipo-mono-light.svg" class="chrome-logo" alt=""></span>
+      <span data-i18n-en>11 / Let's start</span><span data-i18n-es>11 / Empecemos</span>
+    </div>
+    <div class="slide-body" style="padding-top: 200px; padding-bottom: 140px;">
+      <div>
+        <p class="mono-label" style="color: rgba(244,241,234,0.5); margin-bottom: 32px;" data-i18n-en>The next move</p>
+        <p class="mono-label" style="color: rgba(244,241,234,0.5); margin-bottom: 32px;" data-i18n-es>El siguiente paso</p>
+        <h1 class="end-cta">
+          <span class="a">Two weeks.</span><br>
+          <span class="b" data-i18n-en>One inbox.</span>
+          <span class="b" data-i18n-es>Un buzón.</span>
+        </h1>
+        <p class="lede" style="margin-top: 40px; color: rgba(244,241,234,0.8); max-width: 1100px;" data-i18n-en>Free pilot. We connect one inbox, watch for two weeks, and show you exactly how many hours you'd get back. No card, no contract.</p>
+        <p class="lede" style="margin-top: 40px; color: rgba(244,241,234,0.8); max-width: 1100px;" data-i18n-es>Piloto gratuito. Conectamos un buzón, observamos dos semanas y te enseñamos exactamente cuántas horas recuperarías. Sin tarjeta, sin contrato.</p>
+      </div>
+      <div class="end-foot">
+        <div><div class="k">Email</div><div class="v">rafaelnolasco@gmail.com</div></div>
+        <div><div class="k" data-i18n-en>Phone</div><div class="k" data-i18n-es>Teléfono</div><div class="v">+52 55 1483 1644</div></div>
+        <div><div class="k">Web</div><div class="v">fishflow.mx</div></div>
+      </div>
+    </div>
+  </section>
+
+</deck-stage>
+
+<script>
+  // language toggle
+  document.documentElement.dataset.lang = 'es';
+  document.querySelectorAll('.lang-toggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.lang-toggle button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      document.documentElement.dataset.lang = b.dataset.lang;
+    });
+  });
+</script>
+</body>
+</html>

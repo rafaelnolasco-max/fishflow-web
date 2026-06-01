@@ -1,0 +1,48 @@
+/* FishFlow — shared brand system */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Palette — from brand guide */
+  --tide-cyan: #1FA9D6;
+  --tide-orange: #F26B17;
+  --ink: #0E2A36;
+  --ink-soft: #0C3445;
+  --bg-dark: #0A1820;
+
+  /* Extended */
+  --bg-light: #FAFAF7;        /* warm white */
+  --bg-paper: #F4F1EA;        /* paper-warm */
+  --rule: #E5E1D6;
+  --muted: #6B7B82;
+  --muted-dark: rgba(255,255,255,0.55);
+
+  /* Type */
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Reusable bits */
+.ff-grad-text {
+  background: linear-gradient(90deg, var(--tide-cyan) 0%, var(--tide-orange) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ff-cyan { color: var(--tide-cyan); }
+.ff-orange { color: var(--tide-orange); }
+.ff-ink { color: var(--ink); }
+
+.ff-rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 0;
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

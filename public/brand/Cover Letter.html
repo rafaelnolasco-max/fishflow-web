@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Letterhead / Cover Letter</title>
+<link rel="stylesheet" href="document.css">
+<style>
+  .lh-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 56px;
+  }
+  .lh-head .left img { height: 32px; }
+  .lh-head .left .strap {
+    margin-top: 10px;
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--tide-orange);
+  }
+  .lh-head .right {
+    text-align: right;
+    font-size: 11px; line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .lh-head .right .name { font-family: var(--font-display); font-size: 13px; font-weight: 600; color: var(--ink); }
+  .lh-head .right .tax { color: var(--muted); margin-top: 6px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; }
+
+  .lh-date { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 36px; }
+
+  .lh-to { margin-bottom: 36px; font-size: 12px; line-height: 1.5; }
+  .lh-to .name { font-family: var(--font-display); font-size: 14px; font-weight: 600; }
+
+  .lh-subject {
+    font-family: var(--font-display); font-size: 18px; font-weight: 600;
+    margin: 0 0 28px;
+    border-left: 2px solid var(--tide-orange);
+    padding-left: 14px;
+  }
+
+  .lh-body p {
+    font-size: 12px; line-height: 1.7; margin: 0 0 16px;
+    text-align: justify; hyphens: auto;
+  }
+  .lh-sign { margin-top: 40px; }
+  .lh-sign .salut { font-size: 12px; margin-bottom: 16px; }
+  .lh-sign .signature {
+    font-family: 'Outfit', sans-serif; font-weight: 400;
+    font-size: 32px; color: var(--ink-soft);
+    transform: skew(-8deg);
+    margin: 8px 0;
+    letter-spacing: 0.02em;
+  }
+  .lh-sign .name { font-family: var(--font-display); font-size: 13px; font-weight: 600; }
+  .lh-sign .title { color: var(--muted); font-size: 11px; }
+
+  .lh-side {
+    position: absolute; right: 32px; top: 64px; bottom: 80px;
+    width: 6px;
+    background: linear-gradient(180deg, var(--tide-cyan), var(--tide-orange));
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="lh-side"></div>
+
+  <div class="lh-head">
+    <div class="left">
+      <img src="assets/logo-horizontal.svg" alt="FishFlow">
+      <div class="strap">— AI Operations for Local Business</div>
+    </div>
+    <div class="right">
+      <div class="name">FishFlow S.L.</div>
+      Playa Pichilingue 132<br>
+      CP 08840, CDMX, México<br>
+      rafaelnolasco@gmail.com · +52 55 1483 1644<br>
+      <div class="tax">VAT · NOCR841004-790</div>
+    </div>
+  </div>
+
+  <div class="lh-date">04 May 2026</div>
+
+  <div class="lh-to">
+    <div class="name">Marta López</div>
+    Owner, Café Pichilingue<br>
+    Av. División del Norte 1521<br>
+    CP 03100 CDMX, México
+  </div>
+
+  <h1 class="lh-subject">Re: Welcome to the FishFlow pilot</h1>
+
+  <div class="lh-body">
+    <p>Dear Marta,</p>
+
+    <p>Thank you for opening the door — both metaphorically, when you replied to my cold email at 11pm on a Tuesday, and literally, when you let me sit on the corner stool of the bakery for two hours last week and watch the inquiries pile up. I came home with notes, three pastel de nata, and a clear picture of what FishFlow needs to do for you.</p>
+
+    <p>This letter confirms the start of your two-week pilot. From Monday, the assistant will quietly read your incoming catering inquiries and weekly orders. It will not reply, send, or schedule anything during this period. We are simply learning how you write, what you ask, and where the time goes. At the end of the calibration, I will visit Valencia in person to walk you through what we have learned and to set up the first workflow — the catering quote — together with you.</p>
+
+    <p>You will find the formal proposal and the first invoice attached. Both are valid through the end of May. If you need to reschedule the onboarding visit or change anything in scope, my mobile is at the top of this page; I am the only person who answers it.</p>
+
+    <p>I am genuinely thankful for your trust. Café Pichilingue is the kind of business FishFlow was built for, and the kind of customer that will, frankly, teach us more than we will ever teach you.</p>
+
+    <div class="lh-sign">
+      <div class="salut">Warmly,</div>
+      <div class="signature">Rafa Fish</div>
+      <div class="name">Rafa Fish</div>
+      <div class="title">Founder, FishFlow</div>
+    </div>
+  </div>
+
+  <div class="doc-foot" style="margin-top: 60px;">
+    <span>fishflow.mx · rafaelnolasco@gmail.com</span>
+    <span>Letter · May 2026</span>
+  </div>
+</div>
+
+</body>
+</html>

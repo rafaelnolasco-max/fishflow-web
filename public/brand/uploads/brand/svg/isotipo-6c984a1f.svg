@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FishFlow">
+  <title>FishFlow — Isotipo</title>
+  <defs>
+    
+    <linearGradient id="ff-tide" x1="14%" y1="50%" x2="86%" y2="50%">
+      <stop offset="0%" stop-color="#1FA9D6"></stop>
+      <stop offset="40%" stop-color="#3DB3CE"></stop>
+      <stop offset="50%" stop-color="#C7AE82" stop-opacity="0.95"></stop>
+      <stop offset="60%" stop-color="#F0A14A"></stop>
+      <stop offset="100%" stop-color="#F26B17"></stop>
+    </linearGradient>
+  </defs>
+
+  
+  <path d="&#xA;    M 600 300&#xA;    C 760 100, 1000  90, 1000 300&#xA;    C 1000 510,  760 500, 600 300&#xA;    C 440 100,  200  90,  200 300&#xA;    C 200 510,  440 500,  600 300 Z" fill="none" stroke="url(#ff-tide)" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"></path>
+
+  
+  <circle cx="880" cy="278" r="9" fill="#0C3445" opacity="0.55"></circle>
+</svg>

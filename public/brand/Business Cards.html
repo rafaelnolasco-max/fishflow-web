@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Business Cards & Email Signature</title>
+<link rel="stylesheet" href="document.css">
+<style>
+  body { background: #1a1a1a; padding: 60px 0; min-height: 100vh; }
+  .stage { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+  .section-label {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.55); text-align: center; margin: 0 0 28px;
+  }
+  h2.h-section {
+    font-family: var(--font-display); font-size: 32px; font-weight: 500;
+    color: white; text-align: center; margin: 0 0 8px;
+    letter-spacing: -0.015em;
+  }
+  p.h-sub {
+    text-align: center; color: rgba(255,255,255,0.6);
+    font-size: 14px; max-width: 520px; margin: 0 auto 56px;
+    line-height: 1.5;
+  }
+
+  /* Card stage — front + back, same plane */
+  .card-row {
+    display: flex; gap: 48px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 64px;
+  }
+  .card {
+    width: 380px; height: 220px;
+    border-radius: 8px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+    padding: 28px 28px 24px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+
+  /* Front — Light */
+  .card.front-light {
+    background: var(--bg-light);
+    color: var(--ink);
+  }
+  .card.front-light .iso { width: 64px; }
+  .card.front-light .name {
+    font-family: var(--font-display); font-size: 20px; font-weight: 600;
+    letter-spacing: -0.01em; line-height: 1.1;
+  }
+  .card.front-light .title {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--tide-orange); margin-top: 6px;
+  }
+  .card.front-light .meta {
+    font-size: 10px; line-height: 1.5; color: var(--ink-soft);
+    border-top: 1px solid var(--rule); padding-top: 10px;
+  }
+  .card.front-light .meta a { color: var(--tide-orange); text-decoration: none; }
+
+  /* Back — Dark logo */
+  .card.back-dark {
+    background: var(--bg-dark);
+    color: #F4F1EA;
+    align-items: center; justify-content: center;
+    padding: 0;
+  }
+  .card.back-dark .stack {
+    display: flex; flex-direction: column; align-items: center; gap: 18px;
+  }
+  .card.back-dark img { height: 48px; }
+  .card.back-dark .word {
+    font-family: var(--font-display); font-size: 36px; font-weight: 700; letter-spacing: -0.025em;
+  }
+  .card.back-dark .word .a { color: var(--tide-cyan); }
+  .card.back-dark .word .b { color: var(--tide-orange); }
+  .card.back-dark .strap {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: rgba(244,241,234,0.5); margin-top: 4px;
+  }
+
+  /* Variation 2: Bold orange edge */
+  .card.front-bold {
+    background: white;
+    color: var(--ink);
+    padding: 0;
+  }
+  .card.front-bold .body {
+    flex: 1; padding: 28px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .card.front-bold .body .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .card.front-bold .body img.iso { height: 36px; }
+  .card.front-bold .body .name { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.1; }
+  .card.front-bold .body .title { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .card.front-bold .body .meta { font-size: 10px; line-height: 1.5; color: var(--ink-soft); }
+  .card.front-bold .strip {
+    height: 12px;
+    background: linear-gradient(90deg, var(--tide-cyan), var(--tide-orange));
+  }
+
+  .card.back-bold {
+    background: var(--bg-paper);
+    color: var(--ink);
+    padding: 28px;
+    justify-content: space-between;
+  }
+  .card.back-bold .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .card.back-bold .top .iso { height: 36px; }
+  .card.back-bold .quote {
+    font-family: var(--font-display); font-size: 18px; font-weight: 400;
+    line-height: 1.3; letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .card.back-bold .quote .o { color: var(--tide-orange); }
+  .card.back-bold .url {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  /* Email signature */
+  .email-stage {
+    background: white; border-radius: 12px;
+    padding: 48px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    margin: 0 auto 64px;
+    max-width: 720px;
+  }
+  .email-mock {
+    font-family: 'Helvetica', Arial, sans-serif;
+    font-size: 14px;
+    color: #1f1f1f;
+    line-height: 1.55;
+  }
+  .email-mock .e-from { font-weight: 600; }
+  .email-mock .e-meta { color: #777; font-size: 12px; margin: 4px 0 22px; }
+  .email-mock .e-body { margin-bottom: 28px; }
+
+  /* The actual signature — inline-CSS so it can be exported */
+  .sig {
+    border-top: 1px solid #E5E1D6;
+    padding-top: 18px;
+    font-family: 'Helvetica', Arial, sans-serif;
+    font-size: 13px; color: #0E2A36;
+  }
+  .sig table { border-collapse: collapse; }
+  .sig td { vertical-align: top; padding: 0; }
+  .sig .iso { width: 56px; padding-right: 16px; border-right: 3px solid #F26B17; }
+  .sig .info { padding-left: 18px; }
+  .sig .name { font-family: 'Outfit', 'Helvetica', sans-serif; font-size: 17px; font-weight: 700; color: #0E2A36; letter-spacing: -0.005em; }
+  .sig .role { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #F26B17; margin-top: 2px; font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .sig .lines { margin-top: 10px; font-size: 12px; line-height: 1.6; color: #0C3445; }
+  .sig .lines a { color: #1FA9D6; text-decoration: none; }
+  .sig .strap { margin-top: 10px; font-size: 10px; color: #6B7B82; }
+
+  /* Spec strip */
+  .spec {
+    text-align: center;
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: rgba(255,255,255,0.45);
+    margin-top: -32px; margin-bottom: 56px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <h2 class="h-section">Business Card · Variation A</h2>
+  <p class="h-sub">Editorial. Light front with full lockup back. Standard 85 × 55 mm.</p>
+
+  <div class="card-row">
+    <div class="card front-light">
+      <div>
+        <img src="assets/isotipo.svg" class="iso" alt="">
+        <div style="margin-top: 18px;">
+          <div class="name">Rafa Fish</div>
+          <div class="title">Founder & CEO</div>
+        </div>
+      </div>
+      <div class="meta">
+        rafaelnolasco@gmail.com · +52 55 1483 1644<br>
+        Playa Pichilingue 132, CDMX<br>
+        <a href="#">fishflow.mx</a>
+      </div>
+    </div>
+    <div class="card back-dark">
+      <div class="stack">
+        <img src="assets/isotipo-mono-light.svg" alt="">
+        <div class="word"><span class="a">Fish</span><span class="b">Flow</span></div>
+        <div class="strap">— AI Ops for Local Business —</div>
+      </div>
+    </div>
+  </div>
+  <div class="spec">85 × 55 mm · Front + Back</div>
+
+  <h2 class="h-section">Business Card · Variation B</h2>
+  <p class="h-sub">Bold. Gradient edge strip; quote on the back. For face-to-face moments where the card is the conversation.</p>
+
+  <div class="card-row">
+    <div class="card front-bold">
+      <div class="body">
+        <div class="top">
+          <img src="assets/isotipo.svg" class="iso" alt="">
+          <div style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.2em; color: var(--muted);">— EST. 2025</div>
+        </div>
+        <div>
+          <div class="name">Rafa Fish</div>
+          <div class="title">Founder · FishFlow</div>
+        </div>
+        <div class="meta">
+          rafaelnolasco@gmail.com<br>
+          +52 55 1483 1644 · fishflow.mx
+        </div>
+      </div>
+      <div class="strip"></div>
+    </div>
+    <div class="card back-bold">
+      <div class="top">
+        <img src="assets/isotipo.svg" class="iso" alt="">
+        <div style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.2em; color: var(--muted);">№ 0042</div>
+      </div>
+      <div class="quote">A junior employee that <span class="o">never sleeps.</span></div>
+      <div class="url">fishflow.mx · cdmx</div>
+    </div>
+  </div>
+  <div class="spec">85 × 55 mm · Front + Back</div>
+
+  <h2 class="h-section" style="margin-top: 80px;">Email signature</h2>
+  <p class="h-sub">HTML-table layout, inline styles, web-safe fonts with Outfit/JetBrains Mono fallbacks. Renders in Gmail, Outlook, Apple Mail.</p>
+
+  <div class="email-stage">
+    <div class="email-mock">
+      <div class="e-from">Rafa Fish &lt;rafaelnolasco@gmail.com&gt;</div>
+      <div class="e-meta">to: marta@cafepichilingue.mx · 04 May 2026</div>
+      <div class="e-body">
+        <p>Hi Marta,</p>
+        <p>Quick note to confirm we're on for the onboarding visit next Wednesday at 10:30. I'll bring the FishFlow setup kit and the catering-quote workflow we sketched out together. If anything shifts, my mobile is below.</p>
+        <p>Warmly,<br>Rafa</p>
+      </div>
+
+      <div class="sig">
+        <table>
+          <tr>
+            <td class="iso"><img src="assets/isotipo.svg" alt="" style="width: 56px; height: auto; display: block;"></td>
+            <td class="info">
+              <div class="name">Rafa Fish</div>
+              <div class="role">Founder · FishFlow</div>
+              <div class="lines">
+                <a href="mailto:rafaelnolasco@gmail.com">rafaelnolasco@gmail.com</a> · +52 55 1483 1644<br>
+                <a href="https://fishflow.mx">fishflow.mx</a> · CDMX
+              </div>
+              <div class="strap">— AI operations for local businesses —</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

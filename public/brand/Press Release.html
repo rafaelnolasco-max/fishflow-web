@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Press Release Letterhead</title>
+<link rel="stylesheet" href="document.css">
+<style>
+  .pr-head {
+    display: grid; grid-template-columns: 1fr auto; align-items: end;
+    padding-bottom: 24px; border-bottom: 2px solid var(--ink);
+    margin-bottom: 8px;
+  }
+  .pr-head .logo { height: 36px; }
+  .pr-head .pr-tag {
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--tide-orange);
+  }
+
+  .pr-meta {
+    display: flex; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid var(--rule);
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 36px;
+  }
+  .pr-meta .release { color: var(--tide-orange); font-weight: 500; }
+
+  .pr-headline {
+    font-family: var(--font-display);
+    font-size: 36px; font-weight: 600;
+    line-height: 1.1; letter-spacing: -0.02em;
+    color: var(--ink); margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .pr-deck {
+    font-family: var(--font-display);
+    font-size: 18px; font-weight: 300;
+    line-height: 1.4; color: var(--ink-soft);
+    margin: 0 0 32px;
+    max-width: 600px;
+  }
+  .pr-dateline {
+    font-size: 12px; line-height: 1.6;
+  }
+  .pr-dateline strong { font-family: var(--font-display); font-weight: 700; letter-spacing: 0.02em; }
+  .pr-body p {
+    font-size: 12px; line-height: 1.65; margin: 0 0 14px;
+    text-align: justify; hyphens: auto;
+  }
+  .pr-body p.lead::first-line { font-weight: 500; }
+  .pr-pull {
+    border-left: 2px solid var(--tide-orange);
+    padding: 4px 0 4px 18px;
+    margin: 24px 0;
+    font-family: var(--font-display);
+    font-size: 16px; font-weight: 400; font-style: italic;
+    line-height: 1.4; color: var(--ink);
+  }
+  .pr-pull cite {
+    display: block; margin-top: 10px;
+    font-style: normal;
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .pr-end {
+    text-align: center; margin: 28px 0 24px;
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.4em; color: var(--ink);
+  }
+  .pr-about {
+    border-top: 1px solid var(--rule);
+    padding-top: 18px;
+    margin-top: 12px;
+  }
+  .pr-about h4 {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase; margin: 0 0 8px; color: var(--muted); font-weight: 500;
+  }
+  .pr-about p { font-size: 11px; line-height: 1.55; margin: 0 0 10px; color: var(--ink-soft); }
+  .pr-contact {
+    margin-top: 18px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+  .pr-contact .k { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .pr-contact .v { font-size: 11px; }
+  .pr-contact .v.em { color: var(--tide-orange); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header class="pr-head">
+    <img src="assets/logo-horizontal.svg" class="logo" alt="FishFlow">
+    <div class="pr-tag">For Immediate Release</div>
+  </header>
+
+  <div class="pr-meta">
+    <span class="release">CDMX · 04 May 2026</span>
+    <span>Press Release · 01/26</span>
+  </div>
+
+  <h1 class="pr-headline">FishFlow Launches AI Operations Assistant for Local Businesses, Closes $2.4M Seed Round</h1>
+  <p class="pr-deck">The CDMX startup, founded by Rafa Fish, brings autonomous workflow automation to bakeries, clinics and workshops — the 99% of European companies that the AI wave has not yet reached.</p>
+
+  <p class="pr-dateline"><strong>CDMX, 04 May 2026</strong> — FishFlow, an AI-native operations platform built specifically for small local businesses, today announced the public launch of its assistant product and the closing of a $2.4M seed round led by Mediterranean Ventures, with participation from Adyen co-founder Pieter van der Does and a syndicate of small-business operators.</p>
+
+  <div class="pr-body">
+    <p class="lead">FishFlow's product reads a business owner's email, calendar and WhatsApp — and quietly drafts replies, prepares quotes, books appointments and files purchase orders, learning the owner's voice over a two-week observation period before any task is automated. It is, founder Rafa Fish says, "a junior employee that never sleeps, costs a tenth of one, and refuses to learn jargon."</p>
+
+    <p>European SMBs employ two-thirds of the workforce yet, by FishFlow's own market research, only 3% currently use any AI tool — a gap the company attributes less to skepticism than to the way most automation software is built: dashboard-first, jargon-heavy, and priced per seat in a way that punishes the kind of business that has six employees and one inbox.</p>
+
+    <div class="pr-pull">
+      "Small businesses don't lack ambition — they lack twenty hours a week. We built FishFlow so that the bakery, the clinic and the workshop get to keep their evenings, and stop running on copy-paste."
+      <cite>— Rafa Fish, Founder, FishFlow</cite>
+    </div>
+
+    <p>The company will use the new capital to expand its onboarding team across Spain and Portugal — a deliberate choice to grow neighborhood-by-neighborhood rather than country-by-country. Every new customer receives an in-person installation visit, a posture FishFlow describes as "boring by design": flat monthly pricing, no per-seat surcharges, and a refusal to ship features its customers' accountants cannot use without training.</p>
+
+    <p>FishFlow's Shop plan, the company's flagship offering, is priced at $249 per month and includes up to five connected accounts, unlimited drafts and quotes, and a dedicated phone number for support — a feature the company emphasizes is staffed by humans, in the customer's language. A free two-week pilot is available at fishflow.mx.</p>
+  </div>
+
+  <div class="pr-end">— END —</div>
+
+  <div class="pr-about">
+    <h4>About FishFlow</h4>
+    <p>FishFlow is an AI operations assistant for local businesses, founded in CDMX in 2025 by Rafa Fish. The company's mission is to bring the productivity gains of frontier AI to the bakery, the clinic and the workshop — the businesses that keep neighborhoods running. FishFlow is privately held and headquartered in CDMX, México.</p>
+
+    <div class="pr-contact">
+      <div><div class="k">Press contact</div><div class="v">Rafa Fish, Founder</div></div>
+      <div><div class="k">Email</div><div class="v em">rafaelnolasco@gmail.com</div></div>
+      <div><div class="k">Web</div><div class="v">fishflow.mx/press</div></div>
+    </div>
+  </div>
+
+  <div class="doc-foot" style="margin-top: 32px;">
+    <span>FishFlow S.L. · CDMX, ES</span>
+    <span>Page 1 / 1 · Press 01-26</span>
+  </div>
+</div>
+
+</body>
+</html>

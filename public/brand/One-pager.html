@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — One-Pager</title>
+<link rel="stylesheet" href="document.css">
+<style>
+  .op-head {
+    background: var(--bg-dark); color: #F4F1EA;
+    margin: -64px -64px 0;
+    padding: 48px 64px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .op-head .iso-bg {
+    position: absolute; right: -120px; top: -40px; width: 480px; opacity: 0.08;
+  }
+  .op-head .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
+  .op-head .top img { height: 24px; filter: brightness(0) invert(1); }
+  .op-head .top .pill { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--tide-orange); border: 1px solid var(--tide-orange); padding: 4px 10px; border-radius: 4px; }
+  .op-head h1 {
+    font-family: var(--font-display); font-size: 56px; font-weight: 700;
+    letter-spacing: -0.03em; line-height: 0.95; margin: 0;
+    max-width: 580px;
+    text-wrap: balance;
+  }
+  .op-head h1 .o { color: var(--tide-orange); }
+  .op-head h1 .c { color: var(--tide-cyan); }
+  .op-head .deck {
+    font-family: var(--font-display); font-size: 16px; font-weight: 300;
+    line-height: 1.45; max-width: 540px; margin-top: 18px;
+    color: rgba(244,241,234,0.85);
+  }
+
+  .op-mid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+    padding: 28px 0 24px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .op-mid h3 { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 500;}
+  .op-mid h2 { font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.25; margin: 0 0 8px;}
+  .op-mid p { font-size: 11px; line-height: 1.55; margin: 0; color: var(--ink-soft);}
+
+  .op-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .op-grid .item { border-top: 1px solid var(--rule-strong); padding-top: 12px;}
+  .op-grid .item .n { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; color: var(--tide-orange); margin-bottom: 4px;}
+  .op-grid .item h4 { font-family: var(--font-display); font-size: 14px; font-weight: 600; margin: 0 0 4px;}
+  .op-grid .item p { font-size: 10px; line-height: 1.5; margin: 0; color: var(--muted);}
+
+  .op-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .op-stats .stat .num {
+    font-family: var(--font-display); font-size: 56px; font-weight: 600;
+    letter-spacing: -0.03em; line-height: 1; margin: 0;
+  }
+  .op-stats .stat .num .a { color: var(--tide-orange); }
+  .op-stats .stat .lab { font-size: 11px; line-height: 1.45; color: var(--muted); margin-top: 6px; max-width: 200px;}
+
+  .op-flow {
+    padding: 28px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .op-flow .stps { display: flex; gap: 12px; margin-top: 12px; }
+  .op-flow .stp { flex: 1; padding: 12px; background: var(--bg-paper); border-radius: 4px;}
+  .op-flow .stp .w { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; color: var(--tide-orange); margin-bottom: 4px;}
+  .op-flow .stp h4 { font-family: var(--font-display); font-size: 12px; font-weight: 600; margin: 0 0 2px;}
+  .op-flow .stp p { font-size: 10px; line-height: 1.45; margin: 0; color: var(--muted);}
+
+  .op-cta {
+    padding: 24px 0 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .op-cta .left h3 { font-family: var(--font-display); font-size: 22px; font-weight: 600; margin: 0 0 4px; letter-spacing: -0.015em; }
+  .op-cta .left p { font-size: 11px; color: var(--muted); margin: 0; }
+  .op-cta .right {
+    background: var(--ink); color: white;
+    padding: 14px 22px; border-radius: 4px;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .op-cta .right strong { color: var(--tide-orange); margin-right: 6px;}
+</style>
+</head>
+<body>
+
+<div class="page" style="overflow: hidden;">
+  <div class="op-head">
+    <div class="top">
+      <img src="assets/logo-horizontal-mono.svg" alt="FishFlow">
+      <div class="pill">— One-Pager · 2026</div>
+    </div>
+    <h1>The bakery, the clinic, the workshop — running on <span class="c">copy-paste.</span> Not <span class="o">anymore.</span></h1>
+    <p class="deck">FishFlow is the AI operations assistant built for the small local businesses that the AI wave hasn't reached yet — the 99% of European companies who don't have a CRM admin and don't want one.</p>
+    <img src="assets/isotipo-mono-light.svg" class="iso-bg" alt="">
+  </div>
+
+  <div class="op-mid">
+    <div>
+      <h3>Problem</h3>
+      <h2>14 hours a week, lost.</h2>
+      <p>Sub-50-employee businesses spend an average of 14 hours weekly on tasks a competent assistant could finish in an afternoon: re-typing inquiries, drafting quotes, confirming appointments, chasing suppliers. They don't lack ambition — they lack twenty hours a week.</p>
+    </div>
+    <div>
+      <h3>Solution</h3>
+      <h2>A junior employee that never sleeps.</h2>
+      <p>FishFlow plugs into the inbox, calendar and WhatsApp the business already uses, watches silently for two weeks, and then drafts replies, quotes and POs in the owner's voice. Owner approves; the assistant learns. Promote tasks to autopilot when you trust them.</p>
+    </div>
+  </div>
+
+  <div class="op-grid">
+    <div class="item"><div class="n">— 01</div><h4>Local-first</h4><p>Real humans on the phone, in your language. We ship one neighborhood at a time.</p></div>
+    <div class="item"><div class="n">— 02</div><h4>Boring by design</h4><p>If your accountant can't use it, it isn't shipped. No dashboards, no jargon.</p></div>
+    <div class="item"><div class="n">— 03</div><h4>Pay for outcomes</h4><p>Flat monthly. No per-seat games. Cancel any month — no data hostage.</p></div>
+  </div>
+
+  <div class="op-stats">
+    <div class="stat"><p class="num">99<span class="a">%</span></p><p class="lab">of EU businesses are SMBs · 2/3 of the workforce</p></div>
+    <div class="stat"><p class="num">14<span class="a">h</span></p><p class="lab">per week, per business — lost to manual ops</p></div>
+    <div class="stat"><p class="num">3<span class="a">%</span></p><p class="lab">of small businesses use any AI tool today</p></div>
+  </div>
+
+  <div class="op-flow">
+    <h3 style="font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0; font-weight: 500;">How it works</h3>
+    <div class="stps">
+      <div class="stp"><div class="w">01 · Connect</div><h4>Inbox & calendar</h4><p>Read-only. No risk.</p></div>
+      <div class="stp"><div class="w">02 · Observe</div><h4>Two weeks</h4><p>Learn your patterns.</p></div>
+      <div class="stp"><div class="w">03 · Suggest</div><h4>Drafts in your voice</h4><p>You approve, we learn.</p></div>
+      <div class="stp"><div class="w">04 · Run</div><h4>Autopilot, your rules</h4><p>Promote when ready.</p></div>
+    </div>
+  </div>
+
+  <div class="op-cta">
+    <div class="left">
+      <h3>Two weeks, one inbox, free.</h3>
+      <p>Pilot with FishFlow. We connect, observe, and show you the hours we'd save you. No card.</p>
+    </div>
+    <div class="right">
+      <strong>→</strong> fishflow.mx/pilot
+    </div>
+  </div>
+
+  <div class="doc-foot" style="margin-top: 32px;">
+    <span>FishFlow S.L. · CDMX · rafaelnolasco@gmail.com</span>
+    <span>Sales 1P · v1 · May 2026</span>
+  </div>
+</div>
+
+</body>
+</html>
