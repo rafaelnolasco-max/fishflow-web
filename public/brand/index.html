@@ -16,6 +16,33 @@
   .group { margin-bottom: 56px; }
   .group h3 { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--tide-orange); margin: 0 0 16px; font-weight: 500; }
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  /* Logo Downloads section */
+  .logo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 8px; }
+  .logo-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; overflow: hidden; }
+  .logo-card:hover { border-color: var(--tide-orange); }
+  .logo-preview {
+    display: flex; align-items: center; justify-content: center;
+    height: 140px; padding: 24px;
+  }
+  .logo-preview.dark-bg { background: #0A1820; }
+  .logo-preview.light-bg { background: #FAFAF7; }
+  .logo-preview img { max-width: 100%; max-height: 90px; object-fit: contain; }
+  .logo-info { padding: 16px 20px 20px; }
+  .logo-info .logo-name { font-family: var(--font-display); font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+  .logo-info .logo-desc { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; color: rgba(244,241,234,0.45); margin: 0 0 14px; text-transform: uppercase; }
+  .dl-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .dl-btn {
+    display: inline-block; padding: 5px 10px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px; text-decoration: none;
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em;
+    color: rgba(244,241,234,0.7); text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .dl-btn:hover { background: var(--tide-orange); border-color: var(--tide-orange); color: white; }
+  .dl-btn.svg { border-color: rgba(103,212,232,0.4); color: var(--tide-cyan); }
+  .dl-btn.svg:hover { background: var(--tide-cyan); border-color: var(--tide-cyan); color: #0A1820; }
   a.card {
     display: block; padding: 28px;
     background: rgba(255,255,255,0.04);
@@ -73,6 +100,132 @@
     <div class="grid">
       <a class="card" href="Social Templates.html"><div class="n">— IG + LinkedIn</div><h4>Social Templates</h4><p>Feed posts, stories, LinkedIn cover and square posts.</p><span class="arr">Open →</span></a>
       <a class="card" href="Brand Guidelines.html"><div class="n">— 4 pages</div><h4>Brand Guidelines</h4><p>Mark, lockups, color, type, voice. The reference manual.</p><span class="arr">Open →</span></a>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>— 05 · Logo Downloads</h3>
+    <div class="logo-grid">
+
+      <!-- Logo Horizontal Color -->
+      <div class="logo-card">
+        <div class="logo-preview dark-bg">
+          <img src="uploads/brand/png/logo-horizontal-preview.png" alt="Logo Horizontal">
+        </div>
+        <div class="logo-info">
+          <div class="logo-name">Logo Horizontal</div>
+          <div class="logo-desc">Color · sobre fondo oscuro</div>
+          <div class="dl-row">
+            <a class="dl-btn svg" href="uploads/brand/svg/logo-horizontal.svg" download>SVG</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-horizontal-512.png" download>512px</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-horizontal-1024.png" download>1024px</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-horizontal-2048.png" download>2048px</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logo Horizontal Mono -->
+      <div class="logo-card">
+        <div class="logo-preview dark-bg">
+          <img src="uploads/brand/png/logo-horizontal-mono-preview.png" alt="Logo Horizontal Mono">
+        </div>
+        <div class="logo-info">
+          <div class="logo-name">Logo Horizontal Mono</div>
+          <div class="logo-desc">Blanco · sobre fondo oscuro</div>
+          <div class="dl-row">
+            <a class="dl-btn svg" href="uploads/brand/svg/logo-horizontal-mono.svg" download>SVG</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-horizontal-mono-512.png" download>512px</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-horizontal-mono-1024.png" download>1024px</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-horizontal-mono-2048.png" download>2048px</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logo Vertical Color -->
+      <div class="logo-card">
+        <div class="logo-preview dark-bg">
+          <img src="uploads/brand/png/logo-vertical-preview.png" alt="Logo Vertical">
+        </div>
+        <div class="logo-info">
+          <div class="logo-name">Logo Vertical</div>
+          <div class="logo-desc">Color · sobre fondo oscuro</div>
+          <div class="dl-row">
+            <a class="dl-btn svg" href="uploads/brand/svg/logo-vertical.svg" download>SVG</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-vertical-512.png" download>512px</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-vertical-1024.png" download>1024px</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-vertical-2048.png" download>2048px</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logo Vertical Dark -->
+      <div class="logo-card">
+        <div class="logo-preview light-bg">
+          <img src="uploads/brand/png/logo-vertical-dark-preview.png" alt="Logo Vertical Dark">
+        </div>
+        <div class="logo-info">
+          <div class="logo-name">Logo Vertical Dark</div>
+          <div class="logo-desc">Oscuro · sobre fondo claro</div>
+          <div class="dl-row">
+            <a class="dl-btn svg" href="uploads/brand/svg/logo-vertical-dark.svg" download>SVG</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-vertical-dark-512.png" download>512px</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-vertical-dark-1024.png" download>1024px</a>
+            <a class="dl-btn" href="uploads/brand/png/logo-vertical-dark-2048.png" download>2048px</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Isotipo Color -->
+      <div class="logo-card">
+        <div class="logo-preview dark-bg">
+          <img src="uploads/brand/png/isotipo-preview.png" alt="Isotipo">
+        </div>
+        <div class="logo-info">
+          <div class="logo-name">Isotipo</div>
+          <div class="logo-desc">Color · ícono solo</div>
+          <div class="dl-row">
+            <a class="dl-btn svg" href="uploads/brand/svg/isotipo.svg" download>SVG</a>
+            <a class="dl-btn" href="uploads/brand/png/isotipo-512.png" download>512px</a>
+            <a class="dl-btn" href="uploads/brand/png/isotipo-1024.png" download>1024px</a>
+            <a class="dl-btn" href="uploads/brand/png/isotipo-2048.png" download>2048px</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Isotipo Mono Light -->
+      <div class="logo-card">
+        <div class="logo-preview dark-bg">
+          <img src="uploads/brand/png/isotipo-mono-light-preview.png" alt="Isotipo Mono Light">
+        </div>
+        <div class="logo-info">
+          <div class="logo-name">Isotipo Mono Light</div>
+          <div class="logo-desc">Blanco · sobre fondo oscuro</div>
+          <div class="dl-row">
+            <a class="dl-btn svg" href="uploads/brand/svg/isotipo-mono-light.svg" download>SVG</a>
+            <a class="dl-btn" href="uploads/brand/png/isotipo-mono-light-512.png" download>512px</a>
+            <a class="dl-btn" href="uploads/brand/png/isotipo-mono-light-1024.png" download>1024px</a>
+            <a class="dl-btn" href="uploads/brand/png/isotipo-mono-light-2048.png" download>2048px</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Isotipo Mono Dark -->
+      <div class="logo-card">
+        <div class="logo-preview light-bg">
+          <img src="uploads/brand/png/isotipo-mono-dark-preview.png" alt="Isotipo Mono Dark">
+        </div>
+        <div class="logo-info">
+          <div class="logo-name">Isotipo Mono Dark</div>
+          <div class="logo-desc">Oscuro · sobre fondo claro</div>
+          <div class="dl-row">
+            <a class="dl-btn svg" href="uploads/brand/svg/isotipo-mono-dark.svg" download>SVG</a>
+            <a class="dl-btn" href="uploads/brand/png/isotipo-mono-dark-512.png" download>512px</a>
+            <a class="dl-btn" href="uploads/brand/png/isotipo-mono-dark-1024.png" download>1024px</a>
+            <a class="dl-btn" href="uploads/brand/png/isotipo-mono-dark-2048.png" download>2048px</a>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
