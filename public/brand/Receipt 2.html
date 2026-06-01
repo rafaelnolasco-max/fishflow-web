@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Receipt</title>
+<link rel="stylesheet" href="document.css">
+<style>
+  body { background: #1a1a1a; min-height: 100vh; padding: 40px 0; }
+  .receipt {
+    width: 380px;
+    margin: 0 auto;
+    background: white;
+    padding: 36px 32px 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    font-family: var(--font-mono);
+    color: var(--ink);
+    position: relative;
+  }
+  .receipt::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -16px; height: 16px;
+    background: linear-gradient(45deg, transparent 33%, white 33%, white 66%, transparent 66%) 0 0/24px 32px,
+                linear-gradient(-45deg, transparent 33%, white 33%, white 66%, transparent 66%) 0 0/24px 32px;
+    /* zig-zag bottom */
+    background-color: white;
+    -webkit-mask: linear-gradient(135deg, transparent 50%, #000 50%) 0 0/16px 16px,
+                   linear-gradient(45deg, transparent 50%, #000 50%) 0 0/16px 16px;
+  }
+  .r-logo { display: flex; justify-content: center; margin-bottom: 16px; }
+  .r-logo img { height: 28px; }
+  .r-tag {
+    text-align: center;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--tide-orange);
+    margin-bottom: 24px;
+  }
+  .r-thanks {
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 28px; font-weight: 600; letter-spacing: -0.02em;
+    margin: 8px 0 4px;
+  }
+  .r-sub {
+    text-align: center; font-size: 11px;
+    color: var(--muted); margin-bottom: 22px;
+  }
+  .r-meta {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px;
+    border-top: 1px dashed var(--rule-strong);
+    border-bottom: 1px dashed var(--rule-strong);
+    padding: 14px 0;
+    margin-bottom: 18px;
+    font-size: 11px;
+  }
+  .r-meta .k { color: var(--muted); }
+  .r-meta .v { text-align: right; font-weight: 500; }
+  .r-items { font-size: 11px; margin-bottom: 14px; }
+  .r-items .row { display: flex; justify-content: space-between; padding: 6px 0; }
+  .r-items .row .l { flex: 1; padding-right: 12px; }
+  .r-items .row .l .ti { font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+  .r-items .row .l .sub { color: var(--muted); font-size: 10px; }
+  .r-items .row .a { font-variant-numeric: tabular-nums; font-weight: 500; }
+  .r-totals {
+    border-top: 1px dashed var(--rule-strong);
+    padding-top: 12px; margin-top: 4px;
+    font-size: 11px;
+  }
+  .r-totals .row { display: flex; justify-content: space-between; padding: 4px 0; }
+  .r-totals .row.muted { color: var(--muted); }
+  .r-totals .row.total {
+    margin-top: 8px; padding-top: 12px;
+    border-top: 1px solid var(--ink);
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
+  }
+  .r-pay {
+    margin-top: 18px; padding: 14px 0; text-align: center;
+    border-top: 1px dashed var(--rule-strong);
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .r-pay .auth { color: var(--muted); margin-top: 4px; font-size: 10px;}
+  .r-foot {
+    margin-top: 18px; text-align: center;
+    font-size: 9px; line-height: 1.5; color: var(--muted);
+  }
+  .r-foot .url { color: var(--tide-orange); margin-top: 6px; display: block; font-weight: 500; }
+  .r-stamp {
+    text-align: center; margin: 18px 0 4px;
+    font-size: 10px; letter-spacing: 0.2em; color: var(--tide-cyan);
+  }
+</style>
+</head>
+<body>
+
+<div class="receipt">
+  <div class="r-logo"><img src="assets/logo-horizontal.svg" alt="FishFlow"></div>
+  <div class="r-tag">— Payment Received —</div>
+  <div class="r-thanks">Thank you, Marta.</div>
+  <div class="r-sub">Café Pichilingue · Year-one partnership</div>
+
+  <div class="r-meta">
+    <div class="k">Receipt №</div><div class="v">R-2026-0142</div>
+    <div class="k">Date</div><div class="v">04 May 2026 · 14:32</div>
+    <div class="k">Invoice ref</div><div class="v">FF-2026-0142</div>
+    <div class="k">Method</div><div class="v">SEPA · ··· 0142</div>
+  </div>
+
+  <div class="r-items">
+    <div class="row">
+      <div class="l"><div class="ti">FishFlow Shop · Annual</div><div class="sub">12 mo, 5 accounts</div></div>
+      <div class="a">$2,988.00</div>
+    </div>
+    <div class="row">
+      <div class="l"><div class="ti">Onboarding visit</div><div class="sub">CDMX, 11 May</div></div>
+      <div class="a">$450.00</div>
+    </div>
+    <div class="row">
+      <div class="l"><div class="ti">Quote workflow</div><div class="sub">Custom · catering</div></div>
+      <div class="a">$600.00</div>
+    </div>
+    <div class="row">
+      <div class="l"><div class="ti">Annual prepay</div><div class="sub">−10%</div></div>
+      <div class="a" style="color: var(--tide-orange);">−$298.80</div>
+    </div>
+  </div>
+
+  <div class="r-totals">
+    <div class="row muted"><span>Subtotal</span><span>$3,739.20</span></div>
+    <div class="row muted"><span>VAT · 21%</span><span>$785.23</span></div>
+    <div class="row total"><span>Paid</span><span style="color: var(--tide-orange);">$4,524.43</span></div>
+  </div>
+
+  <div class="r-pay">
+    Charged to SEPA mandate · MX•• ··· 0142
+    <div class="auth">Authorization · 7H2K-91PX-44</div>
+  </div>
+
+  <div class="r-stamp">— · — · — paid · — · — · —</div>
+
+  <div class="r-foot">
+    FishFlow S.L. · Playa Pichilingue 132, CDMX<br>
+    VAT NOCR841004-790 · rafaelnolasco@gmail.com
+    <span class="url">fishflow.mx/receipt/R-2026-0142</span>
+  </div>
+</div>
+
+</body>
+</html>

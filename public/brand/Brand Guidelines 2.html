@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FishFlow — Brand Guidelines</title>
+<link rel="stylesheet" href="document.css">
+<style>
+  body { background: #2a2a2a; }
+  .bg-cover { padding: 0; overflow: hidden; }
+  .bg-cover .top { background: var(--bg-dark); color: #F4F1EA; padding: 64px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+  .bg-cover .top img.logo { height: 30px; filter: brightness(0) invert(1); }
+  .bg-cover h1 { font-family: var(--font-display); font-size: 88px; font-weight: 600; letter-spacing: -0.035em; line-height: 0.92; margin: 0; }
+  .bg-cover h1 .o { color: var(--tide-orange); }
+  .bg-cover .deck { font-family: var(--font-display); font-size: 22px; font-weight: 300; line-height: 1.35; max-width: 540px; margin-top: 24px; color: rgba(244,241,234,0.85); }
+  .bg-cover .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; border-top: 1px solid rgba(244,241,234,0.18); padding-top: 24px; }
+  .bg-cover .meta .k { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(244,241,234,0.55); margin-bottom: 4px; }
+  .bg-cover .meta .v { font-family: var(--font-display); font-size: 14px; font-weight: 500; }
+  .bg-cover .iso-bg { position: absolute; right: -100px; bottom: -60px; width: 460px; opacity: 0.08; }
+  .bg-cover .strip { height: 12px; background: linear-gradient(90deg, var(--tide-cyan), var(--tide-orange)); }
+
+  .sec { margin-bottom: 36px; }
+  .sec h3 { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--tide-orange); margin: 0 0 10px; font-weight: 500; }
+  .sec h2 { font-family: var(--font-display); font-size: 28px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.2; margin: 0 0 12px; }
+  .sec p { font-size: 12px; line-height: 1.65; margin: 0 0 10px; max-width: 640px; }
+
+  .swatch-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 16px; }
+  .swatch { border-radius: 4px; overflow: hidden; box-shadow: 0 1px 0 var(--rule); }
+  .swatch .chip { height: 96px; }
+  .swatch .info { padding: 10px 12px; background: white; border: 1px solid var(--rule); border-top: 0; border-radius: 0 0 4px 4px; }
+  .swatch .info .n { font-family: var(--font-display); font-size: 12px; font-weight: 600; }
+  .swatch .info .h { font-family: var(--font-mono); font-size: 9px; color: var(--muted); margin-top: 2px; letter-spacing: 0.1em; }
+
+  .type-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 12px; }
+  .type-card { padding: 20px; border: 1px solid var(--rule); border-radius: 4px; }
+  .type-card .lbl { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px;}
+  .type-card .sample-display { font-family: var(--font-display); font-size: 56px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin: 0 0 6px; }
+  .type-card .sample-display .o { color: var(--tide-orange); }
+  .type-card .sample-display .a { color: var(--tide-cyan); }
+  .type-card .sample-body { font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 0; }
+  .type-card .sample-mono { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.04em; margin: 0 0 8px; color: var(--ink); }
+  .type-card .meta { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-top: 12px; }
+
+  .logo-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .logo-cell { padding: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; min-height: 140px; }
+  .logo-cell.l { background: var(--bg-light); border: 1px solid var(--rule); }
+  .logo-cell.p { background: var(--bg-paper); }
+  .logo-cell.d { background: var(--bg-dark); }
+  .logo-cell img { max-width: 100%; max-height: 80px; }
+
+  .donts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+  .dont { padding: 16px; border: 1px solid var(--rule); border-radius: 4px; text-align: center; }
+  .dont .ex { background: var(--bg-paper); padding: 16px; border-radius: 4px; height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; position: relative; overflow: hidden; }
+  .dont .ex img { max-width: 80%; max-height: 60px; }
+  .dont .ex::after { content: "✕"; position: absolute; top: 4px; right: 6px; font-family: var(--font-display); font-size: 16px; color: var(--tide-orange); font-weight: 700; }
+  .dont .lab { font-size: 10px; color: var(--muted); line-height: 1.4; }
+
+  .voice { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .voice .col { padding: 16px; border-radius: 4px; }
+  .voice .col.do { background: rgba(31,169,214,0.06); border: 1px solid rgba(31,169,214,0.25); }
+  .voice .col.dont { background: rgba(242,107,23,0.04); border: 1px solid rgba(242,107,23,0.2); }
+  .voice .col h4 { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; margin: 0 0 8px; }
+  .voice .col.do h4 { color: var(--tide-cyan); }
+  .voice .col.dont h4 { color: var(--tide-orange); }
+  .voice .col p { font-size: 11px; line-height: 1.5; margin: 0 0 6px; }
+</style>
+</head>
+<body>
+
+<!-- Page 1 — Cover -->
+<div class="page bg-cover">
+  <div class="top">
+    <img src="assets/logo-horizontal-mono.svg" class="logo" alt="">
+    <div>
+      <p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--tide-orange); margin: 0 0 24px;">Brand Guidelines · v1 · 2026</p>
+      <h1>Tidal <span class="o">Geometry.</span></h1>
+      <p class="deck">A field manual for the FishFlow visual system. Restraint as discipline. Two colors, never three. The fish is a whisper, never a shout.</p>
+    </div>
+    <div class="meta">
+      <div><div class="k">Custodian</div><div class="v">Rafa Fish · Founder</div></div>
+      <div><div class="k">Edition</div><div class="v">v1.0 · May 2026</div></div>
+      <div><div class="k">Pages</div><div class="v">1 of 4</div></div>
+    </div>
+    <img src="assets/isotipo-mono-light.svg" class="iso-bg" alt="">
+  </div>
+  <div class="strip"></div>
+</div>
+
+<!-- Page 2 — Logo -->
+<div class="page">
+  <div class="doc-head">
+    <img src="assets/logo-horizontal.svg" class="logo" alt="">
+    <div class="meta"><div class="k">Section 01</div><div class="v">The Mark</div></div>
+  </div>
+
+  <div class="sec" style="margin-top: 24px;">
+    <h3>01 · The mark</h3>
+    <h2>A single uninterrupted ribbon.</h2>
+    <p>The FishFlow mark is a lemniscate drawn as one continuous path with diagonal tangents at the cross. To the casual eye it reads as infinity. To the careful eye, the right lobe holds the suggestion of a tail and the eye that completes the fish. Both readings are correct. Both are intended.</p>
+  </div>
+
+  <div class="sec">
+    <h3>02 · Lockups</h3>
+    <h2>Three lockups. Pick by context.</h2>
+    <div class="logo-grid">
+      <div class="logo-cell l"><img src="assets/logo-vertical.svg" alt=""></div>
+      <div class="logo-cell l"><img src="assets/logo-horizontal.svg" alt=""></div>
+      <div class="logo-cell d"><img src="assets/logo-vertical-dark.svg" alt=""></div>
+    </div>
+    <p style="margin-top: 12px;"><strong>Vertical</strong> for hero moments — covers, pitch decks, posters. <strong>Horizontal</strong> for headers, footers, email signatures. <strong>Vertical dark</strong> when the surface is dark and the brand has center stage.</p>
+  </div>
+
+  <div class="sec">
+    <h3>03 · Don'ts</h3>
+    <h2>Four ways to break the mark.</h2>
+    <div class="donts">
+      <div class="dont"><div class="ex"><img src="assets/isotipo.svg" style="transform: scaleX(0.6); max-height: 50px;" alt=""></div><div class="lab">Don't stretch or distort proportions.</div></div>
+      <div class="dont"><div class="ex"><img src="assets/isotipo.svg" style="filter: hue-rotate(120deg); max-height: 60px;" alt=""></div><div class="lab">Don't recolor or invert cyan / orange.</div></div>
+      <div class="dont"><div class="ex"><img src="assets/isotipo.svg" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); max-height: 60px;" alt=""></div><div class="lab">No shadows, glows or bevels — ever.</div></div>
+      <div class="dont"><div class="ex" style="background: var(--tide-orange);"><img src="assets/isotipo.svg" alt="" style="max-height: 60px;"></div><div class="lab">Don't place the color mark on a saturated background.</div></div>
+    </div>
+  </div>
+
+  <div class="doc-foot"><span>FishFlow Brand Guidelines</span><span>Page 2 / 4</span></div>
+</div>
+
+<!-- Page 3 — Color & Type -->
+<div class="page">
+  <div class="doc-head">
+    <img src="assets/logo-horizontal.svg" class="logo" alt="">
+    <div class="meta"><div class="k">Section 02 · 03</div><div class="v">Color · Type</div></div>
+  </div>
+
+  <div class="sec" style="margin-top: 24px;">
+    <h3>04 · Color as tide</h3>
+    <h2>Two colors, never three.</h2>
+    <p>Tide Cyan recalls oxygenated water and dashboards at dawn. Tide Orange carries the pulse of living tissue. They meet at the cross of the lemniscate the way a tide meets a shore: inevitable, soft, exact. The orange never dominates. The blue never overwhelms.</p>
+    <div class="swatch-row">
+      <div class="swatch"><div class="chip" style="background:#1FA9D6;"></div><div class="info"><div class="n">Tide Cyan</div><div class="h">#1FA9D6</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#F26B17;"></div><div class="info"><div class="n">Tide Orange</div><div class="h">#F26B17</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#0E2A36;"></div><div class="info"><div class="n">Ink</div><div class="h">#0E2A36</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#0A1820;"></div><div class="info"><div class="n">Bg Dark</div><div class="h">#0A1820</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#F4F1EA; border: 1px solid var(--rule);"></div><div class="info"><div class="n">Paper</div><div class="h">#F4F1EA</div></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3>05 · Type system</h3>
+    <h2>Outfit · Inter · JetBrains Mono.</h2>
+    <div class="type-row">
+      <div class="type-card">
+        <div class="lbl">Display · Outfit</div>
+        <p class="sample-display"><span class="a">Fish</span><span class="o">Flow</span></p>
+        <p class="sample-display" style="font-size: 28px; font-weight: 600;">A junior employee that never sleeps.</p>
+        <div class="meta">Outfit 600/700 · Headlines, lockup</div>
+      </div>
+      <div class="type-card">
+        <div class="lbl">Body · Inter</div>
+        <p class="sample-body" style="font-size: 14px;">Inter handles every paragraph in the brand. It is calm, neutral, and deeply readable at small sizes — exactly what the bakery, the clinic and the workshop need on an invoice or a one-pager.</p>
+        <div class="meta" style="margin-top: 14px;">Inter 400/500/600 · Body, UI</div>
+      </div>
+    </div>
+    <div class="type-card" style="margin-top: 12px;">
+      <div class="lbl">Mono · JetBrains Mono — for labels, refs, and quiet metadata</div>
+      <p class="sample-mono">— FF-2026-0142 · ISSUED 04 MAY 2026 · DUE 03 JUN 2026</p>
+      <div class="meta">JetBrains Mono 400/500 · Eyebrows, references, tags</div>
+    </div>
+  </div>
+
+  <div class="doc-foot"><span>FishFlow Brand Guidelines</span><span>Page 3 / 4</span></div>
+</div>
+
+<!-- Page 4 — Voice -->
+<div class="page">
+  <div class="doc-head">
+    <img src="assets/logo-horizontal.svg" class="logo" alt="">
+    <div class="meta"><div class="k">Section 04</div><div class="v">Voice</div></div>
+  </div>
+
+  <div class="sec" style="margin-top: 24px;">
+    <h3>06 · Voice</h3>
+    <h2>Founder-personal. Specific. Quietly confident.</h2>
+    <p>FishFlow speaks like Rafa speaks: directly, with specifics, naming the bakery by name. We don't say "SMBs" — we say "the bakery, the clinic, the workshop." We don't say "increased efficiency" — we say "fourteen hours a week back." We earn trust by being concrete.</p>
+
+    <div class="voice">
+      <div class="col do">
+        <h4>— Do</h4>
+        <p>"A junior employee that never sleeps."</p>
+        <p>"The bakery doesn't need a CRM. It needs its evenings back."</p>
+        <p>"Two weeks. One inbox. Free."</p>
+        <p>"If your accountant can't use it, it isn't shipped."</p>
+      </div>
+      <div class="col dont">
+        <h4>— Don't</h4>
+        <p>"Leverage AI to streamline your operational workflow."</p>
+        <p>"Best-in-class enterprise-grade automation suite."</p>
+        <p>"Unlock unprecedented productivity gains."</p>
+        <p>"Synergize across verticals with frictionless onboarding."</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3>07 · The whisper</h3>
+    <h2>Sophistication is non-negotiable.</h2>
+    <p>Every pixel is interrogated. Every curve is the result of countless quiet adjustments. The wordmark is geometric, with rounded terminals — friendly without surrendering rigor. <em>Fish</em> in cool, <em>Flow</em> in warm: a chromatic pun delivered without comment. Held against the work of the world's best studios, the FishFlow mark must not flinch.</p>
+  </div>
+
+  <div class="sec">
+    <h3>08 · Custodianship</h3>
+    <h2>Questions? rafaelnolasco@gmail.com.</h2>
+    <p>This document is v1.0. The brand is young. If you're using FishFlow assets in a context this guide doesn't cover, write to rafaelnolasco@gmail.com before improvising. We'd rather answer one email than fix a printed brochure.</p>
+  </div>
+
+  <div class="doc-foot"><span>FishFlow Brand Guidelines · v1.0 · May 2026</span><span>Page 4 / 4</span></div>
+</div>
+
+</body>
+</html>
