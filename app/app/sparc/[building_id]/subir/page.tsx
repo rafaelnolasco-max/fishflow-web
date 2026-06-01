@@ -127,7 +127,10 @@ export default function SparcSubir() {
   useEffect(() => {
     if (!fileText) return;
     const filtered = filterByDays(fileText, selectedDays);
-    const regex = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),/gm;
+    const fmt = detectFormat(fileText);
+    const regex = fmt === "ios"
+      ? /^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}/gm
+      : /^\[\d{1,2}\/\d{1,2}\/\d{2,4},/gm;
     const count = [...filtered.matchAll(regex)].length;
     setFilteredPreview({ lines: count });
   }, [fileText, selectedDays]);
