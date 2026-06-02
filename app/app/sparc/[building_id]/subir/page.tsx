@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import JSZip from "jszip";
 
 const FF_CYAN   = "#00B8CC";
 const FF_ORANGE = "#FF7200";
@@ -159,21 +160,42 @@ export default function SparcSubir() {
     return { lines: matches.length, firstDate: matches[0]?.[1] ?? "", lastDate: matches[matches.length - 1]?.[1] ?? "" };
   }
 
+  async function extractTextFromFile(file: File): Promise<{ text: string; name: string }> {
+    if (file.name.endsWith(".zip")) {
+      const zip = await JSZip.loadAsync(file);
+      const chatFile = Object.values(zip.files).find(f => !f.dir && f.name.endsWith(".txt"));
+      if (!chatFile) throw new Error("No se encontró archivo .txt dentro del ZIP. Asegúrate de exportar el chat desde WhatsApp.");
+      const text = await chatFile.async("string");
+      // Usar solo el nombre del .txt interno (sin carpetas del ZIP)
+      const innerName = chatFile.name.split("/").pop() ?? chatFile.name;
+      return { text, name: innerName };
+    } else {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve({ text: e.target?.result as string, name: file.name });
+        reader.onerror = () => reject(new Error("Error leyendo el archivo"));
+        reader.readAsText(file, "utf-8");
+      });
+    }
+  }
+
   function handleFile(file: File) {
-    if (!file.name.endsWith(".txt")) {
+    if (!file.name.endsWith(".txt") && !file.name.endsWith(".zip")) {
       setStage("error");
-      setStatusMsg("Solo se aceptan archivos .txt exportados de WhatsApp.");
+      setStatusMsg("Solo se aceptan archivos .txt o .zip exportados de WhatsApp.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = e => {
-      const text = e.target?.result as string;
-      setFileText(text);
-      setFileName(file.name);
-      setPreview(parsePreview(text));
-      setStage("file_loaded");
-    };
-    reader.readAsText(file, "utf-8");
+    extractTextFromFile(file)
+      .then(({ text, name }) => {
+        setFileText(text);
+        setFileName(name);
+        setPreview(parsePreview(text));
+        setStage("file_loaded");
+      })
+      .catch(err => {
+        setStage("error");
+        setStatusMsg(err.message ?? "Error procesando el archivo.");
+      });
   }
 
   const onDrop = useCallback((e: React.DragEvent) => {
@@ -255,7 +277,7 @@ export default function SparcSubir() {
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "48px 24px" }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Subir chat de WhatsApp</h1>
         <p style={{ color: "#5a7a9a", marginBottom: 36, fontSize: 14 }}>
-          Exporta el chat del grupo de vecinos desde WhatsApp → ⋮ → Más → Exportar chat → Sin archivos. Luego sube el .txt aquí.
+          Exporta el chat del grupo de vecinos desde WhatsApp → ⋮ → Más → Exportar chat → Sin archivos. Sube el <b style={{ color: "#f0f4f8" }}>.txt</b> (Android) o el <b style={{ color: "#f0f4f8" }}>.zip</b> (iOS) directamente aquí.
         </p>
 
         {/* Drop zone */}
@@ -274,9 +296,9 @@ export default function SparcSubir() {
               }}
             >
               <div style={{ fontSize: 40, marginBottom: 12 }}>📂</div>
-              <div style={{ fontWeight: 600, marginBottom: 6 }}>Arrastra tu archivo .txt aquí</div>
+              <div style={{ fontWeight: 600, marginBottom: 6 }}>Arrastra tu archivo .txt o .zip aquí</div>
               <div style={{ color: "#5a7a9a", fontSize: 14 }}>o haz clic para seleccionarlo</div>
-              <input ref={fileRef} type="file" accept=".txt" style={{ display: "none" }}
+              <input ref={fileRef} type="file" accept=".txt,.zip" style={{ display: "none" }}
                 onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
             </div>
             {stage === "error" && (
@@ -384,7 +406,7 @@ export default function SparcSubir() {
             <li>Toca los ⋮ tres puntos (Android) o el nombre del grupo (iOS)</li>
             <li>Selecciona <b style={{ color: "#f0f4f8" }}>Más → Exportar chat</b></li>
             <li>Elige <b style={{ color: "#f0f4f8" }}>Sin archivos</b> para obtener solo el texto</li>
-            <li>Comparte o descarga el archivo <b style={{ color: "#f0f4f8" }}>.txt</b> y súbelo aquí</li>
+            <li>Comparte o descarga el archivo — Android da un <b style={{ color: "#f0f4f8" }}>.txt</b>, iOS da un <b style={{ color: "#f0f4f8" }}>.zip</b> — ambos funcionan aquí</li>
           </ol>
         </div>
       </div>
