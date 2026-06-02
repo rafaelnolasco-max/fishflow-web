@@ -330,7 +330,10 @@ export default function SparcSubir() {
       const result = await res.json();
       if (result.success) {
         setStage("done");
-        setStatusMsg(`✅ Listo. ${result.stats.messages_classified} mensajes clasificados — ${result.stats.urgent} urgentes, ${result.stats.medium} medios, ${result.stats.low} bajos.`);
+        const audioInfo = result.stats.audios_found > 0
+          ? ` | 🎙️ ${result.stats.audios_transcribed}/${result.stats.audios_found} audios transcritos${result.stats.whisper_errors?.length > 0 ? ` ⚠️ ${result.stats.whisper_errors[0]}` : ''}`
+          : '';
+        setStatusMsg(`✅ Listo. ${result.stats.messages_classified} mensajes clasificados — ${result.stats.urgent} urgentes, ${result.stats.medium} medios, ${result.stats.low} bajos.${audioInfo}`);
       } else {
         setStage("error");
         setStatusMsg("Error en la clasificación: " + result.error);
