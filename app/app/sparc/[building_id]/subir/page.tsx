@@ -48,7 +48,13 @@ function NavBar({ buildingName, buildingId, active }: { buildingName: string; bu
   );
 }
 
-type Stage = "idle" | "file_loaded" | "uploading" | "processing" | "done" | "error";
+type Stage = "idle" | "file_loaded" | "uploading" | "uploading_audio" | "processing" | "done" | "error";
+
+interface AudioFile {
+  filename: string;       // e.g. "PTT-20240115-WA0003.opus"
+  blob: Blob;
+  storagePath?: string;   // se llena después de subir a Storage
+}
 
 const PERIOD_OPTIONS = [
   { label: "Hoy",          days: 1  },
@@ -129,6 +135,7 @@ export default function SparcSubir() {
   const [uploadId,    setUploadId]    = useState("");
   const [selectedDays, setSelectedDays] = useState<number>(7);
   const [filteredPreview, setFilteredPreview] = useState({ lines: 0 });
+  const [audioFiles, setAudioFiles] = useState<AudioFile[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -150,6 +157,38 @@ export default function SparcSubir() {
     setFilteredPreview({ lines: count });
   }, [fileText, selectedDays]);
 
+  // Filtra audios por fecha del filename y limita a MAX_AUDIOS para evitar timeout.
+  // Soporta dos formatos de WhatsApp:
+  //   PTT-YYYYMMDD-WAxxxx.opus   (Android / iOS clásico)
+  //   AUDIO-YYYY-MM-DD-HH-MM-SS.opus  (iOS moderno)
+  const MAX_AUDIOS_PER_UPLOAD = 15;
+
+  function filterAudiosByDays(audios: AudioFile[], days: number): AudioFile[] {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    cutoff.setHours(0, 0, 0, 0);
+
+    const filtered = audios.filter(audio => {
+      // Formato PTT/AUD: PTT-20260512-WA0024.opus → 20260512
+      const compact = audio.filename.match(/[-_](\d{4})(\d{2})(\d{2})[-_]/);
+      if (compact) {
+        const fileDate = new Date(`${compact[1]}-${compact[2]}-${compact[3]}`);
+        return fileDate >= cutoff;
+      }
+      // Formato AUDIO: AUDIO-2026-05-12-10-51-43.opus → 2026-05-12
+      const expanded = audio.filename.match(/[-_](\d{4})-(\d{2})-(\d{2})[-_]/);
+      if (expanded) {
+        const fileDate = new Date(`${expanded[1]}-${expanded[2]}-${expanded[3]}`);
+        return fileDate >= cutoff;
+      }
+      // Nombre no estándar → incluir por seguridad
+      return true;
+    });
+
+    // Cap: máximo MAX_AUDIOS_PER_UPLOAD (los más recientes del período)
+    return filtered.slice(-MAX_AUDIOS_PER_UPLOAD);
+  }
+
   function parsePreview(text: string) {
     // Detectar formato Android [M/D/YY, o iOS DD/MM/YYYY,
     const androidRegex = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),/gm;
@@ -160,19 +199,34 @@ export default function SparcSubir() {
     return { lines: matches.length, firstDate: matches[0]?.[1] ?? "", lastDate: matches[matches.length - 1]?.[1] ?? "" };
   }
 
-  async function extractTextFromFile(file: File): Promise<{ text: string; name: string }> {
+  async function extractTextFromFile(file: File): Promise<{ text: string; name: string; audios: AudioFile[] }> {
     if (file.name.endsWith(".zip")) {
       const zip = await JSZip.loadAsync(file);
-      const chatFile = Object.values(zip.files).find(f => !f.dir && f.name.endsWith(".txt"));
+      const entries = Object.values(zip.files).filter(f => !f.dir);
+
+      // Extraer .txt del chat
+      const chatFile = entries.find(f => f.name.endsWith(".txt"));
       if (!chatFile) throw new Error("No se encontró archivo .txt dentro del ZIP. Asegúrate de exportar el chat desde WhatsApp.");
       const text = await chatFile.async("string");
-      // Usar solo el nombre del .txt interno (sin carpetas del ZIP)
       const innerName = chatFile.name.split("/").pop() ?? chatFile.name;
-      return { text, name: innerName };
+
+      // Extraer audios .opus / .ogg / .m4a
+      const AUDIO_EXTS = [".opus", ".ogg", ".m4a", ".mp3", ".aac"];
+      const audios: AudioFile[] = [];
+      for (const entry of entries) {
+        const ext = entry.name.toLowerCase().slice(entry.name.lastIndexOf("."));
+        if (AUDIO_EXTS.includes(ext)) {
+          const blob = await entry.async("blob");
+          const filename = entry.name.split("/").pop() ?? entry.name;
+          audios.push({ filename, blob });
+        }
+      }
+
+      return { text, name: innerName, audios };
     } else {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = e => resolve({ text: e.target?.result as string, name: file.name });
+        reader.onload = e => resolve({ text: e.target?.result as string, name: file.name, audios: [] });
         reader.onerror = () => reject(new Error("Error leyendo el archivo"));
         reader.readAsText(file, "utf-8");
       });
@@ -186,10 +240,11 @@ export default function SparcSubir() {
       return;
     }
     extractTextFromFile(file)
-      .then(({ text, name }) => {
+      .then(({ text, name, audios }) => {
         setFileText(text);
         setFileName(name);
         setPreview(parsePreview(text));
+        setAudioFiles(audios);
         setStage("file_loaded");
       })
       .catch(err => {
@@ -237,6 +292,24 @@ export default function SparcSubir() {
     }
 
     setUploadId(upload.id);
+
+    // 2b. Subir audios a Storage (solo los del período seleccionado)
+    const audiosDelPeriodo = filterAudiosByDays(audioFiles, selectedDays);
+    const uploadedAudios: { filename: string; storage_path: string }[] = [];
+    if (audiosDelPeriodo.length > 0) {
+      setStage("uploading_audio");
+      setStatusMsg(`Subiendo ${audiosDelPeriodo.length} audio${audiosDelPeriodo.length > 1 ? "s" : ""} del período…`);
+      for (const audio of audiosDelPeriodo) {
+        const path = `${upload.id}/${audio.filename}`;
+        const { error: storageErr } = await supabase.storage
+          .from("sparc-audio")
+          .upload(path, audio.blob, { upsert: true });
+        if (!storageErr) {
+          uploadedAudios.push({ filename: audio.filename, storage_path: path });
+        }
+      }
+    }
+
     setStage("processing");
     setStatusMsg("Clasificando mensajes con IA… esto puede tomar 30-60 segundos.");
 
@@ -250,14 +323,17 @@ export default function SparcSubir() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-          body: JSON.stringify({ upload_id: upload.id }),
+          body: JSON.stringify({ upload_id: upload.id, audio_files: uploadedAudios }),
           signal: AbortSignal.timeout(90_000),
         }
       );
       const result = await res.json();
       if (result.success) {
         setStage("done");
-        setStatusMsg(`✅ Listo. ${result.stats.messages_classified} mensajes clasificados — ${result.stats.urgent} urgentes, ${result.stats.medium} medios, ${result.stats.low} bajos.`);
+        const audioInfo = result.stats.audios_found > 0
+          ? ` | 🎙️ ${result.stats.audios_transcribed}/${result.stats.audios_found} audios transcritos${result.stats.whisper_errors?.length > 0 ? ` ⚠️ ${result.stats.whisper_errors[0]}` : ''}`
+          : '';
+        setStatusMsg(`✅ Listo. ${result.stats.messages_classified} mensajes clasificados — ${result.stats.urgent} urgentes, ${result.stats.medium} medios, ${result.stats.low} bajos.${audioInfo}`);
       } else {
         setStage("error");
         setStatusMsg("Error en la clasificación: " + result.error);
@@ -277,7 +353,7 @@ export default function SparcSubir() {
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "48px 24px" }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Subir chat de WhatsApp</h1>
         <p style={{ color: "#5a7a9a", marginBottom: 36, fontSize: 14 }}>
-          Exporta el chat del grupo de vecinos desde WhatsApp → ⋮ → Más → Exportar chat → Sin archivos. Sube el <b style={{ color: "#f0f4f8" }}>.txt</b> (Android) o el <b style={{ color: "#f0f4f8" }}>.zip</b> (iOS) directamente aquí.
+          Exporta el chat desde WhatsApp → ⋮ → Más → Exportar chat → <b style={{ color: "#44cc88" }}>Con archivos</b> (incluye audios). Sube el <b style={{ color: "#f0f4f8" }}>.txt</b> (Android) o <b style={{ color: "#f0f4f8" }}>.zip</b> (iOS) aquí.
         </p>
 
         {/* Drop zone */}
@@ -313,6 +389,28 @@ export default function SparcSubir() {
         {stage === "file_loaded" && (
           <div style={{ background: "#112233", border: "1px solid #1e3048", borderRadius: 12, padding: "24px" }}>
             <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 16 }}>📄 {fileName}</div>
+
+            {/* Badge de audios encontrados */}
+            {audioFiles.length > 0 && (() => {
+              const audiosEnPeriodo = filterAudiosByDays(audioFiles, selectedDays);
+              return (
+                <div style={{ background: "#0d2a1a", border: "1px solid #2a6644", borderRadius: 8, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+                  <span>🎙️</span>
+                  {audiosEnPeriodo.length > 0 ? (
+                    <span style={{ color: "#44cc88" }}>
+                      <b>{audiosEnPeriodo.length} audio{audiosEnPeriodo.length > 1 ? "s" : ""}</b> en este período — se transcribirán automáticamente
+                      {audioFiles.length > audiosEnPeriodo.length && (
+                        <span style={{ color: "#5a7a9a" }}> ({audioFiles.length} totales en el ZIP)</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span style={{ color: "#5a7a9a" }}>
+                      {audioFiles.length} audios en el ZIP pero ninguno en este período — amplía el rango para transcribirlos
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Stats del archivo completo */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 24 }}>
@@ -368,7 +466,7 @@ export default function SparcSubir() {
                 style={{ flex: 1, background: filteredPreview.lines > 0 ? FF_CYAN : "#1e3048", border: "none", borderRadius: 10, padding: "14px", color: filteredPreview.lines > 0 ? "#0D1B2A" : "#5a7a9a", fontWeight: 800, fontSize: 15, cursor: filteredPreview.lines > 0 ? "pointer" : "not-allowed" }}>
                 Procesar con IA →
               </button>
-              <button onClick={() => { setStage("idle"); setFileText(""); setFileName(""); }}
+              <button onClick={() => { setStage("idle"); setFileText(""); setFileName(""); setAudioFiles([]); }}
                 style={{ background: "#1e3048", border: "none", borderRadius: 10, padding: "14px 20px", color: "#5a7a9a", cursor: "pointer", fontSize: 14 }}>
                 Cancelar
               </button>
@@ -377,10 +475,14 @@ export default function SparcSubir() {
         )}
 
         {/* Processing */}
-        {(stage === "uploading" || stage === "processing") && (
+        {(stage === "uploading" || stage === "uploading_audio" || stage === "processing") && (
           <div style={{ background: "#112233", border: "1px solid #1e3048", borderRadius: 12, padding: "48px 24px", textAlign: "center" }}>
-            <div style={{ fontSize: 40, marginBottom: 16, animation: "spin 1.5s linear infinite" }}>⚙️</div>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>{stage === "uploading" ? "Guardando…" : "Procesando con IA…"}</div>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>
+              {stage === "uploading_audio" ? "🎙️" : "⚙️"}
+            </div>
+            <div style={{ fontWeight: 600, marginBottom: 8 }}>
+              {stage === "uploading" ? "Guardando…" : stage === "uploading_audio" ? "Subiendo audios…" : "Procesando con IA…"}
+            </div>
             <div style={{ color: "#5a7a9a", fontSize: 14 }}>{statusMsg}</div>
           </div>
         )}
@@ -400,12 +502,13 @@ export default function SparcSubir() {
 
         {/* Instrucciones */}
         <div style={{ marginTop: 40, background: "#112233", borderRadius: 12, padding: "20px 24px" }}>
-          <div style={{ fontWeight: 600, marginBottom: 12, fontSize: 14 }}>¿Cómo exportar el chat desde WhatsApp?</div>
+          <div style={{ fontWeight: 600, marginBottom: 4, fontSize: 14 }}>¿Cómo exportar el chat desde WhatsApp?</div>
+          <div style={{ color: "#44cc88", fontSize: 12, marginBottom: 12 }}>🎙️ Exporta <b>Con archivos</b> para incluir audios — la IA los transcribe automáticamente</div>
           <ol style={{ color: "#5a7a9a", fontSize: 13, lineHeight: 2, margin: 0, paddingLeft: 18 }}>
             <li>Abre el grupo de vecinos en WhatsApp</li>
             <li>Toca los ⋮ tres puntos (Android) o el nombre del grupo (iOS)</li>
             <li>Selecciona <b style={{ color: "#f0f4f8" }}>Más → Exportar chat</b></li>
-            <li>Elige <b style={{ color: "#f0f4f8" }}>Sin archivos</b> para obtener solo el texto</li>
+            <li>Elige <b style={{ color: "#44cc88" }}>Con archivos</b> para incluir audios <span style={{ color: "#5a7a9a" }}>(recomendado)</span> — o <b style={{ color: "#5a7a9a" }}>Sin archivos</b> si solo quieres el texto</li>
             <li>Comparte o descarga el archivo — Android da un <b style={{ color: "#f0f4f8" }}>.txt</b>, iOS da un <b style={{ color: "#f0f4f8" }}>.zip</b> — ambos funcionan aquí</li>
           </ol>
         </div>
