@@ -203,10 +203,9 @@ async function transcribeAudio(
   audioBuffer: ArrayBuffer,
   filename: string,
   openaiKey: string
-): Promise<string> {
+): Promise<{ transcript: string; error?: string }> {
   const formData = new FormData()
-  const blob = new Blob([audioBuffer], { type: 'audio/ogg' })
-  formData.append('file', blob, filename)
+  formData.append('file', new Blob([audioBuffer], { type: 'audio/ogg' }), filename)
   formData.append('model', 'whisper-1')
   formData.append('language', 'es')
 
@@ -217,25 +216,26 @@ async function transcribeAudio(
   })
 
   if (!response.ok) {
-    const err = await response.text()
-    console.error(`Whisper error para ${filename}: ${response.status} — ${err}`)
-    return '' // fallar silenciosamente — mejor procesar sin transcript que abortar
+    const errText = await response.text()
+    const msg = `HTTP ${response.status}: ${errText.substring(0, 300)}`
+    console.error(`Whisper error ${filename}: ${msg}`)
+    return { transcript: '', error: msg }
   }
 
-  const data = await response.json()
-  return data.text?.trim() ?? ''
+  const text = (await response.json()).text?.trim() ?? ''
+  return { transcript: text }
 }
 
-// Construye un mapa filename → transcript descargando y transcribiendo cada audio de Storage.
-// Si OPENAI_API_KEY no está configurada, devuelve mapa vacío (degradación elegante).
+// Construye un mapa filename → transcript. Retorna también los errores para diagnóstico.
 async function buildAudioTranscripts(
   audioFiles: { filename: string; storage_path: string }[],
   supabaseClient: ReturnType<typeof createClient>,
   openaiKey: string | undefined
-): Promise<Map<string, string>> {
+): Promise<{ map: Map<string, string>; errors: string[] }> {
   const map = new Map<string, string>()
+  const errors: string[] = []
 
-  if (!openaiKey || audioFiles.length === 0) return map
+  if (!openaiKey || audioFiles.length === 0) return { map, errors }
 
   for (const audio of audioFiles) {
     try {
@@ -244,18 +244,21 @@ async function buildAudioTranscripts(
         .download(audio.storage_path)
 
       if (error || !data) {
-        console.error(`Error descargando audio ${audio.filename}:`, error)
-        continue
+        const msg = `Storage error ${audio.filename}: ${error?.message ?? 'no data'}`
+        console.error(msg); errors.push(msg); continue
       }
 
-      const buffer = await data.arrayBuffer()
-      const transcript = await transcribeAudio(buffer, audio.filename, openaiKey)
+      const { transcript, error: whisperErr } = await transcribeAudio(await data.arrayBuffer(), audio.filename, openaiKey)
+      if (whisperErr) errors.push(`${audio.filename}: ${whisperErr}`)
       if (transcript) {
         map.set(audio.filename, transcript)
         console.log(`Transcrito ${audio.filename}: "${transcript.substring(0, 60)}…"`)
+      } else if (!whisperErr) {
+        errors.push(`${audio.filename}: Whisper devolvió texto vacío`)
       }
-    } catch (e) {
-      console.error(`Error procesando audio ${audio.filename}:`, e)
+    } catch (e: any) {
+      const msg = `Excepción ${audio.filename}: ${e?.message ?? String(e)}`
+      console.error(msg); errors.push(msg)
     }
   }
 
@@ -514,11 +517,15 @@ serve(async (req) => {
     // 2. Transcribir audios (si los hay y hay key de OpenAI)
     let audioTranscripts = new Map<string, string>()
     let audiosTranscribed = 0
+    let whisperErrors: string[] = []
     if (audio_files.length > 0) {
       console.log(`Transcribiendo ${audio_files.length} audios con Whisper…`)
-      audioTranscripts = await buildAudioTranscripts(audio_files, supabase, openaiKey)
+      const result = await buildAudioTranscripts(audio_files, supabase, openaiKey)
+      audioTranscripts = result.map
+      whisperErrors = result.errors
       audiosTranscribed = audioTranscripts.size
-      console.log(`Transcritos: ${audiosTranscribed}/${audio_files.length}`)
+      console.log(`Transcritos: ${audiosTranscribed}/${audio_files.length}, errores: ${whisperErrors.length}`)
+      if (whisperErrors.length > 0) console.error('Whisper errors:', JSON.stringify(whisperErrors))
     }
 
     // 3. Inyectar transcripts en el raw_text antes de parsear
@@ -654,6 +661,7 @@ serve(async (req) => {
           audios_found: audio_files.length,
           audios_transcribed: audiosTranscribed,
           transcripts_injected: transcriptsInjected,
+          whisper_errors: whisperErrors,
         },
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
