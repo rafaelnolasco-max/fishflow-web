@@ -1,9 +1,10 @@
 // Supabase Edge Function — process-chat-upload
-// Parsea el .txt exportado de WhatsApp, clasifica mensajes con Claude API,
-// inserta en sparc_chat_messages y genera sparc_daily_summaries.
+// Parsea el .txt exportado de WhatsApp, transcribe audios con Whisper,
+// clasifica mensajes con Claude API, inserta en sparc_chat_messages
+// y genera sparc_daily_summaries.
 //
 // Invocación: POST /functions/v1/process-chat-upload
-// Body: { upload_id: string }
+// Body: { upload_id: string, audio_files?: { filename: string, storage_path: string }[] }
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -107,8 +108,10 @@ function parseDate(dateStr: string, timeStr: string, isIOS = false): Date | null
       if (period.toUpperCase() === 'AM' && hour === 12) hour = 0
       cleanTime = `${String(hour).padStart(2,'0')}:${m}:${s}`
     } else {
-      // Ya está en 24h — asegurar formato HH:MM:SS
-      cleanTime = cleanTime.replace(/(\d{1,2}:\d{2})$/, '$1:00')
+      // Ya está en 24h — agregar segundos solo si no los tiene
+      if (!/\d{1,2}:\d{2}:\d{2}$/.test(cleanTime)) {
+        cleanTime = cleanTime + ':00'
+      }
     }
 
     const iso = `${fullYear}-${month.padStart(2,'0')}-${day.padStart(2,'0')}T${cleanTime}`
@@ -188,6 +191,118 @@ function parseWhatsAppChat(rawText: string): ParsedMessage[] {
   }
 
   return messages
+}
+
+// ─── Transcripción de audios con Whisper ─────────────────────────────────────
+// Recibe un archivo de audio como ArrayBuffer y devuelve el transcript en texto.
+// Modelo: whisper-1 (~$0.006 USD/min). Acepta .opus, .ogg, .m4a directamente.
+
+const WHISPER_API_URL = 'https://api.openai.com/v1/audio/transcriptions'
+
+async function transcribeAudio(
+  audioBuffer: ArrayBuffer,
+  filename: string,
+  openaiKey: string
+): Promise<string> {
+  const formData = new FormData()
+  const blob = new Blob([audioBuffer], { type: 'audio/ogg' })
+  formData.append('file', blob, filename)
+  formData.append('model', 'whisper-1')
+  formData.append('language', 'es')
+
+  const response = await fetch(WHISPER_API_URL, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${openaiKey}` },
+    body: formData,
+  })
+
+  if (!response.ok) {
+    const err = await response.text()
+    console.error(`Whisper error para ${filename}: ${response.status} — ${err}`)
+    return '' // fallar silenciosamente — mejor procesar sin transcript que abortar
+  }
+
+  const data = await response.json()
+  return data.text?.trim() ?? ''
+}
+
+// Construye un mapa filename → transcript descargando y transcribiendo cada audio de Storage.
+// Si OPENAI_API_KEY no está configurada, devuelve mapa vacío (degradación elegante).
+async function buildAudioTranscripts(
+  audioFiles: { filename: string; storage_path: string }[],
+  supabaseClient: ReturnType<typeof createClient>,
+  openaiKey: string | undefined
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>()
+
+  if (!openaiKey || audioFiles.length === 0) return map
+
+  for (const audio of audioFiles) {
+    try {
+      const { data, error } = await supabaseClient.storage
+        .from('sparc-audio')
+        .download(audio.storage_path)
+
+      if (error || !data) {
+        console.error(`Error descargando audio ${audio.filename}:`, error)
+        continue
+      }
+
+      const buffer = await data.arrayBuffer()
+      const transcript = await transcribeAudio(buffer, audio.filename, openaiKey)
+      if (transcript) {
+        map.set(audio.filename, transcript)
+        console.log(`Transcrito ${audio.filename}: "${transcript.substring(0, 60)}…"`)
+      }
+    } catch (e) {
+      console.error(`Error procesando audio ${audio.filename}:`, e)
+    }
+  }
+
+  return map
+}
+
+// Extrae el filename de un nombre de archivo de WhatsApp.
+// WhatsApp nombra audios como: PTT-20240115-WA0003.opus
+// En el chat aparecen como: PTT-20240115-WA0003.opus (omitido) o similar
+function extractAudioFilename(messageText: string): string | null {
+  // Buscar nombre de archivo de audio en el mensaje
+  const match = messageText.match(/(PTT-[\w-]+\.(?:opus|ogg|m4a|mp3|aac))/i)
+  return match ? match[1] : null
+}
+
+// Inyecta los transcripts en el raw_text del chat antes de parsear.
+// Reemplaza líneas con "<audio omitido>" o "PTT-xxx.opus (omitido)" por el transcript.
+function injectTranscripts(
+  rawText: string,
+  transcripts: Map<string, string>
+): { text: string; injected: number } {
+  if (transcripts.size === 0) return { text: rawText, injected: 0 }
+
+  const lines = rawText.split('\n')
+  let injected = 0
+
+  const result = lines.map(line => {
+    // Detectar líneas que contienen referencia a audio omitido
+    const isAudioLine = /audio omitido|audio omitted|\.(opus|ogg|m4a)\s*(omitido|omitted)?/i.test(line)
+    if (!isAudioLine) return line
+
+    // Intentar extraer filename para buscar transcript exacto
+    const filename = extractAudioFilename(line)
+    const transcript = filename ? transcripts.get(filename) : undefined
+
+    if (transcript) {
+      // Reemplazar el marcador de audio por el transcript, manteniendo el prefijo de fecha/sender
+      const audioMarkerIdx = line.search(/\.(opus|ogg|m4a)|audio omitido|audio omitted/i)
+      const prefix = audioMarkerIdx > 0 ? line.substring(0, audioMarkerIdx) : line
+      injected++
+      return `${prefix.trimEnd()} [Audio transcrito]: ${transcript}`
+    }
+
+    return line
+  })
+
+  return { text: result.join('\n'), injected }
 }
 
 // ─── Clasificador con Claude API ─────────────────────────────────────────────
@@ -360,7 +475,7 @@ serve(async (req) => {
   }
 
   try {
-    const { upload_id } = await req.json()
+    const { upload_id, audio_files = [] } = await req.json()
     if (!upload_id) throw new Error('upload_id requerido')
 
     const supabase = createClient(
@@ -370,6 +485,9 @@ serve(async (req) => {
 
     const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')!
     if (!anthropicKey) throw new Error('ANTHROPIC_API_KEY no configurada')
+
+    // OPENAI_API_KEY es opcional — si no está, los audios se saltan sin abortar
+    const openaiKey = Deno.env.get('OPENAI_API_KEY')
 
     // 1. Obtener el upload
     const { data: upload, error: uploadErr } = await supabase
@@ -381,9 +499,25 @@ serve(async (req) => {
     if (uploadErr || !upload) throw new Error('Upload no encontrado')
     if (upload.processed) throw new Error('Este upload ya fue procesado')
 
-    // 2. Parsear el chat
-    const parsed = parseWhatsAppChat(upload.raw_text)
-    if (parsed.length === 0) throw new Error('No se encontraron mensajes válidos')
+    // 2. Transcribir audios (si los hay y hay key de OpenAI)
+    let audioTranscripts = new Map<string, string>()
+    let audiosTranscribed = 0
+    if (audio_files.length > 0) {
+      console.log(`Transcribiendo ${audio_files.length} audios con Whisper…`)
+      audioTranscripts = await buildAudioTranscripts(audio_files, supabase, openaiKey)
+      audiosTranscribed = audioTranscripts.size
+      console.log(`Transcritos: ${audiosTranscribed}/${audio_files.length}`)
+    }
+
+    // 3. Inyectar transcripts en el raw_text antes de parsear
+    const { text: enrichedText, injected: transcriptsInjected } = injectTranscripts(
+      upload.raw_text,
+      audioTranscripts
+    )
+
+    // 4. Parsear el chat (con transcripts ya inyectados)
+    const parsed = parseWhatsAppChat(enrichedText)
+    if (parsed.length === 0) throw new Error('No se encontraron mensajes válidos en el chat')
 
     // Calcular rango de fechas
     const dates = parsed.map(m => m.sent_at).sort((a, b) => a.getTime() - b.getTime())
@@ -479,6 +613,20 @@ serve(async (req) => {
 
     if (updateErr) throw new Error(`Error actualizando upload: ${updateErr.message}`)
 
+    // 7. Limpiar audios de Storage (no los necesitamos después de transcribir)
+    if (audio_files.length > 0) {
+      const paths = audio_files.map((a: { storage_path: string }) => a.storage_path)
+      const { error: storageErr } = await supabase.storage
+        .from('sparc-audio')
+        .remove(paths)
+      if (storageErr) {
+        console.error('Error limpiando audios de Storage:', storageErr.message)
+        // No lanzar error — la limpieza es best-effort
+      } else {
+        console.log(`Eliminados ${paths.length} audios de Storage`)
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -491,6 +639,9 @@ serve(async (req) => {
           urgent: classified.filter(m => m.priority === 'urgent').length,
           medium: classified.filter(m => m.priority === 'medium').length,
           low: classified.filter(m => m.priority === 'low').length,
+          audios_found: audio_files.length,
+          audios_transcribed: audiosTranscribed,
+          transcripts_injected: transcriptsInjected,
         },
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
