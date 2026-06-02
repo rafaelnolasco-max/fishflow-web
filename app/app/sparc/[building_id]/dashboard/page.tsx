@@ -132,9 +132,13 @@ export default function SparcDashboard() {
         )}
 
         {!lastUpload && (
-          <div style={{ background: "#112233", border: "1px dashed #1e3048", borderRadius: 10, padding: "32px", marginBottom: 28, textAlign: "center", color: "#5a7a9a" }}>
+          <div
+            onDragOver={e => e.preventDefault()}
+            onDrop={e => { e.preventDefault(); router.push(`/app/sparc/${buildingId}/subir`); }}
+            style={{ background: "#112233", border: "1px dashed #1e3048", borderRadius: 10, padding: "32px", marginBottom: 28, textAlign: "center", color: "#5a7a9a" }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>📂</div>
-            <div style={{ marginBottom: 12 }}>No hay chats procesados aún.</div>
+            <div style={{ marginBottom: 4 }}>No hay chats procesados aún.</div>
+            <div style={{ fontSize: 12, marginBottom: 16, color: "#3a5a7a" }}>Arrastra tu ZIP o TXT aquí, o haz clic en el botón</div>
             <button onClick={() => router.push(`/app/sparc/${buildingId}/subir`)}
               style={{ background: FF_CYAN, border: "none", borderRadius: 8, padding: "10px 24px", color: "#0D1B2A", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>
               Subir primer chat
