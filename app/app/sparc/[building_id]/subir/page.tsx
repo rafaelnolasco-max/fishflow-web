@@ -157,20 +157,36 @@ export default function SparcSubir() {
     setFilteredPreview({ lines: count });
   }, [fileText, selectedDays]);
 
-  // Filtra audios por fecha del filename de WhatsApp.
-  // WhatsApp nombra los audios: PTT-YYYYMMDD-WAxxxx.opus o AUD-YYYYMMDD-WAxxxx.opus
-  // Si no puede parsear la fecha, incluye el audio por default (no descartar).
+  // Filtra audios por fecha del filename y limita a MAX_AUDIOS para evitar timeout.
+  // Soporta dos formatos de WhatsApp:
+  //   PTT-YYYYMMDD-WAxxxx.opus   (Android / iOS clásico)
+  //   AUDIO-YYYY-MM-DD-HH-MM-SS.opus  (iOS moderno)
+  const MAX_AUDIOS_PER_UPLOAD = 15;
+
   function filterAudiosByDays(audios: AudioFile[], days: number): AudioFile[] {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
     cutoff.setHours(0, 0, 0, 0);
 
-    return audios.filter(audio => {
-      const match = audio.filename.match(/[-_](\d{4})(\d{2})(\d{2})[-_]/);
-      if (!match) return true; // nombre no estándar → incluir por seguridad
-      const fileDate = new Date(`${match[1]}-${match[2]}-${match[3]}`);
-      return fileDate >= cutoff;
+    const filtered = audios.filter(audio => {
+      // Formato PTT/AUD: PTT-20260512-WA0024.opus → 20260512
+      const compact = audio.filename.match(/[-_](\d{4})(\d{2})(\d{2})[-_]/);
+      if (compact) {
+        const fileDate = new Date(`${compact[1]}-${compact[2]}-${compact[3]}`);
+        return fileDate >= cutoff;
+      }
+      // Formato AUDIO: AUDIO-2026-05-12-10-51-43.opus → 2026-05-12
+      const expanded = audio.filename.match(/[-_](\d{4})-(\d{2})-(\d{2})[-_]/);
+      if (expanded) {
+        const fileDate = new Date(`${expanded[1]}-${expanded[2]}-${expanded[3]}`);
+        return fileDate >= cutoff;
+      }
+      // Nombre no estándar → incluir por seguridad
+      return true;
     });
+
+    // Cap: máximo MAX_AUDIOS_PER_UPLOAD (los más recientes del período)
+    return filtered.slice(-MAX_AUDIOS_PER_UPLOAD);
   }
 
   function parsePreview(text: string) {
