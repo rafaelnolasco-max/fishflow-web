@@ -317,7 +317,7 @@ export default function SparcSubir() {
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "48px 24px" }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Subir chat de WhatsApp</h1>
         <p style={{ color: "#5a7a9a", marginBottom: 36, fontSize: 14 }}>
-          Exporta el chat del grupo de vecinos desde WhatsApp → ⋮ → Más → Exportar chat → Sin archivos. Sube el <b style={{ color: "#f0f4f8" }}>.txt</b> (Android) o el <b style={{ color: "#f0f4f8" }}>.zip</b> (iOS) directamente aquí.
+          Exporta el chat desde WhatsApp → ⋮ → Más → Exportar chat → <b style={{ color: "#44cc88" }}>Con archivos</b> (incluye audios). Sube el <b style={{ color: "#f0f4f8" }}>.txt</b> (Android) o <b style={{ color: "#f0f4f8" }}>.zip</b> (iOS) aquí.
         </p>
 
         {/* Drop zone */}
@@ -452,12 +452,13 @@ export default function SparcSubir() {
 
         {/* Instrucciones */}
         <div style={{ marginTop: 40, background: "#112233", borderRadius: 12, padding: "20px 24px" }}>
-          <div style={{ fontWeight: 600, marginBottom: 12, fontSize: 14 }}>¿Cómo exportar el chat desde WhatsApp?</div>
+          <div style={{ fontWeight: 600, marginBottom: 4, fontSize: 14 }}>¿Cómo exportar el chat desde WhatsApp?</div>
+          <div style={{ color: "#44cc88", fontSize: 12, marginBottom: 12 }}>🎙️ Exporta <b>Con archivos</b> para incluir audios — la IA los transcribe automáticamente</div>
           <ol style={{ color: "#5a7a9a", fontSize: 13, lineHeight: 2, margin: 0, paddingLeft: 18 }}>
             <li>Abre el grupo de vecinos en WhatsApp</li>
             <li>Toca los ⋮ tres puntos (Android) o el nombre del grupo (iOS)</li>
             <li>Selecciona <b style={{ color: "#f0f4f8" }}>Más → Exportar chat</b></li>
-            <li>Elige <b style={{ color: "#f0f4f8" }}>Sin archivos</b> para obtener solo el texto</li>
+            <li>Elige <b style={{ color: "#44cc88" }}>Con archivos</b> para incluir audios <span style={{ color: "#5a7a9a" }}>(recomendado)</span> — o <b style={{ color: "#5a7a9a" }}>Sin archivos</b> si solo quieres el texto</li>
             <li>Comparte o descarga el archivo — Android da un <b style={{ color: "#f0f4f8" }}>.txt</b>, iOS da un <b style={{ color: "#f0f4f8" }}>.zip</b> — ambos funcionan aquí</li>
           </ol>
         </div>
