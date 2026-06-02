@@ -262,47 +262,59 @@ async function buildAudioTranscripts(
   return map
 }
 
-// Extrae el filename de un nombre de archivo de WhatsApp.
-// WhatsApp nombra audios como: PTT-20240115-WA0003.opus
-// En el chat aparecen como: PTT-20240115-WA0003.opus (omitido) o similar
-function extractAudioFilename(messageText: string): string | null {
-  // Buscar nombre de archivo de audio en el mensaje
-  const match = messageText.match(/(PTT-[\w-]+\.(?:opus|ogg|m4a|mp3|aac))/i)
-  return match ? match[1] : null
-}
-
-// Inyecta los transcripts en el raw_text del chat antes de parsear.
-// Reemplaza líneas con "<audio omitido>" o "PTT-xxx.opus (omitido)" por el transcript.
-function injectTranscripts(
-  rawText: string,
-  transcripts: Map<string, string>
-): { text: string; injected: number } {
+// Inyecta transcripts usando dos estrategias:
+// 1. Match exacto por filename (PTT-xxx.opus archivo adjunto) — Android y algunos iOS
+// 2. Match temporal por orden cronológico (<Multimedia omitido>) — iOS sin filename
+function injectTranscripts(rawText: string, transcripts: Map<string, string>): { text: string; injected: number } {
   if (transcripts.size === 0) return { text: rawText, injected: 0 }
 
   const lines = rawText.split('\n')
   let injected = 0
+  const usedFilenames = new Set<string>()
 
-  const result = lines.map(line => {
-    // Detectar líneas que contienen referencia a audio omitido
-    const isAudioLine = /audio omitido|audio omitted|\.(opus|ogg|m4a)\s*(omitido|omitted)?/i.test(line)
-    if (!isAudioLine) return line
-
-    // Intentar extraer filename para buscar transcript exacto
-    const filename = extractAudioFilename(line)
-    const transcript = filename ? transcripts.get(filename) : undefined
-
-    if (transcript) {
-      // Reemplazar el marcador de audio por el transcript, manteniendo el prefijo de fecha/sender
-      const audioMarkerIdx = line.search(/\.(opus|ogg|m4a)|audio omitido|audio omitted/i)
-      const prefix = audioMarkerIdx > 0 ? line.substring(0, audioMarkerIdx) : line
-      injected++
-      return `${prefix.trimEnd()} [Audio transcrito]: ${transcript}`
+  // ── Paso 1: match exacto por filename ────────────────────────────────────────
+  // Cubre: PTT-20260512-WA0024.opus (archivo adjunto) — Android / algunos iOS
+  const pass1 = lines.map(line => {
+    const fm = line.match(/([A-Za-z]+-\d{8}-(?:WA)?\d+\.(?:opus|ogg|m4a|mp3|aac))/i)
+    if (fm) {
+      const transcript = transcripts.get(fm[1])
+      if (transcript) {
+        usedFilenames.add(fm[1])
+        const idx = line.indexOf(fm[1])
+        const prefix = line.substring(0, idx)
+        injected++
+        return `${prefix.trimEnd()} [Audio transcrito]: ${transcript}`
+      }
     }
-
     return line
   })
 
-  return { text: result.join('\n'), injected }
+  // ── Paso 2: match temporal para <Multimedia omitido> ─────────────────────────
+  // Cubre: <Multimedia omitido>, <Media omitted> — iOS exportado con archivos
+  // Ordena los transcripts no usados por fecha+secuencia del filename (orden cronológico)
+  const unusedPool = [...transcripts.entries()]
+    .filter(([fn]) => !usedFilenames.has(fn))
+    .map(([fn, tr]) => {
+      const m = fn.match(/[-_](\d{8})[-_](?:WA)?(\d+)\./i)
+      return { fn, tr, date: m ? m[1] : '0', seq: m ? parseInt(m[2]) : 0 }
+    })
+    .sort((a, b) => a.date !== b.date ? a.date.localeCompare(b.date) : a.seq - b.seq)
+
+  let poolIdx = 0
+
+  const pass2 = pass1.map(line => {
+    if (line.includes('[Audio transcrito]')) return line
+    // Detecta <Multimedia omitido>, <Media omitted>, <audio omitido>, audio omitted
+    const isMedia = /<Multimedia omitido>|<Media omitted>|<audio omitido>|audio omitted|audio omitido/i.test(line)
+    if (!isMedia || poolIdx >= unusedPool.length) return line
+    const { tr } = unusedPool[poolIdx++]
+    const markerIdx = line.search(/<[Mm]ultimedia|<[Mm]edia omitted|<[Aa]udio|[Aa]udio omitido|[Aa]udio omitted/i)
+    const prefix = markerIdx > 0 ? line.substring(0, markerIdx) : line + ' '
+    injected++
+    return `${prefix.trimEnd()} [Audio transcrito]: ${tr}`
+  })
+
+  return { text: pass2.join('\n'), injected }
 }
 
 // ─── Clasificador con Claude API ─────────────────────────────────────────────
