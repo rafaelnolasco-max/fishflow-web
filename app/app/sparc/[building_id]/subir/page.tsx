@@ -157,6 +157,22 @@ export default function SparcSubir() {
     setFilteredPreview({ lines: count });
   }, [fileText, selectedDays]);
 
+  // Filtra audios por fecha del filename de WhatsApp.
+  // WhatsApp nombra los audios: PTT-YYYYMMDD-WAxxxx.opus o AUD-YYYYMMDD-WAxxxx.opus
+  // Si no puede parsear la fecha, incluye el audio por default (no descartar).
+  function filterAudiosByDays(audios: AudioFile[], days: number): AudioFile[] {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    cutoff.setHours(0, 0, 0, 0);
+
+    return audios.filter(audio => {
+      const match = audio.filename.match(/[-_](\d{4})(\d{2})(\d{2})[-_]/);
+      if (!match) return true; // nombre no estándar → incluir por seguridad
+      const fileDate = new Date(`${match[1]}-${match[2]}-${match[3]}`);
+      return fileDate >= cutoff;
+    });
+  }
+
   function parsePreview(text: string) {
     // Detectar formato Android [M/D/YY, o iOS DD/MM/YYYY,
     const androidRegex = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),/gm;
@@ -261,12 +277,13 @@ export default function SparcSubir() {
 
     setUploadId(upload.id);
 
-    // 2b. Subir audios a Storage (si los hay)
+    // 2b. Subir audios a Storage (solo los del período seleccionado)
+    const audiosDelPeriodo = filterAudiosByDays(audioFiles, selectedDays);
     const uploadedAudios: { filename: string; storage_path: string }[] = [];
-    if (audioFiles.length > 0) {
+    if (audiosDelPeriodo.length > 0) {
       setStage("uploading_audio");
-      setStatusMsg(`Subiendo ${audioFiles.length} audio${audioFiles.length > 1 ? "s" : ""}…`);
-      for (const audio of audioFiles) {
+      setStatusMsg(`Subiendo ${audiosDelPeriodo.length} audio${audiosDelPeriodo.length > 1 ? "s" : ""} del período…`);
+      for (const audio of audiosDelPeriodo) {
         const path = `${upload.id}/${audio.filename}`;
         const { error: storageErr } = await supabase.storage
           .from("sparc-audio")
@@ -355,12 +372,26 @@ export default function SparcSubir() {
             <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 16 }}>📄 {fileName}</div>
 
             {/* Badge de audios encontrados */}
-            {audioFiles.length > 0 && (
-              <div style={{ background: "#0d2a1a", border: "1px solid #2a6644", borderRadius: 8, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-                <span>🎙️</span>
-                <span style={{ color: "#44cc88" }}><b>{audioFiles.length} audio{audioFiles.length > 1 ? "s" : ""}</b> encontrado{audioFiles.length > 1 ? "s" : ""} — se transcribirán automáticamente con IA</span>
-              </div>
-            )}
+            {audioFiles.length > 0 && (() => {
+              const audiosEnPeriodo = filterAudiosByDays(audioFiles, selectedDays);
+              return (
+                <div style={{ background: "#0d2a1a", border: "1px solid #2a6644", borderRadius: 8, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+                  <span>🎙️</span>
+                  {audiosEnPeriodo.length > 0 ? (
+                    <span style={{ color: "#44cc88" }}>
+                      <b>{audiosEnPeriodo.length} audio{audiosEnPeriodo.length > 1 ? "s" : ""}</b> en este período — se transcribirán automáticamente
+                      {audioFiles.length > audiosEnPeriodo.length && (
+                        <span style={{ color: "#5a7a9a" }}> ({audioFiles.length} totales en el ZIP)</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span style={{ color: "#5a7a9a" }}>
+                      {audioFiles.length} audios en el ZIP pero ninguno en este período — amplía el rango para transcribirlos
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Stats del archivo completo */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 24 }}>
