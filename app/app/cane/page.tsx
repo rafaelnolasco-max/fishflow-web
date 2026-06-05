@@ -69,7 +69,15 @@ const OUTCOME_COLOR: Record<string, string> = {
 const EMPTY_FORM = {
   patient_name: "", patient_phone: "", doctor_name: "",
   appointment_date: "", appointment_time: "", notes: "",
+  date_day: "", date_month: "", date_year: "",
 };
+
+const MONTHS = [
+  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
+];
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = [CURRENT_YEAR, CURRENT_YEAR + 1, CURRENT_YEAR + 2].map(String);
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 export default function CANEAppointmentsPage() {
@@ -241,10 +249,9 @@ export default function CANEAppointmentsPage() {
             <h2 style={{ fontSize: 15, fontWeight: 700, color: C.text, margin: "0 0 16px" }}>Nueva cita</h2>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               {[
-                { label: "Nombre del paciente *", key: "patient_name",     type: "text", placeholder: "Nombre completo" },
-                { label: "Teléfono * (10 dígitos)",  key: "patient_phone",    type: "tel",  placeholder: "5514831644" },
-                { label: "Doctor / Terapeuta",     key: "doctor_name",      type: "text", placeholder: "Karla Ruiz" },
-                { label: "Fecha *",                key: "appointment_date", type: "date", placeholder: "" },
+                { label: "Nombre del paciente *",   key: "patient_name",  type: "text", placeholder: "Nombre completo" },
+                { label: "Teléfono * (10 dígitos)", key: "patient_phone", type: "tel",  placeholder: "5514831644" },
+                { label: "Doctor / Terapeuta",       key: "doctor_name",   type: "text", placeholder: "Karla Ruiz" },
               ].map(({ label, key, type, placeholder }) => (
                 <div key={key}>
                   <label style={{ fontSize: 12, color: C.muted, display: "block", marginBottom: 4 }}>{label}</label>
@@ -260,6 +267,42 @@ export default function CANEAppointmentsPage() {
                   />
                 </div>
               ))}
+              {/* Fecha — 3 selects para compatibilidad Safari */}
+              <div>
+                <label style={{ fontSize: 12, color: C.muted, display: "block", marginBottom: 4 }}>Fecha *</label>
+                <div style={{ display: "grid", gridTemplateColumns: "2fr 3fr 2fr", gap: 6 }}>
+                  {[
+                    { placeholder: "Día",  key: "date_day",   options: Array.from({length:31},(_,i)=>String(i+1).padStart(2,"0")) },
+                    { placeholder: "Mes",  key: "date_month", options: MONTHS.map((m,i)=>({ value: String(i+1).padStart(2,"0"), label: m })) },
+                    { placeholder: "Año",  key: "date_year",  options: YEARS },
+                  ].map(({ placeholder, key, options }) => (
+                    <select key={key}
+                      value={form[key as keyof typeof form]}
+                      onChange={e => {
+                        const newForm = { ...form, [key]: e.target.value }
+                        // Recalcular appointment_date cuando cambien día/mes/año
+                        const d = key === "date_day"   ? e.target.value : newForm.date_day
+                        const m = key === "date_month" ? e.target.value : newForm.date_month
+                        const y = key === "date_year"  ? e.target.value : newForm.date_year
+                        const dateStr = d && m && y ? `${y}-${m}-${d}` : ""
+                        setForm({ ...newForm, appointment_date: dateStr })
+                      }}
+                      style={{
+                        padding: "8px 6px", border: `1px solid ${C.border}`, borderRadius: 6,
+                        fontSize: 12, color: form[key as keyof typeof form] ? C.text : C.muted,
+                        backgroundColor: C.white, outline: "none", width: "100%",
+                      }}
+                    >
+                      <option value="">{placeholder}</option>
+                      {options.map(o =>
+                        typeof o === "string"
+                          ? <option key={o} value={o}>{o}</option>
+                          : <option key={o.value} value={o.value}>{o.label}</option>
+                      )}
+                    </select>
+                  ))}
+                </div>
+              </div>
               {/* Hora — select para compatibilidad Safari */}
               <div>
                 <label style={{ fontSize: 12, color: C.muted, display: "block", marginBottom: 4 }}>Hora *</label>
