@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
 
         await resend.emails.send({
           from:    'CANE Neurofeedback <raf@fishflow.mx>',
-          to:      ['karlaalonsoruiz@gmail.com'],
+          to:      ['raf@fishflow.mx'],
           subject: `${emoji} ${appt.patient_name} ${accion} su cita del ${dateStr}`,
           html: `
             <div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;padding:24px">
