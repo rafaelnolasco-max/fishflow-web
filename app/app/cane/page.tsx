@@ -123,14 +123,11 @@ export default function CANEAppointmentsPage() {
     setCalling(id);
     setError(null);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/trigger-appointment-call`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ appointment_id: id }),
-        }
-      );
+      const res = await fetch("/api/cane/trigger-call", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointment_id: id }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error al llamar");
       // Refrescar logs si el panel está abierto
