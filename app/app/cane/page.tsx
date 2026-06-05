@@ -239,7 +239,6 @@ export default function CANEAppointmentsPage() {
                 { label: "Teléfono *",             key: "patient_phone",    type: "tel",  placeholder: "+521XXXXXXXXXX" },
                 { label: "Doctor / Terapeuta",     key: "doctor_name",      type: "text", placeholder: "Karla Ruiz" },
                 { label: "Fecha *",                key: "appointment_date", type: "date", placeholder: "" },
-                { label: "Hora *",                 key: "appointment_time", type: "time", placeholder: "" },
               ].map(({ label, key, type, placeholder }) => (
                 <div key={key}>
                   <label style={{ fontSize: 12, color: C.muted, display: "block", marginBottom: 4 }}>{label}</label>
@@ -255,6 +254,26 @@ export default function CANEAppointmentsPage() {
                   />
                 </div>
               ))}
+              {/* Hora — select para compatibilidad Safari */}
+              <div>
+                <label style={{ fontSize: 12, color: C.muted, display: "block", marginBottom: 4 }}>Hora *</label>
+                <select
+                  value={form.appointment_time}
+                  onChange={e => setForm(f => ({ ...f, appointment_time: e.target.value }))}
+                  style={{
+                    width: "100%", padding: "8px 10px",
+                    border: `1px solid ${C.border}`, borderRadius: 6,
+                    fontSize: 13, color: form.appointment_time ? C.text : C.muted,
+                    boxSizing: "border-box", outline: "none", backgroundColor: C.white,
+                  }}
+                >
+                  <option value="">Selecciona hora</option>
+                  {["08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30",
+                    "12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30",
+                    "16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00"
+                  ].map(h => <option key={h} value={h}>{h}</option>)}
+                </select>
+              </div>
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={{ fontSize: 12, color: C.muted, display: "block", marginBottom: 4 }}>Notas</label>
                 <textarea
