@@ -197,6 +197,44 @@ export interface TherapySessionLog {
   snapshot: unknown | null;
 }
 
+// ─── CANE Neurofeedback ───────────────────────────────────────────────────────
+
+export const CANE_CLIENT_ID = "a9b8c7d6-e5f4-3210-9876-fedcba543210";
+
+export type AppointmentStatus =
+  | "pending"
+  | "confirmed"
+  | "cancelled"
+  | "rescheduled"
+  | "no_response";
+
+export interface CANEAppointment {
+  id:                  string;
+  client_id:           string;
+  patient_name:        string;
+  patient_phone:       string;
+  doctor_name:         string | null;
+  appointment_date:    string;   // 'YYYY-MM-DD'
+  appointment_time:    string;   // 'HH:MM:SS'
+  status:              AppointmentStatus;
+  confirmation_method: string | null;
+  notes:               string | null;
+  created_at:          string;
+  updated_at:          string;
+}
+
+export interface CANECallLog {
+  id:               string;
+  appointment_id:   string;
+  provider:         "vapi" | "twilio";
+  provider_call_id: string | null;
+  status:           string;
+  outcome:          string | null;
+  duration_seconds: number | null;
+  called_at:        string;
+  completed_at:     string | null;
+}
+
 // ─── TBA Telecom ──────────────────────────────────────────────────────────────
 
 export type OpportunityStage =
