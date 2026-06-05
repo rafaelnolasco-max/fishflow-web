@@ -152,10 +152,16 @@ export default function CANEAppointmentsPage() {
       return
     }
     setSaving(true); setError(null);
+    // Normalizar teléfono a E.164 — agregar +52 si solo son 10 dígitos
+    const rawPhone = form.patient_phone.trim().replace(/\D/g, "")
+    const normalizedPhone = rawPhone.startsWith("52")
+      ? `+${rawPhone}`
+      : `+52${rawPhone}`
+
     const { error } = await supabase.from("appointments").insert({
       client_id:        CANE_CLIENT_ID,
       patient_name:     form.patient_name.trim(),
-      patient_phone:    form.patient_phone.trim(),
+      patient_phone:    normalizedPhone,
       doctor_name:      form.doctor_name.trim() || null,
       appointment_date: form.appointment_date,
       appointment_time: form.appointment_time,
@@ -236,7 +242,7 @@ export default function CANEAppointmentsPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               {[
                 { label: "Nombre del paciente *", key: "patient_name",     type: "text", placeholder: "Nombre completo" },
-                { label: "Teléfono *",             key: "patient_phone",    type: "tel",  placeholder: "+521XXXXXXXXXX" },
+                { label: "Teléfono * (10 dígitos)",  key: "patient_phone",    type: "tel",  placeholder: "5514831644" },
                 { label: "Doctor / Terapeuta",     key: "doctor_name",      type: "text", placeholder: "Karla Ruiz" },
                 { label: "Fecha *",                key: "appointment_date", type: "date", placeholder: "" },
               ].map(({ label, key, type, placeholder }) => (
