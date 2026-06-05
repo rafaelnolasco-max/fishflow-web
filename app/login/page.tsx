@@ -18,6 +18,7 @@ function LoginForm() {
     "mariocitalan@gmail.com":      "/app/therapyos",
     "aalmarazmo@lukon.com.mx":     "/app/lukon",
     "alonsoalonso68@hotmail.com":  "/app/autolavado",
+    "karlaalonsoruiz@gmail.com":   "/app/cane",
     "rafaelnolasco@gmail.com":     "/admin",
   };
 
@@ -28,6 +29,7 @@ function LoginForm() {
     "/app/belange":    { label: "Belange Studio",        color: "#6b1a4a" },
     "/app/lukon":      { label: "Lukon Telemática",      color: "#4a6b1a" },
     "/app/autolavado": { label: "Autolavado",            color: "#0052CC" },
+    "/app/cane":       { label: "CANE Neurofeedback",    color: "#2A9D8F" },
     "/admin":          { label: "FishFlow Admin",        color: "#333"    },
   };
 

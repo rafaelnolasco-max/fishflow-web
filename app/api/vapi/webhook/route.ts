@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
+import { Resend } from 'resend'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
-
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
+const resend     = new Resend(process.env.RESEND_API_KEY!)
 
 // ─── Tipos Vapi ───────────────────────────────────────────────────────────────
 
@@ -152,6 +153,55 @@ export async function POST(req: NextRequest) {
       .eq('id', callLog.appointment_id)
 
     if (apptUpdateErr) console.error('[vapi/webhook] Error actualizando appointment:', apptUpdateErr)
+
+    // ── Notificar a Karla por email ─────────────────────────────────────────
+    try {
+      const { data: appt } = await supabaseAdmin
+        .from('appointments')
+        .select('patient_name, appointment_date, appointment_time, doctor_name')
+        .eq('id', callLog.appointment_id)
+        .single()
+
+      if (appt) {
+        const [y, m, d] = appt.appointment_date.split('-').map(Number)
+        const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-MX', {
+          weekday: 'long', day: 'numeric', month: 'long',
+        })
+        const timeStr = appt.appointment_time.slice(0, 5)
+
+        const isConfirmed = appointmentStatus === 'confirmed'
+        const emoji       = isConfirmed ? '✅' : appointmentStatus === 'cancelled' ? '❌' : '🔄'
+        const accion      = isConfirmed ? 'confirmó' : appointmentStatus === 'cancelled' ? 'canceló' : 'quiere reagendar'
+
+        await resend.emails.send({
+          from:    'CANE Neurofeedback <raf@fishflow.mx>',
+          to:      ['karlaalonsoruiz@gmail.com'],
+          subject: `${emoji} ${appt.patient_name} ${accion} su cita del ${dateStr}`,
+          html: `
+            <div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;padding:24px">
+              <h2 style="color:#2A9D8F;margin-bottom:4px">CANE Neurofeedback</h2>
+              <p style="color:#6B7280;font-size:14px;margin-top:0">Confirmación automática de cita</p>
+              <div style="background:#F0FDF9;border:1px solid #A7F3D0;border-radius:8px;padding:16px;margin:20px 0">
+                <p style="margin:0;font-size:16px;font-weight:600;color:#1A1A2E">
+                  ${emoji} ${appt.patient_name} <strong>${accion}</strong>
+                </p>
+              </div>
+              <table style="width:100%;font-size:14px;color:#374151">
+                <tr><td style="padding:6px 0;color:#6B7280">Fecha</td><td style="font-weight:600">${dateStr}</td></tr>
+                <tr><td style="padding:6px 0;color:#6B7280">Hora</td><td style="font-weight:600">${timeStr}</td></tr>
+                <tr><td style="padding:6px 0;color:#6B7280">Doctor</td><td style="font-weight:600">${appt.doctor_name ?? '—'}</td></tr>
+              </table>
+              <p style="font-size:12px;color:#9CA3AF;margin-top:24px">
+                Este aviso fue generado automáticamente por FishFlow.<br>
+                <a href="https://fishflow.mx/app/cane" style="color:#2A9D8F">Ver todas las citas →</a>
+              </p>
+            </div>
+          `,
+        })
+      }
+    } catch (emailErr) {
+      console.error('[vapi/webhook] Error enviando email:', emailErr)
+    }
   }
 
   console.log(`[vapi/webhook] call_id=${callId} | outcome=${outcome} | status=${callStatus} | transcript=${transcript ? 'sí' : 'no'}`)

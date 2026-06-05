@@ -11,8 +11,8 @@ const CLIENT_EMAILS: Record<string, string[]> = {
   "/app/lukon":       ["rafaelnolasco@gmail.com", "aalmarazmo@lukon.com.mx"],
   // TherapyOS — Mario Citalán
   "/app/therapyos":   ["mariocitalan@gmail.com", "rafaelnolasco@gmail.com"],
-  // CANE Neurofeedback — Karla Ruiz (agregar su email cuando tenga cuenta)
-  "/app/cane":        ["rafaelnolasco@gmail.com"],
+  // CANE Neurofeedback — Karla Ruiz
+  "/app/cane":        ["rafaelnolasco@gmail.com", "karlaalonsoruiz@gmail.com"],
   // Autolavado — Carlos Alonso
   "/app/autolavado":  ["alonsoalonso68@hotmail.com", "rafaelnolasco@gmail.com"],
 };
