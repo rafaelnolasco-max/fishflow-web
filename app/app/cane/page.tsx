@@ -142,8 +142,14 @@ export default function CANEAppointmentsPage() {
 
   // ── Guardar cita nueva ──────────────────────────────────────────────────────
   async function saveAppointment() {
-    if (!form.patient_name || !form.patient_phone || !form.appointment_date || !form.appointment_time) {
-      setError("Completa: nombre, teléfono, fecha y hora."); return;
+    const missing: string[] = []
+    if (!form.patient_name.trim())   missing.push("nombre")
+    if (!form.patient_phone.trim())  missing.push("teléfono")
+    if (!form.appointment_date)      missing.push("fecha")
+    if (!form.appointment_time)      missing.push("hora")
+    if (missing.length > 0) {
+      setError(`Falta: ${missing.join(", ")}`)
+      return
     }
     setSaving(true); setError(null);
     const { error } = await supabase.from("appointments").insert({
