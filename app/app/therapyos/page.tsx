@@ -614,6 +614,7 @@ export default function TherapyOSPage() {
   const [selectedId, setSelectedId]     = useState<string | null>(null);
   const [sessions, setSessions]         = useState<TherapySession[]>([]);
   const [activeTab, setActiveTab]       = useState<TabId>("briefing");
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery]   = useState("");
   const [showNewSession, setShowNewSession] = useState(false);
   const [loadingPatients, setLoadingPatients] = useState(true);
@@ -660,12 +661,14 @@ export default function TherapyOSPage() {
   useEffect(() => {
     if (!selectedId) return;
     setActiveTab("briefing");
+    setSelectedSessionId(null);
     setLoadingSessions(true);
     supabase
       .from("sessions")
       .select("*")
       .eq("patient_id", selectedId)
       .order("session_date", { ascending: false })
+      .order("created_at", { ascending: false })
       .limit(10)
       .then(({ data, error }) => {
         if (!error && data) setSessions(data as TherapySession[]);
@@ -711,21 +714,21 @@ export default function TherapyOSPage() {
 
   // ── Enviar email al paciente ──────────────────────────────────────────────────
   async function handleSendEmail() {
-    if (!selectedPatient || !currentSession) return;
+    if (!selectedPatient || !viewedSession) return;
     setSendingEmail(true);
     try {
       const res = await fetch("/api/therapyos/send-session-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          session_id: currentSession.id,
+          session_id: viewedSession.id,
           patient_id: selectedPatient.id,
         }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.sent_at) {
         setSessions(prev => prev.map(s =>
-          s.id === currentSession.id
+          s.id === viewedSession.id
             ? { ...s, payment_status: "sent", approved_at: data.approved_at ?? s.approved_at, sent_at: data.sent_at }
             : s
         ));
@@ -766,6 +769,7 @@ export default function TherapyOSPage() {
   const selectedPatient = patients.find(p => p.id === selectedId) ?? null;
   const currentSession  = sessions[0] ?? null;
   const prevSession     = sessions[1] ?? null;
+  const viewedSession   = sessions.find(s => s.id === selectedSessionId) ?? currentSession;
 
   const filteredPatients = useMemo(() =>
     patients.filter(p =>
@@ -1018,7 +1022,7 @@ export default function TherapyOSPage() {
               }}>
                 {([
                   { id: "briefing",    label: "⚡ Briefing" },
-                  { id: "current",     label: `Sesión #${currentSession?.session_number ?? "—"} · ${currentSession ? fmtDate(currentSession.session_date) : "—"}` },
+                  { id: "current",     label: `Sesión #${viewedSession?.session_number ?? "—"} · ${viewedSession ? fmtDate(viewedSession.session_date) : "—"}` },
                   { id: "prev",        label: prevSession ? `Sesión #${prevSession.session_number} · ${fmtDate(prevSession.session_date)}` : "Sesión anterior" },
                   { id: "connection",  label: "🔗 Conexión" },
                   { id: "payment",     label: "💳 Pago" },
@@ -1118,11 +1122,11 @@ export default function TherapyOSPage() {
                       )}
 
                       {/* ── Tab: Sesión actual ─────────────────────────────────────── */}
-                      {activeTab === "current" && (
+                      {activeTab === "current" && viewedSession && (
                         <>
                           <SessionView
-                            session={currentSession}
-                            label={`Sesión #${currentSession.session_number} · ${fmtDate(currentSession.session_date)}`}
+                            session={viewedSession}
+                            label={`Sesión #${viewedSession.session_number} · ${fmtDate(viewedSession.session_date)}`}
                           />
                           {/* Aprobar y enviar al paciente — al final del resumen */}
                           <div style={{
@@ -1133,11 +1137,11 @@ export default function TherapyOSPage() {
                           }}>
                             <div>
                               <p style={{ fontSize: 13, fontWeight: 500, color: C.charcoal, marginBottom: 4 }}>
-                                {currentSession.sent_at ? "Resumen enviado ✓" : "¿Listo para compartir este resumen?"}
+                                {viewedSession.sent_at ? "Resumen enviado ✓" : "¿Listo para compartir este resumen?"}
                               </p>
                               <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>
-                                {currentSession.sent_at
-                                  ? `Enviado el ${new Date(currentSession.sent_at).toLocaleDateString("es-MX", { day: "numeric", month: "long" })}`
+                                {viewedSession.sent_at
+                                  ? `Enviado el ${new Date(viewedSession.sent_at).toLocaleDateString("es-MX", { day: "numeric", month: "long" })}`
                                   : selectedPatient?.email
                                     ? `Se enviará a ${selectedPatient.email} (con copia a raf@fishflow.mx)`
                                     : "El paciente no tiene email — se enviará a raf@fishflow.mx para tu revisión"}
@@ -1145,17 +1149,17 @@ export default function TherapyOSPage() {
                             </div>
                             <button
                               onClick={handleSendEmail}
-                              disabled={sendingEmail || !!currentSession.sent_at}
+                              disabled={sendingEmail || !!viewedSession.sent_at}
                               style={{
                                 padding: "10px 22px", borderRadius: 8, border: "none",
-                                background: sendingEmail || currentSession.sent_at ? C.muted : C.sage,
+                                background: sendingEmail || viewedSession.sent_at ? C.muted : C.sage,
                                 color: "white", fontSize: 13, fontWeight: 500,
-                                cursor: sendingEmail || currentSession.sent_at ? "not-allowed" : "pointer",
+                                cursor: sendingEmail || viewedSession.sent_at ? "not-allowed" : "pointer",
                                 whiteSpace: "nowrap",
                               }}>
                               {sendingEmail ? "Enviando…"
-                                : currentSession.sent_at
-                                  ? `✓ Enviado ${new Date(currentSession.sent_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}`
+                                : viewedSession.sent_at
+                                  ? `✓ Enviado ${new Date(viewedSession.sent_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}`
                                   : "📤 Enviar email al paciente"}
                             </button>
                           </div>
@@ -1428,10 +1432,15 @@ export default function TherapyOSPage() {
                           </div>
                           <div style={{ padding: "16px 18px" }}>
                             {sessions.slice(0, 6).map((s, i) => (
-                              <div key={s.id} style={{
+                              <div key={s.id}
+                                onClick={() => { setSelectedSessionId(s.id); setActiveTab("current"); }}
+                                title="Abrir esta sesión"
+                                style={{
                                 display: "flex", gap: 12,
-                                paddingBottom: 14,
-                                position: "relative",
+                                paddingBottom: 14, paddingTop: 4,
+                                position: "relative", cursor: "pointer",
+                                borderRadius: 8, marginLeft: -6, paddingLeft: 6,
+                                background: s.id === viewedSession?.id ? "rgba(122,158,126,0.10)" : "transparent",
                               }}>
                                 {i < sessions.length - 1 && (
                                   <div style={{
@@ -1441,7 +1450,7 @@ export default function TherapyOSPage() {
                                 )}
                                 <div style={{
                                   width: 10, height: 10, borderRadius: "50%",
-                                  background: i === 0 ? C.sage : C.border,
+                                  background: s.id === viewedSession?.id ? C.sage : C.border,
                                   marginTop: 4, flexShrink: 0,
                                 }} />
                                 <div>
