@@ -348,6 +348,7 @@ function NewSessionModal({
           storage_path: r.storagePath,
           filename: r.filename,
           session_date: sessionDate,
+          duration_seconds: r.durationSeconds,
         }),
       });
       if (!res.ok) {

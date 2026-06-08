@@ -20,19 +20,49 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
 
 const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
+// Whisper alucina firmas de subtítulos cuando el audio está en silencio o sin voz
+// (ej. "Subtítulos realizados por la comunidad de Amara.org"). Detectamos esa
+// basura para NO generar una sesión clínica fantasma.
+const HALLUCINATION_PATTERNS = [
+  /amara\.org/i,
+  /subt[íi]tulos?\s+(realizados|por|hechos|creados)/i,
+  /gracias por ver/i,
+  /thanks for watching/i,
+  /subscribe/i,
+  /www\.[a-z]/i,
+];
+
+function looksEmpty(t: string): boolean {
+  const clean = (t ?? "").trim();
+  if (clean.length < 20) return true;
+  if (clean.length < 140 && HALLUCINATION_PATTERNS.some((re) => re.test(clean))) return true;
+  let stripped = clean;
+  for (const re of HALLUCINATION_PATTERNS) stripped = stripped.replace(re, "");
+  if (stripped.replace(/[^a-záéíóúñ0-9]/gi, "").length < 15) return true;
+  return false;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { patient_id, storage_path, filename, session_date } = (await req.json()) as {
+    const { patient_id, storage_path, filename, session_date, duration_seconds } = (await req.json()) as {
       patient_id: string;
       storage_path: string;
       filename?: string;
       session_date: string;
+      duration_seconds?: number;
     };
 
     if (!patient_id || !storage_path || !session_date) {
       return NextResponse.json(
         { error: "Faltan campos requeridos: patient_id, storage_path, session_date" },
         { status: 400 },
+      );
+    }
+
+    if (typeof duration_seconds === "number" && duration_seconds < 3) {
+      return NextResponse.json(
+        { error: "La grabación fue demasiado corta. Graba al menos unos segundos hablando." },
+        { status: 422 },
       );
     }
 
@@ -66,6 +96,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: `Error al transcribir: ${txData.error ?? "sin transcripción"}` },
         { status: 502 },
+      );
+    }
+
+    // ── 2b. Guardia anti-basura: si Whisper alucinó sobre silencio, NO crear sesión ─
+    if (looksEmpty(txData.transcript)) {
+      if (txData.transcription_id) {
+        await supabaseAdmin
+          .from("transcriptions")
+          .update({ status: "empty", error: "Sin voz detectada (probable silencio / micrófono sin captar)" })
+          .eq("id", txData.transcription_id);
+      }
+      return NextResponse.json(
+        {
+          error: "No se detectó voz en la grabación. Suele ser que el micrófono no captó audio. Revisa el permiso del micrófono e intenta de nuevo, hablando cerca del teléfono.",
+          empty: true,
+        },
+        { status: 422 },
       );
     }
 
