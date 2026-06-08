@@ -12,6 +12,8 @@ import type {
   Pattern,
   SessionConnection,
 } from "@/lib/supabase";
+import SessionRecorder from "@/components/SessionRecorder";
+import type { RecorderResult } from "@/components/SessionRecorder";
 
 // ─── Paleta TherapyOS ──────────────────────────────────────────────────────────
 const C = {
@@ -299,7 +301,7 @@ function NewSessionModal({
   const [processing, setProcessing] = useState(false);
   const [preview, setPreview]       = useState<TherapySession | null>(null);
   const [error, setError]           = useState<string | null>(null);
-  const [importMode, setImportMode] = useState<"manual" | "fireflies">("manual");
+  const [importMode, setImportMode] = useState<"manual" | "fireflies" | "recorder">("manual");
   const [firefliesInput, setFirefliesInput] = useState("");
 
   async function handleProcess() {
@@ -323,6 +325,34 @@ function NewSessionModal({
       if (!res.ok) {
         const e = await res.json();
         throw new Error(e.error ?? "Error al procesar");
+      }
+      const data = await res.json();
+      setPreview(data.session);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error inesperado");
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  async function handleRecorded(r: RecorderResult) {
+    if (!patientId) { setError("Selecciona un paciente antes de grabar."); return; }
+    setError(null);
+    setProcessing(true);
+    try {
+      const res = await fetch("/api/therapyos/record-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_id: patientId,
+          storage_path: r.storagePath,
+          filename: r.filename,
+          session_date: sessionDate,
+        }),
+      });
+      if (!res.ok) {
+        const e = await res.json();
+        throw new Error(e.error ?? "Error al procesar la grabación");
       }
       const data = await res.json();
       setPreview(data.session);
@@ -415,15 +445,15 @@ function NewSessionModal({
               Fuente de transcripción
             </label>
             <div style={{ display: "flex", gap: 8 }}>
-              {(["manual", "fireflies"] as const).map(mode => (
-                <button key={mode} onClick={() => setImportMode(mode)} style={{
+              {(["manual", "fireflies", "recorder"] as const).map(mode => (
+                <button key={mode} onClick={() => { setImportMode(mode); setPreview(null); }} style={{
                   padding: "8px 16px", borderRadius: 8, fontSize: 13,
                   border: `1px solid ${importMode === mode ? C.sage : C.border}`,
                   background: importMode === mode ? `rgba(122,158,126,0.1)` : "white",
                   color: importMode === mode ? C.sageDark : C.muted,
                   cursor: "pointer", fontWeight: importMode === mode ? 500 : 400,
                 }}>
-                  {mode === "manual" ? "✏️ Pegar texto" : "🔥 Importar de Fireflies"}
+                  {mode === "manual" ? "✏️ Pegar texto" : mode === "fireflies" ? "🔥 Importar de Fireflies" : "🎙️ Grabar sesión"}
                 </button>
               ))}
             </div>
@@ -448,7 +478,7 @@ function NewSessionModal({
                 }}
               />
             </div>
-          ) : (
+          ) : importMode === "fireflies" ? (
             <div>
               <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
                 color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
@@ -468,6 +498,32 @@ function NewSessionModal({
               <p style={{ fontSize: 11, color: C.muted, marginTop: 6, lineHeight: 1.5 }}>
                 Copia el link desde Fireflies o solo el ID. La transcripción debe estar lista (3-5 min después de la llamada).
               </p>
+            </div>
+          ) : (
+            <div>
+              <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
+                color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
+                Grabar la sesión
+              </label>
+              <div style={{
+                border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 14px",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+              }}>
+                <SessionRecorder
+                  clientId={MARIO_CLIENT_ID}
+                  module="therapy_session"
+                  refId={patientId || null}
+                  disabled={!patientId || processing}
+                  onUploaded={handleRecorded}
+                  accent={C.sage}
+                />
+                {!patientId && (
+                  <p style={{ fontSize: 11, color: C.muted }}>Selecciona un paciente para habilitar la grabación.</p>
+                )}
+                <p style={{ fontSize: 11, color: C.muted, textAlign: "center", lineHeight: 1.5 }}>
+                  Al detener, el audio se transcribe y la IA genera el borrador. Nada se envía al paciente hasta que tú apruebes.
+                </p>
+              </div>
             </div>
           )}
 
@@ -507,7 +563,22 @@ function NewSessionModal({
             }}>
               Cancelar
             </button>
-            {!preview ? (
+            {preview ? (
+              <button
+                onClick={handleSave}
+                style={{
+                  padding: "10px 24px", borderRadius: 8, border: "none",
+                  background: C.sageDark, color: "white", fontSize: 13,
+                  fontWeight: 500, cursor: "pointer",
+                }}
+              >
+                ✓ Ver sesión
+              </button>
+            ) : importMode === "recorder" ? (
+              <span style={{ fontSize: 12, color: C.muted }}>
+                {processing ? "Procesando grabación…" : "Graba la sesión para generar el borrador"}
+              </span>
+            ) : (
               <button
                 onClick={handleProcess}
                 disabled={processing || !patientId || (importMode === "manual" ? !transcript.trim() : !firefliesInput.trim())}
@@ -526,17 +597,6 @@ function NewSessionModal({
                     Procesando con IA…
                   </>
                 ) : "✨ Procesar con IA"}
-              </button>
-            ) : (
-              <button
-                onClick={handleSave}
-                style={{
-                  padding: "10px 24px", borderRadius: 8, border: "none",
-                  background: C.sageDark, color: "white", fontSize: 13,
-                  fontWeight: 500, cursor: "pointer",
-                }}
-              >
-                ✓ Ver sesión
               </button>
             )}
           </div>
