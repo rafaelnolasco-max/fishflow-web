@@ -184,6 +184,11 @@ export interface TherapySession {
   payment_link: string | null;
   payment_status: "pending" | "sent" | "paid";
   ai_processed: boolean;
+  source_type?: string | null;
+  audio_path?: string | null;
+  transcription_id?: string | null;
+  approved_at?: string | null;
+  sent_at?: string | null;
   created_at: string;
   updated_at: string;
 }

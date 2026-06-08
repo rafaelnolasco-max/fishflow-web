@@ -721,11 +721,16 @@ export default function TherapyOSPage() {
           patient_id: selectedPatient.id,
         }),
       });
-      if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.sent_at) {
         setSessions(prev => prev.map(s =>
-          s.id === currentSession.id ? { ...s, payment_status: "sent" } : s
+          s.id === currentSession.id
+            ? { ...s, payment_status: "sent", approved_at: data.approved_at ?? s.approved_at, sent_at: data.sent_at }
+            : s
         ));
-        showToast("Email enviado a " + selectedPatient.full_name + " ✓");
+        showToast("Resumen enviado a " + selectedPatient.full_name + " ✓");
+      } else {
+        showToast(data.error ?? "No se pudo enviar el email");
       }
     } catch {
       showToast("Error al enviar el email");
@@ -1266,7 +1271,7 @@ export default function TherapyOSPage() {
                             <p style={{ fontSize: 10, textTransform: "uppercase",
                               letterSpacing: ".12em", color: C.muted,
                               marginBottom: 8, fontWeight: 500 }}>
-                              Enviar resumen + link de pago al paciente
+                              Aprobar y enviar resumen al paciente
                             </p>
                             <p style={{ fontSize: 13, color: C.charcoal,
                               lineHeight: 1.5, marginBottom: 16 }}>
@@ -1274,19 +1279,18 @@ export default function TherapyOSPage() {
                             </p>
                             <button
                               onClick={handleSendEmail}
-                              disabled={sendingEmail || !selectedPatient.email
-                                || currentSession.payment_status === "paid"}
+                              disabled={sendingEmail || !selectedPatient.email || !!currentSession.sent_at}
                               style={{
                                 padding: "10px 20px", borderRadius: 8, border: "none",
-                                background: sendingEmail ? C.muted
-                                  : currentSession.payment_status === "paid" ? C.muted : C.sage,
+                                background: sendingEmail || currentSession.sent_at ? C.muted : C.sage,
                                 color: "white", fontSize: 13, fontWeight: 500,
-                                cursor: sendingEmail || currentSession.payment_status === "paid"
+                                cursor: sendingEmail || currentSession.sent_at
                                   ? "not-allowed" : "pointer",
                               }}>
                               {sendingEmail ? "Enviando…"
-                                : currentSession.payment_status === "paid" ? "✓ Ya enviado"
-                                : "📤 Enviar resumen y cobro por email"}
+                                : currentSession.sent_at
+                                  ? `✓ Enviado ${new Date(currentSession.sent_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}`
+                                  : "📤 Aprobar y enviar resumen"}
                             </button>
                           </div>
                         </div>
