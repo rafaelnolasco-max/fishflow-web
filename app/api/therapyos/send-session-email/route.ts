@@ -40,7 +40,12 @@ export async function POST(req: NextRequest) {
 
     if (sErr || !session) return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
     if (pErr || !patient) return NextResponse.json({ error: "Paciente no encontrado" }, { status: 404 });
-    if (!patient.email) return NextResponse.json({ error: "El paciente no tiene email registrado" }, { status: 400 });
+
+    // Sin email del paciente → enviamos a Rafa para revisión. Con email → copia a Rafa.
+    const FALLBACK_EMAIL = "raf@fishflow.mx";
+    const recipient = patient.email ?? FALLBACK_EMAIL;
+    const bcc = recipient === FALLBACK_EMAIL ? undefined : FALLBACK_EMAIL;
+    const noPatientEmail = !patient.email;
 
     const sessionDateFormatted = new Date(session.session_date).toLocaleDateString("es-MX", {
       weekday: "long", day: "numeric", month: "long", year: "numeric",
@@ -78,12 +83,16 @@ Psicólogo`.trim();
     if (resendKey) {
       try {
         const resend = new Resend(resendKey);
+        const adminNote = noPatientEmail
+          ? `<p style="background:#FFF3CD;padding:8px 12px;border-radius:6px;font-size:12px;color:#7A5B00">Nota interna: el paciente no tiene email registrado; este resumen se envió a Rafa para revisión.</p>`
+          : "";
         const { error: rErr } = await resend.emails.send({
           from: "TherapyOS · Mario Citalán <noreply@fishflow.mx>",
-          to: [patient.email],
+          to: [recipient],
+          ...(bcc ? { bcc: [bcc] } : {}),
           subject,
           text,
-          html,
+          html: adminNote + html,
         });
         if (rErr) deliveryError = rErr.message;
         else delivery = "sent";
@@ -99,7 +108,7 @@ Psicólogo`.trim();
       client_id: session.client_id,
       channel: "email",
       provider: "resend",
-      recipient: patient.email,
+      recipient,
       subject,
       body: text,
       related_entity_type: "session",

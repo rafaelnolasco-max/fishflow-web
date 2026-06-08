@@ -1119,10 +1119,47 @@ export default function TherapyOSPage() {
 
                       {/* ── Tab: Sesión actual ─────────────────────────────────────── */}
                       {activeTab === "current" && (
-                        <SessionView
-                          session={currentSession}
-                          label={`Sesión #${currentSession.session_number} · ${fmtDate(currentSession.session_date)}`}
-                        />
+                        <>
+                          <SessionView
+                            session={currentSession}
+                            label={`Sesión #${currentSession.session_number} · ${fmtDate(currentSession.session_date)}`}
+                          />
+                          {/* Aprobar y enviar al paciente — al final del resumen */}
+                          <div style={{
+                            marginTop: 20, padding: "18px 20px", borderRadius: 12,
+                            border: `1px solid ${C.border}`, background: "white",
+                            display: "flex", alignItems: "center", justifyContent: "space-between",
+                            gap: 16, flexWrap: "wrap",
+                          }}>
+                            <div>
+                              <p style={{ fontSize: 13, fontWeight: 500, color: C.charcoal, marginBottom: 4 }}>
+                                {currentSession.sent_at ? "Resumen enviado ✓" : "¿Listo para compartir este resumen?"}
+                              </p>
+                              <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>
+                                {currentSession.sent_at
+                                  ? `Enviado el ${new Date(currentSession.sent_at).toLocaleDateString("es-MX", { day: "numeric", month: "long" })}`
+                                  : selectedPatient?.email
+                                    ? `Se enviará a ${selectedPatient.email} (con copia a raf@fishflow.mx)`
+                                    : "El paciente no tiene email — se enviará a raf@fishflow.mx para tu revisión"}
+                              </p>
+                            </div>
+                            <button
+                              onClick={handleSendEmail}
+                              disabled={sendingEmail || !!currentSession.sent_at}
+                              style={{
+                                padding: "10px 22px", borderRadius: 8, border: "none",
+                                background: sendingEmail || currentSession.sent_at ? C.muted : C.sage,
+                                color: "white", fontSize: 13, fontWeight: 500,
+                                cursor: sendingEmail || currentSession.sent_at ? "not-allowed" : "pointer",
+                                whiteSpace: "nowrap",
+                              }}>
+                              {sendingEmail ? "Enviando…"
+                                : currentSession.sent_at
+                                  ? `✓ Enviado ${new Date(currentSession.sent_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}`
+                                  : "📤 Enviar email al paciente"}
+                            </button>
+                          </div>
+                        </>
                       )}
 
                       {/* ── Tab: Sesión anterior ───────────────────────────────────── */}
@@ -1280,7 +1317,7 @@ export default function TherapyOSPage() {
                             </p>
                             <button
                               onClick={handleSendEmail}
-                              disabled={sendingEmail || !selectedPatient.email || !!currentSession.sent_at}
+                              disabled={sendingEmail || !!currentSession.sent_at}
                               style={{
                                 padding: "10px 20px", borderRadius: 8, border: "none",
                                 background: sendingEmail || currentSession.sent_at ? C.muted : C.sage,
