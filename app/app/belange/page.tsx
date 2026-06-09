@@ -509,6 +509,8 @@ export default function BelangePage() {
 
   // Productos con stock crítico
   const lowStockProducts = products.filter(isBelangeLowStock);
+  const outOfStockCount = products.filter(p => p.stock_qty === 0).length;
+  const lowStockCount   = products.filter(p => p.stock_qty > 0 && p.stock_qty <= p.min_stock).length;
 
   // Precio especial (por debajo del sugerido)
   const numProdActual = precioProducto ? parseFloat(precioProducto.replace(/,/g, "")) : null;
@@ -681,25 +683,26 @@ export default function BelangePage() {
               ))}
             </div>
 
-            {/* Alerta stock bajo */}
-            {lowStockProducts.length > 0 && (
-              <div style={{ ...card, marginBottom: "1rem", borderLeft: `3px solid ${FF_ORANGE}`, background: "#fffaf5" }}>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "#b05200", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 6 }}>
-                  ⚠️ Productos con stock bajo ({lowStockProducts.length})
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {lowStockProducts.map(p => (
-                    <span key={p.id} style={{
-                      fontSize: 12, padding: "4px 10px", borderRadius: 20,
-                      background: p.stock_qty === 0 ? "#fde8e8" : "#fff3e0",
-                      color: p.stock_qty === 0 ? "#c0392b" : "#e65100",
-                      fontWeight: 600,
-                    }}>
-                      {p.name} — {p.stock_qty === 0 ? "Sin stock" : `${p.stock_qty} ud${p.stock_qty !== 1 ? "s" : ""}`}
-                    </span>
-                  ))}
-                </div>
-              </div>
+            {/* Alerta stock bajo — resumen compacto, solo en vista Ingresos */}
+            {view === "ingresos" && lowStockProducts.length > 0 && (
+              <button
+                onClick={() => setView("inventario")}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8, width: "100%",
+                  background: "#fffaf5", border: "0.5px solid #ffe0c2", borderLeft: `3px solid ${FF_ORANGE}`,
+                  borderRadius: 10, padding: "9px 12px", marginBottom: "1rem", cursor: "pointer", textAlign: "left",
+                }}
+              >
+                <span style={{ fontSize: 14 }}>⚠️</span>
+                <span style={{ fontSize: 13, color: "#b05200", fontWeight: 600 }}>
+                  {outOfStockCount > 0 && `${outOfStockCount} agotado${outOfStockCount !== 1 ? "s" : ""}`}
+                  {outOfStockCount > 0 && lowStockCount > 0 && " · "}
+                  {lowStockCount > 0 && `${lowStockCount} por reponer`}
+                </span>
+                <span style={{ marginLeft: "auto", fontSize: 12, color: FF_ORANGE, fontWeight: 700, whiteSpace: "nowrap" }}>
+                  Ver inventario →
+                </span>
+              </button>
             )}
 
             {view === "ingresos" && (<>
