@@ -295,7 +295,7 @@ export default function SparcMensajes() {
                   {/* Botón respuesta */}
                   {(tab === "pendientes" || tab === "respondidos" || msg.is_actionable) && (
                     <button onClick={() => toggleAttended(msg)}
-                      title={msg.attended ? "Marcar como pendiente" : "Marcar como respondido"}
+                      title={msg.attended ? "Marcar como pendiente" : "Marcar como atendido"}
                       style={{
                         background: msg.attended ? "#152030" : "#0f2318",
                         border: `1px solid ${msg.attended ? "#2a4060" : "#44cc8855"}`,
@@ -304,7 +304,7 @@ export default function SparcMensajes() {
                         color: msg.attended ? "#5a7a9a" : "#44cc88",
                         whiteSpace: "nowrap",
                       }}>
-                      {msg.attended ? "✓ Respondido" : "Responder"}
+                      {msg.attended ? "✓ Atendido" : "Marcar atendido"}
                     </button>
                   )}
                 </div>
