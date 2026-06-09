@@ -240,7 +240,8 @@ async function buildAudioTranscripts(
 
   if (!openaiKey || audioFiles.length === 0) return { map, errors }
 
-  for (const audio of audioFiles) {
+  // Paralelizar: transcribir todos los audios a la vez (evita timeout de la edge function)
+  await Promise.all(audioFiles.map(async (audio) => {
     try {
       const { data, error } = await supabaseClient.storage
         .from('sparc-audio')
@@ -248,7 +249,7 @@ async function buildAudioTranscripts(
 
       if (error || !data) {
         const msg = `Storage error ${audio.filename}: ${error?.message ?? 'no data'}`
-        console.error(msg); errors.push(msg); continue
+        console.error(msg); errors.push(msg); return
       }
 
       const { transcript, error: whisperErr } = await transcribeAudio(await data.arrayBuffer(), audio.filename, openaiKey)
@@ -263,9 +264,9 @@ async function buildAudioTranscripts(
       const msg = `Excepción ${audio.filename}: ${e?.message ?? String(e)}`
       console.error(msg); errors.push(msg)
     }
-  }
+  }))
 
-  return map
+  return { map, errors }
 }
 
 // Inyecta transcripts usando dos estrategias:
@@ -517,6 +518,11 @@ serve(async (req) => {
     if (uploadErr || !upload) throw new Error('Upload no encontrado')
     if (upload.processed) throw new Error('Este upload ya fue procesado')
 
+    // Idempotencia: limpiar resultados parciales de un intento previo fallido
+    // para poder reprocesar el mismo upload sin duplicar mensajes ni resúmenes
+    await supabase.from('sparc_chat_messages').delete().eq('upload_id', upload_id)
+    await supabase.from('sparc_daily_summaries').delete().eq('upload_id', upload_id)
+
     // 2. Transcribir audios (si los hay y hay key de OpenAI)
     let audioTranscripts = new Map<string, string>()
     let audiosTranscribed = 0
@@ -556,13 +562,13 @@ serve(async (req) => {
       })
       .eq('id', upload_id)
 
-    // 3. Clasificar en batches
-    const classified: ClassifiedMessage[] = []
+    // 3. Clasificar en batches — en paralelo (Promise.all preserva el orden)
+    const batches: ParsedMessage[][] = []
     for (let i = 0; i < parsed.length; i += BATCH_SIZE) {
-      const batch = parsed.slice(i, i + BATCH_SIZE)
-      const result = await classifyBatch(batch, anthropicKey)
-      classified.push(...result)
+      batches.push(parsed.slice(i, i + BATCH_SIZE))
     }
+    const batchResults = await Promise.all(batches.map(b => classifyBatch(b, anthropicKey)))
+    const classified: ClassifiedMessage[] = batchResults.flat()
 
     // 4. Insertar mensajes en BD
     const messageRows = classified.map(m => ({
@@ -592,8 +598,8 @@ serve(async (req) => {
       byDate.get(day)!.push(msg)
     }
 
-    const summaryRows = []
-    for (const [day, msgs] of byDate.entries()) {
+    // Generar resúmenes de todos los días en paralelo (evita timeout de la edge function)
+    const summaryRows = await Promise.all([...byDate.entries()].map(async ([day, msgs]) => {
       const counts: DailyCount = {
         total: msgs.length,
         urgent: msgs.filter(m => m.priority === 'urgent').length,
@@ -604,7 +610,7 @@ serve(async (req) => {
 
       const { executive_summary, action_items, urgent_summary, medium_summary, low_summary } = await generateDailySummary(day, msgs, anthropicKey)
 
-      summaryRows.push({
+      return {
         building_id: upload.building_id,
         upload_id,
         client_id: upload.client_id,
@@ -618,8 +624,8 @@ serve(async (req) => {
         urgent_summary,
         medium_summary,
         low_summary,
-      })
-    }
+      }
+    }))
 
     const { error: summaryErr } = await supabase
       .from('sparc_daily_summaries')
