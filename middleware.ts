@@ -15,6 +15,8 @@ const CLIENT_EMAILS: Record<string, string[]> = {
   "/app/cane":        ["rafaelnolasco@gmail.com", "karlaalonsoruiz@gmail.com"],
   // Autolavado — Carlos Alonso
   "/app/autolavado":  ["alonsoalonso68@hotmail.com", "rafaelnolasco@gmail.com"],
+  // SieckVet — Veterinaria (demo vivo, solo Rafa por ahora)
+  "/app/sieckvet":    ["rafaelnolasco@gmail.com"],
 };
 
 export async function middleware(request: NextRequest) {

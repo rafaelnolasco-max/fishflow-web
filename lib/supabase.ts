@@ -295,3 +295,83 @@ export interface TBAOpportunityLog {
   new_value: string | null;
   snapshot: Record<string, unknown> | null;
 }
+
+// ─── SieckVet — Veterinaria (demo vivo) ───────────────────────────────────────
+// client_id en la tabla clients. Replica el patrón de TherapyOS.
+export const SIECKVET_CLIENT_ID = "2d6f44b7-ea36-47f1-85ae-ed5129799d2c";
+
+export type VetSpecies = "perro" | "gato" | "otro";
+export type VetApptStatus = "scheduled" | "in_progress" | "completed" | "cancelled";
+export type VetConfirmStatus = "pending" | "confirmed" | "reschedule_requested" | "cancelled";
+
+export interface VetVet {
+  id: string;
+  client_id: string;
+  name: string;
+  specialty: string | null;
+  active: boolean;
+  created_at: string;
+}
+
+export interface VetPet {
+  id: string;
+  client_id: string;
+  name: string;
+  species: VetSpecies;
+  breed: string | null;
+  sex: string | null;
+  birth_date: string | null;
+  owner_name: string;
+  owner_phone: string | null;
+  owner_email: string | null;
+  notes: string | null;
+  active: boolean;
+  created_at: string;
+  // enriquecido en el UI
+  appt_count?: number;
+}
+
+export interface VetAppointment {
+  id: string;
+  client_id: string;
+  pet_id: string;
+  vet_id: string | null;
+  scheduled_at: string;
+  reason: string | null;
+  status: VetApptStatus;
+  confirmation_status: VetConfirmStatus;
+  confirmation_sent_at: string | null;
+  public_token: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  // joins opcionales
+  pet?: VetPet | null;
+  vet?: VetVet | null;
+}
+
+export interface VetVisitSummaryRaw {
+  motivo?: string;
+  diagnostico?: string;
+  indicaciones?: string;
+  proxima_cita?: string;
+}
+
+export interface VetVisitSummary {
+  id: string;
+  client_id: string;
+  appointment_id: string;
+  transcription_id: string | null;
+  source_type: string | null;
+  transcript: string | null;
+  raw_summary: VetVisitSummaryRaw | null;
+  owner_summary: string | null;
+  ai_processed: boolean;
+  approved_at: string | null;
+  sent_at: string | null;
+  public_token: string;
+  created_at: string;
+  updated_at: string;
+  // joins opcionales
+  appointment?: VetAppointment | null;
+}
