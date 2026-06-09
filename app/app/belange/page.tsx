@@ -30,6 +30,19 @@ function FishFlowMark({ size = 32 }: { size?: number }) {
   );
 }
 
+// ─── Hook responsive ──────────────────────────────────────────────────────────
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
+    const onChange = () => setIsMobile(mq.matches);
+    onChange();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 // ─── Helpers de período ───────────────────────────────────────────────────────
 function startOf(period: "day" | "week" | "month"): Date {
   const now = new Date();
@@ -207,6 +220,7 @@ function ProductSearch({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function BelangePage() {
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   // ── Form state ──
   const [clientName,      setClientName]      = useState("");
@@ -509,14 +523,17 @@ export default function BelangePage() {
           position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)",
           background: "#fff3e0", border: "1px solid #ffcc80", borderRadius: 10,
           padding: "12px 20px", zIndex: 100, fontSize: 13, fontWeight: 600, color: "#e65100",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.12)", whiteSpace: "nowrap",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+          width: isMobile ? "calc(100% - 24px)" : "auto",
+          maxWidth: isMobile ? "none" : "90vw",
+          textAlign: "center",
         }}>
           {stockToast}
         </div>
       )}
 
       {/* ── Header ── */}
-      <header style={{ background: "#fff", borderBottom: "0.5px solid #e5e4df", height: 56, padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <header style={{ background: "#fff", borderBottom: "0.5px solid #e5e4df", height: 56, padding: isMobile ? "0 1rem" : "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#fbeaf0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#72243e" }}>BS</div>
           <div>
@@ -539,8 +556,8 @@ export default function BelangePage() {
       </header>
 
       {/* ── Body ── */}
-      <main style={{ maxWidth: 1140, margin: "0 auto", padding: "1.5rem 1.25rem" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: "1.5rem", alignItems: "start" }}>
+      <main style={{ maxWidth: 1140, margin: "0 auto", padding: isMobile ? "1rem 0.875rem" : "1.5rem 1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "360px 1fr", gap: isMobile ? "1.25rem" : "1.5rem", alignItems: "start" }}>
 
           {/* ────────────────── FORMULARIO ────────────────── */}
           <div>
@@ -721,10 +738,10 @@ export default function BelangePage() {
               ) : (
                 <>
                   {/* Metrics */}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: "1rem" }}>
-                    <MCard label="Total del período"  value={fmt(total)}          sub={`${countServ} transacción${countServ !== 1 ? "es" : ""}`} accent="#1a1a1a" />
-                    <MCard label="Servicios"           value={fmt(totalServicios)} sub={`ticket prom. ${fmt(avgServ)}`}                          accent={FF_CYAN}   />
-                    <MCard label="Productos"           value={fmt(totalProductos)} sub={`${countProd} venta${countProd !== 1 ? "s" : ""}`}        accent={FF_ORANGE} />
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(3,1fr)" : "repeat(3,1fr)", gap: isMobile ? 7 : 10, marginBottom: "1rem" }}>
+                    <MCard label="Total del período"  value={fmt(total)}          sub={`${countServ} transacción${countServ !== 1 ? "es" : ""}`} accent="#1a1a1a" compact={isMobile} />
+                    <MCard label="Servicios"           value={fmt(totalServicios)} sub={`ticket prom. ${fmt(avgServ)}`}                          accent={FF_CYAN}   compact={isMobile} />
+                    <MCard label="Productos"           value={fmt(totalProductos)} sub={`${countProd} venta${countProd !== 1 ? "s" : ""}`}        accent={FF_ORANGE} compact={isMobile} />
                   </div>
 
                   {/* Payment breakdown */}
@@ -762,24 +779,27 @@ export default function BelangePage() {
               </div>
 
               {/* Resumen rápido */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: isMobile ? 7 : 10, marginBottom: "1rem" }}>
                 <MCard
                   label="Total productos"
                   value={String(products.length)}
                   sub="en catálogo"
                   accent="#1a1a1a"
+                  compact={isMobile}
                 />
                 <MCard
                   label="Stock bajo"
                   value={String(products.filter(p => p.stock_qty > 0 && p.stock_qty <= p.min_stock).length)}
                   sub="por reponer"
                   accent={FF_ORANGE}
+                  compact={isMobile}
                 />
                 <MCard
                   label="Sin stock"
                   value={String(products.filter(p => p.stock_qty === 0).length)}
                   sub="agotados"
                   accent="#c0392b"
+                  compact={isMobile}
                 />
               </div>
 
@@ -794,7 +814,58 @@ export default function BelangePage() {
                 />
               </div>
 
-              {/* Tabla de inventario */}
+              {/* Tabla de inventario / tarjetas en móvil */}
+              {isMobile ? (
+                (() => {
+                  const inv = products.filter(p => {
+                    const q = invSearch.toLowerCase();
+                    return !q || p.name.toLowerCase().includes(q) || (p.brand ?? "").toLowerCase().includes(q);
+                  });
+                  if (inv.length === 0) {
+                    return <div style={{ ...card }}><p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14, margin: 0 }}>Sin resultados</p></div>;
+                  }
+                  return (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {inv.map(p => {
+                        const isOut = p.stock_qty === 0;
+                        const isLow = !isOut && p.stock_qty <= p.min_stock;
+                        const statusBg    = isOut ? "#fde8e8" : isLow ? "#fff3e0" : "#eaf5e9";
+                        const statusColor = isOut ? "#c0392b" : isLow ? "#e65100" : "#2e7d32";
+                        const statusLabel = isOut ? "Sin stock" : isLow ? "Stock bajo" : "Disponible";
+                        return (
+                          <div key={p.id} style={{ ...card, padding: "12px 14px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                              <div style={{ minWidth: 0 }}>
+                                <p style={{ fontWeight: 700, fontSize: 14, color: "#1a1a1a", margin: 0 }}>{p.name}</p>
+                                {p.brand && <p style={{ fontSize: 12, color: "#aaa", margin: "1px 0 0" }}>{p.brand}</p>}
+                              </div>
+                              <span style={{ flexShrink: 0, display: "inline-block", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: statusBg, color: statusColor }}>
+                                {statusLabel}
+                              </span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "10px 0", fontSize: 13 }}>
+                              <span style={{ color: "#888" }}>Stock: <strong style={{ color: isOut ? "#c0392b" : isLow ? "#e65100" : "#333", fontSize: 15 }}>{p.stock_qty}</strong></span>
+                              <span style={{ fontWeight: 700, color: FF_ORANGE }}>{fmt(p.suggested_price ?? 0)}</span>
+                            </div>
+                            <div style={{ display: "flex", gap: 8, paddingTop: 8, borderTop: "0.5px solid #f0efeb" }}>
+                              <button
+                                onClick={() => { setStockModal({ id: p.id, name: p.name, current: p.stock_qty }); setStockDelta(""); }}
+                                style={{ flex: 1, fontSize: 13, padding: "7px 0", borderRadius: 6, border: "1px solid #ddd", background: "#fafaf8", cursor: "pointer", color: "#555", fontWeight: 600 }}>
+                                ± Stock
+                              </button>
+                              <button
+                                onClick={() => openEditProd(p)}
+                                style={{ flex: 1, fontSize: 13, padding: "7px 0", borderRadius: 6, border: "1px solid #e5e4df", background: "#fafaf8", cursor: "pointer", color: "#888" }}>
+                                ✏️ Editar
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
+              ) : (
               <div style={{ ...card, padding: 0, overflow: "hidden" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead>
@@ -862,6 +933,7 @@ export default function BelangePage() {
                   <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>Sin resultados</p>
                 )}
               </div>
+              )}
             </>)}
           </div>
         </div>
@@ -869,12 +941,90 @@ export default function BelangePage() {
         {/* ────────────────── TABLA ────────────────── */}
         <div style={{ marginTop: "1.5rem" }}>
           <p style={secLabel}>Últimas transacciones</p>
-          <div style={{ ...card, padding: 0, overflow: "hidden", overflowX: "auto" }}>
-            {loading ? (
-              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>Cargando…</p>
-            ) : transactions.length === 0 ? (
-              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>Aún no hay transacciones. ¡Registra la primera!</p>
-            ) : (
+          {loading ? (
+            <div style={{ ...card }}><p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14, margin: 0 }}>Cargando…</p></div>
+          ) : transactions.length === 0 ? (
+            <div style={{ ...card }}><p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14, margin: 0 }}>Aún no hay transacciones. ¡Registra la primera!</p></div>
+          ) : isMobile ? (
+            /* ── Vista móvil: tarjetas apiladas ── */
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {transactions.slice(0, 15).map(t => {
+                const qtyVal = t.qty ?? 1;
+                const esPrecEsp = t.precio_sugerido && t.precio_producto && t.precio_producto < t.precio_sugerido;
+                const isEditing = editingId === t.id;
+                const pm = PM[t.payment_method] ?? PM.tarjeta;
+                return (
+                  <div key={t.id} style={{ ...card, padding: "12px 14px", background: isEditing ? "#fffbf5" : "#fff" }}>
+                    {/* Encabezado: cliente + total */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                      <span style={{ fontWeight: 700, fontSize: 15, color: "#1a1a1a" }}>{t.client_name}</span>
+                      <span style={{ fontWeight: 700, fontSize: 16, color: "#1a1a1a", whiteSpace: "nowrap" }}>{fmt(t.price + (t.precio_producto ?? 0))}</span>
+                    </div>
+                    <p style={{ fontSize: 11, color: "#aaa", margin: "2px 0 10px" }}>{fmtDate(t.created_at)}</p>
+
+                    {/* Líneas: servicio / producto */}
+                    {t.service && (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                        <span style={{ fontSize: 13, color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          <Tag color="cyan" />{t.service}
+                        </span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: "#007a88", whiteSpace: "nowrap" }}>{fmt(t.price)}</span>
+                      </div>
+                    )}
+                    {t.producto && (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                        <span style={{ fontSize: 13, color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          <Tag color="orange" />{t.producto}
+                          {qtyVal > 1 && <span style={{ color: "#aaa" }}> ×{qtyVal}</span>}
+                          {esPrecEsp && <span style={{ marginLeft: 4, fontSize: 11, color: FF_ORANGE }}>🏷</span>}
+                        </span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: FF_ORANGE, whiteSpace: "nowrap" }}>
+                          {t.precio_producto ? fmt(t.precio_producto) : "—"}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Pie: método de pago + editar */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginTop: 8, paddingTop: 8, borderTop: "0.5px solid #f0efeb" }}>
+                      {isEditing ? (
+                        <div style={{ display: "flex", gap: 6, alignItems: "center", width: "100%" }}>
+                          <select
+                            value={editPayment}
+                            onChange={e => setEditPayment(e.target.value as PaymentMethod)}
+                            style={{ fontSize: 13, padding: "5px 8px", borderRadius: 6, border: "1px solid #ddd", background: "#fff", cursor: "pointer", flex: 1 }}
+                          >
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                          </select>
+                          <button onClick={() => handleSavePayment(t.id)} disabled={editSaving}
+                            style={{ fontSize: 13, padding: "5px 12px", borderRadius: 6, border: "none", background: FF_CYAN, color: "#fff", cursor: editSaving ? "default" : "pointer", fontWeight: 700 }}>
+                            {editSaving ? "…" : "Guardar"}
+                          </button>
+                          <button onClick={() => setEditingId(null)} disabled={editSaving}
+                            style={{ fontSize: 13, padding: "5px 10px", borderRadius: 6, border: "1px solid #ddd", background: "#fff", cursor: "pointer", color: "#888" }}>
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: pm.bg, color: pm.color }}>
+                            {pm.label}
+                          </span>
+                          <button onClick={() => { setEditingId(t.id); setEditPayment(t.payment_method); }}
+                            style={{ fontSize: 12, padding: "4px 10px", borderRadius: 6, border: "1px solid #e5e4df", background: "#fafaf8", cursor: "pointer", color: "#888" }}
+                            title="Editar método de pago">
+                            ✏️ Pago
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div style={{ ...card, padding: 0, overflow: "hidden", overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
                   <tr style={{ borderBottom: "0.5px solid #e5e4df" }}>
@@ -958,8 +1108,8 @@ export default function BelangePage() {
                   })}
                 </tbody>
               </table>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* ── Modal: Ajuste de stock ── */}
@@ -1096,12 +1246,12 @@ export default function BelangePage() {
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-function MCard({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
+function MCard({ label, value, sub, accent, compact }: { label: string; value: string; sub: string; accent: string; compact?: boolean }) {
   return (
-    <div style={{ background: "#f5f4f0", borderRadius: 8, padding: "0.875rem 1rem", borderTop: `2px solid ${accent}` }}>
-      <p style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{label}</p>
-      <p style={{ fontSize: 22, fontWeight: 700, color: "#1a1a1a", margin: 0 }}>{value}</p>
-      <p style={{ fontSize: 11, color: "#bbb", marginTop: 3 }}>{sub}</p>
+    <div style={{ background: "#f5f4f0", borderRadius: 8, padding: compact ? "0.625rem 0.625rem" : "0.875rem 1rem", borderTop: `2px solid ${accent}` }}>
+      <p style={{ fontSize: compact ? 10 : 11, color: "#999", marginBottom: 4, lineHeight: 1.2 }}>{label}</p>
+      <p style={{ fontSize: compact ? 16 : 22, fontWeight: 700, color: "#1a1a1a", margin: 0, lineHeight: 1.15 }}>{value}</p>
+      <p style={{ fontSize: compact ? 10 : 11, color: "#bbb", marginTop: 3, lineHeight: 1.2 }}>{sub}</p>
     </div>
   );
 }
