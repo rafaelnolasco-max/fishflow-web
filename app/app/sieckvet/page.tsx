@@ -829,8 +829,11 @@ function ReviewForm({ summary, onRegenerate, onSaved }: {
   const [proximaCita, setProximaCita] = useState(r0.proxima_cita ?? "");
   const [ownerMsg, setOwnerMsg] = useState(summary.owner_summary ?? "");
   const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const approved = !!summary.approved_at;
+  const sent = !!summary.sent_at;
+  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/resumen/${summary.public_token}` : "";
 
   async function persist(approve: boolean) {
     setSaving(true); setError(null);
@@ -844,6 +847,21 @@ function ReviewForm({ summary, onRegenerate, onSaved }: {
     setSaving(false);
     if (err) { setError(err.message); return; }
     onSaved(data as VetVisitSummary, approve ? "Resumen aprobado" : "Borrador guardado");
+  }
+
+  async function sendToOwner() {
+    setSending(true); setError(null);
+    try {
+      const res = await fetch("/api/sieckvet/send-summary", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ summary_id: summary.id }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error ?? "No se pudo enviar");
+      onSaved({ ...summary, sent_at: data.sent_at } as VetVisitSummary, "Resumen enviado al dueño");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error al enviar");
+    } finally { setSending(false); }
   }
 
   return (
@@ -899,12 +917,33 @@ function ReviewForm({ summary, onRegenerate, onSaved }: {
         </button>
       </div>
 
-      <button disabled title="Disponible en la Fase 4"
-        style={{ width: "100%", marginTop: 10, background: C.cream, color: C.muted,
-          border: `1px dashed ${C.border}`, borderRadius: 9, padding: "10px", fontSize: 13,
-          cursor: "not-allowed" }}>
-        ✉️ Enviar al dueño (Fase 4)
+      <button onClick={sendToOwner} disabled={!approved || sending}
+        title={approved ? "Enviar el resumen al dueño por email" : "Primero aprueba el resumen"}
+        style={{ width: "100%", marginTop: 10,
+          background: !approved ? C.cream : sending ? C.tealLight : C.amber,
+          color: !approved ? C.muted : "#fff",
+          border: !approved ? `1px dashed ${C.border}` : "none",
+          borderRadius: 9, padding: "11px", fontSize: 14, fontWeight: 700,
+          cursor: !approved || sending ? "default" : "pointer" }}>
+        {sent ? "✉️ Reenviar al dueño" : sending ? "Enviando…" : "✉️ Enviar al dueño"}
       </button>
+
+      {(approved || sent) && publicUrl && (
+        <div style={{ marginTop: 12, padding: "10px 12px", background: C.mint, borderRadius: 9,
+          fontSize: 12, color: C.tealDark, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontWeight: 600 }}>Link del dueño:</span>
+          <a href={publicUrl} target="_blank" rel="noopener noreferrer"
+            style={{ color: C.teal, wordBreak: "break-all", flex: 1, minWidth: 0 }}>{publicUrl}</a>
+          <button onClick={() => navigator.clipboard?.writeText(publicUrl)}
+            style={{ background: "#fff", border: `1px solid ${C.border}`, borderRadius: 7,
+              padding: "4px 10px", fontSize: 11, cursor: "pointer", color: C.tealDark }}>Copiar</button>
+        </div>
+      )}
+      {sent && (
+        <p style={{ marginTop: 8, fontSize: 12, color: C.green, textAlign: "center" }}>
+          ✓ Enviado el {fmtDate(summary.sent_at as string)}
+        </p>
+      )}
     </div>
   );
 }
