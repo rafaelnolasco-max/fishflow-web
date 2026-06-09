@@ -120,6 +120,7 @@ export default function SieckVetPage() {
   const [viewSummary, setViewSummary] = useState<VetVisitSummary | null>(null);
   const [detailPet, setDetailPet] = useState<VetPet | null>(null);
   const [consultaAppt, setConsultaAppt] = useState<VetAppointment | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   // Resumen existente (si hay) para la cita en consulta
   const summaryByAppt = useMemo(() => {
@@ -197,6 +198,22 @@ export default function SieckVetPage() {
     });
     if (error) { showToast("Error al guardar: " + error.message); return; }
     setShowVetModal(false); showToast("Veterinario agregado"); loadAll();
+  }
+
+  async function sendConfirmation(appt: VetAppointment) {
+    setConfirmingId(appt.id);
+    try {
+      const res = await fetch("/api/sieckvet/send-confirmation", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointment_id: appt.id }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error ?? "No se pudo enviar");
+      showToast("Confirmación enviada al dueño");
+      loadAll();
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : "Error al enviar confirmación");
+    } finally { setConfirmingId(null); }
   }
 
   async function addAppt(form: ApptForm) {
@@ -325,19 +342,32 @@ export default function SieckVetPage() {
                         <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                           <Chip {...sm} />
                           <Chip {...cm} />
+                          {a.confirmation_sent_at && a.confirmation_status === "pending" && (
+                            <Chip label="Confirmación enviada" bg={C.mint} fg={C.tealDark} />
+                          )}
                           {sum && !sum.sent_at && sum.ai_processed && !sum.approved_at && (
                             <Chip label="Borrador IA — revisar" bg="#FDF1E3" fg="#B5701F" />
                           )}
                         </div>
                       </div>
-                      {a.status !== "cancelled" && (
-                        <button onClick={() => { if (sum?.sent_at) setViewSummary(sum); else setConsultaAppt(a); }}
-                          style={{ alignSelf: "center", flexShrink: 0, background: sum && !sum.sent_at ? C.amber : C.teal,
-                            color: "#fff", border: "none", borderRadius: 9, padding: "8px 14px",
-                            fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
-                          {consultaLabel}
-                        </button>
-                      )}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, alignSelf: "center", flexShrink: 0 }}>
+                        {a.status !== "cancelled" && (
+                          <button onClick={() => { if (sum?.sent_at) setViewSummary(sum); else setConsultaAppt(a); }}
+                            style={{ background: sum && !sum.sent_at ? C.amber : C.teal,
+                              color: "#fff", border: "none", borderRadius: 9, padding: "8px 14px",
+                              fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
+                            {consultaLabel}
+                          </button>
+                        )}
+                        {a.status === "scheduled" && (
+                          <button onClick={() => sendConfirmation(a)} disabled={confirmingId === a.id}
+                            style={{ background: "#fff", color: C.tealDark, border: `1px solid ${C.border}`,
+                              borderRadius: 9, padding: "8px 14px", fontSize: 12, fontWeight: 600,
+                              cursor: confirmingId === a.id ? "default" : "pointer", whiteSpace: "nowrap" }}>
+                            {confirmingId === a.id ? "Enviando…" : a.confirmation_sent_at ? "Reenviar confirmación" : "Enviar confirmación"}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
