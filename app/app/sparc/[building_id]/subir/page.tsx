@@ -65,12 +65,17 @@ const PERIOD_OPTIONS = [
 
 // Detecta formato iOS (DD/MM/YYYY) o Android ([M/D/YY)
 // Limpia caracteres invisibles antes de detectar
-function detectFormat(text: string): "ios" | "android" {
+function detectFormat(text: string): "ios" | "android" | "latam" {
   // Tira invisibles del inicio de línea para detección limpia
   const cleaned = text.replace(/^[‎‏  ﻿]+/gm, "");
   const iosHit     = /^\d{1,2}\/\d{1,2}\/\d{4},/.test(cleaned);
   const androidHit = /^\[\d{1,2}\/\d{1,2}\/\d{2,4},/.test(cleaned);
-  return iosHit && !androidHit ? "ios" : "android";
+  // Latam (Android español MX): fecha DD/MM/YY seguida de espacio + hora, sin coma ni corchete
+  const latamHit   = /^\d{1,2}\/\d{1,2}\/\d{2,4}\s+\d{1,2}:\d{2}/.test(cleaned);
+  if (androidHit) return "android";
+  if (iosHit) return "ios";
+  if (latamHit) return "latam";
+  return "android";
 }
 
 // Filtra el texto del chat a solo los mensajes dentro de los últimos N días
@@ -93,7 +98,9 @@ function filterByDays(text: string, days: number): string {
   // Android: [M/D/YY →  groups: month, day, year
   const iosRx     = /^[‎‏  ]*(\d{1,2})\/(\d{1,2})\/(\d{4}),/;
   const androidRx = /^[‎‏  ]*\[(\d{1,2})\/(\d{1,2})\/(\d{2,4}),/;
-  const lineRegex = format === "ios" ? iosRx : androidRx;
+  // Latam: DD/MM/YY (día primero), sin corchete, separador espacio o coma antes de la hora
+  const latamRx   = /^[‎‏  ]*(\d{1,2})\/(\d{1,2})\/(\d{2,4})[, ]\s*\d{1,2}:\d{2}/;
+  const lineRegex = format === "ios" ? iosRx : format === "latam" ? latamRx : androidRx;
 
   const lines = text.split("\n");
   const result: string[] = [];
@@ -106,8 +113,9 @@ function filterByDays(text: string, days: number): string {
       const rawY = m[3];
       const y = rawY.length === 2 ? 2000 + parseInt(rawY) : parseInt(rawY);
       let day: number, month: number;
-      if (format === "ios") { day = a; month = b; }
-      else                  { month = a; day = b; }
+      // iOS y Latam son día-primero (DD/MM); Android es mes-primero (M/D)
+      if (format === "ios" || format === "latam") { day = a; month = b; }
+      else                                        { month = a; day = b; }
 
       // Comparar numéricamente año-mes-día
       if (y > cutYear) include = true;
@@ -153,7 +161,7 @@ export default function SparcSubir() {
     if (!fileText) return;
     const filtered = filterByDays(fileText, selectedDays);
     // Contar líneas que empiezan con fecha — acepta iOS (DD/MM/YYYY,) y Android ([M/D/YY,)
-    const count = (filtered.match(/^[^\S\n]*(?:\[)?\d{1,2}\/\d{1,2}\/\d{2,4},/gm) ?? []).length;
+    const count = (filtered.match(/^[^\S\n]*(?:\[)?\d{1,2}\/\d{1,2}\/\d{2,4}[, ]/gm) ?? []).length;
     setFilteredPreview({ lines: count });
   }, [fileText, selectedDays]);
 
@@ -193,9 +201,13 @@ export default function SparcSubir() {
     // Detectar formato Android [M/D/YY, o iOS DD/MM/YYYY,
     const androidRegex = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),/gm;
     const iosRegex     = /^(\d{1,2}\/\d{1,2}\/\d{4}),\s\d{1,2}:\d{2}\s(?:a\.|p\.)/gm;
+    // Latam: DD/MM/YY seguida de espacio + hora (sin coma, sin corchete)
+    const latamRegex   = /^(\d{1,2}\/\d{1,2}\/\d{2,4})\s+\d{1,2}:\d{2}/gm;
     const androidMatches = [...text.matchAll(androidRegex)];
     const iosMatches     = [...text.matchAll(iosRegex)];
-    const matches = iosMatches.length > androidMatches.length ? iosMatches : androidMatches;
+    const latamMatches   = [...text.matchAll(latamRegex)];
+    // Elegir el formato con más coincidencias
+    const matches = [androidMatches, iosMatches, latamMatches].reduce((a, b) => (b.length > a.length ? b : a));
     return { lines: matches.length, firstDate: matches[0]?.[1] ?? "", lastDate: matches[matches.length - 1]?.[1] ?? "" };
   }
 
