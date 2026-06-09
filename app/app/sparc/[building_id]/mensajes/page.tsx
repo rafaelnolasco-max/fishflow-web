@@ -15,6 +15,11 @@ interface Message {
   id: string; sender_name: string; sent_at: string;
   message_text: string; priority: Priority; category: Category;
   ai_summary: string; is_actionable: boolean; attended: boolean;
+  is_staff: boolean;
+  response_status: "responded" | "pending" | null;
+  responded_by: string | null;
+  responded_at: string | null;
+  response_excerpt: string | null;
 }
 interface Building { id: string; name: string }
 
@@ -81,7 +86,9 @@ export default function SparcMensajes() {
   const [tab,       setTab]       = useState<Tab>("pendientes");
   const [search,    setSearch]    = useState("");
   const [filterPri, setFilterPri] = useState<Priority | "all">("all");
+  const [filterResp, setFilterResp] = useState<string>("all"); // "all" | nombre staff | "none"
   const [expanded,  setExpanded]  = useState<string | null>(null);
+  const [expandedResp, setExpandedResp] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -106,8 +113,15 @@ export default function SparcMensajes() {
     setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, attended: newVal } : m));
   }
 
-  // Solo mensajes accionables (para tabs pendientes/respondidos)
-  const actionable = useMemo(() => messages.filter(m => m.is_actionable), [messages]);
+  // Accionables = solo solicitudes de vecinos (no mensajes del propio equipo)
+  const actionable = useMemo(() => messages.filter(m => m.is_actionable && !m.is_staff), [messages]);
+
+  // Personas del equipo que aparecen como autoras de respuestas detectadas
+  const responders = useMemo(() => {
+    const set = new Set<string>();
+    for (const m of messages) if (m.responded_by) set.add(m.responded_by);
+    return [...set].sort();
+  }, [messages]);
 
   const filtered = useMemo(() => {
     let base: Message[];
@@ -117,12 +131,17 @@ export default function SparcMensajes() {
 
     return base.filter(m => {
       if (filterPri !== "all" && m.priority !== filterPri) return false;
+      if (filterResp !== "all") {
+        if (filterResp === "none") {
+          if (m.response_status !== "pending") return false;
+        } else if (m.responded_by !== filterResp) return false;
+      }
       if (search && !m.message_text.toLowerCase().includes(search.toLowerCase()) &&
           !m.sender_name.toLowerCase().includes(search.toLowerCase()) &&
           !m.ai_summary.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [messages, actionable, tab, filterPri, search]);
+  }, [messages, actionable, tab, filterPri, filterResp, search]);
 
   const pendingCount    = actionable.filter(m => !m.attended).length;
   const respondedCount  = actionable.filter(m =>  m.attended).length;
@@ -173,6 +192,13 @@ export default function SparcMensajes() {
             <option value="urgent">🔴 Urgentes</option>
             <option value="medium">🟡 Medios</option>
             <option value="low">🟢 Bajos</option>
+          </select>
+          <select value={filterResp} onChange={e => setFilterResp(e.target.value)}
+            title="Filtrar por quién respondió (detección IA)"
+            style={{ background: "#112233", border: "1px solid #1e3048", borderRadius: 8, padding: "8px 14px", color: "#f0f4f8", fontSize: 14 }}>
+            <option value="all">🤖 Respuesta: todas</option>
+            {responders.map(r => <option key={r} value={r}>Respondió: {r}</option>)}
+            <option value="none">Sin respuesta detectada</option>
           </select>
           <span style={{ color: "#5a7a9a", fontSize: 13, alignSelf: "center", marginLeft: "auto" }}>
             {filtered.length} mensaje{filtered.length !== 1 ? "s" : ""}
@@ -230,6 +256,39 @@ export default function SparcMensajes() {
                         style={{ background: "none", border: "none", color: FF_CYAN, fontSize: 12, cursor: "pointer", padding: "4px 0", marginTop: 2 }}>
                         {isEx ? "Ver menos" : "Ver más"}
                       </button>
+                    )}
+
+                    {/* Estado de respuesta detectado por IA (informativo, no cambia attended) */}
+                    {!msg.is_staff && msg.is_actionable && msg.response_status && (
+                      <div style={{ marginTop: 8 }}>
+                        {msg.response_status === "responded" ? (
+                          <>
+                            <button onClick={() => setExpandedResp(expandedResp === msg.id ? null : msg.id)}
+                              style={{
+                                display: "inline-flex", alignItems: "center", gap: 6,
+                                background: "#0f2318", border: "1px solid #44cc8855", borderRadius: 6,
+                                padding: "4px 10px", fontSize: 12, fontWeight: 600, color: "#44cc88", cursor: "pointer",
+                              }}>
+                              🤖 Respondido por {msg.responded_by}
+                              {msg.responded_at && <span style={{ color: "#2f8f5f", fontWeight: 400 }}>· {fmtDate(msg.responded_at)}</span>}
+                              {msg.response_excerpt && <span style={{ color: "#2f8f5f" }}>{expandedResp === msg.id ? "▲" : "▼"}</span>}
+                            </button>
+                            {expandedResp === msg.id && msg.response_excerpt && (
+                              <div style={{ marginTop: 6, background: "#0a1a12", border: "1px solid #1e3a28", borderLeft: "3px solid #44cc88", borderRadius: 6, padding: "8px 12px", fontSize: 13, color: "#9fc8b0", lineHeight: 1.5 }}>
+                                {msg.response_excerpt}
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <span style={{
+                            display: "inline-flex", alignItems: "center", gap: 6,
+                            background: "#231c00", border: "1px solid #ffaa0033", borderRadius: 6,
+                            padding: "4px 10px", fontSize: 12, fontWeight: 600, color: "#ffaa00",
+                          }}>
+                            🤖 Sin respuesta detectada
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
 

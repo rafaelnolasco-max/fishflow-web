@@ -3,6 +3,10 @@
 // clasifica mensajes con Claude API, inserta en sparc_chat_messages
 // y genera sparc_daily_summaries.
 //
+// Fase 2: marca is_staff (equipo administrador) y detecta respuestas del
+// administrador a mensajes accionables de vecinos (response_status, responded_by,
+// responded_at, response_excerpt). attended se mantiene 100% manual.
+//
 // Invocación: POST /functions/v1/process-chat-upload
 // Body: { upload_id: string, audio_files?: { filename: string, storage_path: string }[] }
 
@@ -25,6 +29,12 @@ interface ClassifiedMessage extends ParsedMessage {
   category: Category
   ai_summary: string
   is_actionable: boolean
+  is_staff: boolean
+  staff_name?: string | null
+  response_status?: string | null
+  responded_by?: string | null
+  responded_at?: string | null
+  response_excerpt?: string | null
 }
 
 interface DailyCount {
@@ -35,6 +45,13 @@ interface DailyCount {
   actionable: string[]
 }
 
+interface StaffMember {
+  full_name: string
+  role: string | null
+  phone: string | null
+  aliases: string[] | null
+}
+
 // --- Parser de WhatsApp -------------------------------------------------------
 // Formato Android: [M/D/YY, H:MM:SS] Nombre: mensaje
 // Formato iOS:     DD/MM/YYYY, H:MM a. m. - Nombre: mensaje
@@ -43,7 +60,8 @@ interface DailyCount {
 const MSG_REGEX_ANDROID = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s(\d{1,2}:\d{2}:\d{2}(?:\s?[AP]M)?)\]\s(.+?):\s([\s\S]*)$/
 
 // iOS: 24/11/2020, 10:37 a. m. - Nombre: mensaje
-// También: 24/11/2020, 10:37 a.\u202fm.\u202f- (espacio fino entre a. m.)
+// Latam (Android espanol MX): 22/04/26 5:09 p. m. - Nombre: mensaje (anio 2 digitos, SIN coma)
+// La coma es opcional (,?) y el separador fecha/hora acepta espacio o espacio fino (\s+)
 const MSG_REGEX_IOS = /^(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?\s?(?:a\.\s?m\.|p\.\s?m\.|AM|PM)?)\s?[-–]\s(.+?):\s([\s\S]*)$/
 
 const SYSTEM_PATTERNS = [
@@ -95,7 +113,7 @@ function parseDate(dateStr: string, timeStr: string, isIOS = false): Date | null
     let cleanTime = timeStr
       .replace(/\s?a\.\s?m\.?/i, ' AM')
       .replace(/\s?p\.\s?m\.?/i, ' PM')
-      .replace(/\u202f/g, ' ')  // espacio fino
+      .replace(/[\u202F\u00A0\u2009]/g, ' ')  // espacio fino -> espacio normal
       .trim()
 
     // Si tiene AM/PM, parsear manualmente
@@ -134,8 +152,8 @@ function isMediaOnly(text: string): boolean {
 }
 
 function detectFormat(rawText: string): 'android' | 'ios' {
-  // iOS no usa corchetes — busca el patrón DD/MM/YYYY, H:MM - Nombre:
-  // iOS (4 díg + coma) y Latam (2 díg, sin coma): coma opcional, año 2-4 díg, separador espacio/espacio fino
+  // iOS no usa corchetes. iOS (4 dig + coma) y Latam (2 dig, sin coma):
+  // coma opcional, anio 2-4 dig, separador espacio/espacio fino
   const iosHits     = (rawText.match(/^\d{1,2}\/\d{1,2}\/\d{2,4},?\s+\d{1,2}:\d{2}\s*(?:a\.|p\.)/m) ?? []).length
   const androidHits = (rawText.match(/^\[\d{1,2}\/\d{1,2}\/\d{2,4},/m) ?? []).length
   return iosHits > 0 && androidHits === 0 ? 'ios' : 'android'
@@ -170,16 +188,16 @@ function parseWhatsAppChat(rawText: string): ParsedMessage[] {
       if (!sent_at) continue
 
       // Limpiar el sender (quitar ~ y caracteres especiales de Unicode)
-      const cleanSender = sender.replace(/^~\s*/, '').replace(/[\u200e\u200f\u202a-\u202e]/g, '').trim()
+      const cleanSender = sender.replace(/^~\s*/, '').replace(/[\u200E\u200F\u202A-\u202E]/g, '').trim()
 
       current = {
         sender_name: cleanSender,
         sent_at,
-        message_text: text.replace(/[\u200e\u200f]/g, '').trim(),
+        message_text: text.replace(/[\u200E\u200F]/g, '').trim(),
       }
     } else if (current && line.trim()) {
       // Línea de continuación (mensaje multilinea)
-      current.message_text += '\n' + line.replace(/[\u200e\u200f]/g, '').trim()
+      current.message_text += '\n' + line.replace(/[\u200E\u200F]/g, '').trim()
     }
   }
 
@@ -192,6 +210,57 @@ function parseWhatsAppChat(rawText: string): ParsedMessage[] {
   }
 
   return messages
+}
+
+// --- Matcher de staff (equipo administrador) ---------------------------------
+// Normaliza acentos y mayusculas. Compara sender contra full_name + aliases.
+// Si el sender es un numero crudo, compara contra los ultimos 10 digitos del telefono.
+
+function normalizeText(s: string): string {
+  return (s ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')  // quitar acentos
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function digitsOnly(s: string): string {
+  return (s ?? '').replace(/\D/g, '')
+}
+
+function last10(s: string): string {
+  return digitsOnly(s).slice(-10)
+}
+
+// Devuelve el StaffMember que coincide con el sender, o null.
+function buildStaffMatcher(staff: StaffMember[]): (sender: string) => StaffMember | null {
+  const byName = new Map<string, StaffMember>()
+  const byPhone = new Map<string, StaffMember>()
+
+  for (const s of staff) {
+    byName.set(normalizeText(s.full_name), s)
+    for (const a of (s.aliases ?? [])) {
+      if (a) byName.set(normalizeText(a), s)
+    }
+    if (s.phone) {
+      const p = last10(s.phone)
+      if (p.length === 10) byPhone.set(p, s)
+    }
+  }
+
+  return (sender: string): StaffMember | null => {
+    const n = normalizeText(sender)
+    const nameHit = byName.get(n)
+    if (nameHit) return nameHit
+    // El sender puede ser un numero crudo (+52 55 ...)
+    const d = last10(sender)
+    if (d.length === 10) {
+      const phoneHit = byPhone.get(d)
+      if (phoneHit) return phoneHit
+    }
+    return null
+  }
 }
 
 // --- Transcripción de audios con Whisper -------------------------------------
@@ -229,7 +298,7 @@ async function transcribeAudio(
   return { transcript: text }
 }
 
-// Construye un mapa filename \u2192 transcript. Retorna también los errores para diagnóstico.
+// Construye un mapa filename -> transcript. Retorna también los errores para diagnóstico.
 async function buildAudioTranscripts(
   audioFiles: { filename: string; storage_path: string }[],
   supabaseClient: ReturnType<typeof createClient>,
@@ -312,7 +381,7 @@ function injectTranscripts(rawText: string, transcripts: Map<string, string>): {
   const pass2 = pass1.map(line => {
     if (line.includes('[Audio transcrito]')) return line
     // Detecta <Multimedia omitido>, <Media omitted>, <audio omitido>, audio omitted
-    const isMedia = /<Multimedia omitido>|<Media omitted>|<audio omitido>|audio omitted|audio omitido/i.test(line)
+    const isMedia = /<Multimedia omitido>|<Media omitted>|<audio omitido>|audio omitted/i.test(line)
     if (!isMedia || poolIdx >= unusedPool.length) return line
     const { tr } = unusedPool[poolIdx++]
     const markerIdx = line.search(/<[Mm]ultimedia|<[Mm]edia omitted|<[Aa]udio|[Aa]udio omitido|[Aa]udio omitted/i)
@@ -386,7 +455,109 @@ Responde ÚNICAMENTE con un JSON array con exactamente ${messages.length} objeto
     category: (classifications[i]?.category ?? 'social') as Category,
     ai_summary: classifications[i]?.ai_summary ?? '',
     is_actionable: classifications[i]?.is_actionable ?? false,
+    is_staff: false,
   }))
+}
+
+// --- Detección de respuestas del administrador --------------------------------
+// Para cada dia, lee la conversacion cronologica y determina si los mensajes
+// accionables de vecinos fueron respondidos por algun miembro del staff.
+// Devuelve un Map<indice_del_mensaje_en_msgs, info>.
+
+interface ResponseInfo {
+  response_status: string          // 'responded' | 'pending'
+  responded_by: string | null
+  responded_at: string | null
+  response_excerpt: string | null
+}
+
+async function detectResponses(
+  day: string,
+  msgs: ClassifiedMessage[],
+  anthropicKey: string
+): Promise<Map<number, ResponseInfo>> {
+  const out = new Map<number, ResponseInfo>()
+
+  // Solo corre si hay al menos un mensaje accionable de vecino
+  const hasTargets = msgs.some(m => !m.is_staff && m.is_actionable)
+  if (!hasTargets) return out
+
+  const lines = msgs.map((m, i) => {
+    const who = m.is_staff ? `ADMIN/${m.staff_name ?? m.sender_name}` : `VECINO/${m.sender_name}`
+    const flag = (!m.is_staff && m.is_actionable) ? ' <<ACCIONABLE>>' : ''
+    const hhmm = m.sent_at.toISOString().substring(11, 16)
+    return `[${i}] ${hhmm} ${who}: ${m.message_text.substring(0, 200)}${flag}`
+  }).join('\n')
+
+  const prompt = `Eres asistente de un administrador de edificio residencial en México. Abajo está la conversación CRONOLÓGICA de WhatsApp de un día (${day}). Cada línea trae un índice [i], la hora, si el emisor es ADMIN (equipo administrador) o VECINO, y el texto. Los mensajes de VECINO marcados <<ACCIONABLE>> requieren respuesta del administrador.
+
+Para CADA mensaje <<ACCIONABLE>>, determina si algún ADMIN respondió DESPUÉS sobre el MISMO tema. Normalmente la respuesta llega dentro de 24-48h, pero usa tu juicio leyendo la conversación (puede haber respuestas más tardías en otra parte del día).
+
+CONVERSACIÓN:
+${lines}
+
+Responde ÚNICAMENTE con un JSON array. Un objeto por cada mensaje <<ACCIONABLE>>, en el mismo orden de aparición:
+[{"i": <indice del mensaje del VECINO>, "status": "responded" | "pending", "ri": <indice del mensaje del ADMIN que respondió, o null>}]
+
+Reglas:
+- status "responded" solo si un ADMIN claramente atendió o respondió ese tema.
+- status "pending" si ningún ADMIN respondió.
+- "ri" debe ser el índice de un mensaje cuyo emisor sea ADMIN. Si status es "pending", ri = null.`
+
+  const response = await fetch(CLAUDE_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': anthropicKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 2048,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  })
+
+  if (!response.ok) {
+    console.error(`detectResponses error dia ${day}: ${response.status}`)
+    return out
+  }
+
+  const data = await response.json()
+  const content = data.content?.[0]?.text ?? '[]'
+  const jsonMatch = content.match(/\[[\s\S]*\]/)
+  if (!jsonMatch) return out
+
+  let arr: any[]
+  try {
+    arr = JSON.parse(jsonMatch[0])
+  } catch {
+    return out
+  }
+
+  for (const r of arr) {
+    const i = r?.i
+    if (typeof i !== 'number' || !msgs[i] || msgs[i].is_staff || !msgs[i].is_actionable) continue
+
+    if (r.status === 'responded' && typeof r.ri === 'number' && msgs[r.ri] && msgs[r.ri].is_staff) {
+      const staffMsg = msgs[r.ri]
+      out.set(i, {
+        response_status: 'responded',
+        responded_by: staffMsg.staff_name ?? staffMsg.sender_name,
+        responded_at: staffMsg.sent_at.toISOString(),
+        response_excerpt: staffMsg.message_text.substring(0, 200),
+      })
+    } else {
+      out.set(i, {
+        response_status: 'pending',
+        responded_by: null,
+        responded_at: null,
+        response_excerpt: null,
+      })
+    }
+  }
+
+  return out
 }
 
 // --- Generador de resúmenes diarios ------------------------------------------
@@ -518,6 +689,17 @@ serve(async (req) => {
     if (uploadErr || !upload) throw new Error('Upload no encontrado')
     if (upload.processed) throw new Error('Este upload ya fue procesado')
 
+    // 1b. Cargar staff del edificio (equipo administrador) para marcar is_staff
+    const { data: staffData } = await supabase
+      .from('sparc_staff')
+      .select('full_name, role, phone, aliases')
+      .eq('building_id', upload.building_id)
+      .eq('active', true)
+
+    const staff: StaffMember[] = (staffData ?? []) as StaffMember[]
+    const matchStaff = buildStaffMatcher(staff)
+    console.log(`Staff cargado para edificio ${upload.building_id}: ${staff.length} miembros`)
+
     // Idempotencia: limpiar resultados parciales de un intento previo fallido
     // para poder reprocesar el mismo upload sin duplicar mensajes ni resúmenes
     await supabase.from('sparc_chat_messages').delete().eq('upload_id', upload_id)
@@ -562,7 +744,7 @@ serve(async (req) => {
       })
       .eq('id', upload_id)
 
-    // 3. Clasificar en batches — en paralelo (Promise.all preserva el orden)
+    // 5. Clasificar en batches — en paralelo (Promise.all preserva el orden)
     const batches: ParsedMessage[][] = []
     for (let i = 0; i < parsed.length; i += BATCH_SIZE) {
       batches.push(parsed.slice(i, i + BATCH_SIZE))
@@ -570,7 +752,47 @@ serve(async (req) => {
     const batchResults = await Promise.all(batches.map(b => classifyBatch(b, anthropicKey)))
     const classified: ClassifiedMessage[] = batchResults.flat()
 
-    // 4. Insertar mensajes en BD
+    // 5b. Marcar is_staff / staff_name en cada mensaje
+    let staffMsgCount = 0
+    for (const m of classified) {
+      const hit = matchStaff(m.sender_name)
+      if (hit) {
+        m.is_staff = true
+        m.staff_name = hit.full_name
+        staffMsgCount++
+      } else {
+        m.is_staff = false
+        m.staff_name = null
+      }
+    }
+    console.log(`Mensajes de staff detectados: ${staffMsgCount}/${classified.length}`)
+
+    // 5c. Agrupar por fecha (orden cronológico por día) para detección y resúmenes
+    const byDate = new Map<string, ClassifiedMessage[]>()
+    for (const msg of classified) {
+      const day = msg.sent_at.toISOString().split('T')[0]
+      if (!byDate.has(day)) byDate.set(day, [])
+      byDate.get(day)!.push(msg)
+    }
+    for (const msgs of byDate.values()) {
+      msgs.sort((a, b) => a.sent_at.getTime() - b.sent_at.getTime())
+    }
+
+    // 5d. Detección de respuestas del administrador — en paralelo por día
+    // (escribe response_status/responded_by/etc directamente en los objetos de classified)
+    await Promise.all([...byDate.entries()].map(async ([day, msgs]) => {
+      const responses = await detectResponses(day, msgs, anthropicKey)
+      for (const [idx, info] of responses.entries()) {
+        const m = msgs[idx]
+        if (!m) continue
+        m.response_status   = info.response_status
+        m.responded_by      = info.responded_by
+        m.responded_at      = info.responded_at
+        m.response_excerpt  = info.response_excerpt
+      }
+    }))
+
+    // 6. Insertar mensajes en BD (con campos de detección de respuesta)
     const messageRows = classified.map(m => ({
       upload_id,
       building_id: upload.building_id,
@@ -582,6 +804,11 @@ serve(async (req) => {
       category: m.category,
       ai_summary: m.ai_summary,
       is_actionable: m.is_actionable,
+      is_staff: m.is_staff,
+      response_status: m.response_status ?? null,
+      responded_by: m.responded_by ?? null,
+      responded_at: m.responded_at ?? null,
+      response_excerpt: m.response_excerpt ?? null,
     }))
 
     const { error: insertErr } = await supabase
@@ -590,15 +817,7 @@ serve(async (req) => {
 
     if (insertErr) throw new Error(`Error insertando mensajes: ${insertErr.message}`)
 
-    // 5. Generar resúmenes diarios agrupando por fecha
-    const byDate = new Map<string, ClassifiedMessage[]>()
-    for (const msg of classified) {
-      const day = msg.sent_at.toISOString().split('T')[0]
-      if (!byDate.has(day)) byDate.set(day, [])
-      byDate.get(day)!.push(msg)
-    }
-
-    // Generar resúmenes de todos los días en paralelo (evita timeout de la edge function)
+    // 7. Generar resúmenes diarios (byDate ya agrupado) — en paralelo
     const summaryRows = await Promise.all([...byDate.entries()].map(async ([day, msgs]) => {
       const counts: DailyCount = {
         total: msgs.length,
@@ -633,7 +852,7 @@ serve(async (req) => {
 
     if (summaryErr) throw new Error(`Error insertando resúmenes: ${summaryErr.message}`)
 
-    // 6. Marcar upload como procesado
+    // 8. Marcar upload como procesado
     const { error: updateErr } = await supabase
       .from('sparc_chat_uploads')
       .update({ processed: true, processed_at: new Date().toISOString() })
@@ -641,7 +860,7 @@ serve(async (req) => {
 
     if (updateErr) throw new Error(`Error actualizando upload: ${updateErr.message}`)
 
-    // 7. Limpiar audios de Storage (no los necesitamos después de transcribir)
+    // 9. Limpiar audios de Storage (no los necesitamos después de transcribir)
     if (audio_files.length > 0) {
       const paths = audio_files.map((a: { storage_path: string }) => a.storage_path)
       const { error: storageErr } = await supabase.storage
@@ -655,6 +874,9 @@ serve(async (req) => {
       }
     }
 
+    const respondedCount = classified.filter(m => m.response_status === 'responded').length
+    const pendingCount   = classified.filter(m => m.response_status === 'pending').length
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -663,10 +885,13 @@ serve(async (req) => {
           messages_parsed: parsed.length,
           messages_classified: classified.length,
           days_processed: byDate.size,
-          date_range: `${dateStart} \u2192 ${dateEnd}`,
+          date_range: `${dateStart} → ${dateEnd}`,
           urgent: classified.filter(m => m.priority === 'urgent').length,
           medium: classified.filter(m => m.priority === 'medium').length,
           low: classified.filter(m => m.priority === 'low').length,
+          staff_messages: staffMsgCount,
+          responded: respondedCount,
+          pending: pendingCount,
           audios_found: audio_files.length,
           audios_transcribed: audiosTranscribed,
           transcripts_injected: transcriptsInjected,
