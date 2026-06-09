@@ -9,7 +9,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// ─── Tipos ────────────────────────────────────────────────────────────────────
+// --- Tipos --------------------------------------------------------------------
 
 type Priority = 'urgent' | 'medium' | 'low'
 type Category = 'estructural' | 'mantenimiento' | 'administrativo' | 'pagos' | 'seguridad' | 'social'
@@ -35,7 +35,7 @@ interface DailyCount {
   actionable: string[]
 }
 
-// ─── Parser de WhatsApp ───────────────────────────────────────────────────────
+// --- Parser de WhatsApp -------------------------------------------------------
 // Formato Android: [M/D/YY, H:MM:SS] Nombre: mensaje
 // Formato iOS:     DD/MM/YYYY, H:MM a. m. - Nombre: mensaje
 
@@ -43,8 +43,8 @@ interface DailyCount {
 const MSG_REGEX_ANDROID = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s(\d{1,2}:\d{2}:\d{2}(?:\s?[AP]M)?)\]\s(.+?):\s([\s\S]*)$/
 
 // iOS: 24/11/2020, 10:37 a. m. - Nombre: mensaje
-// También: 24/11/2020, 10:37 a. m. - (espacio fino entre a. m.)
-const MSG_REGEX_IOS = /^(\d{1,2}\/\d{1,2}\/\d{2,4}),\s(\d{1,2}:\d{2}(?::\d{2})?\s?(?:a\.\s?m\.|p\.\s?m\.|AM|PM)?)\s?[-–]\s(.+?):\s([\s\S]*)$/
+// También: 24/11/2020, 10:37 a.\u202fm.\u202f- (espacio fino entre a. m.)
+const MSG_REGEX_IOS = /^(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?\s?(?:a\.\s?m\.|p\.\s?m\.|AM|PM)?)\s?[-–]\s(.+?):\s([\s\S]*)$/
 
 const SYSTEM_PATTERNS = [
   /Messages and calls are end-to-end encrypted/i,
@@ -95,7 +95,7 @@ function parseDate(dateStr: string, timeStr: string, isIOS = false): Date | null
     let cleanTime = timeStr
       .replace(/\s?a\.\s?m\.?/i, ' AM')
       .replace(/\s?p\.\s?m\.?/i, ' PM')
-      .replace(/ /g, ' ')  // espacio fino
+      .replace(/\u202f/g, ' ')  // espacio fino
       .trim()
 
     // Si tiene AM/PM, parsear manualmente
@@ -135,7 +135,8 @@ function isMediaOnly(text: string): boolean {
 
 function detectFormat(rawText: string): 'android' | 'ios' {
   // iOS no usa corchetes — busca el patrón DD/MM/YYYY, H:MM - Nombre:
-  const iosHits     = (rawText.match(/^\d{1,2}\/\d{1,2}\/\d{4},\s\d{1,2}:\d{2}\s(?:a\.|p\.)/m) ?? []).length
+  // iOS (4 díg + coma) y Latam (2 díg, sin coma): coma opcional, año 2-4 díg, separador espacio/espacio fino
+  const iosHits     = (rawText.match(/^\d{1,2}\/\d{1,2}\/\d{2,4},?\s+\d{1,2}:\d{2}\s*(?:a\.|p\.)/m) ?? []).length
   const androidHits = (rawText.match(/^\[\d{1,2}\/\d{1,2}\/\d{2,4},/m) ?? []).length
   return iosHits > 0 && androidHits === 0 ? 'ios' : 'android'
 }
@@ -169,16 +170,16 @@ function parseWhatsAppChat(rawText: string): ParsedMessage[] {
       if (!sent_at) continue
 
       // Limpiar el sender (quitar ~ y caracteres especiales de Unicode)
-      const cleanSender = sender.replace(/^~\s*/, '').replace(/[‎‏‪-‮]/g, '').trim()
+      const cleanSender = sender.replace(/^~\s*/, '').replace(/[\u200e\u200f\u202a-\u202e]/g, '').trim()
 
       current = {
         sender_name: cleanSender,
         sent_at,
-        message_text: text.replace(/[‎‏]/g, '').trim(),
+        message_text: text.replace(/[\u200e\u200f]/g, '').trim(),
       }
     } else if (current && line.trim()) {
       // Línea de continuación (mensaje multilinea)
-      current.message_text += '\n' + line.replace(/[‎‏]/g, '').trim()
+      current.message_text += '\n' + line.replace(/[\u200e\u200f]/g, '').trim()
     }
   }
 
@@ -193,7 +194,7 @@ function parseWhatsAppChat(rawText: string): ParsedMessage[] {
   return messages
 }
 
-// ─── Transcripción de audios con Whisper ─────────────────────────────────────
+// --- Transcripción de audios con Whisper -------------------------------------
 // Recibe un archivo de audio como ArrayBuffer y devuelve el transcript en texto.
 // Modelo: whisper-1 (~$0.006 USD/min). Acepta .opus, .ogg, .m4a directamente.
 
@@ -228,7 +229,7 @@ async function transcribeAudio(
   return { transcript: text }
 }
 
-// Construye un mapa filename → transcript. Retorna también los errores para diagnóstico.
+// Construye un mapa filename \u2192 transcript. Retorna también los errores para diagnóstico.
 async function buildAudioTranscripts(
   audioFiles: { filename: string; storage_path: string }[],
   supabaseClient: ReturnType<typeof createClient>,
@@ -277,7 +278,7 @@ function injectTranscripts(rawText: string, transcripts: Map<string, string>): {
   let injected = 0
   const usedFilenames = new Set<string>()
 
-  // ── Paso 1: match exacto por filename ────────────────────────────────────────
+  // -- Paso 1: match exacto por filename ----------------------------------------
   // Cubre: PTT-20260512-WA0024.opus (archivo adjunto) — Android / algunos iOS
   const pass1 = lines.map(line => {
     const fm = line.match(/([A-Za-z]+-\d{8}-(?:WA)?\d+\.(?:opus|ogg|m4a|mp3|aac))/i)
@@ -294,7 +295,7 @@ function injectTranscripts(rawText: string, transcripts: Map<string, string>): {
     return line
   })
 
-  // ── Paso 2: match temporal para <Multimedia omitido> ─────────────────────────
+  // -- Paso 2: match temporal para <Multimedia omitido> -------------------------
   // Cubre: <Multimedia omitido>, <Media omitted> — iOS exportado con archivos
   // Ordena los transcripts no usados por fecha+secuencia del filename (orden cronológico)
   const unusedPool = [...transcripts.entries()]
@@ -322,7 +323,7 @@ function injectTranscripts(rawText: string, transcripts: Map<string, string>): {
   return { text: pass2.join('\n'), injected }
 }
 
-// ─── Clasificador con Claude API ─────────────────────────────────────────────
+// --- Clasificador con Claude API ---------------------------------------------
 
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages'
 const BATCH_SIZE = 40
@@ -387,7 +388,7 @@ Responde ÚNICAMENTE con un JSON array con exactamente ${messages.length} objeto
   }))
 }
 
-// ─── Generador de resúmenes diarios ──────────────────────────────────────────
+// --- Generador de resúmenes diarios ------------------------------------------
 
 async function generateDailySummary(
   date: string,
@@ -479,7 +480,7 @@ Reglas: máximo 5 action_items. Cada summary en 1-3 oraciones. En español. Orie
   }
 }
 
-// ─── Handler principal ────────────────────────────────────────────────────────
+// --- Handler principal --------------------------------------------------------
 
 serve(async (req) => {
   const corsHeaders = {
@@ -656,7 +657,7 @@ serve(async (req) => {
           messages_parsed: parsed.length,
           messages_classified: classified.length,
           days_processed: byDate.size,
-          date_range: `${dateStart} → ${dateEnd}`,
+          date_range: `${dateStart} \u2192 ${dateEnd}`,
           urgent: classified.filter(m => m.priority === 'urgent').length,
           medium: classified.filter(m => m.priority === 'medium').length,
           low: classified.filter(m => m.priority === 'low').length,
