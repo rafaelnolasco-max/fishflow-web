@@ -8,10 +8,12 @@ import type {
   VetPet,
   VetAppointment,
   VetVisitSummary,
+  VetVisitSummaryRaw,
   VetSpecies,
   VetApptStatus,
   VetConfirmStatus,
 } from "@/lib/supabase";
+import SessionRecorder from "@/components/SessionRecorder";
 
 // ─── Paleta SieckVet (veterinaria — teal/verde, confianza y salud) ───────────────
 const C = {
@@ -117,6 +119,14 @@ export default function SieckVetPage() {
   const [showApptModal, setShowApptModal] = useState(false);
   const [viewSummary, setViewSummary] = useState<VetVisitSummary | null>(null);
   const [detailPet, setDetailPet] = useState<VetPet | null>(null);
+  const [consultaAppt, setConsultaAppt] = useState<VetAppointment | null>(null);
+
+  // Resumen existente (si hay) para la cita en consulta
+  const summaryByAppt = useMemo(() => {
+    const m = new Map<string, VetVisitSummary>();
+    summaries.forEach((s) => m.set(s.appointment_id, s));
+    return m;
+  }, [summaries]);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -295,6 +305,10 @@ export default function SieckVetPage() {
                 {appts.map((a) => {
                   const sm = STATUS_META[a.status];
                   const cm = CONFIRM_META[a.confirmation_status];
+                  const sum = summaryByAppt.get(a.id);
+                  const consultaLabel = sum
+                    ? (sum.sent_at ? "Ver resumen" : "Revisar resumen")
+                    : "Abrir consulta";
                   return (
                     <div key={a.id} style={{ ...rowStyle, alignItems: "flex-start" }}>
                       <div style={{ width: 40, height: 40, borderRadius: 10, background: C.mint,
@@ -311,8 +325,19 @@ export default function SieckVetPage() {
                         <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                           <Chip {...sm} />
                           <Chip {...cm} />
+                          {sum && !sum.sent_at && sum.ai_processed && !sum.approved_at && (
+                            <Chip label="Borrador IA — revisar" bg="#FDF1E3" fg="#B5701F" />
+                          )}
                         </div>
                       </div>
+                      {a.status !== "cancelled" && (
+                        <button onClick={() => { if (sum?.sent_at) setViewSummary(sum); else setConsultaAppt(a); }}
+                          style={{ alignSelf: "center", flexShrink: 0, background: sum && !sum.sent_at ? C.amber : C.teal,
+                            color: "#fff", border: "none", borderRadius: 9, padding: "8px 14px",
+                            fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
+                          {consultaLabel}
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -355,8 +380,13 @@ export default function SieckVetPage() {
                     ? { label: "Aprobado, sin enviar", bg: "#E7F0FB", fg: "#2A6BB0" }
                     : { label: "Borrador — revisar", bg: "#FDF1E3", fg: "#B5701F" };
                   const pet = s.appointment?.pet;
+                  const openSummary = () => {
+                    if (s.sent_at) { setViewSummary(s); return; }
+                    const appt = appts.find((a) => a.id === s.appointment_id);
+                    if (appt) setConsultaAppt(appt); else setViewSummary(s);
+                  };
                   return (
-                    <button key={s.id} onClick={() => setViewSummary(s)} style={{ ...rowStyle, textAlign: "left", cursor: "pointer", width: "100%" }}>
+                    <button key={s.id} onClick={openSummary} style={{ ...rowStyle, textAlign: "left", cursor: "pointer", width: "100%" }}>
                       <div style={{ width: 40, height: 40, borderRadius: 10, background: C.mint,
                         display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>
                         {speciesIcon(pet?.species ?? "otro")}
@@ -395,6 +425,14 @@ export default function SieckVetPage() {
       {showApptModal && <ApptModal pets={pets} vets={vets} onClose={() => setShowApptModal(false)} onSave={addAppt} />}
       {viewSummary && <SummaryModal summary={viewSummary} onClose={() => setViewSummary(null)} />}
       {detailPet && <PetDetailModal pet={detailPet} appts={appts.filter((a) => a.pet_id === detailPet.id)} onClose={() => setDetailPet(null)} />}
+      {consultaAppt && (
+        <ConsultaModal
+          appt={consultaAppt}
+          existing={summaryByAppt.get(consultaAppt.id) ?? null}
+          onClose={() => setConsultaAppt(null)}
+          onChanged={(msg) => { if (msg) showToast(msg); loadAll(); }}
+        />
+      )}
     </div>
   );
 }
@@ -655,5 +693,218 @@ function PetDetailModal({ pet, appts, onClose }: { pet: VetPet; appts: VetAppoin
         </div>
       )}
     </Modal>
+  );
+}
+
+// ─── Flujo de consulta (Fase 3): entrada → IA → revisión del vet ──────────────────
+function ConsultaModal({ appt, existing, onClose, onChanged }: {
+  appt: VetAppointment; existing: VetVisitSummary | null;
+  onClose: () => void; onChanged: (msg?: string) => void;
+}) {
+  const [summary, setSummary] = useState<VetVisitSummary | null>(existing);
+  const [mode, setMode] = useState<"entry" | "review">(existing ? "review" : "entry");
+  const [entryTab, setEntryTab] = useState<"texto" | "voz">("texto");
+  const [notes, setNotes] = useState("");
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const pet = appt.pet;
+
+  async function generateFromText() {
+    if (notes.trim().length < 10) { setError("Escribe al menos unas líneas de la consulta."); return; }
+    setProcessing(true); setError(null);
+    try {
+      const res = await fetch("/api/sieckvet/process-visit", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointment_id: appt.id, transcript: notes, source_type: "manual" }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.summary) throw new Error(data.error ?? "No se pudo generar el resumen");
+      setSummary(data.summary as VetVisitSummary);
+      setMode("review");
+      onChanged();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error inesperado");
+    } finally { setProcessing(false); }
+  }
+
+  async function handleRecorded(r: { storagePath: string; filename: string; durationSeconds: number }) {
+    setProcessing(true); setError(null);
+    try {
+      const res = await fetch("/api/sieckvet/record-visit", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          appointment_id: appt.id, storage_path: r.storagePath,
+          filename: r.filename, duration_seconds: r.durationSeconds,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.summary) throw new Error(data.error ?? "No se pudo procesar la grabación");
+      setSummary(data.summary as VetVisitSummary);
+      setMode("review");
+      onChanged();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error inesperado");
+    } finally { setProcessing(false); }
+  }
+
+  return (
+    <Modal title={`Consulta — ${pet?.name ?? "Paciente"}`} onClose={onClose} wide>
+      <div style={{ fontSize: 12, color: C.muted, marginBottom: 16 }}>
+        {pet?.owner_name ? `Dueño: ${pet.owner_name}` : ""}{appt.vet ? ` · ${appt.vet.name}` : ""}
+        {appt.reason ? ` · ${appt.reason}` : ""}
+      </div>
+
+      {mode === "entry" && (
+        <>
+          <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+            {(["texto", "voz"] as const).map((t) => (
+              <button key={t} onClick={() => setEntryTab(t)} disabled={processing}
+                style={{ flex: 1, padding: "9px", borderRadius: 9, cursor: "pointer",
+                  border: `1px solid ${entryTab === t ? C.teal : C.border}`,
+                  background: entryTab === t ? C.mint : "#fff",
+                  color: entryTab === t ? C.tealDark : C.muted, fontWeight: 600, fontSize: 13 }}>
+                {t === "texto" ? "✍️ Notas de texto" : "🎙️ Grabar consulta"}
+              </button>
+            ))}
+          </div>
+
+          {entryTab === "texto" ? (
+            <>
+              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} disabled={processing}
+                placeholder="Escribe o pega las notas de la consulta: hallazgos, diagnóstico, tratamiento indicado…"
+                style={{ ...inputStyle, minHeight: 160, resize: "vertical", lineHeight: 1.5 }} />
+              <button onClick={generateFromText} disabled={processing}
+                style={{ width: "100%", marginTop: 12, background: processing ? C.tealLight : C.teal,
+                  color: "#fff", border: "none", borderRadius: 10, padding: "11px", fontSize: 14,
+                  fontWeight: 700, cursor: processing ? "default" : "pointer" }}>
+                {processing ? "Generando con IA…" : "Generar resumen con IA"}
+              </button>
+            </>
+          ) : (
+            <div style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: "18px 14px" }}>
+              <SessionRecorder
+                clientId={SIECKVET_CLIENT_ID}
+                module="vet_visit"
+                refId={appt.id}
+                disabled={processing}
+                onUploaded={handleRecorded}
+                accent={C.teal}
+              />
+              <p style={{ fontSize: 11, color: C.muted, textAlign: "center", lineHeight: 1.5, marginTop: 8 }}>
+                Al detener, el audio se transcribe y la IA genera el borrador. Nada se envía al dueño hasta que el veterinario apruebe.
+              </p>
+            </div>
+          )}
+
+          {processing && entryTab === "voz" && (
+            <p style={{ fontSize: 12, color: C.muted, textAlign: "center", marginTop: 10 }}>
+              Procesando con IA…
+            </p>
+          )}
+          {error && <p style={{ color: C.alert, fontSize: 13, marginTop: 12 }}>{error}</p>}
+        </>
+      )}
+
+      {mode === "review" && summary && (
+        <ReviewForm
+          summary={summary}
+          onRegenerate={() => { setMode("entry"); setNotes(""); }}
+          onSaved={(updated, msg) => { setSummary(updated); onChanged(msg); }}
+        />
+      )}
+    </Modal>
+  );
+}
+
+function ReviewForm({ summary, onRegenerate, onSaved }: {
+  summary: VetVisitSummary;
+  onRegenerate: () => void;
+  onSaved: (updated: VetVisitSummary, msg?: string) => void;
+}) {
+  const r0 = summary.raw_summary ?? {};
+  const [motivo, setMotivo] = useState(r0.motivo ?? "");
+  const [diagnostico, setDiagnostico] = useState(r0.diagnostico ?? "");
+  const [indicaciones, setIndicaciones] = useState(r0.indicaciones ?? "");
+  const [proximaCita, setProximaCita] = useState(r0.proxima_cita ?? "");
+  const [ownerMsg, setOwnerMsg] = useState(summary.owner_summary ?? "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const approved = !!summary.approved_at;
+
+  async function persist(approve: boolean) {
+    setSaving(true); setError(null);
+    const raw: VetVisitSummaryRaw = {
+      motivo, diagnostico, indicaciones, proxima_cita: proximaCita,
+    };
+    const patch: Record<string, unknown> = { raw_summary: raw, owner_summary: ownerMsg };
+    if (approve) patch.approved_at = new Date().toISOString();
+    const { data, error: err } = await supabase
+      .from("vet_visit_summaries").update(patch).eq("id", summary.id).select().single();
+    setSaving(false);
+    if (err) { setError(err.message); return; }
+    onSaved(data as VetVisitSummary, approve ? "Resumen aprobado" : "Borrador guardado");
+  }
+
+  return (
+    <div>
+      <div style={{ background: approved ? "#E6F4EC" : "#FDF1E3",
+        border: `1px solid ${approved ? "#A9D6BC" : "#EBC99A"}`, borderRadius: 10,
+        padding: "10px 14px", fontSize: 12, color: approved ? "#2E6B47" : "#8A5A1F", marginBottom: 16 }}>
+        {approved
+          ? "✓ Resumen aprobado por el veterinario. Listo para enviar (Fase 4)."
+          : "⏳ Borrador generado por IA. Revisa y edita lo que haga falta antes de aprobar. Nada se envía al dueño hasta entonces."}
+      </div>
+
+      <Field label="🔍 Motivo de consulta">
+        <input style={inputStyle} value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+      </Field>
+      <Field label="💊 Diagnóstico / Observaciones">
+        <textarea style={{ ...inputStyle, minHeight: 64, resize: "vertical" }} value={diagnostico} onChange={(e) => setDiagnostico(e.target.value)} />
+      </Field>
+      <Field label="📋 Indicaciones">
+        <textarea style={{ ...inputStyle, minHeight: 64, resize: "vertical" }} value={indicaciones} onChange={(e) => setIndicaciones(e.target.value)} />
+      </Field>
+      <Field label="📅 Próxima cita recomendada">
+        <input style={inputStyle} value={proximaCita} onChange={(e) => setProximaCita(e.target.value)} />
+      </Field>
+
+      <details style={{ margin: "4px 0 16px" }}>
+        <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 600, color: C.tealDark }}>
+          Mensaje que verá el dueño (editable)
+        </summary>
+        <textarea style={{ ...inputStyle, minHeight: 130, resize: "vertical", marginTop: 10, lineHeight: 1.5 }}
+          value={ownerMsg} onChange={(e) => setOwnerMsg(e.target.value)} />
+      </details>
+
+      {error && <p style={{ color: C.alert, fontSize: 13, marginBottom: 12 }}>{error}</p>}
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button onClick={onRegenerate} disabled={saving}
+          style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 9,
+            padding: "10px 14px", fontSize: 13, color: C.muted, cursor: "pointer" }}>
+          ↺ Regenerar
+        </button>
+        <button onClick={() => persist(false)} disabled={saving}
+          style={{ flex: 1, minWidth: 130, background: "#fff", border: `1px solid ${C.teal}`,
+            borderRadius: 9, padding: "10px 14px", fontSize: 13, fontWeight: 600,
+            color: C.tealDark, cursor: saving ? "default" : "pointer" }}>
+          Guardar borrador
+        </button>
+        <button onClick={() => persist(true)} disabled={saving}
+          style={{ flex: 1, minWidth: 130, background: saving ? C.tealLight : C.teal, color: "#fff",
+            border: "none", borderRadius: 9, padding: "10px 14px", fontSize: 13, fontWeight: 700,
+            cursor: saving ? "default" : "pointer" }}>
+          {approved ? "Re-aprobar" : "Aprobar"}
+        </button>
+      </div>
+
+      <button disabled title="Disponible en la Fase 4"
+        style={{ width: "100%", marginTop: 10, background: C.cream, color: C.muted,
+          border: `1px dashed ${C.border}`, borderRadius: 9, padding: "10px", fontSize: 13,
+          cursor: "not-allowed" }}>
+        ✉️ Enviar al dueño (Fase 4)
+      </button>
+    </div>
   );
 }
