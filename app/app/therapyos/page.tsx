@@ -289,11 +289,13 @@ function NewSessionModal({
   defaultPatientId,
   onClose,
   onSaved,
+  isMobile = false,
 }: {
   patients: TherapyPatient[];
   defaultPatientId: string | null;
   onClose: () => void;
   onSaved: (session: TherapySession) => void;
+  isMobile?: boolean;
 }) {
   const [patientId, setPatientId]   = useState(defaultPatientId ?? "");
   const [transcript, setTranscript] = useState("");
@@ -376,18 +378,22 @@ function NewSessionModal({
   return (
     <div style={{
       position: "fixed", inset: 0, background: "rgba(44,44,44,0.6)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      zIndex: 100, padding: 24,
+      display: "flex", alignItems: isMobile ? "flex-end" : "center",
+      justifyContent: "center",
+      zIndex: 100, padding: isMobile ? 0 : 24,
     }}>
       <div style={{
-        background: "white", borderRadius: 16, width: "100%", maxWidth: 700,
-        maxHeight: "90vh", overflow: "auto",
+        background: "white", borderRadius: isMobile ? "16px 16px 0 0" : 16,
+        width: "100%", maxWidth: 700,
+        maxHeight: isMobile ? "92vh" : "90vh", overflow: "auto",
         boxShadow: "0 24px 64px rgba(0,0,0,0.18)",
       }}>
         {/* Header */}
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "22px 28px 18px", borderBottom: `1px solid ${C.border}`,
+          padding: isMobile ? "18px 18px 14px" : "22px 28px 18px",
+          borderBottom: `1px solid ${C.border}`,
+          position: "sticky", top: 0, background: "white", zIndex: 1,
         }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 400 }}>
             Nueva sesión
@@ -398,7 +404,8 @@ function NewSessionModal({
           }}>✕</button>
         </div>
 
-        <div style={{ padding: "24px 28px", display: "flex", flexDirection: "column", gap: 18 }}>
+        <div style={{ padding: isMobile ? "18px 18px 28px" : "24px 28px",
+          display: "flex", flexDirection: "column", gap: 18 }}>
           {/* Patient selector */}
           <div>
             <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
@@ -445,7 +452,7 @@ function NewSessionModal({
               color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
               Fuente de transcripción
             </label>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {(["manual", "fireflies", "recorder"] as const).map(mode => (
                 <button key={mode} onClick={() => { setImportMode(mode); setPreview(null); }} style={{
                   padding: "8px 16px", borderRadius: 8, fontSize: 13,
@@ -625,6 +632,31 @@ export default function TherapyOSPage() {
   const [editingNote, setEditingNote]   = useState(false);
   const [noteValue, setNoteValue]       = useState("");
 
+  // ── Responsive ────────────────────────────────────────────────────────────────
+  const [isMobile, setIsMobile]   = useState(false);
+  const [isTablet, setIsTablet]   = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    const mqMobile = window.matchMedia("(max-width: 767px)");
+    const mqTablet = window.matchMedia("(min-width: 768px) and (max-width: 1023px)");
+    const sync = () => {
+      setIsMobile(mqMobile.matches);
+      setIsTablet(mqTablet.matches);
+      if (!mqMobile.matches) setDrawerOpen(false);
+    };
+    sync();
+    mqMobile.addEventListener("change", sync);
+    mqTablet.addEventListener("change", sync);
+    return () => {
+      mqMobile.removeEventListener("change", sync);
+      mqTablet.removeEventListener("change", sync);
+    };
+  }, []);
+
+  // true cuando hay que apilar columnas y reducir paddings
+  const stack = isMobile || isTablet;
+
   // ── Auth + carga de pacientes ────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -801,11 +833,32 @@ export default function TherapyOSPage() {
         background: C.warmWhite, color: C.charcoal,
       }}>
 
+        {/* ─── Overlay del drawer (solo móvil) ──────────────────────────────── */}
+        {isMobile && drawerOpen && (
+          <div
+            onClick={() => setDrawerOpen(false)}
+            style={{
+              position: "fixed", inset: 0, background: "rgba(44,44,44,0.5)",
+              zIndex: 89,
+            }}
+          />
+        )}
+
         {/* ─── SIDEBAR ──────────────────────────────────────────────────────── */}
         <aside style={{
-          width: 260, background: C.charcoal, padding: "32px 20px",
+          width: isMobile ? 280 : 260, background: C.charcoal, padding: "32px 20px",
           flexShrink: 0, display: "flex", flexDirection: "column", gap: 24,
-          position: "sticky", top: 0, height: "100vh", overflowY: "auto",
+          ...(isMobile
+            ? {
+                position: "fixed", top: 0, left: 0, height: "100vh",
+                zIndex: 90, overflowY: "auto",
+                transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
+                transition: "transform .25s ease",
+                boxShadow: drawerOpen ? "4px 0 24px rgba(0,0,0,0.25)" : "none",
+              }
+            : {
+                position: "sticky", top: 0, height: "100vh", overflowY: "auto",
+              }),
         }}>
           {/* Logo */}
           <div style={{
@@ -849,7 +902,7 @@ export default function TherapyOSPage() {
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {filteredPatients.map(p => (
-                  <button key={p.id} onClick={() => setSelectedId(p.id)} style={{
+                  <button key={p.id} onClick={() => { setSelectedId(p.id); setDrawerOpen(false); }} style={{
                     display: "flex", alignItems: "center", gap: 10,
                     padding: "9px 12px", borderRadius: 8,
                     background: selectedId === p.id
@@ -909,7 +962,7 @@ export default function TherapyOSPage() {
           )}
 
           {/* Botón nueva sesión */}
-          <button onClick={() => setShowNewSession(true)} style={{
+          <button onClick={() => { setShowNewSession(true); setDrawerOpen(false); }} style={{
             padding: "12px 16px", borderRadius: 10,
             background: C.sage, border: "none",
             color: "white", fontSize: 14, fontWeight: 500,
@@ -931,7 +984,35 @@ export default function TherapyOSPage() {
         </aside>
 
         {/* ─── MAIN ─────────────────────────────────────────────────────────── */}
-        <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <main style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+
+          {/* Barra superior móvil con hamburguesa */}
+          {isMobile && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 14,
+              padding: "14px 16px", background: C.charcoal,
+              position: "sticky", top: 0, zIndex: 20,
+            }}>
+              <button
+                onClick={() => setDrawerOpen(true)}
+                aria-label="Abrir menú"
+                style={{
+                  background: "rgba(255,255,255,.08)", border: "none",
+                  color: C.cream, fontSize: 18, lineHeight: 1,
+                  width: 38, height: 38, borderRadius: 8, cursor: "pointer",
+                  flexShrink: 0,
+                }}>
+                ☰
+              </button>
+              <span style={{
+                fontFamily: "'Playfair Display', serif", color: C.cream,
+                fontSize: 17, letterSpacing: ".02em",
+                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              }}>
+                {selectedPatient ? selectedPatient.full_name : "TherapyOS"}
+              </span>
+            </div>
+          )}
 
           {!selectedPatient ? (
             /* Estado vacío */
@@ -951,13 +1032,14 @@ export default function TherapyOSPage() {
               {/* Topbar */}
               <div style={{
                 background: "white", borderBottom: `1px solid ${C.border}`,
-                padding: "20px 36px", display: "flex",
+                padding: isMobile ? "14px 16px" : "20px 36px", display: "flex",
                 alignItems: "center", justifyContent: "space-between",
-                position: "sticky", top: 0, zIndex: 10,
+                gap: 12, flexWrap: "wrap",
+                position: "sticky", top: isMobile ? 66 : 0, zIndex: 10,
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
                   <div style={{
-                    width: 44, height: 44, borderRadius: "50%",
+                    width: 44, height: 44, borderRadius: "50%", flexShrink: 0,
                     background: C.sage, display: "flex", alignItems: "center",
                     justifyContent: "center", color: "white", fontSize: 15, fontWeight: 500,
                   }}>
@@ -990,7 +1072,10 @@ export default function TherapyOSPage() {
 
               {/* Stats */}
               <div style={{
-                display: "flex", gap: 12, padding: "16px 36px 0",
+                display: isMobile ? "grid" : "flex",
+                gridTemplateColumns: isMobile ? "1fr 1fr" : undefined,
+                gap: isMobile ? 8 : 12,
+                padding: isMobile ? "14px 16px 0" : "16px 36px 0",
                 background: "white", borderBottom: `1px solid ${C.border}`,
               }}>
                 {[
@@ -1000,8 +1085,9 @@ export default function TherapyOSPage() {
                   { num: selectedPatient.session_fee ? `$${selectedPatient.session_fee.toLocaleString("es-MX")}` : "—", label: "Tarifa/sesión" },
                 ].map(s => (
                   <div key={s.label} style={{
-                    flex: 1, padding: "12px 16px", background: C.cream,
-                    borderRadius: "8px 8px 0 0", textAlign: "center", marginBottom: -1,
+                    flex: isMobile ? undefined : 1, padding: "12px 16px", background: C.cream,
+                    borderRadius: isMobile ? 8 : "8px 8px 0 0", textAlign: "center",
+                    marginBottom: isMobile ? 0 : -1,
                   }}>
                     <span style={{ fontFamily: "'Playfair Display', serif",
                       fontSize: 22, color: C.sageDark, display: "block" }}>
@@ -1018,7 +1104,8 @@ export default function TherapyOSPage() {
               {/* Tabs */}
               <div style={{
                 display: "flex", borderBottom: `1px solid ${C.border}`,
-                background: "white", paddingLeft: 36,
+                background: "white", paddingLeft: isMobile ? 16 : 36,
+                overflowX: "auto", WebkitOverflowScrolling: "touch",
               }}>
                 {([
                   { id: "briefing",    label: "⚡ Briefing" },
@@ -1042,8 +1129,9 @@ export default function TherapyOSPage() {
               </div>
 
               {/* Content */}
-              <div style={{ flex: 1, overflowY: "auto", padding: "28px 36px",
-                display: "flex", gap: 24 }}>
+              <div style={{ flex: 1, overflowY: "auto",
+                padding: isMobile ? "20px 16px" : "28px 36px",
+                display: "flex", flexDirection: stack ? "column" : "row", gap: 24 }}>
 
                 {loadingSessions ? (
                   <p style={{ color: C.muted }}>Cargando sesiones…</p>
@@ -1340,7 +1428,8 @@ export default function TherapyOSPage() {
                     </div>
 
                     {/* Columna derecha */}
-                    <div style={{ width: 300, display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div style={{ width: stack ? "100%" : 300, flexShrink: 0,
+                      display: "flex", flexDirection: "column", gap: 16 }}>
 
                       {/* Próxima cita */}
                       {selectedPatient.next_session_at && (
@@ -1485,6 +1574,7 @@ export default function TherapyOSPage() {
           defaultPatientId={selectedId}
           onClose={() => setShowNewSession(false)}
           onSaved={handleSessionSaved}
+          isMobile={isMobile}
         />
       )}
 
