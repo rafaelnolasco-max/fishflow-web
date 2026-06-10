@@ -4,23 +4,10 @@ import { NextResponse, type NextRequest } from "next/server";
 // ─── Email del administrador (solo Rafa puede entrar a /admin) ────────────────
 const ADMIN_EMAIL = "rafaelnolasco@gmail.com";
 
-// ─── Acceso por ruta de cliente — vacío = cualquier autenticado ───────────────
-const CLIENT_EMAILS: Record<string, string[]> = {
-  "/app/tba":         ["andres@telecomba.com", "rafaelnolasco@gmail.com", "carlosnolascocas@gmail.com"],
-  // Belange Estética — Alberto
-  "/app/belange":     ["belangestudio@gmail.com", "rafaelnolasco@gmail.com"],
-  "/app/lukon":       ["rafaelnolasco@gmail.com", "aalmarazmo@lukon.com.mx"],
-  // TherapyOS — Mario Citalán
-  "/app/therapyos":   ["mariocitalan@gmail.com", "rafaelnolasco@gmail.com"],
-  // CANE Neurofeedback — Karla Ruiz
-  "/app/cane":        ["rafaelnolasco@gmail.com", "karlaalonsoruiz@gmail.com"],
-  // Autolavado — Carlos Alonso
-  "/app/autolavado":  ["alonsoalonso68@hotmail.com", "rafaelnolasco@gmail.com"],
-  // SieckVet — Veterinaria (demo vivo, solo Rafa por ahora)
-  "/app/sieckvet":    ["rafaelnolasco@gmail.com"],
-  // Sparc — Eduardo Curiel
-  "/app/sparc":       ["direcciongeneral@sparc.mx", "rafaelnolasco@gmail.com"],
-};
+// ─── Acceso por cliente: tabla user_client_access en Supabase ─────────────────
+// El acceso a /app/[slug] se valida con la función user_has_access_to_slug()
+// (SECURITY DEFINER, consulta user_client_access + clients.slug).
+// Onboarding de cliente nuevo = 2 inserts en Supabase, sin tocar este archivo.
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -76,14 +63,15 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Verificar restricción de email por ruta de cliente
-    const matchedRoute = Object.keys(CLIENT_EMAILS).find(route =>
-      pathname.startsWith(route)
-    );
-    if (matchedRoute) {
-      const allowed = CLIENT_EMAILS[matchedRoute];
-      if (allowed.length > 0 && !allowed.includes(user.email ?? "")) {
-        // Usuario autenticado pero no tiene acceso a este cliente → landing
+    // Verificar acceso por cliente via user_client_access (Rafa siempre pasa)
+    if (user.email !== ADMIN_EMAIL) {
+      const slug = pathname.split("/")[2] ?? "";
+      const { data: hasAccess, error } = await supabase.rpc(
+        "user_has_access_to_slug",
+        { p_slug: slug }
+      );
+      if (error || !hasAccess) {
+        // Sin acceso (o error en la verificación → fail closed) → landing
         return NextResponse.redirect(new URL("/", request.url));
       }
     }
