@@ -76,6 +76,28 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-MX", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
+// ─── Normalización de servicios ─────────────────────────────────────────────
+// El campo "service" es texto libre. Agrupamos variantes en categorías al
+// mostrar, sin obligar a cambiar la captura. Reglas por prioridad: la primera
+// palabra clave que aparezca define la categoría. Ajustable a gusto de Rafa.
+const SERVICE_RULES: { label: string; keywords: string[] }[] = [
+  { label: "Corte",       keywords: ["corte", "despunte", "fleco", "cortes"] },
+  { label: "Color",       keywords: ["color", "tinte", "mech", "rayos", "diseño", "ampolleta", "iluminaci", "balayage", "decolor"] },
+  { label: "Tratamiento", keywords: ["tratamiento", "hidrat", "keratina", "botox", "baño", "nutri", "alaciado", "alisado"] },
+  { label: "Barba",       keywords: ["barba", "afeit", "bigote"] },
+  { label: "Peinado",     keywords: ["peinado", "secado", "plancha", "ondas", "recogido"] },
+];
+
+function normalizeService(raw: string | null | undefined): string | null {
+  const s = (raw ?? "").trim().toLowerCase();
+  if (!s) return null;
+  for (const rule of SERVICE_RULES) {
+    if (rule.keywords.some(k => s.includes(k))) return rule.label;
+  }
+  // Sin coincidencia: devolvemos el texto original con mayúscula inicial.
+  return raw!.trim().charAt(0).toUpperCase() + raw!.trim().slice(1);
+}
+
 function toRows(rows: BelangeTransaction[]) {
   return [
     ["Fecha", "Cliente", "Servicio", "$ Servicio", "Producto", "Cant.", "$ Producto", "Total", "Método de pago"],
@@ -507,6 +529,62 @@ export default function BelangePage() {
   const ef    = byM("efectivo"), ta = byM("tarjeta"), tr = byM("transferencia");
   const maxBar = Math.max(ef, ta, tr, 1);
 
+  // ── Inteligencia del negocio (calculada sobre el período filtrado) ──
+  // Top clientes: visitas + gasto total
+  const topClients = (() => {
+    const m = new Map<string, { visitas: number; total: number }>();
+    for (const t of filtered) {
+      const name = (t.client_name ?? "").trim();
+      if (!name) continue;
+      const cur = m.get(name) ?? { visitas: 0, total: 0 };
+      cur.visitas += 1;
+      cur.total += t.price + (t.precio_producto ?? 0);
+      m.set(name, cur);
+    }
+    return [...m.entries()]
+      .map(([name, v]) => ({ name, ...v }))
+      .sort((a, b) => b.visitas - a.visitas || b.total - a.total)
+      .slice(0, 5);
+  })();
+
+  // Top servicios: por categoría normalizada
+  const topServices = (() => {
+    const m = new Map<string, { count: number; total: number }>();
+    for (const t of filtered) {
+      const cat = normalizeService(t.service);
+      if (!cat) continue;
+      const cur = m.get(cat) ?? { count: 0, total: 0 };
+      cur.count += 1;
+      cur.total += t.price;
+      m.set(cat, cur);
+    }
+    return [...m.entries()]
+      .map(([label, v]) => ({ label, ...v }))
+      .sort((a, b) => b.count - a.count || b.total - a.total)
+      .slice(0, 5);
+  })();
+
+  // Top productos: por unidades vendidas + monto
+  const topProducts = (() => {
+    const m = new Map<string, { qty: number; total: number }>();
+    for (const t of filtered) {
+      const name = (t.producto ?? "").trim();
+      if (!name) continue;
+      const cur = m.get(name) ?? { qty: 0, total: 0 };
+      cur.qty += t.qty ?? 1;
+      cur.total += t.precio_producto ?? 0;
+      m.set(name, cur);
+    }
+    return [...m.entries()]
+      .map(([name, v]) => ({ name, ...v }))
+      .sort((a, b) => b.qty - a.qty || b.total - a.total)
+      .slice(0, 5);
+  })();
+
+  const uniqueClients = new Set(filtered.map(t => (t.client_name ?? "").trim()).filter(Boolean)).size;
+  const cortesCount   = filtered.filter(t => normalizeService(t.service) === "Corte").length;
+  const maxSvc        = Math.max(1, ...topServices.map(s => s.count));
+
   // Productos con stock crítico
   const lowStockProducts = products.filter(isBelangeLowStock);
   const outOfStockCount = products.filter(p => p.stock_qty === 0).length;
@@ -763,6 +841,72 @@ export default function BelangePage() {
                       );
                     })}
                   </div>
+
+                  {/* ── Inteligencia del negocio ── */}
+                  <p style={{ ...secLabel, marginTop: "1.5rem" }}>Inteligencia del negocio</p>
+
+                  {/* Stats rápidas */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: isMobile ? 7 : 10, marginBottom: "1rem" }}>
+                    <MCard label="Clientes únicos" value={String(uniqueClients)} sub="en el período"        accent={FF_CYAN}   compact={isMobile} />
+                    <MCard label="Cortes"          value={String(cortesCount)}   sub="servicios de corte"  accent={FF_ORANGE} compact={isMobile} />
+                  </div>
+
+                  {filtered.length === 0 ? (
+                    <div style={card}>
+                      <p style={{ textAlign: "center", color: "#bbb", fontSize: 13, margin: 0, padding: "1rem 0" }}>Sin datos en este período</p>
+                    </div>
+                  ) : (<>
+                    {/* Clientes más frecuentes */}
+                    <div style={{ ...card, marginBottom: "1rem" }}>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: "#888", marginBottom: 12 }}>Clientes más frecuentes</p>
+                      {topClients.length === 0 ? (
+                        <p style={{ fontSize: 13, color: "#bbb", margin: 0 }}>Sin clientes registrados.</p>
+                      ) : topClients.map((c, i) => (
+                        <div key={c.name} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i === topClients.length - 1 ? 0 : 9 }}>
+                          <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#f0efeb", color: "#888", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{i + 1}</span>
+                          <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "#1a1a1a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</span>
+                          <span style={{ fontSize: 12, color: "#888", whiteSpace: "nowrap" }}>{c.visitas} visita{c.visitas !== 1 ? "s" : ""}</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: "#444", minWidth: 64, textAlign: "right" }}>{fmt(c.total)}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Servicios + Productos */}
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem" }}>
+                      {/* Servicios más realizados */}
+                      <div style={card}>
+                        <p style={{ fontSize: 12, fontWeight: 600, color: "#888", marginBottom: 12 }}>Servicios más realizados</p>
+                        {topServices.length === 0 ? (
+                          <p style={{ fontSize: 13, color: "#bbb", margin: 0 }}>Sin servicios registrados.</p>
+                        ) : topServices.map((s, i) => (
+                          <div key={s.label} style={{ marginBottom: i === topServices.length - 1 ? 0 : 11 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                              <span style={{ fontSize: 13, color: "#555" }}>{s.label}</span>
+                              <span style={{ fontSize: 12, fontWeight: 700, color: "#444" }}>{s.count}</span>
+                            </div>
+                            <div style={{ height: 6, background: "#f0efeb", borderRadius: 4, overflow: "hidden" }}>
+                              <div style={{ height: "100%", width: `${Math.round((s.count / maxSvc) * 100)}%`, background: FF_CYAN, borderRadius: 4, transition: "width .4s" }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Productos más vendidos */}
+                      <div style={card}>
+                        <p style={{ fontSize: 12, fontWeight: 600, color: "#888", marginBottom: 12 }}>Productos más vendidos</p>
+                        {topProducts.length === 0 ? (
+                          <p style={{ fontSize: 13, color: "#bbb", margin: 0 }}>Aún no hay ventas de producto en este período.</p>
+                        ) : topProducts.map((p, i) => (
+                          <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i === topProducts.length - 1 ? 0 : 9 }}>
+                            <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff1e6", color: "#b05200", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{i + 1}</span>
+                            <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "#1a1a1a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+                            <span style={{ fontSize: 12, color: "#888", whiteSpace: "nowrap" }}>{p.qty} ud{p.qty !== 1 ? "s" : ""}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: FF_ORANGE, minWidth: 56, textAlign: "right" }}>{fmt(p.total)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>)}
                 </>
               )}
             </>)}
