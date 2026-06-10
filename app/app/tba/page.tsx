@@ -35,6 +35,19 @@ function userColor(email: string | undefined | null): string {
   return "#999";
 }
 
+// ─── Responsive hook ──────────────────────────────────────────────────────────
+function useIsMobile(breakpoint = 760): boolean {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 // ─── Stage metadata ───────────────────────────────────────────────────────────
 const STAGE_META: Record<
   OpportunityStage,
@@ -122,12 +135,6 @@ function formatAmount(amount: number, currency: Currency): string {
   }).format(amount);
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("es-MX", {
-    day: "2-digit", month: "short", year: "numeric",
-  });
-}
-
 function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString("es-MX", {
     day: "2-digit", month: "short", year: "numeric",
@@ -181,6 +188,7 @@ function FishFlowMark({ size = 32 }: { size?: number }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function TBAPage() {
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   // ── Form state ──
   const [oppName,     setOppName]     = useState("");
@@ -196,6 +204,9 @@ export default function TBAPage() {
   const [saving,      setSaving]      = useState(false);
   const [ok,          setOk]          = useState("");
   const [err,         setErr]         = useState("");
+
+  // ── Mobile: collapse the "new opportunity" form by default ──
+  const [formOpen, setFormOpen] = useState(false);
 
   // ── Data state ──
   const [opps,        setOpps]        = useState<TBAOpportunity[]>([]);
@@ -456,41 +467,63 @@ export default function TBAPage() {
       {/* Header */}
       <header style={{
         background: "#fff", borderBottom: "0.5px solid #e5e4df",
-        height: 56, padding: "0 1.5rem",
+        minHeight: 56, padding: isMobile ? "0 1rem" : "0 1.5rem",
         display: "flex", alignItems: "center", justifyContent: "space-between",
+        position: "sticky", top: 0, zIndex: 30,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{
             width: 34, height: 34, borderRadius: "50%",
             background: "linear-gradient(135deg,#e8f0fe,#c7d8fc)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 11, fontWeight: 700, color: "#1a56cc",
+            fontSize: 11, fontWeight: 700, color: "#1a56cc", flexShrink: 0,
           }}>TBA</div>
           <div>
             <p style={{ fontSize: 15, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>TBA Telecom</p>
             <p style={{ fontSize: 11, color: "#888", margin: 0 }}>CRM de oportunidades</p>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
-            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.5 }}>
-            <FishFlowMark size={22} />
-            <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
-          </a>
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12 }}>
+          {!isMobile && (
+            <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
+              style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.5 }}>
+              <FishFlowMark size={22} />
+              <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
+            </a>
+          )}
           <button onClick={handleLogout} style={{
             background: "transparent", border: "0.5px solid #e5e4df",
-            borderRadius: 6, padding: "5px 10px", fontSize: 11, color: "#aaa", cursor: "pointer",
+            borderRadius: 6, padding: "7px 12px", fontSize: 11, color: "#aaa", cursor: "pointer",
           }}>⎋ Salir</button>
         </div>
       </header>
 
       {/* Body */}
-      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "1.5rem 1.25rem" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: "1.5rem", alignItems: "start" }}>
+      <main style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "1rem 0.875rem" : "1.5rem 1.25rem" }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : "360px 1fr",
+          gap: isMobile ? "1.25rem" : "1.5rem",
+          alignItems: "start",
+        }}>
 
           {/* ── Formulario ── */}
           <div>
-            <p style={sectionLabel}>Nueva oportunidad</p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <p style={sectionLabel}>Nueva oportunidad</p>
+              {isMobile && (
+                <button onClick={() => setFormOpen(o => !o)} style={{
+                  background: formOpen ? "#f0efeb" : FF_CYAN,
+                  border: "none", borderRadius: 8,
+                  padding: "7px 14px", fontSize: 13, fontWeight: 700,
+                  color: formOpen ? "#444" : "#fff", cursor: "pointer", marginBottom: 10,
+                }}>
+                  {formOpen ? "Cerrar ✕" : "+ Registrar"}
+                </button>
+              )}
+            </div>
+
+            {(!isMobile || formOpen) && (
             <form onSubmit={handleSubmit} style={card}>
 
               <Field label="Nombre de la oportunidad *">
@@ -514,7 +547,7 @@ export default function TBAPage() {
                 <div style={{ display: "flex", gap: 5 }}>
                   {(["hardware", "licencia", "hardware_licencia"] as ProductType[]).map(pt => (
                     <button key={pt} type="button" onClick={() => setProductType(pt)} style={{
-                      flex: 1, padding: "9px 4px",
+                      flex: 1, padding: "10px 4px",
                       border: productType === pt ? `1.5px solid ${FF_CYAN}` : "0.5px solid #ddd",
                       borderRadius: 8,
                       background: productType === pt ? "#e4f8fb" : "#fff",
@@ -578,15 +611,16 @@ export default function TBAPage() {
               {ok  && <p style={{ fontSize: 12, color: "#27ae60", marginBottom: 8 }}>{ok}</p>}
 
               <button type="submit" disabled={saving} style={{
-                width: "100%", padding: "11px 0",
+                width: "100%", padding: "13px 0",
                 background: saving ? "#aaa" : FF_CYAN,
                 border: "none", borderRadius: 8, color: "#fff",
-                fontSize: 14, fontWeight: 700,
+                fontSize: 15, fontWeight: 700,
                 cursor: saving ? "not-allowed" : "pointer", marginTop: 2,
               }}>
                 {saving ? "Guardando…" : "Registrar oportunidad"}
               </button>
             </form>
+            )}
           </div>
 
           {/* ── Dashboard ── */}
@@ -594,7 +628,7 @@ export default function TBAPage() {
             <p style={sectionLabel}>Pipeline</p>
 
             {/* Metric cards — row 1: pipeline */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: 10 }}>
               <MetricCard
                 label="Pipeline activo"
                 value={pipelineLabel(pipelineUSD, pipelineMXN)}
@@ -616,7 +650,7 @@ export default function TBAPage() {
             </div>
 
             {/* Metric cards — row 2: comisiones */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "1.25rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: "1.25rem" }}>
               <MetricCard
                 label="💰 Comisión Rafa"
                 value={commissionLabel(commRafaUSD, commRafaMXN)}
@@ -641,8 +675,8 @@ export default function TBAPage() {
                 const barPct    = Math.round((stageUSD / maxFunnelVal) * 100);
                 const colors    = [STAGE_META.prospecto.color, FF_CYAN, FF_ORANGE];
                 return (
-                  <div key={s} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 2 ? 12 : 0 }}>
-                    <span style={{ width: 88, fontSize: 12, color: "#666", flexShrink: 0 }}>{STAGE_META[s].label}</span>
+                  <div key={s} style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12, marginBottom: i < 2 ? 12 : 0 }}>
+                    <span style={{ width: isMobile ? 66 : 88, fontSize: isMobile ? 11 : 12, color: "#666", flexShrink: 0 }}>{STAGE_META[s].label}</span>
                     <div style={{ flex: 1, height: 8, background: "#f0efeb", borderRadius: 4, overflow: "hidden" }}>
                       <div style={{
                         height: "100%",
@@ -650,8 +684,8 @@ export default function TBAPage() {
                         background: colors[i], borderRadius: 4, transition: "width .4s",
                       }} />
                     </div>
-                    <div style={{ minWidth: 160, textAlign: "right" }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#444" }}>
+                    <div style={{ minWidth: isMobile ? 96 : 160, textAlign: "right" }}>
+                      <span style={{ fontSize: isMobile ? 11 : 12, fontWeight: 700, color: "#444" }}>
                         {pipelineLabel(stageUSD, stageMXN)}
                       </span>
                       <span style={{ fontSize: 11, color: "#bbb", marginLeft: 6 }}>({stageOpps.length})</span>
@@ -698,14 +732,14 @@ export default function TBAPage() {
           </div>
 
           {/* User filter */}
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: "1rem" }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: "1rem", flexWrap: "wrap" }}>
             <span style={{ fontSize: 11, color: "#bbb", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", flexShrink: 0 }}>
               Vendedor
             </span>
             <div style={{ display: "flex", gap: 4 }}>
               {USER_FILTER_TABS.map(({ key, label, activeColor, activeBg }) => (
                 <button key={key} onClick={() => setUserFilter(key)} style={{
-                  padding: "5px 14px",
+                  padding: "6px 14px",
                   border: userFilter === key ? `1.5px solid ${activeColor}` : "0.5px solid #ddd",
                   borderRadius: 20,
                   background: userFilter === key ? activeBg : "#fff",
@@ -719,14 +753,172 @@ export default function TBAPage() {
             </div>
           </div>
 
-          <div style={{ ...card, padding: 0, overflow: "hidden" }}>
-            {loading ? (
-              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>Cargando…</p>
-            ) : filtered.length === 0 ? (
-              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14 }}>
+          {loading ? (
+            <div style={{ ...card }}>
+              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14, margin: 0 }}>Cargando…</p>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div style={{ ...card }}>
+              <p style={{ padding: "2rem", textAlign: "center", color: "#bbb", fontSize: 14, margin: 0 }}>
                 {opps.length === 0 ? "Aún no hay oportunidades. ¡Registra la primera!" : "No hay oportunidades en esta vista."}
               </p>
-            ) : (
+            </div>
+          ) : isMobile ? (
+            /* ── MOBILE: opportunity cards ── */
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {filtered.map(o => {
+                const userInfo   = oppUserMap[o.id];
+                const oppLog     = auditLog.filter(e => e.opportunity_id === o.id);
+                const isExpanded = expandedOpp === o.id;
+                const re = rowEdits[o.id];
+                return (
+                  <div key={o.id} style={{ ...card, padding: "1rem" }}>
+                    {/* Top: company + stage */}
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <span style={{ fontWeight: 700, fontSize: 15 }}>{o.company_name}</span>
+                        <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{o.contact_name}</div>
+                      </div>
+                      <select value={o.stage}
+                        onChange={e => handleStageChange(o.id, e.target.value as OpportunityStage)}
+                        style={{
+                          padding: "5px 10px", border: "none", borderRadius: 20,
+                          background: STAGE_META[o.stage].bg, color: STAGE_META[o.stage].color,
+                          fontSize: 11, fontWeight: 700, cursor: "pointer", outline: "none", appearance: "none", flexShrink: 0,
+                        }}>
+                        {STAGE_ORDER.map(s => <option key={s} value={s}>{STAGE_META[s].label}</option>)}
+                      </select>
+                    </div>
+
+                    {/* Tags: tipo + vendor */}
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+                      <span style={{ fontSize: 11, color: "#888", background: "#f5f4f0", borderRadius: 4, padding: "3px 8px" }}>
+                        {PRODUCT_META[o.product_type].label}
+                      </span>
+                      <span style={{ fontSize: 11, color: "#888", background: "#f5f4f0", borderRadius: 4, padding: "3px 8px" }}>
+                        {o.vendor}
+                      </span>
+                    </div>
+
+                    {/* Editable fields */}
+                    <MobileLabel>Nombre de la oportunidad</MobileLabel>
+                    <input type="text" value={re?.oppName ?? ""}
+                      onChange={e => updateRowEdit(o.id, "oppName", e.target.value)}
+                      placeholder="Nombre de la oportunidad…"
+                      style={{ ...inputStyle, fontSize: 13, marginBottom: 10 }} />
+
+                    <MobileLabel>Notas</MobileLabel>
+                    <input type="text" value={re?.notes ?? ""}
+                      onChange={e => updateRowEdit(o.id, "notes", e.target.value)}
+                      placeholder="Descripción / notas…"
+                      style={{ ...inputStyle, fontSize: 13, marginBottom: 10, color: "#555" }} />
+
+                    <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                      <div style={{ flex: 1 }}>
+                        <MobileLabel>Monto</MobileLabel>
+                        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                          <div style={{ position: "relative", flex: 1 }}>
+                            <span style={{ position: "absolute", left: 9, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 13 }}>$</span>
+                            <input type="number" value={re?.amount ?? ""}
+                              onChange={e => updateRowEdit(o.id, "amount", e.target.value)}
+                              min="1" step="0.01"
+                              style={{ ...inputStyle, paddingLeft: 22, fontSize: 13 }} />
+                          </div>
+                          <div style={{ display: "flex", gap: 3, flexShrink: 0 }}>
+                            {(["USD", "MXN"] as Currency[]).map(c => (
+                              <button key={c} type="button"
+                                onClick={() => updateRowEdit(o.id, "currency", c)}
+                                style={{
+                                  padding: "8px 9px",
+                                  border: (re?.currency ?? o.currency) === c ? `1.5px solid ${FF_ORANGE}` : "0.5px solid #ddd",
+                                  borderRadius: 6,
+                                  background: (re?.currency ?? o.currency) === c ? "#fff5ec" : "#fff",
+                                  color: (re?.currency ?? o.currency) === c ? "#b35900" : "#888",
+                                  fontSize: 11, fontWeight: (re?.currency ?? o.currency) === c ? 700 : 400,
+                                  cursor: "pointer",
+                                }}>{c}</button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <MobileLabel>Fecha de cierre</MobileLabel>
+                    <input type="date" value={re?.closeDate ?? ""}
+                      onChange={e => updateRowEdit(o.id, "closeDate", e.target.value)}
+                      style={{ ...inputStyle, fontSize: 13, marginBottom: 12 }} />
+
+                    {/* Meta: creó / modificó */}
+                    <div style={{ display: "flex", gap: 14, fontSize: 11, color: "#999", marginBottom: 12 }}>
+                      <span>Creó: <strong style={{ color: userColor(userInfo?.createdByEmail), fontWeight: 600 }}>{userLabel(userInfo?.createdByEmail)}</strong></span>
+                      {userInfo?.updatedByEmail && (
+                        <span>Modificó: <strong style={{ color: userColor(userInfo.updatedByEmail), fontWeight: 600 }}>{userLabel(userInfo.updatedByEmail)}</strong></span>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={() => handleSaveRowFields(o.id)} disabled={rowSaving[o.id]}
+                        style={{
+                          flex: 1, padding: "11px 0",
+                          background: rowSaving[o.id] ? "#aaa" : "#1a1a1a",
+                          border: "none", borderRadius: 8,
+                          color: "#fff", fontSize: 14, fontWeight: 700,
+                          cursor: rowSaving[o.id] ? "not-allowed" : "pointer",
+                        }}>
+                        {rowSaving[o.id] ? "Guardando…" : "Guardar"}
+                      </button>
+                      <button onClick={() => toggleExpand(o.id)}
+                        style={{
+                          background: isExpanded ? "#f0efeb" : "transparent",
+                          border: "0.5px solid #e5e4df", borderRadius: 8,
+                          padding: "11px 16px", fontSize: 13, color: isExpanded ? "#444" : "#999",
+                          cursor: "pointer", whiteSpace: "nowrap",
+                        }}>
+                        {isExpanded ? "▲ Cerrar" : `⏱ Historial${oppLog.length > 0 ? ` (${oppLog.length})` : ""}`}
+                      </button>
+                    </div>
+
+                    {/* Audit history */}
+                    {isExpanded && (
+                      <div style={{ marginTop: 12, borderTop: "0.5px solid #eee", paddingTop: 12 }}>
+                        <p style={{ fontSize: 11, fontWeight: 700, color: "#bbb", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
+                          Historial de cambios
+                        </p>
+                        {oppLog.length === 0 ? (
+                          <p style={{ fontSize: 12, color: "#ccc" }}>Sin registros de auditoría aún.</p>
+                        ) : (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            {oppLog.map(entry => (
+                              <div key={entry.id} style={{ fontSize: 12, padding: "8px 10px", background: "#fafaf8", borderRadius: 8, border: "0.5px solid #eee" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3 }}>
+                                  <span style={{ fontSize: 13 }}>{entry.action === "created" ? "🟢" : "✏️"}</span>
+                                  <strong style={{ color: userColor(entry.changed_by_email), fontSize: 12 }}>{userLabel(entry.changed_by_email)}</strong>
+                                  <span style={{ fontSize: 10, color: "#bbb", marginLeft: "auto" }}>{formatDateTime(entry.changed_at)}</span>
+                                </div>
+                                <div style={{ color: "#777", paddingLeft: 20 }}>
+                                  {entry.action === "created" ? "creó la oportunidad" : (
+                                    <>
+                                      cambió <strong style={{ color: "#444" }}>{fieldLabel(entry.field ?? "")}</strong>{": "}
+                                      <span style={{ color: "#c0392b", textDecoration: "line-through" }}>{formatLogValue(entry.field ?? "", entry.old_value)}</span>
+                                      {" → "}
+                                      <span style={{ color: "#27ae60", fontWeight: 600 }}>{formatLogValue(entry.field ?? "", entry.new_value)}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* ── DESKTOP: opportunity table ── */
+            <div style={{ ...card, padding: 0, overflow: "hidden" }}>
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead>
@@ -945,8 +1137,8 @@ export default function TBAPage() {
                   </tbody>
                 </table>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* ── Sección Comisiones ── */}
@@ -957,7 +1149,150 @@ export default function TBAPage() {
             <div style={{ ...card, textAlign: "center", color: "#bbb", fontSize: 14, padding: "2rem" }}>
               Las comisiones aparecerán aquí cuando marques una oportunidad como ganada.
             </div>
+          ) : isMobile ? (
+            /* ── MOBILE: commission cards ── */
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {/* Totals summary */}
+              <div style={{ ...card, padding: "1rem", background: "#fafaf8" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
+                  <span style={{ color: "#888" }}>Total ganado</span>
+                  <strong style={{ color: "#3b6d11" }}>{pipelineLabel(wonUSD, wonMXN)}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
+                  <span style={{ color: "#888" }}>Comisión Rafa</span>
+                  <strong style={{ color: "#1a56cc" }}>{commissionLabel(commRafaUSD, commRafaMXN)}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                  <span style={{ color: "#888" }}>Comisión Gran Charly</span>
+                  <strong style={{ color: "#7c3aed" }}>{commissionLabel(commCharlyUSD, commCharlyMXN)}</strong>
+                </div>
+              </div>
+
+              {wonOpps.map(o => {
+                const edit    = commEdits[o.id] ?? { rafa: "", charly: "", currency: o.currency, paidDate: "", fulfillmentNotes: "" };
+                const cSaving = commSaving[o.id] ?? false;
+                const overdue = o.commission_paid_date ? isOverdue(o.commission_paid_date) : false;
+                const steps: { key: "shipped" | "delivered" | "invoiced" | "paid"; icon: string; label: string }[] = [
+                  { key: "shipped",   icon: "📦", label: "Embarcado" },
+                  { key: "delivered", icon: "🏢", label: "En cliente" },
+                  { key: "invoiced",  icon: "🧾", label: "Facturado" },
+                  { key: "paid",      icon: "💰", label: "Pagado" },
+                ];
+                const allDone = steps.every(s => o[s.key]);
+                return (
+                  <div key={o.id} style={{ ...card, padding: "1rem" }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 12 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <span style={{ fontWeight: 700, fontSize: 15 }}>{o.company_name}</span>
+                        <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{o.opportunity_name}</div>
+                      </div>
+                      <span style={{ fontWeight: 700, color: "#3b6d11", whiteSpace: "nowrap", flexShrink: 0 }}>
+                        {formatAmount(o.amount, o.currency)}
+                      </span>
+                    </div>
+
+                    {/* Fulfillment */}
+                    <MobileLabel>Entrega</MobileLabel>
+                    {allDone && (
+                      <div style={{ fontSize: 11, fontWeight: 700, color: "#3b6d11", background: "#eaf3de", borderRadius: 20, padding: "2px 10px", display: "inline-block", marginBottom: 6 }}>✓ Completo</div>
+                    )}
+                    <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 8 }}>
+                      {steps.map(s => {
+                        const done = o[s.key] as boolean;
+                        return (
+                          <button key={s.key} type="button"
+                            onClick={() => handleToggleFulfillment(o.id, s.key, done)}
+                            style={{
+                              display: "flex", alignItems: "center", gap: 3,
+                              padding: "6px 10px",
+                              border: done ? "1.5px solid #4caf50" : "0.5px solid #ddd",
+                              borderRadius: 20,
+                              background: done ? "#eaf3de" : "#f5f4f0",
+                              color: done ? "#3b6d11" : "#aaa",
+                              fontSize: 11, fontWeight: done ? 700 : 400,
+                              cursor: "pointer", whiteSpace: "nowrap",
+                            }}>
+                            <span>{s.icon}</span><span>{s.label}</span>{done && <span style={{ fontSize: 10 }}>✓</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <input type="text" value={edit.fulfillmentNotes ?? ""}
+                      onChange={e => updateCommEdit(o.id, "fulfillmentNotes", e.target.value)}
+                      placeholder="Notas de entrega…"
+                      style={{ ...inputStyle, fontSize: 12, marginBottom: 12, color: "#555" }} />
+
+                    {/* Comisiones */}
+                    <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                      <div style={{ flex: 1 }}>
+                        <MobileLabel>Comisión Rafa</MobileLabel>
+                        <div style={{ position: "relative" }}>
+                          <span style={{ position: "absolute", left: 9, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 13 }}>$</span>
+                          <input type="number" min="0" step="0.01" value={edit.rafa}
+                            onChange={e => updateCommEdit(o.id, "rafa", e.target.value)} placeholder="0"
+                            style={{ ...inputStyle, paddingLeft: 22, fontSize: 13 }} />
+                        </div>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <MobileLabel>Comisión Charly</MobileLabel>
+                        <div style={{ position: "relative" }}>
+                          <span style={{ position: "absolute", left: 9, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 13 }}>$</span>
+                          <input type="number" min="0" step="0.01" value={edit.charly}
+                            onChange={e => updateCommEdit(o.id, "charly", e.target.value)} placeholder="0"
+                            style={{ ...inputStyle, paddingLeft: 22, fontSize: 13 }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "flex-end" }}>
+                      <div>
+                        <MobileLabel>Moneda</MobileLabel>
+                        <div style={{ display: "flex", gap: 4 }}>
+                          {(["USD", "MXN"] as Currency[]).map(c => (
+                            <button key={c} type="button" onClick={() => updateCommEdit(o.id, "currency", c)}
+                              style={{
+                                padding: "8px 11px",
+                                border: edit.currency === c ? `1.5px solid ${FF_ORANGE}` : "0.5px solid #ddd",
+                                borderRadius: 6,
+                                background: edit.currency === c ? "#fff5ec" : "#fff",
+                                color: edit.currency === c ? "#b35900" : "#888",
+                                fontSize: 11, fontWeight: edit.currency === c ? 700 : 400, cursor: "pointer",
+                              }}>{c}</button>
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <MobileLabel>Fecha de pago</MobileLabel>
+                        <input type="date" value={edit.paidDate}
+                          onChange={e => updateCommEdit(o.id, "paidDate", e.target.value)}
+                          style={{ ...inputStyle, fontSize: 13 }} />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      {!edit.paidDate ? (
+                        <span style={{ fontSize: 11, color: "#bbb" }}>Sin fecha</span>
+                      ) : overdue ? (
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "#b00020", background: "#fce4e4", borderRadius: 20, padding: "4px 10px" }}>⚠ Vencido</span>
+                      ) : (
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "#3b6d11", background: "#eaf3de", borderRadius: 20, padding: "4px 10px" }}>⏳ Pendiente</span>
+                      )}
+                      <button onClick={() => handleSaveCommission(o.id)} disabled={cSaving}
+                        style={{
+                          flex: 1, padding: "11px 0",
+                          background: cSaving ? "#aaa" : "#1a1a1a",
+                          border: "none", borderRadius: 8, color: "#fff", fontSize: 14, fontWeight: 700,
+                          cursor: cSaving ? "not-allowed" : "pointer",
+                        }}>
+                        {cSaving ? "Guardando…" : "Guardar"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           ) : (
+            /* ── DESKTOP: commission table ── */
             <div style={{ ...card, padding: 0, overflow: "hidden" }}>
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
@@ -975,7 +1310,7 @@ export default function TBAPage() {
                   <tbody>
                     {wonOpps.map(o => {
                       const edit    = commEdits[o.id] ?? { rafa: "", charly: "", currency: o.currency, paidDate: "", fulfillmentNotes: "" };
-                      const saving  = commSaving[o.id] ?? false;
+                      const cSaving = commSaving[o.id] ?? false;
                       const overdue = o.commission_paid_date ? isOverdue(o.commission_paid_date) : false;
 
                       return (
@@ -1110,17 +1445,17 @@ export default function TBAPage() {
                           <td style={{ padding: "8px 14px" }}>
                             <button
                               onClick={() => handleSaveCommission(o.id)}
-                              disabled={saving}
+                              disabled={cSaving}
                               style={{
                                 padding: "6px 14px",
-                                background: saving ? "#aaa" : "#1a1a1a",
+                                background: cSaving ? "#aaa" : "#1a1a1a",
                                 border: "none", borderRadius: 6,
                                 color: "#fff", fontSize: 12, fontWeight: 700,
-                                cursor: saving ? "not-allowed" : "pointer",
+                                cursor: cSaving ? "not-allowed" : "pointer",
                                 whiteSpace: "nowrap",
                               }}
                             >
-                              {saving ? "…" : "Guardar"}
+                              {cSaving ? "…" : "Guardar"}
                             </button>
                           </td>
                         </tr>
@@ -1185,6 +1520,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <label style={{ display: "block", fontSize: 12, color: "#777", marginBottom: 5 }}>{label}</label>
       {children}
     </div>
+  );
+}
+
+function MobileLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ fontSize: 10, fontWeight: 700, color: "#bbb", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+      {children}
+    </p>
   );
 }
 
