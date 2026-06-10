@@ -7,7 +7,8 @@ const ADMIN_EMAIL = "rafaelnolasco@gmail.com";
 // ─── Acceso por ruta de cliente — vacío = cualquier autenticado ───────────────
 const CLIENT_EMAILS: Record<string, string[]> = {
   "/app/tba":         ["andres@telecomba.com", "rafaelnolasco@gmail.com", "carlosnolascocas@gmail.com"],
-  "/app/belange":     [], // cualquier usuario autenticado
+  // Belange Estética — Alberto
+  "/app/belange":     ["belangestudio@gmail.com", "rafaelnolasco@gmail.com"],
   "/app/lukon":       ["rafaelnolasco@gmail.com", "aalmarazmo@lukon.com.mx"],
   // TherapyOS — Mario Citalán
   "/app/therapyos":   ["mariocitalan@gmail.com", "rafaelnolasco@gmail.com"],
