@@ -282,6 +282,7 @@
     .container{padding:0 20px}
     section{padding:64px 0}
     .section-head{margin-bottom:44px}
+    .section-head h2{font-size:clamp(34px,8.5vw,80px);overflow-wrap:break-word}
 
     /* Nav */
     .nav-inner{padding:13px 20px}
@@ -304,7 +305,8 @@
 
     /* About */
     .about-body h3{font-size:clamp(32px,8vw,44px)}
-    .about-figure{aspect-ratio:3/2}
+    .about-figure{aspect-ratio:4/5;max-width:340px;margin:0 auto;width:100%}
+    .about-figure .about-photo{object-position:center 18%}
     .about-creds{grid-template-columns:1fr 1fr;gap:16px 20px}
     .about-creds .val{font-size:17px}
 
@@ -374,6 +376,7 @@
   /* ===== Ajuste fino para pantallas muy pequeñas ≤ 390px ===== */
   @media (max-width: 390px){
     .hero h1{font-size:40px}
+    .section-head h2{font-size:31px}
     .about-body h3,.pillar h3{font-size:32px}
     .laser-body h3{font-size:34px}
     .visit-info h3{font-size:32px}
