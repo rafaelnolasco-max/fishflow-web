@@ -368,9 +368,12 @@ export default function CRMPage() {
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="ff-header">
-        <div className="ff-logo">
-          <div className="ff-logo-icon">🐟</div>
-          FishFlow <span>Admin</span>
+        <div className="ff-header-row1">
+          <div className="ff-logo">
+            <div className="ff-logo-icon">🐟</div>
+            FishFlow <span>Admin</span>
+          </div>
+          <button className="ff-btn-logout" onClick={handleLogout} title="Cerrar sesión">⎋ Salir</button>
         </div>
         <div className="ff-tabs">
           <button className={`ff-tab ${activeTab === 'crm' ? 'active' : ''}`} onClick={() => setActiveTab('crm')}>
@@ -383,17 +386,17 @@ export default function CRMPage() {
             🎯 Leads {leads.length > 0 && <span className="ff-tab-badge">{leads.length}</span>}
           </button>
         </div>
-        <div className="ff-header-right">
-          {activeTab === 'crm' && (
-            <>
-              <div className="ff-search-wrap">
-                <input className="ff-search" placeholder="Buscar cliente, giro..." value={search} onChange={e => setSearch(e.target.value)} />
-              </div>
-              <button className="ff-btn-primary" onClick={() => openModal()}>+ Nueva Oportunidad</button>
-            </>
-          )}
-          <button className="ff-btn-logout" onClick={handleLogout} title="Cerrar sesión">⎋ Salir</button>
-        </div>
+        {activeTab === 'crm' && (
+          <div className="ff-header-actions">
+            <div className="ff-search-wrap">
+              <input className="ff-search" placeholder="Buscar cliente, giro..." value={search} onChange={e => setSearch(e.target.value)} />
+            </div>
+            <button className="ff-btn-primary ff-btn-new" onClick={() => openModal()}>
+              <span className="ff-new-full">+ Nueva Oportunidad</span>
+              <span className="ff-new-short">+ Nueva</span>
+            </button>
+          </div>
+        )}
       </header>
 
       {/* ── Tab CRM ────────────────────────────────────────────────────────── */}
@@ -419,6 +422,8 @@ export default function CRMPage() {
             {loading ? (
               <div className="ff-loading">Cargando oportunidades...</div>
             ) : (
+              <>
+              <div className="ff-swipe-hint">← Desliza para ver las etapas →</div>
               <div className="ff-board">
                 {STAGES.map(stage => {
                   const sDeals = filtered.filter(d => d.etapa === stage.id)
@@ -443,6 +448,7 @@ export default function CRMPage() {
                         ) : sDeals.map(d => (
                           <DealCard key={d.id} deal={d} stageColor={stage.color}
                             onEdit={() => editDeal(d)} onDelete={() => deleteDeal(d.id, d.empresa)}
+                            onMove={newEtapa => moveDeal(d.id, newEtapa)}
                             onDragStart={() => onDragStart(d.id)} onDragEnd={onDragEnd} />
                         ))}
                       </div>
@@ -450,6 +456,7 @@ export default function CRMPage() {
                   )
                 })}
               </div>
+              </>
             )}
           </div>
         </>
@@ -572,6 +579,39 @@ export default function CRMPage() {
             ) : transactions.length === 0 ? (
               <div className="co-empty">Sin transacciones aún</div>
             ) : (
+              <>
+              <div className="mb-cards">
+                {transactions.map(tx => {
+                  const st = STATUS_LABELS[tx.status] ?? { label: tx.status, color: '#8b8fa8' }
+                  const payUrl = tx.metadata?.payment_url
+                  return (
+                    <div key={tx.id} className="mb-card">
+                      <div className="mb-card-top">
+                        <span className="co-td-client">{tx.clients?.name ?? '—'}</span>
+                        <span className="co-status" style={{ color: st.color, borderColor: st.color + '44', background: st.color + '18' }}>{st.label}</span>
+                      </div>
+                      <div className="mb-card-service">{tx.service ?? tx.metadata?.description ?? '—'}</div>
+                      <div className="mb-card-row">
+                        <span className="co-td-amount">{fmtCurrency(tx.amount)}</span>
+                        <span className="co-provider">{tx.provider}</span>
+                      </div>
+                      <div className="mb-card-bottom">
+                        <span className="co-td-date">{fmtDate(tx.created_at)}</span>
+                        <div className="mb-card-actions">
+                          {payUrl && (
+                            <button className="co-link-btn" onClick={() => copyLink(payUrl)}>📋 Link</button>
+                          )}
+                          {tx.status === 'pending' && (tx.provider === 'mercadopago' || tx.provider === 'stripe') && (
+                            <button className="co-sync-btn" onClick={() => syncTransaction(tx.id)} disabled={syncingId === tx.id}>
+                              {syncingId === tx.id ? '⏳' : '↻ Sync'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
               <div className="co-table-wrap">
                 <table className="co-table">
                   <thead>
@@ -618,6 +658,7 @@ export default function CRMPage() {
                   </tbody>
                 </table>
               </div>
+              </>
             )}
           </div>
         </div>
@@ -642,6 +683,35 @@ export default function CRMPage() {
               <div>Aún no hay leads. Cuando alguien llene el formulario de diagnóstico en la landing aparecerá aquí.</div>
             </div>
           ) : (
+            <>
+            <div className="mb-cards">
+              {leads.map(lead => {
+                const isExpanded = expandedLead === lead.id
+                return (
+                  <div key={lead.id} className="mb-card">
+                    <div className="mb-card-top">
+                      <span className="ld-td-name">{lead.name}</span>
+                      <span className="co-td-date">{fmtDate(lead.created_at)}</span>
+                    </div>
+                    <a href={`mailto:${lead.email}`} className="ld-email">{lead.email}</a>
+                    <div className="mb-lead-label">Problema</div>
+                    <div className={isExpanded ? 'mb-lead-text' : 'mb-lead-text ld-truncate'}>{lead.problem}</div>
+                    {lead.ai_response && (
+                      <>
+                        <div className="mb-lead-label">Respuesta IA</div>
+                        <div className={isExpanded ? 'mb-lead-text' : 'mb-lead-text ld-truncate'}>{lead.ai_response}</div>
+                      </>
+                    )}
+                    <div className="mb-card-bottom">
+                      <button className="ld-toggle" onClick={() => setExpandedLead(isExpanded ? null : lead.id)}>
+                        {isExpanded ? 'Ver menos ↑' : 'Ver más ↓'}
+                      </button>
+                      <button className="ld-convert-btn" onClick={() => convertLeadToDeal(lead)}>+ CRM</button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
             <div className="ld-table-wrap">
               <table className="ld-table">
                 <thead>
@@ -699,6 +769,7 @@ export default function CRMPage() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
       )}
@@ -778,10 +849,13 @@ function Field({ label, children }) {
   )
 }
 
-function DealCard({ deal: d, stageColor, onEdit, onDelete, onDragStart, onDragEnd }) {
+function DealCard({ deal: d, stageColor, onEdit, onDelete, onMove, onDragStart, onDragEnd }) {
   const v        = tcv(d)
   const subTotal = Number(d.sub || 0) * Number(d.meses || 12)
   const fi       = fechaInfo(d.fecha)
+  const stageIdx = STAGES.findIndex(s => s.id === d.etapa)
+  const prevStage = stageIdx > 0 ? STAGES[stageIdx - 1] : null
+  const nextStage = stageIdx >= 0 && stageIdx < STAGES.length - 1 ? STAGES[stageIdx + 1] : null
   return (
     <div className="ff-card" draggable onDragStart={onDragStart} onDragEnd={onDragEnd}
       onClick={e => !e.target.closest('.ff-card-btn') && onEdit()}>
@@ -806,6 +880,16 @@ function DealCard({ deal: d, stageColor, onEdit, onDelete, onDragStart, onDragEn
         <span className={`ff-prob ${probClass(d.prob)}`}>{d.prob}%</span>
       </div>
       {fi && <div className={`ff-fecha ${fi.cls}`}>{fi.txt}</div>}
+      <div className="ff-card-move">
+        <button className="ff-move-btn" disabled={!prevStage}
+          onClick={e => { e.stopPropagation(); prevStage && onMove(prevStage.id) }}>
+          ← {prevStage ? prevStage.label : ''}
+        </button>
+        <button className="ff-move-btn" disabled={!nextStage}
+          onClick={e => { e.stopPropagation(); nextStage && onMove(nextStage.id) }}>
+          {nextStage ? nextStage.label : ''} →
+        </button>
+      </div>
     </div>
   )
 }
@@ -815,8 +899,14 @@ const CSS = `
   body { margin: 0; background: #0f1117; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
   /* ── Header ─────────────────────────────────────────────────────────────── */
-  .ff-header { background:#1a1d2e; border-bottom:1px solid #2e3150; padding:0 24px; height:60px; display:flex; align-items:center; justify-content:space-between; gap:16px; position:sticky; top:0; z-index:100; }
-  .ff-logo { display:flex; align-items:center; gap:10px; font-size:18px; font-weight:700; color:#e8eaf6; white-space:nowrap; }
+  .ff-header { background:#1a1d2e; border-bottom:1px solid #2e3150; padding:0 24px; height:60px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:100; }
+  .ff-header-row1 { display:contents; }
+  .ff-logo { display:flex; align-items:center; gap:10px; font-size:18px; font-weight:700; color:#e8eaf6; white-space:nowrap; order:0; }
+  .ff-tabs { order:1; }
+  .ff-header-actions { order:2; margin-left:auto; display:flex; gap:10px; align-items:center; }
+  .ff-btn-logout { order:3; }
+  .ff-header:not(:has(.ff-header-actions)) .ff-btn-logout { margin-left:auto; }
+  .ff-new-short { display:none; }
   .ff-logo-icon { width:32px; height:32px; background:linear-gradient(135deg,#5b6af0,#7c3aed); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
   .ff-logo span { color:#8b8fa8; font-weight:400; font-size:14px; margin-left:4px; }
 
@@ -826,7 +916,6 @@ const CSS = `
   .ff-tab.active { background:#5b6af0; color:white; }
   .ff-tab:hover:not(.active) { color:#e8eaf6; background:#2e3150; }
 
-  .ff-header-right { display:flex; gap:10px; align-items:center; margin-left:auto; }
   .ff-search-wrap { position:relative; }
   .ff-search-wrap::before { content:'🔍'; position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:11px; pointer-events:none; }
   .ff-search { background:#252840; border:1px solid #2e3150; border-radius:8px; padding:7px 12px 7px 32px; color:#e8eaf6; font-size:13px; width:220px; outline:none; }
@@ -988,4 +1077,85 @@ const CSS = `
   .ld-toggle:hover { text-decoration:underline; }
   .ld-convert-btn { background:rgba(255,140,53,.15); border:1px solid rgba(255,140,53,.4); color:#FF8C35; border-radius:7px; padding:5px 12px; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; transition:all .15s; }
   .ld-convert-btn:hover { background:rgba(255,140,53,.25); border-color:#FF8C35; }
+
+  /* ── Elementos solo-móvil (ocultos en desktop) ───────────────────────────── */
+  .ff-card-move { display:none; }
+  .ff-swipe-hint { display:none; }
+  .mb-cards { display:none; }
+
+  /* ════════════════════════════════════════════════════════════════════════
+     MÓVIL (≤768px)
+     ════════════════════════════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+
+    /* ── Header: 3 filas ── */
+    .ff-header { flex-wrap:wrap; height:auto; padding:10px 12px; gap:10px; }
+    .ff-header-row1 { display:flex; width:100%; align-items:center; justify-content:space-between; }
+    .ff-logo { font-size:16px; }
+    .ff-tabs { width:100%; order:1; }
+    .ff-tab { flex:1; padding:9px 4px; font-size:12px; text-align:center; }
+    .ff-header-actions { width:100%; order:2; margin-left:0; }
+    .ff-search-wrap { flex:1; }
+    .ff-search { width:100%; font-size:16px; padding:9px 12px 9px 32px; }
+    .ff-new-full { display:none; }
+    .ff-new-short { display:inline; }
+    .ff-btn-new { white-space:nowrap; padding:10px 14px; }
+
+    /* ── Métricas: strip horizontal deslizable ── */
+    .ff-metrics { display:flex; overflow-x:auto; gap:10px; padding:12px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    .ff-metrics::-webkit-scrollbar { display:none; }
+    .ff-metric-card { flex:0 0 auto; min-width:150px; padding:12px 14px; }
+    .ff-metric-value { font-size:17px; }
+
+    /* ── Kanban: swipe horizontal con snap, una etapa por pantalla ── */
+    .ff-swipe-hint { display:block; text-align:center; color:#8b8fa8; font-size:11px; padding-bottom:10px; }
+    .ff-board-wrap { padding:12px 0 30px; min-height:auto; }
+    .ff-board { min-width:0; gap:10px; padding:0 12px; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+    .ff-board::-webkit-scrollbar { display:none; }
+    .ff-column { flex:0 0 84vw; min-width:84vw; scroll-snap-align:center; max-height:calc(100dvh - 290px); }
+    .ff-cards { padding:10px; }
+
+    /* Cards: acciones siempre visibles + botones de mover etapa (no hay drag en touch) */
+    .ff-card { cursor:default; }
+    .ff-card-actions { display:flex; }
+    .ff-card-move { display:flex; gap:8px; margin-top:9px; padding-top:9px; border-top:1px solid #2e3150; }
+    .ff-move-btn { flex:1; background:#1a1d2e; border:1px solid #2e3150; color:#8b8fa8; border-radius:7px; padding:8px 4px; font-size:11px; font-weight:600; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .ff-move-btn:active:not(:disabled) { border-color:#5b6af0; color:#e8eaf6; }
+    .ff-move-btn:disabled { opacity:.25; cursor:default; }
+
+    /* ── Modal: bottom-sheet de pantalla completa ── */
+    .ff-overlay { align-items:flex-end; }
+    .ff-modal { width:100%; max-width:100%; max-height:94dvh; border-radius:18px 18px 0 0; padding:20px 16px calc(20px + env(safe-area-inset-bottom)); }
+    .ff-row { grid-template-columns:1fr; gap:0; }
+    .ff-field input, .ff-field select, .ff-field textarea { font-size:16px; padding:10px 12px; }
+    .ff-tcv-preview { padding:10px 12px; gap:6px; }
+    .ff-tcv-impl, .ff-tcv-sub, .ff-tcv-total { font-size:13px; }
+    .ff-modal-footer button { flex:1; padding:12px 16px; }
+
+    /* ── Cobros: una columna ── */
+    .co-wrap { grid-template-columns:1fr; padding:12px; gap:14px; min-height:auto; }
+    .co-form input, .co-form select { font-size:16px; padding:10px 12px; }
+    .co-table-wrap { display:none; }
+
+    /* ── Leads ── */
+    .ld-wrap { padding:12px; }
+    .ld-table-wrap { display:none; }
+
+    /* ── Cards móviles (Cobros + Leads) ── */
+    .mb-cards { display:flex; flex-direction:column; gap:10px; padding:14px; }
+    .co-history .mb-cards { padding:14px 16px 16px; }
+    .ld-wrap .mb-cards { background:#1a1d2e; border:1px solid #2e3150; border-radius:14px; }
+    .mb-card { background:#252840; border:1px solid #2e3150; border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:7px; color:#e8eaf6; font-size:13px; }
+    .mb-card-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .mb-card-service { color:#c4c9e8; font-size:12px; }
+    .mb-card-row { display:flex; align-items:center; justify-content:space-between; }
+    .mb-card-bottom { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:3px; padding-top:8px; border-top:1px solid #2e3150; }
+    .mb-card-actions { display:flex; gap:6px; }
+    .mb-card-actions .co-link-btn, .mb-card-actions .co-sync-btn { padding:6px 10px; font-size:12px; }
+    .mb-lead-label { font-size:10px; font-weight:700; color:#8b8fa8; text-transform:uppercase; letter-spacing:.6px; margin-top:3px; }
+    .mb-lead-text { color:#c4c9e8; line-height:1.5; font-size:12px; }
+
+    /* ── Toast: ancho completo abajo ── */
+    .ff-toast { left:16px; right:16px; bottom:16px; text-align:center; }
+  }
 `
