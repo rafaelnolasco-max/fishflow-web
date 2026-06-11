@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, SIECKVET_CLIENT_ID } from "@/lib/supabase";
 import type {
@@ -14,6 +14,13 @@ import type {
   VetConfirmStatus,
 } from "@/lib/supabase";
 import SessionRecorder from "@/components/SessionRecorder";
+import {
+  DashboardHeader, StatGrid, TabBar, Toast, Chip,
+  StatCard as DStatCard, Section as DSection, Empty as DEmpty,
+  Modal as DModal, Field as DField, SaveBtn as DSaveBtn,
+  inputStyle as mkInput, cardStyle as mkCard, cardBtnStyle as mkCardBtn, rowStyle as mkRow,
+  type DashTheme,
+} from "@/components/dashboard";
 
 // ─── Paleta SieckVet (veterinaria — teal/verde, confianza y salud) ───────────────
 const C = {
@@ -30,6 +37,25 @@ const C = {
   green:      "#2E8B57",
   border:     "#DDE6E5",
 } as const;
+
+// ─── Tema para componentes compartidos + wrappers locales ────────────────────────
+const T: DashTheme = {
+  accent: C.teal, accentDark: C.tealDark, accentSoft: C.mint,
+  bg: C.cream, surface: C.warmWhite, text: C.charcoal,
+  muted: C.muted, border: C.border, danger: C.alert, disabled: C.tealLight,
+};
+
+const inputStyle = mkInput(T);
+const cardStyle = mkCard(T);
+const cardBtnStyle = mkCardBtn(T);
+const rowStyle = mkRow(T);
+
+const StatCard = (p: Omit<React.ComponentProps<typeof DStatCard>, "theme">) => <DStatCard theme={T} {...p} />;
+const Section  = (p: Omit<React.ComponentProps<typeof DSection>,  "theme">) => <DSection  theme={T} {...p} />;
+const Empty    = (p: Omit<React.ComponentProps<typeof DEmpty>,    "theme">) => <DEmpty    theme={T} {...p} />;
+const Modal    = (p: Omit<React.ComponentProps<typeof DModal>,    "theme">) => <DModal    theme={T} {...p} />;
+const Field    = (p: Omit<React.ComponentProps<typeof DField>,    "theme">) => <DField    theme={T} {...p} />;
+const SaveBtn  = (p: Omit<React.ComponentProps<typeof DSaveBtn>,  "theme">) => <DSaveBtn  theme={T} {...p} />;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────────
 function initials(name: string) {
@@ -80,17 +106,6 @@ const CONFIRM_META: Record<VetConfirmStatus, { label: string; bg: string; fg: st
   reschedule_requested:  { label: "Pidió reagendar",        bg: "#FDF1E3", fg: "#B5701F" },
   cancelled:             { label: "Cancelada",              bg: "#F3E6E5", fg: "#B0463E" },
 };
-
-function Chip({ label, bg, fg }: { label: string; bg: string; fg: string }) {
-  return (
-    <span style={{
-      display: "inline-block", padding: "2px 10px", borderRadius: 999,
-      fontSize: 11, fontWeight: 600, background: bg, color: fg, whiteSpace: "nowrap",
-    }}>
-      {label}
-    </span>
-  );
-}
 
 type TabId = "pacientes" | "citas" | "veterinarios" | "resumenes";
 
@@ -240,51 +255,23 @@ export default function SieckVetPage() {
     <div style={{ minHeight: "100vh", background: C.cream, color: C.charcoal,
       fontFamily: "Inter, system-ui, sans-serif" }}>
       {/* Header */}
-      <header style={{ background: C.warmWhite, borderBottom: `1px solid ${C.border}`,
-        padding: "16px 28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 38, height: 38, borderRadius: 10, background: C.teal,
-            display: "grid", placeItems: "center", fontSize: 20 }}>🐾</div>
-          <div>
-            <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-.01em",
-              fontFamily: "'Plus Jakarta Sans', Inter, sans-serif" }}>SieckVet</div>
-            <div style={{ fontSize: 12, color: C.muted }}>Gestión clínica veterinaria</div>
-          </div>
-        </div>
-        <button
-          onClick={async () => { await supabase.auth.signOut(); router.push("/login?next=/app/sieckvet"); }}
-          style={{ fontSize: 13, color: C.muted, background: "none", border: `1px solid ${C.border}`,
-            borderRadius: 8, padding: "6px 14px", cursor: "pointer" }}>
-          Salir
-        </button>
-      </header>
+      <DashboardHeader
+        icon="🐾" title="SieckVet" subtitle="Gestión clínica veterinaria" theme={T}
+        onLogout={async () => { await supabase.auth.signOut(); router.push("/login?next=/app/sieckvet"); }}
+      />
 
       <main style={{ maxWidth: 1080, margin: "0 auto", padding: "24px 28px 64px" }}>
         {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 24 }}>
+        <StatGrid>
           <StatCard label="Pacientes" value={stats.pets} icon="🐾" />
           <StatCard label="Citas hoy" value={stats.todayAppts} icon="📅" />
           <StatCard label="Próximas citas" value={stats.upcoming} icon="⏳" />
           <StatCard label="Resúmenes por revisar" value={stats.pendingReview} icon="📋"
             highlight={stats.pendingReview > 0} />
-        </div>
+        </StatGrid>
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 6, borderBottom: `1px solid ${C.border}`, marginBottom: 22 }}>
-          {TABS.map((t) => {
-            const active = tab === t.id;
-            return (
-              <button key={t.id} onClick={() => setTab(t.id)}
-                style={{ background: "none", border: "none", cursor: "pointer", padding: "10px 16px",
-                  fontSize: 14, fontWeight: active ? 700 : 500,
-                  color: active ? C.tealDark : C.muted,
-                  borderBottom: active ? `2px solid ${C.teal}` : "2px solid transparent",
-                  marginBottom: -1, display: "flex", alignItems: "center", gap: 7 }}>
-                <span>{t.icon}</span>{t.label}
-              </button>
-            );
-          })}
-        </div>
+        <TabBar tabs={TABS} active={tab} onChange={setTab} theme={T} />
 
         {/* Contenido */}
         {tab === "pacientes" && (
@@ -441,13 +428,7 @@ export default function SieckVetPage() {
       </main>
 
       {/* Toast */}
-      {toast && (
-        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
-          background: C.tealDark, color: "#fff", padding: "10px 20px", borderRadius: 10,
-          fontSize: 13, boxShadow: "0 6px 20px rgba(0,0,0,.2)", zIndex: 100 }}>
-          {toast}
-        </div>
-      )}
+      <Toast msg={toast} theme={T} />
 
       {/* Modales */}
       {showPetModal && <PetModal onClose={() => setShowPetModal(false)} onSave={addPet} />}
@@ -464,95 +445,6 @@ export default function SieckVetPage() {
         />
       )}
     </div>
-  );
-}
-
-// ─── Subcomponentes ──────────────────────────────────────────────────────────────
-function StatCard({ label, value, icon, highlight }: { label: string; value: number; icon: string; highlight?: boolean }) {
-  return (
-    <div style={{ background: highlight ? "#FDF1E3" : C.warmWhite, border: `1px solid ${highlight ? "#EBC99A" : C.border}`,
-      borderRadius: 14, padding: "16px 18px" }}>
-      <div style={{ fontSize: 20, marginBottom: 6 }}>{icon}</div>
-      <div style={{ fontSize: 26, fontWeight: 800, fontFamily: "'Plus Jakarta Sans', Inter, sans-serif" }}>{value}</div>
-      <div style={{ fontSize: 12, color: C.muted }}>{label}</div>
-    </div>
-  );
-}
-
-function Section({ title, action, children }: {
-  title: string; action?: { label: string; onClick: () => void }; children: React.ReactNode;
-}) {
-  return (
-    <section>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <h2 style={{ fontSize: 17, fontWeight: 700, fontFamily: "'Plus Jakarta Sans', Inter, sans-serif" }}>{title}</h2>
-        {action && (
-          <button onClick={action.onClick} style={{ background: C.teal, color: "#fff", border: "none",
-            borderRadius: 9, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-            {action.label}
-          </button>
-        )}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function Empty({ msg }: { msg: string }) {
-  return (
-    <div style={{ padding: "48px 0", textAlign: "center", color: C.muted, fontSize: 14 }}>{msg}</div>
-  );
-}
-
-const cardStyle: React.CSSProperties = {
-  background: C.warmWhite, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16,
-};
-const cardBtnStyle: React.CSSProperties = {
-  ...cardStyle, cursor: "pointer", textAlign: "left", width: "100%", display: "block",
-};
-const rowStyle: React.CSSProperties = {
-  background: C.warmWhite, border: `1px solid ${C.border}`, borderRadius: 12,
-  padding: "14px 16px", display: "flex", gap: 12, alignItems: "center",
-};
-
-// ─── Modal genérico ──────────────────────────────────────────────────────────────
-function Modal({ title, onClose, children, wide }: {
-  title: string; onClose: () => void; children: React.ReactNode; wide?: boolean;
-}) {
-  return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,30,30,.45)",
-      display: "grid", placeItems: "center", zIndex: 200, padding: 20 }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: C.warmWhite, borderRadius: 16,
-        width: "100%", maxWidth: wide ? 560 : 440, maxHeight: "88vh", overflowY: "auto",
-        boxShadow: "0 20px 60px rgba(0,0,0,.25)" }}>
-        <div style={{ padding: "18px 22px", borderBottom: `1px solid ${C.border}`,
-          display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Plus Jakarta Sans', Inter, sans-serif" }}>{title}</h3>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 22, color: C.muted, cursor: "pointer", lineHeight: 1 }}>×</button>
-        </div>
-        <div style={{ padding: 22 }}>{children}</div>
-      </div>
-    </div>
-  );
-}
-
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "9px 12px", borderRadius: 9, border: `1px solid ${C.border}`,
-  fontSize: 14, fontFamily: "inherit", background: "#fff", color: C.charcoal,
-};
-const labelStyle: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: C.muted, marginBottom: 5, display: "block" };
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div style={{ marginBottom: 14 }}><label style={labelStyle}>{label}</label>{children}</div>;
-}
-
-function SaveBtn({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
-  return (
-    <button onClick={onClick} disabled={disabled} style={{ width: "100%", background: disabled ? C.tealLight : C.teal,
-      color: "#fff", border: "none", borderRadius: 10, padding: "11px", fontSize: 14, fontWeight: 700,
-      cursor: disabled ? "default" : "pointer", marginTop: 6 }}>
-      Guardar
-    </button>
   );
 }
 
