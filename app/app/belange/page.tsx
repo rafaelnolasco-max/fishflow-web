@@ -13,9 +13,27 @@ import {
   isBelangeLowStock,
 } from "@/lib/supabase";
 
+import {
+  DashboardHeader, Chip,
+  Field as DField, Modal as DModal,
+  inputStyle as mkInput,
+  type DashTheme,
+} from "@/components/dashboard";
+
 // ─── Brand ────────────────────────────────────────────────────────────────────
 const FF_CYAN   = "#00B8CC";
 const FF_ORANGE = "#FF7200";
+
+// ─── Tema para componentes compartidos + wrappers locales ────────────────────
+const T: DashTheme = {
+  accent: FF_CYAN, accentDark: "#007a88", accentSoft: "#e4f8fb",
+  bg: "#f8f8f6", surface: "#fff", text: "#1a1a1a",
+  muted: "#888", border: "#e5e4df", danger: "#c0392b", disabled: "#aaa",
+  panel: "#f5f4f0",
+};
+
+const Field = (p: Omit<React.ComponentProps<typeof DField>, "theme">) => <DField theme={T} {...p} />;
+const Modal = (p: Omit<React.ComponentProps<typeof DModal>, "theme">) => <DModal theme={T} {...p} />;
 
 function FishFlowMark({ size = 32 }: { size?: number }) {
   return (
@@ -613,27 +631,23 @@ export default function BelangePage() {
       )}
 
       {/* ── Header ── */}
-      <header style={{ background: "#fff", borderBottom: "0.5px solid #e5e4df", height: 56, padding: isMobile ? "0 1rem" : "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#fbeaf0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#72243e" }}>BS</div>
-          <div>
-            <p style={{ fontSize: 15, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>Belange Studio</p>
-            <p style={{ fontSize: 11, color: "#888", margin: 0 }}>Panel de ingresos</p>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <DashboardHeader
+        icon={<span style={{ fontSize: 13, fontWeight: 700, color: "#72243e" }}>BS</span>}
+        iconShape="circle"
+        iconBg="#fbeaf0"
+        title="Belange Studio"
+        subtitle="Panel de ingresos"
+        theme={T}
+        right={
           <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
             style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.45 }}>
             <FishFlowMark size={22} />
             <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
           </a>
-          <button
-            onClick={async () => { await supabase.auth.signOut(); router.push("/login?next=/app/belange"); }}
-            style={{ background: "transparent", border: "0.5px solid #e5e4df", borderRadius: 6, padding: "5px 10px", fontSize: 11, color: "#aaa", cursor: "pointer" }}>
-            ⎋ Salir
-          </button>
-        </div>
-      </header>
+        }
+        onLogout={async () => { await supabase.auth.signOut(); router.push("/login?next=/app/belange"); }}
+        logoutLabel="⎋ Salir"
+      />
 
       {/* ── Body ── */}
       <main style={{ maxWidth: 1140, margin: "0 auto", padding: isMobile ? "1rem 0.875rem" : "1.5rem 1.25rem" }}>
@@ -986,8 +1000,8 @@ export default function BelangePage() {
                                 <p style={{ fontWeight: 700, fontSize: 14, color: "#1a1a1a", margin: 0 }}>{p.name}</p>
                                 {p.brand && <p style={{ fontSize: 12, color: "#aaa", margin: "1px 0 0" }}>{p.brand}</p>}
                               </div>
-                              <span style={{ flexShrink: 0, display: "inline-block", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: statusBg, color: statusColor }}>
-                                {statusLabel}
+                              <span style={{ flexShrink: 0 }}>
+                                <Chip label={statusLabel} bg={statusBg} fg={statusColor} />
                               </span>
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "10px 0", fontSize: 13 }}>
@@ -1045,9 +1059,7 @@ export default function BelangePage() {
                               {fmt(p.suggested_price ?? 0)}
                             </td>
                             <td style={{ padding: "10px 12px" }}>
-                              <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: statusBg, color: statusColor }}>
-                                {statusLabel}
-                              </span>
+                              <Chip label={statusLabel} bg={statusBg} fg={statusColor} />
                             </td>
                             <td style={{ padding: "10px 12px", whiteSpace: "nowrap" }}>
                               <div style={{ display: "flex", gap: 6 }}>
@@ -1155,9 +1167,7 @@ export default function BelangePage() {
                         </div>
                       ) : (
                         <>
-                          <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700, background: pm.bg, color: pm.color }}>
-                            {pm.label}
-                          </span>
+                          <Chip label={pm.label} bg={pm.bg} fg={pm.color} />
                           <button onClick={() => { setEditingId(t.id); setEditPayment(t.payment_method); }}
                             style={{ fontSize: 12, padding: "4px 10px", borderRadius: 6, border: "1px solid #e5e4df", background: "#fafaf8", cursor: "pointer", color: "#888" }}
                             title="Editar método de pago">
@@ -1214,9 +1224,11 @@ export default function BelangePage() {
                               <option value="transferencia">Transferencia</option>
                             </select>
                           ) : (
-                            <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: (PM[t.payment_method] ?? PM.tarjeta).bg, color: (PM[t.payment_method] ?? PM.tarjeta).color }}>
-                              {(PM[t.payment_method] ?? PM.tarjeta).label}
-                            </span>
+                            <Chip
+                              label={(PM[t.payment_method] ?? PM.tarjeta).label}
+                              bg={(PM[t.payment_method] ?? PM.tarjeta).bg}
+                              fg={(PM[t.payment_method] ?? PM.tarjeta).color}
+                            />
                           )}
                         </td>
                         <td style={{ padding: "10px 12px", fontWeight: 700, whiteSpace: "nowrap" }}>
@@ -1261,10 +1273,8 @@ export default function BelangePage() {
 
         {/* ── Modal: Ajuste de stock ── */}
         {stockModal && (
-          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ background: "#fff", borderRadius: 12, padding: "1.5rem", width: 340, boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
-              <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Ajustar stock</p>
-              <p style={{ fontSize: 13, color: "#888", marginBottom: 16 }}>{stockModal.name} — actual: <strong>{stockModal.current} uds</strong></p>
+          <Modal title="Ajustar stock" onClose={() => setStockModal(null)}>
+              <p style={{ fontSize: 13, color: "#888", margin: "0 0 16px" }}>{stockModal.name} — actual: <strong>{stockModal.current} uds</strong></p>
               <Field label="Unidades a sumar o restar (ej: +5 o -3)">
                 <input
                   type="number"
@@ -1286,15 +1296,12 @@ export default function BelangePage() {
                   {stockModalSaving ? "Guardando…" : "Guardar"}
                 </button>
               </div>
-            </div>
-          </div>
+          </Modal>
         )}
 
         {/* ── Modal: Nuevo producto ── */}
         {newProdModal && (
-          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ background: "#fff", borderRadius: 12, padding: "1.5rem", width: 380, boxShadow: "0 8px 32px rgba(0,0,0,0.18)", maxHeight: "90vh", overflowY: "auto" }}>
-              <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 16 }}>Agregar producto</p>
+          <Modal title="Agregar producto" onClose={() => setNewProdModal(false)}>
               <Field label="Nombre *">
                 <input value={npName} onChange={e => setNpName(e.target.value)} placeholder="Ej: Shampoo Nioxin #2" style={{ ...inp, background: "#fff" }} autoFocus />
               </Field>
@@ -1333,15 +1340,12 @@ export default function BelangePage() {
                   {npSaving ? "Guardando…" : "Agregar"}
                 </button>
               </div>
-            </div>
-          </div>
+          </Modal>
         )}
 
         {/* ── Modal: Editar producto ── */}
         {editProdModal && (
-          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ background: "#fff", borderRadius: 12, padding: "1.5rem", width: 380, boxShadow: "0 8px 32px rgba(0,0,0,0.18)", maxHeight: "90vh", overflowY: "auto" }}>
-              <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 16 }}>Editar producto</p>
+          <Modal title="Editar producto" onClose={() => setEditProdModal(null)}>
               <Field label="Nombre *">
                 <input value={epName} onChange={e => setEpName(e.target.value)} style={{ ...inp, background: "#fff" }} autoFocus />
               </Field>
@@ -1375,8 +1379,7 @@ export default function BelangePage() {
                   {epSaving ? "Guardando…" : "Guardar"}
                 </button>
               </div>
-            </div>
-          </div>
+          </Modal>
         )}
 
         {/* Footer */}
@@ -1399,15 +1402,6 @@ function MCard({ label, value, sub, accent, compact }: { label: string; value: s
       <p style={{ fontSize: compact ? 10 : 11, color: "#999", marginBottom: 4, lineHeight: 1.2 }}>{label}</p>
       <p style={{ fontSize: compact ? 16 : 22, fontWeight: 700, color: "#1a1a1a", margin: 0, lineHeight: 1.15 }}>{value}</p>
       <p style={{ fontSize: compact ? 10 : 11, color: "#bbb", marginTop: 3, lineHeight: 1.2 }}>{sub}</p>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <label style={{ display: "block", fontSize: 12, color: "#777", marginBottom: 5 }}>{label}</label>
-      {children}
     </div>
   );
 }
@@ -1446,9 +1440,6 @@ const card: React.CSSProperties = {
 };
 
 const inp: React.CSSProperties = {
-  width: "100%", padding: "9px 12px",
-  border: "0.5px solid #ddd", borderRadius: 8,
-  background: "#fff", color: "#1a1a1a",
-  fontSize: 14, fontFamily: "inherit",
+  ...mkInput(T),
   outline: "none", boxSizing: "border-box",
 };
