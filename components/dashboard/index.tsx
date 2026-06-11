@@ -25,6 +25,7 @@ export type DashTheme = {
   border: string;      // bordes
   danger: string;      // errores
   disabled: string;    // botones deshabilitados
+  panel?: string;      // fondo neutro suave para cards "soft" (default: surface)
 };
 
 const FONT_HEAD = "'Plus Jakarta Sans', Inter, sans-serif";
@@ -49,15 +50,18 @@ export const rowStyle = (t: DashTheme): React.CSSProperties => ({
 });
 
 // ─── Header del dashboard ──────────────────────────────────────────────────────
-export function DashboardHeader({ icon, title, subtitle, theme: t, onLogout, logoutLabel = "Salir", right }: {
+export function DashboardHeader({ icon, title, subtitle, theme: t, onLogout, logoutLabel = "Salir", right, sticky, iconBg, iconShape = "square" }: {
   icon: React.ReactNode; title: string; subtitle?: string; theme: DashTheme;
   onLogout?: () => void; logoutLabel?: string; right?: React.ReactNode;
+  sticky?: boolean; iconBg?: string; iconShape?: "square" | "circle";
 }) {
   return (
     <header style={{ background: t.surface, borderBottom: `1px solid ${t.border}`,
-      padding: "16px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+      padding: "16px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+      ...(sticky ? { position: "sticky" as const, top: 0, zIndex: 30 } : {}) }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-        <div style={{ width: 38, height: 38, borderRadius: 10, background: t.accent,
+        <div style={{ width: 38, height: 38, borderRadius: iconShape === "circle" ? "50%" : 10,
+          background: iconBg ?? t.accent,
           display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>{icon}</div>
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-.01em", fontFamily: FONT_HEAD,
@@ -90,15 +94,28 @@ export function StatGrid({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function StatCard({ label, value, icon, highlight, theme: t }: {
+export function StatCard({ label, value, icon, highlight, theme: t, sub, accent, soft }: {
   label: string; value: React.ReactNode; icon?: string; highlight?: boolean; theme: DashTheme;
+  sub?: string;      // línea secundaria bajo el valor
+  accent?: string;   // color del valor (default: texto del tema)
+  soft?: boolean;    // variante compacta sobre fondo neutro sin borde (usa theme.panel)
 }) {
+  if (soft) {
+    return (
+      <div style={{ background: t.panel ?? t.surface, borderRadius: 8, padding: "0.875rem 1rem" }}>
+        <div style={{ fontSize: 11, color: t.muted, marginBottom: 4 }}>{label}</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: accent ?? t.text, lineHeight: 1.3, wordBreak: "break-word" }}>{value}</div>
+        {sub && <div style={{ fontSize: 11, color: t.muted, opacity: .75, marginTop: 3 }}>{sub}</div>}
+      </div>
+    );
+  }
   return (
     <div style={{ background: highlight ? "#FDF1E3" : t.surface,
       border: `1px solid ${highlight ? "#EBC99A" : t.border}`, borderRadius: 14, padding: "16px 18px" }}>
       {icon && <div style={{ fontSize: 20, marginBottom: 6 }}>{icon}</div>}
-      <div style={{ fontSize: 26, fontWeight: 800, fontFamily: FONT_HEAD, color: t.text }}>{value}</div>
+      <div style={{ fontSize: 26, fontWeight: 800, fontFamily: FONT_HEAD, color: accent ?? t.text }}>{value}</div>
       <div style={{ fontSize: 12, color: t.muted }}>{label}</div>
+      {sub && <div style={{ fontSize: 11, color: t.muted, opacity: .75, marginTop: 3 }}>{sub}</div>}
     </div>
   );
 }

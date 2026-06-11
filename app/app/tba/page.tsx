@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   supabase,
@@ -10,10 +10,29 @@ import {
   type ProductType,
   type Currency,
 } from "@/lib/supabase";
+import {
+  DashboardHeader,
+  StatCard as DStatCard,
+  Field as DField,
+  type DashTheme,
+} from "@/components/dashboard";
 
 // ─── Brand colors ──────────────────────────────────────────────────────────────
 const FF_CYAN   = "#00B8CC";
 const FF_ORANGE = "#FF7200";
+
+// ─── Tema TBA para componentes compartidos ─────────────────────────────────────
+const T: DashTheme = {
+  accent: FF_CYAN, accentDark: "#0a7a8a", accentSoft: "#e4f8fb",
+  bg: "#f8f8f6", surface: "#fff", text: "#1a1a1a",
+  muted: "#888", border: "#e5e4df", danger: "#c0392b", disabled: "#aaa",
+  panel: "#f5f4f0",
+};
+
+const MetricCard = (p: Omit<React.ComponentProps<typeof DStatCard>, "theme" | "soft">) =>
+  <DStatCard theme={T} soft {...p} />;
+const Field = (p: Omit<React.ComponentProps<typeof DField>, "theme">) =>
+  <DField theme={T} {...p} />;
 
 // ─── User identity ────────────────────────────────────────────────────────────
 const RAFA_EMAIL   = "rafaelnolasco@gmail.com";
@@ -465,38 +484,20 @@ export default function TBAPage() {
     <div style={{ minHeight: "100vh", background: "#f8f8f6", fontFamily: "var(--font-outfit, system-ui, sans-serif)" }}>
 
       {/* Header */}
-      <header style={{
-        background: "#fff", borderBottom: "0.5px solid #e5e4df",
-        minHeight: 56, padding: isMobile ? "0 1rem" : "0 1.5rem",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        position: "sticky", top: 0, zIndex: 30,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: "50%",
-            background: "linear-gradient(135deg,#e8f0fe,#c7d8fc)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 11, fontWeight: 700, color: "#1a56cc", flexShrink: 0,
-          }}>TBA</div>
-          <div>
-            <p style={{ fontSize: 15, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>TBA Telecom</p>
-            <p style={{ fontSize: 11, color: "#888", margin: 0 }}>CRM de oportunidades</p>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12 }}>
-          {!isMobile && (
-            <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
-              style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.5 }}>
-              <FishFlowMark size={22} />
-              <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
-            </a>
-          )}
-          <button onClick={handleLogout} style={{
-            background: "transparent", border: "0.5px solid #e5e4df",
-            borderRadius: 6, padding: "7px 12px", fontSize: 11, color: "#aaa", cursor: "pointer",
-          }}>⎋ Salir</button>
-        </div>
-      </header>
+      <DashboardHeader
+        theme={T} sticky iconShape="circle"
+        iconBg="linear-gradient(135deg,#e8f0fe,#c7d8fc)"
+        icon={<span style={{ fontSize: 11, fontWeight: 700, color: "#1a56cc" }}>TBA</span>}
+        title="TBA Telecom" subtitle="CRM de oportunidades"
+        onLogout={handleLogout} logoutLabel="⎋ Salir"
+        right={!isMobile ? (
+          <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.5 }}>
+            <FishFlowMark size={22} />
+            <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
+          </a>
+        ) : undefined}
+      />
 
       {/* Body */}
       <main style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "1rem 0.875rem" : "1.5rem 1.25rem" }}>
@@ -633,19 +634,19 @@ export default function TBAPage() {
                 label="Pipeline activo"
                 value={pipelineLabel(pipelineUSD, pipelineMXN)}
                 sub={`${activeOpps.length} opp${activeOpps.length !== 1 ? "s" : ""} activa${activeOpps.length !== 1 ? "s" : ""}`}
-                accentColor={FF_CYAN}
+                accent={FF_CYAN}
               />
               <MetricCard
                 label="Forecast ponderado"
                 value={pipelineLabel(forecastUSD, forecastMXN)}
                 sub="Probabilidad × monto"
-                accentColor={FF_ORANGE}
+                accent={FF_ORANGE}
               />
               <MetricCard
                 label="Cerrado ganado"
                 value={wonOpps.length > 0 ? pipelineLabel(wonUSD, wonMXN) : "—"}
                 sub={`${wonOpps.length} deal${wonOpps.length !== 1 ? "s" : ""} ganado${wonOpps.length !== 1 ? "s" : ""}`}
-                accentColor="#27ae60"
+                accent="#27ae60"
               />
             </div>
 
@@ -655,13 +656,13 @@ export default function TBAPage() {
                 label="💰 Comisión Rafa"
                 value={commissionLabel(commRafaUSD, commRafaMXN)}
                 sub="Total acumulado ganado"
-                accentColor="#1a56cc"
+                accent="#1a56cc"
               />
               <MetricCard
                 label="💰 Comisión Gran Charly"
                 value={commissionLabel(commCharlyUSD, commCharlyMXN)}
                 sub="Total acumulado ganado"
-                accentColor="#7c3aed"
+                accent="#7c3aed"
               />
             </div>
 
@@ -1499,29 +1500,6 @@ export default function TBAPage() {
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
-function MetricCard({ label, value, sub, accentColor }: {
-  label: string; value: string; sub: string; accentColor?: string;
-}) {
-  return (
-    <div style={{ background: "#f5f4f0", borderRadius: 8, padding: "0.875rem 1rem" }}>
-      <p style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{label}</p>
-      <p style={{ fontSize: 18, fontWeight: 700, color: accentColor ?? "#1a1a1a", margin: 0, lineHeight: 1.3, wordBreak: "break-word" }}>
-        {value}
-      </p>
-      <p style={{ fontSize: 11, color: "#bbb", marginTop: 3 }}>{sub}</p>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginBottom: 14 }}>
-      <label style={{ display: "block", fontSize: 12, color: "#777", marginBottom: 5 }}>{label}</label>
-      {children}
-    </div>
-  );
-}
 
 function MobileLabel({ children }: { children: React.ReactNode }) {
   return (

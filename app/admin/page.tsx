@@ -5,16 +5,71 @@
 // Ruta: fishflow.mx/admin
 // ============================================================
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
 
 const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-const STAGES = [
+// ─── Tipos ──────────────────────────────────────────────────────────────────
+type StageId = 'prospecto' | 'demo' | 'propuesta' | 'negociacion' | 'cerrado'
+
+interface Deal {
+  id: string
+  empresa: string
+  giro: string | null
+  contacto: string | null
+  cargo: string | null
+  etapa: StageId
+  prob: number
+  fecha: string | null
+  impl: number | null
+  sub: number | null
+  meses: number | null
+  notas: string | null
+  created_at?: string
+}
+
+interface Lead {
+  id: string
+  name: string
+  email: string
+  problem: string
+  ai_response: string | null
+  created_at: string
+}
+
+interface AdminClient { id: string; name: string }
+
+interface Tx {
+  id: string
+  amount: number
+  status: string
+  provider: string
+  service?: string | null
+  created_at: string
+  clients?: { name: string } | null
+  metadata?: { payment_url?: string; description?: string } | null
+}
+
+interface ChargeResult {
+  payment_url: string
+  client_name: string
+  transaction_id: string
+  is_test?: boolean
+  gateway?: string
+}
+
+interface DealForm {
+  empresa: string; giro: string; contacto: string; cargo: string;
+  etapa: StageId; prob: number; fecha: string;
+  impl: string | number; sub: string | number; meses: number; notas: string;
+}
+
+const STAGES: { id: StageId; label: string; color: string }[] = [
   { id: 'prospecto',   label: 'Prospecto',   color: '#1FA9D6' },
   { id: 'demo',        label: 'Demo',        color: '#06b6d4' },
   { id: 'propuesta',   label: 'Propuesta',   color: '#F26B17' },
@@ -24,7 +79,7 @@ const STAGES = [
 
 const MESES_OPTS = [3, 6, 12, 24, 36]
 
-const EMPTY_FORM = {
+const EMPTY_FORM: DealForm = {
   empresa: '', giro: '', contacto: '', cargo: '',
   etapa: 'prospecto', prob: 50, fecha: '',
   impl: '', sub: '', meses: 12, notas: '',
@@ -34,43 +89,43 @@ const EMPTY_CHARGE = {
   client_id: '', description: '', amount: '', payer_email: '', gateway: 'stripe',
 }
 
-function tcv(d) {
+function tcv(d: { impl?: string | number | null; sub?: string | number | null; meses?: string | number | null }) {
   return (Number(d.impl) || 0) + (Number(d.sub) || 0) * (Number(d.meses) || 12)
 }
 
-function fmt(n) {
+function fmt(n?: number | null) {
   if (!n) return '$0'
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`
   if (n >= 1_000)     return `$${(n / 1_000).toFixed(0)}K`
   return `$${Number(n).toLocaleString('es-MX')}`
 }
 
-function fmtCurrency(n) {
+function fmtCurrency(n?: number | null) {
   if (!n) return '$0.00'
   return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n)
 }
 
-function fmtDate(iso) {
+function fmtDate(iso?: string | null) {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
-function probClass(p) {
+function probClass(p: number) {
   if (p >= 70) return 'prob-high'
   if (p >= 35) return 'prob-mid'
   return 'prob-low'
 }
 
-function fechaInfo(f) {
+function fechaInfo(f?: string | null) {
   if (!f) return null
-  const diff = (new Date(f) - new Date()) / 86_400_000
+  const diff = (new Date(f).getTime() - Date.now()) / 86_400_000
   if (diff < 0)    return { txt: 'Fecha vencida',      cls: 'urgente' }
   if (diff <= 14)  return { txt: '⚠️ Esta quincena',  cls: 'urgente' }
   if (diff <= 30)  return { txt: '🕐 Mes en curso',   cls: 'pronto'  }
   return { txt: '📅 ' + new Date(f).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }), cls: '' }
 }
 
-const STATUS_LABELS = {
+const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending:   { label: 'Pendiente',  color: '#eab308' },
   paid:      { label: 'Pagado ✓',   color: '#22c55e' },
   approved:  { label: 'Pagado ✓',   color: '#22c55e' }, // alias legacy
@@ -81,34 +136,34 @@ const STATUS_LABELS = {
 
 export default function CRMPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('crm')
+  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads'>('crm')
 
   // ── CRM state ──────────────────────────────────────────────────────────────
-  const [deals,   setDeals]   = useState([])
+  const [deals,   setDeals]   = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
   const [search,  setSearch]  = useState('')
-  const [modal,   setModal]   = useState({ open: false, editId: null })
-  const [form,    setForm]    = useState(EMPTY_FORM)
-  const dragId  = useRef(null)
+  const [modal,   setModal]   = useState<{ open: boolean; editId: string | null }>({ open: false, editId: null })
+  const [form,    setForm]    = useState<DealForm>(EMPTY_FORM)
+  const dragId  = useRef<string | null>(null)
 
   // ── Leads state ───────────────────────────────────────────────────────────
-  const [leads,        setLeads]        = useState([])
+  const [leads,        setLeads]        = useState<Lead[]>([])
   const [leadsLoading, setLeadsLoading] = useState(false)
-  const [expandedLead, setExpandedLead] = useState(null) // id del lead expandido
+  const [expandedLead, setExpandedLead] = useState<string | null>(null) // id del lead expandido
 
   // ── Cobros state ───────────────────────────────────────────────────────────
-  const [clients,       setClients]       = useState([])
+  const [clients,       setClients]       = useState<AdminClient[]>([])
   const [chargeForm,    setChargeForm]    = useState(EMPTY_CHARGE)
   const [chargeLoading, setChargeLoading] = useState(false)
-  const [chargeResult,  setChargeResult]  = useState(null) // { payment_url, client_name, transaction_id }
-  const [transactions,  setTransactions]  = useState([])
+  const [chargeResult,  setChargeResult]  = useState<ChargeResult | null>(null)
+  const [transactions,  setTransactions]  = useState<Tx[]>([])
   const [txLoading,     setTxLoading]     = useState(false)
   const [copied,        setCopied]        = useState(false)
-  const [syncingId,     setSyncingId]     = useState(null)
+  const [syncingId,     setSyncingId]     = useState<string | null>(null)
 
   // ── Toast ──────────────────────────────────────────────────────────────────
   const [toast,   setToast]   = useState({ msg: '', type: '', show: false })
-  const toastTm = useRef(null)
+  const toastTm = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -183,7 +238,7 @@ export default function CRMPage() {
     return () => { supabase.removeChannel(channel) }
   }, [fetchDeals])
 
-  function showToast(msg, type = '') {
+  function showToast(msg: string, type = '') {
     clearTimeout(toastTm.current)
     setToast({ msg, type, show: true })
     toastTm.current = setTimeout(() => setToast(t => ({ ...t, show: false })), 2800)
@@ -211,23 +266,23 @@ export default function CRMPage() {
     closeModal(); fetchDeals()
   }
 
-  async function deleteDeal(id, empresa) {
+  async function deleteDeal(id: string, empresa: string) {
     if (!confirm(`¿Eliminar "${empresa}"?`)) return
     const { error } = await supabase.from('opportunities').delete().eq('id', id)
     if (error) { showToast('❌ Error al eliminar', 'error'); return }
     showToast('🗑️ Oportunidad eliminada'); fetchDeals()
   }
 
-  async function moveDeal(id, newEtapa) {
+  async function moveDeal(id: string, newEtapa: StageId) {
     const { error } = await supabase.from('opportunities').update({ etapa: newEtapa }).eq('id', id)
     if (error) return
     showToast(`✅ Movido a ${STAGES.find(s => s.id === newEtapa)?.label}`, 'success')
     fetchDeals()
   }
 
-  function openModal(etapa = 'prospecto') { setForm({ ...EMPTY_FORM, etapa }); setModal({ open: true, editId: null }) }
+  function openModal(etapa: StageId = 'prospecto') { setForm({ ...EMPTY_FORM, etapa }); setModal({ open: true, editId: null }) }
 
-  function convertLeadToDeal(lead) {
+  function convertLeadToDeal(lead: Lead) {
     setForm({
       ...EMPTY_FORM,
       empresa:  lead.name || '',   // requerido — editar al nombre del negocio antes de guardar
@@ -238,23 +293,23 @@ export default function CRMPage() {
     setActiveTab('crm')
     setModal({ open: true, editId: null })
   }
-  function editDeal(d) {
+  function editDeal(d: Deal) {
     setForm({ empresa: d.empresa||'', giro: d.giro||'', contacto: d.contacto||'', cargo: d.cargo||'',
       etapa: d.etapa||'prospecto', prob: d.prob??50, fecha: d.fecha||'',
       impl: d.impl??'', sub: d.sub??'', meses: d.meses||12, notas: d.notas||'' })
     setModal({ open: true, editId: d.id })
   }
   function closeModal() { setModal({ open: false, editId: null }) }
-  function setField(key, val) { setForm(f => ({ ...f, [key]: val })) }
+  function setField<K extends keyof DealForm>(key: K, val: DealForm[K]) { setForm(f => ({ ...f, [key]: val })) }
 
   useEffect(() => {
-    function onKey(e) { if (e.key === 'Escape') closeModal() }
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') closeModal() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
   // ── Cobros handlers ────────────────────────────────────────────────────────
-  function setChargeField(key, val) { setChargeForm(f => ({ ...f, [key]: val })) }
+  function setChargeField(key: keyof typeof EMPTY_CHARGE, val: string) { setChargeForm(f => ({ ...f, [key]: val })) }
 
   async function generateCharge() {
     if (!chargeForm.client_id)          { showToast('❌ Selecciona un cliente', 'error'); return }
@@ -286,14 +341,14 @@ export default function CRMPage() {
       showToast('✅ Link generado correctamente', 'success')
       fetchTransactions()
       setChargeForm(EMPTY_CHARGE)
-    } catch (e) {
+    } catch {
       showToast('❌ Error de conexión', 'error')
     } finally {
       setChargeLoading(false)
     }
   }
 
-  async function syncTransaction(txId) {
+  async function syncTransaction(txId: string) {
     setSyncingId(txId)
     try {
       const res = await fetch('/api/payments/admin/sync', {
@@ -326,7 +381,7 @@ export default function CRMPage() {
     }
   }
 
-  async function copyLink(url) {
+  async function copyLink(url: string) {
     await navigator.clipboard.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -352,10 +407,10 @@ export default function CRMPage() {
   const prevSub    = (Number(form.sub) || 0) * (Number(form.meses) || 12)
   const prevTCV    = prevImpl + prevSub
 
-  function onDragStart(id) { dragId.current = id }
+  function onDragStart(id: string) { dragId.current = id }
   function onDragEnd()     { dragId.current = null }
-  function onDragOver(e)   { e.preventDefault() }
-  async function onDrop(stageId) {
+  function onDragOver(e: React.DragEvent) { e.preventDefault() }
+  async function onDrop(stageId: StageId) {
     if (dragId.current) {
       const deal = deals.find(d => d.id === dragId.current)
       if (deal && deal.etapa !== stageId) await moveDeal(dragId.current, stageId)
@@ -736,7 +791,7 @@ export default function CRMPage() {
                         </td>
                         <td className="ld-td-text">
                           <div className={isExpanded ? '' : 'ld-truncate'}>{lead.problem}</div>
-                          {lead.problem?.length > 80 && (
+                          {(lead.problem?.length ?? 0) > 80 && (
                             <button className="ld-toggle" onClick={() => setExpandedLead(isExpanded ? null : lead.id)}>
                               {isExpanded ? 'Ver menos ↑' : 'Ver más ↓'}
                             </button>
@@ -746,7 +801,7 @@ export default function CRMPage() {
                           {lead.ai_response ? (
                             <>
                               <div className={isExpanded ? '' : 'ld-truncate'}>{lead.ai_response}</div>
-                              {lead.ai_response?.length > 80 && (
+                              {(lead.ai_response?.length ?? 0) > 80 && (
                                 <button className="ld-toggle" onClick={() => setExpandedLead(isExpanded ? null : lead.id)}>
                                   {isExpanded ? 'Ver menos ↑' : 'Ver más ↓'}
                                 </button>
@@ -776,7 +831,7 @@ export default function CRMPage() {
 
       {/* ── Modal CRM ─────────────────────────────────────────────────────── */}
       {modal.open && (
-        <div className="ff-overlay" onClick={e => e.target.className === 'ff-overlay' && closeModal()}>
+        <div className="ff-overlay" onClick={e => (e.target as HTMLElement).className === 'ff-overlay' && closeModal()}>
           <div className="ff-modal">
             <h2>{modal.editId ? '✏️ Editar Oportunidad' : '🆕 Nueva Oportunidad'}</h2>
 
@@ -793,7 +848,7 @@ export default function CRMPage() {
             <div className="ff-section">Pipeline</div>
             <div className="ff-row">
               <Field label="Etapa">
-                <select value={form.etapa} onChange={e => setField('etapa', e.target.value)}>
+                <select value={form.etapa} onChange={e => setField('etapa', e.target.value as StageId)}>
                   {STAGES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
                 </select>
               </Field>
@@ -840,7 +895,7 @@ export default function CRMPage() {
   )
 }
 
-function Field({ label, children }) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="ff-field">
       <label>{label}</label>
@@ -849,7 +904,11 @@ function Field({ label, children }) {
   )
 }
 
-function DealCard({ deal: d, stageColor, onEdit, onDelete, onMove, onDragStart, onDragEnd }) {
+function DealCard({ deal: d, stageColor, onEdit, onDelete, onMove, onDragStart, onDragEnd }: {
+  deal: Deal; stageColor: string;
+  onEdit: () => void; onDelete: () => void; onMove: (s: StageId) => void;
+  onDragStart: () => void; onDragEnd: () => void;
+}) {
   const v        = tcv(d)
   const subTotal = Number(d.sub || 0) * Number(d.meses || 12)
   const fi       = fechaInfo(d.fecha)
@@ -858,7 +917,7 @@ function DealCard({ deal: d, stageColor, onEdit, onDelete, onMove, onDragStart, 
   const nextStage = stageIdx >= 0 && stageIdx < STAGES.length - 1 ? STAGES[stageIdx + 1] : null
   return (
     <div className="ff-card" draggable onDragStart={onDragStart} onDragEnd={onDragEnd}
-      onClick={e => !e.target.closest('.ff-card-btn') && onEdit()}>
+      onClick={e => !(e.target as HTMLElement).closest('.ff-card-btn') && onEdit()}>
       <div className="ff-card-bar" style={{ background: stageColor }} />
       <div className="ff-card-actions">
         <button className="ff-card-btn" onClick={e => { e.stopPropagation(); onEdit() }}>✏️</button>
