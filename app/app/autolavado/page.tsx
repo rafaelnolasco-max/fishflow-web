@@ -1,8 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import {
+  DashboardHeader, StatGrid, TabBar, Toast,
+  StatCard as DStatCard, Empty as DEmpty, Field as DField,
+  type DashTheme,
+} from "@/components/dashboard";
 
 // ─── Client ───────────────────────────────────────────────────────────────────
 export const AUTOLAVADO_CLIENT_ID = "e87f4d4c-c8e6-48b8-a514-d240b8323b3d";
@@ -22,6 +27,18 @@ const G400 = "#94A3B8";
 const G600 = "#475569";
 const G800 = "#1E293B";
 const WH   = "#FFFFFF";
+
+// ─── Tema para componentes compartidos + wrappers locales ────────────────────
+const T: DashTheme = {
+  accent: PR, accentDark: PR_D, accentSoft: PR_L,
+  bg: G50, surface: WH, text: G800,
+  muted: G400, border: G200, danger: "#EF4444", disabled: G400,
+  panel: G100,
+};
+
+const StatCard = (p: Omit<React.ComponentProps<typeof DStatCard>, "theme">) => <DStatCard theme={T} {...p} />;
+const Empty    = (p: Omit<React.ComponentProps<typeof DEmpty>,    "theme">) => <DEmpty    theme={T} {...p} />;
+const Field    = (p: Omit<React.ComponentProps<typeof DField>,    "theme">) => <DField    theme={T} {...p} />;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Tamanio    = "chico" | "mediano" | "grande";
@@ -481,14 +498,12 @@ export default function AutolavadoPage() {
         {/* Datos del vehículo */}
         <div style={CARD}>
           <div style={CT}>🚘 Datos del vehículo</div>
-          <div style={{ marginBottom: 15 }}>
-            <label style={LABEL}>Placa</label>
+          <Field label="Placa">
             <input type="text" placeholder="ABC-123" value={form.placa} onChange={e => setForm(f => ({ ...f, placa: e.target.value.toUpperCase() }))} style={{ ...INPUT, letterSpacing: 2 }} />
-          </div>
-          <div>
-            <label style={LABEL}>Modelo</label>
+          </Field>
+          <Field label="Modelo">
             <input type="text" placeholder="Toyota Corolla" value={form.modelo} onChange={e => setForm(f => ({ ...f, modelo: e.target.value }))} style={INPUT} />
-          </div>
+          </Field>
         </div>
 
         {/* Teléfono */}
@@ -538,19 +553,16 @@ export default function AutolavadoPage() {
     return (
       <div>
         {/* KPIs */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginBottom: 14 }}>
+        <StatGrid>
           {[
             { v: todayAll.length, l: "Total hoy", c: PR },
             { v: enProceso.length, l: "En proceso", c: "#3B82F6" },
             { v: listos.length, l: "Listos 🟢", c: OK },
             { v: avgTime ? tStr(avgTime) : "—", l: "Prom lavado", c: PU },
           ].map(k => (
-            <div key={k.l} style={{ background: WH, borderRadius: 12, padding: "12px 8px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,.08)" }}>
-              <div style={{ fontSize: 18, fontWeight: 900, color: k.c, lineHeight: 1, marginBottom: 2 }}>{k.v}</div>
-              <div style={{ fontSize: 10, color: G400, fontWeight: 500, lineHeight: 1.3 }}>{k.l}</div>
-            </div>
+            <StatCard key={k.l} label={k.l} value={k.v} accent={k.c} soft />
           ))}
-        </div>
+        </StatGrid>
 
         {/* Ingresos hoy */}
         {totalHoy > 0 && (
@@ -658,11 +670,7 @@ export default function AutolavadoPage() {
 
         {/* Empty */}
         {todayAll.length === 0 && !loadingTickets && (
-          <div style={{ textAlign: "center", padding: "36px 20px", color: G400 }}>
-            <div style={{ fontSize: 40, marginBottom: 8 }}>🚗</div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: G600, marginBottom: 3 }}>Sin servicios hoy</div>
-            <div style={{ fontSize: 12 }}>Registra el primer vehículo en la pestaña Registrar</div>
-          </div>
+          <Empty msg="🚗 Sin servicios hoy — registra el primer vehículo en la pestaña Registrar" />
         )}
 
         {/* Refresh */}
@@ -714,19 +722,16 @@ export default function AutolavadoPage() {
         </div>
 
         {/* KPI grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 10, marginBottom: 14 }}>
+        <StatGrid>
           {[
             { v: String(count), l: "Total servicios", c: PR },
             { v: `$${avg}`, l: "Ticket promedio", c: OK },
             { v: tStr(avgT), l: "🏎 Prom. lavado", c: PU },
             { v: tStr(avgE), l: "⏳ Prom. espera recogida", c: WA },
           ].map(k => (
-            <div key={k.l} style={{ background: WH, borderRadius: 12, padding: 14, boxShadow: "0 1px 3px rgba(0,0,0,.08)" }}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: k.c, marginBottom: 2 }}>{k.v}</div>
-              <div style={{ fontSize: 12, color: G400 }}>{k.l}</div>
-            </div>
+            <StatCard key={k.l} label={k.l} value={k.v} accent={k.c} />
           ))}
-        </div>
+        </StatGrid>
 
         {/* Corte de caja */}
         <div style={CARD}>
@@ -798,10 +803,7 @@ export default function AutolavadoPage() {
         })()}
 
         {count === 0 && (
-          <div style={{ textAlign: "center", padding: "36px 20px", color: G400 }}>
-            <div style={{ fontSize: 40, marginBottom: 8 }}>📊</div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: G600 }}>Sin datos en este período</div>
-          </div>
+          <Empty msg="📊 Sin datos en este período" />
         )}
       </div>
     );
@@ -823,33 +825,30 @@ export default function AutolavadoPage() {
       <div style={{ fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", background: G50, color: G800, minHeight: "100vh", paddingBottom: 90 }}>
 
         {/* Header */}
-        <div style={{ background: WH, borderBottom: `1px solid ${G200}`, padding: "14px 20px", display: "flex", alignItems: "center", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 3px rgba(0,0,0,.08)" }}>
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: PR, letterSpacing: "-.5px" }}>
-              Fish<span style={{ color: G800 }}>Flow</span>
+        <DashboardHeader
+          icon="🚗"
+          title="FishFlow"
+          subtitle="Autolavado"
+          theme={T}
+          sticky
+          iconBg={PR_L}
+          right={
+            <div style={{ background: PR_L, color: PR, fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>
+              {userEmail?.split("@")[0] ?? "—"}
             </div>
-            <div style={{ fontSize: 12, color: G400, marginTop: 1 }}>Autolavado</div>
-          </div>
-          <div style={{ marginLeft: "auto", background: PR_L, color: PR, fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>
-            {userEmail?.split("@")[0] ?? "—"}
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div style={{ display: "flex", background: WH, borderBottom: `1px solid ${G200}`, overflowX: "auto" }}>
-          {([
-            { key: "registrar", label: "🚗 Registrar" },
-            { key: "servicios", label: "⚡ Servicios" },
-            { key: "reportes",  label: "📊 Reportes"  },
-          ] as { key: TabKey; label: string }[]).map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} style={{ flex: 1, padding: "13px 8px", fontSize: 13, fontWeight: tab === t.key ? 700 : 500, color: tab === t.key ? PR : G400, border: "none", background: "none", cursor: "pointer", borderBottom: tab === t.key ? `2px solid ${PR}` : "2px solid transparent", whiteSpace: "nowrap" }}>
-              {t.label}
-            </button>
-          ))}
-        </div>
+          }
+        />
 
         {/* Content */}
         <div style={{ padding: 16, maxWidth: 480, margin: "0 auto" }}>
+          <TabBar
+            tabs={[
+              { id: "registrar" as TabKey, label: "Registrar", icon: "🚗" },
+              { id: "servicios" as TabKey, label: "Servicios", icon: "⚡" },
+              { id: "reportes"  as TabKey, label: "Reportes",  icon: "📊" },
+            ]}
+            active={tab} onChange={setTab} theme={T}
+          />
           {tab === "registrar" && renderRegistrar()}
           {tab === "servicios" && renderServicios()}
           {tab === "reportes"  && renderReportes()}
@@ -858,11 +857,7 @@ export default function AutolavadoPage() {
       </div>
 
       {/* Toast */}
-      {toast && (
-        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", background: G800, color: WH, padding: "11px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600, zIndex: 999, whiteSpace: "nowrap", boxShadow: "0 4px 12px rgba(0,0,0,.1)", pointerEvents: "none" }}>
-          {toast}
-        </div>
-      )}
+      <Toast msg={toast} theme={T} />
     </>
   );
 }
