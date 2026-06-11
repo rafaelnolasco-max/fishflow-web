@@ -14,6 +14,12 @@ import type {
 } from "@/lib/supabase";
 import SessionRecorder from "@/components/SessionRecorder";
 import type { RecorderResult } from "@/components/SessionRecorder";
+import {
+  TabBar, Toast, StatGrid,
+  StatCard as DStatCard, Empty as DEmpty, Field as DField, Modal as DModal,
+  inputStyle as mkInput,
+  type DashTheme,
+} from "@/components/dashboard";
 
 // ─── Paleta TherapyOS ──────────────────────────────────────────────────────────
 const C = {
@@ -29,6 +35,21 @@ const C = {
   border:      "#E0DDD5",
   purple:      "#9B8EC4",
 } as const;
+
+// ─── Tema para componentes compartidos + wrappers locales ───────────────────────
+const T: DashTheme = {
+  accent: C.sage, accentDark: C.sageDark, accentSoft: "#EAF2EB",
+  bg: C.warmWhite, surface: "#FFFFFF", text: C.charcoal,
+  muted: C.muted, border: C.border, danger: C.alert, disabled: C.sageLight,
+  panel: C.cream,
+};
+
+const inputStyle = mkInput(T);
+
+const StatCard = (p: Omit<React.ComponentProps<typeof DStatCard>, "theme">) => <DStatCard theme={T} {...p} />;
+const Empty    = (p: Omit<React.ComponentProps<typeof DEmpty>,    "theme">) => <DEmpty    theme={T} {...p} />;
+const Field    = (p: Omit<React.ComponentProps<typeof DField>,    "theme">) => <DField    theme={T} {...p} />;
+const Modal    = (p: Omit<React.ComponentProps<typeof DModal>,    "theme">) => <DModal    theme={T} {...p} />;
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 function initials(name: string) {
@@ -376,82 +397,34 @@ function NewSessionModal({
   const selectedPatient = patients.find(p => p.id === patientId);
 
   return (
-    <div style={{
-      position: "fixed", inset: 0, background: "rgba(44,44,44,0.6)",
-      display: "flex", alignItems: isMobile ? "flex-end" : "center",
-      justifyContent: "center",
-      zIndex: 100, padding: isMobile ? 0 : 24,
-    }}>
-      <div style={{
-        background: "white", borderRadius: isMobile ? "16px 16px 0 0" : 16,
-        width: "100%", maxWidth: 700,
-        maxHeight: isMobile ? "92vh" : "90vh", overflow: "auto",
-        boxShadow: "0 24px 64px rgba(0,0,0,0.18)",
-      }}>
-        {/* Header */}
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: isMobile ? "18px 18px 14px" : "22px 28px 18px",
-          borderBottom: `1px solid ${C.border}`,
-          position: "sticky", top: 0, background: "white", zIndex: 1,
-        }}>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 400 }}>
-            Nueva sesión
-          </h2>
-          <button onClick={onClose} style={{
-            background: "none", border: "none", fontSize: 20, cursor: "pointer",
-            color: C.muted, lineHeight: 1,
-          }}>✕</button>
-        </div>
-
-        <div style={{ padding: isMobile ? "18px 18px 28px" : "24px 28px",
-          display: "flex", flexDirection: "column", gap: 18 }}>
+    <Modal title="Nueva sesión" onClose={onClose} wide>
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           {/* Patient selector */}
-          <div>
-            <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
-              color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
-              Paciente
-            </label>
+          <Field label="Paciente">
             <select
               value={patientId}
               onChange={e => setPatientId(e.target.value)}
-              style={{
-                width: "100%", padding: "10px 14px", borderRadius: 8,
-                border: `1px solid ${C.border}`, fontSize: 14,
-                background: "white", color: C.charcoal,
-              }}
+              style={inputStyle}
             >
               <option value="">— Selecciona un paciente —</option>
               {patients.filter(p => p.active).map(p => (
                 <option key={p.id} value={p.id}>{p.full_name}</option>
               ))}
             </select>
-          </div>
+          </Field>
 
           {/* Date */}
-          <div>
-            <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
-              color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
-              Fecha de sesión
-            </label>
+          <Field label="Fecha de sesión">
             <input
               type="date"
               value={sessionDate}
               onChange={e => setSessionDate(e.target.value)}
-              style={{
-                padding: "10px 14px", borderRadius: 8,
-                border: `1px solid ${C.border}`, fontSize: 14,
-                background: "white", color: C.charcoal,
-              }}
+              style={inputStyle}
             />
-          </div>
+          </Field>
 
           {/* Modo de importación */}
-          <div>
-            <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
-              color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
-              Fuente de transcripción
-            </label>
+          <Field label="Fuente de transcripción">
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {(["manual", "fireflies", "recorder"] as const).map(mode => (
                 <button key={mode} onClick={() => { setImportMode(mode); setPreview(null); }} style={{
@@ -465,54 +438,33 @@ function NewSessionModal({
                 </button>
               ))}
             </div>
-          </div>
+          </Field>
 
           {importMode === "manual" ? (
-            <div>
-              <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
-                color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
-                Transcripción
-              </label>
+            <Field label="Transcripción">
               <textarea
                 value={transcript}
                 onChange={e => setTranscript(e.target.value)}
                 placeholder="Pega aquí la transcripción completa de la sesión..."
                 rows={10}
-                style={{
-                  width: "100%", padding: "12px 14px", borderRadius: 8,
-                  border: `1px solid ${C.border}`, fontSize: 13,
-                  lineHeight: 1.6, resize: "vertical", fontFamily: "inherit",
-                  color: C.charcoal,
-                }}
+                style={{ ...inputStyle, fontSize: 13, lineHeight: 1.6, resize: "vertical" }}
               />
-            </div>
+            </Field>
           ) : importMode === "fireflies" ? (
-            <div>
-              <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
-                color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
-                ID o URL de la reunión en Fireflies
-              </label>
+            <Field label="ID o URL de la reunión en Fireflies">
               <input
                 type="text"
                 value={firefliesInput}
                 onChange={e => setFirefliesInput(e.target.value)}
                 placeholder="https://app.fireflies.ai/view/... o ID de reunión"
-                style={{
-                  width: "100%", padding: "10px 14px", borderRadius: 8,
-                  border: `1px solid ${C.border}`, fontSize: 13,
-                  fontFamily: "inherit", color: C.charcoal,
-                }}
+                style={{ ...inputStyle, fontSize: 13 }}
               />
               <p style={{ fontSize: 11, color: C.muted, marginTop: 6, lineHeight: 1.5 }}>
                 Copia el link desde Fireflies o solo el ID. La transcripción debe estar lista (3-5 min después de la llamada).
               </p>
-            </div>
+            </Field>
           ) : (
-            <div>
-              <label style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: ".1em",
-                color: C.muted, display: "block", marginBottom: 8, fontWeight: 500 }}>
-                Grabar la sesión
-              </label>
+            <Field label="Grabar la sesión">
               <div style={{
                 border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 14px",
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
@@ -532,7 +484,7 @@ function NewSessionModal({
                   Al detener, el audio se transcribe y la IA genera el borrador. Nada se envía al paciente hasta que tú apruebes.
                 </p>
               </div>
-            </div>
+            </Field>
           )}
 
           {error && (
@@ -609,8 +561,7 @@ function NewSessionModal({
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -1072,60 +1023,36 @@ export default function TherapyOSPage() {
 
               {/* Stats */}
               <div style={{
-                display: isMobile ? "grid" : "flex",
-                gridTemplateColumns: isMobile ? "1fr 1fr" : undefined,
-                gap: isMobile ? 8 : 12,
                 padding: isMobile ? "14px 16px 0" : "16px 36px 0",
                 background: "white", borderBottom: `1px solid ${C.border}`,
               }}>
-                {[
-                  { num: currentSession?.session_number ?? 0, label: "Sesiones" },
-                  { num: currentSession?.commitments?.filter(c => !c.completado).length ?? 0, label: "Compromisos activos" },
-                  { num: currentSession?.patterns_detected?.length ?? 0, label: "Patrones" },
-                  { num: selectedPatient.session_fee ? `$${selectedPatient.session_fee.toLocaleString("es-MX")}` : "—", label: "Tarifa/sesión" },
-                ].map(s => (
-                  <div key={s.label} style={{
-                    flex: isMobile ? undefined : 1, padding: "12px 16px", background: C.cream,
-                    borderRadius: isMobile ? 8 : "8px 8px 0 0", textAlign: "center",
-                    marginBottom: isMobile ? 0 : -1,
-                  }}>
-                    <span style={{ fontFamily: "'Playfair Display', serif",
-                      fontSize: 22, color: C.sageDark, display: "block" }}>
-                      {s.num}
-                    </span>
-                    <span style={{ fontSize: 10, color: C.muted,
-                      textTransform: "uppercase", letterSpacing: ".08em" }}>
-                      {s.label}
-                    </span>
-                  </div>
-                ))}
+                <StatGrid>
+                  {[
+                    { num: currentSession?.session_number ?? 0, label: "Sesiones" },
+                    { num: currentSession?.commitments?.filter(c => !c.completado).length ?? 0, label: "Compromisos activos" },
+                    { num: currentSession?.patterns_detected?.length ?? 0, label: "Patrones" },
+                    { num: selectedPatient.session_fee ? `$${selectedPatient.session_fee.toLocaleString("es-MX")}` : "—", label: "Tarifa/sesión" },
+                  ].map(s => (
+                    <StatCard key={s.label} label={s.label} value={s.num} accent={C.sageDark} soft />
+                  ))}
+                </StatGrid>
               </div>
 
               {/* Tabs */}
               <div style={{
-                display: "flex", borderBottom: `1px solid ${C.border}`,
-                background: "white", paddingLeft: isMobile ? 16 : 36,
-                overflowX: "auto", WebkitOverflowScrolling: "touch",
+                background: "white",
+                padding: isMobile ? "0 16px" : "0 36px",
               }}>
-                {([
-                  { id: "briefing",    label: "⚡ Briefing" },
-                  { id: "current",     label: `Sesión #${viewedSession?.session_number ?? "—"} · ${viewedSession ? fmtDate(viewedSession.session_date) : "—"}` },
-                  { id: "prev",        label: prevSession ? `Sesión #${prevSession.session_number} · ${fmtDate(prevSession.session_date)}` : "Sesión anterior" },
-                  { id: "connection",  label: "🔗 Conexión" },
-                  { id: "payment",     label: "💳 Pago" },
-                ] as { id: TabId; label: string }[]).map(tab => (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-                    padding: "12px 18px", fontSize: 12, cursor: "pointer",
-                    border: "none", background: "transparent",
-                    color: activeTab === tab.id ? C.sageDark : C.muted,
-                    borderBottom: `2px solid ${activeTab === tab.id ? C.sage : "transparent"}`,
-                    fontWeight: activeTab === tab.id ? 500 : 400,
-                    marginBottom: -1, whiteSpace: "nowrap",
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}>
-                    {tab.label}
-                  </button>
-                ))}
+                <TabBar
+                  tabs={[
+                    { id: "briefing" as TabId,   label: "Briefing", icon: "⚡" },
+                    { id: "current" as TabId,    label: `Sesión #${viewedSession?.session_number ?? "—"} · ${viewedSession ? fmtDate(viewedSession.session_date) : "—"}` },
+                    { id: "prev" as TabId,       label: prevSession ? `Sesión #${prevSession.session_number} · ${fmtDate(prevSession.session_date)}` : "Sesión anterior" },
+                    { id: "connection" as TabId, label: "Conexión", icon: "🔗" },
+                    { id: "payment" as TabId,    label: "Pago", icon: "💳" },
+                  ]}
+                  active={activeTab} onChange={setActiveTab} theme={T}
+                />
               </div>
 
               {/* Content */}
@@ -1262,9 +1189,7 @@ export default function TherapyOSPage() {
                             label={`Sesión #${prevSession.session_number} · ${fmtDate(prevSession.session_date)}`}
                           />
                         ) : (
-                          <p style={{ color: C.muted, fontSize: 13 }}>
-                            No hay sesión anterior registrada.
-                          </p>
+                          <Empty msg="No hay sesión anterior registrada." />
                         )
                       )}
 
@@ -1493,11 +1418,7 @@ export default function TherapyOSPage() {
                             value={noteValue}
                             onChange={e => setNoteValue(e.target.value)}
                             rows={5}
-                            style={{
-                              width: "100%", border: `1px solid ${C.border}`,
-                              borderRadius: 6, padding: "8px 10px", fontSize: 12,
-                              lineHeight: 1.6, resize: "vertical", fontFamily: "inherit",
-                            }}
+                            style={{ ...inputStyle, fontSize: 12, lineHeight: 1.6, resize: "vertical" }}
                           />
                         ) : (
                           <p style={{ fontSize: 13, lineHeight: 1.6, color: C.charcoal, margin: 0 }}>
@@ -1579,18 +1500,7 @@ export default function TherapyOSPage() {
       )}
 
       {/* Toast */}
-      {toast && (
-        <div style={{
-          position: "fixed", bottom: 24, right: 24,
-          background: C.charcoal, color: "white",
-          padding: "12px 20px", borderRadius: 10,
-          fontSize: 13, fontWeight: 500, zIndex: 200,
-          boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
-          animation: "fadeIn .2s ease",
-        }}>
-          {toast}
-        </div>
-      )}
+      <Toast msg={toast} theme={T} />
     </>
   );
 }
