@@ -1,9 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, CANE_CLIENT_ID } from "@/lib/supabase";
 import type { CANEAppointment, CANECallLog } from "@/lib/supabase";
+import {
+  DashboardHeader, Chip,
+  Section as DSection, Field as DField,
+  inputStyle as mkInput, cardStyle as mkCard,
+  type DashTheme,
+} from "@/components/dashboard";
 
 // ─── Paleta CANE ──────────────────────────────────────────────────────────────
 const C = {
@@ -21,6 +27,19 @@ const C = {
   gray:      "#9CA3AF",
   rowHover:  "#F0FDF9",
 } as const;
+
+// ─── Tema para componentes compartidos + wrappers locales ────────────────────
+const T: DashTheme = {
+  accent: C.teal, accentDark: C.teal, accentSoft: C.tealLight,
+  bg: C.bg, surface: C.white, text: C.text,
+  muted: C.muted, border: C.border, danger: C.red, disabled: C.gray,
+};
+
+const inputStyle = mkInput(T);
+const cardStyle = mkCard(T);
+
+const Section = (p: Omit<React.ComponentProps<typeof DSection>, "theme">) => <DSection theme={T} {...p} />;
+const Field   = (p: Omit<React.ComponentProps<typeof DField>,   "theme">) => <DField   theme={T} {...p} />;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmtDate(d: string) {
@@ -190,47 +209,27 @@ export default function CANEAppointmentsPage() {
     <div style={{ minHeight: "100vh", backgroundColor: C.bg, fontFamily: "Inter, sans-serif" }}>
 
       {/* Header */}
-      <header style={{
-        backgroundColor: C.white, borderBottom: `1px solid ${C.border}`,
-        padding: "0 24px", height: 56,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8, backgroundColor: C.teal,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#fff", fontWeight: 700, fontSize: 13,
-          }}>CN</div>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 14, color: C.text }}>CANE Neurofeedback</div>
-            <div style={{ fontSize: 11, color: C.muted }}>Confirmación de Citas</div>
-          </div>
-        </div>
-        <button onClick={logout} style={{
-          fontSize: 12, color: C.muted, background: "none", border: "none",
-          cursor: "pointer", padding: "4px 8px", borderRadius: 4,
-        }}>Salir</button>
-      </header>
+      <DashboardHeader
+        icon={<span style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>CN</span>}
+        title="CANE Neurofeedback"
+        subtitle="Confirmación de Citas"
+        theme={T}
+        onLogout={logout}
+      />
 
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px" }}>
 
-        {/* Toolbar */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: C.text, margin: 0 }}>
+        <Section
+          title={<>
             Citas
             {appointments.length > 0 && (
               <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 8 }}>
                 {appointments.length} registrada{appointments.length !== 1 ? "s" : ""}
               </span>
             )}
-          </h1>
-          <button onClick={() => { setShowForm(!showForm); setError(null); }} style={{
-            backgroundColor: C.teal, color: "#fff", border: "none", borderRadius: 8,
-            padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer",
-          }}>
-            {showForm ? "Cancelar" : "+ Nueva cita"}
-          </button>
-        </div>
+          </>}
+          action={{ label: showForm ? "Cancelar" : "+ Nueva cita", onClick: () => { setShowForm(!showForm); setError(null); } }}
+        >
 
         {error && (
           <div style={{
@@ -242,10 +241,7 @@ export default function CANEAppointmentsPage() {
 
         {/* Formulario nueva cita */}
         {showForm && (
-          <div style={{
-            backgroundColor: C.white, border: `1px solid ${C.border}`,
-            borderRadius: 12, padding: 20, marginBottom: 24,
-          }}>
+          <div style={{ ...cardStyle, padding: 20, marginBottom: 24 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, color: C.text, margin: "0 0 16px" }}>Nueva cita</h2>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               {[
@@ -253,23 +249,17 @@ export default function CANEAppointmentsPage() {
                 { label: "Teléfono * (10 dígitos)", key: "patient_phone", type: "tel",  placeholder: "5514831644" },
                 { label: "Doctor / Terapeuta",       key: "doctor_name",   type: "text", placeholder: "Karla Ruiz" },
               ].map(({ label, key, type, placeholder }) => (
-                <div key={key}>
-                  <label style={{ fontSize: 12, color: C.muted, display: "block", marginBottom: 4 }}>{label}</label>
+                <Field key={key} label={label}>
                   <input
                     type={type} placeholder={placeholder}
                     value={form[key as keyof typeof form]}
                     onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-                    style={{
-                      width: "100%", padding: "8px 10px",
-                      border: `1px solid ${C.border}`, borderRadius: 6,
-                      fontSize: 13, color: C.text, boxSizing: "border-box", outline: "none",
-                    }}
+                    style={{ ...inputStyle, boxSizing: "border-box", outline: "none" }}
                   />
-                </div>
+                </Field>
               ))}
               {/* Fecha — 3 selects para compatibilidad Safari */}
-              <div>
-                <label style={{ fontSize: 12, color: C.muted, display: "block", marginBottom: 4 }}>Fecha *</label>
+              <Field label="Fecha *">
                 <div style={{ display: "grid", gridTemplateColumns: "2fr 3fr 2fr", gap: 6 }}>
                   {[
                     { placeholder: "Día",  key: "date_day",   options: Array.from({length:31},(_,i)=>String(i+1).padStart(2,"0")) },
@@ -288,9 +278,9 @@ export default function CANEAppointmentsPage() {
                         setForm({ ...newForm, appointment_date: dateStr })
                       }}
                       style={{
-                        padding: "8px 6px", border: `1px solid ${C.border}`, borderRadius: 6,
-                        fontSize: 12, color: form[key as keyof typeof form] ? C.text : C.muted,
-                        backgroundColor: C.white, outline: "none", width: "100%",
+                        ...inputStyle, padding: "8px 6px", fontSize: 12,
+                        color: form[key as keyof typeof form] ? C.text : C.muted,
+                        outline: "none",
                       }}
                     >
                       <option value="">{placeholder}</option>
@@ -302,18 +292,15 @@ export default function CANEAppointmentsPage() {
                     </select>
                   ))}
                 </div>
-              </div>
+              </Field>
               {/* Hora — select para compatibilidad Safari */}
-              <div>
-                <label style={{ fontSize: 12, color: C.muted, display: "block", marginBottom: 4 }}>Hora *</label>
+              <Field label="Hora *">
                 <select
                   value={form.appointment_time}
                   onChange={e => setForm(f => ({ ...f, appointment_time: e.target.value }))}
                   style={{
-                    width: "100%", padding: "8px 10px",
-                    border: `1px solid ${C.border}`, borderRadius: 6,
-                    fontSize: 13, color: form.appointment_time ? C.text : C.muted,
-                    boxSizing: "border-box", outline: "none", backgroundColor: C.white,
+                    ...inputStyle, boxSizing: "border-box", outline: "none",
+                    color: form.appointment_time ? C.text : C.muted,
                   }}
                 >
                   <option value="">Selecciona hora</option>
@@ -322,19 +309,15 @@ export default function CANEAppointmentsPage() {
                     "16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00"
                   ].map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
-              </div>
+              </Field>
               <div style={{ gridColumn: "1 / -1" }}>
-                <label style={{ fontSize: 12, color: C.muted, display: "block", marginBottom: 4 }}>Notas</label>
-                <textarea
-                  placeholder="Observaciones opcionales..." value={form.notes} rows={2}
-                  onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                  style={{
-                    width: "100%", padding: "8px 10px",
-                    border: `1px solid ${C.border}`, borderRadius: 6,
-                    fontSize: 13, color: C.text, resize: "vertical",
-                    boxSizing: "border-box", outline: "none",
-                  }}
-                />
+                <Field label="Notas">
+                  <textarea
+                    placeholder="Observaciones opcionales..." value={form.notes} rows={2}
+                    onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                    style={{ ...inputStyle, resize: "vertical", boxSizing: "border-box", outline: "none" }}
+                  />
+                </Field>
               </div>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
@@ -353,19 +336,13 @@ export default function CANEAppointmentsPage() {
         {loading ? (
           <div style={{ textAlign: "center", padding: 60, color: C.muted }}>Cargando citas...</div>
         ) : appointments.length === 0 ? (
-          <div style={{
-            backgroundColor: C.white, border: `1px solid ${C.border}`,
-            borderRadius: 12, padding: 48, textAlign: "center",
-          }}>
+          <div style={{ ...cardStyle, padding: 48, textAlign: "center" }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
             <div style={{ fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 4 }}>Sin citas registradas</div>
             <div style={{ fontSize: 13, color: C.muted }}>Agrega la primera cita con el botón de arriba.</div>
           </div>
         ) : (
-          <div style={{
-            backgroundColor: C.white, border: `1px solid ${C.border}`,
-            borderRadius: 12, overflow: "hidden",
-          }}>
+          <div style={{ ...cardStyle, padding: 0, overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ backgroundColor: "#F9FAFB" }}>
@@ -415,15 +392,11 @@ export default function CANEAppointmentsPage() {
                           {appt.doctor_name ?? "—"}
                         </td>
                         <td style={{ padding: "12px 14px" }}>
-                          <span style={{
-                            display: "inline-block",
-                            backgroundColor: `${STATUS_COLOR[appt.status]}20`,
-                            color: STATUS_COLOR[appt.status],
-                            borderRadius: 20, padding: "3px 10px",
-                            fontSize: 12, fontWeight: 600,
-                          }}>
-                            {STATUS_LABEL[appt.status] ?? appt.status}
-                          </span>
+                          <Chip
+                            label={STATUS_LABEL[appt.status] ?? appt.status}
+                            bg={`${STATUS_COLOR[appt.status]}20`}
+                            fg={STATUS_COLOR[appt.status]}
+                          />
                         </td>
                         <td style={{ padding: "12px 14px" }}>
                           <button
@@ -474,14 +447,11 @@ export default function CANEAppointmentsPage() {
                                     display: "flex", flexDirection: "column", gap: 4,
                                   }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                      <span style={{
-                                        backgroundColor: `${OUTCOME_COLOR[log.outcome ?? 'no_response'] ?? C.gray}20`,
-                                        color: OUTCOME_COLOR[log.outcome ?? 'no_response'] ?? C.gray,
-                                        borderRadius: 20, padding: "2px 10px",
-                                        fontSize: 11, fontWeight: 600,
-                                      }}>
-                                        {OUTCOME_LABEL[log.outcome ?? 'no_response'] ?? log.outcome}
-                                      </span>
+                                      <Chip
+                                        label={OUTCOME_LABEL[log.outcome ?? 'no_response'] ?? (log.outcome as string)}
+                                        bg={`${OUTCOME_COLOR[log.outcome ?? 'no_response'] ?? C.gray}20`}
+                                        fg={OUTCOME_COLOR[log.outcome ?? 'no_response'] ?? C.gray}
+                                      />
                                       <span style={{ fontSize: 12, color: C.muted }}>
                                         {fmtDateTime(log.called_at)}
                                       </span>
@@ -521,6 +491,7 @@ export default function CANEAppointmentsPage() {
             </table>
           </div>
         )}
+        </Section>
       </main>
     </div>
   );

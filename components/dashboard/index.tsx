@@ -146,7 +146,7 @@ export function TabBar<T extends string>({ tabs, active, onChange, theme: t }: {
 
 // ─── Sección con título + acción ───────────────────────────────────────────────
 export function Section({ title, action, theme: t, children }: {
-  title: string; action?: { label: string; onClick: () => void }; theme: DashTheme; children: React.ReactNode;
+  title: React.ReactNode; action?: { label: string; onClick: () => void }; theme: DashTheme; children: React.ReactNode;
 }) {
   return (
     <section>
