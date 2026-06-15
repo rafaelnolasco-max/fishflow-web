@@ -36,6 +36,15 @@ export interface PosTransaction {
 // Los campos específicos de Belange (client_name, precio de servicio, producto)
 // viven en metadata. Esta interfaz representa la forma mapeada para el UI.
 
+// Item individual dentro de una venta multi-producto
+export interface BelangeCartItem {
+  nombre:           string;
+  precio:           number;
+  qty:              number;
+  product_id?:      string | null;
+  precio_sugerido?: number | null;
+}
+
 export interface BelangeTransaction {
   id:              string;
   client_name:     string;
@@ -43,10 +52,11 @@ export interface BelangeTransaction {
   price:           number;         // precio del servicio (metadata.price_service)
   producto?:       string | null;
   precio_producto?: number | null;
-  qty:             number;         // cantidad de producto vendida (metadata.qty, default 1)
-  precio_sugerido?: number | null; // precio de lista al momento de la venta (metadata.precio_sugerido)
+  qty:             number;         // qty total de productos vendidos
+  precio_sugerido?: number | null; // precio de lista del primer item (compat)
   payment_method:  PaymentMethod;
   created_at:      string;
+  items?:          BelangeCartItem[]; // multi-producto: si existe, tiene prioridad
 }
 
 // Client ID de Belange en la tabla clients (Belange Estética, CDMX)
@@ -72,6 +82,28 @@ function normalizePaymentMethod(raw: string | null | undefined): PaymentMethod {
 /** Mapea un PosTransaction de Belange al shape BelangeTransaction para el UI */
 export function posToBelangeTransaction(t: PosTransaction): BelangeTransaction {
   const meta = (t.metadata ?? {}) as Record<string, unknown>;
+
+  // Formato nuevo: metadata.items (multi-producto)
+  const rawItems = meta.items as BelangeCartItem[] | undefined;
+  if (rawItems && rawItems.length > 0) {
+    const totalProductos = rawItems.reduce((s, i) => s + i.precio * i.qty, 0);
+    const totalQty       = rawItems.reduce((s, i) => s + i.qty, 0);
+    return {
+      id:              t.id,
+      created_at:      t.created_at,
+      client_name:     (meta.client_name as string) ?? "",
+      service:         t.service                    ?? "",
+      price:           (meta.price_service as number) ?? 0,
+      producto:        rawItems[0].nombre,
+      precio_producto: totalProductos,
+      qty:             totalQty,
+      precio_sugerido: rawItems[0].precio_sugerido ?? null,
+      payment_method:  normalizePaymentMethod(t.payment_method),
+      items:           rawItems,
+    };
+  }
+
+  // Formato anterior: un solo producto (backward compat)
   return {
     id:              t.id,
     created_at:      t.created_at,

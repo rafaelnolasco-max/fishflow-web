@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   supabase,
   type BelangeTransaction,
+  type BelangeCartItem,
   type BelangeInventoryProduct,
   type PaymentMethod,
   type PosTransaction,
@@ -12,6 +13,16 @@ import {
   posToBelangeTransaction,
   isBelangeLowStock,
 } from "@/lib/supabase";
+
+// ─── Tipos del carrito (draft = strings para inputs controlados) ───────────────
+interface CartItemDraft {
+  nombre:          string;
+  product_id:      string | null;
+  precio:          string;
+  qty:             string;
+  precio_sugerido: number | null;
+}
+const emptyItem = (): CartItemDraft => ({ nombre: "", product_id: null, precio: "", qty: "1", precio_sugerido: null });
 
 import {
   DashboardHeader, Chip,
@@ -263,18 +274,14 @@ export default function BelangePage() {
   const isMobile = useIsMobile();
 
   // ── Form state ──
-  const [clientName,      setClientName]      = useState("");
-  const [service,         setService]         = useState("");
-  const [price,           setPrice]           = useState("");
-  const [productoName,    setProductoName]    = useState("");
-  const [productoId,      setProductoId]      = useState<string | null>(null);
-  const [precioProducto,  setPrecioProducto]  = useState("");
-  const [precioSugerido,  setPrecioSugerido]  = useState<number | null>(null);
-  const [qty,             setQty]             = useState("1");
-  const [payment,         setPayment]         = useState<PaymentMethod>("efectivo");
-  const [saving,          setSaving]          = useState(false);
-  const [ok,              setOk]              = useState("");
-  const [err,             setErr]             = useState("");
+  const [clientName, setClientName] = useState("");
+  const [service,    setService]    = useState("");
+  const [price,      setPrice]      = useState("");
+  const [cartItems,  setCartItems]  = useState<CartItemDraft[]>([emptyItem()]);
+  const [payment,    setPayment]    = useState<PaymentMethod>("efectivo");
+  const [saving,     setSaving]     = useState(false);
+  const [ok,         setOk]         = useState("");
+  const [err,        setErr]        = useState("");
   const [stockToast,      setStockToast]      = useState<string | null>(null);
 
   // ── Data state ──
@@ -346,84 +353,104 @@ export default function BelangePage() {
     fetchProducts();
   }, [fetchAll, fetchProducts]);
 
-  // ── Seleccionar producto del catálogo ──
-  function handleSelectProduct(p: BelangeInventoryProduct) {
-    setProductoName(p.name);
-    setProductoId(p.id);
-    setPrecioSugerido(p.suggested_price ?? null);
-    setPrecioProducto(p.suggested_price ? String(p.suggested_price) : "");
+  // ── Helpers del carrito ──
+  function updateCartItem(idx: number, patch: Partial<CartItemDraft>) {
+    setCartItems(prev => prev.map((it, i) => i === idx ? { ...it, ...patch } : it));
   }
-
-  // ── Producto manual (no está en el catálogo) ──
-  function handleManualProduct(name: string) {
-    setProductoName(name);
-    setProductoId(null);
-    setPrecioSugerido(null);
-    setPrecioProducto("");
+  function addCartItem() {
+    setCartItems(prev => [...prev, emptyItem()]);
+  }
+  function removeCartItem(idx: number) {
+    setCartItems(prev => prev.length === 1 ? [emptyItem()] : prev.filter((_, i) => i !== idx));
+  }
+  function handleSelectProductAt(idx: number, p: BelangeInventoryProduct) {
+    updateCartItem(idx, {
+      nombre:          p.name,
+      product_id:      p.id,
+      precio_sugerido: p.suggested_price ?? null,
+      precio:          p.suggested_price ? String(p.suggested_price) : "",
+    });
+  }
+  function handleManualProductAt(idx: number, name: string) {
+    updateCartItem(idx, { nombre: name, product_id: null, precio_sugerido: null, precio: "" });
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const numServ = price ? parseFloat(price.replace(/,/g, "")) : null;
-    const numProd = precioProducto ? parseFloat(precioProducto.replace(/,/g, "")) : null;
-    const numQty  = qty ? Math.max(1, parseInt(qty, 10)) : 1;
 
     if (!clientName.trim()) { setErr("Agrega el nombre del cliente."); return; }
-    if (!service.trim() && !productoName.trim()) { setErr("Agrega al menos un servicio o un producto."); return; }
-    if (service.trim() && (numServ === null || isNaN(numServ) || numServ <= 0)) { setErr("Agrega el precio del servicio."); return; }
-    if (productoName.trim() && (numProd === null || isNaN(numProd) || numProd <= 0)) { setErr("Agrega el precio del producto."); return; }
+
+    // Validar items del carrito (solo los que tienen nombre)
+    const validItems = cartItems.filter(it => it.nombre.trim());
+    if (!service.trim() && validItems.length === 0) {
+      setErr("Agrega al menos un servicio o un producto."); return;
+    }
+    if (service.trim() && (numServ === null || isNaN(numServ) || numServ <= 0)) {
+      setErr("Agrega el precio del servicio."); return;
+    }
+    for (const it of validItems) {
+      const p = parseFloat(it.precio);
+      if (isNaN(p) || p <= 0) { setErr(`Agrega el precio de "${it.nombre}".`); return; }
+    }
 
     setSaving(true); setErr("");
 
-    const totalProd = numProd !== null ? numProd * numQty : 0;
+    // Construir items para metadata
+    const items: BelangeCartItem[] = validItems.map(it => ({
+      nombre:          it.nombre.trim(),
+      precio:          parseFloat(it.precio),
+      qty:             Math.max(1, parseInt(it.qty, 10) || 1),
+      product_id:      it.product_id,
+      precio_sugerido: it.precio_sugerido,
+    }));
+
+    const totalProductos = items.reduce((s, i) => s + i.precio * i.qty, 0);
 
     const { error } = await supabase.from("pos_transactions").insert({
       client_id:      BELANGE_CLIENT_ID,
       provider:       "manual",
-      amount:         (numServ ?? 0) + totalProd,
+      amount:         (numServ ?? 0) + totalProductos,
       currency:       "MXN",
       status:         "paid",
       payment_method: payment,
       service:        service.trim() || null,
       vertical:       "estetica",
       metadata: {
-        client_name:      clientName.trim(),
-        price_service:    numServ ?? 0,
-        producto:         productoName.trim() || null,
-        precio_producto:  numProd,
-        qty:              numQty,
-        precio_sugerido:  precioSugerido,
+        client_name:   clientName.trim(),
+        price_service: numServ ?? 0,
+        items:         items.length > 0 ? items : undefined,
       },
     });
 
     if (error) { setSaving(false); setErr("Error al guardar. Intenta de nuevo."); return; }
 
-    // ── Descontar stock si el producto viene del catálogo ──
-    if (productoId && numQty > 0) {
+    // ── Descontar stock por cada item del catálogo ──
+    for (const item of items) {
+      if (!item.product_id) continue;
       try {
         const res = await fetch("/api/belange/inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "adjust_stock", product_id: productoId, delta: -numQty }),
+          body: JSON.stringify({ action: "adjust_stock", product_id: item.product_id, delta: -item.qty }),
         });
         if (res.ok) {
           const json = await res.json();
           if (json.low_stock) {
-            setStockToast(`⚠️ ${productoName} quedó con ${json.product.stock_qty} unidad${json.product.stock_qty !== 1 ? "es" : ""} en inventario`);
+            setStockToast(`⚠️ ${item.nombre} quedó con ${json.product.stock_qty} unidad${json.product.stock_qty !== 1 ? "es" : ""} en inventario`);
             setTimeout(() => setStockToast(null), 6000);
           }
-          // Refrescar catálogo para reflejar nuevo stock
-          fetchProducts();
         }
       } catch (e) {
         console.error("Error ajustando stock:", e);
       }
     }
+    fetchProducts();
 
     setSaving(false);
     setOk(`✓ Transacción de ${clientName.trim()} registrada`);
     setClientName(""); setService(""); setPrice("");
-    setProductoName(""); setProductoId(null); setPrecioProducto(""); setPrecioSugerido(null); setQty("1");
+    setCartItems([emptyItem()]);
     setPayment("efectivo");
     inputRef.current?.focus();
     fetchAll();
@@ -608,9 +635,12 @@ export default function BelangePage() {
   const outOfStockCount = products.filter(p => p.stock_qty === 0).length;
   const lowStockCount   = products.filter(p => p.stock_qty > 0 && p.stock_qty <= p.min_stock).length;
 
-  // Precio especial (por debajo del sugerido)
-  const numProdActual = precioProducto ? parseFloat(precioProducto.replace(/,/g, "")) : null;
-  const esPrecioEspecial = precioSugerido !== null && numProdActual !== null && numProdActual < precioSugerido;
+  // Total del carrito (para mostrar en el formulario)
+  const totalCarrito = cartItems.reduce((s, it) => {
+    const p = parseFloat(it.precio) || 0;
+    const q = parseInt(it.qty, 10) || 1;
+    return s + p * q;
+  }, 0);
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8f8f6", fontFamily: "var(--font-outfit, system-ui, sans-serif)" }}>
@@ -678,48 +708,107 @@ export default function BelangePage() {
                 </Field>
               </div>
 
-              {/* Producto */}
+              {/* Carrito de productos */}
               <div style={{ border: "1px solid #ffe0c2", borderRadius: 10, padding: "12px 14px", marginBottom: 14, background: "#fffaf5" }}>
                 <p style={{ fontSize: 12, fontWeight: 700, color: "#b05200", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 14 }}>🧴</span> Producto
+                  <span style={{ fontSize: 14 }}>🧴</span> Productos
                   <span style={{ marginLeft: "auto", fontSize: 10, background: "#ffe8d0", color: "#b05200", padding: "2px 8px", borderRadius: 20, fontWeight: 500 }}>si aplica</span>
                 </p>
 
-                <Field label="Producto adquirido">
-                  <ProductSearch
-                    products={products}
-                    value={productoName}
-                    onSelect={handleSelectProduct}
-                    onManual={handleManualProduct}
-                  />
-                </Field>
+                {cartItems.map((item, idx) => {
+                  const numPrecio = parseFloat(item.precio) || null;
+                  const numQty    = parseInt(item.qty, 10) || 1;
+                  const esPrecEsp = item.precio_sugerido !== null && numPrecio !== null && numPrecio < item.precio_sugerido;
+                  return (
+                    <div key={idx} style={{
+                      position: "relative",
+                      background: idx % 2 === 0 ? "#fff" : "#fffdf9",
+                      border: "0.5px solid #ffe0c2",
+                      borderRadius: 8,
+                      padding: "10px 10px 8px",
+                      marginBottom: 8,
+                    }}>
+                      {/* Botón eliminar (solo si hay más de 1 o si tiene contenido) */}
+                      {(cartItems.length > 1 || item.nombre) && (
+                        <button
+                          type="button"
+                          onClick={() => removeCartItem(idx)}
+                          style={{
+                            position: "absolute", top: 6, right: 6,
+                            width: 20, height: 20, borderRadius: "50%",
+                            border: "none", background: "#ffe0c2",
+                            color: "#b05200", fontSize: 12, lineHeight: 1,
+                            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                            fontWeight: 700,
+                          }}
+                          title="Quitar producto"
+                        >
+                          ×
+                        </button>
+                      )}
 
-                {/* Cantidad + Precio en fila */}
-                <div style={{ display: "grid", gridTemplateColumns: "90px 1fr", gap: 8 }}>
-                  <Field label="Cantidad">
-                    <input
-                      type="number" value={qty} min="1" step="1"
-                      onChange={e => setQty(e.target.value)}
-                      style={{ ...inp, textAlign: "center" }}
-                    />
-                  </Field>
-                  <Field label={precioSugerido ? `Precio ($) — lista: ${fmt(precioSugerido)}` : "Precio por unidad ($)"}>
-                    <div style={{ position: "relative" }}>
-                      <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 14 }}>$</span>
-                      <input
-                        type="number" value={precioProducto} min="1" step="1"
-                        onChange={e => setPrecioProducto(e.target.value)}
-                        placeholder="0"
-                        style={{ ...inp, paddingLeft: 26, borderColor: esPrecioEspecial ? "#FFB74D" : undefined }}
-                      />
+                      <div style={{ paddingRight: 26 }}>
+                        <Field label={`Producto ${cartItems.length > 1 ? idx + 1 : ""}`}>
+                          <ProductSearch
+                            products={products}
+                            value={item.nombre}
+                            onSelect={p => handleSelectProductAt(idx, p)}
+                            onManual={name => handleManualProductAt(idx, name)}
+                          />
+                        </Field>
+                      </div>
+
+                      {/* Cantidad + Precio */}
+                      <div style={{ display: "grid", gridTemplateColumns: "80px 1fr", gap: 8 }}>
+                        <Field label="Cant.">
+                          <input
+                            type="number" value={item.qty} min="1" step="1"
+                            onChange={e => updateCartItem(idx, { qty: e.target.value })}
+                            style={{ ...inp, textAlign: "center" }}
+                          />
+                        </Field>
+                        <Field label={item.precio_sugerido ? `Precio ($) — lista: ${fmt(item.precio_sugerido)}` : "Precio por unidad ($)"}>
+                          <div style={{ position: "relative" }}>
+                            <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: 14 }}>$</span>
+                            <input
+                              type="number" value={item.precio} min="1" step="1"
+                              onChange={e => updateCartItem(idx, { precio: e.target.value })}
+                              placeholder="0"
+                              style={{ ...inp, paddingLeft: 26, borderColor: esPrecEsp ? "#FFB74D" : undefined }}
+                            />
+                          </div>
+                          {esPrecEsp && (
+                            <p style={{ fontSize: 11, color: FF_ORANGE, margin: "4px 0 0", fontWeight: 600 }}>
+                              🏷 Precio especial — {fmt((item.precio_sugerido! - numPrecio!) * numQty)} de descuento
+                            </p>
+                          )}
+                        </Field>
+                      </div>
                     </div>
-                    {esPrecioEspecial && (
-                      <p style={{ fontSize: 11, color: FF_ORANGE, margin: "4px 0 0", fontWeight: 600 }}>
-                        🏷 Precio especial — {fmt((precioSugerido! - numProdActual!) * (parseInt(qty) || 1))} de descuento
-                      </p>
-                    )}
-                  </Field>
-                </div>
+                  );
+                })}
+
+                {/* Botón agregar otro producto */}
+                <button
+                  type="button"
+                  onClick={addCartItem}
+                  style={{
+                    width: "100%", padding: "7px 0", marginBottom: 4,
+                    border: "1px dashed #ffb37a", borderRadius: 8,
+                    background: "transparent", color: "#b05200",
+                    fontSize: 13, fontWeight: 600, cursor: "pointer",
+                  }}
+                >
+                  + Agregar otro producto
+                </button>
+
+                {/* Subtotal del carrito (si hay más de 1 item o precio ingresado) */}
+                {totalCarrito > 0 && (
+                  <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 6 }}>
+                    <span style={{ fontSize: 12, color: "#888" }}>Subtotal productos: </span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: FF_ORANGE, marginLeft: 6 }}>{fmt(totalCarrito)}</span>
+                  </div>
+                )}
               </div>
 
               <Field label="Método de pago">
@@ -1134,7 +1223,10 @@ export default function BelangePage() {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 5 }}>
                         <span style={{ fontSize: 13, color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           <Tag color="orange" />{t.producto}
-                          {qtyVal > 1 && <span style={{ color: "#aaa" }}> ×{qtyVal}</span>}
+                          {t.items && t.items.length > 1
+                            ? <span style={{ marginLeft: 4, fontSize: 10, background: "#ffe8d0", color: "#b05200", padding: "1px 6px", borderRadius: 10, fontWeight: 600 }}>+{t.items.length - 1} más</span>
+                            : qtyVal > 1 && <span style={{ color: "#aaa" }}> ×{qtyVal}</span>
+                          }
                           {esPrecEsp && <span style={{ marginLeft: 4, fontSize: 11, color: FF_ORANGE }}>🏷</span>}
                         </span>
                         <span style={{ fontSize: 13, fontWeight: 600, color: FF_ORANGE, whiteSpace: "nowrap" }}>
@@ -1205,7 +1297,13 @@ export default function BelangePage() {
                         <td style={{ padding: "10px 12px", fontWeight: 600, color: "#007a88", whiteSpace: "nowrap" }}>{fmt(t.price)}</td>
                         <td style={{ padding: "10px 12px", color: "#555", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {t.producto
-                            ? <><Tag color="orange" />{t.producto}{esPrecEsp && <span style={{ marginLeft: 4, fontSize: 10, color: FF_ORANGE }}>🏷</span>}</>
+                            ? <>
+                                <Tag color="orange" />{t.producto}
+                                {t.items && t.items.length > 1 && (
+                                  <span style={{ marginLeft: 4, fontSize: 10, background: "#ffe8d0", color: "#b05200", padding: "1px 6px", borderRadius: 10, fontWeight: 600 }}>+{t.items.length - 1} más</span>
+                                )}
+                                {esPrecEsp && <span style={{ marginLeft: 4, fontSize: 10, color: FF_ORANGE }}>🏷</span>}
+                              </>
                             : <span style={{ color: "#ccc" }}>—</span>}
                         </td>
                         <td style={{ padding: "10px 12px", color: "#888", textAlign: "center" }}>{t.producto ? qtyVal : "—"}</td>
