@@ -289,6 +289,28 @@ export default function HireFlowPage() {
   const aiMatch = (appId: string) => callAI("match", appId, "Analizando match con IA…", "Match actualizado por IA");
   const aiVerdict = (appId: string) => callAI("verdict", appId, "Generando veredicto con IA…", "Veredicto generado por IA");
 
+  async function summarizeInterview(appId: string, f: InterviewForm) {
+    if (!f.transcript.trim()) { showToast("Pega la transcripción primero"); return; }
+    setBusy(appId); showToast("Resumiendo entrevista con IA…");
+    try {
+      const r = await fetch("/api/hireflow/summarize-interview", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          application_id: appId, stage_name: f.stage_name,
+          interviewer_name: f.interviewer_name, interviewer_role: f.interviewer_role,
+          source_type: f.source_type, scheduled_at: f.scheduled_at, transcript: f.transcript,
+        }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { showToast("Error IA: " + (j.error ?? r.status)); return; }
+      setAddIvFor(null); showToast("Ronda resumida por IA"); await loadAll();
+    } catch {
+      showToast("Error de red al resumir");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", background: T.bg, display: "grid", placeItems: "center",
@@ -393,8 +415,10 @@ export default function HireFlowPage() {
         <InterviewModal
           app={addIvFor} position={position}
           nextOrder={(ivByApp.get(addIvFor.id)?.length ?? 0) + 1}
+          processing={busy === addIvFor.id}
           onClose={() => setAddIvFor(null)}
           onSave={(f) => addInterview(addIvFor.id, f)}
+          onProcessAI={(f) => summarizeInterview(addIvFor.id, f)}
         />
       )}
 
@@ -757,9 +781,9 @@ function CandidateModal({ positionTitle, onClose, onSave }: { positionTitle: str
   );
 }
 
-function InterviewModal({ app, position, nextOrder, onClose, onSave }: {
-  app: AppFull; position: HiringPosition | null; nextOrder: number;
-  onClose: () => void; onSave: (f: InterviewForm) => void;
+function InterviewModal({ app, position, nextOrder, processing, onClose, onSave, onProcessAI }: {
+  app: AppFull; position: HiringPosition | null; nextOrder: number; processing: boolean;
+  onClose: () => void; onSave: (f: InterviewForm) => void; onProcessAI: (f: InterviewForm) => void;
 }) {
   const suggested = position?.stages?.find((s) => s.order === nextOrder)?.name ?? `Ronda ${nextOrder}`;
   const [f, setF] = useState<InterviewForm>({
@@ -791,7 +815,22 @@ function InterviewModal({ app, position, nextOrder, onClose, onSave }: {
         </Field></div>
       </div>
       <Field label="Fecha" theme={T}><input style={inputStyle} type="datetime-local" value={f.scheduled_at} onChange={(e) => setF({ ...f, scheduled_at: e.target.value })} /></Field>
-      <Field label="Resumen IA / notas" theme={T}><textarea style={{ ...inputStyle, minHeight: 70 }} value={f.ai_summary} onChange={(e) => setF({ ...f, ai_summary: e.target.value })} placeholder="Resumen de la entrevista (la IA lo generará automáticamente desde Fireflies)" /></Field>
+
+      {/* Transcripción → IA */}
+      <Field label="Transcripción (pega la de Fireflies)" theme={T}>
+        <textarea style={{ ...inputStyle, minHeight: 90 }} value={f.transcript} onChange={(e) => setF({ ...f, transcript: e.target.value })} placeholder="Pega aquí la transcripción de la entrevista y procésala con IA…" />
+      </Field>
+      <button onClick={() => onProcessAI(f)} disabled={processing || !f.transcript.trim()}
+        style={{ width: "100%", background: processing || !f.transcript.trim() ? "#F0C9A8" : C.orange, color: "#fff",
+          border: "none", borderRadius: 10, padding: "11px", fontSize: 14, fontWeight: 700,
+          cursor: processing || !f.transcript.trim() ? "default" : "pointer", marginBottom: 16 }}>
+        {processing ? "Resumiendo con IA…" : "⚡ Procesar transcripción con IA"}
+      </button>
+
+      <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 14, marginBottom: 10 }}>
+        <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 10 }}>O captura la ronda manualmente:</div>
+      </div>
+      <Field label="Resumen / notas (manual)" theme={T}><textarea style={{ ...inputStyle, minHeight: 60 }} value={f.ai_summary} onChange={(e) => setF({ ...f, ai_summary: e.target.value })} placeholder="Resumen de la entrevista" /></Field>
       <div style={{ display: "flex", gap: 12 }}>
         <div style={{ width: 120 }}><Field label="Score (0-10)" theme={T}><input style={inputStyle} type="number" value={f.score} onChange={(e) => setF({ ...f, score: e.target.value })} /></Field></div>
         <div style={{ flex: 1 }}><Field label="Recomendación" theme={T}>
@@ -803,7 +842,7 @@ function InterviewModal({ app, position, nextOrder, onClose, onSave }: {
           </select>
         </Field></div>
       </div>
-      <SaveBtn onClick={() => onSave(f)} disabled={!f.stage_name.trim()} label="Guardar ronda" theme={T} />
+      <SaveBtn onClick={() => onSave(f)} disabled={!f.stage_name.trim()} label="Guardar ronda (manual)" theme={T} />
     </Modal>
   );
 }
