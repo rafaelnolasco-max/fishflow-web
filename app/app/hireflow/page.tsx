@@ -45,7 +45,7 @@ const cardStyle = mkCard(T);
 const cardBtnStyle = mkCardBtn(T);
 const rowStyle = mkRow(T);
 
-type Opt<C> = Omit<React.ComponentProps<C>, "theme"> & { theme?: DashTheme };
+type Opt<C extends React.JSXElementConstructor<any>> = Omit<React.ComponentProps<C>, "theme"> & { theme?: DashTheme };
 const StatCard = (p: Opt<typeof DStatCard>) => <DStatCard {...p} theme={p.theme ?? T} />;
 const Section  = (p: Opt<typeof DSection>)  => <DSection  {...p} theme={p.theme ?? T} />;
 const Empty    = (p: Opt<typeof DEmpty>)    => <DEmpty    {...p} theme={p.theme ?? T} />;
@@ -132,6 +132,7 @@ export default function HireFlowPage() {
   const [detailApp, setDetailApp] = useState<AppFull | null>(null);
   const [addIvFor, setAddIvFor] = useState<AppFull | null>(null);
   const [editVerdictFor, setEditVerdictFor] = useState<AppFull | null>(null);
+  const [busy, setBusy] = useState<string | null>(null); // application_id en proceso IA
 
   function showToast(msg: string) {
     setToast(msg);
@@ -265,6 +266,29 @@ export default function HireFlowPage() {
     setEditVerdictFor(null); showToast("Veredicto guardado"); loadAll();
   }
 
+  // ── Acciones IA (endpoints en /api/hireflow/*) ─────────────────────────────────
+  async function callAI(endpoint: "match" | "verdict", appId: string, pending: string, ok: string) {
+    setBusy(appId); showToast(pending);
+    try {
+      const r = await fetch(`/api/hireflow/${endpoint}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ application_id: appId }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { showToast("Error IA: " + (j.error ?? r.status)); return; }
+      showToast(ok);
+      await loadAll();
+      // refrescar el modal abierto con los campos nuevos (conserva el join candidate)
+      setDetailApp((cur) => (cur && cur.id === appId ? { ...cur, ...j.application } : cur));
+    } catch {
+      showToast("Error de red al llamar a la IA");
+    } finally {
+      setBusy(null);
+    }
+  }
+  const aiMatch = (appId: string) => callAI("match", appId, "Analizando match con IA…", "Match actualizado por IA");
+  const aiVerdict = (appId: string) => callAI("verdict", appId, "Generando veredicto con IA…", "Veredicto generado por IA");
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", background: T.bg, display: "grid", placeItems: "center",
@@ -336,7 +360,8 @@ export default function HireFlowPage() {
           <VeredictoTab
             position={position} apps={posApps}
             avgScore={avgScore} roundsDone={roundsDone}
-            onEditVerdict={setEditVerdictFor} onOpen={setDetailApp}
+            onOpen={setDetailApp}
+            onVerdictAI={aiVerdict} busy={busy}
           />
         )}
       </main>
@@ -344,11 +369,14 @@ export default function HireFlowPage() {
       {/* ── MODAL: detalle de candidato + rondas ── */}
       {detailApp && (
         <AppDetailModal
-          app={detailApp} position={position}
+          app={detailApp}
           interviews={(ivByApp.get(detailApp.id) ?? []).slice().sort((a, b) => (a.stage_order ?? 0) - (b.stage_order ?? 0))}
+          busy={busy === detailApp.id}
           onClose={() => setDetailApp(null)}
           onAddInterview={() => { setAddIvFor(detailApp); setDetailApp(null); }}
           onEditVerdict={() => { setEditVerdictFor(detailApp); setDetailApp(null); }}
+          onMatchAI={() => aiMatch(detailApp.id)}
+          onVerdictAI={() => aiVerdict(detailApp.id)}
         />
       )}
 
@@ -508,10 +536,11 @@ function EntrevistasTab({ interviews, apps }: { interviews: HiringInterview[]; a
   );
 }
 
-function VeredictoTab({ position, apps, avgScore, roundsDone, onEditVerdict, onOpen }: {
+function VeredictoTab({ position, apps, avgScore, roundsDone, onOpen, onVerdictAI, busy }: {
   position: HiringPosition | null; apps: AppFull[];
   avgScore: (id: string) => number | null; roundsDone: (id: string) => number;
-  onEditVerdict: (a: AppFull) => void; onOpen: (a: AppFull) => void;
+  onOpen: (a: AppFull) => void;
+  onVerdictAI: (id: string) => void; busy: string | null;
 }) {
   if (!position) return <Empty msg="Crea una vacante para ver el veredicto." />;
   const ranked = apps.filter((a) => a.status !== "rejected" && a.status !== "withdrawn");
@@ -553,10 +582,11 @@ function VeredictoTab({ position, apps, avgScore, roundsDone, onEditVerdict, onO
                     {a.final_verdict}
                   </div>
                 ) : (
-                  <button onClick={() => onEditVerdict(a)} style={{ marginTop: 10, background: "none",
+                  <button onClick={() => onVerdictAI(a.id)} disabled={busy === a.id} style={{ marginTop: 10, background: "none",
                     border: `1px dashed ${T.border}`, borderRadius: 8, padding: "8px 12px", fontSize: 12.5,
-                    fontWeight: 600, color: C.orangeDark, cursor: "pointer", width: "100%" }}>
-                    + Generar veredicto
+                    fontWeight: 600, color: busy === a.id ? C.muted : C.orangeDark,
+                    cursor: busy === a.id ? "default" : "pointer", width: "100%" }}>
+                    {busy === a.id ? "Generando veredicto con IA…" : "⚡ Generar veredicto con IA"}
                   </button>
                 )}
               </div>
@@ -568,12 +598,14 @@ function VeredictoTab({ position, apps, avgScore, roundsDone, onEditVerdict, onO
   );
 }
 
-function AppDetailModal({ app, position, interviews, onClose, onAddInterview, onEditVerdict }: {
-  app: AppFull; position: HiringPosition | null; interviews: HiringInterview[];
+function AppDetailModal({ app, interviews, busy, onClose, onAddInterview, onEditVerdict, onMatchAI, onVerdictAI }: {
+  app: AppFull; interviews: HiringInterview[]; busy: boolean;
   onClose: () => void; onAddInterview: () => void; onEditVerdict: () => void;
+  onMatchAI: () => void; onVerdictAI: () => void;
 }) {
   const cand = app.candidate;
   const md = app.match_details;
+  const fvd = app.final_verdict_details;
   const st = APP_STATUS_META[app.status];
   const chip = (arr: string[] | undefined, bg: string, fg: string) =>
     (arr ?? []).map((x, i) => <span key={i} style={{ marginRight: 6, marginBottom: 6, display: "inline-block" }}><Chip label={x} bg={bg} fg={fg} /></span>);
@@ -596,15 +628,23 @@ function AppDetailModal({ app, position, interviews, onClose, onAddInterview, on
       )}
 
       {/* match */}
-      {(app.match_summary || md) && (
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: T.text, marginBottom: 6 }}>Análisis de match (IA)</div>
-          {app.match_summary && <div style={{ fontSize: 13, color: T.text, marginBottom: 8 }}>{app.match_summary}</div>}
-          {md?.cumple?.length ? <div style={{ marginBottom: 4 }}><span style={{ fontSize: 11, color: C.muted }}>Cumple: </span>{chip(md.cumple, "#E6F4EC", C.green)}</div> : null}
-          {md?.parcial?.length ? <div style={{ marginBottom: 4 }}><span style={{ fontSize: 11, color: C.muted }}>Parcial: </span>{chip(md.parcial, "#FDF1E3", C.amber)}</div> : null}
-          {md?.falta?.length ? <div><span style={{ fontSize: 11, color: C.muted }}>Falta: </span>{chip(md.falta, "#F6E7E5", C.red)}</div> : null}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: T.text }}>Análisis de match (IA)</div>
+          <button onClick={onMatchAI} disabled={busy || !cand?.cv_text}
+            title={!cand?.cv_text ? "El candidato no tiene texto de CV" : ""}
+            style={{ background: "none", border: `1px solid ${T.border}`, borderRadius: 8, padding: "5px 10px",
+              fontSize: 11.5, fontWeight: 600, color: busy ? C.muted : C.orangeDark,
+              cursor: busy || !cand?.cv_text ? "default" : "pointer" }}>
+            {busy ? "Analizando…" : app.match_score != null ? "⚡ Re-analizar" : "⚡ Analizar con IA"}
+          </button>
         </div>
-      )}
+        {app.match_summary ? <div style={{ fontSize: 13, color: T.text, marginBottom: 8 }}>{app.match_summary}</div>
+          : <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 8 }}>Sin análisis aún. La IA evaluará el CV contra los requisitos de la vacante.</div>}
+        {md?.cumple?.length ? <div style={{ marginBottom: 4 }}><span style={{ fontSize: 11, color: C.muted }}>Cumple: </span>{chip(md.cumple, "#E6F4EC", C.green)}</div> : null}
+        {md?.parcial?.length ? <div style={{ marginBottom: 4 }}><span style={{ fontSize: 11, color: C.muted }}>Parcial: </span>{chip(md.parcial, "#FDF1E3", C.amber)}</div> : null}
+        {md?.falta?.length ? <div><span style={{ fontSize: 11, color: C.muted }}>Falta: </span>{chip(md.falta, "#F6E7E5", C.red)}</div> : null}
+      </div>
 
       {/* rondas */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -647,11 +687,22 @@ function AppDetailModal({ app, position, interviews, onClose, onAddInterview, on
             color: T.text, lineHeight: 1.55 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: C.orangeDark, marginBottom: 4 }}>🏆 VEREDICTO IA</div>
             {app.final_verdict}
-            <button onClick={onEditVerdict} style={{ display: "block", marginTop: 8, background: "none",
-              border: "none", color: C.orangeDark, fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 0 }}>Editar</button>
+            {fvd?.fortalezas?.length ? <div style={{ marginTop: 8 }}><span style={{ fontSize: 11, color: C.muted }}>Fortalezas: </span>{chip(fvd.fortalezas, "#E6F4EC", C.green)}</div> : null}
+            {fvd?.riesgos?.length ? <div style={{ marginTop: 2 }}><span style={{ fontSize: 11, color: C.muted }}>Riesgos: </span>{chip(fvd.riesgos, "#F6E7E5", C.red)}</div> : null}
+            <div style={{ display: "flex", gap: 14, marginTop: 10 }}>
+              <button onClick={onVerdictAI} disabled={busy} style={{ background: "none", border: "none",
+                color: busy ? C.muted : C.orangeDark, fontSize: 12, fontWeight: 600, cursor: busy ? "default" : "pointer", padding: 0 }}>
+                {busy ? "Generando…" : "⚡ Regenerar IA"}</button>
+              <button onClick={onEditVerdict} style={{ background: "none", border: "none",
+                color: C.orangeDark, fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 0 }}>Editar manual</button>
+            </div>
           </div>
         ) : (
-          <SaveBtn onClick={onEditVerdict} label="Generar veredicto final" theme={T} />
+          <div>
+            <SaveBtn onClick={onVerdictAI} disabled={busy} label={busy ? "Generando veredicto…" : "⚡ Generar veredicto con IA"} theme={T} />
+            <button onClick={onEditVerdict} style={{ display: "block", margin: "8px auto 0", background: "none",
+              border: "none", color: C.muted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>o escribirlo manualmente</button>
+          </div>
         )}
       </div>
     </Modal>
