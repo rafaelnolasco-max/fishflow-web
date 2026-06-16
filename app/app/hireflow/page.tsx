@@ -756,11 +756,70 @@ function PositionModal({ onClose, onSave }: { onClose: () => void; onSave: (f: P
   );
 }
 
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("No se pudo leer el archivo"));
+    reader.onload = () => {
+      const res = reader.result as string; // data:...;base64,XXXX
+      resolve(res.includes(",") ? res.split(",")[1] : res);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function CandidateModal({ positionTitle, onClose, onSave }: { positionTitle: string; onClose: () => void; onSave: (f: CandidateForm) => void }) {
   const [f, setF] = useState<CandidateForm>({ full_name: "", email: "", phone: "", linkedin_url: "", cv_text: "", match_score: "", match_summary: "" });
+  const [parsing, setParsing] = useState(false);
+  const [parseMsg, setParseMsg] = useState<string | null>(null);
+
+  async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // permite re-subir el mismo archivo
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { setParseMsg("El archivo supera 10 MB."); return; }
+    setParsing(true); setParseMsg(null);
+    try {
+      const dataBase64 = await fileToBase64(file);
+      const r = await fetch("/api/hireflow/parse-cv", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: file.name, mime: file.type, dataBase64 }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { setParseMsg("Error: " + (j.error ?? r.status)); return; }
+      const fx = j.fields ?? {};
+      setF((prev) => ({
+        ...prev,
+        cv_text: j.text ?? prev.cv_text,
+        full_name: prev.full_name || fx.full_name || "",
+        email: prev.email || fx.email || "",
+        phone: prev.phone || fx.phone || "",
+        linkedin_url: prev.linkedin_url || fx.linkedin || "",
+      }));
+      setParseMsg("✓ CV procesado — revisa los datos y guarda.");
+    } catch {
+      setParseMsg("No se pudo procesar el archivo.");
+    } finally {
+      setParsing(false);
+    }
+  }
+
   return (
     <Modal title="Nuevo candidato" onClose={onClose} theme={T} wide>
       <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Se agrega al pipeline de <b>{positionTitle}</b>.</div>
+
+      {/* Subir CV */}
+      <div style={{ border: `1px dashed ${T.border}`, borderRadius: 12, padding: 14, marginBottom: 16, background: C.orangeSoft }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.orangeDark, marginBottom: 8 }}>Subir CV (PDF o Word) — autocompleta los campos</div>
+        <label style={{ display: "inline-block", background: parsing ? "#F0C9A8" : C.orange, color: "#fff",
+          borderRadius: 9, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: parsing ? "default" : "pointer" }}>
+          {parsing ? "Procesando CV…" : "📎 Elegir archivo"}
+          <input type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            disabled={parsing} onChange={onPickFile} style={{ display: "none" }} />
+        </label>
+        {parseMsg && <div style={{ fontSize: 12, color: parseMsg.startsWith("✓") ? C.green : T.danger, marginTop: 8 }}>{parseMsg}</div>}
+      </div>
+
       <Field label="Nombre completo" theme={T}>
         <input style={inputStyle} value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} />
       </Field>
