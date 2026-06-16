@@ -407,3 +407,120 @@ export interface VetVisitSummary {
   // joins opcionales
   appointment?: VetAppointment | null;
 }
+
+// ─── HireFlow — Reclutamiento / ATS con IA (demo vivo) ────────────────────────
+// client_id en la tabla clients. Replica el patrón de TherapyOS / SieckVet.
+export const HIREFLOW_CLIENT_ID = "a7c3f9e2-1b4d-4a6e-8f2c-9d0e1a2b3c4d";
+
+export type HiringPositionStatus = "open" | "paused" | "closed" | "filled";
+export type HiringAppStatus =
+  | "new" | "screening" | "interviewing" | "finalist" | "hired" | "rejected" | "withdrawn";
+export type HiringInterviewStatus = "scheduled" | "completed" | "canceled" | "no_show";
+export type HiringRecommendation = "advance" | "hold" | "reject" | string;
+
+export interface HiringStage {
+  order: number;
+  name: string;
+  type: string; // "interview" | "panel" | ...
+}
+
+export interface HiringRequirements {
+  must_have?: string[];
+  nice_to_have?: string[];
+  min_years?: number;
+}
+
+export interface HiringPosition {
+  id: string;
+  client_id: string;
+  title: string;
+  description: string | null;
+  requirements: string | null;
+  requirements_struct: HiringRequirements | null;
+  department: string | null;
+  location: string | null;
+  employment_type: string | null;
+  stages: HiringStage[];
+  status: HiringPositionStatus;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // enriquecido en el UI
+  app_count?: number;
+}
+
+export interface HiringCandidate {
+  id: string;
+  client_id: string;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  linkedin_url: string | null;
+  cv_storage_path: string | null;
+  cv_text: string | null;
+  source: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HiringMatchDetails {
+  cumple?: string[];
+  parcial?: string[];
+  falta?: string[];
+}
+
+export interface HiringVerdictDetails {
+  ranking?: number;
+  fortalezas?: string[];
+  riesgos?: string[];
+}
+
+export interface HiringApplication {
+  id: string;
+  client_id: string;
+  position_id: string;
+  candidate_id: string;
+  match_score: number | null;
+  match_summary: string | null;
+  match_details: HiringMatchDetails | null;
+  current_stage: number;
+  status: HiringAppStatus;
+  final_verdict: string | null;
+  final_verdict_details: HiringVerdictDetails | null;
+  decided_at: string | null;
+  created_at: string;
+  updated_at: string;
+  // joins opcionales
+  candidate?: HiringCandidate | null;
+  position?: HiringPosition | null;
+  interviews?: HiringInterview[];
+}
+
+export interface HiringInterviewRaw {
+  fortalezas?: string[];
+  debilidades?: string[];
+  recomendacion?: string;
+}
+
+export interface HiringInterview {
+  id: string;
+  client_id: string;
+  application_id: string;
+  stage_order: number | null;
+  stage_name: string | null;
+  interviewer_name: string | null;
+  interviewer_role: string | null;
+  scheduled_at: string | null;
+  completed_at: string | null;
+  status: HiringInterviewStatus;
+  transcription_id: string | null;
+  transcript: string | null;
+  source_type: string | null;
+  raw_summary: HiringInterviewRaw | null;
+  ai_summary: string | null;
+  ai_processed: boolean;
+  score: number | null;
+  recommendation: HiringRecommendation | null;
+  created_at: string;
+  updated_at: string;
+}
