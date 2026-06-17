@@ -19,6 +19,14 @@ export interface RecorderResult {
   durationSeconds: number;
 }
 
+// Voz para transcripción NO necesita alta fidelidad. Whisper baja todo a 16kHz
+// mono internamente, así que grabamos mono a bitrate bajo desde el origen.
+// Esto mantiene archivos chicos: 32 kbps ≈ 9 MB / 40 min, ≈ 21 MB / 90 min.
+const AUDIO_BITRATE = 32000; // bits/seg
+// Tope duro de Whisper (OpenAI) = 25 MB por archivo. Subimos directo a Storage,
+// así que cortamos aquí antes de gastar una subida que de todos modos fallaría.
+const MAX_BYTES = 25 * 1024 * 1024;
+
 function pickMime(): { mime: string; ext: string } {
   const candidates = [
     { mime: "audio/webm;codecs=opus", ext: "webm" },
@@ -59,9 +67,13 @@ export default function SessionRecorder({
   async function start() {
     setError(null);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+      });
       const { mime } = pickMime();
-      const mr = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      const opts: MediaRecorderOptions = { audioBitsPerSecond: AUDIO_BITRATE };
+      if (mime) opts.mimeType = mime;
+      const mr = new MediaRecorder(stream, opts);
       chunksRef.current = [];
       mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = () => { stream.getTracks().forEach((t) => t.stop()); void upload(); };
@@ -96,6 +108,20 @@ export default function SessionRecorder({
       const type = chunksRef.current[0]?.type || "audio/webm";
       const blob = new Blob(chunksRef.current, { type });
       const duration = Math.max(1, Math.round((Date.now() - startedRef.current) / 1000));
+
+      // Guarda antes de gastar la subida: si el archivo se pasa del tope de
+      // Whisper, avisamos con algo accionable en vez del error críptico de Storage.
+      if (blob.size > MAX_BYTES) {
+        const mb = (blob.size / 1024 / 1024).toFixed(0);
+        const mins = Math.round(duration / 60);
+        setError(
+          `La grabación pesa ${mb} MB (${mins} min) y supera el máximo que se puede transcribir. ` +
+          `Para sesiones muy largas, divídela en dos grabaciones más cortas.`,
+        );
+        setState("error");
+        return;
+      }
+
       const ts = new Date().toISOString().replace(/[:.]/g, "-");
       const filename = `${ts}.${ext}`;
       const path = `${clientId}/${module}/${refId ?? "na"}/${filename}`;
@@ -103,13 +129,19 @@ export default function SessionRecorder({
       const { error: upErr } = await supabase.storage
         .from("audio")
         .upload(path, blob, { contentType: type, upsert: false });
-      if (upErr) throw new Error(upErr.message);
+      if (upErr) {
+        const raw = upErr.message ?? "";
+        const friendly = /exceeded the maximum allowed size|maximum allowed size|payload too large/i.test(raw)
+          ? "La grabación es demasiado grande para subirse. Si la sesión fue muy larga, divídela en dos grabaciones."
+          : `No se pudo subir la grabación: ${raw}`;
+        throw new Error(friendly);
+      }
 
       await onUploaded({ storagePath: path, filename, durationSeconds: duration });
       setState("done");
     } catch (e: unknown) {
       const err = e as { message?: string };
-      setError(`No se pudo subir/procesar: ${err?.message ?? String(e)}`);
+      setError(err?.message ?? String(e));
       setState("error");
     }
   }
