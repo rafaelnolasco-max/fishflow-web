@@ -26,6 +26,10 @@ const AUDIO_BITRATE = 32000; // bits/seg
 // Tope duro de Whisper (OpenAI) = 25 MB por archivo. Subimos directo a Storage,
 // así que cortamos aquí antes de gastar una subida que de todos modos fallaría.
 const MAX_BYTES = 25 * 1024 * 1024;
+// iPad/Safari corta subidas de un solo intento ante cualquier hipo de red
+// ("Load failed"). Reintentamos con espera creciente antes de rendirnos.
+const UPLOAD_RETRIES = 3;
+const isSizeError = (m: string) => /exceeded the maximum allowed size|maximum allowed size|payload too large/i.test(m);
 
 function pickMime(): { mime: string; ext: string } {
   const candidates = [
@@ -58,6 +62,7 @@ export default function SessionRecorder({
   const [state, setState]   = useState<RecState>("idle");
   const [seconds, setSeconds] = useState(0);
   const [error, setError]   = useState<string | null>(null);
+  const [note, setNote]     = useState<string | null>(null);
 
   const mediaRef   = useRef<MediaRecorder | null>(null);
   const chunksRef  = useRef<Blob[]>([]);
@@ -101,8 +106,37 @@ export default function SessionRecorder({
     mediaRef.current?.stop();
   }
 
+  // Sube con reintentos. Safari/iPad lanza "Load failed" ante cortes de red;
+  // un reintento con espera suele salvar la subida sin perder la grabación.
+  async function uploadWithRetry(path: string, blob: Blob, type: string): Promise<void> {
+    let lastMsg = "";
+    for (let attempt = 1; attempt <= UPLOAD_RETRIES; attempt++) {
+      if (attempt > 1) setNote(`Reintentando subida (${attempt}/${UPLOAD_RETRIES})…`);
+      const { error: upErr } = await supabase.storage
+        .from("audio")
+        .upload(path, blob, { contentType: type, upsert: true });
+      if (!upErr) { setNote(null); return; }
+      lastMsg = upErr.message ?? "";
+      if (isSizeError(lastMsg)) break;            // inútil reintentar si es por tamaño
+      if (attempt < UPLOAD_RETRIES) await new Promise((r) => setTimeout(r, 1500 * attempt));
+    }
+    setNote(null);
+    const mb = (blob.size / 1024 / 1024).toFixed(1);
+    if (isSizeError(lastMsg)) {
+      throw new Error(
+        `La grabación pesa ${mb} MB y supera el máximo que se puede transcribir. ` +
+        `Para sesiones muy largas, divídela en dos grabaciones.`,
+      );
+    }
+    throw new Error(
+      `No se pudo subir la grabación (${mb} MB) tras varios intentos. ` +
+      `Suele ser la conexión a internet: revisa tu señal y vuelve a intentar — la grabación sigue aquí.`,
+    );
+  }
+
   async function upload() {
     setState("uploading");
+    setNote(null);
     try {
       const { ext } = pickMime();
       const type = chunksRef.current[0]?.type || "audio/webm";
@@ -126,16 +160,7 @@ export default function SessionRecorder({
       const filename = `${ts}.${ext}`;
       const path = `${clientId}/${module}/${refId ?? "na"}/${filename}`;
 
-      const { error: upErr } = await supabase.storage
-        .from("audio")
-        .upload(path, blob, { contentType: type, upsert: false });
-      if (upErr) {
-        const raw = upErr.message ?? "";
-        const friendly = /exceeded the maximum allowed size|maximum allowed size|payload too large/i.test(raw)
-          ? "La grabación es demasiado grande para subirse. Si la sesión fue muy larga, divídela en dos grabaciones."
-          : `No se pudo subir la grabación: ${raw}`;
-        throw new Error(friendly);
-      }
+      await uploadWithRetry(path, blob, type);
 
       await onUploaded({ storagePath: path, filename, durationSeconds: duration });
       setState("done");
@@ -190,7 +215,7 @@ export default function SessionRecorder({
       {state === "uploading" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, color: "#7A7A72", fontSize: 14 }}>
           <span style={{ animation: "spin 1s linear infinite", display: "inline-block", fontSize: 22 }}>⟳</span>
-          Subiendo y transcribiendo… esto puede tardar un poco.
+          {note ?? "Subiendo y transcribiendo… esto puede tardar un poco."}
         </div>
       )}
 
