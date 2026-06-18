@@ -18,7 +18,7 @@ ${JSON.stringify(history, null, 2)}
 Genera un JSON con exactamente estas claves:
 {
   "clinical_summary": "string — resumen técnico para el terapeuta, máx 300 palabras",
-  "patient_summary": "string — resumen cálido para el paciente, máx 150 palabras, tono empático, sin jerga clínica",
+  "patient_summary": "string — resumen cálido dirigido al paciente, máx 150 palabras, tono empático, sin jerga clínica. ESCRÍBELO EN PRIMERA PERSONA, como si fueras el terapeuta hablándole directamente al paciente de 'tú' (este texto se le envía al paciente firmado por el terapeuta). NUNCA menciones al terapeuta en tercera persona ni por su nombre: lo que el terapeuta dijo o señaló se expresa como 'hoy te compartí', 'te propuse', 'trabajamos juntos'. La transcripción está narrada por el paciente y nombra al terapeuta en tercera persona — NO copies esa perspectiva.",
   "briefing_next": "string — briefing pre-sesión para el terapeuta, máx 200 palabras, incluye hilo conductor, tareas pendientes y preguntas sugeridas. Usa formato: **Label:** contenido, uno por línea",
   "private_notes": "string — observaciones clínicas privadas, máx 200 palabras",
   "emotional_state": {
