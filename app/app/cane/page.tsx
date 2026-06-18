@@ -98,9 +98,23 @@ const MONTHS = [
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = [CURRENT_YEAR, CURRENT_YEAR + 1, CURRENT_YEAR + 2].map(String);
 
+// ─── Hook: detectar viewport móvil ─────────────────────────────────────────────
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 // ─── Componente principal ─────────────────────────────────────────────────────
 export default function CANEAppointmentsPage() {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const [appointments, setAppointments] = useState<CANEAppointment[]>([]);
   const [callLogs, setCallLogs]         = useState<Record<string, CANECallLog[]>>({});
   const [expanded, setExpanded]         = useState<string | null>(null);
@@ -204,6 +218,90 @@ export default function CANEAppointmentsPage() {
     router.push("/login?next=/app/cane");
   }
 
+  // ── Botón Llamar (reutilizado en tabla y tarjetas) ──────────────────────────
+  function CallButton({ appt, block = false }: { appt: CANEAppointment; block?: boolean }) {
+    const isConfirmed = appt.status === "confirmed";
+    const isCalling = calling === appt.id;
+    return (
+      <button
+        onClick={() => callAppointment(appt.id)}
+        disabled={isCalling || isConfirmed}
+        title={isConfirmed ? "Cita ya confirmada" : "Llamar al paciente"}
+        style={{
+          backgroundColor: isConfirmed ? C.border : isCalling ? C.tealLight : C.teal,
+          color: isConfirmed ? C.muted : isCalling ? C.teal : "#fff",
+          border: "none", borderRadius: 6,
+          padding: block ? "10px 14px" : "6px 14px",
+          fontSize: block ? 13 : 12, fontWeight: 600,
+          width: block ? "100%" : "auto",
+          cursor: isConfirmed || isCalling ? "not-allowed" : "pointer",
+          transition: "all 0.2s",
+        }}
+      >
+        {isCalling ? "📞 Llamando..." : "📞 Llamar"}
+      </button>
+    );
+  }
+
+  // ── Panel de historial de llamadas (reutilizado) ────────────────────────────
+  function LogsPanel({ apptId }: { apptId: string }) {
+    const logs = callLogs[apptId] ?? [];
+    return (
+      <>
+        <div style={{ fontSize: 11, fontWeight: 600, color: C.muted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8, marginTop: 8 }}>
+          Historial de llamadas
+        </div>
+        {logs.length === 0 ? (
+          <div style={{ fontSize: 13, color: C.muted, fontStyle: "italic" }}>
+            Sin llamadas registradas aún.
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {logs.map(log => (
+              <div key={log.id} style={{
+                backgroundColor: C.white,
+                border: `1px solid ${C.border}`,
+                borderRadius: 8, padding: "10px 14px",
+                display: "flex", flexDirection: "column", gap: 4,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  <Chip
+                    label={OUTCOME_LABEL[log.outcome ?? 'no_response'] ?? (log.outcome as string)}
+                    bg={`${OUTCOME_COLOR[log.outcome ?? 'no_response'] ?? C.gray}20`}
+                    fg={OUTCOME_COLOR[log.outcome ?? 'no_response'] ?? C.gray}
+                  />
+                  <span style={{ fontSize: 12, color: C.muted }}>
+                    {fmtDateTime(log.called_at)}
+                  </span>
+                  {log.duration_seconds && (
+                    <span style={{ fontSize: 12, color: C.muted }}>
+                      · {log.duration_seconds}s
+                    </span>
+                  )}
+                  <span style={{ fontSize: 11, color: C.gray, marginLeft: "auto" }}>
+                    via {log.provider}
+                  </span>
+                </div>
+                {(log as CANECallLog & { transcript?: string }).transcript && (
+                  <div style={{
+                    fontSize: 12, color: C.muted,
+                    backgroundColor: "#F9FAFB",
+                    borderRadius: 6, padding: "6px 10px",
+                    marginTop: 4, lineHeight: 1.6,
+                    whiteSpace: "pre-wrap",
+                    maxHeight: 120, overflow: "auto",
+                  }}>
+                    {(log as CANECallLog & { transcript?: string }).transcript}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  }
+
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight: "100vh", backgroundColor: C.bg, fontFamily: "Inter, sans-serif" }}>
@@ -243,7 +341,7 @@ export default function CANEAppointmentsPage() {
         {showForm && (
           <div style={{ ...cardStyle, padding: 20, marginBottom: 24 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, color: C.text, margin: "0 0 16px" }}>Nueva cita</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12 }}>
               {[
                 { label: "Nombre del paciente *",   key: "patient_name",  type: "text", placeholder: "Nombre completo" },
                 { label: "Teléfono * (10 dígitos)", key: "patient_phone", type: "tel",  placeholder: "5514831644" },
@@ -341,6 +439,55 @@ export default function CANEAppointmentsPage() {
             <div style={{ fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 4 }}>Sin citas registradas</div>
             <div style={{ fontSize: 13, color: C.muted }}>Agrega la primera cita con el botón de arriba.</div>
           </div>
+        ) : isMobile ? (
+          /* ─── Vista móvil: tarjetas apiladas ─────────────────────────────── */
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {appointments.map(appt => {
+              const isExpanded = expanded === appt.id;
+              return (
+                <div key={appt.id} style={{
+                  ...cardStyle, padding: 0, overflow: "hidden",
+                  borderColor: calling === appt.id ? C.teal : C.border,
+                }}>
+                  <div style={{ padding: 14 }}>
+                    {/* Encabezado: paciente + estado */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{appt.patient_name}</div>
+                        <div style={{ fontSize: 12, color: C.muted }}>{appt.patient_phone}</div>
+                      </div>
+                      <Chip
+                        label={STATUS_LABEL[appt.status] ?? appt.status}
+                        bg={`${STATUS_COLOR[appt.status]}20`}
+                        fg={STATUS_COLOR[appt.status]}
+                      />
+                    </div>
+                    {/* Fecha · hora · doctor */}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", fontSize: 13, color: C.text, marginBottom: 12 }}>
+                      <span>📅 {fmtDate(appt.appointment_date)}</span>
+                      <span>🕐 {fmtTime(appt.appointment_time)}</span>
+                      {appt.doctor_name && <span style={{ color: C.muted }}>👤 {appt.doctor_name}</span>}
+                    </div>
+                    {/* Botón llamar full width */}
+                    <CallButton appt={appt} block />
+                    {/* Toggle historial */}
+                    <button onClick={() => toggleExpand(appt.id)} style={{
+                      background: "none", border: "none", cursor: "pointer",
+                      color: C.muted, fontSize: 12, fontWeight: 600,
+                      padding: "10px 0 0", display: "flex", alignItems: "center", gap: 6,
+                    }}>
+                      {isExpanded ? "▼" : "▶"} Historial de llamadas
+                    </button>
+                  </div>
+                  {isExpanded && (
+                    <div style={{ padding: "0 14px 14px", backgroundColor: "#FAFBFC", borderTop: `1px solid ${C.border}` }}>
+                      <LogsPanel apptId={appt.id} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         ) : (
           <div style={{ ...cardStyle, padding: 0, overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -359,7 +506,6 @@ export default function CANEAppointmentsPage() {
               <tbody>
                 {appointments.map((appt, i) => {
                   const isExpanded = expanded === appt.id;
-                  const logs = callLogs[appt.id] ?? [];
                   const isLast = i === appointments.length - 1;
 
                   return (
@@ -399,26 +545,7 @@ export default function CANEAppointmentsPage() {
                           />
                         </td>
                         <td style={{ padding: "12px 14px" }}>
-                          <button
-                            onClick={() => callAppointment(appt.id)}
-                            disabled={calling === appt.id || appt.status === "confirmed"}
-                            title={appt.status === "confirmed" ? "Cita ya confirmada" : "Llamar al paciente"}
-                            style={{
-                              backgroundColor:
-                                appt.status === "confirmed" ? C.border
-                                : calling === appt.id ? C.tealLight : C.teal,
-                              color:
-                                appt.status === "confirmed" ? C.muted
-                                : calling === appt.id ? C.teal : "#fff",
-                              border: "none", borderRadius: 6,
-                              padding: "6px 14px", fontSize: 12, fontWeight: 600,
-                              cursor: appt.status === "confirmed" || calling === appt.id
-                                ? "not-allowed" : "pointer",
-                              transition: "all 0.2s",
-                            }}
-                          >
-                            {calling === appt.id ? "📞 Llamando..." : "📞 Llamar"}
-                          </button>
+                          <CallButton appt={appt} />
                         </td>
                       </tr>
 
@@ -430,57 +557,7 @@ export default function CANEAppointmentsPage() {
                             borderBottom: !isLast ? `1px solid ${C.border}` : "none",
                             backgroundColor: "#FAFBFC",
                           }}>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: C.muted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8, marginTop: 8 }}>
-                              Historial de llamadas
-                            </div>
-                            {logs.length === 0 ? (
-                              <div style={{ fontSize: 13, color: C.muted, fontStyle: "italic" }}>
-                                Sin llamadas registradas aún.
-                              </div>
-                            ) : (
-                              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                {logs.map(log => (
-                                  <div key={log.id} style={{
-                                    backgroundColor: C.white,
-                                    border: `1px solid ${C.border}`,
-                                    borderRadius: 8, padding: "10px 14px",
-                                    display: "flex", flexDirection: "column", gap: 4,
-                                  }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                      <Chip
-                                        label={OUTCOME_LABEL[log.outcome ?? 'no_response'] ?? (log.outcome as string)}
-                                        bg={`${OUTCOME_COLOR[log.outcome ?? 'no_response'] ?? C.gray}20`}
-                                        fg={OUTCOME_COLOR[log.outcome ?? 'no_response'] ?? C.gray}
-                                      />
-                                      <span style={{ fontSize: 12, color: C.muted }}>
-                                        {fmtDateTime(log.called_at)}
-                                      </span>
-                                      {log.duration_seconds && (
-                                        <span style={{ fontSize: 12, color: C.muted }}>
-                                          · {log.duration_seconds}s
-                                        </span>
-                                      )}
-                                      <span style={{ fontSize: 11, color: C.gray, marginLeft: "auto" }}>
-                                        via {log.provider}
-                                      </span>
-                                    </div>
-                                    {/* Transcript preview */}
-                                    {(log as CANECallLog & { transcript?: string }).transcript && (
-                                      <div style={{
-                                        fontSize: 12, color: C.muted,
-                                        backgroundColor: "#F9FAFB",
-                                        borderRadius: 6, padding: "6px 10px",
-                                        marginTop: 4, lineHeight: 1.6,
-                                        whiteSpace: "pre-wrap",
-                                        maxHeight: 120, overflow: "auto",
-                                      }}>
-                                        {(log as CANECallLog & { transcript?: string }).transcript}
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
+                            <LogsPanel apptId={appt.id} />
                           </td>
                         </tr>
                       )}
