@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/accordion";
 import Image from "next/image";
 import LeadForm from "@/components/LeadForm";
+import BookingCal from "@/components/BookingCal";
 import {
   Mail,
   ArrowRight,
@@ -24,7 +25,6 @@ import {
   Database,
   ShieldCheck,
   Bot,
-  Rocket,
   Search,
   PenTool,
   Cog,
@@ -44,12 +44,12 @@ import {
   Navigation,
   LayoutDashboard,
   Eye,
+  Clock,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const EMAIL = "raf@fishflow.mx";
 const MAILTO_GENERIC = `mailto:${EMAIL}?subject=Quiero%20conocer%20m%C3%A1s%20de%20FishFlow`;
-const MAILTO_DEMO = `mailto:${EMAIL}?subject=Agendemos%20una%20llamada%20-%20FishFlow&body=Hola%20Rafa%2C%20me%20gustar%C3%ADa%20agendar%20una%20llamada%20para%20conocer%20FishFlow.`;
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
@@ -109,11 +109,11 @@ export default function Home() {
           </div>
 
           <Button
-            onClick={() => scrollToSection("contact")}
+            onClick={() => scrollToSection("agenda")}
             className="bg-primary hover:bg-primary/90 text-white"
             size="sm"
           >
-            Conectar
+            Agendar
           </Button>
         </nav>
       </header>
@@ -152,7 +152,7 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mb-10">
                 <Button
-                  onClick={() => scrollToSection("contact")}
+                  onClick={() => scrollToSection("agenda")}
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-white"
                 >
@@ -656,6 +656,37 @@ export default function Home() {
       {/* ── Diagnóstico IA ──────────────────────────────────────────────── */}
       <LeadForm />
 
+      {/* ── Agenda (Cal.com) ────────────────────────────────────────────── */}
+      <section id="agenda" className="py-20 px-4 md:px-0 bg-secondary/40">
+        <div className="container max-w-4xl mx-auto">
+          <div className="text-center mb-10">
+            <Badge variant="outline" className="mb-3 border-primary/30 text-primary">Agenda en línea</Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-foreground">
+              Agenda tu diagnóstico gratis
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Elige el día y la hora que mejor te acomode. Son 30 minutos por videollamada
+              para entender tu operación y decirte qué automatizar primero. Sin costo y sin compromiso.
+            </p>
+          </div>
+
+          <BookingCal />
+
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+            {[
+              { icon: Clock,       label: "30 minutos" },
+              { icon: Calendar,    label: "Disponibilidad en vivo" },
+              { icon: ShieldCheck, label: "Sin compromiso" },
+            ].map(({ icon: Icon, label }) => (
+              <div key={label} className="flex flex-col items-center">
+                <Icon className="h-5 w-5 text-primary mb-1" />
+                <p className="text-sm text-muted-foreground">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Contacto ────────────────────────────────────────────────────── */}
       <section id="contact" className="py-20 px-4 md:px-0 bg-gradient-to-br from-primary/10 via-white to-accent/10">
         <div className="container max-w-3xl mx-auto">
@@ -688,17 +719,17 @@ export default function Home() {
                 <Calendar className="h-10 w-10 text-accent mb-4" />
                 <h3 className="text-xl font-bold text-foreground mb-2">Agenda una llamada</h3>
                 <p className="text-sm text-muted-foreground mb-6">
-                  ¿Prefieres hablar antes de escribir? Mándame un correo con tu disponibilidad y te confirmo el slot.
+                  Elige tú mismo el día y la hora. Te llega la confirmación con el enlace de la videollamada al instante.
                 </p>
                 <Button
-                  onClick={() => window.open(MAILTO_DEMO)}
+                  onClick={() => scrollToSection("agenda")}
                   className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto"
                   size="lg"
                 >
-                  <Rocket className="mr-2 h-4 w-4" /> Solicitar diagnóstico gratis
+                  <Calendar className="mr-2 h-4 w-4" /> Ver disponibilidad
                 </Button>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Pronto: integración con WhatsApp para conectar al instante.
+                  Lun a Vie · 11:00–14:00 (hora CDMX) · videollamada de 30 min.
                 </p>
               </div>
             </div>
