@@ -1,0 +1,17 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FishFlow">
+  <defs>
+    <linearGradient id="ff-tide" x1="14%" y1="50%" x2="86%" y2="50%">
+      <stop offset="0%"   stop-color="#1FA9D6"/>
+      <stop offset="40%"  stop-color="#3DB3CE"/>
+      <stop offset="50%"  stop-color="#C7AE82" stop-opacity="0.95"/>
+      <stop offset="60%"  stop-color="#F0A14A"/>
+      <stop offset="100%" stop-color="#F26B17"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="#0D1B2A"/>
+  <g transform="translate(4,130) scale(0.42)">
+    <path d="M 600 300 C 760 100, 1000 90, 1000 300 C 1000 510, 760 500, 600 300 C 440 100, 200 90, 200 300 C 200 510, 440 500, 600 300 Z"
+      fill="none" stroke="url(#ff-tide)" stroke-width="72" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="880" cy="278" r="13" fill="#0C3445" opacity="0.6"/>
+  </g>
+</svg>
