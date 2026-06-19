@@ -1,0 +1,862 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mario Citalán — Asesor estratégico en criterio y toma de decisiones · CDMX</title>
+<meta name="description" content="Arquitectura mental para líderes, ejecutivos y organizaciones que necesitan pensar mejor bajo presión, decidir con claridad y sostener decisiones congruentes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1A24;          /* navy casi negro — hero Dr. Mente */
+    --ink-2:#283845;
+    --ink-3:#4C5C6A;
+    --paper:#F4F7FA;        /* off-white frío */
+    --paper-2:#E7EEF4;
+    --bone:#FFFFFF;
+    --muted:#7B8794;
+    --accent:#3E86CF;       /* azul Dr. Mente */
+    --accent-deep:#2A6AAE;
+    --steel:#1F4E79;        /* navy-azul secundario */
+    --rule:#DCE4EC;
+    --rule-dark:rgba(255,255,255,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter",system-ui,sans-serif;font-weight:400;font-size:16px;line-height:1.65;letter-spacing:.01em}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  .display{font-family:"Fraunces",Georgia,serif;font-weight:500;letter-spacing:-.01em;line-height:1.0}
+  .serif{font-family:"Fraunces",Georgia,serif}
+  .italic{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:400;color:var(--accent-deep)}
+  .eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-deep)}
+  .container{max-width:1280px;margin:0 auto;padding:0 56px}
+
+  /* PLACEHOLDER (sustituir por assets reales de Mario) */
+  .ph{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:
+      repeating-linear-gradient(135deg,rgba(86,112,138,.07) 0 2px,transparent 2px 18px),
+      linear-gradient(160deg,#E7E0D2 0%,#D3C7B2 100%);
+    color:rgba(17,21,27,.5)}
+  .ph span{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;border:1px dashed rgba(17,21,27,.3);background:rgba(251,249,244,.7)}
+
+  /* ---------------- NAV ---------------- */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(14px);background:rgba(255,255,255,.85);border-bottom:1px solid transparent;transition:.4s}
+  .nav.scrolled{border-bottom-color:var(--rule)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 56px}
+  .nav-mark{display:flex;align-items:center;gap:11px;font-family:"Fraunces",serif;font-weight:500;font-size:19px;letter-spacing:.02em}
+  .nav-mark .dot{width:7px;height:7px;background:var(--accent);transform:rotate(45deg);display:inline-block}
+  .nav-logo{height:34px;width:auto;display:block}
+  .nav-links{display:flex;gap:34px;font-size:13px;letter-spacing:.02em;color:var(--ink-2)}
+  .nav-links a:hover{color:var(--accent-deep)}
+  .nav-cta{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:12px 20px;border:1px solid var(--ink);transition:.3s}
+  .nav-cta:hover{background:var(--ink);color:var(--paper)}
+
+  /* ---------------- HERO ---------------- */
+  .hero{position:relative;padding:172px 0 88px;overflow:hidden}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:72px;align-items:end}
+  .hero-meta{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+  .hero-meta .bar{width:52px;height:1px;background:var(--accent-deep)}
+  .hero h1{font-size:clamp(48px,6.4vw,104px);margin:0 0 10px;color:var(--ink);letter-spacing:-.02em}
+  .hero-lead{max-width:500px;margin-top:30px;font-size:18px;line-height:1.7;color:var(--ink-2)}
+  .hero-cta-row{display:flex;align-items:center;gap:26px;margin-top:40px;flex-wrap:wrap}
+  .btn-primary{display:inline-flex;align-items:center;gap:14px;padding:18px 30px;background:var(--ink);color:var(--paper);font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .btn-primary:hover{background:var(--accent-deep)}
+  .btn-primary svg{width:14px;height:14px}
+  .btn-ghost{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:6px}
+  .btn-ghost:hover{color:var(--accent-deep);border-bottom-color:var(--accent-deep)}
+
+  .hero-right{display:flex;flex-direction:column}
+  .hero-figure{aspect-ratio:4/5;border:1px solid var(--rule);overflow:hidden;background:var(--paper-2)}
+  .hero-stamp-box{background:var(--bone);border:1px solid var(--rule);border-top:none;padding:18px 22px}
+  .hero-stamp-box .eyebrow{margin-bottom:6px;display:block}
+  .hero-stamp-box .num{font-family:"Fraunces",serif;font-size:38px;line-height:1;color:var(--ink)}
+  .hero-stamp-box .label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+  .metrics{margin-top:104px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .metrics > div{padding:32px 26px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:8px}
+  .metrics > div:last-child{border-right:none}
+  .metrics .n{font-family:"Fraunces",serif;font-size:40px;line-height:1;color:var(--ink)}
+  .metrics .l{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+  .ornament{display:flex;align-items:center;gap:13px;color:var(--accent-deep)}
+  .ornament .line{width:74px;height:1px;background:var(--accent-deep)}
+  .ornament .diamond{width:8px;height:8px;background:var(--accent-deep);transform:rotate(45deg)}
+
+  /* ---------------- SECTION SHELL ---------------- */
+  section{padding:128px 0;position:relative}
+  .section-head{display:grid;grid-template-columns:230px 1fr;gap:56px;margin-bottom:72px;align-items:end}
+  .section-head h2{font-size:clamp(40px,4.4vw,68px);line-height:1.0;letter-spacing:-.015em}
+  .section-head .kicker .eyebrow{margin-bottom:14px;display:block}
+  .section-head .kicker p{color:var(--ink-2);max-width:44ch}
+
+  /* ---------------- ABOUT ---------------- */
+  .about{background:var(--bone)}
+  .about-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:84px;align-items:center}
+  .about-figure{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--ink)}
+  .about-figure .sig{position:absolute;top:-20px;left:-20px;background:var(--paper);padding:13px 20px;font-family:"Fraunces",serif;font-style:italic;font-size:21px;color:var(--ink);z-index:2}
+  .about-body h3{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(34px,3.6vw,50px);line-height:1.08;margin-bottom:26px;letter-spacing:-.01em}
+  .about-body p{color:var(--ink-2);margin-bottom:18px;max-width:50ch}
+  .about-body p strong{color:var(--ink);font-weight:600}
+  .about-creds{margin-top:36px;display:grid;grid-template-columns:repeat(2,max-content);gap:24px 56px;border-top:1px solid var(--rule);padding-top:30px}
+  .about-creds .label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .about-creds .val{font-family:"Fraunces",serif;font-size:21px;margin-top:5px}
+
+  /* ---------------- ASESORÍA (dark flagship) ---------------- */
+  .asesoria{background:var(--ink);color:var(--paper)}
+  .asesoria .eyebrow{color:var(--accent)}
+  .asesoria h2{color:var(--paper)}
+  .asesoria .section-head .kicker p{color:rgba(247,244,237,.72)}
+  .problem-intro{max-width:64ch;font-family:"Fraunces",serif;font-weight:400;font-size:clamp(22px,2.4vw,30px);line-height:1.4;color:var(--paper);margin-bottom:56px}
+  .problem-intro .accent{color:var(--accent);font-style:italic}
+  .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{background:rgba(255,255,255,.035);border:1px solid var(--rule-dark);padding:36px 30px;display:flex;flex-direction:column;gap:18px;transition:.4s}
+  .card:hover{background:rgba(255,255,255,.06);border-color:rgba(62,134,207,.5)}
+  .card .num{font-family:"Fraunces",serif;font-style:italic;font-size:40px;color:var(--accent);line-height:1}
+  .card h4{font-family:"Fraunces",serif;font-weight:500;font-size:25px;line-height:1.15}
+  .card .desc{font-size:14.5px;line-height:1.65;color:rgba(247,244,237,.74)}
+  .audience{margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--rule-dark)}
+  .audience .a{padding:28px 26px 0;border-right:1px solid var(--rule-dark)}
+  .audience .a:last-child{border-right:none}
+  .audience .a .t{font-family:"Fraunces",serif;font-size:23px;margin-bottom:8px}
+  .audience .a .d{font-size:13.5px;color:rgba(247,244,237,.66);line-height:1.6}
+
+  /* ---------------- MÉTODO ---------------- */
+  .metodo{background:var(--paper)}
+  .metodo .eyebrow{color:var(--accent-deep)}
+  .step-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;margin-top:24px}
+  .step{padding-top:30px;border-top:1px solid var(--rule)}
+  .step .step-n{display:inline-flex;align-items:center;gap:12px;font-family:"JetBrains Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:40px}
+  .step .step-n::before{content:"";width:26px;height:1px;background:var(--accent-deep);display:inline-block}
+  .step h4{font-family:"Fraunces",serif;font-weight:500;font-size:27px;line-height:1.12;margin-bottom:16px}
+  .step p{font-size:14.5px;line-height:1.7;color:var(--ink-2)}
+
+  /* ---------------- PROGRAMAS ---------------- */
+  .programas{background:var(--paper-2)}
+  .prog-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}
+  .prog{position:relative;background:var(--bone);border:1px solid var(--rule);padding:40px 38px;overflow:hidden;transition:.3s;display:flex;flex-direction:column;gap:14px}
+  .prog::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
+  .prog:hover{transform:translateY(-3px)}
+  .prog-tag{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--steel)}
+  .prog h4{font-family:"Fraunces",serif;font-weight:500;font-size:31px;line-height:1.08}
+  .prog p{font-size:14.5px;color:var(--ink-2);max-width:46ch;line-height:1.65}
+  .prog .more{margin-top:auto;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);display:inline-flex;gap:8px;align-items:center}
+
+  /* ---------------- MEDIOS ---------------- */
+  .medios{background:var(--ink);color:var(--paper)}
+  .medios .eyebrow{color:var(--accent)}
+  .medios h2{color:var(--paper)}
+  .medios .section-head .kicker p{color:rgba(247,244,237,.72)}
+  .media-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--rule-dark)}
+  .media-strip .m{padding:34px 28px;border-right:1px solid var(--rule-dark);display:flex;flex-direction:column;gap:10px;transition:.3s}
+  .media-strip .m:last-child{border-right:none}
+  .media-strip .m:hover{background:rgba(255,255,255,.04)}
+  .media-strip .m .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+  .media-strip .m .t{font-family:"Fraunces",serif;font-size:23px;line-height:1.12}
+  .media-strip .m .d{font-size:13px;color:rgba(247,244,237,.62);line-height:1.55}
+  .media-live{margin-top:24px;display:inline-flex;align-items:center;gap:12px;font-size:13px;color:rgba(247,244,237,.8)}
+  .media-live .pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(62,134,207,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(62,134,207,.55)}70%{box-shadow:0 0 0 12px rgba(62,134,207,0)}100%{box-shadow:0 0 0 0 rgba(62,134,207,0)}}
+
+  /* ---------------- TESTIMONIOS ---------------- */
+  .testimonios{background:var(--bone)}
+  .quote-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:46px;margin-top:24px}
+  .quote{display:flex;flex-direction:column;gap:22px}
+  .quote .stars{color:var(--accent);letter-spacing:.28em;font-size:13px}
+  .quote blockquote{font-family:"Fraunces",serif;font-style:italic;font-weight:400;font-size:21px;line-height:1.45;color:var(--ink)}
+  .quote blockquote::before{content:"\201C";display:block;font-family:"Fraunces",serif;font-size:60px;line-height:.4;color:var(--accent);opacity:.55;margin-bottom:14px}
+  .quote .who{display:flex;align-items:center;gap:14px;margin-top:auto;padding-top:22px;border-top:1px solid var(--rule)}
+  .quote .who .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--steel),var(--ink-2));display:flex;align-items:center;justify-content:center;font-family:"Fraunces",serif;color:var(--paper);font-size:16px}
+  .quote .who .nm{font-family:"Fraunces",serif;font-size:18px}
+  .quote .who .rl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------------- CONTACTO ---------------- */
+  .contacto{background:var(--paper)}
+  .contact-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:72px;align-items:start}
+  .contact-info h3{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(34px,3.6vw,52px);line-height:1.04;margin-bottom:24px;letter-spacing:-.01em}
+  .contact-lead{color:var(--ink-2);max-width:42ch;font-size:16px;margin-bottom:34px}
+  .contact-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--rule)}
+  .contact-list .item{padding:20px 0;border-bottom:1px solid var(--rule)}
+  .contact-list .item .label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+  .contact-list .item .val{font-family:"Fraunces",serif;font-size:22px;line-height:1.3}
+  .contact-list .item a:hover{color:var(--accent-deep)}
+
+  .form{background:var(--bone);border:1px solid var(--rule);padding:44px 42px}
+  .form .eyebrow{display:block;margin-bottom:26px}
+  .field{margin-bottom:22px}
+  .field label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+  .field input,.field select,.field textarea{width:100%;background:var(--paper);border:1px solid var(--rule);padding:14px 16px;font-family:"Inter",sans-serif;font-size:15px;color:var(--ink);transition:.2s}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+  .field textarea{resize:vertical;min-height:110px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .form-submit{width:100%;background:var(--ink);color:var(--paper);border:none;padding:18px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:.3s;display:flex;align-items:center;justify-content:center;gap:12px}
+  .form-submit:hover{background:var(--accent-deep)}
+  .form-note{margin-top:16px;font-size:12px;color:var(--muted);line-height:1.5}
+  .form-ok{display:none;text-align:center;padding:30px 10px}
+  .form-ok.show{display:block}
+  .form-ok .check{width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:24px}
+  .form-ok h4{font-family:"Fraunces",serif;font-size:28px;margin-bottom:10px}
+  .form-ok p{color:var(--ink-2);font-size:15px;max-width:34ch;margin:0 auto}
+
+  /* ---- Diagnóstico interactivo (reemplaza Google Sheets) ---- */
+  .diag-head{margin-bottom:26px}
+  .diag-head .eyebrow{display:block;margin-bottom:16px}
+  .diag-progress{height:4px;background:var(--paper-2);border-radius:2px;overflow:hidden}
+  .diag-bar{height:100%;width:20%;background:var(--accent);transition:width .45s ease}
+  .diag-count{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);margin-top:11px}
+  .diag-step{display:none}
+  .diag-step.active{display:block;animation:diagfade .35s ease}
+  @keyframes diagfade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+  .diag-q{font-family:"Fraunces",serif;font-weight:500;font-size:24px;line-height:1.25;margin-bottom:22px;color:var(--ink)}
+  .diag-q .ph-tag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-deep);border:1px dashed var(--accent);padding:3px 7px;margin-bottom:12px}
+  .diag-opts{display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;align-items:center;gap:14px;padding:15px 18px;border:1px solid var(--rule);background:var(--paper);cursor:pointer;transition:.2s;font-size:15px;color:var(--ink-2)}
+  .opt:hover{border-color:var(--accent)}
+  .opt.sel{border-color:var(--accent);background:rgba(62,134,207,.09);color:var(--ink)}
+  .opt .mark{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--rule);flex:0 0 18px;transition:.2s}
+  .opt.sel .mark{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--bone)}
+  .diag-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:14px}
+  .diag-back{background:none;border:none;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:10px 0;transition:.2s}
+  .diag-back:hover{color:var(--ink)}
+  .diag-back[disabled]{opacity:.3;cursor:default}
+  .diag-next{background:var(--ink);color:var(--paper);border:none;padding:15px 28px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:.3s;display:inline-flex;align-items:center;gap:10px}
+  .diag-next:hover{background:var(--accent-deep)}
+  .diag-next[disabled]{opacity:.4;cursor:default;background:var(--ink-3)}
+  .diag-next svg{width:13px;height:13px}
+  /* resultado segmentado + derivación a producto */
+  .res-rec{margin-top:24px;text-align:left;background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);padding:24px}
+  .res-rec-label{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:9px}
+  .res-rec-name{font-family:"Fraunces",serif;font-weight:500;font-size:26px;line-height:1.12;margin-bottom:9px;color:var(--ink)}
+  .res-rec-desc{font-size:14px;color:var(--ink-2);line-height:1.6;margin-bottom:20px}
+  .res-cta{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:var(--paper);padding:13px 22px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .res-cta:hover{background:var(--accent-deep)}
+  .res-foot{margin-top:20px;font-size:13px;color:var(--muted)}
+
+  /* ---------------- FOOTER ---------------- */
+  footer{padding:78px 0 30px;border-top:1px solid var(--rule);background:var(--bone)}
+  .foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:56px;margin-bottom:72px}
+  .foot-mark{font-family:"Fraunces",serif;font-size:22px;letter-spacing:.02em;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+  .foot-mark .dot{width:7px;height:7px;background:var(--accent);transform:rotate(45deg);display:inline-block}
+  .foot-tag{color:var(--ink-2);max-width:36ch;font-size:14px}
+  .foot-col h5{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+  .foot-col ul{list-style:none;display:flex;flex-direction:column;gap:10px;font-family:"Fraunces",serif;font-size:18px}
+  .foot-col a:hover{color:var(--accent-deep)}
+  .foot-bottom{border-top:1px solid var(--rule);padding-top:24px;display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);gap:24px;flex-wrap:wrap}
+  .made-by{display:inline-flex;align-items:center;gap:14px;padding:8px 14px;border:1px solid var(--rule);background:var(--paper);transition:.3s}
+  .made-by:hover{border-color:var(--ink)}
+  .made-by .made-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .made-by .ff-logo{height:17px;width:auto;display:block;opacity:.92}
+  .made-by .made-url{font-size:11px;letter-spacing:.1em;text-transform:lowercase;color:var(--ink-2);border-left:1px solid var(--rule);padding-left:14px;font-family:"Inter",sans-serif}
+
+  /* ---------------- DEMO BANNER ---------------- */
+  .demo-banner{background:var(--accent);color:#fff;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 16px}
+  .demo-banner a{text-decoration:underline}
+
+  /* ---------------- RESPONSIVE — iPad / tablet ---------------- */
+  @media (max-width:900px){
+    .container{padding:0 26px}
+    .nav-inner{padding:14px 26px}
+    .nav-links{display:none}
+    .hero{padding:128px 0 60px}
+    .hero-grid,.about-grid,.contact-grid{grid-template-columns:1fr;gap:54px}
+    .section-head{grid-template-columns:1fr;gap:22px}
+    .metrics{grid-template-columns:repeat(2,1fr)}
+    .metrics > div:nth-child(2){border-right:none}
+    .metrics > div:nth-child(1),.metrics > div:nth-child(2){border-bottom:1px solid var(--rule)}
+    .card-grid,.step-grid,.quote-grid,.prog-grid,.media-strip,.audience{grid-template-columns:1fr 1fr}
+    .step-grid{gap:24px}
+    .media-strip .m:nth-child(2),.audience .a:nth-child(2){border-right:none}
+    .media-strip .m,.audience .a{border-bottom:1px solid var(--rule-dark)}
+    .foot-grid{grid-template-columns:1fr 1fr;gap:38px}
+    section{padding:84px 0}
+    .about-figure{max-width:420px}
+  }
+
+  /* ---------------- RESPONSIVE — móvil (≤640) ---------------- */
+  @media (max-width:640px){
+    .container{padding:0 20px}
+    section{padding:60px 0}
+    .section-head{margin-bottom:40px}
+    .section-head h2{font-size:clamp(30px,8vw,68px);overflow-wrap:break-word}
+    .nav-inner{padding:13px 20px}
+    .nav-cta{padding:10px 14px;font-size:10px;letter-spacing:.1em}
+    .nav-mark{font-size:16px}
+    .nav-logo{height:28px}
+    .hero{padding:98px 0 46px}
+    .hero h1{font-size:clamp(38px,11vw,60px)}
+    .hero-lead{font-size:15.5px;margin-top:20px;max-width:none}
+    .hero-cta-row{gap:16px;margin-top:28px}
+    .metrics{margin-top:48px}
+    .metrics > div{padding:20px 16px}
+    .metrics .n{font-size:27px}
+    .metrics .l{font-size:10px}
+    .about-figure{aspect-ratio:4/5;max-width:330px;margin:0 auto;width:100%}
+    .about-creds{grid-template-columns:1fr 1fr;gap:16px 22px}
+    .about-creds .val{font-size:17px}
+    .problem-intro{font-size:20px;margin-bottom:38px}
+    .card-grid,.step-grid,.quote-grid,.prog-grid,.media-strip,.audience{grid-template-columns:1fr;gap:14px}
+    .audience{border-top:none}
+    .audience .a{border-right:none;border-bottom:1px solid var(--rule-dark);padding:22px 0 0}
+    .media-strip{border:none}
+    .media-strip .m{border-right:none;border:1px solid var(--rule-dark);margin-bottom:-1px}
+    .step{padding-top:22px}
+    .step .step-n{margin-bottom:24px}
+    .step h4{font-size:24px}
+    .prog{padding:30px 26px}
+    .prog h4{font-size:27px}
+    .quote blockquote{font-size:19px}
+    .form{padding:30px 24px}
+    .field-row{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr;gap:30px}
+    .foot-bottom{flex-direction:column;align-items:flex-start;gap:16px}
+    .made-by{width:100%;justify-content:flex-start}
+  }
+  @media (max-width:390px){
+    .hero h1{font-size:36px}
+    .section-head h2{font-size:28px}
+    .about-body h3,.contact-info h3{font-size:30px}
+  }
+</style>
+</head>
+<body>
+
+<!-- Banner solo para la demo interna de FishFlow -->
+<div class="demo-banner">Demo de rediseño · Propuesta FishFlow para Mario Citalán · Contenido de referencia, pendiente de assets finales</div>
+
+<!-- ============== NAV ============== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#inicio" class="nav-mark"><img class="nav-logo" src="https://mariocitalan.net/wp-content/uploads/2020/05/Dr.-Mente.png" alt="Dr. Mente"> Mario Citalán</a>
+    <div class="nav-links">
+      <a href="#sobre">Sobre mí</a>
+      <a href="#asesoria">Asesoría</a>
+      <a href="#metodo">Método</a>
+      <a href="#programas">Programas</a>
+      <a href="#medios">Medios</a>
+      <a href="#contacto">Contacto</a>
+    </div>
+    <a href="#contacto" class="nav-cta">Agendar diagnóstico</a>
+  </div>
+</nav>
+
+<!-- ============== HERO ============== -->
+<section class="hero" id="inicio">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-meta">
+          <span class="bar"></span>
+          <span class="eyebrow">Asesor estratégico · Criterio y decisiones · CDMX</span>
+        </div>
+        <h1 class="display">Arquitectura mental para <span class="italic">decidir mejor</span> bajo presión.</h1>
+        <p class="hero-lead">Acompaño a líderes, ejecutivos y organizaciones a pensar con claridad, decidir con criterio y sostener decisiones congruentes &mdash; incluso en contextos de alta incertidumbre, estrés y fatiga decisional.</p>
+        <div class="hero-cta-row">
+          <a href="#contacto" class="btn-primary">Agendar diagnóstico
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+          </a>
+          <a href="#metodo" class="btn-ghost">Conoce el método</a>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-figure">
+          <img src="https://mariocitalan.net/wp-content/uploads/2026/03/Asesor-estrategico-en-criterio-y-toma-de-decisiones-scaled.png" alt="Mario Citalán" style="width:100%;height:100%;object-fit:cover;object-position:right center">
+        </div>
+        <div class="hero-stamp-box">
+          <span class="eyebrow">Enfoque</span>
+          <div class="num">01</div>
+          <div class="label">Criterio antes que técnica</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div><div class="n">20+ años</div><div class="l">acompañando decisiones</div></div>
+      <div><div class="n">Líderes</div><div class="l">ejecutivos y dueños de negocio</div></div>
+      <div><div class="n">Empresas</div><div class="l">conferencias y capacitación</div></div>
+      <div><div class="n">Medios</div><div class="l">radio · podcast · TV</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SOBRE MÍ ============== -->
+<section class="about" id="sobre">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Sobre mí</span></div>
+      <div class="kicker">
+        <div class="ornament" style="margin-bottom:14px"><span class="line"></span><span class="diamond"></span></div>
+        <p>Mi labor es desarrollar el criterio de quienes toman decisiones de alto nivel, para que cada decisión importante sea clara, objetiva y estratégicamente superior.</p>
+      </div>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-figure">
+        <div class="sig">&mdash; Mario</div>
+        <img class="about-photo" src="https://mariocitalan.net/wp-content/uploads/2025/06/Quien-soy-1-scaled.png" alt="Mario Citalán" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:left center">
+      </div>
+      <div class="about-body">
+        <h3>Más que motivación,<br><span class="italic">criterio sólido</span>.</h3>
+        <p>Acompaño a líderes, ejecutivos, emprendedores y dueños de negocio a <strong>eliminar los sesgos cognitivos</strong> que el estrés, la mala gestión emocional y la fatiga decisional introducen en sus decisiones.</p>
+        <p>El objetivo no es decidir más rápido, sino construir una <strong>arquitectura mental sólida</strong>: una forma de pensar que sostiene decisiones congruentes en tu vida, tu empresa y tu trabajo, incluso bajo presión.</p>
+        <div class="about-creds">
+          <div><div class="label">Especialidad</div><div class="val">Criterio y toma de decisiones</div></div>
+          <div><div class="label">Enfoque</div><div class="val">Neurociencia aplicada</div></div>
+          <div><div class="label">Formato</div><div class="val">Individual y organizacional</div></div>
+          <div><div class="label">Base</div><div class="val">Ciudad de México</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ASESORÍA (flagship) ============== -->
+<section class="asesoria" id="asesoria">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Asesoría estratégica</span></div>
+      <div class="kicker">
+        <h2 class="display">Decisiones de alto nivel,<br>tomadas con <span class="italic" style="color:var(--accent)">claridad</span>.</h2>
+      </div>
+    </div>
+
+    <p class="problem-intro">Bajo presión, el cerebro toma atajos. El estrés, el cansancio y la carga emocional introducen <span class="accent">sesgos invisibles</span> que distorsionan incluso las decisiones más importantes &mdash; sin que lo notes.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="num">i</div>
+        <h4>Sesgos cognitivos</h4>
+        <p class="desc">Identificamos los patrones automáticos que sabotean tu juicio y aprendes a reconocerlos antes de decidir.</p>
+      </div>
+      <div class="card">
+        <div class="num">ii</div>
+        <h4>Fatiga decisional</h4>
+        <p class="desc">Demasiadas decisiones agotan tu criterio. Diseñamos estructuras para reservar tu energía mental para lo que importa.</p>
+      </div>
+      <div class="card">
+        <div class="num">iii</div>
+        <h4>Claridad bajo presión</h4>
+        <p class="desc">Gestión emocional aplicada a la decisión: pensar con cabeza fría cuando más está en juego.</p>
+      </div>
+    </div>
+
+    <div class="audience">
+      <div class="a"><div class="t">Líderes y directivos</div><div class="d">Que cargan con decisiones de alto impacto y necesitan sostenerlas con congruencia.</div></div>
+      <div class="a"><div class="t">Dueños de negocio</div><div class="d">Que deciden con información incompleta y bajo riesgo financiero real.</div></div>
+      <div class="a"><div class="t">Organizaciones</div><div class="d">Que quieren equipos directivos que decidan mejor, juntos y bajo presión.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== MÉTODO ============== -->
+<section class="metodo" id="metodo">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">El método</span></div>
+      <div class="kicker">
+        <h2 class="display">De la reacción<br>al <span class="italic">criterio</span>.</h2>
+        <p style="margin-top:18px">Un proceso estructurado, no una charla motivacional. Cuatro etapas para construir tu arquitectura mental.</p>
+      </div>
+    </div>
+
+    <div class="step-grid">
+      <div class="step">
+        <div class="step-n">Etapa I</div>
+        <h4>Diagnóstico de criterio</h4>
+        <p>Mapeamos cómo decides hoy: dónde el estrés, la emoción o la prisa están introduciendo ruido en tu juicio.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">Etapa II</div>
+        <h4>Mapa de sesgos</h4>
+        <p>Hacemos visibles los atajos mentales que repites. No se corrige lo que no se ve.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">Etapa III</div>
+        <h4>Entrenamiento</h4>
+        <p>Construyes hábitos de pensamiento y herramientas concretas para decidir con claridad y objetividad.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">Etapa IV</div>
+        <h4>Acompañamiento</h4>
+        <p>Sostenemos el cambio en tus decisiones reales, no en teoría. Seguimiento sobre casos vivos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== PROGRAMAS ============== -->
+<section class="programas" id="programas">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Programas y conferencias</span></div>
+      <div class="kicker">
+        <h2 class="display">Para personas<br>y <span class="italic">organizaciones</span>.</h2>
+        <p style="margin-top:18px">Más allá de la asesoría individual: formatos para equipos, empresas y público general.</p>
+      </div>
+    </div>
+
+    <div class="prog-grid">
+      <article class="prog">
+        <div class="prog-tag">Conferencia</div>
+        <h4>Créelo y Créalo</h4>
+        <p>Conferencia de alto impacto sobre criterio, mentalidad y decisión. Para convenciones, empresas y eventos.</p>
+        <a href="#contacto" class="more">Solicitar para tu evento →</a>
+      </article>
+      <article class="prog">
+        <div class="prog-tag">In-company</div>
+        <h4>Capacitación a equipos</h4>
+        <p>Programas a la medida para que tus equipos directivos decidan mejor bajo presión, juntos y con un lenguaje común.</p>
+        <a href="#contacto" class="more">Cotizar capacitación →</a>
+      </article>
+      <article class="prog">
+        <div class="prog-tag">Programa abierto</div>
+        <h4>Sábados de Transformación</h4>
+        <p>Sesiones de desarrollo personal y mental para público general. Un espacio para pensar distinto.</p>
+        <a href="#contacto" class="more">Conocer fechas →</a>
+      </article>
+      <article class="prog">
+        <div class="prog-tag">Comunidad</div>
+        <h4>Cree ConCiencia</h4>
+        <p>Contenido y comunidad alrededor de la salud mental, el criterio y la toma de decisiones conscientes.</p>
+        <a href="#contacto" class="more">Sumarte →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============== MEDIOS ============== -->
+<section class="medios" id="medios">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">En los medios</span></div>
+      <div class="kicker">
+        <h2 class="display">También me escuchas<br>cada <span class="italic" style="color:var(--accent)">semana</span>.</h2>
+      </div>
+    </div>
+
+    <div class="media-strip">
+      <div class="m">
+        <div class="k">Radio</div>
+        <div class="t">Cadena Azul</div>
+        <div class="d">En vivo todos los viernes 9:00 am.</div>
+      </div>
+      <div class="m">
+        <div class="k">Podcast / TV</div>
+        <div class="t">Martha Debayle</div>
+        <div class="d">Especialista invitado. Capítulos disponibles bajo demanda.</div>
+      </div>
+      <div class="m">
+        <div class="k">YouTube</div>
+        <div class="t">IntegralMENTE</div>
+        <div class="d">Episodios completos sobre mente, criterio y decisión.</div>
+      </div>
+      <div class="m">
+        <div class="k">Redes</div>
+        <div class="t">@drmente</div>
+        <div class="d">Contenido diario en TikTok, Instagram y YouTube.</div>
+      </div>
+    </div>
+    <div class="media-live"><span class="pulse"></span> Próxima transmisión en vivo: viernes 9:00 am · Cadena Azul Radio</div>
+  </div>
+</section>
+
+<!-- ============== TESTIMONIOS ============== -->
+<section class="testimonios" id="opiniones">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Testimonios</span></div>
+      <div class="kicker">
+        <h2 class="display">Lo que cambia<br>cuando <span class="italic">decides mejor</span>.</h2>
+      </div>
+    </div>
+
+    <div class="quote-grid">
+      <div class="quote">
+        <div class="stars">★ ★ ★ ★ ★</div>
+        <blockquote>Dejé de decidir desde la urgencia. Hoy mis decisiones de negocio tienen una claridad que antes no tenía.</blockquote>
+        <div class="who"><div class="av">R</div><div><div class="nm">Roberto M.</div><div class="rl">Dueño de negocio</div></div></div>
+      </div>
+      <div class="quote">
+        <div class="stars">★ ★ ★ ★ ★</div>
+        <blockquote>No es motivación, es método. Mario me dio herramientas concretas para pensar mejor bajo presión.</blockquote>
+        <div class="who"><div class="av">A</div><div><div class="nm">Ana L.</div><div class="rl">Directora ejecutiva</div></div></div>
+      </div>
+      <div class="quote">
+        <div class="stars">★ ★ ★ ★ ★</div>
+        <blockquote>La conferencia movió a todo mi equipo. Salieron pensando distinto sobre cómo deciden, no solo motivados.</blockquote>
+        <div class="who"><div class="av">J</div><div><div class="nm">Jorge V.</div><div class="rl">Director de RH</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CONTACTO ============== -->
+<section class="contacto" id="contacto">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Empecemos por<br>un <span class="italic">diagnóstico</span>.</h3>
+        <p class="contact-lead">Cuéntame qué tipo de decisiones estás enfrentando. Te respondo personalmente para definir si la asesoría, una conferencia o un programa es lo que necesitas.</p>
+        <div class="contact-list">
+          <div class="item"><div class="label">Correo</div><div class="val"><a href="mailto:contacto@mariocitalan.com">contacto@mariocitalan.com</a></div></div>
+          <div class="item"><div class="label">Ubicación</div><div class="val">Ciudad de México</div></div>
+          <div class="item"><div class="label">En vivo</div><div class="val">Viernes 9:00 am · Cadena Azul</div></div>
+        </div>
+      </div>
+
+      <div class="form">
+        <div class="diag" id="diag">
+          <div class="diag-head">
+            <span class="eyebrow">Diagnóstico de criterio</span>
+            <div class="diag-progress"><div class="diag-bar" id="diagBar"></div></div>
+            <div class="diag-count">Paso <span id="diagStep">1</span> de <span id="diagTotal">5</span></div>
+          </div>
+
+          <!-- PREGUNTAS DE EJEMPLO — sustituir por el cuestionario real de Mario -->
+          <div class="diag-step active" data-step="1" data-type="seg">
+            <div class="diag-q">¿Qué te trae aquí?</div>
+            <div class="diag-opts">
+              <div class="opt" data-seg="individual"><span class="mark"></span>Quiero decidir mejor en mi vida o mi carrera</div>
+              <div class="opt" data-seg="empresa"><span class="mark"></span>Busco algo para mi empresa o mi equipo</div>
+              <div class="opt" data-seg="personal"><span class="mark"></span>Quiero crecimiento personal</div>
+              <div class="opt" data-seg="evento"><span class="mark"></span>Organizo un evento o una conferencia</div>
+            </div>
+          </div>
+
+          <div class="diag-step" data-step="2" data-type="q">
+            <div class="diag-q"><span class="ph-tag">Pregunta de ejemplo</span>¿Con qué frecuencia revisas una decisión ya tomada por dudas o arrepentimiento?</div>
+            <div class="diag-opts">
+              <div class="opt"><span class="mark"></span>Casi nunca</div>
+              <div class="opt"><span class="mark"></span>Rara vez</div>
+              <div class="opt"><span class="mark"></span>A veces</div>
+              <div class="opt"><span class="mark"></span>Seguido</div>
+              <div class="opt"><span class="mark"></span>Casi siempre</div>
+            </div>
+          </div>
+
+          <div class="diag-step" data-step="3" data-type="q">
+            <div class="diag-q"><span class="ph-tag">Pregunta de ejemplo</span>Cuando el día acumula muchas decisiones, ¿notas que tu juicio se desgasta hacia la tarde?</div>
+            <div class="diag-opts">
+              <div class="opt"><span class="mark"></span>Casi nunca</div>
+              <div class="opt"><span class="mark"></span>Rara vez</div>
+              <div class="opt"><span class="mark"></span>A veces</div>
+              <div class="opt"><span class="mark"></span>Seguido</div>
+              <div class="opt"><span class="mark"></span>Casi siempre</div>
+            </div>
+          </div>
+
+          <div class="diag-step" data-step="4" data-type="q">
+            <div class="diag-q"><span class="ph-tag">Pregunta de ejemplo</span>Ante una decisión importante con información incompleta, ¿qué tan claro tienes tu siguiente paso?</div>
+            <div class="diag-opts">
+              <div class="opt"><span class="mark"></span>Nada claro</div>
+              <div class="opt"><span class="mark"></span>Poco</div>
+              <div class="opt"><span class="mark"></span>Algo</div>
+              <div class="opt"><span class="mark"></span>Bastante</div>
+              <div class="opt"><span class="mark"></span>Muy claro</div>
+            </div>
+          </div>
+
+          <!-- Paso final: captura de contacto -->
+          <div class="diag-step" data-step="5" data-type="contact">
+            <div class="diag-q">¿A dónde te envío tu diagnóstico?</div>
+            <div class="field">
+              <label for="d-nombre">Nombre completo</label>
+              <input type="text" id="d-nombre" placeholder="Tu nombre">
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="d-email">Correo</label>
+                <input type="email" id="d-email" placeholder="tu@correo.com">
+              </div>
+              <div class="field">
+                <label for="d-tel">Teléfono</label>
+                <input type="tel" id="d-tel" placeholder="55 0000 0000">
+              </div>
+            </div>
+            <div class="field">
+              <label for="d-tipo">¿Qué te interesa?</label>
+              <select id="d-tipo">
+                <option>Asesoría individual</option>
+                <option>Capacitación para mi empresa</option>
+                <option>Conferencia para un evento</option>
+                <option>Programa abierto (Sábados de Transformación)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="diag-nav">
+            <button class="diag-back" id="diagBack" disabled>Atrás</button>
+            <button class="diag-next" id="diagNext" disabled>Siguiente
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+            </button>
+          </div>
+          <p class="form-note" style="margin-top:18px">5 preguntas rápidas. Tus respuestas son confidenciales y solo se usan para tu diagnóstico y contacto.</p>
+        </div>
+        <div class="form-ok" id="formOk">
+          <div class="check">✓</div>
+          <span class="eyebrow" style="display:block;margin-bottom:14px">Tu resultado</span>
+          <h4 id="resPerfil">Tu perfil de decisión</h4>
+          <p id="resPerfilDesc">&hellip;</p>
+          <div class="res-rec">
+            <div class="res-rec-label">Te recomiendo</div>
+            <div class="res-rec-name" id="resProd">&hellip;</div>
+            <div class="res-rec-desc" id="resProdDesc">&hellip;</div>
+            <a class="res-cta" id="resCta" href="#asesoria">Conocer más
+              <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+            </a>
+          </div>
+          <p class="res-foot">Además te escribo personalmente en menos de 24 horas hábiles.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-mark"><span class="dot"></span> Mario Citalán</div>
+        <div class="ornament" style="margin-bottom:18px"><span class="line" style="width:46px"></span><span class="diamond"></span></div>
+        <p class="foot-tag">Asesor estratégico en criterio y toma de decisiones. Arquitectura mental para líderes, ejecutivos y organizaciones.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Servicios</h5>
+        <ul>
+          <li><a href="#asesoria">Asesoría</a></li>
+          <li><a href="#programas">Conferencias</a></li>
+          <li><a href="#programas">Capacitación</a></li>
+          <li><a href="#metodo">Método</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>Más</h5>
+        <ul>
+          <li><a href="#sobre">Sobre mí</a></li>
+          <li><a href="#medios">Medios</a></li>
+          <li><a href="#opiniones">Testimonios</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>Sígueme</h5>
+        <ul>
+          <li><a href="https://www.instagram.com/mario_citalan/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://www.youtube.com/channel/UCnA2v-vmKEAkegEwnzmA32Q" target="_blank" rel="noopener">YouTube</a></li>
+          <li><a href="https://www.tiktok.com/@drmente" target="_blank" rel="noopener">TikTok</a></li>
+          <li><a href="https://www.linkedin.com/in/mariocitalán/" target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>© MMXXVI — Mario Citalán. Todos los derechos reservados. · <a href="#" style="color:inherit;text-decoration:underline">Aviso de privacidad</a></div>
+      <a class="made-by" href="https://www.fishflow.mx" target="_blank" rel="noopener" aria-label="Creado por FishFlow">
+        <span class="made-label">Creado por</span>
+        <img src="assets/fishflow-logo-mono.svg" alt="FishFlow" class="ff-logo">
+        <span class="made-url">www.fishflow.mx</span>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll state
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 30);
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // Diagnóstico multipaso con segmentación + derivación (demo)
+  // En producción: guarda respuestas + segmento en Supabase vía /api/leads
+  const diag = document.getElementById('diag');
+  const steps = Array.from(diag.querySelectorAll('.diag-step'));
+  const total = steps.length;
+  const bar = document.getElementById('diagBar');
+  const stepLabel = document.getElementById('diagStep');
+  const backBtn = document.getElementById('diagBack');
+  const nextBtn = document.getElementById('diagNext');
+  const okBox = document.getElementById('formOk');
+  document.getElementById('diagTotal').textContent = total;
+  const arrow = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>';
+  let cur = 0;
+  const data = { seg: null };
+
+  // Mapa de derivación: segmento -> producto/servicio recomendado
+  const products = {
+    individual: { p:'Asesoría estratégica 1:1', d:'Trabajo personal sobre tu criterio y tus decisiones de mayor impacto.', href:'#asesoria', cta:'Conocer la asesoría' },
+    empresa:    { p:'Capacitación in-company', d:'Un programa a la medida para que tu equipo decida mejor, en conjunto.', href:'#programas', cta:'Ver capacitación' },
+    personal:   { p:'Sábados de Transformación', d:'Programa abierto de desarrollo mental y personal.', href:'#programas', cta:'Conocer el programa' },
+    evento:     { p:'Conferencia “Créelo y Créalo”', d:'Conferencia de alto impacto para tu evento o convención.', href:'#programas', cta:'Solicitar conferencia' }
+  };
+
+  steps.forEach((step) => {
+    const opts = Array.from(step.querySelectorAll('.opt'));
+    opts.forEach(opt => {
+      opt.addEventListener('click', () => {
+        opts.forEach(o => o.classList.remove('sel'));
+        opt.classList.add('sel');
+        if(step.dataset.type === 'seg') data.seg = opt.dataset.seg;
+        else if(step.dataset.type === 'q') step._score = opts.indexOf(opt) + 1;
+        refresh();
+      });
+    });
+    step.querySelectorAll('input').forEach(inp => inp.addEventListener('input', refresh));
+  });
+
+  function stepValid(i){
+    const step = steps[i];
+    if(step.dataset.type === 'contact'){
+      const n = step.querySelector('#d-nombre').value.trim();
+      const e = step.querySelector('#d-email').value.trim();
+      return n.length > 1 && /.+@.+\..+/.test(e);
+    }
+    return !!step.querySelector('.opt.sel');
+  }
+
+  function refresh(){
+    steps.forEach((s, i) => s.classList.toggle('active', i === cur));
+    bar.style.width = ((cur + 1) / total * 100) + '%';
+    stepLabel.textContent = cur + 1;
+    backBtn.disabled = cur === 0;
+    nextBtn.disabled = !stepValid(cur);
+    nextBtn.innerHTML = (cur === total - 1 ? 'Ver mi diagnóstico ' : 'Siguiente ') + arrow;
+  }
+
+  function showResult(){
+    // Perfil de decisión a partir de las preguntas tipo escala (placeholder)
+    const scores = steps.filter(s => s.dataset.type === 'q').map(s => s._score || 0);
+    const avg = scores.reduce((a, b) => a + b, 0) / (scores.length || 1);
+    let perfil, pdesc;
+    if(avg >= 3.5){ perfil = 'Decides bajo alta presión'; pdesc = 'El estrés y la prisa están pesando en tus decisiones más de lo que convendría. Hay mucho margen para ganar claridad.'; }
+    else if(avg >= 2.5){ perfil = 'Tu criterio es sólido, pero mejorable'; pdesc = 'Decides bien la mayor parte del tiempo; con método puedes sostener esa claridad también en los momentos difíciles.'; }
+    else { perfil = 'Partes de una base clara'; pdesc = 'Tienes una buena base de decisión. El siguiente paso es afinarla y blindarla para lo de mayor impacto.'; }
+
+    const prod = products[data.seg] || products.individual;
+    document.getElementById('resPerfil').textContent = perfil;
+    document.getElementById('resPerfilDesc').textContent = pdesc;
+    document.getElementById('resProd').textContent = prod.p;
+    document.getElementById('resProdDesc').textContent = prod.d;
+    const cta = document.getElementById('resCta');
+    cta.setAttribute('href', prod.href);
+    cta.firstChild.textContent = prod.cta + ' ';
+
+    diag.style.display = 'none';
+    okBox.classList.add('show');
+  }
+
+  backBtn.addEventListener('click', () => { if(cur > 0){ cur--; refresh(); } });
+  nextBtn.addEventListener('click', () => {
+    if(!stepValid(cur)) return;
+    if(cur < total - 1){ cur++; refresh(); }
+    else { showResult(); }
+  });
+
+  refresh();
+</script>
+
+</body>
+</html>
