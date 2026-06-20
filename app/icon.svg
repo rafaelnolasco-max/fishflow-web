@@ -1,9 +1,9 @@
 <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="ff-tide" x1="14%" y1="50%" x2="86%" y2="50%">
-      <stop offset="0%" stop-color="#1FA9D6"/><stop offset="40%" stop-color="#3DB3CE"/>
-      <stop offset="50%" stop-color="#C7AE82" stop-opacity="0.95"/>
-      <stop offset="60%" stop-color="#F0A14A"/><stop offset="100%" stop-color="#F26B17"/>
+      <stop offset="0%" stop-color="#67D4E8"/><stop offset="40%" stop-color="#7FDCEC"/>
+      <stop offset="50%" stop-color="#D8C9A0" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#FFAE5E"/><stop offset="100%" stop-color="#FF8C35"/>
     </linearGradient>
   </defs>
   <rect x="0" y="0" width="512" height="512" rx="112" fill="#FFFFFF"/>

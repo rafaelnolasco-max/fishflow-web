@@ -576,7 +576,7 @@ export default function Home() {
       </section>
 
       {/* ── Por qué FishFlow ────────────────────────────────────────────── */}
-      <section id="why" className="py-20 px-4 md:px-0" style={{ backgroundColor: "#0A1820" }}>
+      <section id="why" className="py-20 px-4 md:px-0" style={{ backgroundColor: "#0D1B2A" }}>
         <div className="container max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <Badge variant="outline" className="mb-3 border-primary/40 text-primary bg-transparent">Diferenciadores</Badge>
@@ -751,7 +751,7 @@ export default function Home() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer style={{ backgroundColor: "#0A1820" }} className="text-white py-12 px-4 md:px-0">
+      <footer style={{ backgroundColor: "#0D1B2A" }} className="text-white py-12 px-4 md:px-0">
         <div className="container max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="md:col-span-2">

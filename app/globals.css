@@ -33,11 +33,12 @@
 }
 
 /* ─── FishFlow Brand Tokens ─────────────────────────────────────────────────
-   Tide Cyan   #1FA9D6  — lóbulo izquierdo / "Fish"
-   Tide Orange #F26B17  — lóbulo derecho / "Flow"
+   Sistema de dos tonos (oficial 2026-06-20):
+   - Logo / isotipo (gráfico):  Cyan #67D4E8 / Orange #FF8C35  (paleta oficial clara)
+   - Acción UI (botones, links): Cyan #1FA9D6 / Orange #F26B17  (tono oscuro, contraste con texto blanco)
    Ink         #0E2A36  — tipografía principal
    Ink Soft    #0C3445  — variante secundaria
-   BG Dark     #0A1820  — fondo oscuro de marca
+   BG Dark     #0D1B2A  — fondo oscuro de marca
 ──────────────────────────────────────────────────────────────────────────── */
 
 :root {
@@ -73,7 +74,7 @@
 }
 
 .dark {
-  --background:         #0A1820;
+  --background:         #0D1B2A;
   --foreground:         #e8f4f8;
 
   --card:               #0C2232;
