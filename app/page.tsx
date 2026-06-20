@@ -792,7 +792,10 @@ export default function Home() {
           </div>
           <div className="border-t border-white/20 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm text-white/60">
             <p>© {new Date().getFullYear()} FishFlow. Todos los derechos reservados.</p>
-            <p>fishflow.mx</p>
+            <div className="flex items-center gap-4">
+              <a href="/aviso-de-privacidad" className="hover:text-white transition-colors">Aviso de privacidad</a>
+              <span>fishflow.mx</span>
+            </div>
           </div>
         </div>
       </footer>

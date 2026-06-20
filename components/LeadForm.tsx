@@ -8,11 +8,13 @@ export default function LeadForm() {
   const [name, setName]       = useState('')
   const [email, setEmail]     = useState('')
   const [problem, setProblem] = useState('')
+  const [consent, setConsent] = useState(false)
   const [state, setState]     = useState<FormState>('idle')
   const [response, setResponse] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!consent) return
     setState('loading')
     setResponse('')
 
@@ -155,10 +157,36 @@ export default function LeadForm() {
             />
           </div>
 
+          {/* Consentimiento */}
+          <label htmlFor="lead-consent" className="flex items-start gap-3 cursor-pointer">
+            <input
+              id="lead-consent"
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              disabled={state === 'loading'}
+              className="mt-1 h-4 w-4 shrink-0 cursor-pointer"
+              style={{ accentColor: '#FF8C35' }}
+            />
+            <span className="text-xs leading-5" style={{ color: '#94a3b8' }}>
+              He leído y acepto el{' '}
+              <a
+                href="/aviso-de-privacidad"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+                style={{ color: '#67D4E8' }}
+              >
+                Aviso de Privacidad
+              </a>{' '}
+              y autorizo el tratamiento de mis datos para ser contactado.
+            </span>
+          </label>
+
           {/* Botón */}
           <button
             type="submit"
-            disabled={state === 'loading'}
+            disabled={state === 'loading' || !consent}
             className="w-full py-3 rounded-lg font-bold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: '#FF8C35', color: '#fff' }}
           >
