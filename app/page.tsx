@@ -45,6 +45,11 @@ import {
   LayoutDashboard,
   Eye,
   Clock,
+  Globe,
+  CreditCard,
+  FileText,
+  Phone,
+  Package,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -93,6 +98,7 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-7">
             {[
               { label: "Cómo funciona", id: "how" },
+              { label: "Capacidades",   id: "capacidades" },
               { label: "Servicios",     id: "services" },
               { label: "Apps",          id: "apps" },
               { label: "Por qué FishFlow", id: "why" },
@@ -228,6 +234,67 @@ export default function Home() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Capacidades / Bloques ───────────────────────────────────────── */}
+      <section id="capacidades" className="py-20 px-4 md:px-0">
+        <div className="container max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <Badge variant="outline" className="mb-3 border-accent/40 text-accent">Capacidades</Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-foreground">
+              No te hacemos una página. Te armamos una plataforma.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Tu sitio captura clientes, tu panel los recibe ya calificados y la automatización trabaja sola. Estos son los bloques que sumas — empiezas con lo que necesitas hoy y creces sin cambiar de herramienta.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { icon: Globe,           accent: false, title: "Sitio web profesional",        desc: "Página rápida y a tu marca, con dominio y hosting que administramos por ti." },
+              { icon: Bot,             accent: true,  title: "Panel de leads con IA",        desc: "Cada prospecto cae a tu panel ya segmentado y con una propuesta sugerida por IA." },
+              { icon: Users,           accent: false, title: "CRM y pipeline de ventas",     desc: "Tus oportunidades en etapas claras: nuevo, contactado, agendado, cliente." },
+              { icon: CreditCard,      accent: false, title: "Cobros en línea",              desc: "Stripe, MercadoPago y OXXO conectados, con recibo automático al cliente." },
+              { icon: FileText,        accent: false, title: "Facturación CFDI",             desc: "Timbrado automático conectado a tus cobros, sin hojas de cálculo." },
+              { icon: Calendar,        accent: false, title: "Agenda y reservas online",     desc: "Tus clientes agendan solos 24/7 y reciben confirmación al instante." },
+              { icon: MessageSquare,   accent: false, title: "WhatsApp y notificaciones",    desc: "Avisos y recordatorios automáticos sin que levantes un dedo." },
+              { icon: Phone,           accent: true,  title: "Voz IA para citas",            desc: "Una llamada con voz natural confirma o reagenda las citas por ti." },
+              { icon: Package,         accent: false, title: "Inventario y punto de venta",  desc: "Control de productos, ventas del día y existencias en tiempo real." },
+              { icon: Brain,           accent: true,  title: "Expediente con resúmenes IA",  desc: "Notas y sesiones que la IA resume y organiza solas, listas para consultar." },
+              { icon: Navigation,      accent: false, title: "Telemetría y GPS",             desc: "Monitoreo de flotillas, contratos y facturación en un solo tablero." },
+              { icon: LayoutDashboard, accent: false, title: "Dashboards en tiempo real",    desc: "KPIs y alertas de tu negocio, desde cualquier dispositivo." },
+            ].map((b) => (
+              <Card
+                key={b.title}
+                className={`transition-colors ${b.accent ? "border-accent/25 hover:border-accent/60 bg-gradient-to-br from-accent/5 to-transparent" : "border-primary/10 hover:border-primary/40"}`}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg flex-shrink-0 ${b.accent ? "bg-accent/10" : "bg-primary/10"}`}>
+                      <b.icon className={`h-5 w-5 ${b.accent ? "text-accent" : "text-primary"}`} />
+                    </div>
+                    <CardTitle className="text-base leading-tight">{b.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{b.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <p className="text-sm text-muted-foreground italic mb-4">
+              Combinamos los bloques que tu negocio necesita en un solo plan. ¿No sabes por dónde empezar? Lo definimos en el diagnóstico.
+            </p>
+            <Button
+              onClick={() => scrollToSection("agenda")}
+              className="bg-primary hover:bg-primary/90 text-white"
+            >
+              Arma tu plataforma <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         </div>
       </section>
