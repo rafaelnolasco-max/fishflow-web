@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tu Panel · FishFlow — el back-office que recibe tu negocio</title>
-<meta name="description" content="Demo del panel FishFlow: leads con propuesta de IA, pipeline de ventas, cobros y resumen — el back-office que recibe cualquier negocio.">
+<title>Tu Panel · FishFlow — el panel que recibe tu negocio</title>
+<meta name="description" content="Demo del panel FishFlow: prospectos con propuesta de IA, seguimiento de ventas, cobros y resumen — el panel que recibe cualquier negocio.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -155,7 +155,7 @@
 </head>
 <body>
 
-<div class="demo-banner">Demo del panel FishFlow · Datos de ejemplo · Así se ve el back-office que recibe tu negocio · <a href="https://www.fishflow.mx">← Volver a fishflow.mx</a></div>
+<div class="demo-banner">Demo del panel FishFlow · Datos de ejemplo · Así se ve el panel que recibe tu negocio ·<a href="https://www.fishflow.mx">← Volver a fishflow.mx</a></div>
 
 <div class="shell">
 
@@ -165,8 +165,8 @@
     <div class="side-biz"><div class="l">Negocio</div><div class="n">Tu Negocio Local</div></div>
     <nav class="side-nav" id="nav">
       <button data-view="resumen"><span class="ic">📊</span> Resumen</button>
-      <button class="active" data-view="leads"><span class="ic">🎯</span> Leads</button>
-      <button data-view="crm"><span class="ic">🗂️</span> CRM / Pipeline</button>
+      <button class="active" data-view="leads"><span class="ic">🎯</span> Prospectos</button>
+      <button data-view="crm"><span class="ic">🗂️</span> Ventas</button>
       <button data-view="cobros"><span class="ic">💳</span> Cobros</button>
     </nav>
     <div class="side-foot">Tu plataforma, en tiempo real,<br>desde cualquier dispositivo.</div>
@@ -183,19 +183,19 @@
 
       <!-- ===== RESUMEN ===== -->
       <div class="view" id="view-resumen">
-        <div class="vh"><h2>📊 Resumen</h2><p>Tu negocio de un vistazo. Estos números se actualizan solos conforme entran leads, ventas y cobros.</p></div>
+        <div class="vh"><h2>📊 Resumen</h2><p>Tu negocio de un vistazo. Estos números se actualizan solos conforme entran prospectos, ventas y cobros.</p></div>
         <div class="stats">
-          <div class="stat"><div class="l">Leads este mes</div><div class="n">24</div><div class="sub up">▲ 9 vs. mes anterior</div></div>
+          <div class="stat"><div class="l">Prospectos este mes</div><div class="n">24</div><div class="sub up">▲ 9 vs. mes anterior</div></div>
           <div class="stat"><div class="l">Sin contactar</div><div class="n">6</div><div class="sub">Requieren respuesta</div></div>
           <div class="stat"><div class="l">Conversión a cliente</div><div class="n">29<small>%</small></div><div class="sub up">▲ 5 pts</div></div>
           <div class="stat"><div class="l">Cobrado este mes</div><div class="n" style="font-size:26px">$48,200</div><div class="sub">12 pagos</div></div>
         </div>
-        <div class="note"><b>Todo conectado:</b> cada lead que entra por tu sitio, cada oportunidad que avanza en el pipeline y cada cobro que se completa aparece aquí automáticamente. Sin hojas de cálculo, sin capturar nada a mano.</div>
+        <div class="note"><b>Todo conectado:</b> cada prospecto que entra por tu sitio, cada venta que avanza en su seguimiento y cada cobro que se completa aparece aquí automáticamente. Sin hojas de cálculo, sin capturar nada a mano.</div>
       </div>
 
       <!-- ===== LEADS ===== -->
       <div class="view active" id="view-leads">
-        <div class="vh"><h2>🎯 Leads desde tu sitio</h2><p>Prospectos que completaron el formulario de tu página. Cada uno llega con lo que necesita y una propuesta sugerida por IA, lista para que solo la revises y respondas.</p></div>
+        <div class="vh"><h2>🎯 Prospectos desde tu sitio</h2><p>Personas interesadas que completaron el formulario de tu página. Cada una llega con lo que necesita y una propuesta sugerida por IA, lista para que solo la revises y respondas.</p></div>
 
         <div class="filters" id="filters">
           <div class="chip active" data-seg="all">Todos <span class="c">24</span></div>
@@ -215,9 +215,9 @@
             <div class="lead-body">
               <div class="lead-q"><span class="lbl">Lo que escribió</span>"Quiero cotizar el servicio completo para un evento el próximo mes. Somos como 30 personas, ¿me pueden mandar precios y disponibilidad?"</div>
               <div class="ai"><div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
-                <p>Solicitud con fecha y volumen definidos — lead caliente. Conviene responder hoy con un rango de precio y dos fechas posibles para no perder el evento.</p>
-                <div class="reco">→ Acción: <b>enviar cotización para 30 personas</b> + link de agenda para cerrar la fecha.</div></div>
-              <div class="actions"><button class="act primary">✉️ Enviar cotización</button><button class="act">📅 Agendar</button><button class="act">🗂️ Mover a Pipeline</button></div>
+                <p>Solicitud con fecha y cantidad definidas — prospecto listo para comprar. Conviene responder hoy con un rango de precio y dos fechas posibles para no perder el evento.</p>
+                <div class="reco">→ Acción: <b>enviar cotización para 30 personas</b> + liga para agendar y cerrar la fecha.</div></div>
+              <div class="actions"><button class="act primary">✉️ Enviar cotización</button><button class="act">📅 Agendar</button><button class="act">🗂️ Pasar a Ventas</button></div>
             </div>
           </div>
 
@@ -232,7 +232,7 @@
               <div class="ai"><div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
                 <p>Cliente nuevo pidiendo cita pronto con preferencia de horario. La voz IA o WhatsApp puede confirmarle un espacio vespertino automáticamente.</p>
                 <div class="reco">→ Acción: <b>ofrecer 2 espacios por la tarde</b> y confirmar por WhatsApp.</div></div>
-              <div class="actions"><button class="act primary">📅 Ofrecer horarios</button><button class="act">💬 WhatsApp</button><button class="act">🗂️ Mover a Pipeline</button></div>
+              <div class="actions"><button class="act primary">📅 Ofrecer horarios</button><button class="act">💬 WhatsApp</button><button class="act">🗂️ Pasar a Ventas</button></div>
             </div>
           </div>
 
@@ -245,9 +245,9 @@
             <div class="lead-body">
               <div class="lead-q"><span class="lbl">Lo que escribió</span>"¿Tienen disponible el paquete que vi en su página? Quiero hacer el pedido y pagar en línea si se puede."</div>
               <div class="ai"><div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
-                <p>Intención de compra directa y dispuesta a pagar en línea. Mandar el link de cobro cierra la venta sin fricción.</p>
-                <div class="reco">→ Acción: <b>enviar link de pago</b> (Stripe / MercadoPago / OXXO) con el paquete seleccionado.</div></div>
-              <div class="actions"><button class="act primary">💳 Enviar link de cobro</button><button class="act">🗂️ Mover a Pipeline</button></div>
+                <p>Intención de compra directa y dispuesta a pagar en línea. Mandar la liga de cobro cierra la venta sin complicaciones.</p>
+                <div class="reco">→ Acción: <b>enviar liga de pago</b> (Stripe / MercadoPago / OXXO) con el paquete seleccionado.</div></div>
+              <div class="actions"><button class="act primary">💳 Enviar liga de cobro</button><button class="act">🗂️ Pasar a Ventas</button></div>
             </div>
           </div>
 
@@ -256,7 +256,7 @@
 
       <!-- ===== CRM ===== -->
       <div class="view" id="view-crm">
-        <div class="vh"><h2>🗂️ CRM / Pipeline</h2><p>Tus oportunidades en etapas claras. Mueves cada prospecto conforme avanza, sin perder de vista quién está por cerrar.</p></div>
+        <div class="vh"><h2>🗂️ Ventas</h2><p>Tus ventas en etapas claras. Mueves cada prospecto conforme avanza, sin perder de vista quién está por cerrar.</p></div>
         <div class="kanban">
           <div class="col"><h3>Nuevo <span class="ct">3</span></h3>
             <div class="kcard"><div class="kn">Paola Guerra</div><div class="kd">Cotización · evento 30 pax</div><div class="kv">~ $18,000</div></div>

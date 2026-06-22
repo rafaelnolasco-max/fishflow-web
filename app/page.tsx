@@ -172,7 +172,7 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row gap-6 justify-center md:justify-start">
                 {[
-                  { icon: Zap,        label: "Implementación rápida"  },
+                  { icon: Zap,        label: "Puesta en marcha rápida" },
                   { icon: Bot,        label: "Impulsado por IA"       },
                   { icon: TrendingUp, label: "Crecimiento escalable"  },
                 ].map(({ icon: Icon, label }) => (
@@ -218,8 +218,8 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { step: "01", icon: Search,  title: "Diagnóstico",        desc: "Llamada inicial gratuita: revisamos tu operación, identificamos cuellos de botella y proponemos qué automatizar primero." },
-              { step: "02", icon: PenTool, title: "Prototipo funcional a la medida", desc: "Diseñamos una web app funcional pensada para tu vertical (cafetería, autolavado, tintorería, hospital…) y la aprobamos juntos antes de implementar." },
-              { step: "03", icon: Cog,     title: "Implementación",     desc: "Conectamos WhatsApp, agenda, base de datos y dashboards. Migramos tus clientes y capacitamos al equipo." },
+              { step: "02", icon: PenTool, title: "Primera versión funcional a tu medida", desc: "Diseñamos una aplicación pensada para tu giro (cafetería, autolavado, tintorería, hospital…) y la aprobamos juntos antes de ponerla en marcha." },
+              { step: "03", icon: Cog,     title: "Puesta en marcha",   desc: "Conectamos WhatsApp, agenda, base de datos y tableros. Pasamos tus clientes al sistema y capacitamos a tu equipo." },
               { step: "04", icon: Activity,title: "Operación y mejora", desc: "Monitoreamos métricas, te entregamos reportes y vamos optimizando flujos mes con mes." },
             ].map((item) => (
               <Card key={item.step} className="relative border-primary/10 hover:border-primary/40 transition-colors">
@@ -254,18 +254,18 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
-              { icon: Globe,           accent: false, title: "Sitio web profesional",        desc: "Página rápida y a tu marca, con dominio y hosting que administramos por ti." },
-              { icon: Bot,             accent: true,  title: "Panel de leads con IA",        desc: "Cada prospecto cae a tu panel ya segmentado y con una propuesta sugerida por IA." },
-              { icon: Users,           accent: false, title: "CRM y pipeline de ventas",     desc: "Tus oportunidades en etapas claras: nuevo, contactado, agendado, cliente." },
+              { icon: Globe,           accent: false, title: "Sitio web profesional",        desc: "Página rápida y a tu marca, siempre en línea, administrada por nosotros." },
+              { icon: Bot,             accent: true,  title: "Panel de prospectos con IA",   desc: "Cada interesado llega a tu panel ya clasificado por tipo y con una respuesta sugerida por IA." },
+              { icon: Users,           accent: false, title: "Control de clientes y ventas", desc: "Tus ventas en etapas claras: nuevo, contactado, agendado y cliente." },
               { icon: CreditCard,      accent: false, title: "Cobros en línea",              desc: "Stripe, MercadoPago y OXXO conectados, con recibo automático al cliente." },
-              { icon: FileText,        accent: false, title: "Facturación CFDI",             desc: "Timbrado automático conectado a tus cobros, sin hojas de cálculo." },
-              { icon: Calendar,        accent: false, title: "Agenda y reservas online",     desc: "Tus clientes agendan solos 24/7 y reciben confirmación al instante." },
-              { icon: MessageSquare,   accent: false, title: "WhatsApp y notificaciones",    desc: "Avisos y recordatorios automáticos sin que levantes un dedo." },
-              { icon: Phone,           accent: true,  title: "Voz IA para citas",            desc: "Una llamada con voz natural confirma o reagenda las citas por ti." },
+              { icon: FileText,        accent: false, title: "Facturación automática",       desc: "Timbrado de facturas (CFDI) conectado a tus cobros, sin hojas de cálculo." },
+              { icon: Calendar,        accent: false, title: "Agenda y reservas en línea",   desc: "Tus clientes agendan solos las 24 horas y reciben confirmación al instante." },
+              { icon: MessageSquare,   accent: false, title: "WhatsApp y avisos",            desc: "Avisos y recordatorios automáticos sin que levantes un dedo." },
+              { icon: Phone,           accent: true,  title: "Llamada con voz IA",           desc: "Una llamada con voz natural confirma o reagenda las citas por ti." },
               { icon: Package,         accent: false, title: "Inventario y punto de venta",  desc: "Control de productos, ventas del día y existencias en tiempo real." },
               { icon: Brain,           accent: true,  title: "Expediente con resúmenes IA",  desc: "Notas y sesiones que la IA resume y organiza solas, listas para consultar." },
-              { icon: Navigation,      accent: false, title: "Telemetría y GPS",             desc: "Monitoreo de flotillas, contratos y facturación en un solo tablero." },
-              { icon: LayoutDashboard, accent: false, title: "Dashboards en tiempo real",    desc: "KPIs y alertas de tu negocio, desde cualquier dispositivo." },
+              { icon: Navigation,      accent: false, title: "Rastreo GPS de flotillas",     desc: "Monitoreo de vehículos, contratos y facturación en un solo tablero." },
+              { icon: LayoutDashboard, accent: false, title: "Tablero en tiempo real",       desc: "Tus números clave y alertas de tu negocio, desde cualquier dispositivo." },
             ].map((b) => (
               <Card
                 key={b.title}
@@ -325,10 +325,10 @@ export default function Home() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   {[
-                    { t: "Landing page profesional",      d: "Hasta 4 actualizaciones al año incluidas" },
-                    { t: "Dominio + hosting gestionados", d: "FishFlow lo administra por ti, sin complicaciones" },
-                    { t: "Formulario de contacto",        d: "Tus prospectos te escriben directo desde el sitio" },
-                    { t: "Capacitación inicial",          d: "1 sesión de onboarding en vivo" },
+                    { t: "Página web profesional",        d: "Hasta 4 actualizaciones al año incluidas" },
+                    { t: "Tu sitio siempre en línea",     d: "FishFlow lo administra por ti, sin complicaciones" },
+                    { t: "Formulario de contacto",        d: "Las personas interesadas te escriben directo desde el sitio" },
+                    { t: "Capacitación inicial",          d: "1 sesión de arranque en vivo" },
                   ].map((b) => (
                     <div key={b.t} className="flex gap-3">
                       <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
@@ -359,16 +359,16 @@ export default function Home() {
               <CardHeader>
                 <Badge className="w-fit mb-2 bg-primary/15 text-primary border-primary/30">Intermedio</Badge>
                 <CardTitle className="text-2xl text-primary">Flow Pro</CardTitle>
-                <CardDescription>Operación digitalizada: ventas, clientes y pagos integrados en un solo lugar.</CardDescription>
+                <CardDescription>Tu operación en digital: ventas, clientes y pagos en un solo lugar.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   {[
-                    { t: "Landing page + SEO básico",   d: "Hasta 8 actualizaciones al año incluidas" },
-                    { t: "Dashboard operativo",         d: "Ventas, reportes y métricas clave de tu negocio" },
-                    { t: "CRM de clientes",             d: "Pipeline y gestión de oportunidades · hasta 3 usuarios" },
-                    { t: "Integración de pago",         d: "MercadoPago o Stripe conectados a tu app" },
-                    { t: "Notificaciones automáticas",  d: "WhatsApp o email sin que levantes un dedo" },
+                    { t: "Página web + para aparecer en Google", d: "Hasta 8 actualizaciones al año incluidas" },
+                    { t: "Tablero de tu negocio",       d: "Ventas, reportes y números clave de tu negocio" },
+                    { t: "Control de clientes",         d: "Seguimiento de ventas y clientes · hasta 3 usuarios" },
+                    { t: "Pagos conectados",            d: "MercadoPago o Stripe conectados a tu sistema" },
+                    { t: "Avisos automáticos",          d: "WhatsApp o correo sin que levantes un dedo" },
                     { t: "Soporte mensual dedicado",    d: "Sesión mensual de revisión y mejora" },
                   ].map((b) => (
                     <div key={b.t} className="flex gap-3">
@@ -399,13 +399,13 @@ export default function Home() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   {[
-                    { t: "Landing page + SEO + optimización continua", d: "Hasta 12 actualizaciones al año incluidas" },
-                    { t: "Dashboard en tiempo real",   d: "Alertas, KPIs personalizados y reportes ejecutivos" },
-                    { t: "CRM avanzado + automatización", d: "Flujos, segmentación y seguimiento sin intervención manual" },
-                    { t: "IA aplicada a tu negocio",   d: "Resúmenes automáticos, priorización de pipeline, respuestas inteligentes" },
-                    { t: "Integraciones a la medida",  d: "Facturación, inventario, GPS, auditoría y más" },
+                    { t: "Página web + posicionamiento en Google + mejora continua", d: "Hasta 12 actualizaciones al año incluidas" },
+                    { t: "Tablero en tiempo real",     d: "Alertas, tus números clave y reportes para dirección" },
+                    { t: "Control de clientes avanzado + automatización", d: "Seguimiento y clasificación automáticos, sin trabajo manual" },
+                    { t: "IA aplicada a tu negocio",   d: "Resúmenes automáticos, prioriza tus ventas y respuestas inteligentes" },
+                    { t: "Conexiones a la medida",     d: "Facturación, inventario, GPS, auditoría y más" },
                     { t: "Usuarios ilimitados",        d: "Todo tu equipo en la misma plataforma" },
-                    { t: "Revisión trimestral",        d: "Sesión estratégica con reporte ejecutivo" },
+                    { t: "Revisión trimestral",        d: "Sesión estratégica con reporte para dirección" },
                   ].map((b) => (
                     <div key={b.t} className="flex gap-3">
                       <CheckCircle2 className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
@@ -449,11 +449,11 @@ export default function Home() {
             {[
               {
                 icon: Shirt, color: "primary", title: "Tintorería", slug: "tintoreria",
-                features: ["Seguimiento de prendas con folio","Aviso por WhatsApp cuando esté lista","Historial y CRM de clientes"],
+                features: ["Seguimiento de prendas con folio","Aviso por WhatsApp cuando esté lista","Historial y control de clientes"],
               },
               {
                 icon: Car, color: "accent", title: "Autolavado", slug: "autolavado",
-                features: ["SMS/WhatsApp automático al entrar y salir","Control de turnos y tiempos","Dashboard de tickets diarios"],
+                features: ["SMS/WhatsApp automático al entrar y salir","Control de turnos y tiempos","Tablero de tickets diarios"],
               },
               {
                 icon: Coffee, color: "primary", title: "Cafetería", slug: "cafeteria",
@@ -461,19 +461,19 @@ export default function Home() {
               },
               {
                 icon: Scissors, color: "accent", title: "Estética / Barbería", slug: "barberia",
-                features: ["Agenda online 24/7 para clientes","Recordatorio automático de cita","CRM con historial de servicios"],
+                features: ["Agenda en línea 24/7 para clientes","Recordatorio automático de cita","Control de clientes con historial de servicios"],
               },
               {
                 icon: Utensils, color: "primary", title: "Pozolería", slug: "pozoleria",
-                features: ["Menú digital accesible desde el celular","Pedidos y reservaciones online","Control de platillos y ventas del día"],
+                features: ["Menú digital accesible desde el celular","Pedidos y reservaciones en línea","Control de platillos y ventas del día"],
               },
               {
                 icon: Trophy, color: "accent", title: "MMChampions", slug: "mmchampions",
-                features: ["Gestión de torneos y equipos","Registro de resultados en tiempo real","Dashboard de estadísticas del campeonato"],
+                features: ["Gestión de torneos y equipos","Registro de resultados en tiempo real","Tablero de estadísticas del campeonato"],
               },
               {
                 icon: Brain, color: "primary", title: "Centro de Terapias", slug: "terapias",
-                features: ["Agenda de citas por especialidad","Expediente básico del paciente","Notificaciones automáticas de cita"],
+                features: ["Agenda de citas por especialidad","Expediente básico del paciente","Avisos automáticos de cita"],
               },
               {
                 icon: Building2, color: "accent", title: "CondOS · Condominios", slug: "condos",
@@ -528,7 +528,7 @@ export default function Home() {
 
             {/* Copy */}
             <div>
-              <Badge variant="outline" className="mb-3 border-accent/40 text-accent">Tu back-office</Badge>
+              <Badge variant="outline" className="mb-3 border-accent/40 text-accent">Tu panel</Badge>
               <h2 className="text-3xl md:text-5xl font-bold mb-5 text-white leading-tight">
                 Tu negocio también recibe su propio panel
               </h2>
@@ -538,8 +538,8 @@ export default function Home() {
 
               <div className="space-y-4 mb-9">
                 {[
-                  { icon: Bot,          t: "Leads con propuesta de IA", d: "Cada prospecto cae segmentado y con una respuesta sugerida lista." },
-                  { icon: Users,        t: "Pipeline de ventas",        d: "Nuevo, contactado, agendado, cliente — sin perder a nadie." },
+                  { icon: Bot,          t: "Prospectos con propuesta de IA", d: "Cada interesado llega clasificado por tipo y con una respuesta sugerida lista." },
+                  { icon: Users,        t: "Seguimiento de ventas",     d: "Nuevo, contactado, agendado, cliente — sin perder a nadie." },
                   { icon: CreditCard,   t: "Cobros y recibos",          d: "Stripe, MercadoPago y OXXO con recibo automático." },
                   { icon: LayoutDashboard, t: "Resumen en tiempo real", d: "Tus números del mes, desde cualquier dispositivo." },
                 ].map((b) => (
@@ -579,7 +579,7 @@ export default function Home() {
               </div>
               <div className="bg-white p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-[#0D1B2A]">🎯 Leads desde tu sitio</span>
+                  <span className="text-sm font-bold text-[#0D1B2A]">🎯 Prospectos desde tu sitio</span>
                   <span className="text-xs text-muted-foreground">24 este mes</span>
                 </div>
                 {[
@@ -599,7 +599,7 @@ export default function Home() {
                 ))}
                 <div className="rounded-lg border border-accent/30 bg-accent/5 p-3">
                   <p className="text-[10px] font-mono uppercase tracking-wide text-accent mb-1">✦ Propuesta sugerida por IA</p>
-                  <p className="text-xs text-muted-foreground">Lead caliente con fecha y volumen — responde hoy con cotización y link de agenda.</p>
+                  <p className="text-xs text-muted-foreground">Prospecto listo para comprar, con fecha y cantidad — responde hoy con cotización y liga para agendar.</p>
                 </div>
                 <p className="text-center text-xs text-primary font-medium group-hover:underline pt-1">Abrir panel completo →</p>
               </div>
@@ -662,7 +662,7 @@ export default function Home() {
             {[
               {
                 icon: LayoutDashboard, color: "accent",
-                title: "FishFlow Admin CRM",
+                title: "Panel central FishFlow",
                 tag: "Gestión",
                 desc: "Panel central para gestionar clientes, ingresos y operaciones de todos los negocios desde un solo lugar — en tiempo real, desde cualquier dispositivo.",
                 ai: false,
@@ -671,21 +671,21 @@ export default function Home() {
                 icon: ShoppingBag, color: "primary",
                 title: "App Belange · Estética CDMX",
                 tag: "Operación",
-                desc: "Dashboard de contabilidad de productos vendidos por día, semana y mes. Integración con MercadoPago para control de ingresos sin hojas de cálculo.",
+                desc: "Tablero de contabilidad de productos vendidos por día, semana y mes. Conectado con MercadoPago para control de ingresos sin hojas de cálculo.",
                 ai: false,
               },
               {
                 icon: Navigation, color: "accent",
                 title: "App Lukon · Telemática GPS",
                 tag: "Tecnología",
-                desc: "Plataforma de monitoreo GPS con dashboard en tiempo real, gestión de contratos, facturación integrada y checkout digital con MercadoPago.",
+                desc: "Plataforma de rastreo GPS con tablero en tiempo real, gestión de contratos, facturación conectada y cobro en línea con MercadoPago.",
                 ai: false,
               },
               {
                 icon: TrendingUp, color: "primary",
-                title: "App TBA · Telecom CRM",
+                title: "App TBA · Ventas Telecom",
                 tag: "Ventas + IA",
-                desc: "CRM de oportunidades para equipos comerciales de telecomunicaciones — con inteligencia artificial que prioriza el pipeline y acelera el cierre de ventas.",
+                desc: "Sistema de seguimiento de ventas para equipos comerciales de telecomunicaciones — con inteligencia artificial que prioriza las ventas y acelera el cierre.",
                 ai: true,
               },
               {
@@ -699,7 +699,7 @@ export default function Home() {
                 icon: Activity, color: "primary",
                 title: "CANE Neurofeedback",
                 tag: "Presencia digital",
-                desc: "Landing page clínica profesional con actualizaciones continuas. Pacientes nuevos llegan con información clara y confianza — sin que el dueño tenga que tocar nada.",
+                desc: "Página web clínica profesional con actualizaciones continuas. Pacientes nuevos llegan con información clara y confianza — sin que el dueño tenga que tocar nada.",
                 ai: false,
               },
             ].map((c, i) => (
@@ -740,13 +740,13 @@ export default function Home() {
               Por qué FishFlow y no un freelance cualquiera
             </h2>
             <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              Combinamos infraestructura sólida con el trato humano de un partner local.
+              Combinamos tecnología sólida con el trato humano de un socio local.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Database,     title: "Stack moderno",     desc: "Next.js, Supabase y Vercel — la misma infraestructura que usan startups serias." },
+              { icon: Database,     title: "Tecnología profesional", desc: "La misma tecnología (Next.js, Supabase, Vercel) que usan las empresas grandes." },
               { icon: Bot,          title: "IA de verdad",      desc: "No son scripts: integramos modelos para generar contenido y responder clientes." },
               { icon: ShieldCheck,  title: "Datos seguros",     desc: "Tu información de clientes vive en bases con respaldo automático y permisos." },
               { icon: MessageSquare,title: "Soporte en español", desc: "Hablas con quien construye, no con un call center. Respuestas en horas, no días." },
@@ -763,9 +763,9 @@ export default function Home() {
 
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { label: "Freelance suelto",   cons: ["Desaparece cuando tiene otro proyecto","Stack improvisado caso por caso","Sin documentación cuando lo necesitas"], highlight: false },
+              { label: "Freelance suelto",   cons: ["Desaparece cuando tiene otro proyecto","Tecnología improvisada caso por caso","Sin documentación cuando lo necesitas"], highlight: false },
               { label: "Software gringo",    cons: ["Sin soporte en español","Pensado para mercado de EUA","Pagas en dólares por funciones que no usas"], highlight: false },
-              { label: "FishFlow",           cons: ["Partner constante, mes con mes","Stack probado y replicable","Soporte directo, en tu zona horaria"], highlight: true },
+              { label: "FishFlow",           cons: ["Socio constante, mes con mes","Tecnología probada y replicable","Soporte directo, en tu zona horaria"], highlight: true },
             ].map((col) => (
               <div key={col.label} className={`rounded-lg p-5 border ${col.highlight ? "bg-primary/15 border-primary/40" : "bg-white/5 border-white/10"}`}>
                 <p className={`text-xs font-semibold uppercase mb-3 ${col.highlight ? "text-primary" : "text-white/50"}`}>{col.label}</p>
@@ -794,11 +794,11 @@ export default function Home() {
           <Accordion type="single" collapsible className="w-full">
             {[
               { q: "¿Cuánto cuesta FishFlow?",                           a: "No publicamos un precio fijo porque cada negocio es distinto: una tintorería con 200 clientes no paga lo mismo que una estética con redes activas. En la llamada de diagnóstico (gratis) te damos una propuesta puntual con alcance y precio mensual." },
-              { q: "¿Cuánto tarda la implementación?",                   a: "Para verticales que ya conocemos (tintorería, autolavado, cafetería, estética), el live suele estar en 2 a 4 semanas. Verticales nuevas o con integraciones especiales pueden tomar más, pero siempre te lo decimos antes de empezar." },
+              { q: "¿Cuánto tarda en estar listo?",                      a: "Para giros que ya conocemos (tintorería, autolavado, cafetería, estética), tu sistema suele estar listo en 2 a 4 semanas. Giros nuevos o con conexiones especiales pueden tomar más, pero siempre te lo decimos antes de empezar." },
               { q: "¿Necesito conocimientos técnicos para operarlo?",    a: "No. Te capacitamos a ti y a tu equipo en sesiones cortas. La plataforma está diseñada para que cualquier persona del negocio la use sin depender de alguien técnico." },
               { q: "¿Hay contrato a plazos largos?",                     a: "No amarramos a nadie. Trabajamos mes con mes — si no estás viendo valor, lo cancelas. Nuestro incentivo es mantenerte como cliente por resultados, no por letras chiquitas." },
-              { q: "¿Y si mi negocio no es ninguna de las verticales listadas?", a: "Cafeterías, autolavados, estéticas y tintorerías son nuestras verticales prioritarias, pero el stack es flexible. Consultorios, talleres, escuelas, distribuidoras — si tu negocio gestiona clientes y comunicación, podemos automatizarlo. Cuéntanos tu caso." },
-              { q: "¿Quién es FishFlow exactamente?",                    a: "FishFlow es la práctica de Rafa Nolasco, con más de una década vendiendo tecnología a operadores de telecomunicaciones. La misma seriedad que le pedirías a un proveedor enterprise, escalada al tamaño de tu negocio local." },
+              { q: "¿Y si mi negocio no es ninguno de los giros listados?", a: "Cafeterías, autolavados, estéticas y tintorerías son nuestros giros prioritarios, pero nuestra tecnología es flexible. Consultorios, talleres, escuelas, distribuidoras — si tu negocio maneja clientes y comunicación, podemos automatizarlo. Cuéntanos tu caso." },
+              { q: "¿Quién es FishFlow exactamente?",                    a: "FishFlow es la práctica de Rafa Nolasco, con más de una década vendiendo tecnología a operadores de telecomunicaciones. La misma seriedad que le pedirías a un proveedor de primer nivel, al tamaño de tu negocio local." },
             ].map((item, i) => (
               <AccordionItem key={i} value={`q${i + 1}`}>
                 <AccordionTrigger className="text-left">{item.q}</AccordionTrigger>
@@ -923,7 +923,7 @@ export default function Home() {
               </div>
               <p className="text-white/70 text-sm max-w-sm">
                 Automatización inteligente para micro PyMES locales en México. Construido con
-                la misma seriedad que un proveedor enterprise, al tamaño de tu negocio.
+                la misma seriedad que un proveedor de primer nivel, al tamaño de tu negocio.
               </p>
             </div>
             <div>
