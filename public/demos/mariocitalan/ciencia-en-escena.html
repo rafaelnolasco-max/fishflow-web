@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ciencia en Escena · Dr. Mente Experiencias — Mario Citalán</title>
+<meta name="description" content="Dr. Mente Experiencias: tres espectáculos que unen ciencia, emoción y aprendizaje. Ciencia en Escena, Créelo y Créalo y Teatro de Conciencia Emocional, para empresas, instituciones y eventos masivos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1A24;--ink-2:#283845;--ink-3:#4C5C6A;--paper:#F4F7FA;--paper-2:#E7EEF4;
+    --bone:#FFFFFF;--muted:#7B8794;--accent:#3E86CF;--accent-deep:#2A6AAE;--steel:#1F4E79;
+    --rule:#DCE4EC;--rule-dark:rgba(255,255,255,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter",system-ui,sans-serif;font-weight:400;font-size:16px;line-height:1.65;letter-spacing:.01em}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  .display{font-family:"Fraunces",Georgia,serif;font-weight:500;letter-spacing:-.01em;line-height:1.0}
+  .italic{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:400;color:var(--accent)}
+  .eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent)}
+  .container{max-width:1200px;margin:0 auto;padding:0 56px}
+
+  /* NAV */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(14px);background:rgba(15,26,36,.82);border-bottom:1px solid transparent;transition:.4s}
+  .nav.scrolled{border-bottom-color:var(--rule-dark)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 56px}
+  .nav-mark{display:flex;align-items:center;gap:11px;font-family:"Fraunces",serif;font-weight:500;font-size:19px;color:var(--paper)}
+  .nav-logo{height:32px;width:auto;display:block}
+  .nav-links{display:flex;gap:30px;font-size:13px;color:rgba(247,244,237,.78)}
+  .nav-links a:hover{color:var(--accent)}
+  .nav-cta{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:12px 20px;border:1px solid rgba(255,255,255,.5);color:var(--paper);transition:.3s;white-space:nowrap}
+  .nav-cta:hover{background:var(--accent);border-color:var(--accent)}
+
+  /* HERO (dark, escénico) */
+  .hero{position:relative;background:var(--ink);color:var(--paper);padding:188px 0 110px;overflow:hidden}
+  .hero::after{content:"";position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:680px;height:680px;background:radial-gradient(closest-side,rgba(62,134,207,.22),transparent 70%);pointer-events:none}
+  .hero-inner{position:relative;z-index:2;max-width:880px}
+  .hero .eyebrow{display:block;margin-bottom:22px}
+  .hero h1{font-size:clamp(44px,6vw,96px);letter-spacing:-.02em;margin-bottom:26px}
+  .hero p{font-size:19px;line-height:1.7;color:rgba(247,244,237,.78);max-width:620px}
+  .hero-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:36px}
+  .hero-tags span{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,244,237,.8);border:1px solid var(--rule-dark);padding:9px 14px}
+
+  .backlink{display:inline-flex;align-items:center;gap:9px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,244,237,.7);margin-bottom:30px}
+  .backlink:hover{color:var(--accent)}
+  .backlink svg{width:14px;height:14px}
+
+  /* INTRO (paraguas) */
+  .umbrella{background:var(--bone);padding:104px 0}
+  .umbrella .lead{font-family:"Fraunces",serif;font-weight:400;font-size:clamp(24px,2.8vw,38px);line-height:1.34;max-width:60ch;margin:0 auto;text-align:center;color:var(--ink)}
+  .umbrella .lead .accent{color:var(--accent-deep);font-style:italic}
+  .umbrella .sub{text-align:center;color:var(--ink-2);max-width:54ch;margin:24px auto 0;font-size:16px}
+
+  /* SHOW BLOCKS */
+  .show{padding:104px 0;border-top:1px solid var(--rule)}
+  .show:nth-child(even){background:var(--paper-2)}
+  .show-head{display:flex;align-items:baseline;gap:18px;margin-bottom:14px}
+  .show-head .ix{font-family:"Fraunces",serif;font-style:italic;font-size:34px;color:var(--accent)}
+  .show-head .k{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-deep)}
+  .show h2{font-size:clamp(34px,4.4vw,62px);line-height:1.02;letter-spacing:-.015em;margin-bottom:8px}
+  .show .tagline{font-family:"Fraunces",serif;font-style:italic;font-size:21px;color:var(--ink-2);margin-bottom:30px}
+  .show-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:64px;align-items:start;margin-top:34px}
+  .show-desc p{color:var(--ink-2);margin-bottom:18px;max-width:54ch}
+  .show-desc p strong{color:var(--ink);font-weight:600}
+  .feat{display:grid;gap:0;border-top:1px solid var(--rule)}
+  .feat .f{padding:16px 0;border-bottom:1px solid var(--rule)}
+  .feat .f .t{font-family:"Fraunces",serif;font-size:18px;margin-bottom:3px}
+  .feat .f .d{font-size:13.5px;color:var(--ink-2);line-height:1.55}
+  .show-figure{aspect-ratio:4/5;background:var(--ink);border:1px solid var(--rule);position:relative;overflow:hidden}
+  .show-figure .ph2{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:radial-gradient(circle at 50% 30%,rgba(62,134,207,.18),transparent 60%),linear-gradient(160deg,#15273a,#0c1620)}
+  .show-figure .ph2 span{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(247,244,237,.6);border:1px dashed rgba(255,255,255,.3);padding:8px 12px}
+  .topics{margin-top:30px;display:flex;flex-wrap:wrap;gap:8px}
+  .topics span{font-size:12.5px;color:var(--ink-2);background:var(--bone);border:1px solid var(--rule);padding:7px 12px}
+  .show:nth-child(even) .topics span{background:var(--paper)}
+  .promise{margin-top:30px;border-left:3px solid var(--accent);padding:6px 0 6px 22px;font-family:"Fraunces",serif;font-style:italic;font-size:18px;line-height:1.5;color:var(--ink);max-width:54ch}
+
+  /* AUDIENCIAS */
+  .aud{background:var(--ink);color:var(--paper);padding:104px 0}
+  .aud .eyebrow{color:var(--accent);display:block;margin-bottom:18px}
+  .aud h2{font-size:clamp(32px,4vw,56px);margin-bottom:50px;max-width:18ch}
+  .aud-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--rule-dark)}
+  .aud-grid .a{padding:30px 24px;border-right:1px solid var(--rule-dark);transition:.3s}
+  .aud-grid .a:last-child{border-right:none}
+  .aud-grid .a:hover{background:rgba(255,255,255,.04)}
+  .aud-grid .a .t{font-family:"Fraunces",serif;font-size:21px;margin-bottom:10px}
+  .aud-grid .a .d{font-size:13px;color:rgba(247,244,237,.66);line-height:1.55}
+
+  /* CTA / propuesta */
+  .cta-sec{background:var(--paper);padding:104px 0}
+  .cta-wrap{display:grid;grid-template-columns:.95fr 1.05fr;gap:64px;align-items:start}
+  .cta-info h2{font-size:clamp(32px,4vw,56px);line-height:1.04;margin-bottom:22px;letter-spacing:-.01em}
+  .cta-info p{color:var(--ink-2);max-width:42ch;margin-bottom:24px}
+  .cta-list{border-top:1px solid var(--rule)}
+  .cta-list .item{padding:18px 0;border-bottom:1px solid var(--rule)}
+  .cta-list .item .label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .cta-list .item .val{font-family:"Fraunces",serif;font-size:20px}
+  .form{background:var(--bone);border:1px solid var(--rule);padding:42px 40px}
+  .form .eyebrow{display:block;margin-bottom:24px;color:var(--accent-deep)}
+  .field{margin-bottom:20px}
+  .field label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+  .field input,.field select,.field textarea{width:100%;background:var(--paper);border:1px solid var(--rule);padding:14px 16px;font-family:"Inter",sans-serif;font-size:15px;color:var(--ink);transition:.2s}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+  .field textarea{resize:vertical;min-height:90px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .form-submit{width:100%;background:var(--ink);color:var(--paper);border:none;padding:18px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:.3s;display:flex;align-items:center;justify-content:center;gap:12px}
+  .form-submit:hover{background:var(--accent-deep)}
+  .form-note{margin-top:14px;font-size:12px;color:var(--muted)}
+  .form-ok{display:none;text-align:center;padding:24px 6px}
+  .form-ok.show{display:block}
+  .form-ok .check{width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:24px}
+  .form-ok h4{font-family:"Fraunces",serif;font-size:26px;margin-bottom:8px}
+  .form-ok p{color:var(--ink-2);font-size:15px;max-width:32ch;margin:0 auto}
+
+  /* FOOTER */
+  footer{background:var(--ink);color:var(--paper);padding:64px 0 30px}
+  .foot-bottom{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(247,244,237,.55);gap:24px;flex-wrap:wrap}
+  .foot-bottom a{color:rgba(247,244,237,.8)}
+  .made-by{display:inline-flex;align-items:center;gap:14px;padding:8px 14px;border:1px solid var(--rule-dark);transition:.3s}
+  .made-by:hover{border-color:rgba(255,255,255,.5)}
+  .made-by .made-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(247,244,237,.5)}
+  .made-by .ff-logo{height:17px;width:auto;display:block;opacity:.92;filter:brightness(0) invert(1)}
+  .made-by .made-url{font-size:11px;letter-spacing:.1em;text-transform:lowercase;color:rgba(247,244,237,.7);border-left:1px solid var(--rule-dark);padding-left:14px;font-family:"Inter",sans-serif}
+
+  .demo-banner{background:var(--accent);color:#fff;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 16px}
+  .demo-banner a{text-decoration:underline}
+
+  @media (max-width:900px){
+    .container{padding:0 26px}
+    .nav-inner{padding:14px 26px}
+    .nav-links{display:none}
+    .hero{padding:140px 0 80px}
+    .show-grid,.cta-wrap{grid-template-columns:1fr;gap:44px}
+    .aud-grid{grid-template-columns:repeat(2,1fr)}
+    .aud-grid .a{border-bottom:1px solid var(--rule-dark)}
+    .aud-grid .a:nth-child(2){border-right:none}
+  }
+  @media (max-width:640px){
+    .container{padding:0 20px}
+    .hero{padding:118px 0 60px}
+    .umbrella,.show,.aud,.cta-sec{padding:64px 0}
+    .aud-grid{grid-template-columns:1fr}
+    .aud-grid .a{border-right:none}
+    .field-row{grid-template-columns:1fr}
+    .form{padding:30px 24px}
+    .foot-bottom{flex-direction:column;align-items:flex-start;gap:16px}
+    .made-by{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-banner">Demo de rediseño · Propuesta FishFlow para Mario Citalán · <a href="index.html">← Volver al inicio</a></div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-mark"><img class="nav-logo" src="https://mariocitalan.net/wp-content/uploads/2020/05/Dr.-Mente.png" alt="Dr. Mente"> Mario Citalán</a>
+    <div class="nav-links">
+      <a href="index.html#modelo">El modelo</a>
+      <a href="index.html#criterio">Tu criterio</a>
+      <a href="index.html#soluciones">Soluciones</a>
+      <a href="ciencia-en-escena.html">Ciencia en Escena</a>
+      <a href="index.html#sobre">Sobre mí</a>
+    </div>
+    <a href="#propuesta" class="nav-cta">Solicitar propuesta</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <a href="index.html" class="backlink"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M13 7H1M6 2L1 7l5 5"/></svg> Mario Citalán</a>
+      <span class="eyebrow">Dr. Mente Experiencias</span>
+      <h1 class="display">No es una conferencia.<br>Es una <span class="italic">experiencia</span>.</h1>
+      <p>Una línea de espectáculos que combina ciencia, emoción, diversión y aprendizaje para transformar la salud mental, el desarrollo humano y el criterio en experiencias de alto impacto para públicos masivos, empresas e instituciones.</p>
+      <div class="hero-tags">
+        <span>Ciencia en Escena</span>
+        <span>Créelo y Créalo</span>
+        <span>Teatro de Conciencia Emocional</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARAGUAS -->
+<section class="umbrella">
+  <div class="container">
+    <p class="lead">El conocimiento sin emoción se olvida. La emoción sin conocimiento confunde. La transformación ocurre cuando <span class="accent">ciencia y experiencia se encuentran</span>.</p>
+    <p class="sub">Dr. Mente Experiencias es la marca paraguas de tres espectáculos únicos, cada uno diseñado para transformar al público desde un ángulo distinto de la experiencia humana.</p>
+  </div>
+</section>
+
+<!-- SHOW 1 — Ciencia en Escena -->
+<section class="show" id="ciencia">
+  <div class="container">
+    <div class="show-head">
+      <span class="ix">i</span>
+      <span class="k">Espectáculo científico</span>
+    </div>
+    <h2 class="display">Ciencia en Escena</h2>
+    <div class="tagline">Las decisiones que siguen arruinando tu vida.</div>
+
+    <div class="show-grid">
+      <div class="show-desc">
+        <p>Una experiencia escénica creada por el <strong>Dr. Mario Citalán</strong> que transforma conceptos complejos de salud mental, comportamiento humano, emociones y toma de decisiones en un espectáculo emocionalmente impactante, fácil de comprender y aplicable a la vida cotidiana.</p>
+        <p>El asistente no solo presencia una conferencia: <strong>sale entendiendo mejor su mente, sus emociones y las decisiones que están construyendo su vida.</strong></p>
+        <div class="topics">
+          <span>Arquitectura mental</span><span>Gestión del estrés</span><span>Creencias limitantes</span><span>Dolor emocional</span><span>Identidad</span><span>Toma de decisiones</span><span>Bienestar emocional</span>
+        </div>
+        <div class="promise">Convierte la ciencia en una experiencia que se siente, se comprende y se recuerda.</div>
+      </div>
+      <div>
+        <div class="show-figure"><div class="ph2"><span>Foto / video del show · pendiente</span></div></div>
+        <div class="feat" style="margin-top:22px">
+          <div class="f"><div class="t">Conferencia de alto impacto</div><div class="d">Conecta profundamente con el público.</div></div>
+          <div class="f"><div class="t">Dramatización + storytelling</div><div class="d">Da vida a conceptos científicos complejos.</div></div>
+          <div class="f"><div class="t">Experimentos cognitivos</div><div class="d">Ciencia aplicada, comprensible para todos.</div></div>
+          <div class="f"><div class="t">Herramientas prácticas</div><div class="d">Recursos aplicables al cambio personal.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOW 2 — Créelo y Créalo -->
+<section class="show" id="creelo">
+  <div class="container">
+    <div class="show-head">
+      <span class="ix">ii</span>
+      <span class="k">Espectáculo inspiracional</span>
+    </div>
+    <h2 class="display">Créelo y Créalo</h2>
+    <div class="tagline">Las barreras más grandes son las que creíste imposibles.</div>
+
+    <div class="show-grid">
+      <div class="show-desc">
+        <p>Un espectáculo de inspiración y transformación creado por el <strong>Dr. Mario Citalán y Rafa Reyes</strong>, que combina historias reales de superación, reflexión profunda y fundamentos sobre fortaleza mental para demostrar que las limitaciones pueden transformarse en posibilidades.</p>
+        <p>No vienes únicamente a escuchar historias extraordinarias: <strong>sales cuestionando tus propios límites.</strong></p>
+        <div class="topics">
+          <span>Resiliencia</span><span>Superación personal</span><span>Creencias limitantes</span><span>Fortaleza emocional</span><span>Identidad y propósito</span><span>Actitud frente a la vida</span><span>Reconstrucción personal</span>
+        </div>
+        <div class="promise">Historias reales de desafío humano convertidas en experiencias capaces de cambiar perspectivas y despertar acción.</div>
+      </div>
+      <div>
+        <div class="show-figure"><div class="ph2"><span>Foto / video del show · pendiente</span></div></div>
+        <div class="feat" style="margin-top:22px">
+          <div class="f"><div class="t">Testimonio de vida</div><div class="d">Historias de alto impacto que conectan.</div></div>
+          <div class="f"><div class="t">Diálogo inspiracional</div><div class="d">Conversación auténtica entre los presentadores.</div></div>
+          <div class="f"><div class="t">Ciencia aplicada</div><div class="d">Fundamentos del comportamiento humano.</div></div>
+          <div class="f"><div class="t">Cierre en vivo</div><div class="d">Música en vivo y meditación final.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOW 3 — Teatro de Conciencia Emocional -->
+<section class="show" id="teatro">
+  <div class="container">
+    <div class="show-head">
+      <span class="ix">iii</span>
+      <span class="k">Teatro + ciencia</span>
+    </div>
+    <h2 class="display">Teatro de Conciencia Emocional</h2>
+    <div class="tagline">Hacer visible lo invisible.</div>
+
+    <div class="show-grid">
+      <div class="show-desc">
+        <p>Un espectáculo educativo creado por el <strong>Dr. Mario Citalán</strong> junto con los actores <strong>Ariel López Padilla y María Rebeca Alonso</strong>, que combina actuación, dramatización, ciencia y reflexión para representar experiencias emocionales y problemas de salud mental.</p>
+        <p>El actor representa la escena; el especialista explica qué ocurre emocional y psicológicamente. <strong>El público ve, siente y comprende</strong> aquello que muchas personas viven en silencio sin poder explicarlo.</p>
+        <div class="topics">
+          <span>Estrés y ansiedad</span><span>Trastornos de ansiedad</span><span>Crisis de pánico</span><span>Depresión y burnout</span><span>Duelo</span><span>Autoestima e identidad</span><span>Relaciones humanas</span>
+        </div>
+        <div class="promise">Convierte experiencias psicológicas complejas en historias vivas que el público puede sentir, comprender y recordar.</div>
+      </div>
+      <div>
+        <div class="show-figure"><div class="ph2"><span>Foto / video del show · pendiente</span></div></div>
+        <div class="feat" style="margin-top:22px">
+          <div class="f"><div class="t">Actuación profesional</div><div class="d">Representación escénica de alta calidad.</div></div>
+          <div class="f"><div class="t">Dramatización real</div><div class="d">Escenas basadas en experiencias auténticas.</div></div>
+          <div class="f"><div class="t">Conferencia explicativa</div><div class="d">Divulgación científica integrada al show.</div></div>
+          <div class="f"><div class="t">Ambientación sonora en vivo</div><div class="d">Música y percusión que crean atmósfera.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCIAS -->
+<section class="aud">
+  <div class="container">
+    <span class="eyebrow">Por dónde entramos</span>
+    <h2 class="display">Entradas naturales<br>a cada sector.</h2>
+    <div class="aud-grid">
+      <div class="a"><div class="t">Empresas</div><div class="d">Burnout, estrés laboral, NOM-035, liderazgo emocional.</div></div>
+      <div class="a"><div class="t">Escuelas y universidades</div><div class="d">Ansiedad, autoestima, redes sociales, prevención.</div></div>
+      <div class="a"><div class="t">Gobierno</div><div class="d">Salud pública, juventud, prevención, adicciones.</div></div>
+      <div class="a"><div class="t">Hospitales e instituciones</div><div class="d">Concientización y prevención en entornos clínicos.</div></div>
+      <div class="a"><div class="t">Eventos masivos</div><div class="d">Público general con impacto social amplio.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA / PROPUESTA -->
+<section class="cta-sec" id="propuesta">
+  <div class="container">
+    <div class="cta-wrap">
+      <div class="cta-info">
+        <h2 class="display">Lleva una experiencia<br>a tu <span class="italic">organización</span>.</h2>
+        <p>Cuéntame el contexto de tu empresa, institución o evento y armamos una propuesta a la medida del espectáculo y el formato que mejor encajen.</p>
+        <div class="cta-list">
+          <div class="item"><div class="label">Para</div><div class="val">Empresas · Instituciones · Eventos</div></div>
+          <div class="item"><div class="label">Formatos</div><div class="val">Espectáculo · Conferencia escénica · Laboratorio inmersivo</div></div>
+          <div class="item"><div class="label">Contacto</div><div class="val">contacto@mariocitalan.com</div></div>
+        </div>
+      </div>
+
+      <div class="form">
+        <form id="propForm" novalidate>
+          <span class="eyebrow">Solicitar propuesta</span>
+          <div class="field">
+            <label for="p-org">Empresa o institución</label>
+            <input type="text" id="p-org" placeholder="Nombre de tu organización">
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="p-nombre">Tu nombre</label><input type="text" id="p-nombre" placeholder="Nombre completo"></div>
+            <div class="field"><label for="p-cargo">Cargo</label><input type="text" id="p-cargo" placeholder="Ej. Dir. de RH"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="p-email">Correo</label><input type="email" id="p-email" placeholder="tu@correo.com"></div>
+            <div class="field"><label for="p-tel">Teléfono</label><input type="tel" id="p-tel" placeholder="55 0000 0000"></div>
+          </div>
+          <div class="field">
+            <label for="p-show">¿Qué te interesa?</label>
+            <select id="p-show">
+              <option>Ciencia en Escena</option>
+              <option>Créelo y Créalo</option>
+              <option>Teatro de Conciencia Emocional</option>
+              <option>No estoy seguro / quiero asesoría</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="p-msg">Contexto del evento (opcional)</label>
+            <textarea id="p-msg" placeholder="Fecha aproximada, número de asistentes, objetivo…"></textarea>
+          </div>
+          <button type="submit" class="form-submit">Enviar solicitud
+            <svg viewBox="0 0 14 14" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+          </button>
+          <p class="form-note">Te respondo personalmente para definir formato y propuesta a la medida.</p>
+        </form>
+        <div class="form-ok" id="propOk">
+          <div class="check">✓</div>
+          <h4>Solicitud recibida</h4>
+          <p>Gracias. Te contacto en menos de 24 horas hábiles para armar tu propuesta.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="foot-bottom">
+      <div>© MMXXVI — Mario Citalán · Dr. Mente Experiencias. · <a href="index.html">Volver al inicio</a></div>
+      <a class="made-by" href="https://www.fishflow.mx" target="_blank" rel="noopener" aria-label="Creado por FishFlow">
+        <span class="made-label">Creado por</span>
+        <img src="assets/fishflow-logo-mono.svg" alt="FishFlow" class="ff-logo">
+        <span class="made-url">www.fishflow.mx</span>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 30);
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // Formulario de propuesta — placeholder (en producción: POST /api/leads origen "ciencia-en-escena")
+  const form = document.getElementById('propForm');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const n = document.getElementById('p-nombre').value.trim();
+    const em = document.getElementById('p-email').value.trim();
+    if(n.length < 2 || !/.+@.+\..+/.test(em)){
+      document.querySelector('#propForm .form-note').textContent = 'Completa tu nombre y un correo válido para enviar.';
+      document.querySelector('#propForm .form-note').style.color = '#C75D5D';
+      return;
+    }
+    form.style.display = 'none';
+    document.getElementById('propOk').classList.add('show');
+  });
+</script>
+
+</body>
+</html>

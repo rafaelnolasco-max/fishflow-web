@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mario Citalán — Asesor estratégico en criterio y toma de decisiones · CDMX</title>
-<meta name="description" content="Arquitectura mental para líderes, ejecutivos y organizaciones que necesitan pensar mejor bajo presión, decidir con claridad y sostener decisiones congruentes.">
+<title>Mario Citalán — Arquitectura Mental y del Criterio · CDMX</title>
+<meta name="description" content="No estás construyendo un sitio: es un ecosistema para evaluar y fortalecer tu arquitectura mental. Evalúa tu actitud y tu criterio, y descubre cómo decides, interpretas y construyes tu vida.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -50,9 +50,9 @@
   .nav-mark{display:flex;align-items:center;gap:11px;font-family:"Fraunces",serif;font-weight:500;font-size:19px;letter-spacing:.02em}
   .nav-mark .dot{width:7px;height:7px;background:var(--accent);transform:rotate(45deg);display:inline-block}
   .nav-logo{height:34px;width:auto;display:block}
-  .nav-links{display:flex;gap:34px;font-size:13px;letter-spacing:.02em;color:var(--ink-2)}
+  .nav-links{display:flex;gap:30px;font-size:13px;letter-spacing:.02em;color:var(--ink-2)}
   .nav-links a:hover{color:var(--accent-deep)}
-  .nav-cta{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:12px 20px;border:1px solid var(--ink);transition:.3s}
+  .nav-cta{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:12px 20px;border:1px solid var(--ink);transition:.3s;white-space:nowrap}
   .nav-cta:hover{background:var(--ink);color:var(--paper)}
 
   /* ---------------- HERO ---------------- */
@@ -60,12 +60,15 @@
   .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:72px;align-items:end}
   .hero-meta{display:flex;align-items:center;gap:16px;margin-bottom:28px}
   .hero-meta .bar{width:52px;height:1px;background:var(--accent-deep)}
-  .hero h1{font-size:clamp(48px,6.4vw,104px);margin:0 0 10px;color:var(--ink);letter-spacing:-.02em}
-  .hero-lead{max-width:500px;margin-top:30px;font-size:18px;line-height:1.7;color:var(--ink-2)}
-  .hero-cta-row{display:flex;align-items:center;gap:26px;margin-top:40px;flex-wrap:wrap}
+  .hero h1{font-size:clamp(44px,5.6vw,92px);margin:0 0 10px;color:var(--ink);letter-spacing:-.02em}
+  .hero-lead{max-width:520px;margin-top:30px;font-size:18px;line-height:1.7;color:var(--ink-2)}
+  .hero-cta-row{display:flex;align-items:center;gap:18px;margin-top:40px;flex-wrap:wrap}
   .btn-primary{display:inline-flex;align-items:center;gap:14px;padding:18px 30px;background:var(--ink);color:var(--paper);font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
   .btn-primary:hover{background:var(--accent-deep)}
   .btn-primary svg{width:14px;height:14px}
+  .btn-outline{display:inline-flex;align-items:center;gap:14px;padding:18px 30px;background:transparent;color:var(--ink);border:1px solid var(--ink);font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .btn-outline:hover{border-color:var(--accent-deep);color:var(--accent-deep)}
+  .btn-outline svg{width:14px;height:14px}
   .btn-ghost{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:6px}
   .btn-ghost:hover{color:var(--accent-deep);border-bottom-color:var(--accent-deep)}
 
@@ -91,9 +94,113 @@
   .section-head{display:grid;grid-template-columns:230px 1fr;gap:56px;margin-bottom:72px;align-items:end}
   .section-head h2{font-size:clamp(40px,4.4vw,68px);line-height:1.0;letter-spacing:-.015em}
   .section-head .kicker .eyebrow{margin-bottom:14px;display:block}
-  .section-head .kicker p{color:var(--ink-2);max-width:44ch}
+  .section-head .kicker p{color:var(--ink-2);max-width:48ch}
 
-  /* ---------------- ABOUT ---------------- */
+  /* ---------------- MODELO (¿Qué es la Arquitectura Mental?) ---------------- */
+  .modelo{background:var(--bone)}
+  .modelo-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:72px;align-items:center}
+  .modelo-body .lead-q{font-family:"Fraunces",serif;font-weight:400;font-size:clamp(24px,2.6vw,34px);line-height:1.32;color:var(--ink);margin-bottom:26px}
+  .modelo-body .lead-q .accent{color:var(--accent-deep);font-style:italic}
+  .modelo-body p{color:var(--ink-2);margin-bottom:18px;max-width:54ch}
+  .modelo-defs{margin-top:34px;display:grid;gap:18px}
+  .modelo-def{border-left:3px solid var(--accent);padding:4px 0 4px 20px}
+  .modelo-def .t{font-family:"Fraunces",serif;font-size:21px;margin-bottom:5px}
+  .modelo-def .d{font-size:14.5px;color:var(--ink-2);line-height:1.6}
+  .video-ph{position:relative;aspect-ratio:4/3;border:1px solid var(--rule);background:var(--ink);overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .video-ph .play{width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;transition:.3s}
+  .video-ph:hover .play{background:var(--accent);border-color:var(--accent)}
+  .video-ph .play svg{width:24px;height:24px;fill:#fff;margin-left:4px}
+  .video-ph .vlabel{position:absolute;bottom:18px;left:20px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.7);border:1px dashed rgba(255,255,255,.35);padding:6px 10px}
+
+  /* ---------------- CRITERIO (prueba profunda) ---------------- */
+  .criterio{background:var(--paper)}
+  .criterio .eyebrow{color:var(--accent-deep)}
+  .crit-intro{max-width:60ch;font-family:"Fraunces",serif;font-weight:400;font-size:clamp(20px,2.2vw,28px);line-height:1.4;color:var(--ink);margin-bottom:50px}
+  .crit-stats{display:grid;grid-template-columns:repeat(3,max-content);gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin-bottom:46px}
+  .crit-stats > div{padding:26px 48px 26px 0;margin-right:48px;border-right:1px solid var(--rule)}
+  .crit-stats > div:last-child{border-right:none;margin-right:0;padding-right:0}
+  .crit-stats .n{font-family:"Fraunces",serif;font-size:42px;line-height:1;color:var(--ink)}
+  .crit-stats .l{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+  /* escala de 5 niveles */
+  .niveles{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--rule);margin-bottom:42px;background:var(--bone)}
+  .nivel{padding:22px 20px;border-right:1px solid var(--rule);position:relative}
+  .nivel:last-child{border-right:none}
+  .nivel .bar{height:5px;border-radius:3px;margin-bottom:14px}
+  .nivel .nm{font-family:"Fraunces",serif;font-size:18px;margin-bottom:5px}
+  .nivel .d{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+  .nivel.n1 .bar{background:#C75D5D}
+  .nivel.n2 .bar{background:#D69655}
+  .nivel.n3 .bar{background:#C9C24F}
+  .nivel.n4 .bar{background:#5FA9D6}
+  .nivel.n5 .bar{background:#3E86CF}
+
+  /* ---------------- SOLUCIONES (4 tarjetas) ---------------- */
+  .soluciones{background:var(--ink);color:var(--paper)}
+  .soluciones .eyebrow{color:var(--accent)}
+  .soluciones h2{color:var(--paper)}
+  .soluciones .section-head .kicker p{color:rgba(247,244,237,.72)}
+  .sol-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .sol{background:rgba(255,255,255,.035);border:1px solid var(--rule-dark);padding:38px 34px;display:flex;flex-direction:column;gap:16px;transition:.4s}
+  .sol:hover{background:rgba(255,255,255,.06);border-color:rgba(62,134,207,.5);transform:translateY(-3px)}
+  .sol .sol-tag{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+  .sol h4{font-family:"Fraunces",serif;font-weight:500;font-size:28px;line-height:1.12}
+  .sol .desc{font-size:14.5px;line-height:1.65;color:rgba(247,244,237,.74)}
+  .sol .more{margin-top:auto;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:inline-flex;gap:8px;align-items:center}
+  .sol.feature{grid-column:1 / -1;background:linear-gradient(120deg,rgba(62,134,207,.16),rgba(31,78,121,.10));border-color:rgba(62,134,207,.4)}
+
+  /* ---------------- DIAGNÓSTICO (test de Actitud) ---------------- */
+  .diag-sec{background:var(--paper-2)}
+  .diag-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:72px;align-items:start}
+  .diag-intro h3{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(32px,3.6vw,50px);line-height:1.04;margin-bottom:22px;letter-spacing:-.01em}
+  .diag-intro .lead{color:var(--ink-2);max-width:42ch;font-size:16px;margin-bottom:30px}
+  .diag-intro ul{list-style:none;display:flex;flex-direction:column;gap:0;border-top:1px solid var(--rule)}
+  .diag-intro ul li{padding:16px 0;border-bottom:1px solid var(--rule);display:flex;gap:14px;align-items:flex-start;font-size:14.5px;color:var(--ink-2)}
+  .diag-intro ul li .d{width:7px;height:7px;background:var(--accent);transform:rotate(45deg);flex:0 0 7px;margin-top:8px}
+
+  /* ---------------- LIBRO ---------------- */
+  .libro{background:var(--ink);color:var(--paper);overflow:hidden}
+  .libro-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:72px;align-items:center}
+  .libro .eyebrow{color:var(--accent)}
+  .libro-cover{aspect-ratio:3/4;border:1px solid var(--rule-dark);background:linear-gradient(160deg,#16283a,#0c1620);display:flex;align-items:center;justify-content:center;position:relative;max-width:340px}
+  .libro-cover .badge{position:absolute;top:18px;left:18px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);background:var(--accent);padding:7px 12px}
+  .libro-cover .ctitle{font-family:"Fraunces",serif;font-size:30px;line-height:1.1;color:var(--paper);text-align:center;padding:0 28px}
+  .libro h2{color:var(--paper);font-size:clamp(34px,4vw,60px);margin-bottom:22px}
+  .libro p{color:rgba(247,244,237,.74);max-width:46ch;margin-bottom:28px}
+  .libro-form{display:flex;gap:12px;flex-wrap:wrap;max-width:480px}
+  .libro-form input{flex:1;min-width:220px;background:rgba(255,255,255,.06);border:1px solid var(--rule-dark);padding:16px 18px;color:var(--paper);font-family:"Inter",sans-serif;font-size:15px}
+  .libro-form input::placeholder{color:rgba(247,244,237,.5)}
+  .libro-form input:focus{outline:none;border-color:var(--accent)}
+  .libro-form button{background:var(--accent);color:#fff;border:none;padding:16px 26px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:.3s}
+  .libro-form button:hover{background:var(--accent-deep)}
+  .libro-note{margin-top:14px;font-size:12px;color:rgba(247,244,237,.5)}
+
+  /* ---------------- MEDIOS ---------------- */
+  .medios{background:var(--bone)}
+  .medios .eyebrow{color:var(--accent-deep)}
+  .media-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--rule)}
+  .media-strip .m{padding:30px 26px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:9px;transition:.3s}
+  .media-strip .m:last-child{border-right:none}
+  .media-strip .m:hover{background:var(--paper)}
+  .media-strip .m .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep)}
+  .media-strip .m .t{font-family:"Fraunces",serif;font-size:22px;line-height:1.12}
+  .media-strip .m .d{font-size:13px;color:var(--ink-2);line-height:1.55}
+  .media-live{margin-top:22px;display:inline-flex;align-items:center;gap:12px;font-size:13px;color:var(--ink-2)}
+  .media-live .pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(62,134,207,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(62,134,207,.55)}70%{box-shadow:0 0 0 12px rgba(62,134,207,0)}100%{box-shadow:0 0 0 0 rgba(62,134,207,0)}}
+
+  /* ---------------- TESTIMONIOS ---------------- */
+  .testimonios{background:var(--paper)}
+  .quote-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:46px;margin-top:24px}
+  .quote{display:flex;flex-direction:column;gap:22px}
+  .quote .stars{color:var(--accent);letter-spacing:.28em;font-size:13px}
+  .quote blockquote{font-family:"Fraunces",serif;font-style:italic;font-weight:400;font-size:21px;line-height:1.45;color:var(--ink)}
+  .quote blockquote::before{content:"\201C";display:block;font-family:"Fraunces",serif;font-size:60px;line-height:.4;color:var(--accent);opacity:.55;margin-bottom:14px}
+  .quote .who{display:flex;align-items:center;gap:14px;margin-top:auto;padding-top:22px;border-top:1px solid var(--rule)}
+  .quote .who .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--steel),var(--ink-2));display:flex;align-items:center;justify-content:center;font-family:"Fraunces",serif;color:var(--paper);font-size:16px}
+  .quote .who .nm{font-family:"Fraunces",serif;font-size:18px}
+  .quote .who .rl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------------- ABOUT / BIO (al final) ---------------- */
   .about{background:var(--bone)}
   .about-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:84px;align-items:center}
   .about-figure{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--ink)}
@@ -105,85 +212,7 @@
   .about-creds .label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
   .about-creds .val{font-family:"Fraunces",serif;font-size:21px;margin-top:5px}
 
-  /* ---------------- ASESORÍA (dark flagship) ---------------- */
-  .asesoria{background:var(--ink);color:var(--paper)}
-  .asesoria .eyebrow{color:var(--accent)}
-  .asesoria h2{color:var(--paper)}
-  .asesoria .section-head .kicker p{color:rgba(247,244,237,.72)}
-  .problem-intro{max-width:64ch;font-family:"Fraunces",serif;font-weight:400;font-size:clamp(22px,2.4vw,30px);line-height:1.4;color:var(--paper);margin-bottom:56px}
-  .problem-intro .accent{color:var(--accent);font-style:italic}
-  .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-  .card{background:rgba(255,255,255,.035);border:1px solid var(--rule-dark);padding:36px 30px;display:flex;flex-direction:column;gap:18px;transition:.4s}
-  .card:hover{background:rgba(255,255,255,.06);border-color:rgba(62,134,207,.5)}
-  .card .num{font-family:"Fraunces",serif;font-style:italic;font-size:40px;color:var(--accent);line-height:1}
-  .card h4{font-family:"Fraunces",serif;font-weight:500;font-size:25px;line-height:1.15}
-  .card .desc{font-size:14.5px;line-height:1.65;color:rgba(247,244,237,.74)}
-  .audience{margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--rule-dark)}
-  .audience .a{padding:28px 26px 0;border-right:1px solid var(--rule-dark)}
-  .audience .a:last-child{border-right:none}
-  .audience .a .t{font-family:"Fraunces",serif;font-size:23px;margin-bottom:8px}
-  .audience .a .d{font-size:13.5px;color:rgba(247,244,237,.66);line-height:1.6}
-
-  /* ---------------- MÉTODO ---------------- */
-  .metodo{background:var(--paper)}
-  .metodo .eyebrow{color:var(--accent-deep)}
-  .step-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;margin-top:24px}
-  .step{padding-top:30px;border-top:1px solid var(--rule)}
-  .step .step-n{display:inline-flex;align-items:center;gap:12px;font-family:"JetBrains Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:40px}
-  .step .step-n::before{content:"";width:26px;height:1px;background:var(--accent-deep);display:inline-block}
-  .step h4{font-family:"Fraunces",serif;font-weight:500;font-size:27px;line-height:1.12;margin-bottom:16px}
-  .step p{font-size:14.5px;line-height:1.7;color:var(--ink-2)}
-
-  /* ---------------- PROGRAMAS ---------------- */
-  .programas{background:var(--paper-2)}
-  .prog-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}
-  .prog{position:relative;background:var(--bone);border:1px solid var(--rule);padding:40px 38px;overflow:hidden;transition:.3s;display:flex;flex-direction:column;gap:14px}
-  .prog::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
-  .prog:hover{transform:translateY(-3px)}
-  .prog-tag{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--steel)}
-  .prog h4{font-family:"Fraunces",serif;font-weight:500;font-size:31px;line-height:1.08}
-  .prog p{font-size:14.5px;color:var(--ink-2);max-width:46ch;line-height:1.65}
-  .prog .more{margin-top:auto;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);display:inline-flex;gap:8px;align-items:center}
-
-  /* ---------------- MEDIOS ---------------- */
-  .medios{background:var(--ink);color:var(--paper)}
-  .medios .eyebrow{color:var(--accent)}
-  .medios h2{color:var(--paper)}
-  .medios .section-head .kicker p{color:rgba(247,244,237,.72)}
-  .media-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--rule-dark)}
-  .media-strip .m{padding:34px 28px;border-right:1px solid var(--rule-dark);display:flex;flex-direction:column;gap:10px;transition:.3s}
-  .media-strip .m:last-child{border-right:none}
-  .media-strip .m:hover{background:rgba(255,255,255,.04)}
-  .media-strip .m .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
-  .media-strip .m .t{font-family:"Fraunces",serif;font-size:23px;line-height:1.12}
-  .media-strip .m .d{font-size:13px;color:rgba(247,244,237,.62);line-height:1.55}
-  .media-live{margin-top:24px;display:inline-flex;align-items:center;gap:12px;font-size:13px;color:rgba(247,244,237,.8)}
-  .media-live .pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(62,134,207,.6);animation:pulse 2s infinite}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(62,134,207,.55)}70%{box-shadow:0 0 0 12px rgba(62,134,207,0)}100%{box-shadow:0 0 0 0 rgba(62,134,207,0)}}
-
-  /* ---------------- TESTIMONIOS ---------------- */
-  .testimonios{background:var(--bone)}
-  .quote-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:46px;margin-top:24px}
-  .quote{display:flex;flex-direction:column;gap:22px}
-  .quote .stars{color:var(--accent);letter-spacing:.28em;font-size:13px}
-  .quote blockquote{font-family:"Fraunces",serif;font-style:italic;font-weight:400;font-size:21px;line-height:1.45;color:var(--ink)}
-  .quote blockquote::before{content:"\201C";display:block;font-family:"Fraunces",serif;font-size:60px;line-height:.4;color:var(--accent);opacity:.55;margin-bottom:14px}
-  .quote .who{display:flex;align-items:center;gap:14px;margin-top:auto;padding-top:22px;border-top:1px solid var(--rule)}
-  .quote .who .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--steel),var(--ink-2));display:flex;align-items:center;justify-content:center;font-family:"Fraunces",serif;color:var(--paper);font-size:16px}
-  .quote .who .nm{font-family:"Fraunces",serif;font-size:18px}
-  .quote .who .rl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-
-  /* ---------------- CONTACTO ---------------- */
-  .contacto{background:var(--paper)}
-  .contact-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:72px;align-items:start}
-  .contact-info h3{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(34px,3.6vw,52px);line-height:1.04;margin-bottom:24px;letter-spacing:-.01em}
-  .contact-lead{color:var(--ink-2);max-width:42ch;font-size:16px;margin-bottom:34px}
-  .contact-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--rule)}
-  .contact-list .item{padding:20px 0;border-bottom:1px solid var(--rule)}
-  .contact-list .item .label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
-  .contact-list .item .val{font-family:"Fraunces",serif;font-size:22px;line-height:1.3}
-  .contact-list .item a:hover{color:var(--accent-deep)}
-
+  /* ---------------- FORM (diagnóstico) ---------------- */
   .form{background:var(--bone);border:1px solid var(--rule);padding:44px 42px}
   .form .eyebrow{display:block;margin-bottom:26px}
   .field{margin-bottom:22px}
@@ -192,16 +221,14 @@
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);background:#fff}
   .field textarea{resize:vertical;min-height:110px}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  .form-submit{width:100%;background:var(--ink);color:var(--paper);border:none;padding:18px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:.3s;display:flex;align-items:center;justify-content:center;gap:12px}
-  .form-submit:hover{background:var(--accent-deep)}
   .form-note{margin-top:16px;font-size:12px;color:var(--muted);line-height:1.5}
   .form-ok{display:none;text-align:center;padding:30px 10px}
   .form-ok.show{display:block}
   .form-ok .check{width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:24px}
   .form-ok h4{font-family:"Fraunces",serif;font-size:28px;margin-bottom:10px}
-  .form-ok p{color:var(--ink-2);font-size:15px;max-width:34ch;margin:0 auto}
+  .form-ok p{color:var(--ink-2);font-size:15px;max-width:36ch;margin:0 auto}
 
-  /* ---- Diagnóstico interactivo (reemplaza Google Sheets) ---- */
+  /* ---- Diagnóstico interactivo (test de Actitud) ---- */
   .diag-head{margin-bottom:26px}
   .diag-head .eyebrow{display:block;margin-bottom:16px}
   .diag-progress{height:4px;background:var(--paper-2);border-radius:2px;overflow:hidden}
@@ -226,17 +253,19 @@
   .diag-next:hover{background:var(--accent-deep)}
   .diag-next[disabled]{opacity:.4;cursor:default;background:var(--ink-3)}
   .diag-next svg{width:13px;height:13px}
-  /* resultado segmentado + derivación a producto */
-  .res-rec{margin-top:24px;text-align:left;background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);padding:24px}
+  /* resultado: nivel + PDF + derivación */
+  .res-level{margin-top:8px;text-align:left;background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);padding:22px 24px}
+  .res-level-bar{height:6px;border-radius:3px;background:var(--accent);margin-bottom:16px}
+  .res-rec{margin-top:18px;text-align:left;background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--steel);padding:22px 24px}
   .res-rec-label{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:9px}
-  .res-rec-name{font-family:"Fraunces",serif;font-weight:500;font-size:26px;line-height:1.12;margin-bottom:9px;color:var(--ink)}
-  .res-rec-desc{font-size:14px;color:var(--ink-2);line-height:1.6;margin-bottom:20px}
+  .res-rec-name{font-family:"Fraunces",serif;font-weight:500;font-size:24px;line-height:1.12;margin-bottom:9px;color:var(--ink)}
+  .res-rec-desc{font-size:14px;color:var(--ink-2);line-height:1.6;margin-bottom:18px}
   .res-cta{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:var(--paper);padding:13px 22px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
   .res-cta:hover{background:var(--accent-deep)}
-  .res-foot{margin-top:20px;font-size:13px;color:var(--muted)}
+  .res-foot{margin-top:18px;font-size:13px;color:var(--muted)}
 
   /* ---------------- FOOTER ---------------- */
-  footer{padding:78px 0 30px;border-top:1px solid var(--rule);background:var(--bone)}
+  footer{padding:78px 0 30px;border-top:1px solid var(--rule);background:var(--paper)}
   .foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:56px;margin-bottom:72px}
   .foot-mark{font-family:"Fraunces",serif;font-size:22px;letter-spacing:.02em;margin-bottom:16px;display:flex;align-items:center;gap:10px}
   .foot-mark .dot{width:7px;height:7px;background:var(--accent);transform:rotate(45deg);display:inline-block}
@@ -245,7 +274,7 @@
   .foot-col ul{list-style:none;display:flex;flex-direction:column;gap:10px;font-family:"Fraunces",serif;font-size:18px}
   .foot-col a:hover{color:var(--accent-deep)}
   .foot-bottom{border-top:1px solid var(--rule);padding-top:24px;display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);gap:24px;flex-wrap:wrap}
-  .made-by{display:inline-flex;align-items:center;gap:14px;padding:8px 14px;border:1px solid var(--rule);background:var(--paper);transition:.3s}
+  .made-by{display:inline-flex;align-items:center;gap:14px;padding:8px 14px;border:1px solid var(--rule);background:var(--bone);transition:.3s}
   .made-by:hover{border-color:var(--ink)}
   .made-by .made-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
   .made-by .ff-logo{height:17px;width:auto;display:block;opacity:.92}
@@ -261,18 +290,24 @@
     .nav-inner{padding:14px 26px}
     .nav-links{display:none}
     .hero{padding:128px 0 60px}
-    .hero-grid,.about-grid,.contact-grid{grid-template-columns:1fr;gap:54px}
+    .hero-grid,.modelo-grid,.about-grid,.criterio-grid,.diag-wrap,.libro-grid{grid-template-columns:1fr;gap:54px}
     .section-head{grid-template-columns:1fr;gap:22px}
     .metrics{grid-template-columns:repeat(2,1fr)}
     .metrics > div:nth-child(2){border-right:none}
     .metrics > div:nth-child(1),.metrics > div:nth-child(2){border-bottom:1px solid var(--rule)}
-    .card-grid,.step-grid,.quote-grid,.prog-grid,.media-strip,.audience{grid-template-columns:1fr 1fr}
-    .step-grid{gap:24px}
-    .media-strip .m:nth-child(2),.audience .a:nth-child(2){border-right:none}
-    .media-strip .m,.audience .a{border-bottom:1px solid var(--rule-dark)}
+    .sol-grid,.quote-grid,.media-strip{grid-template-columns:1fr 1fr}
+    .niveles{grid-template-columns:repeat(5,1fr)}
+    .nivel{padding:16px 12px}
+    .nivel .nm{font-size:15px}
+    .nivel .d{font-size:11px}
+    .crit-stats{grid-template-columns:repeat(3,1fr)}
+    .crit-stats > div{padding:20px 16px 20px 0;margin-right:16px}
+    .media-strip .m:nth-child(2){border-right:none}
+    .media-strip .m{border-bottom:1px solid var(--rule)}
     .foot-grid{grid-template-columns:1fr 1fr;gap:38px}
     section{padding:84px 0}
     .about-figure{max-width:420px}
+    .libro-cover{max-width:260px}
   }
 
   /* ---------------- RESPONSIVE — móvil (≤640) ---------------- */
@@ -286,38 +321,42 @@
     .nav-mark{font-size:16px}
     .nav-logo{height:28px}
     .hero{padding:98px 0 46px}
-    .hero h1{font-size:clamp(38px,11vw,60px)}
+    .hero h1{font-size:clamp(34px,10vw,56px)}
     .hero-lead{font-size:15.5px;margin-top:20px;max-width:none}
-    .hero-cta-row{gap:16px;margin-top:28px}
+    .hero-cta-row{gap:12px;margin-top:28px}
+    .btn-primary,.btn-outline{padding:15px 22px;font-size:11px}
     .metrics{margin-top:48px}
     .metrics > div{padding:20px 16px}
     .metrics .n{font-size:27px}
     .metrics .l{font-size:10px}
+    .modelo-body .lead-q{font-size:21px}
+    .crit-intro{font-size:20px}
+    .crit-stats{grid-template-columns:1fr;border-bottom:none}
+    .crit-stats > div{border-right:none;border-bottom:1px solid var(--rule);margin-right:0;padding:18px 0}
+    .crit-stats > div:last-child{border-bottom:none}
+    .niveles{grid-template-columns:1fr}
+    .nivel{border-right:none;border-bottom:1px solid var(--rule);display:flex;gap:14px;align-items:center}
+    .nivel:last-child{border-bottom:none}
+    .nivel .bar{width:6px;height:34px;margin:0;flex:0 0 6px}
+    .sol-grid,.quote-grid,.media-strip{grid-template-columns:1fr;gap:14px}
+    .sol.feature{grid-column:auto}
+    .media-strip{border:none}
+    .media-strip .m{border-right:none;border:1px solid var(--rule);margin-bottom:-1px}
     .about-figure{aspect-ratio:4/5;max-width:330px;margin:0 auto;width:100%}
     .about-creds{grid-template-columns:1fr 1fr;gap:16px 22px}
     .about-creds .val{font-size:17px}
-    .problem-intro{font-size:20px;margin-bottom:38px}
-    .card-grid,.step-grid,.quote-grid,.prog-grid,.media-strip,.audience{grid-template-columns:1fr;gap:14px}
-    .audience{border-top:none}
-    .audience .a{border-right:none;border-bottom:1px solid var(--rule-dark);padding:22px 0 0}
-    .media-strip{border:none}
-    .media-strip .m{border-right:none;border:1px solid var(--rule-dark);margin-bottom:-1px}
-    .step{padding-top:22px}
-    .step .step-n{margin-bottom:24px}
-    .step h4{font-size:24px}
-    .prog{padding:30px 26px}
-    .prog h4{font-size:27px}
     .quote blockquote{font-size:19px}
     .form{padding:30px 24px}
     .field-row{grid-template-columns:1fr}
+    .libro-form input{min-width:0}
     .foot-grid{grid-template-columns:1fr;gap:30px}
     .foot-bottom{flex-direction:column;align-items:flex-start;gap:16px}
     .made-by{width:100%;justify-content:flex-start}
   }
   @media (max-width:390px){
-    .hero h1{font-size:36px}
+    .hero h1{font-size:34px}
     .section-head h2{font-size:28px}
-    .about-body h3,.contact-info h3{font-size:30px}
+    .about-body h3,.diag-intro h3{font-size:30px}
   }
 </style>
 </head>
@@ -331,15 +370,14 @@
   <div class="nav-inner">
     <a href="#inicio" class="nav-mark"><img class="nav-logo" src="https://mariocitalan.net/wp-content/uploads/2020/05/Dr.-Mente.png" alt="Dr. Mente"> Mario Citalán</a>
     <div class="nav-links">
+      <a href="#modelo">El modelo</a>
+      <a href="#criterio">Tu criterio</a>
+      <a href="#soluciones">Soluciones</a>
+      <a href="ciencia-en-escena.html">Ciencia en Escena</a>
+      <a href="recursos.html">Recursos</a>
       <a href="#sobre">Sobre mí</a>
-      <a href="#asesoria">Asesoría</a>
-      <a href="#metodo">Método</a>
-      <a href="#programas">Programas</a>
-      <a href="#medios">Medios</a>
-      <a href="#contacto">Contacto</a>
-      <a href="panel.html">Tu panel</a>
     </div>
-    <a href="#contacto" class="nav-cta">Agendar diagnóstico</a>
+    <a href="#actitud" class="nav-cta">Evalúa tu actitud</a>
   </div>
 </nav>
 
@@ -350,15 +388,17 @@
       <div class="hero-text">
         <div class="hero-meta">
           <span class="bar"></span>
-          <span class="eyebrow">Asesor estratégico · Criterio y decisiones · CDMX</span>
+          <span class="eyebrow">Arquitectura Mental y del Criterio · CDMX</span>
         </div>
-        <h1 class="display">Arquitectura mental para <span class="italic">decidir mejor</span> bajo presión.</h1>
-        <p class="hero-lead">Acompaño a líderes, ejecutivos y organizaciones a pensar con claridad, decidir con criterio y sostener decisiones congruentes &mdash; incluso en contextos de alta incertidumbre, estrés y fatiga decisional.</p>
+        <h1 class="display">Tu vida depende de cómo <span class="italic">piensas y decides</span>.</h1>
+        <p class="hero-lead">No depende únicamente de tus capacidades, sino de la arquitectura desde la que interpretas, decides y actúas &mdash; y de la actitud que tienes hacia ella. Empieza por descubrir cómo está la tuya.</p>
         <div class="hero-cta-row">
-          <a href="#contacto" class="btn-primary">Agendar diagnóstico
+          <a href="#actitud" class="btn-primary">Evalúa tu actitud
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
           </a>
-          <a href="#metodo" class="btn-ghost">Conoce el método</a>
+          <a href="#criterio" class="btn-outline">Evalúa tu arquitectura del criterio
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+          </a>
         </div>
       </div>
 
@@ -367,200 +407,281 @@
           <img src="https://mariocitalan.net/wp-content/uploads/2026/03/Asesor-estrategico-en-criterio-y-toma-de-decisiones-scaled.png" alt="Mario Citalán" style="width:100%;height:100%;object-fit:cover;object-position:right center">
         </div>
         <div class="hero-stamp-box">
-          <span class="eyebrow">Enfoque</span>
+          <span class="eyebrow">El modelo</span>
           <div class="num">01</div>
-          <div class="label">Criterio antes que técnica</div>
+          <div class="label">El problema primero · la persona después</div>
         </div>
       </div>
     </div>
 
     <div class="metrics">
-      <div><div class="n">20+ años</div><div class="l">acompañando decisiones</div></div>
-      <div><div class="n">Líderes</div><div class="l">ejecutivos y dueños de negocio</div></div>
-      <div><div class="n">Empresas</div><div class="l">conferencias y capacitación</div></div>
-      <div><div class="n">Medios</div><div class="l">radio · podcast · TV</div></div>
+      <div><div class="n">Actitud</div><div class="l">cómo enfrentas la vida</div></div>
+      <div><div class="n">Criterio</div><div class="l">cómo tomas decisiones</div></div>
+      <div><div class="n">5 niveles</div><div class="l">de resultado en tu evaluación</div></div>
+      <div><div class="n">+30 años</div><div class="l">de experiencia clínica</div></div>
     </div>
   </div>
 </section>
 
-<!-- ============== SOBRE MÍ ============== -->
-<section class="about" id="sobre">
+<!-- ============== MODELO — ¿Qué es la Arquitectura Mental? ============== -->
+<section class="modelo" id="modelo">
   <div class="container">
     <div class="section-head">
-      <div><span class="eyebrow">Sobre mí</span></div>
+      <div><span class="eyebrow">El modelo</span></div>
       <div class="kicker">
         <div class="ornament" style="margin-bottom:14px"><span class="line"></span><span class="diamond"></span></div>
-        <p>Mi labor es desarrollar el criterio de quienes toman decisiones de alto nivel, para que cada decisión importante sea clara, objetiva y estratégicamente superior.</p>
+        <p>Todo el ecosistema gira alrededor de un problema que resuelvo, no alrededor de mi nombre. La Arquitectura Mental es el modelo; la Arquitectura del Criterio es su aplicación práctica.</p>
       </div>
     </div>
 
-    <div class="about-grid">
-      <div class="about-figure">
-        <div class="sig">&mdash; Mario</div>
-        <img class="about-photo" src="https://mariocitalan.net/wp-content/uploads/2025/06/Quien-soy-1-scaled.png" alt="Mario Citalán" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:left center">
+    <div class="modelo-grid">
+      <div class="modelo-body">
+        <p class="lead-q">La estructura <span class="accent">invisible</span> que determina cómo piensas, sientes, decides y construyes tu vida.</p>
+        <p>La mayoría intenta cambiar resultados sin tocar la estructura desde la que decide. Por eso el cambio no se sostiene. La Arquitectura del Criterio trabaja en la raíz: tu capacidad de interpretar la realidad, tomar decisiones y construir una vida funcional.</p>
+        <div class="modelo-defs">
+          <div class="modelo-def">
+            <div class="t">Arquitectura Mental</div>
+            <div class="d">La estructura invisible que determina cómo piensas, sientes y actúas ante la vida.</div>
+          </div>
+          <div class="modelo-def">
+            <div class="t">Arquitectura del Criterio</div>
+            <div class="d">La capacidad de interpretar la realidad y tomar decisiones que construyen una vida funcional.</div>
+          </div>
+        </div>
       </div>
-      <div class="about-body">
-        <h3>Más que motivación,<br><span class="italic">criterio sólido</span>.</h3>
-        <p>Acompaño a líderes, ejecutivos, emprendedores y dueños de negocio a <strong>eliminar los sesgos cognitivos</strong> que el estrés, la mala gestión emocional y la fatiga decisional introducen en sus decisiones.</p>
-        <p>El objetivo no es decidir más rápido, sino construir una <strong>arquitectura mental sólida</strong>: una forma de pensar que sostiene decisiones congruentes en tu vida, tu empresa y tu trabajo, incluso bajo presión.</p>
-        <div class="about-creds">
-          <div><div class="label">Especialidad</div><div class="val">Criterio y toma de decisiones</div></div>
-          <div><div class="label">Enfoque</div><div class="val">Neurociencia aplicada</div></div>
-          <div><div class="label">Formato</div><div class="val">Individual y organizacional</div></div>
-          <div><div class="label">Base</div><div class="val">Ciudad de México</div></div>
+
+      <div class="video-ph" role="img" aria-label="Video de Mario explicando el modelo — pendiente">
+        <div class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        <div class="vlabel">Video de Mario · 2 min · pendiente</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CRITERIO — prueba profunda ============== -->
+<section class="criterio" id="criterio">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Evalúa tu arquitectura del criterio</span></div>
+      <div class="kicker">
+        <h2 class="display">¿Cómo está estructurada<br>tu forma de <span class="italic">decidir</span>?</h2>
+      </div>
+    </div>
+
+    <p class="crit-intro">Este diagnóstico te permite identificar fortalezas y áreas de mejora en las dimensiones que sostienen tu capacidad para interpretar la realidad, tomar decisiones y construir una vida más funcional.</p>
+
+    <div class="crit-stats">
+      <div><div class="n">10</div><div class="l">minutos</div></div>
+      <div><div class="n">30</div><div class="l">reactivos</div></div>
+      <div><div class="n">5</div><div class="l">dimensiones</div></div>
+    </div>
+
+    <div class="niveles" aria-label="Cinco niveles de resultado">
+      <div class="nivel n1"><div class="bar"></div><div class="nm">Frágil</div><div class="d">La estructura cede ante la presión.</div></div>
+      <div class="nivel n2"><div class="bar"></div><div class="nm">Vulnerable</div><div class="d">Sostiene en calma, falla bajo estrés.</div></div>
+      <div class="nivel n3"><div class="bar"></div><div class="nm">Funcional</div><div class="d">Decide bien la mayor parte del tiempo.</div></div>
+      <div class="nivel n4"><div class="bar"></div><div class="nm">Sólido</div><div class="d">Criterio claro incluso bajo presión.</div></div>
+      <div class="nivel n5"><div class="bar"></div><div class="nm">Extraordinario</div><div class="d">Decide con claridad y congruencia sostenida.</div></div>
+    </div>
+
+    <a href="cuestionario.html" class="btn-primary">Iniciar la prueba completa
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+    </a>
+    <p class="form-note" style="margin-top:16px">¿Prefieres algo más rápido primero? <a href="#actitud" style="color:var(--accent-deep);border-bottom:1px solid var(--accent-deep)">Evalúa tu actitud en 2 minutos</a>.</p>
+  </div>
+</section>
+
+<!-- ============== SOLUCIONES (4 tarjetas) ============== -->
+<section class="soluciones" id="soluciones">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Nuestras soluciones</span></div>
+      <div class="kicker">
+        <h2 class="display">Una ruta para cada<br>punto de <span class="italic" style="color:var(--accent)">partida</span>.</h2>
+        <p style="margin-top:18px">Según el resultado de tu evaluación, te guío a la ruta más adecuada para tu situación y tus objetivos.</p>
+      </div>
+    </div>
+
+    <div class="sol-grid">
+      <article class="sol">
+        <div class="sol-tag">Ruta 1 · Individual</div>
+        <h4>Asesoría individual</h4>
+        <p class="desc">Trabajo uno a uno para reconstruir tu arquitectura desde la raíz. Para quien necesita acompañamiento personalizado.</p>
+        <a href="#actitud" class="more">Empezar con mi evaluación →</a>
+      </article>
+      <article class="sol">
+        <div class="sol-tag">Ruta 2 · Programa</div>
+        <h4>Entrenamiento Evoluciona</h4>
+        <p class="desc">Programa estructurado de desarrollo personal y reconstrucción de la arquitectura mental para transformar tu vida de forma sostenida.</p>
+        <a href="#actitud" class="more">Ver si es para mí →</a>
+      </article>
+      <article class="sol">
+        <div class="sol-tag">Ruta 3 · Ejecutivo</div>
+        <h4>Criterio Ejecutivo Avanzado (CEA)</h4>
+        <p class="desc">Para líderes, empresarios y directivos que toman decisiones de alto impacto y necesitan sostenerlas con congruencia.</p>
+        <a href="#actitud" class="more">Conocer el programa →</a>
+      </article>
+      <article class="sol feature">
+        <div class="sol-tag">Experiencias · Empresas e instituciones</div>
+        <h4>Ciencia en Escena &amp; Dr. Mente Experiencias</h4>
+        <p class="desc">Espectáculos que unen ciencia, emoción y aprendizaje para transformar a públicos masivos, empresas e instituciones. Una categoría aparte, con su propia página.</p>
+        <a href="ciencia-en-escena.html" class="more">Ver los espectáculos →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============== DIAGNÓSTICO — Test de Actitud (gancho) ============== -->
+<section class="diag-sec" id="actitud">
+  <div class="container">
+    <div class="diag-wrap">
+      <div class="diag-intro">
+        <span class="eyebrow" style="display:block;margin-bottom:18px">Evaluación gratuita de actitud</span>
+        <h3>¿Cómo está tu <span class="italic">actitud</span> ante la vida?</h3>
+        <p class="lead">Es el punto de entrada más sencillo. Responde unas preguntas rápidas, recibe tu nivel al instante y te envío un PDF gratuito con el modelo completo.</p>
+        <ul>
+          <li><span class="d"></span> Resultado inmediato en uno de 5 niveles.</li>
+          <li><span class="d"></span> PDF gratuito: <em>La Arquitectura de la Actitud</em>.</li>
+          <li><span class="d"></span> Sin costo y confidencial &mdash; solo para tu diagnóstico.</li>
+        </ul>
+      </div>
+
+      <div class="form">
+        <div class="diag" id="diag">
+          <div class="diag-head">
+            <span class="eyebrow">Test de actitud</span>
+            <div class="diag-progress"><div class="diag-bar" id="diagBar"></div></div>
+            <div class="diag-count">Paso <span id="diagStep">1</span> de <span id="diagTotal">5</span></div>
+          </div>
+
+          <!-- PREGUNTAS DE EJEMPLO — sustituir por el cuestionario real de Mario -->
+          <div class="diag-step active" data-step="1" data-type="seg">
+            <div class="diag-q">¿Qué te trae aquí?</div>
+            <div class="diag-opts">
+              <div class="opt" data-seg="individual"><span class="mark"></span>Quiero decidir mejor en mi vida o mi carrera</div>
+              <div class="opt" data-seg="empresa"><span class="mark"></span>Busco algo para mi empresa o mi equipo</div>
+              <div class="opt" data-seg="personal"><span class="mark"></span>Quiero crecimiento personal</div>
+              <div class="opt" data-seg="evento"><span class="mark"></span>Organizo un evento o una conferencia</div>
+            </div>
+          </div>
+
+          <div class="diag-step" data-step="2" data-type="q">
+            <div class="diag-q"><span class="ph-tag">Pregunta de ejemplo</span>Ante un imprevisto que te desordena el día, ¿qué tan rápido recuperas el enfoque?</div>
+            <div class="diag-opts">
+              <div class="opt"><span class="mark"></span>Me cuesta mucho</div>
+              <div class="opt"><span class="mark"></span>Tardo bastante</div>
+              <div class="opt"><span class="mark"></span>Más o menos</div>
+              <div class="opt"><span class="mark"></span>Bastante rápido</div>
+              <div class="opt"><span class="mark"></span>Casi de inmediato</div>
+            </div>
+          </div>
+
+          <div class="diag-step" data-step="3" data-type="q">
+            <div class="diag-q"><span class="ph-tag">Pregunta de ejemplo</span>Cuando algo sale mal, ¿con qué frecuencia buscas qué puedes controlar en vez de quedarte en el problema?</div>
+            <div class="diag-opts">
+              <div class="opt"><span class="mark"></span>Casi nunca</div>
+              <div class="opt"><span class="mark"></span>Rara vez</div>
+              <div class="opt"><span class="mark"></span>A veces</div>
+              <div class="opt"><span class="mark"></span>Seguido</div>
+              <div class="opt"><span class="mark"></span>Casi siempre</div>
+            </div>
+          </div>
+
+          <div class="diag-step" data-step="4" data-type="q">
+            <div class="diag-q"><span class="ph-tag">Pregunta de ejemplo</span>¿Qué tan alineadas están tus acciones diarias con lo que dices que quieres lograr?</div>
+            <div class="diag-opts">
+              <div class="opt"><span class="mark"></span>Nada alineadas</div>
+              <div class="opt"><span class="mark"></span>Poco</div>
+              <div class="opt"><span class="mark"></span>Algo</div>
+              <div class="opt"><span class="mark"></span>Bastante</div>
+              <div class="opt"><span class="mark"></span>Muy alineadas</div>
+            </div>
+          </div>
+
+          <!-- Paso final: captura de contacto -->
+          <div class="diag-step" data-step="5" data-type="contact">
+            <div class="diag-q">¿A dónde te envío tu resultado y el PDF?</div>
+            <div class="field">
+              <label for="d-nombre">Nombre completo</label>
+              <input type="text" id="d-nombre" placeholder="Tu nombre">
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="d-email">Correo</label>
+                <input type="email" id="d-email" placeholder="tu@correo.com">
+              </div>
+              <div class="field">
+                <label for="d-tel">Teléfono</label>
+                <input type="tel" id="d-tel" placeholder="55 0000 0000">
+              </div>
+            </div>
+            <div class="field">
+              <label for="d-tipo">¿Qué te interesa?</label>
+              <select id="d-tipo">
+                <option>Asesoría individual</option>
+                <option>Entrenamiento Evoluciona</option>
+                <option>Criterio Ejecutivo Avanzado (empresa)</option>
+                <option>Ciencia en Escena / experiencia para un evento</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="diag-nav">
+            <button class="diag-back" id="diagBack" disabled>Atrás</button>
+            <button class="diag-next" id="diagNext" disabled>Siguiente
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+            </button>
+          </div>
+          <p class="form-note" style="margin-top:18px">Preguntas rápidas. Tus respuestas son confidenciales y solo se usan para tu diagnóstico y contacto.</p>
+        </div>
+
+        <div class="form-ok" id="formOk">
+          <div class="check">✓</div>
+          <span class="eyebrow" style="display:block;margin-bottom:14px">Tu nivel de actitud</span>
+          <h4 id="resPerfil">Tu nivel</h4>
+          <p id="resPerfilDesc">&hellip;</p>
+          <div class="res-level">
+            <div class="res-level-bar" id="resLevelBar"></div>
+            <div class="res-rec-label">Tu PDF gratuito</div>
+            <div class="res-rec-desc" style="margin-bottom:14px">Te envío <em>La Arquitectura de la Actitud</em> a tu correo, junto con tu resultado detallado.</div>
+            <a class="res-cta" id="resPdf" href="#">Descargar el PDF
+              <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 1v9M3 6l4 4 4-4M1 13h12"/></svg>
+            </a>
+          </div>
+          <div class="res-rec">
+            <div class="res-rec-label">Siguiente paso recomendado</div>
+            <div class="res-rec-name" id="resProd">&hellip;</div>
+            <div class="res-rec-desc" id="resProdDesc">&hellip;</div>
+            <a class="res-cta" id="resCta" href="#soluciones">Conocer más
+              <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+            </a>
+          </div>
+          <p class="res-foot">¿Quieres ir más profundo? Haz también tu <a href="cuestionario.html" style="color:var(--accent-deep);border-bottom:1px solid var(--accent-deep)">prueba de Arquitectura del Criterio</a>.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============== ASESORÍA (flagship) ============== -->
-<section class="asesoria" id="asesoria">
+<!-- ============== LIBRO (campaña de expectativa) ============== -->
+<section class="libro" id="libro">
   <div class="container">
-    <div class="section-head">
-      <div><span class="eyebrow">Asesoría estratégica</span></div>
-      <div class="kicker">
-        <h2 class="display">Decisiones de alto nivel,<br>tomadas con <span class="italic" style="color:var(--accent)">claridad</span>.</h2>
+    <div class="libro-grid">
+      <div class="libro-cover">
+        <span class="badge">Próximamente</span>
+        <div class="ctitle">Arquitectura<br>del Criterio</div>
+      </div>
+      <div class="libro-text">
+        <span class="eyebrow" style="display:block;margin-bottom:18px">El libro</span>
+        <h2 class="display">El libro que explica<br>cómo se <span class="italic" style="color:var(--accent)">construye</span> una decisión.</h2>
+        <p>Un libro para comprender cómo se construye la calidad de nuestras decisiones y por qué la calidad de nuestra vida depende de ellas. Sé de los primeros en enterarte cuando salga.</p>
+        <form class="libro-form" id="libroForm" novalidate>
+          <input type="email" id="libroEmail" placeholder="tu@correo.com" aria-label="Tu correo">
+          <button type="submit">Quiero enterarme</button>
+        </form>
+        <p class="libro-note" id="libroNote">Cada correo es un lugar en la lista de espera. Sin spam.</p>
       </div>
     </div>
-
-    <p class="problem-intro">Bajo presión, el cerebro toma atajos. El estrés, el cansancio y la carga emocional introducen <span class="accent">sesgos invisibles</span> que distorsionan incluso las decisiones más importantes &mdash; sin que lo notes.</p>
-
-    <div class="card-grid">
-      <div class="card">
-        <div class="num">i</div>
-        <h4>Sesgos cognitivos</h4>
-        <p class="desc">Identificamos los patrones automáticos que sabotean tu juicio y aprendes a reconocerlos antes de decidir.</p>
-      </div>
-      <div class="card">
-        <div class="num">ii</div>
-        <h4>Fatiga decisional</h4>
-        <p class="desc">Demasiadas decisiones agotan tu criterio. Diseñamos estructuras para reservar tu energía mental para lo que importa.</p>
-      </div>
-      <div class="card">
-        <div class="num">iii</div>
-        <h4>Claridad bajo presión</h4>
-        <p class="desc">Gestión emocional aplicada a la decisión: pensar con cabeza fría cuando más está en juego.</p>
-      </div>
-    </div>
-
-    <div class="audience">
-      <div class="a"><div class="t">Líderes y directivos</div><div class="d">Que cargan con decisiones de alto impacto y necesitan sostenerlas con congruencia.</div></div>
-      <div class="a"><div class="t">Dueños de negocio</div><div class="d">Que deciden con información incompleta y bajo riesgo financiero real.</div></div>
-      <div class="a"><div class="t">Organizaciones</div><div class="d">Que quieren equipos directivos que decidan mejor, juntos y bajo presión.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ============== MÉTODO ============== -->
-<section class="metodo" id="metodo">
-  <div class="container">
-    <div class="section-head">
-      <div><span class="eyebrow">El método</span></div>
-      <div class="kicker">
-        <h2 class="display">De la reacción<br>al <span class="italic">criterio</span>.</h2>
-        <p style="margin-top:18px">Un proceso estructurado, no una charla motivacional. Cuatro etapas para construir tu arquitectura mental.</p>
-      </div>
-    </div>
-
-    <div class="step-grid">
-      <div class="step">
-        <div class="step-n">Etapa I</div>
-        <h4>Diagnóstico de criterio</h4>
-        <p>Mapeamos cómo decides hoy: dónde el estrés, la emoción o la prisa están introduciendo ruido en tu juicio.</p>
-      </div>
-      <div class="step">
-        <div class="step-n">Etapa II</div>
-        <h4>Mapa de sesgos</h4>
-        <p>Hacemos visibles los atajos mentales que repites. No se corrige lo que no se ve.</p>
-      </div>
-      <div class="step">
-        <div class="step-n">Etapa III</div>
-        <h4>Entrenamiento</h4>
-        <p>Construyes hábitos de pensamiento y herramientas concretas para decidir con claridad y objetividad.</p>
-      </div>
-      <div class="step">
-        <div class="step-n">Etapa IV</div>
-        <h4>Acompañamiento</h4>
-        <p>Sostenemos el cambio en tus decisiones reales, no en teoría. Seguimiento sobre casos vivos.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============== PROGRAMAS ============== -->
-<section class="programas" id="programas">
-  <div class="container">
-    <div class="section-head">
-      <div><span class="eyebrow">Programas y conferencias</span></div>
-      <div class="kicker">
-        <h2 class="display">Para personas<br>y <span class="italic">organizaciones</span>.</h2>
-        <p style="margin-top:18px">Más allá de la asesoría individual: formatos para equipos, empresas y público general.</p>
-      </div>
-    </div>
-
-    <div class="prog-grid">
-      <article class="prog">
-        <div class="prog-tag">Conferencia</div>
-        <h4>Créelo y Créalo</h4>
-        <p>Conferencia de alto impacto sobre criterio, mentalidad y decisión. Para convenciones, empresas y eventos.</p>
-        <a href="#contacto" class="more">Solicitar para tu evento →</a>
-      </article>
-      <article class="prog">
-        <div class="prog-tag">In-company</div>
-        <h4>Capacitación a equipos</h4>
-        <p>Programas a la medida para que tus equipos directivos decidan mejor bajo presión, juntos y con un lenguaje común.</p>
-        <a href="#contacto" class="more">Cotizar capacitación →</a>
-      </article>
-      <article class="prog">
-        <div class="prog-tag">Programa abierto</div>
-        <h4>Sábados de Transformación</h4>
-        <p>Sesiones de desarrollo personal y mental para público general. Un espacio para pensar distinto.</p>
-        <a href="#contacto" class="more">Conocer fechas →</a>
-      </article>
-      <article class="prog">
-        <div class="prog-tag">Comunidad</div>
-        <h4>Cree ConCiencia</h4>
-        <p>Contenido y comunidad alrededor de la salud mental, el criterio y la toma de decisiones conscientes.</p>
-        <a href="#contacto" class="more">Sumarte →</a>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ============== MEDIOS ============== -->
-<section class="medios" id="medios">
-  <div class="container">
-    <div class="section-head">
-      <div><span class="eyebrow">En los medios</span></div>
-      <div class="kicker">
-        <h2 class="display">También me escuchas<br>cada <span class="italic" style="color:var(--accent)">semana</span>.</h2>
-      </div>
-    </div>
-
-    <div class="media-strip">
-      <div class="m">
-        <div class="k">Radio</div>
-        <div class="t">Cadena Azul</div>
-        <div class="d">En vivo todos los viernes 9:00 am.</div>
-      </div>
-      <div class="m">
-        <div class="k">Podcast / TV</div>
-        <div class="t">Martha Debayle</div>
-        <div class="d">Especialista invitado. Capítulos disponibles bajo demanda.</div>
-      </div>
-      <div class="m">
-        <div class="k">YouTube</div>
-        <div class="t">IntegralMENTE</div>
-        <div class="d">Episodios completos sobre mente, criterio y decisión.</div>
-      </div>
-      <div class="m">
-        <div class="k">Redes</div>
-        <div class="t">@drmente</div>
-        <div class="d">Contenido diario en TikTok, Instagram y YouTube.</div>
-      </div>
-    </div>
-    <div class="media-live"><span class="pulse"></span> Próxima transmisión en vivo: viernes 9:00 am · Cadena Azul Radio</div>
   </div>
 </section>
 
@@ -594,122 +715,51 @@
   </div>
 </section>
 
-<!-- ============== CONTACTO ============== -->
-<section class="contacto" id="contacto">
+<!-- ============== MEDIOS ============== -->
+<section class="medios" id="medios">
   <div class="container">
-    <div class="contact-grid">
-      <div class="contact-info">
-        <h3>Empecemos por<br>un <span class="italic">diagnóstico</span>.</h3>
-        <p class="contact-lead">Cuéntame qué tipo de decisiones estás enfrentando. Te respondo personalmente para definir si la asesoría, una conferencia o un programa es lo que necesitas.</p>
-        <div class="contact-list">
-          <div class="item"><div class="label">Correo</div><div class="val"><a href="mailto:contacto@mariocitalan.com">contacto@mariocitalan.com</a></div></div>
-          <div class="item"><div class="label">Ubicación</div><div class="val">Ciudad de México</div></div>
-          <div class="item"><div class="label">En vivo</div><div class="val">Viernes 9:00 am · Cadena Azul</div></div>
-        </div>
+    <div class="section-head">
+      <div><span class="eyebrow">En los medios</span></div>
+      <div class="kicker">
+        <h2 class="display">También me escuchas<br>cada <span class="italic">semana</span>.</h2>
       </div>
+    </div>
 
-      <div class="form">
-        <div class="diag" id="diag">
-          <div class="diag-head">
-            <span class="eyebrow">Diagnóstico de criterio</span>
-            <div class="diag-progress"><div class="diag-bar" id="diagBar"></div></div>
-            <div class="diag-count">Paso <span id="diagStep">1</span> de <span id="diagTotal">5</span></div>
-          </div>
+    <div class="media-strip">
+      <div class="m"><div class="k">Radio</div><div class="t">Cadena Azul</div><div class="d">En vivo todos los viernes 9:00 am.</div></div>
+      <div class="m"><div class="k">Podcast / TV</div><div class="t">Martha Debayle</div><div class="d">Especialista invitado. Capítulos bajo demanda.</div></div>
+      <div class="m"><div class="k">YouTube</div><div class="t">IntegralMENTE</div><div class="d">Episodios completos sobre mente, criterio y decisión.</div></div>
+      <div class="m"><div class="k">Redes</div><div class="t">@drmente</div><div class="d">Contenido diario en TikTok, Instagram y YouTube.</div></div>
+    </div>
+    <div class="media-live"><span class="pulse"></span> Próxima transmisión en vivo: viernes 9:00 am · Cadena Azul Radio</div>
+  </div>
+</section>
 
-          <!-- PREGUNTAS DE EJEMPLO — sustituir por el cuestionario real de Mario -->
-          <div class="diag-step active" data-step="1" data-type="seg">
-            <div class="diag-q">¿Qué te trae aquí?</div>
-            <div class="diag-opts">
-              <div class="opt" data-seg="individual"><span class="mark"></span>Quiero decidir mejor en mi vida o mi carrera</div>
-              <div class="opt" data-seg="empresa"><span class="mark"></span>Busco algo para mi empresa o mi equipo</div>
-              <div class="opt" data-seg="personal"><span class="mark"></span>Quiero crecimiento personal</div>
-              <div class="opt" data-seg="evento"><span class="mark"></span>Organizo un evento o una conferencia</div>
-            </div>
-          </div>
+<!-- ============== SOBRE MÍ (bio al final) ============== -->
+<section class="about" id="sobre">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Mario Citalán</span></div>
+      <div class="kicker">
+        <div class="ornament" style="margin-bottom:14px"><span class="line"></span><span class="diamond"></span></div>
+        <p>El problema primero, la persona después. Ahora que conoces el modelo, te cuento quién está detrás de él.</p>
+      </div>
+    </div>
 
-          <div class="diag-step" data-step="2" data-type="q">
-            <div class="diag-q"><span class="ph-tag">Pregunta de ejemplo</span>¿Con qué frecuencia revisas una decisión ya tomada por dudas o arrepentimiento?</div>
-            <div class="diag-opts">
-              <div class="opt"><span class="mark"></span>Casi nunca</div>
-              <div class="opt"><span class="mark"></span>Rara vez</div>
-              <div class="opt"><span class="mark"></span>A veces</div>
-              <div class="opt"><span class="mark"></span>Seguido</div>
-              <div class="opt"><span class="mark"></span>Casi siempre</div>
-            </div>
-          </div>
-
-          <div class="diag-step" data-step="3" data-type="q">
-            <div class="diag-q"><span class="ph-tag">Pregunta de ejemplo</span>Cuando el día acumula muchas decisiones, ¿notas que tu juicio se desgasta hacia la tarde?</div>
-            <div class="diag-opts">
-              <div class="opt"><span class="mark"></span>Casi nunca</div>
-              <div class="opt"><span class="mark"></span>Rara vez</div>
-              <div class="opt"><span class="mark"></span>A veces</div>
-              <div class="opt"><span class="mark"></span>Seguido</div>
-              <div class="opt"><span class="mark"></span>Casi siempre</div>
-            </div>
-          </div>
-
-          <div class="diag-step" data-step="4" data-type="q">
-            <div class="diag-q"><span class="ph-tag">Pregunta de ejemplo</span>Ante una decisión importante con información incompleta, ¿qué tan claro tienes tu siguiente paso?</div>
-            <div class="diag-opts">
-              <div class="opt"><span class="mark"></span>Nada claro</div>
-              <div class="opt"><span class="mark"></span>Poco</div>
-              <div class="opt"><span class="mark"></span>Algo</div>
-              <div class="opt"><span class="mark"></span>Bastante</div>
-              <div class="opt"><span class="mark"></span>Muy claro</div>
-            </div>
-          </div>
-
-          <!-- Paso final: captura de contacto -->
-          <div class="diag-step" data-step="5" data-type="contact">
-            <div class="diag-q">¿A dónde te envío tu diagnóstico?</div>
-            <div class="field">
-              <label for="d-nombre">Nombre completo</label>
-              <input type="text" id="d-nombre" placeholder="Tu nombre">
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label for="d-email">Correo</label>
-                <input type="email" id="d-email" placeholder="tu@correo.com">
-              </div>
-              <div class="field">
-                <label for="d-tel">Teléfono</label>
-                <input type="tel" id="d-tel" placeholder="55 0000 0000">
-              </div>
-            </div>
-            <div class="field">
-              <label for="d-tipo">¿Qué te interesa?</label>
-              <select id="d-tipo">
-                <option>Asesoría individual</option>
-                <option>Capacitación para mi empresa</option>
-                <option>Conferencia para un evento</option>
-                <option>Programa abierto (Sábados de Transformación)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="diag-nav">
-            <button class="diag-back" id="diagBack" disabled>Atrás</button>
-            <button class="diag-next" id="diagNext" disabled>Siguiente
-              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
-            </button>
-          </div>
-          <p class="form-note" style="margin-top:18px">5 preguntas rápidas. Tus respuestas son confidenciales y solo se usan para tu diagnóstico y contacto.</p>
-        </div>
-        <div class="form-ok" id="formOk">
-          <div class="check">✓</div>
-          <span class="eyebrow" style="display:block;margin-bottom:14px">Tu resultado</span>
-          <h4 id="resPerfil">Tu perfil de decisión</h4>
-          <p id="resPerfilDesc">&hellip;</p>
-          <div class="res-rec">
-            <div class="res-rec-label">Te recomiendo</div>
-            <div class="res-rec-name" id="resProd">&hellip;</div>
-            <div class="res-rec-desc" id="resProdDesc">&hellip;</div>
-            <a class="res-cta" id="resCta" href="#asesoria">Conocer más
-              <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
-            </a>
-          </div>
-          <p class="res-foot">Además te escribo personalmente en menos de 24 horas hábiles.</p>
+    <div class="about-grid">
+      <div class="about-figure">
+        <div class="sig">&mdash; Mario</div>
+        <img class="about-photo" src="https://mariocitalan.net/wp-content/uploads/2025/06/Quien-soy-1-scaled.png" alt="Mario Citalán" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:left center">
+      </div>
+      <div class="about-body">
+        <h3>Más que motivación,<br><span class="italic">criterio sólido</span>.</h3>
+        <p>Médico y psicoterapeuta con <strong>más de 30 años</strong> de experiencia clínica, dedicado a desarrollar el criterio de quienes toman decisiones de alto nivel para que cada decisión importante sea clara, objetiva y estratégicamente superior.</p>
+        <p>El objetivo no es decidir más rápido, sino construir una <strong>arquitectura mental sólida</strong>: una forma de pensar que sostiene decisiones congruentes en tu vida, tu empresa y tu trabajo, incluso bajo presión.</p>
+        <div class="about-creds">
+          <div><div class="label">Especialidad</div><div class="val">Criterio y toma de decisiones</div></div>
+          <div><div class="label">Enfoque</div><div class="val">Neurociencia aplicada</div></div>
+          <div><div class="label">Formato</div><div class="val">Individual y organizacional</div></div>
+          <div><div class="label">Base</div><div class="val">Ciudad de México</div></div>
         </div>
       </div>
     </div>
@@ -723,24 +773,24 @@
       <div>
         <div class="foot-mark"><span class="dot"></span> Mario Citalán</div>
         <div class="ornament" style="margin-bottom:18px"><span class="line" style="width:46px"></span><span class="diamond"></span></div>
-        <p class="foot-tag">Asesor estratégico en criterio y toma de decisiones. Arquitectura mental para líderes, ejecutivos y organizaciones.</p>
+        <p class="foot-tag">Arquitectura Mental y del Criterio. Un ecosistema para evaluar y fortalecer cómo piensas, decides y construyes tu vida.</p>
       </div>
       <div class="foot-col">
-        <h5>Servicios</h5>
+        <h5>Ecosistema</h5>
         <ul>
-          <li><a href="#asesoria">Asesoría</a></li>
-          <li><a href="#programas">Conferencias</a></li>
-          <li><a href="#programas">Capacitación</a></li>
-          <li><a href="#metodo">Método</a></li>
+          <li><a href="#modelo">El modelo</a></li>
+          <li><a href="#criterio">Tu criterio</a></li>
+          <li><a href="#actitud">Tu actitud</a></li>
+          <li><a href="recursos.html">Recursos gratuitos</a></li>
         </ul>
       </div>
       <div class="foot-col">
-        <h5>Más</h5>
+        <h5>Soluciones</h5>
         <ul>
-          <li><a href="#sobre">Sobre mí</a></li>
-          <li><a href="#medios">Medios</a></li>
-          <li><a href="#opiniones">Testimonios</a></li>
-          <li><a href="#contacto">Contacto</a></li>
+          <li><a href="#soluciones">Asesoría</a></li>
+          <li><a href="#soluciones">Evoluciona</a></li>
+          <li><a href="#soluciones">Criterio Ejecutivo</a></li>
+          <li><a href="ciencia-en-escena.html">Ciencia en Escena</a></li>
         </ul>
       </div>
       <div class="foot-col">
@@ -771,8 +821,8 @@
   window.addEventListener('scroll', onScroll, {passive:true});
   onScroll();
 
-  // Diagnóstico multipaso con segmentación + derivación (demo)
-  // En producción: guarda respuestas + segmento en Supabase vía /api/leads
+  // ---- Test de Actitud: multipaso + segmentación + nivel (5) + derivación ----
+  // En producción: guarda respuestas + segmento + nivel en Supabase vía /api/leads
   const diag = document.getElementById('diag');
   const steps = Array.from(diag.querySelectorAll('.diag-step'));
   const total = steps.length;
@@ -786,12 +836,21 @@
   let cur = 0;
   const data = { seg: null };
 
-  // Mapa de derivación: segmento -> producto/servicio recomendado
+  // 5 niveles de resultado (Actitud) — colores alineados con la escala de Criterio
+  const levels = [
+    { nm:'Frágil',        d:'Tu actitud cede ante la presión y los imprevistos. Es el mejor punto de partida: hay mucho por ganar.', color:'#C75D5D' },
+    { nm:'Vulnerable',    d:'Sostienes bien en calma, pero el estrés te desordena. Con método puedes blindarla.', color:'#D69655' },
+    { nm:'Funcional',     d:'Tu actitud funciona la mayor parte del tiempo. El siguiente paso es afinarla para los momentos difíciles.', color:'#C9C24F' },
+    { nm:'Sólida',        d:'Mantienes el enfoque incluso bajo presión. Vas por consolidar y llevarla a otro nivel.', color:'#5FA9D6' },
+    { nm:'Extraordinaria',d:'Tu actitud es un activo. Lo que sigue es ponerla al servicio de decisiones de mayor impacto.', color:'#3E86CF' }
+  ];
+
+  // Mapa de derivación: segmento -> ruta/solución recomendada
   const products = {
-    individual: { p:'Asesoría estratégica 1:1', d:'Trabajo personal sobre tu criterio y tus decisiones de mayor impacto.', href:'#asesoria', cta:'Conocer la asesoría' },
-    empresa:    { p:'Capacitación in-company', d:'Un programa a la medida para que tu equipo decida mejor, en conjunto.', href:'#programas', cta:'Ver capacitación' },
-    personal:   { p:'Sábados de Transformación', d:'Programa abierto de desarrollo mental y personal.', href:'#programas', cta:'Conocer el programa' },
-    evento:     { p:'Conferencia “Créelo y Créalo”', d:'Conferencia de alto impacto para tu evento o convención.', href:'#programas', cta:'Solicitar conferencia' }
+    individual: { p:'Asesoría individual', d:'Trabajo personal sobre tu criterio y tus decisiones de mayor impacto.', href:'#soluciones', cta:'Conocer la asesoría' },
+    empresa:    { p:'Criterio Ejecutivo Avanzado', d:'Un programa a la medida para que tu equipo directivo decida mejor, en conjunto.', href:'#soluciones', cta:'Ver el programa' },
+    personal:   { p:'Entrenamiento Evoluciona', d:'Programa estructurado de desarrollo personal y reconstrucción mental.', href:'#soluciones', cta:'Conocer el programa' },
+    evento:     { p:'Ciencia en Escena', d:'Una experiencia de alto impacto para tu evento, empresa o institución.', href:'ciencia-en-escena.html', cta:'Ver los espectáculos' }
   };
 
   steps.forEach((step) => {
@@ -824,21 +883,23 @@
     stepLabel.textContent = cur + 1;
     backBtn.disabled = cur === 0;
     nextBtn.disabled = !stepValid(cur);
-    nextBtn.innerHTML = (cur === total - 1 ? 'Ver mi diagnóstico ' : 'Siguiente ') + arrow;
+    nextBtn.innerHTML = (cur === total - 1 ? 'Ver mi resultado ' : 'Siguiente ') + arrow;
   }
 
   function showResult(){
-    // Perfil de decisión a partir de las preguntas tipo escala (placeholder)
+    // Nivel a partir de las preguntas tipo escala (1-5) — placeholder de scoring
     const scores = steps.filter(s => s.dataset.type === 'q').map(s => s._score || 0);
-    const avg = scores.reduce((a, b) => a + b, 0) / (scores.length || 1);
-    let perfil, pdesc;
-    if(avg >= 3.5){ perfil = 'Decides bajo alta presión'; pdesc = 'El estrés y la prisa están pesando en tus decisiones más de lo que convendría. Hay mucho margen para ganar claridad.'; }
-    else if(avg >= 2.5){ perfil = 'Tu criterio es sólido, pero mejorable'; pdesc = 'Decides bien la mayor parte del tiempo; con método puedes sostener esa claridad también en los momentos difíciles.'; }
-    else { perfil = 'Partes de una base clara'; pdesc = 'Tienes una buena base de decisión. El siguiente paso es afinarla y blindarla para lo de mayor impacto.'; }
+    const avg = scores.reduce((a, b) => a + b, 0) / (scores.length || 1); // 1..5
+    let idx = Math.round(avg) - 1;
+    idx = Math.max(0, Math.min(4, idx));
+    const lvl = levels[idx];
+
+    document.getElementById('resPerfil').textContent = 'Actitud ' + lvl.nm.toLowerCase();
+    document.getElementById('resPerfilDesc').textContent = lvl.d;
+    document.getElementById('resLevelBar').style.background = lvl.color;
+    document.querySelector('.form-ok .check').style.background = lvl.color;
 
     const prod = products[data.seg] || products.individual;
-    document.getElementById('resPerfil').textContent = perfil;
-    document.getElementById('resPerfilDesc').textContent = pdesc;
     document.getElementById('resProd').textContent = prod.p;
     document.getElementById('resProdDesc').textContent = prod.d;
     const cta = document.getElementById('resCta');
@@ -855,8 +916,20 @@
     if(cur < total - 1){ cur++; refresh(); }
     else { showResult(); }
   });
-
   refresh();
+
+  // ---- Libro: captura de correo (lista de espera) — placeholder ----
+  const libroForm = document.getElementById('libroForm');
+  libroForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('libroEmail').value.trim();
+    const note = document.getElementById('libroNote');
+    if(!/.+@.+\..+/.test(email)){ note.textContent = 'Escribe un correo válido para sumarte a la lista.'; note.style.color = '#E8A9A9'; return; }
+    // En producción: POST a /api/leads con origen "libro"
+    libroForm.innerHTML = '<p style="color:var(--paper);font-family:\'Fraunces\',serif;font-size:19px;margin:0">Listo &mdash; estás en la lista de espera. ✓</p>';
+    note.textContent = 'Te aviso en cuanto el libro esté disponible.';
+    note.style.color = 'rgba(247,244,237,.5)';
+  });
 </script>
 
 </body>

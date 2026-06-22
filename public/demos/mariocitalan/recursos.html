@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recursos gratuitos — Mario Citalán</title>
+<meta name="description" content="Recursos gratuitos sobre arquitectura mental y del criterio: tests, artículos, descargables, podcast y videos para empezar a fortalecer cómo piensas y decides.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1A24;--ink-2:#283845;--ink-3:#4C5C6A;--paper:#F4F7FA;--paper-2:#E7EEF4;
+    --bone:#FFFFFF;--muted:#7B8794;--accent:#3E86CF;--accent-deep:#2A6AAE;--steel:#1F4E79;
+    --rule:#DCE4EC;--rule-dark:rgba(255,255,255,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter",system-ui,sans-serif;font-size:16px;line-height:1.65;letter-spacing:.01em}
+  a{color:inherit;text-decoration:none}
+  .display{font-family:"Fraunces",Georgia,serif;font-weight:500;letter-spacing:-.01em;line-height:1.02}
+  .italic{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:400;color:var(--accent-deep)}
+  .eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-deep)}
+  .container{max-width:1180px;margin:0 auto;padding:0 56px}
+
+  .demo-banner{background:var(--accent);color:#fff;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 16px}
+  .demo-banner a{text-decoration:underline}
+
+  .nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(14px);background:rgba(255,255,255,.85);border-bottom:1px solid var(--rule)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 56px}
+  .nav-mark{display:flex;align-items:center;gap:11px;font-family:"Fraunces",serif;font-size:19px}
+  .nav-mark img{height:32px}
+  .backlink{display:inline-flex;align-items:center;gap:9px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+  .backlink:hover{color:var(--accent-deep)}
+  .backlink svg{width:14px;height:14px}
+
+  .hero{padding:90px 0 50px}
+  .hero .eyebrow{display:block;margin-bottom:20px}
+  .hero h1{font-size:clamp(40px,5.6vw,76px);margin-bottom:20px;letter-spacing:-.02em}
+  .hero p{color:var(--ink-2);max-width:56ch;font-size:18px}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:30px 0 60px}
+  .res{background:var(--bone);border:1px solid var(--rule);padding:34px 30px;display:flex;flex-direction:column;gap:14px;transition:.3s;position:relative;min-height:230px}
+  .res:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .res .ic{width:44px;height:44px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;color:var(--accent-deep)}
+  .res .ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.4}
+  .res h3{font-family:"Fraunces",serif;font-weight:500;font-size:24px;line-height:1.12}
+  .res p{font-size:14px;color:var(--ink-2);line-height:1.6}
+  .res .more{margin-top:auto;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);display:inline-flex;gap:8px;align-items:center}
+  .res .tag{position:absolute;top:22px;right:22px;font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--rule);padding:4px 8px}
+
+  .capture{background:var(--ink);color:var(--paper);padding:80px 0;margin-top:20px}
+  .cap-inner{max-width:680px;margin:0 auto;text-align:center}
+  .capture .eyebrow{color:var(--accent);display:block;margin-bottom:18px}
+  .capture h2{font-size:clamp(30px,4vw,52px);margin-bottom:18px}
+  .capture p{color:rgba(247,244,237,.74);max-width:46ch;margin:0 auto 28px}
+  .cap-form{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;max-width:480px;margin:0 auto}
+  .cap-form input{flex:1;min-width:220px;background:rgba(255,255,255,.06);border:1px solid var(--rule-dark);padding:16px 18px;color:var(--paper);font-family:"Inter",sans-serif;font-size:15px}
+  .cap-form input::placeholder{color:rgba(247,244,237,.5)}
+  .cap-form input:focus{outline:none;border-color:var(--accent)}
+  .cap-form button{background:var(--accent);color:#fff;border:none;padding:16px 26px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:.3s}
+  .cap-form button:hover{background:var(--accent-deep)}
+  .cap-note{margin-top:14px;font-size:12px;color:rgba(247,244,237,.5)}
+
+  footer{background:var(--ink);color:rgba(247,244,237,.55);padding:40px 0;text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-top:1px solid var(--rule-dark)}
+  footer a{color:rgba(247,244,237,.8)}
+
+  @media (max-width:900px){
+    .container{padding:0 26px}
+    .nav-inner{padding:14px 26px}
+    .grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:640px){
+    .container{padding:0 20px}
+    .grid{grid-template-columns:1fr}
+    .cap-form input{min-width:0}
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-banner">Demo de rediseño · Propuesta FishFlow para Mario Citalán · <a href="index.html">← Inicio</a></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-mark"><img src="https://mariocitalan.net/wp-content/uploads/2020/05/Dr.-Mente.png" alt="Dr. Mente"> Mario Citalán</a>
+    <a href="index.html" class="backlink"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M13 7H1M6 2L1 7l5 5"/></svg> Volver al inicio</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <span class="eyebrow">Recursos gratuitos</span>
+    <h1 class="display">Empieza a <span class="italic">pensar distinto</span>, hoy.</h1>
+    <p>La puerta de entrada al ecosistema. Cada recurso genera valor antes de pedirte nada a cambio &mdash; y te ayuda a entender cómo está tu arquitectura mental.</p>
+  </div>
+</section>
+
+<div class="container">
+  <div class="grid">
+    <a class="res" href="index.html#actitud">
+      <span class="tag">Disponible</span>
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+      <h3>Test de Actitud</h3>
+      <p>Evaluación rápida que te da un primer diagnóstico inmediato en 5 niveles.</p>
+      <span class="more">Hacer el test →</span>
+    </a>
+
+    <a class="res" href="cuestionario.html">
+      <span class="tag">Disponible</span>
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg></div>
+      <h3>Diagnóstico del Criterio</h3>
+      <p>La evaluación profunda: 30 reactivos, 5 dimensiones, resultado por nivel.</p>
+      <span class="more">Iniciar diagnóstico →</span>
+    </a>
+
+    <div class="res">
+      <span class="tag">Pendiente</span>
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></div>
+      <h3>PDF: La Arquitectura de la Actitud</h3>
+      <p>Descargable que explica qué es la actitud y cómo se construye. Llega tras hacer el test.</p>
+      <span class="more">Próximamente</span>
+    </div>
+
+    <div class="res">
+      <span class="tag">Pendiente</span>
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+      <h3>Artículos</h3>
+      <p>Contenido de profundidad sobre las dimensiones de la arquitectura mental.</p>
+      <span class="more">Próximamente</span>
+    </div>
+
+    <div class="res">
+      <span class="tag">Pendiente</span>
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg></div>
+      <h3>Podcast</h3>
+      <p>Episodios que exploran casos, conceptos y aplicaciones prácticas del modelo.</p>
+      <span class="more">Próximamente</span>
+    </div>
+
+    <div class="res">
+      <span class="tag">Pendiente</span>
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><path d="M16 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/></svg></div>
+      <h3>Videos</h3>
+      <p>Contenido visual que explica conceptos de forma accesible y emocional.</p>
+      <span class="more">Próximamente</span>
+    </div>
+  </div>
+</div>
+
+<section class="capture">
+  <div class="container">
+    <div class="cap-inner">
+      <span class="eyebrow">Boletín</span>
+      <h2 class="display">Recibe cada nuevo recurso<br>en tu correo.</h2>
+      <p>Te aviso cuando publique un nuevo test, artículo o descargable. Sin spam.</p>
+      <form class="cap-form" id="capForm" novalidate>
+        <input type="email" id="capEmail" placeholder="tu@correo.com" aria-label="Tu correo">
+        <button type="submit">Suscribirme</button>
+      </form>
+      <p class="cap-note" id="capNote">Cada correo es un miembro del ecosistema.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">© MMXXVI — Mario Citalán · <a href="index.html">Inicio</a> · Creado por <a href="https://www.fishflow.mx" target="_blank" rel="noopener">FishFlow</a></div>
+</footer>
+
+<script>
+  // Boletín — placeholder (en producción: POST /api/leads origen "recursos")
+  const form = document.getElementById('capForm');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('capEmail').value.trim();
+    const note = document.getElementById('capNote');
+    if(!/.+@.+\..+/.test(email)){ note.textContent = 'Escribe un correo válido.'; note.style.color = '#E8A9A9'; return; }
+    form.innerHTML = '<p style="color:var(--paper);font-family:\'Fraunces\',serif;font-size:19px;margin:0">Listo &mdash; estás suscrito. ✓</p>';
+    note.textContent = 'Te aviso de cada nuevo recurso.';
+  });
+</script>
+
+</body>
+</html>

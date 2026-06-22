@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagnóstico de Arquitectura del Criterio — Mario Citalán</title>
+<meta name="description" content="Responde el diagnóstico de Arquitectura del Criterio: 30 reactivos, 5 dimensiones, resultado en 5 niveles. Identifica fortalezas y áreas de mejora en cómo interpretas la realidad y tomas decisiones.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1A24;--ink-2:#283845;--ink-3:#4C5C6A;--paper:#F4F7FA;--paper-2:#E7EEF4;
+    --bone:#FFFFFF;--muted:#7B8794;--accent:#3E86CF;--accent-deep:#2A6AAE;--steel:#1F4E79;
+    --rule:#DCE4EC;--rule-dark:rgba(255,255,255,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter",system-ui,sans-serif;font-size:16px;line-height:1.65;letter-spacing:.01em}
+  a{color:inherit;text-decoration:none}
+  .display{font-family:"Fraunces",Georgia,serif;font-weight:500;letter-spacing:-.01em;line-height:1.02}
+  .italic{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:400;color:var(--accent-deep)}
+  .eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-deep)}
+  .container{max-width:760px;margin:0 auto;padding:0 28px}
+
+  .demo-banner{background:var(--accent);color:#fff;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 16px}
+  .demo-banner a{text-decoration:underline}
+
+  .topbar{padding:22px 0;border-bottom:1px solid var(--rule);background:rgba(255,255,255,.8);backdrop-filter:blur(12px);position:sticky;top:0;z-index:20}
+  .topbar .container{display:flex;align-items:center;justify-content:space-between;max-width:1100px}
+  .backlink{display:inline-flex;align-items:center;gap:9px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+  .backlink:hover{color:var(--accent-deep)}
+  .backlink svg{width:14px;height:14px}
+  .topbar .mark{display:flex;align-items:center;gap:10px;font-family:"Fraunces",serif;font-size:18px}
+  .topbar .mark img{height:30px}
+
+  .intro{padding:80px 0 30px;text-align:center}
+  .intro .eyebrow{display:block;margin-bottom:20px}
+  .intro h1{font-size:clamp(34px,5vw,58px);margin-bottom:20px}
+  .intro p{color:var(--ink-2);max-width:54ch;margin:0 auto;font-size:17px}
+  .intro-stats{display:flex;justify-content:center;gap:0;margin:38px auto 0;border:1px solid var(--rule);max-width:520px;background:var(--bone)}
+  .intro-stats > div{flex:1;padding:22px 12px;border-right:1px solid var(--rule)}
+  .intro-stats > div:last-child{border-right:none}
+  .intro-stats .n{font-family:"Fraunces",serif;font-size:34px;line-height:1}
+  .intro-stats .l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+  .quiz{padding:40px 0 100px}
+  .card{background:var(--bone);border:1px solid var(--rule);padding:44px 42px}
+  .q-head{margin-bottom:26px}
+  .q-dim{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:14px}
+  .progress{height:5px;background:var(--paper-2);border-radius:3px;overflow:hidden}
+  .bar{height:100%;width:5%;background:var(--accent);transition:width .4s ease}
+  .count{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);margin-top:11px}
+  .ph-note{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-deep);border:1px dashed var(--accent);padding:4px 8px;margin-bottom:14px}
+  .q{font-family:"Fraunces",serif;font-weight:500;font-size:26px;line-height:1.25;margin-bottom:26px}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--rule);background:var(--paper);cursor:pointer;transition:.2s;font-size:15px;color:var(--ink-2)}
+  .opt:hover{border-color:var(--accent)}
+  .opt.sel{border-color:var(--accent);background:rgba(62,134,207,.09);color:var(--ink)}
+  .opt .mark{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--rule);flex:0 0 18px;transition:.2s}
+  .opt.sel .mark{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--bone)}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:30px;gap:14px}
+  .back{background:none;border:none;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:10px 0}
+  .back:hover{color:var(--ink)}
+  .back[disabled]{opacity:.3;cursor:default}
+  .next{background:var(--ink);color:var(--paper);border:none;padding:15px 28px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:.3s;display:inline-flex;align-items:center;gap:10px}
+  .next:hover{background:var(--accent-deep)}
+  .next[disabled]{opacity:.4;cursor:default;background:var(--ink-3)}
+  .next svg{width:13px;height:13px}
+
+  .field{margin-bottom:20px}
+  .field label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+  .field input{width:100%;background:var(--paper);border:1px solid var(--rule);padding:14px 16px;font-family:"Inter",sans-serif;font-size:15px;color:var(--ink)}
+  .field input:focus{outline:none;border-color:var(--accent);background:#fff}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .note{margin-top:16px;font-size:12px;color:var(--muted);line-height:1.5}
+
+  /* RESULTADO */
+  .result{display:none;text-align:center}
+  .result.show{display:block}
+  .result .lvl-num{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .result h2{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(32px,5vw,52px);margin-bottom:16px}
+  .result .lvl-bar{height:8px;border-radius:4px;background:var(--accent);max-width:340px;margin:0 auto 24px}
+  .result p.desc{color:var(--ink-2);max-width:46ch;margin:0 auto 30px;font-size:16px}
+  .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:520px;margin:0 auto 34px}
+  .scale .s{padding:10px 6px;border:1px solid var(--rule);font-size:11px;color:var(--muted);font-family:"JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;border-radius:4px}
+  .scale .s.on{color:#fff;border-color:transparent}
+  .res-cta{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:var(--paper);padding:15px 26px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .res-cta:hover{background:var(--accent-deep)}
+
+  footer{background:var(--ink);color:rgba(247,244,237,.55);padding:40px 0;text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  footer a{color:rgba(247,244,237,.8)}
+
+  @media (max-width:640px){
+    .card{padding:30px 24px}
+    .q{font-size:22px}
+    .field-row{grid-template-columns:1fr}
+    .topbar .mark span{display:none}
+    .scale{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-banner">Demo de rediseño · Propuesta FishFlow para Mario Citalán · <a href="index.html">← Inicio</a></div>
+
+<div class="topbar">
+  <div class="container">
+    <a href="index.html" class="backlink"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M13 7H1M6 2L1 7l5 5"/></svg> Volver</a>
+    <a href="index.html" class="mark"><img src="https://mariocitalan.net/wp-content/uploads/2020/05/Dr.-Mente.png" alt="Dr. Mente"> <span>Mario Citalán</span></a>
+  </div>
+</div>
+
+<section class="intro" id="intro">
+  <div class="container">
+    <span class="eyebrow">Diagnóstico de arquitectura del criterio</span>
+    <h1 class="display">¿Cómo está tu <span class="italic">arquitectura del criterio</span>?</h1>
+    <p>Responder este cuestionario te permitirá identificar fortalezas y áreas de mejora en las dimensiones que sostienen tu capacidad para interpretar la realidad, tomar decisiones y construir una vida más funcional.</p>
+    <div class="intro-stats">
+      <div><div class="n">10</div><div class="l">minutos</div></div>
+      <div><div class="n">30</div><div class="l">reactivos</div></div>
+      <div><div class="n">5</div><div class="l">dimensiones</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="quiz">
+  <div class="container">
+    <div class="card">
+      <!-- QUIZ -->
+      <div id="quiz">
+        <div class="q-head">
+          <div class="q-dim" id="qDim">Dimensión 1 — Claridad</div>
+          <div class="progress"><div class="bar" id="bar"></div></div>
+          <div class="count">Reactivo <span id="qNum">1</span> de <span id="qTotal">6</span></div>
+        </div>
+
+        <div id="qBody">
+          <div class="ph-note">Reactivo de ejemplo — pendiente del cuestionario real de Mario</div>
+          <div class="q" id="qText"></div>
+          <div class="opts" id="qOpts"></div>
+        </div>
+
+        <!-- captura final -->
+        <div id="contactBody" style="display:none">
+          <div class="q">¿A dónde te envío tu resultado completo?</div>
+          <div class="field"><label for="c-nombre">Nombre completo</label><input type="text" id="c-nombre" placeholder="Tu nombre"></div>
+          <div class="field-row">
+            <div class="field"><label for="c-email">Correo</label><input type="email" id="c-email" placeholder="tu@correo.com"></div>
+            <div class="field"><label for="c-tel">Teléfono</label><input type="tel" id="c-tel" placeholder="55 0000 0000"></div>
+          </div>
+          <p class="note">Recibes tu nivel detallado por las 5 dimensiones + el PDF <em>La Arquitectura del Criterio</em>. Confidencial.</p>
+        </div>
+
+        <div class="nav-row">
+          <button class="back" id="back" disabled>Atrás</button>
+          <button class="next" id="next" disabled>Siguiente
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- RESULTADO -->
+      <div class="result" id="result">
+        <div class="lvl-num">Tu resultado</div>
+        <h2 id="rTitle">Funcional</h2>
+        <div class="lvl-bar" id="rBar"></div>
+        <p class="desc" id="rDesc"></p>
+        <div class="scale" id="rScale">
+          <div class="s">Frágil</div><div class="s">Vulnerable</div><div class="s">Funcional</div><div class="s">Sólido</div><div class="s">Extraordinario</div>
+        </div>
+        <a class="res-cta" href="index.html#soluciones">Ver mi ruta recomendada
+          <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+        </a>
+        <p class="note" style="margin-top:22px">Te escribo personalmente en menos de 24 horas hábiles con la lectura completa.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">© MMXXVI — Mario Citalán · <a href="index.html">Inicio</a> · Creado por <a href="https://www.fishflow.mx" target="_blank" rel="noopener">FishFlow</a></div>
+</footer>
+
+<script>
+  // ====== Cuestionario profundo de Criterio (ESQUELETO) ======
+  // PENDIENTE: sustituir 'dimensions' por las 5 dimensiones y 30 reactivos reales de Mario.
+  // En producción: guardar respuestas + nivel por dimensión en Supabase vía /api/leads (origen "criterio").
+  const dimensions = [
+    { name:'Claridad',    items:['Reactivo de ejemplo de Claridad #1','Reactivo de ejemplo de Claridad #2'] },
+    { name:'Objetividad', items:['Reactivo de ejemplo de Objetividad #1','Reactivo de ejemplo de Objetividad #2'] },
+    { name:'Coherencia',  items:['Reactivo de ejemplo de Coherencia #1','Reactivo de ejemplo de Coherencia #2'] },
+    { name:'Flexibilidad',items:['Reactivo de ejemplo de Flexibilidad #1','Reactivo de ejemplo de Flexibilidad #2'] },
+    { name:'Estabilidad', items:['Reactivo de ejemplo de Estabilidad #1','Reactivo de ejemplo de Estabilidad #2'] }
+  ];
+  const scaleOpts = ['Casi nunca','Rara vez','A veces','Seguido','Casi siempre'];
+
+  // niveles de resultado (5)
+  const levels = [
+    { nm:'Frágil',        d:'Tu estructura cede ante la presión. Es el mejor punto de partida: hay mucho margen de mejora.', color:'#C75D5D' },
+    { nm:'Vulnerable',    d:'Sostienes bien en calma, pero el estrés introduce ruido en tu juicio. Con método se blinda.', color:'#D69655' },
+    { nm:'Funcional',     d:'Decides bien la mayor parte del tiempo. El siguiente paso es afinar para los momentos de mayor impacto.', color:'#C9C24F' },
+    { nm:'Sólido',        d:'Tu criterio es claro incluso bajo presión. Vas por consolidarlo y llevarlo a otro nivel.', color:'#5FA9D6' },
+    { nm:'Extraordinario',d:'Decides con claridad y congruencia sostenida. Lo que sigue es ponerlo al servicio de decisiones mayores.', color:'#3E86CF' }
+  ];
+
+  // construir lista plana de preguntas
+  const questions = [];
+  dimensions.forEach(dim => dim.items.forEach(it => questions.push({ dim:dim.name, text:it })));
+  const total = questions.length;
+  const answers = new Array(total).fill(0);
+
+  const elQuiz = document.getElementById('quiz');
+  const elResult = document.getElementById('result');
+  const qBody = document.getElementById('qBody');
+  const contactBody = document.getElementById('contactBody');
+  const qText = document.getElementById('qText');
+  const qOpts = document.getElementById('qOpts');
+  const qDim = document.getElementById('qDim');
+  const qNum = document.getElementById('qNum');
+  const bar = document.getElementById('bar');
+  const back = document.getElementById('back');
+  const next = document.getElementById('next');
+  document.getElementById('qTotal').textContent = total;
+  const arrow = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>';
+
+  let cur = 0; // 0..total-1 = preguntas ; total = captura
+
+  function renderQuestion(){
+    const isContact = cur >= total;
+    qBody.style.display = isContact ? 'none' : 'block';
+    contactBody.style.display = isContact ? 'block' : 'none';
+    document.querySelector('.q-head').style.display = isContact ? 'none' : 'block';
+
+    if(!isContact){
+      const q = questions[cur];
+      qDim.textContent = 'Dimensión ' + (dimensions.findIndex(d=>d.name===q.dim)+1) + ' — ' + q.dim;
+      qText.textContent = q.text;
+      qOpts.innerHTML = '';
+      scaleOpts.forEach((label, i) => {
+        const div = document.createElement('div');
+        div.className = 'opt' + (answers[cur] === i+1 ? ' sel' : '');
+        div.innerHTML = '<span class="mark"></span>' + label;
+        div.addEventListener('click', () => { answers[cur] = i+1; renderQuestion(); refresh(); });
+        qOpts.appendChild(div);
+      });
+      qNum.textContent = cur + 1;
+    }
+    refresh();
+  }
+
+  function valid(){
+    if(cur >= total){
+      const n = document.getElementById('c-nombre').value.trim();
+      const e = document.getElementById('c-email').value.trim();
+      return n.length > 1 && /.+@.+\..+/.test(e);
+    }
+    return answers[cur] > 0;
+  }
+
+  function refresh(){
+    const shown = Math.min(cur+1, total);
+    bar.style.width = ((cur >= total ? total : cur+1) / total * 100) + '%';
+    back.disabled = cur === 0;
+    next.disabled = !valid();
+    next.innerHTML = (cur >= total ? 'Ver mi resultado ' : 'Siguiente ') + arrow;
+  }
+
+  function showResult(){
+    const sum = answers.reduce((a,b)=>a+b,0);
+    const avg = sum / (total || 1); // 1..5
+    let idx = Math.round(avg) - 1; idx = Math.max(0, Math.min(4, idx));
+    const lvl = levels[idx];
+    document.getElementById('rTitle').textContent = lvl.nm;
+    document.getElementById('rBar').style.background = lvl.color;
+    document.getElementById('rDesc').textContent = lvl.d;
+    const cells = document.querySelectorAll('#rScale .s');
+    cells.forEach((c,i)=>{ if(i===idx){ c.classList.add('on'); c.style.background = lvl.color; } });
+    elQuiz.style.display = 'none';
+    elResult.classList.add('show');
+    document.getElementById('intro').scrollIntoView({behavior:'smooth'});
+  }
+
+  back.addEventListener('click', () => { if(cur>0){ cur--; renderQuestion(); } });
+  next.addEventListener('click', () => {
+    if(!valid()) return;
+    if(cur < total){ cur++; renderQuestion(); }
+    else { showResult(); }
+  });
+  ['c-nombre','c-email'].forEach(id => document.getElementById(id).addEventListener('input', refresh));
+
+  renderQuestion();
+</script>
+
+</body>
+</html>
