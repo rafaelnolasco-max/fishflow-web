@@ -101,6 +101,7 @@ export default function Home() {
               { label: "Capacidades",   id: "capacidades" },
               { label: "Servicios",     id: "services" },
               { label: "Apps",          id: "apps" },
+              { label: "Tu panel",      id: "panel" },
               { label: "Por qué FishFlow", id: "why" },
               { label: "FAQ",           id: "faq" },
             ].map((item) => (
@@ -516,6 +517,94 @@ export default function Home() {
             >
               ¿Tu industria no está listada? Hablemos <ExternalLink className="ml-2 h-4 w-4" />
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Tu panel / back-office ──────────────────────────────────────── */}
+      <section id="panel" className="py-20 px-4 md:px-0" style={{ backgroundColor: "#0D1B2A" }}>
+        <div className="container max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+            {/* Copy */}
+            <div>
+              <Badge variant="outline" className="mb-3 border-accent/40 text-accent">Tu back-office</Badge>
+              <h2 className="text-3xl md:text-5xl font-bold mb-5 text-white leading-tight">
+                Tu negocio también recibe su propio panel
+              </h2>
+              <p className="text-lg text-white/70 mb-8 max-w-xl">
+                La página es solo la mitad. Detrás, tú entras a un panel donde cada prospecto llega ya calificado, avanzas tus ventas y cobras — todo en tiempo real, sin hojas de cálculo.
+              </p>
+
+              <div className="space-y-4 mb-9">
+                {[
+                  { icon: Bot,          t: "Leads con propuesta de IA", d: "Cada prospecto cae segmentado y con una respuesta sugerida lista." },
+                  { icon: Users,        t: "Pipeline de ventas",        d: "Nuevo, contactado, agendado, cliente — sin perder a nadie." },
+                  { icon: CreditCard,   t: "Cobros y recibos",          d: "Stripe, MercadoPago y OXXO con recibo automático." },
+                  { icon: LayoutDashboard, t: "Resumen en tiempo real", d: "Tus números del mes, desde cualquier dispositivo." },
+                ].map((b) => (
+                  <div key={b.t} className="flex gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 flex-shrink-0">
+                      <b.icon className="h-5 w-5 text-accent" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-white">{b.t}</p>
+                      <p className="text-sm text-white/60">{b.d}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Button
+                onClick={() => window.open("/demos/panel", "_blank")}
+                size="lg"
+                className="bg-accent hover:bg-accent/90 text-[#0D1B2A] font-semibold"
+              >
+                Abrir el panel demo <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <p className="text-xs text-white/40 mt-3">Demo real con datos de ejemplo — explóralo tú mismo.</p>
+            </div>
+
+            {/* Mock window */}
+            <button
+              onClick={() => window.open("/demos/panel", "_blank")}
+              className="group block w-full text-left rounded-xl overflow-hidden border border-white/10 shadow-2xl hover:border-accent/40 transition-colors"
+              aria-label="Abrir el panel demo"
+            >
+              <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border-b border-white/10">
+                <span className="h-3 w-3 rounded-full bg-red-400/70" />
+                <span className="h-3 w-3 rounded-full bg-yellow-400/70" />
+                <span className="h-3 w-3 rounded-full bg-green-400/70" />
+                <span className="ml-3 text-xs text-white/40 font-mono">fishflow.mx/demos/panel</span>
+              </div>
+              <div className="bg-white p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-[#0D1B2A]">🎯 Leads desde tu sitio</span>
+                  <span className="text-xs text-muted-foreground">24 este mes</span>
+                </div>
+                {[
+                  { n: "Paola Guerra", s: "Cotización", c: "bg-accent/15 text-accent" },
+                  { n: "Jorge Medina", s: "Cita",       c: "bg-primary/15 text-primary" },
+                  { n: "Andrea Ríos",  s: "Pedido",     c: "bg-green-100 text-green-700" },
+                ].map((r) => (
+                  <div key={r.n} className="flex items-center justify-between rounded-lg border border-border p-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-xs font-bold text-foreground/70">
+                        {r.n.split(" ").map((w) => w[0]).join("")}
+                      </span>
+                      <span className="text-sm font-medium text-foreground">{r.n}</span>
+                    </div>
+                    <span className={`text-[10px] font-mono uppercase tracking-wide px-2 py-1 rounded ${r.c}`}>{r.s}</span>
+                  </div>
+                ))}
+                <div className="rounded-lg border border-accent/30 bg-accent/5 p-3">
+                  <p className="text-[10px] font-mono uppercase tracking-wide text-accent mb-1">✦ Propuesta sugerida por IA</p>
+                  <p className="text-xs text-muted-foreground">Lead caliente con fecha y volumen — responde hoy con cotización y link de agenda.</p>
+                </div>
+                <p className="text-center text-xs text-primary font-medium group-hover:underline pt-1">Abrir panel completo →</p>
+              </div>
+            </button>
+
           </div>
         </div>
       </section>

@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tu Panel · FishFlow — el back-office que recibe tu negocio</title>
+<meta name="description" content="Demo del panel FishFlow: leads con propuesta de IA, pipeline de ventas, cobros y resumen — el back-office que recibe cualquier negocio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange:#FF8C35;
+    --orange-deep:#E5701A;
+    --cyan:#67D4E8;
+    --cyan-deep:#2BA9C2;
+    --ink:#0D1B2A;
+    --ink-2:#1B2D40;
+    --ink-3:#3A4D60;
+    --paper:#F5F8FB;
+    --paper-2:#E9F0F6;
+    --bone:#FFFFFF;
+    --muted:#8195A6;
+    --rule:#DDE6EE;
+    --rule-dark:rgba(255,255,255,.12);
+    --green:#2E9E6B;
+    --amber:#C7873B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter",system-ui,sans-serif;font-size:15px;line-height:1.6}
+  a{color:inherit;text-decoration:none}
+  .jakarta{font-family:"Plus Jakarta Sans",system-ui,sans-serif}
+  .mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+
+  .demo-banner{background:linear-gradient(90deg,var(--orange),var(--orange-deep));color:#fff;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:9px 16px}
+  .demo-banner a{text-decoration:underline}
+
+  .shell{display:grid;grid-template-columns:248px 1fr;min-height:calc(100vh - 37px)}
+
+  /* sidebar */
+  .side{background:var(--ink);color:#fff;padding:24px 18px;display:flex;flex-direction:column;gap:26px}
+  .side-mark{display:flex;align-items:center;gap:10px;font-family:"Plus Jakarta Sans",sans-serif;font-weight:800;font-size:20px;letter-spacing:-.02em}
+  .side-mark .fin{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--orange),var(--cyan));display:inline-block}
+  .side-mark .fin span{display:none}
+  .side-biz{background:rgba(255,255,255,.05);border:1px solid var(--rule-dark);border-radius:10px;padding:12px 14px}
+  .side-biz .l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+  .side-biz .n{font-family:"Plus Jakarta Sans",sans-serif;font-weight:600;font-size:15px;margin-top:3px}
+  .side-nav{display:flex;flex-direction:column;gap:4px}
+  .side-nav button{display:flex;align-items:center;gap:12px;padding:12px 14px;border:none;background:none;border-radius:9px;font-size:14px;font-family:"Inter",sans-serif;color:rgba(255,255,255,.68);cursor:pointer;text-align:left;transition:.18s;width:100%}
+  .side-nav button .ic{width:20px;text-align:center}
+  .side-nav button:hover{background:rgba(255,255,255,.06);color:#fff}
+  .side-nav button.active{background:linear-gradient(135deg,var(--orange),var(--orange-deep));color:#fff;font-weight:600}
+  .side-foot{margin-top:auto;border-top:1px solid var(--rule-dark);padding-top:16px;font-size:12px;color:rgba(255,255,255,.5)}
+
+  /* main */
+  .main{display:flex;flex-direction:column;min-width:0}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 34px;background:var(--bone);border-bottom:1px solid var(--rule)}
+  .topbar h1{font-family:"Plus Jakarta Sans",sans-serif;font-weight:700;font-size:22px;letter-spacing:-.01em}
+  .topbar .pill{font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--paper-2);color:var(--ink-3);padding:4px 8px;border-radius:5px;margin-left:10px}
+  .topbar .right{display:flex;align-items:center;gap:16px;font-size:13px}
+  .btn-exit{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--rule);padding:9px 14px;border-radius:8px;color:var(--ink-2)}
+  .btn-exit:hover{border-color:var(--ink-3)}
+
+  .content{padding:30px 34px 54px;overflow:auto}
+  .view{display:none}
+  .view.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .vh{margin-bottom:24px}
+  .vh h2{font-family:"Plus Jakarta Sans",sans-serif;font-weight:700;font-size:24px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+  .vh p{color:var(--ink-3);margin-top:6px;font-size:14px;max-width:70ch}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:28px}
+  .stat{background:var(--bone);border:1px solid var(--rule);border-radius:13px;padding:18px 20px}
+  .stat .l{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .stat .n{font-family:"Plus Jakarta Sans",sans-serif;font-weight:700;font-size:34px;line-height:1.1;margin-top:7px}
+  .stat .n small{font-size:15px;color:var(--muted);font-weight:600}
+  .stat .sub{font-size:12px;color:var(--ink-3);margin-top:4px}
+  .stat .sub.up{color:var(--green)}
+
+  /* filters */
+  .filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+  .chip{font-size:13px;padding:8px 15px;border-radius:999px;border:1px solid var(--rule);background:var(--bone);color:var(--ink-2);cursor:pointer;transition:.18s}
+  .chip:hover{border-color:var(--orange)}
+  .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip .c{margin-left:6px;opacity:.6;font-family:"JetBrains Mono",monospace;font-size:11px}
+
+  /* lead card */
+  .leads{display:flex;flex-direction:column;gap:13px}
+  .lead{background:var(--bone);border:1px solid var(--rule);border-radius:13px;padding:20px 22px;transition:.18s}
+  .lead:hover{border-color:var(--orange);box-shadow:0 4px 20px rgba(13,27,42,.06)}
+  .lead-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .lead-id{display:flex;align-items:center;gap:13px}
+  .avatar{width:42px;height:42px;border-radius:50%;background:var(--paper-2);color:var(--cyan-deep);display:flex;align-items:center;justify-content:center;font-family:"Plus Jakarta Sans",sans-serif;font-weight:700;font-size:16px;flex-shrink:0}
+  .lead-id .nm{font-family:"Plus Jakarta Sans",sans-serif;font-weight:600;font-size:17px}
+  .lead-id .mt{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .lead-meta{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .seg{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:6px}
+  .seg.cita{background:#FFF0E2;color:var(--orange-deep)}
+  .seg.cotizacion{background:#E2F6FA;color:var(--cyan-deep)}
+  .seg.pedido{background:#E5F4EC;color:var(--green)}
+  .date{font-size:12px;color:var(--muted)}
+  select.status{font-family:"Inter",sans-serif;font-size:12.5px;padding:7px 11px;border:1px solid var(--rule);border-radius:8px;background:var(--paper);color:var(--ink-2);cursor:pointer}
+  .lead-body{margin-top:15px;padding-left:55px}
+  .lead-q{font-size:14.5px;color:var(--ink-2);line-height:1.6}
+  .lead-q .lbl{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+  .ai{margin-top:15px;background:#EAF8FB;border:1px solid #C9ECF3;border-left:3px solid var(--cyan-deep);border-radius:9px;padding:14px 17px}
+  .ai .hd{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan-deep);margin-bottom:8px}
+  .ai .hd svg{width:14px;height:14px}
+  .ai p{font-size:13.5px;color:var(--ink-2);line-height:1.6}
+  .ai .reco{margin-top:9px;font-size:13px}
+  .ai .reco b{color:var(--ink)}
+  .actions{margin-top:15px;display:flex;gap:9px;flex-wrap:wrap}
+  .act{font-size:12.5px;padding:9px 15px;border-radius:9px;border:1px solid var(--rule);background:var(--bone);color:var(--ink-2);cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:7px}
+  .act:hover{border-color:var(--orange);color:var(--orange-deep)}
+  .act.primary{background:var(--orange);color:#fff;border-color:var(--orange)}
+  .act.primary:hover{background:var(--orange-deep)}
+
+  /* CRM kanban */
+  .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .col{background:var(--paper-2);border-radius:13px;padding:14px}
+  .col h3{font-family:"Plus Jakarta Sans",sans-serif;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:12px;display:flex;justify-content:space-between}
+  .col h3 .ct{background:var(--bone);border-radius:6px;padding:1px 8px;font-size:12px;color:var(--muted)}
+  .kcard{background:var(--bone);border:1px solid var(--rule);border-radius:10px;padding:12px 13px;margin-bottom:10px}
+  .kcard .kn{font-family:"Plus Jakarta Sans",sans-serif;font-weight:600;font-size:14px}
+  .kcard .kd{font-size:12px;color:var(--muted);margin-top:3px}
+  .kcard .kv{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--green);margin-top:7px}
+
+  /* cobros table */
+  .tablecard{background:var(--bone);border:1px solid var(--rule);border-radius:13px;overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--rule)}
+  th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--paper)}
+  tr:last-child td{border-bottom:none}
+  .pay{font-family:"JetBrains Mono",monospace;font-weight:500}
+  .badge{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:4px 9px;border-radius:6px}
+  .badge.paid{background:#E5F4EC;color:var(--green)}
+  .badge.pend{background:#FBEFE2;color:var(--amber)}
+  .method{font-size:12px;color:var(--ink-3)}
+
+  .note{margin-top:30px;background:var(--paper-2);border:1px dashed var(--rule);border-radius:13px;padding:18px 22px;font-size:13.5px;color:var(--ink-3)}
+  .note b{color:var(--ink)}
+
+  @media(max-width:980px){
+    .shell{grid-template-columns:1fr}
+    .side{flex-direction:row;align-items:center;gap:14px;padding:12px 16px;overflow-x:auto}
+    .side-biz,.side-foot{display:none}
+    .side-nav{flex-direction:row;gap:6px}
+    .stats,.kanban{grid-template-columns:repeat(2,1fr)}
+    .lead-body{padding-left:0}
+  }
+  @media(max-width:560px){.stats,.kanban{grid-template-columns:1fr}.content{padding:20px 16px 40px}.topbar{padding:14px 16px}}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">Demo del panel FishFlow · Datos de ejemplo · Así se ve el back-office que recibe tu negocio · <a href="https://www.fishflow.mx">← Volver a fishflow.mx</a></div>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="side-mark"><span class="fin"></span> FishFlow</div>
+    <div class="side-biz"><div class="l">Negocio</div><div class="n">Tu Negocio Local</div></div>
+    <nav class="side-nav" id="nav">
+      <button data-view="resumen"><span class="ic">📊</span> Resumen</button>
+      <button class="active" data-view="leads"><span class="ic">🎯</span> Leads</button>
+      <button data-view="crm"><span class="ic">🗂️</span> CRM / Pipeline</button>
+      <button data-view="cobros"><span class="ic">💳</span> Cobros</button>
+    </nav>
+    <div class="side-foot">Tu plataforma, en tiempo real,<br>desde cualquier dispositivo.</div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div><span style="font-family:'Plus Jakarta Sans',sans-serif"><h1 style="display:inline">Panel</h1></span><span class="pill">Demo</span></div>
+      <div class="right"><a class="btn-exit" href="https://www.fishflow.mx">⎋ Salir</a></div>
+    </div>
+
+    <div class="content">
+
+      <!-- ===== RESUMEN ===== -->
+      <div class="view" id="view-resumen">
+        <div class="vh"><h2>📊 Resumen</h2><p>Tu negocio de un vistazo. Estos números se actualizan solos conforme entran leads, ventas y cobros.</p></div>
+        <div class="stats">
+          <div class="stat"><div class="l">Leads este mes</div><div class="n">24</div><div class="sub up">▲ 9 vs. mes anterior</div></div>
+          <div class="stat"><div class="l">Sin contactar</div><div class="n">6</div><div class="sub">Requieren respuesta</div></div>
+          <div class="stat"><div class="l">Conversión a cliente</div><div class="n">29<small>%</small></div><div class="sub up">▲ 5 pts</div></div>
+          <div class="stat"><div class="l">Cobrado este mes</div><div class="n" style="font-size:26px">$48,200</div><div class="sub">12 pagos</div></div>
+        </div>
+        <div class="note"><b>Todo conectado:</b> cada lead que entra por tu sitio, cada oportunidad que avanza en el pipeline y cada cobro que se completa aparece aquí automáticamente. Sin hojas de cálculo, sin capturar nada a mano.</div>
+      </div>
+
+      <!-- ===== LEADS ===== -->
+      <div class="view active" id="view-leads">
+        <div class="vh"><h2>🎯 Leads desde tu sitio</h2><p>Prospectos que completaron el formulario de tu página. Cada uno llega con lo que necesita y una propuesta sugerida por IA, lista para que solo la revises y respondas.</p></div>
+
+        <div class="filters" id="filters">
+          <div class="chip active" data-seg="all">Todos <span class="c">24</span></div>
+          <div class="chip" data-seg="cita">Cita <span class="c">11</span></div>
+          <div class="chip" data-seg="cotizacion">Cotización <span class="c">9</span></div>
+          <div class="chip" data-seg="pedido">Pedido <span class="c">4</span></div>
+        </div>
+
+        <div class="leads" id="leads">
+
+          <div class="lead" data-seg="cotizacion">
+            <div class="lead-top">
+              <div class="lead-id"><div class="avatar">PG</div><div><div class="nm">Paola Guerra</div><div class="mt">paola.guerra@gmail.com · 55 2841 ••••</div></div></div>
+              <div class="lead-meta"><span class="seg cotizacion">Cotización</span><span class="date">Hoy · 10:22</span>
+                <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select></div>
+            </div>
+            <div class="lead-body">
+              <div class="lead-q"><span class="lbl">Lo que escribió</span>"Quiero cotizar el servicio completo para un evento el próximo mes. Somos como 30 personas, ¿me pueden mandar precios y disponibilidad?"</div>
+              <div class="ai"><div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
+                <p>Solicitud con fecha y volumen definidos — lead caliente. Conviene responder hoy con un rango de precio y dos fechas posibles para no perder el evento.</p>
+                <div class="reco">→ Acción: <b>enviar cotización para 30 personas</b> + link de agenda para cerrar la fecha.</div></div>
+              <div class="actions"><button class="act primary">✉️ Enviar cotización</button><button class="act">📅 Agendar</button><button class="act">🗂️ Mover a Pipeline</button></div>
+            </div>
+          </div>
+
+          <div class="lead" data-seg="cita">
+            <div class="lead-top">
+              <div class="lead-id"><div class="avatar">JM</div><div><div class="nm">Jorge Medina</div><div class="mt">jorge.medina@outlook.com · 55 1190 ••••</div></div></div>
+              <div class="lead-meta"><span class="seg cita">Cita</span><span class="date">Hoy · 08:47</span>
+                <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select></div>
+            </div>
+            <div class="lead-body">
+              <div class="lead-q"><span class="lbl">Lo que escribió</span>"Es la primera vez que los contacto, quiero una cita esta semana si se puede. Prefiero por la tarde."</div>
+              <div class="ai"><div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
+                <p>Cliente nuevo pidiendo cita pronto con preferencia de horario. La voz IA o WhatsApp puede confirmarle un espacio vespertino automáticamente.</p>
+                <div class="reco">→ Acción: <b>ofrecer 2 espacios por la tarde</b> y confirmar por WhatsApp.</div></div>
+              <div class="actions"><button class="act primary">📅 Ofrecer horarios</button><button class="act">💬 WhatsApp</button><button class="act">🗂️ Mover a Pipeline</button></div>
+            </div>
+          </div>
+
+          <div class="lead" data-seg="pedido">
+            <div class="lead-top">
+              <div class="lead-id"><div class="avatar">AR</div><div><div class="nm">Andrea Ríos</div><div class="mt">andrea.rios@gmail.com · 55 7723 ••••</div></div></div>
+              <div class="lead-meta"><span class="seg pedido">Pedido</span><span class="date">Ayer · 19:05</span>
+                <select class="status"><option>🔵 Contactado</option><option>🟡 Nuevo</option><option>📅 Agendado</option><option>✅ Cliente</option></select></div>
+            </div>
+            <div class="lead-body">
+              <div class="lead-q"><span class="lbl">Lo que escribió</span>"¿Tienen disponible el paquete que vi en su página? Quiero hacer el pedido y pagar en línea si se puede."</div>
+              <div class="ai"><div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
+                <p>Intención de compra directa y dispuesta a pagar en línea. Mandar el link de cobro cierra la venta sin fricción.</p>
+                <div class="reco">→ Acción: <b>enviar link de pago</b> (Stripe / MercadoPago / OXXO) con el paquete seleccionado.</div></div>
+              <div class="actions"><button class="act primary">💳 Enviar link de cobro</button><button class="act">🗂️ Mover a Pipeline</button></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===== CRM ===== -->
+      <div class="view" id="view-crm">
+        <div class="vh"><h2>🗂️ CRM / Pipeline</h2><p>Tus oportunidades en etapas claras. Mueves cada prospecto conforme avanza, sin perder de vista quién está por cerrar.</p></div>
+        <div class="kanban">
+          <div class="col"><h3>Nuevo <span class="ct">3</span></h3>
+            <div class="kcard"><div class="kn">Paola Guerra</div><div class="kd">Cotización · evento 30 pax</div><div class="kv">~ $18,000</div></div>
+            <div class="kcard"><div class="kn">Jorge Medina</div><div class="kd">Cita · cliente nuevo</div><div class="kv">~ $2,500</div></div>
+          </div>
+          <div class="col"><h3>Contactado <span class="ct">2</span></h3>
+            <div class="kcard"><div class="kn">Andrea Ríos</div><div class="kd">Pedido · paquete web</div><div class="kv">~ $4,200</div></div>
+          </div>
+          <div class="col"><h3>Agendado <span class="ct">2</span></h3>
+            <div class="kcard"><div class="kn">Luis Fonseca</div><div class="kd">Cita confirmada · jueves</div><div class="kv">~ $6,000</div></div>
+          </div>
+          <div class="col"><h3>Cliente <span class="ct">5</span></h3>
+            <div class="kcard"><div class="kn">Daniela Sosa</div><div class="kd">Cerrado · pago completo</div><div class="kv">$12,500 ✓</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== COBROS ===== -->
+      <div class="view" id="view-cobros">
+        <div class="vh"><h2>💳 Cobros</h2><p>Pagos en línea con Stripe, MercadoPago y OXXO. Cada cobro genera recibo automático y se refleja aquí al instante.</p></div>
+        <div class="tablecard">
+          <table>
+            <thead><tr><th>Cliente</th><th>Concepto</th><th>Método</th><th>Monto</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr><td>Daniela Sosa</td><td>Paquete completo</td><td class="method">Stripe · tarjeta</td><td class="pay">$12,500</td><td><span class="badge paid">Pagado</span></td></tr>
+              <tr><td>Andrea Ríos</td><td>Pedido web</td><td class="method">MercadoPago</td><td class="pay">$4,200</td><td><span class="badge pend">Pendiente</span></td></tr>
+              <tr><td>Luis Fonseca</td><td>Anticipo cita</td><td class="method">OXXO</td><td class="pay">$1,500</td><td><span class="badge paid">Pagado</span></td></tr>
+              <tr><td>Mariana Cruz</td><td>Servicio mensual</td><td class="method">Stripe · tarjeta</td><td class="pay">$2,800</td><td><span class="badge paid">Pagado</span></td></tr>
+              <tr><td>Roberto Vega</td><td>Cotización aprobada</td><td class="method">MercadoPago</td><td class="pay">$9,000</td><td><span class="badge pend">Pendiente</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note"><b>Sin perseguir pagos:</b> el cliente paga desde un link, recibe su recibo solo y, si lo necesitas, se genera la factura CFDI automáticamente.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Tabs
+  const btns = document.querySelectorAll('#nav button');
+  const views = document.querySelectorAll('.view');
+  btns.forEach(b=>b.addEventListener('click',()=>{
+    btns.forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const v=b.dataset.view;
+    views.forEach(x=>x.classList.toggle('active', x.id==='view-'+v));
+  }));
+  // Filtro leads
+  const chips=document.querySelectorAll('#filters .chip');
+  const leads=document.querySelectorAll('#leads .lead');
+  chips.forEach(c=>c.addEventListener('click',()=>{
+    chips.forEach(x=>x.classList.remove('active'));c.classList.add('active');
+    const s=c.dataset.seg;
+    leads.forEach(l=>l.style.display=(s==='all'||l.dataset.seg===s)?'':'none');
+  }));
+</script>
+</body>
+</html>
