@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Asesoría individual — Mario Citalán</title>
+<meta name="description" content="Asesoría estratégica uno a uno con Mario Citalán para reconstruir tu arquitectura mental desde la raíz y decidir con claridad bajo presión.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0F1A24;--ink-2:#283845;--ink-3:#4C5C6A;--paper:#F4F7FA;--paper-2:#E7EEF4;--bone:#FFFFFF;--muted:#7B8794;--accent:#3E86CF;--accent-deep:#2A6AAE;--steel:#1F4E79;--rule:#DCE4EC;--rule-dark:rgba(255,255,255,.13)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter",system-ui,sans-serif;font-size:16px;line-height:1.65;letter-spacing:.01em}
+  a{color:inherit;text-decoration:none}
+  .display{font-family:"Fraunces",Georgia,serif;font-weight:500;letter-spacing:-.01em;line-height:1.02}
+  .italic{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:400;color:var(--accent-deep)}
+  .eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-deep)}
+  .container{max-width:1100px;margin:0 auto;padding:0 48px}
+  .demo-banner{background:var(--accent);color:#fff;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 16px}
+  .demo-banner a{text-decoration:underline}
+  .topstack{position:fixed;top:0;left:0;right:0;z-index:50}
+  .nav{backdrop-filter:blur(14px);background:rgba(255,255,255,.92);border-bottom:1px solid var(--rule)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 48px}
+  .nav-mark{display:flex;align-items:center;gap:10px;font-family:"Fraunces",serif;font-size:18px}
+  .nav-mark img{height:30px}
+  .backlink{display:inline-flex;align-items:center;gap:9px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+  .backlink:hover{color:var(--accent-deep)}
+  .backlink svg{width:14px;height:14px}
+  .hero{padding:160px 0 70px}
+  .hero .eyebrow{display:block;margin-bottom:20px}
+  .hero h1{font-size:clamp(40px,5.4vw,78px);margin-bottom:22px;letter-spacing:-.02em;max-width:16ch}
+  .hero p{color:var(--ink-2);max-width:54ch;font-size:18px;margin-bottom:32px}
+  .btn-primary{display:inline-flex;align-items:center;gap:14px;padding:18px 30px;background:var(--ink);color:var(--paper);font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .btn-primary:hover{background:var(--accent-deep)}
+  .btn-primary svg{width:14px;height:14px}
+  section{padding:80px 0}
+  .qe{background:var(--bone);border-top:1px solid var(--rule)}
+  .qe-grid{display:grid;grid-template-columns:230px 1fr;gap:56px;align-items:start}
+  .qe h2{font-size:clamp(30px,3.4vw,46px);line-height:1.05;letter-spacing:-.01em}
+  .qe .body p{color:var(--ink-2);margin-bottom:18px;max-width:58ch;font-size:16.5px}
+  .qe .body p strong{color:var(--ink);font-weight:600}
+  .who{background:var(--paper-2)}
+  .who-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:38px}
+  .who .c{background:var(--bone);border:1px solid var(--rule);padding:30px 28px}
+  .who .c .t{font-family:"Fraunces",serif;font-size:21px;margin-bottom:10px}
+  .who .c .d{font-size:14px;color:var(--ink-2);line-height:1.6}
+  .steps .step-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-top:38px}
+  .step{padding-top:26px;border-top:1px solid var(--rule)}
+  .step .n{display:inline-flex;align-items:center;gap:12px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:32px}
+  .step .n::before{content:"";width:24px;height:1px;background:var(--accent-deep)}
+  .step h4{font-family:"Fraunces",serif;font-weight:500;font-size:23px;line-height:1.12;margin-bottom:12px}
+  .step p{font-size:14px;color:var(--ink-2);line-height:1.65}
+  .ph-note{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-deep);border:1px dashed var(--accent);padding:4px 8px;margin-top:30px}
+  .cta{background:var(--ink);color:var(--paper)}
+  .cta-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+  .cta .eyebrow{color:var(--accent);display:block;margin-bottom:18px}
+  .cta h2{font-size:clamp(30px,3.6vw,52px);line-height:1.04;margin-bottom:20px}
+  .cta p{color:rgba(247,244,237,.74);max-width:40ch}
+  .form{background:rgba(255,255,255,.04);border:1px solid var(--rule-dark);padding:38px 36px}
+  .field{margin-bottom:18px}
+  .field label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,244,237,.6);margin-bottom:9px}
+  .field input,.field select{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--rule-dark);padding:14px 16px;font-family:"Inter",sans-serif;font-size:15px;color:var(--paper)}
+  .field input::placeholder{color:rgba(247,244,237,.4)}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--accent)}
+  .field select{color:var(--paper)}
+  .field select option{color:#111}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .submit{width:100%;background:var(--accent);color:#fff;border:none;padding:17px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:.3s}
+  .submit:hover{background:var(--accent-deep)}
+  .fnote{margin-top:14px;font-size:12px;color:rgba(247,244,237,.5)}
+  .form-ok{display:none;text-align:center;padding:24px 6px}
+  .form-ok.show{display:block}
+  .form-ok .check{width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:24px}
+  .form-ok h4{font-family:"Fraunces",serif;font-size:26px;margin-bottom:8px;color:var(--paper)}
+  .form-ok p{color:rgba(247,244,237,.74);font-size:15px;max-width:30ch;margin:0 auto}
+  footer{background:var(--ink);color:rgba(247,244,237,.55);padding:40px 0;text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-top:1px solid var(--rule-dark)}
+  footer a{color:rgba(247,244,237,.8)}
+  @media (max-width:900px){
+    .container{padding:0 26px}.nav-inner{padding:14px 26px}
+    .hero{padding:150px 0 60px}
+    .qe-grid,.cta-wrap{grid-template-columns:1fr;gap:36px}
+    .who-grid{grid-template-columns:1fr}
+    .steps .step-grid{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:640px){
+    .container{padding:0 20px}section{padding:56px 0}
+    .hero{padding:124px 0 48px}
+    .steps .step-grid{grid-template-columns:1fr}
+    .field-row{grid-template-columns:1fr}.form{padding:28px 22px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topstack">
+  <div class="demo-banner">Demo de rediseño · Propuesta FishFlow para Mario Citalán · <a href="panel.html">Ver tu panel de leads →</a></div>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-mark"><img src="https://mariocitalan.net/wp-content/uploads/2020/05/Dr.-Mente.png" alt="Dr. Mente"> Mario Citalán</a>
+      <a href="index.html" class="backlink"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M13 7H1M6 2L1 7l5 5"/></svg> Volver al inicio</a>
+    </div>
+  </nav>
+</div>
+
+<section class="hero">
+  <div class="container">
+    <span class="eyebrow">Ruta 1 · Asesoría individual</span>
+    <h1 class="display">Trabajo uno a uno sobre tu <span class="italic">criterio</span>.</h1>
+    <p>Acompañamiento personalizado con Mario Citalán para reconstruir tu arquitectura mental desde la raíz: pensar con claridad, decidir con criterio y sostener decisiones congruentes incluso bajo presión.</p>
+    <a href="#solicitar" class="btn-primary">Solicitar una sesión
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+    </a>
+  </div>
+</section>
+
+<section class="qe">
+  <div class="container">
+    <div class="qe-grid">
+      <div><span class="eyebrow">Qué es</span></div>
+      <div class="body">
+        <p>La asesoría individual es para personas que necesitan <strong>acompañamiento personalizado</strong>. No es motivación ni una charla: es un proceso para trabajar la estructura desde la que interpretas la realidad y tomas tus decisiones de mayor impacto.</p>
+        <p>El objetivo no es decidir más rápido, sino construir una <strong>arquitectura mental sólida</strong> que sostenga decisiones congruentes en tu vida, tu carrera y tu negocio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="who">
+  <div class="container">
+    <span class="eyebrow">Para quién es</span>
+    <div class="who-grid">
+      <div class="c"><div class="t">Líderes y directivos</div><div class="d">Que cargan con decisiones de alto impacto y necesitan sostenerlas con congruencia.</div></div>
+      <div class="c"><div class="t">Dueños de negocio</div><div class="d">Que deciden con información incompleta y bajo riesgo financiero real.</div></div>
+      <div class="c"><div class="t">Personas en transición</div><div class="d">Que enfrentan una decisión importante y quieren tomarla con claridad.</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="steps">
+  <div class="container">
+    <span class="eyebrow">Cómo funciona</span>
+    <div class="step-grid">
+      <div class="step"><div class="n">Etapa I</div><h4>Diagnóstico</h4><p>Mapeamos cómo decides hoy y dónde el estrés o la prisa meten ruido en tu juicio.</p></div>
+      <div class="step"><div class="n">Etapa II</div><h4>Mapa de sesgos</h4><p>Hacemos visibles los atajos mentales que repites. No se corrige lo que no se ve.</p></div>
+      <div class="step"><div class="n">Etapa III</div><h4>Entrenamiento</h4><p>Construyes hábitos de pensamiento y herramientas concretas para decidir con claridad.</p></div>
+      <div class="step"><div class="n">Etapa IV</div><h4>Acompañamiento</h4><p>Sostenemos el cambio sobre tus decisiones reales, no en teoría.</p></div>
+    </div>
+    <div class="ph-note">Detalle de sesiones, duración y formato · pendiente de definir con Mario</div>
+  </div>
+</section>
+
+<section class="cta" id="solicitar">
+  <div class="container">
+    <div class="cta-wrap">
+      <div class="cta-info">
+        <span class="eyebrow">Solicitar</span>
+        <h2 class="display">Empieza con una<br>conversación.</h2>
+        <p>Cuéntame qué tipo de decisiones estás enfrentando. Te respondo personalmente para definir si la asesoría es lo que necesitas.</p>
+      </div>
+      <div class="form-zone">
+        <form class="form" id="leadForm" novalidate>
+          <div class="field"><label for="l-nombre">Nombre completo</label><input type="text" id="l-nombre" placeholder="Tu nombre"></div>
+          <div class="field-row">
+            <div class="field"><label for="l-email">Correo</label><input type="email" id="l-email" placeholder="tu@correo.com"></div>
+            <div class="field"><label for="l-tel">Teléfono</label><input type="tel" id="l-tel" placeholder="55 0000 0000"></div>
+          </div>
+          <div class="field"><label for="l-ctx">¿Qué decisión o reto te trae aquí?</label><input type="text" id="l-ctx" placeholder="En una línea"></div>
+          <button type="submit" class="submit">Solicitar sesión</button>
+          <p class="fnote">Te escribo en menos de 24 horas hábiles. Confidencial.</p>
+        </form>
+        <div class="form-ok" id="ok">
+          <div class="check">✓</div>
+          <h4>Solicitud recibida</h4>
+          <p>Gracias. Te contacto personalmente muy pronto.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">© MMXXVI — Mario Citalán · <a href="index.html">Inicio</a> · Creado por <a href="https://www.fishflow.mx" target="_blank" rel="noopener">FishFlow</a></div>
+</footer>
+
+<script>
+  // Lead — placeholder (en producción: POST /api/leads origen "asesoria")
+  const form=document.getElementById('leadForm');
+  form.addEventListener('submit',(e)=>{e.preventDefault();
+    const n=document.getElementById('l-nombre').value.trim();const em=document.getElementById('l-email').value.trim();
+    if(n.length<2||!/.+@.+\..+/.test(em)){document.querySelector('.fnote').textContent='Completa tu nombre y un correo válido.';document.querySelector('.fnote').style.color='#E8A9A9';return;}
+    form.style.display='none';document.getElementById('ok').classList.add('show');
+  });
+</script>
+
+</body>
+</html>

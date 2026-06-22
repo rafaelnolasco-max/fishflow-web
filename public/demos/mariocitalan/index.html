@@ -44,7 +44,8 @@
   .ph span{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;border:1px dashed rgba(17,21,27,.3);background:rgba(251,249,244,.7)}
 
   /* ---------------- NAV ---------------- */
-  .nav{position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(14px);background:rgba(255,255,255,.85);border-bottom:1px solid transparent;transition:.4s}
+  .topstack{position:fixed;top:0;left:0;right:0;z-index:50}
+  .nav{position:relative;backdrop-filter:blur(14px);background:rgba(255,255,255,.92);border-bottom:1px solid transparent;transition:.4s}
   .nav.scrolled{border-bottom-color:var(--rule)}
   .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 56px}
   .nav-mark{display:flex;align-items:center;gap:11px;font-family:"Fraunces",serif;font-weight:500;font-size:19px;letter-spacing:.02em}
@@ -146,7 +147,7 @@
   .sol h4{font-family:"Fraunces",serif;font-weight:500;font-size:28px;line-height:1.12}
   .sol .desc{font-size:14.5px;line-height:1.65;color:rgba(247,244,237,.74)}
   .sol .more{margin-top:auto;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:inline-flex;gap:8px;align-items:center}
-  .sol.feature{grid-column:1 / -1;background:linear-gradient(120deg,rgba(62,134,207,.16),rgba(31,78,121,.10));border-color:rgba(62,134,207,.4)}
+  .sol.feature{background:linear-gradient(135deg,rgba(62,134,207,.16),rgba(31,78,121,.08));border-color:rgba(62,134,207,.4)}
 
   /* ---------------- DIAGNÓSTICO (test de Actitud) ---------------- */
   .diag-sec{background:var(--paper-2)}
@@ -362,24 +363,27 @@
 </head>
 <body>
 
-<!-- Banner solo para la demo interna de FishFlow -->
-<div class="demo-banner">Demo de rediseño · Propuesta FishFlow para Mario Citalán · <a href="panel.html">Ver tu panel de leads →</a></div>
+<!-- Barra fija (banner demo + navegación) -->
+<div class="topstack">
+  <!-- Banner solo para la demo interna de FishFlow -->
+  <div class="demo-banner">Demo de rediseño · Propuesta FishFlow para Mario Citalán · <a href="panel.html">Ver tu panel de leads →</a></div>
 
-<!-- ============== NAV ============== -->
-<nav class="nav" id="nav">
-  <div class="nav-inner">
-    <a href="#inicio" class="nav-mark"><img class="nav-logo" src="https://mariocitalan.net/wp-content/uploads/2020/05/Dr.-Mente.png" alt="Dr. Mente"> Mario Citalán</a>
-    <div class="nav-links">
-      <a href="#modelo">El modelo</a>
-      <a href="#criterio">Tu criterio</a>
-      <a href="#soluciones">Soluciones</a>
-      <a href="ciencia-en-escena.html">Ciencia en Escena</a>
-      <a href="recursos.html">Recursos</a>
-      <a href="#sobre">Sobre mí</a>
+  <!-- ============== NAV ============== -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#inicio" class="nav-mark"><img class="nav-logo" src="https://mariocitalan.net/wp-content/uploads/2020/05/Dr.-Mente.png" alt="Dr. Mente"> Mario Citalán</a>
+      <div class="nav-links">
+        <a href="#modelo">El modelo</a>
+        <a href="#criterio">Tu criterio</a>
+        <a href="#soluciones">Soluciones</a>
+        <a href="ciencia-en-escena.html">Ciencia en Escena</a>
+        <a href="recursos.html">Recursos</a>
+        <a href="panel.html">Tu panel</a>
+      </div>
+      <a href="#actitud" class="nav-cta">Evalúa tu actitud</a>
     </div>
-    <a href="#actitud" class="nav-cta">Evalúa tu actitud</a>
-  </div>
-</nav>
+  </nav>
+</div>
 
 <!-- ============== HERO ============== -->
 <section class="hero" id="inicio">
@@ -507,24 +511,24 @@
         <div class="sol-tag">Ruta 1 · Individual</div>
         <h4>Asesoría individual</h4>
         <p class="desc">Trabajo uno a uno para reconstruir tu arquitectura desde la raíz. Para quien necesita acompañamiento personalizado.</p>
-        <a href="#actitud" class="more">Empezar con mi evaluación →</a>
+        <a href="asesoria.html" class="more">Conocer la asesoría →</a>
       </article>
       <article class="sol">
         <div class="sol-tag">Ruta 2 · Programa</div>
         <h4>Entrenamiento Evoluciona</h4>
         <p class="desc">Programa estructurado de desarrollo personal y reconstrucción de la arquitectura mental para transformar tu vida de forma sostenida.</p>
-        <a href="#actitud" class="more">Ver si es para mí →</a>
+        <a href="evoluciona.html" class="more">Ver el programa →</a>
       </article>
       <article class="sol">
         <div class="sol-tag">Ruta 3 · Ejecutivo</div>
         <h4>Criterio Ejecutivo Avanzado (CEA)</h4>
         <p class="desc">Para líderes, empresarios y directivos que toman decisiones de alto impacto y necesitan sostenerlas con congruencia.</p>
-        <a href="#actitud" class="more">Conocer el programa →</a>
+        <a href="cea.html" class="more">Conocer el programa →</a>
       </article>
       <article class="sol feature">
-        <div class="sol-tag">Experiencias · Empresas e instituciones</div>
-        <h4>Ciencia en Escena &amp; Dr. Mente Experiencias</h4>
-        <p class="desc">Espectáculos que unen ciencia, emoción y aprendizaje para transformar a públicos masivos, empresas e instituciones. Una categoría aparte, con su propia página.</p>
+        <div class="sol-tag">Ruta 4 · Empresas e instituciones</div>
+        <h4>Ciencia en Escena</h4>
+        <p class="desc">Espectáculos que unen ciencia, emoción y aprendizaje para transformar a públicos masivos, empresas e instituciones.</p>
         <a href="ciencia-en-escena.html" class="more">Ver los espectáculos →</a>
       </article>
     </div>
