@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel · Mario Citalán — Leads desde tu sitio</title>
+<meta name="description" content="Demo del panel de administración de Mario Citalán: leads capturados por el diagnóstico del sitio, con propuesta sugerida por IA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1A24;
+    --ink-2:#283845;
+    --ink-3:#4C5C6A;
+    --paper:#F4F7FA;
+    --paper-2:#E7EEF4;
+    --bone:#FFFFFF;
+    --muted:#7B8794;
+    --accent:#3E86CF;
+    --accent-deep:#2A6AAE;
+    --steel:#1F4E79;
+    --rule:#DCE4EC;
+    --rule-dark:rgba(255,255,255,.13);
+    --green:#2E9E6B;
+    --amber:#C7873B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter",system-ui,sans-serif;font-size:15px;line-height:1.6}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+  .serif{font-family:"Fraunces",Georgia,serif}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-weight:500;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent-deep)}
+
+  /* demo banner */
+  .demo-banner{background:var(--accent);color:#fff;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:9px 16px}
+  .demo-banner a{text-decoration:underline}
+
+  /* shell */
+  .shell{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 37px)}
+
+  /* sidebar */
+  .side{background:var(--ink);color:var(--paper);padding:26px 20px;display:flex;flex-direction:column;gap:30px}
+  .side-mark{display:flex;align-items:center;gap:11px;font-family:"Fraunces",serif;font-weight:500;font-size:18px}
+  .side-mark img{height:30px;width:auto;filter:brightness(0) invert(1);opacity:.92}
+  .side-mark .dot{width:7px;height:7px;background:var(--accent);transform:rotate(45deg);display:inline-block}
+  .side-nav{display:flex;flex-direction:column;gap:4px}
+  .side-nav a{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:8px;font-size:14px;color:rgba(247,250,253,.7);transition:.2s}
+  .side-nav a .ic{width:20px;text-align:center}
+  .side-nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+  .side-nav a.active{background:var(--accent);color:#fff;font-weight:500}
+  .side-nav a.soon{opacity:.5;cursor:default}
+  .side-nav a.soon .tag{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:8px;letter-spacing:.1em;border:1px solid rgba(255,255,255,.28);padding:2px 6px;border-radius:4px}
+  .side-foot{margin-top:auto;border-top:1px solid var(--rule-dark);padding-top:18px;font-size:12px;color:rgba(247,250,253,.5)}
+  .side-foot .who{color:rgba(247,250,253,.85);font-size:13px;margin-bottom:3px}
+
+  /* main */
+  .main{display:flex;flex-direction:column;min-width:0}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 36px;background:var(--bone);border-bottom:1px solid var(--rule)}
+  .topbar .title{display:flex;align-items:center;gap:12px}
+  .topbar .title h1{font-family:"Fraunces",serif;font-weight:500;font-size:24px;letter-spacing:-.01em}
+  .topbar .title .pill{font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--paper-2);color:var(--ink-3);padding:4px 8px;border-radius:5px}
+  .topbar .right{display:flex;align-items:center;gap:18px;font-size:13px}
+  .topbar .right a{color:var(--ink-3)}
+  .topbar .right a:hover{color:var(--accent-deep)}
+  .btn-exit{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--rule);padding:9px 14px;border-radius:7px;color:var(--ink-2)}
+  .btn-exit:hover{border-color:var(--ink-3)}
+
+  .content{padding:32px 36px 56px;overflow:auto}
+  .page-head{margin-bottom:26px}
+  .page-head h2{font-family:"Fraunces",serif;font-weight:500;font-size:26px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+  .page-head p{color:var(--ink-3);margin-top:6px;font-size:14px}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:30px}
+  .stat{background:var(--bone);border:1px solid var(--rule);border-radius:12px;padding:20px 22px}
+  .stat .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .stat .n{font-family:"Fraunces",serif;font-size:38px;line-height:1.1;margin-top:8px;color:var(--ink)}
+  .stat .n small{font-size:16px;color:var(--muted)}
+  .stat .sub{font-size:12px;color:var(--ink-3);margin-top:4px}
+  .stat .sub.up{color:var(--green)}
+
+  /* filters */
+  .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+  .chip{font-size:13px;padding:8px 16px;border-radius:999px;border:1px solid var(--rule);background:var(--bone);color:var(--ink-2);cursor:pointer;transition:.2s}
+  .chip:hover{border-color:var(--accent)}
+  .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip .c{display:inline-block;margin-left:7px;opacity:.6;font-family:"JetBrains Mono",monospace;font-size:11px}
+
+  /* lead card */
+  .leads{display:flex;flex-direction:column;gap:14px}
+  .lead{background:var(--bone);border:1px solid var(--rule);border-radius:12px;padding:22px 24px;transition:.2s}
+  .lead:hover{border-color:var(--accent);box-shadow:0 4px 20px rgba(15,26,36,.05)}
+  .lead-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap}
+  .lead-id{display:flex;align-items:center;gap:14px}
+  .avatar{width:42px;height:42px;border-radius:50%;background:var(--paper-2);color:var(--steel);display:flex;align-items:center;justify-content:center;font-family:"Fraunces",serif;font-size:18px;font-weight:500;flex-shrink:0}
+  .lead-id .nm{font-family:"Fraunces",serif;font-size:19px;line-height:1.2}
+  .lead-id .mt{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .lead-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .seg{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:6px}
+  .seg.individual{background:#E8F1FA;color:var(--accent-deep)}
+  .seg.empresa{background:#EAE6F6;color:#5B47A8}
+  .seg.evento{background:#FBEFE2;color:var(--amber)}
+  .seg.personal{background:#E5F4EC;color:var(--green)}
+  .date{font-size:12px;color:var(--muted)}
+  select.status{font-family:"Inter",sans-serif;font-size:12.5px;padding:7px 12px;border:1px solid var(--rule);border-radius:7px;background:var(--paper);color:var(--ink-2);cursor:pointer}
+  .lead-body{margin-top:16px;padding-left:56px}
+  .lead-q{font-size:14.5px;color:var(--ink-2);line-height:1.6}
+  .lead-q .lbl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+  .ai{margin-top:16px;background:#F2F7FC;border:1px solid #D5E5F4;border-left:3px solid var(--accent);border-radius:8px;padding:15px 18px}
+  .ai .hd{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:9px}
+  .ai .hd .spark{width:14px;height:14px}
+  .ai p{font-size:13.5px;color:var(--ink-2);line-height:1.6}
+  .ai .reco{margin-top:10px;font-size:13px}
+  .ai .reco b{color:var(--ink)}
+  .actions{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+  .act{font-size:12.5px;padding:9px 15px;border-radius:8px;border:1px solid var(--rule);background:var(--bone);color:var(--ink-2);cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:7px}
+  .act:hover{border-color:var(--accent);color:var(--accent-deep)}
+  .act.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .act.primary:hover{background:var(--accent-deep);color:#fff}
+
+  .roadmap-note{margin-top:34px;background:var(--paper-2);border:1px dashed var(--rule);border-radius:12px;padding:20px 24px;font-size:13.5px;color:var(--ink-3)}
+  .roadmap-note b{color:var(--ink)}
+
+  @media(max-width:920px){
+    .shell{grid-template-columns:1fr}
+    .side{flex-direction:row;align-items:center;gap:18px;padding:14px 18px;overflow-x:auto}
+    .side-nav{flex-direction:row;gap:6px}
+    .side-foot,.side-nav a .tag{display:none}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .lead-body{padding-left:0}
+  }
+  @media(max-width:560px){.stats{grid-template-columns:1fr}.content{padding:22px 18px 44px}.topbar{padding:16px 18px}}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">Demo de panel · Propuesta FishFlow para Mario Citalán · Datos de ejemplo · <a href="index.html">← Volver al sitio</a></div>
+
+<div class="shell">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="side">
+    <div class="side-mark"><img src="https://mariocitalan.net/wp-content/uploads/2020/05/Dr.-Mente.png" alt="Dr. Mente"></div>
+    <nav class="side-nav">
+      <a class="active" href="#"><span class="ic">🎯</span> Leads</a>
+      <a class="soon" href="#"><span class="ic">🗂️</span> Pipeline <span class="tag">Fase 2</span></a>
+      <a class="soon" href="#"><span class="ic">📅</span> Agenda <span class="tag">Fase 2</span></a>
+      <a class="soon" href="#"><span class="ic">📊</span> Resumen <span class="tag">Fase 2</span></a>
+    </nav>
+    <div class="side-foot">
+      <div class="who">Mario Citalán</div>
+      Dr. Mente · CDMX
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+    <div class="topbar">
+      <div class="title">
+        <h1>Panel</h1>
+        <span class="pill">Demo</span>
+      </div>
+      <div class="right">
+        <a href="index.html">Ver mi sitio</a>
+        <a class="btn-exit" href="index.html">⎋ Salir</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="page-head">
+        <h2>🎯 Leads desde tu sitio</h2>
+        <p>Prospectos que completaron el diagnóstico interactivo de tu página. Cada uno llega con su segmento y una propuesta sugerida por IA, lista para que solo la revises y respondas.</p>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats">
+        <div class="stat"><div class="l">Leads este mes</div><div class="n">18</div><div class="sub up">▲ 6 vs. mes anterior</div></div>
+        <div class="stat"><div class="l">Sin contactar</div><div class="n">5</div><div class="sub">Requieren respuesta</div></div>
+        <div class="stat"><div class="l">Segmento principal</div><div class="n" style="font-size:26px">Empresa</div><div class="sub">44% de tus leads</div></div>
+        <div class="stat"><div class="l">Conversión a cliente</div><div class="n">22<small>%</small></div><div class="sub up">▲ 4 pts</div></div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filters" id="filters">
+        <div class="chip active" data-seg="all">Todos <span class="c">18</span></div>
+        <div class="chip" data-seg="empresa">Empresa <span class="c">8</span></div>
+        <div class="chip" data-seg="individual">Individual <span class="c">6</span></div>
+        <div class="chip" data-seg="evento">Evento <span class="c">3</span></div>
+        <div class="chip" data-seg="personal">Personal <span class="c">1</span></div>
+      </div>
+
+      <!-- LEADS -->
+      <div class="leads" id="leads">
+
+        <!-- lead -->
+        <div class="lead" data-seg="empresa">
+          <div class="lead-top">
+            <div class="lead-id">
+              <div class="avatar">LM</div>
+              <div><div class="nm">Laura Mendoza</div><div class="mt">Directora de Capital Humano · Grupo Saba · laura.mendoza@gruposaba.mx</div></div>
+            </div>
+            <div class="lead-meta">
+              <span class="seg empresa">Empresa</span>
+              <span class="date">Hoy · 09:14</span>
+              <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
+            </div>
+          </div>
+          <div class="lead-body">
+            <div class="lead-q"><span class="lbl">Lo que escribió en el diagnóstico</span>"Mi equipo directivo toma decisiones por impulso cuando hay presión y luego se contradicen entre juntas. Necesito que aprendan a decidir con un criterio común."</div>
+            <div class="ai">
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
+              <p>Laura describe un problema de criterio compartido a nivel directivo bajo presión — tu especialidad. No busca terapia individual, busca alinear a un equipo.</p>
+              <div class="reco">→ Servicio recomendado: <b>Asesoría a organizaciones</b> · taller de toma de decisiones para el comité directivo. Abrir con el caso de "decisiones que se contradicen entre juntas".</div>
+            </div>
+            <div class="actions">
+              <button class="act primary">✉️ Responder propuesta</button>
+              <button class="act">📅 Agendar diagnóstico</button>
+              <button class="act">🗂️ Mover a Pipeline</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- lead -->
+        <div class="lead" data-seg="individual">
+          <div class="lead-top">
+            <div class="lead-id">
+              <div class="avatar">CF</div>
+              <div><div class="nm">Carlos Fuentes</div><div class="mt">Ejecutivo en transición · carlos.fuentes@gmail.com</div></div>
+            </div>
+            <div class="lead-meta">
+              <span class="seg individual">Individual</span>
+              <span class="date">Ayer · 18:42</span>
+              <select class="status"><option>🔵 Contactado</option><option>🟡 Nuevo</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
+            </div>
+          </div>
+          <div class="lead-body">
+            <div class="lead-q"><span class="lbl">Lo que escribió en el diagnóstico</span>"Llevo meses sin poder decidir si dejar mi empresa para emprender. Doy vueltas, lo platico con todos y sigo igual de bloqueado."</div>
+            <div class="ai">
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
+              <p>Decisión de alto impacto personal con parálisis por análisis. Caso clásico de asesoría 1:1 — necesita un proceso, no más opiniones.</p>
+              <div class="reco">→ Servicio recomendado: <b>Asesoría individual</b> · paquete de claridad para decisiones de carrera. Mencionar que el objetivo no es "convencerlo" sino darle un método para decidir solo.</div>
+            </div>
+            <div class="actions">
+              <button class="act primary">✉️ Responder propuesta</button>
+              <button class="act">📅 Agendar diagnóstico</button>
+              <button class="act">🗂️ Mover a Pipeline</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- lead -->
+        <div class="lead" data-seg="evento">
+          <div class="lead-top">
+            <div class="lead-id">
+              <div class="avatar">MO</div>
+              <div><div class="nm">Mariana Ortiz</div><div class="mt">Coordinación de Congresos · Universidad del Valle · m.ortiz@uvalle.edu.mx</div></div>
+            </div>
+            <div class="lead-meta">
+              <span class="seg evento">Evento</span>
+              <span class="date">Lun · 11:03</span>
+              <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
+            </div>
+          </div>
+          <div class="lead-body">
+            <div class="lead-q"><span class="lbl">Lo que escribió en el diagnóstico</span>"Organizamos el Congreso de Liderazgo Estudiantil en octubre y buscamos un conferencista que hable de toma de decisiones para 400 jóvenes."</div>
+            <div class="ai">
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
+              <p>Solicitud de conferencia con fecha y aforo definidos — lead caliente para tu línea de eventos. Conviene responder hoy con tu media kit.</p>
+              <div class="reco">→ Servicio recomendado: <b>Conferencias y eventos</b> · enviar reel + temario "Decidir bajo presión". Confirmar fecha de octubre antes de que cierren agenda.</div>
+            </div>
+            <div class="actions">
+              <button class="act primary">✉️ Enviar media kit</button>
+              <button class="act">📅 Agendar llamada</button>
+              <button class="act">🗂️ Mover a Pipeline</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- lead -->
+        <div class="lead" data-seg="empresa">
+          <div class="lead-top">
+            <div class="lead-id">
+              <div class="avatar">RL</div>
+              <div><div class="nm">Roberto Limón</div><div class="mt">Director General · Logística Premier · rlimon@premier.com.mx</div></div>
+            </div>
+            <div class="lead-meta">
+              <span class="seg empresa">Empresa</span>
+              <span class="date">Vie · 16:20</span>
+              <select class="status"><option>📅 Agendado</option><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>✅ Cliente</option></select>
+            </div>
+          </div>
+          <div class="lead-body">
+            <div class="lead-q"><span class="lbl">Lo que escribió en el diagnóstico</span>"Tengo que decidir si abrir una segunda planta este año. Es la decisión más grande de mi carrera y no quiero tomarla solo ni a ciegas."</div>
+            <div class="ai">
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
+              <p>Decisión estratégica de alto monto, perfil CEO. Encaja en asesoría individual ejecutiva o acompañamiento puntual a una decisión clave.</p>
+              <div class="reco">→ Servicio recomendado: <b>Asesoría ejecutiva 1:1</b> · sesión-decisión sobre la expansión. Ya agendado — preparar marco de decisión antes de la sesión.</div>
+            </div>
+            <div class="actions">
+              <button class="act primary">📅 Ver cita agendada</button>
+              <button class="act">✉️ Enviar preparación</button>
+              <button class="act">🗂️ Mover a Pipeline</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- lead -->
+        <div class="lead" data-seg="personal">
+          <div class="lead-top">
+            <div class="lead-id">
+              <div class="avatar">SR</div>
+              <div><div class="nm">Sofía Reyes</div><div class="mt">Seguidora de redes · sofia.reyes88@gmail.com</div></div>
+            </div>
+            <div class="lead-meta">
+              <span class="seg personal">Personal</span>
+              <span class="date">Jue · 21:55</span>
+              <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
+            </div>
+          </div>
+          <div class="lead-body">
+            <div class="lead-q"><span class="lbl">Lo que escribió en el diagnóstico</span>"Te sigo desde la conferencia en mi empresa. Quiero aprender a pensar mejor bajo presión pero no sé por dónde empezar ni si tengo el presupuesto."</div>
+            <div class="ai">
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
+              <p>Interés genuino pero sensible al precio. Mejor nutrir con tu oferta de entrada que empujar asesoría 1:1 de inmediato.</p>
+              <div class="reco">→ Servicio recomendado: <b>Sábados de Transformación</b> · invitarla a la próxima sesión grupal como puerta de entrada de bajo costo.</div>
+            </div>
+            <div class="actions">
+              <button class="act primary">✉️ Invitar a Sábados</button>
+              <button class="act">🗂️ Mover a Pipeline</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="roadmap-note">
+        <b>Lo que sigue (Fase 2):</b> cuando contactas un lead, lo mueves al <b>Pipeline</b> (Nuevo → Contactado → Agendado → Cliente) y se sincroniza con tu <b>Agenda</b>. El <b>Resumen</b> te muestra cuántos leads se vuelven clientes cada mes. Arrancamos hoy con la captura de leads y vamos sumando por etapas.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Filtro por segmento
+  const chips = document.querySelectorAll('#filters .chip');
+  const leads = document.querySelectorAll('#leads .lead');
+  chips.forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      chips.forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      const seg = chip.dataset.seg;
+      leads.forEach(l=>{
+        l.style.display = (seg==='all' || l.dataset.seg===seg) ? '' : 'none';
+      });
+    });
+  });
+</script>
+</body>
+</html>
