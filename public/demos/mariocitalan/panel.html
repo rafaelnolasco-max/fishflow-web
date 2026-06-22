@@ -103,7 +103,13 @@
   .seg.empresa{background:#EAE6F6;color:#5B47A8}
   .seg.evento{background:#FBEFE2;color:var(--amber)}
   .seg.personal{background:#E5F4EC;color:var(--green)}
+  .orig{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.04em;color:var(--ink-3);background:var(--paper-2);padding:5px 9px;border-radius:6px}
   .date{font-size:12px;color:var(--muted)}
+  /* resultado de la evaluación */
+  .result-line{display:inline-flex;align-items:center;gap:9px;margin-bottom:13px;font-size:12.5px;color:var(--ink-2);background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:7px 12px}
+  .result-line .lvl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+  .result-line b{color:var(--ink);font-weight:600}
+  .lvl-fragil{background:#C75D5D}.lvl-vulnerable{background:#D69655}.lvl-funcional{background:#C9C24F}.lvl-solido{background:#5FA9D6}.lvl-extra{background:#3E86CF}
   select.status{font-family:"Inter",sans-serif;font-size:12.5px;padding:7px 12px;border:1px solid var(--rule);border-radius:7px;background:var(--paper);color:var(--ink-2);cursor:pointer}
   .lead-body{margin-top:16px;padding-left:56px}
   .lead-q{font-size:14.5px;color:var(--ink-2);line-height:1.6}
@@ -171,30 +177,30 @@
     <div class="content">
       <div class="page-head">
         <h2>🎯 Leads desde tu sitio</h2>
-        <p>Prospectos que completaron el diagnóstico interactivo de tu página. Cada uno llega con su segmento y una propuesta sugerida por IA, lista para que solo la revises y respondas.</p>
+        <p>Prospectos que evaluaron su actitud o su criterio, pidieron una experiencia o se sumaron a tus recursos. Cada uno llega con su segmento, su nivel de resultado y la ruta sugerida por IA, lista para que solo la revises y respondas.</p>
       </div>
 
       <!-- STATS -->
       <div class="stats">
-        <div class="stat"><div class="l">Leads este mes</div><div class="n">18</div><div class="sub up">▲ 6 vs. mes anterior</div></div>
-        <div class="stat"><div class="l">Sin contactar</div><div class="n">5</div><div class="sub">Requieren respuesta</div></div>
-        <div class="stat"><div class="l">Segmento principal</div><div class="n" style="font-size:26px">Empresa</div><div class="sub">44% de tus leads</div></div>
-        <div class="stat"><div class="l">Conversión a cliente</div><div class="n">22<small>%</small></div><div class="sub up">▲ 4 pts</div></div>
+        <div class="stat"><div class="l">Leads este mes</div><div class="n">26</div><div class="sub up">▲ 9 vs. mes anterior</div></div>
+        <div class="stat"><div class="l">Sin contactar</div><div class="n">4</div><div class="sub">Requieren respuesta</div></div>
+        <div class="stat"><div class="l">Ruta más solicitada</div><div class="n" style="font-size:24px">Asesoría</div><div class="sub">38% de tus leads</div></div>
+        <div class="stat"><div class="l">Conversión a cliente</div><div class="n">23<small>%</small></div><div class="sub up">▲ 5 pts</div></div>
       </div>
 
       <!-- FILTERS -->
       <div class="filters" id="filters">
-        <div class="chip active" data-seg="all">Todos <span class="c">18</span></div>
-        <div class="chip" data-seg="empresa">Empresa <span class="c">8</span></div>
-        <div class="chip" data-seg="individual">Individual <span class="c">6</span></div>
-        <div class="chip" data-seg="evento">Evento <span class="c">3</span></div>
+        <div class="chip active" data-seg="all">Todos <span class="c">8</span></div>
+        <div class="chip" data-seg="empresa">Empresa <span class="c">3</span></div>
+        <div class="chip" data-seg="individual">Individual <span class="c">2</span></div>
+        <div class="chip" data-seg="evento">Evento <span class="c">2</span></div>
         <div class="chip" data-seg="personal">Personal <span class="c">1</span></div>
       </div>
 
       <!-- LEADS -->
       <div class="leads" id="leads">
 
-        <!-- lead -->
+        <!-- lead 1 -->
         <div class="lead" data-seg="empresa">
           <div class="lead-top">
             <div class="lead-id">
@@ -203,16 +209,18 @@
             </div>
             <div class="lead-meta">
               <span class="seg empresa">Empresa</span>
+              <span class="orig">Test de Actitud</span>
               <span class="date">Hoy · 09:14</span>
               <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
             </div>
           </div>
           <div class="lead-body">
-            <div class="lead-q"><span class="lbl">Lo que escribió en el diagnóstico</span>"Mi equipo directivo toma decisiones por impulso cuando hay presión y luego se contradicen entre juntas. Necesito que aprendan a decidir con un criterio común."</div>
+            <div class="result-line"><span class="lvl-dot lvl-vulnerable"></span> Resultado · Actitud <b>Vulnerable</b></div>
+            <div class="lead-q"><span class="lbl">Lo que escribió en la evaluación</span>"Mi equipo directivo toma decisiones por impulso cuando hay presión y luego se contradicen entre juntas. Necesito que aprendan a decidir con un criterio común."</div>
             <div class="ai">
-              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
-              <p>Laura describe un problema de criterio compartido a nivel directivo bajo presión — tu especialidad. No busca terapia individual, busca alinear a un equipo.</p>
-              <div class="reco">→ Servicio recomendado: <b>Asesoría a organizaciones</b> · taller de toma de decisiones para el comité directivo. Abrir con el caso de "decisiones que se contradicen entre juntas".</div>
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Ruta sugerida por IA</div>
+              <p>Laura describe un problema de criterio compartido a nivel directivo bajo presión — tu especialidad. No busca trabajo individual, busca alinear a un equipo.</p>
+              <div class="reco">→ Ruta recomendada: <b>Criterio Ejecutivo Avanzado (in-company)</b> · programa para el comité directivo. Abrir con el caso de "decisiones que se contradicen entre juntas".</div>
             </div>
             <div class="actions">
               <button class="act primary">✉️ Responder propuesta</button>
@@ -222,7 +230,7 @@
           </div>
         </div>
 
-        <!-- lead -->
+        <!-- lead 2 -->
         <div class="lead" data-seg="individual">
           <div class="lead-top">
             <div class="lead-id">
@@ -231,16 +239,18 @@
             </div>
             <div class="lead-meta">
               <span class="seg individual">Individual</span>
+              <span class="orig">Test de Actitud</span>
               <span class="date">Ayer · 18:42</span>
               <select class="status"><option>🔵 Contactado</option><option>🟡 Nuevo</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
             </div>
           </div>
           <div class="lead-body">
-            <div class="lead-q"><span class="lbl">Lo que escribió en el diagnóstico</span>"Llevo meses sin poder decidir si dejar mi empresa para emprender. Doy vueltas, lo platico con todos y sigo igual de bloqueado."</div>
+            <div class="result-line"><span class="lvl-dot lvl-fragil"></span> Resultado · Actitud <b>Frágil</b></div>
+            <div class="lead-q"><span class="lbl">Lo que escribió en la evaluación</span>"Llevo meses sin poder decidir si dejar mi empresa para emprender. Doy vueltas, lo platico con todos y sigo igual de bloqueado."</div>
             <div class="ai">
-              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
-              <p>Decisión de alto impacto personal con parálisis por análisis. Caso clásico de asesoría 1:1 — necesita un proceso, no más opiniones.</p>
-              <div class="reco">→ Servicio recomendado: <b>Asesoría individual</b> · paquete de claridad para decisiones de carrera. Mencionar que el objetivo no es "convencerlo" sino darle un método para decidir solo.</div>
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Ruta sugerida por IA</div>
+              <p>Decisión de alto impacto personal con parálisis por análisis. Caso clásico de trabajo 1:1 — necesita un proceso, no más opiniones.</p>
+              <div class="reco">→ Ruta recomendada: <b>Asesoría individual</b> · paquete de claridad para decisiones de carrera. Mencionar que el objetivo no es "convencerlo" sino darle un método para decidir solo.</div>
             </div>
             <div class="actions">
               <button class="act primary">✉️ Responder propuesta</button>
@@ -250,7 +260,7 @@
           </div>
         </div>
 
-        <!-- lead -->
+        <!-- lead 3 -->
         <div class="lead" data-seg="evento">
           <div class="lead-top">
             <div class="lead-id">
@@ -259,16 +269,17 @@
             </div>
             <div class="lead-meta">
               <span class="seg evento">Evento</span>
+              <span class="orig">Ciencia en Escena · propuesta</span>
               <span class="date">Lun · 11:03</span>
               <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
             </div>
           </div>
           <div class="lead-body">
-            <div class="lead-q"><span class="lbl">Lo que escribió en el diagnóstico</span>"Organizamos el Congreso de Liderazgo Estudiantil en octubre y buscamos un conferencista que hable de toma de decisiones para 400 jóvenes."</div>
+            <div class="lead-q"><span class="lbl">Lo que escribió en el formulario</span>"Organizamos el Congreso de Liderazgo Estudiantil en octubre y buscamos un espectáculo de alto impacto sobre toma de decisiones para 400 jóvenes."</div>
             <div class="ai">
-              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
-              <p>Solicitud de conferencia con fecha y aforo definidos — lead caliente para tu línea de eventos. Conviene responder hoy con tu media kit.</p>
-              <div class="reco">→ Servicio recomendado: <b>Conferencias y eventos</b> · enviar reel + temario "Decidir bajo presión". Confirmar fecha de octubre antes de que cierren agenda.</div>
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Ruta sugerida por IA</div>
+              <p>Solicitud con fecha y aforo definidos — lead caliente para experiencias. Conviene responder hoy con el media kit.</p>
+              <div class="reco">→ Ruta recomendada: <b>Ciencia en Escena</b> · enviar reel + temario para público joven. Confirmar fecha de octubre antes de que cierren agenda.</div>
             </div>
             <div class="actions">
               <button class="act primary">✉️ Enviar media kit</button>
@@ -278,7 +289,7 @@
           </div>
         </div>
 
-        <!-- lead -->
+        <!-- lead 4 -->
         <div class="lead" data-seg="empresa">
           <div class="lead-top">
             <div class="lead-id">
@@ -287,16 +298,18 @@
             </div>
             <div class="lead-meta">
               <span class="seg empresa">Empresa</span>
+              <span class="orig">Prueba de Criterio</span>
               <span class="date">Vie · 16:20</span>
               <select class="status"><option>📅 Agendado</option><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>✅ Cliente</option></select>
             </div>
           </div>
           <div class="lead-body">
-            <div class="lead-q"><span class="lbl">Lo que escribió en el diagnóstico</span>"Tengo que decidir si abrir una segunda planta este año. Es la decisión más grande de mi carrera y no quiero tomarla solo ni a ciegas."</div>
+            <div class="result-line"><span class="lvl-dot lvl-funcional"></span> Resultado · Criterio <b>Funcional</b></div>
+            <div class="lead-q"><span class="lbl">Lo que escribió en la evaluación</span>"Tengo que decidir si abrir una segunda planta este año. Es la decisión más grande de mi carrera y no quiero tomarla solo ni a ciegas."</div>
             <div class="ai">
-              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
-              <p>Decisión estratégica de alto monto, perfil CEO. Encaja en asesoría individual ejecutiva o acompañamiento puntual a una decisión clave.</p>
-              <div class="reco">→ Servicio recomendado: <b>Asesoría ejecutiva 1:1</b> · sesión-decisión sobre la expansión. Ya agendado — preparar marco de decisión antes de la sesión.</div>
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Ruta sugerida por IA</div>
+              <p>Decisión estratégica de alto monto, perfil CEO con criterio ya funcional. Encaja en el programa ejecutivo individual sobre una decisión clave.</p>
+              <div class="reco">→ Ruta recomendada: <b>Criterio Ejecutivo Avanzado (individual)</b> · sesión-decisión sobre la expansión. Ya agendado — preparar marco de decisión antes de la sesión.</div>
             </div>
             <div class="actions">
               <button class="act primary">📅 Ver cita agendada</button>
@@ -306,7 +319,7 @@
           </div>
         </div>
 
-        <!-- lead -->
+        <!-- lead 5 -->
         <div class="lead" data-seg="personal">
           <div class="lead-top">
             <div class="lead-id">
@@ -315,19 +328,110 @@
             </div>
             <div class="lead-meta">
               <span class="seg personal">Personal</span>
+              <span class="orig">Test de Actitud</span>
               <span class="date">Jue · 21:55</span>
               <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
             </div>
           </div>
           <div class="lead-body">
-            <div class="lead-q"><span class="lbl">Lo que escribió en el diagnóstico</span>"Te sigo desde la conferencia en mi empresa. Quiero aprender a pensar mejor bajo presión pero no sé por dónde empezar ni si tengo el presupuesto."</div>
+            <div class="result-line"><span class="lvl-dot lvl-vulnerable"></span> Resultado · Actitud <b>Vulnerable</b></div>
+            <div class="lead-q"><span class="lbl">Lo que escribió en la evaluación</span>"Te sigo desde la conferencia en mi empresa. Quiero aprender a pensar mejor bajo presión pero no sé por dónde empezar ni si tengo el presupuesto."</div>
             <div class="ai">
-              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Propuesta sugerida por IA</div>
-              <p>Interés genuino pero sensible al precio. Mejor nutrir con tu oferta de entrada que empujar asesoría 1:1 de inmediato.</p>
-              <div class="reco">→ Servicio recomendado: <b>Sábados de Transformación</b> · invitarla a la próxima sesión grupal como puerta de entrada de bajo costo.</div>
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Ruta sugerida por IA</div>
+              <p>Interés genuino pero sensible al precio. Mejor nutrir con el programa estructurado que empujar trabajo 1:1 de inmediato.</p>
+              <div class="reco">→ Ruta recomendada: <b>Entrenamiento Evoluciona</b> · puerta de entrada estructurada y más accesible que la asesoría individual. Compartir también recursos gratuitos.</div>
             </div>
             <div class="actions">
-              <button class="act primary">✉️ Invitar a Sábados</button>
+              <button class="act primary">✉️ Compartir Evoluciona</button>
+              <button class="act">📨 Enviar recursos gratis</button>
+              <button class="act">🗂️ Mover a Pipeline</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- lead 6 -->
+        <div class="lead" data-seg="empresa">
+          <div class="lead-top">
+            <div class="lead-id">
+              <div class="avatar">DH</div>
+              <div><div class="nm">Diego Hernández</div><div class="mt">Gerente de Bienestar · Farmacéutica Andrade · diego.h@andrade.mx</div></div>
+            </div>
+            <div class="lead-meta">
+              <span class="seg empresa">Empresa</span>
+              <span class="orig">Ciencia en Escena · propuesta</span>
+              <span class="date">Mié · 13:48</span>
+              <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
+            </div>
+          </div>
+          <div class="lead-body">
+            <div class="lead-q"><span class="lbl">Lo que escribió en el formulario</span>"Tenemos casos de burnout y queremos cumplir la NOM-035 con algo que de verdad mueva a la gente, no otra plática aburrida. ¿Qué nos recomiendan?"</div>
+            <div class="ai">
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Ruta sugerida por IA</div>
+              <p>Empresa con dolor concreto (burnout + NOM-035) que pide impacto real. El espectáculo de salud mental encaja mejor que una conferencia tradicional.</p>
+              <div class="reco">→ Ruta recomendada: <b>Ciencia en Escena — Teatro de Conciencia Emocional</b> · enfocar en estrés, ansiedad y burnout. Ofrecer combinar con una sesión de seguimiento.</div>
+            </div>
+            <div class="actions">
+              <button class="act primary">✉️ Enviar propuesta de show</button>
+              <button class="act">📅 Agendar llamada</button>
+              <button class="act">🗂️ Mover a Pipeline</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- lead 7 -->
+        <div class="lead" data-seg="individual">
+          <div class="lead-top">
+            <div class="lead-id">
+              <div class="avatar">AB</div>
+              <div><div class="nm">Andrés Beltrán</div><div class="mt">Socio fundador · Estudio jurídico · a.beltran@beltranlex.mx</div></div>
+            </div>
+            <div class="lead-meta">
+              <span class="seg individual">Individual</span>
+              <span class="orig">Prueba de Criterio</span>
+              <span class="date">Mié · 08:30</span>
+              <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
+            </div>
+          </div>
+          <div class="lead-body">
+            <div class="result-line"><span class="lvl-dot lvl-solido"></span> Resultado · Criterio <b>Sólido</b></div>
+            <div class="lead-q"><span class="lbl">Lo que escribió en la evaluación</span>"Decido bien casi siempre, pero quiero llevar mi criterio al siguiente nivel y dejar de cargar yo solo cada decisión grande del despacho."</div>
+            <div class="ai">
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Ruta sugerida por IA</div>
+              <p>Perfil sólido que busca optimización, no reparación. Caso ideal para el programa ejecutivo avanzado a nivel individual.</p>
+              <div class="reco">→ Ruta recomendada: <b>Criterio Ejecutivo Avanzado (individual)</b> · enfoque en delegar criterio y decisiones de alto impacto. Lead de buena calidad — responder pronto.</div>
+            </div>
+            <div class="actions">
+              <button class="act primary">✉️ Responder propuesta</button>
+              <button class="act">📅 Agendar diagnóstico</button>
+              <button class="act">🗂️ Mover a Pipeline</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- lead 8 -->
+        <div class="lead" data-seg="evento">
+          <div class="lead-top">
+            <div class="lead-id">
+              <div class="avatar">PG</div>
+              <div><div class="nm">Paola Guerra</div><div class="mt">Dir. de Desarrollo Social · Municipio de Zapopan · pguerra@zapopan.gob.mx</div></div>
+            </div>
+            <div class="lead-meta">
+              <span class="seg evento">Evento</span>
+              <span class="orig">Ciencia en Escena · propuesta</span>
+              <span class="date">Mar · 17:10</span>
+              <select class="status"><option>🟡 Nuevo</option><option>🔵 Contactado</option><option>📅 Agendado</option><option>✅ Cliente</option></select>
+            </div>
+          </div>
+          <div class="lead-body">
+            <div class="lead-q"><span class="lbl">Lo que escribió en el formulario</span>"Planeamos una jornada de salud mental para jóvenes del municipio y buscamos algo que conecte de verdad con ellos. Presupuesto público, fecha tentativa noviembre."</div>
+            <div class="ai">
+              <div class="hd"><svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg> Ruta sugerida por IA</div>
+              <p>Sector gobierno, prevención juvenil — entrada natural para experiencias masivas. Considerar tiempos y formato de licitación pública.</p>
+              <div class="reco">→ Ruta recomendada: <b>Ciencia en Escena</b> · formato para evento masivo juvenil. Pedir detalles de aforo y proceso de contratación pública.</div>
+            </div>
+            <div class="actions">
+              <button class="act primary">✉️ Enviar propuesta de show</button>
+              <button class="act">📅 Agendar llamada</button>
               <button class="act">🗂️ Mover a Pipeline</button>
             </div>
           </div>
