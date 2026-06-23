@@ -38,7 +38,7 @@ function adminHtml(d: {
 }
 
 function leadHtml(d: {
-  nombre: string; perfil: string; desc: string; ruta: string; ctaUrl: string
+  nombre: string; perfil: string; desc: string; ruta: string; ctaUrl: string; ctaLabel: string
 }) {
   const primer = d.nombre.split(' ')[0] || d.nombre
   return `
@@ -58,7 +58,7 @@ function leadHtml(d: {
         <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#2A6AAE;margin-bottom:6px">Tu siguiente paso</div>
         <div style="font-size:15px;color:#0F1A24;line-height:1.5">${esc(d.ruta)}</div>
       </div>
-      <a href="${esc(d.ctaUrl)}" style="display:inline-block;background:#0F1A24;color:#fff;text-decoration:none;padding:14px 26px;font-size:13px;letter-spacing:.08em;text-transform:uppercase">Ver mi ruta recomendada</a>
+      <a href="${esc(d.ctaUrl)}" style="display:inline-block;background:#0F1A24;color:#fff;text-decoration:none;padding:14px 26px;font-size:13px;letter-spacing:.08em;text-transform:uppercase">${esc(d.ctaLabel)}</a>
       <p style="font-size:14px;color:#283845;line-height:1.6;margin:26px 0 0">Te escribo personalmente en menos de 24 horas hábiles con la lectura completa de tu resultado.</p>
       <p style="font-size:14px;color:#283845;margin:18px 0 0">Un abrazo,<br><strong>Mario Citalán</strong></p>
       <p style="font-size:11px;color:#7B8794;line-height:1.5;margin-top:24px;border-top:1px solid #DCE4EC;padding-top:16px">Esta evaluación es una herramienta de desarrollo humano y autoconocimiento. No constituye una prueba psicológica, psiquiátrica ni diagnóstica, y sus resultados son orientativos.</p>
@@ -76,6 +76,9 @@ export async function POST(req: Request) {
     const ruta = (body.ruta ?? '').toString().trim()
     const desc = (body.desc ?? '').toString().trim()
     const link = (body.link ?? '').toString().trim()
+    const test = (body.test ?? 'criterio').toString().trim().toLowerCase()
+    const ctaLabel = (body.ctaLabel ?? 'Ver mi ruta recomendada').toString().trim()
+    const testLabel = test === 'actitud' ? 'Actitud' : 'Criterio'
 
     if (!nombre || !/.+@.+\..+/.test(email)) {
       return NextResponse.json({ error: 'Datos incompletos.' }, { status: 400 })
@@ -101,7 +104,7 @@ export async function POST(req: Request) {
       from: 'FishFlow <recibos@fishflow.mx>',
       to: ADMIN_TO,
       replyTo: email,
-      subject: `Nueva evaluación de Criterio — ${nombre} (${perfil})`,
+      subject: `Nueva evaluación de ${testLabel} — ${nombre} (${perfil})`,
       html: adminHtml({ nombre, email, tel, perfil, ruta }),
     })
     if (adminErr) console.error('[demo/mario-criterio] admin email error:', adminErr)
@@ -112,7 +115,7 @@ export async function POST(req: Request) {
       to: [email],
       replyTo: 'raf@fishflow.mx',
       subject: `${nombre.split(' ')[0] || nombre}, tu resultado: ${perfil}`,
-      html: leadHtml({ nombre, perfil, desc, ruta, ctaUrl }),
+      html: leadHtml({ nombre, perfil, desc, ruta, ctaUrl, ctaLabel }),
     })
     if (leadErr) console.error('[demo/mario-criterio] lead email error:', leadErr)
 

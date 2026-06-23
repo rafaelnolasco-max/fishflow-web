@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Evaluación de Arquitectura Mental y del Criterio — Mario Citalán</title>
-<meta name="description" content="Evaluación de Arquitectura Mental y del Criterio: 30 reactivos en 6 dimensiones. Descubre cómo está funcionando la estructura desde la que interpretas, decides y construyes tu vida.">
+<title>Evaluación de la Arquitectura de la Actitud — Mario Citalán</title>
+<meta name="description" content="Evaluación de la Arquitectura de la Actitud: 15 preguntas rápidas. Descubre qué tan sólida es la estructura mental que sostiene tu forma de enfrentar la vida.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -38,7 +38,7 @@
   .intro{padding:80px 0 30px;text-align:center}
   .intro .eyebrow{display:block;margin-bottom:20px}
   .intro h1{font-size:clamp(34px,5vw,58px);margin-bottom:20px}
-  .intro p{color:var(--ink-2);max-width:58ch;margin:0 auto;font-size:17px}
+  .intro p{color:var(--ink-2);max-width:56ch;margin:0 auto;font-size:17px}
   .intro-stats{display:flex;justify-content:center;gap:0;margin:38px auto 0;border:1px solid var(--rule);max-width:520px;background:var(--bone)}
   .intro-stats > div{flex:1;padding:22px 12px;border-right:1px solid var(--rule)}
   .intro-stats > div:last-child{border-right:none}
@@ -52,12 +52,12 @@
   .progress{height:5px;background:var(--paper-2);border-radius:3px;overflow:hidden}
   .bar{height:100%;width:5%;background:var(--accent);transition:width .4s ease}
   .count{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);margin-top:11px}
-  .q{font-family:"Fraunces",serif;font-weight:500;font-size:26px;line-height:1.25;margin-bottom:26px}
+  .q{font-family:"Fraunces",serif;font-weight:500;font-size:25px;line-height:1.28;margin-bottom:26px}
   .opts{display:flex;flex-direction:column;gap:10px}
-  .opt{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--rule);background:var(--paper);cursor:pointer;transition:.2s;font-size:15px;color:var(--ink-2)}
+  .opt{display:flex;align-items:center;gap:14px;padding:15px 18px;border:1px solid var(--rule);background:var(--paper);cursor:pointer;transition:.2s;font-size:15px;color:var(--ink-2);line-height:1.4}
   .opt:hover{border-color:var(--accent)}
   .opt.sel{border-color:var(--accent);background:rgba(62,134,207,.09);color:var(--ink)}
-  .opt .mark{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--rule);flex:0 0 18px;transition:.2s}
+  .opt .mark{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--rule);flex:0 0 18px;transition:.2s;margin-top:2px}
   .opt.sel .mark{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--bone)}
   .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:30px;gap:14px}
   .back{background:none;border:none;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:10px 0}
@@ -82,7 +82,7 @@
   .result h2{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(30px,5vw,48px);margin-bottom:16px}
   .result .lvl-bar{height:8px;border-radius:4px;background:var(--accent);max-width:340px;margin:0 auto 24px}
   .result p.desc{color:var(--ink-2);max-width:50ch;margin:0 auto 28px;font-size:16px}
-  .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:620px;margin:0 auto 30px}
+  .scale{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:560px;margin:0 auto 30px}
   .scale .s{padding:12px 6px;border:1px solid var(--rule);font-size:10.5px;color:var(--muted);font-family:"JetBrains Mono",monospace;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;line-height:1.3}
   .scale .s.on{color:#fff;border-color:transparent}
   .reco{background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);padding:20px 22px;max-width:520px;margin:0 auto 30px;text-align:left}
@@ -98,7 +98,7 @@
 
   @media (max-width:640px){
     .card{padding:30px 24px}
-    .q{font-size:22px}
+    .q{font-size:21px}
     .field-row{grid-template-columns:1fr}
     .topbar .mark span{display:none}
     .scale{grid-template-columns:repeat(2,1fr)}
@@ -118,13 +118,13 @@
 
 <section class="intro" id="intro">
   <div class="container">
-    <span class="eyebrow">Evaluación de Arquitectura Mental y del Criterio</span>
-    <h1 class="display">Descubre desde qué <span class="italic">estructura</span> interpretas y decides tu vida</h1>
-    <p>Todas las personas tomamos decisiones, enfrentamos desafíos y construimos relaciones. Pocas veces nos detenemos a evaluar la estructura interna desde la que lo hacemos. Al finalizar recibirás tu perfil general y una lectura de tus mayores fortalezas y oportunidades de crecimiento.</p>
+    <span class="eyebrow">Evaluación de la Arquitectura de la Actitud</span>
+    <h1 class="display">¿Qué tan sólida es tu <span class="italic">actitud</span> ante la vida?</h1>
+    <p>Descubre qué tan firme es la estructura mental que sostiene tu forma de enfrentar la vida. Son 15 preguntas rápidas; al final recibes tu perfil y el siguiente paso recomendado.</p>
     <div class="intro-stats">
-      <div><div class="n">5–7</div><div class="l">minutos</div></div>
-      <div><div class="n">30</div><div class="l">reactivos</div></div>
-      <div><div class="n">6</div><div class="l">dimensiones</div></div>
+      <div><div class="n">3–5</div><div class="l">minutos</div></div>
+      <div><div class="n">15</div><div class="l">preguntas</div></div>
+      <div><div class="n">5</div><div class="l">categorías</div></div>
     </div>
   </div>
 </section>
@@ -135,9 +135,9 @@
       <!-- QUIZ -->
       <div id="quiz">
         <div class="q-head">
-          <div class="q-dim" id="qDim">Dimensión 1</div>
+          <div class="q-dim" id="qDim">Categoría 1</div>
           <div class="progress"><div class="bar" id="bar"></div></div>
-          <div class="count">Reactivo <span id="qNum">1</span> de <span id="qTotal">30</span></div>
+          <div class="count">Pregunta <span id="qNum">1</span> de <span id="qTotal">15</span></div>
         </div>
 
         <div id="qBody">
@@ -147,13 +147,13 @@
 
         <!-- captura final -->
         <div id="contactBody" style="display:none">
-          <div class="q">¿A dónde te envío tu resultado completo?</div>
+          <div class="q">¿A dónde te envío tu resultado?</div>
           <div class="field"><label for="c-nombre">Nombre completo</label><input type="text" id="c-nombre" placeholder="Tu nombre"></div>
           <div class="field-row">
             <div class="field"><label for="c-email">Correo</label><input type="email" id="c-email" placeholder="tu@correo.com"></div>
             <div class="field"><label for="c-tel">Teléfono</label><input type="tel" id="c-tel" placeholder="55 0000 0000"></div>
           </div>
-          <p class="note">Recibes tu perfil completo de Arquitectura Mental y del Criterio. Confidencial.</p>
+          <p class="note">Recibes tu perfil de Arquitectura de la Actitud. Confidencial.</p>
         </div>
 
         <div class="nav-row">
@@ -167,19 +167,19 @@
       <!-- RESULTADO -->
       <div class="result" id="result">
         <div class="lvl-num">Tu perfil</div>
-        <h2 id="rTitle">Arquitectura Funcional</h2>
+        <h2 id="rTitle">Actitud Funcional</h2>
         <div class="lvl-bar" id="rBar"></div>
         <p class="desc" id="rDesc"></p>
         <div class="scale" id="rScale"></div>
         <div class="reco">
-          <div class="reco-l">Ruta recomendada</div>
+          <div class="reco-l">Tu siguiente paso</div>
           <div class="reco-t" id="rReco"></div>
         </div>
-        <a class="res-cta" id="rCta" href="index.html#soluciones">Ver mi ruta recomendada
+        <a class="res-cta" id="rCta" href="cuestionario.html">Continuar
           <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
         </a>
-        <p class="note" style="margin-top:22px">Te escribo personalmente en menos de 24 horas hábiles con la lectura completa.</p>
-        <p class="metodo">La Evaluación de Arquitectura Mental y Arquitectura del Criterio® es una herramienta de desarrollo humano y autoconocimiento. No constituye una prueba psicológica, psiquiátrica, diagnóstica ni de tamizaje, y no sustituye la valoración de profesionales de la salud mental. Sus resultados son orientativos y tienen como propósito favorecer la reflexión, el aprendizaje y el desarrollo personal.</p>
+        <p class="note" style="margin-top:22px">Te escribo personalmente en menos de 24 horas hábiles si quieres profundizar.</p>
+        <p class="metodo">La Evaluación de la Arquitectura de la Actitud® es una herramienta de desarrollo humano y autoconocimiento. No constituye una prueba psicológica, psiquiátrica ni diagnóstica, y no sustituye la valoración de profesionales de la salud mental. Sus resultados son orientativos.</p>
       </div>
     </div>
   </div>
@@ -190,86 +190,65 @@
 </footer>
 
 <script>
-  // ====== Evaluación de Arquitectura Mental y del Criterio® ======
-  // 6 dimensiones × 5 reactivos = 30. Escala 1-5 (Nunca → Casi siempre).
-  // En producción: guardar respuestas + perfil en Supabase vía /api/leads (origen "criterio").
-  const dimensions = [
-    { name:'Capacidad para sostenerte frente a la adversidad', items:[
-      'Cuando enfrento dificultades importantes, confío en mi capacidad para salir adelante.',
-      'Mi valor personal no depende solamente de la opinión de otras personas.',
-      'Mantengo una imagen bastante clara de quién soy, incluso en momentos difíciles.',
-      'Los errores afectan mi estado de ánimo, pero no destruyen mi confianza.',
-      'Suelo ser perseverante aun cuando las circunstancias se complican.'
-    ]},
-    { name:'Capacidad para aprender, adaptarte y evolucionar', items:[
-      'Soy capaz de modificar mis opiniones cuando encuentro nueva información que esté bien respaldada.',
-      'Me adapto relativamente rápido a los cambios inesperados.',
-      'Escucho diferentes puntos de vista sin sentirme amenazado/a de manera inmediata.',
-      'Cuando una estrategia deja de funcionar, busco alternativas.',
-      'Estoy dispuesto a cuestionar ideas que he mantenido durante mucho tiempo.'
-    ]},
-    { name:'Alineación entre lo que piensas, sientes, valoras y haces', items:[
-      'Mis decisiones suelen estar alineadas con mis valores personales.',
-      'Actúo de manera congruente incluso cuando nadie me observa.',
-      'Lo que pienso, siento y hago suele estar razonablemente alineado.',
-      'Reconozco mis errores sin tener la necesidad de justificarme de manera constante.',
-      'Me siento auténtico en la mayoría de las áreas de mi vida.'
-    ]},
-    { name:'Capacidad para mantener el equilibrio bajo presión', items:[
-      'Puedo tomar decisiones importantes sin que mis emociones me dominen.',
-      'Cuando atravieso periodos difíciles, recupero el equilibrio emocional en un tiempo razonable.',
-      'Tolero la incertidumbre sin paralizarme.',
-      'Aunque el estrés me afecta, generalmente logro manejarlo adecuadamente.',
-      'No necesito tener todo bajo control para sentirme seguro/a.'
-    ]},
-    { name:'Calidad de tus procesos de análisis y toma de decisiones', items:[
-      'Antes de decidir, considero las posibles consecuencias de mis acciones.',
-      'Distingo con claridad lo urgente de lo verdaderamente importante.',
-      'Mantengo mi criterio incluso cuando otras personas piensan diferente.',
-      'Analizo la información antes de sacar conclusiones.',
-      'Mis decisiones suelen estar basadas en principios y no únicamente en comodidad o impulso.'
-    ]},
-    { name:'Claridad respecto al rumbo que deseas construir', items:[
-      'Tengo claro el tipo de vida que quiero construir.',
-      'Mis objetivos actuales tienen sentido para mí.',
-      'Sé cuáles son mis prioridades en esta etapa de mi vida.',
-      'Mis decisiones diarias contribuyen al alcance de mis metas de largo plazo.',
-      'Siento que estoy avanzando en una dirección que me hará feliz.'
-    ]}
+  // ====== Evaluación de la Arquitectura de la Actitud® ======
+  // 15 preguntas, opción múltiple con peso por opción (máx 60). 5 categorías.
+  // En producción: guardar respuestas + perfil en Supabase vía /api/leads (origen "actitud").
+  const questions = [
+    { cat:'Atención', t:'Cuando enfrento un problema, mi atención suele centrarse en:', opts:[
+      {t:'Lo que todavía puedo hacer.', v:4},{t:'Lo que salió mal.', v:2},{t:'Quién tuvo la culpa.', v:1},{t:'Lo difícil que será resolverlo.', v:0}]},
+    { cat:'Atención', t:'Ante una situación nueva y desconocida normalmente pienso:', opts:[
+      {t:'Puede surgir una oportunidad.', v:4},{t:'Veré qué pasa.', v:3},{t:'Seguramente habrá complicaciones.', v:1},{t:'Prefiero evitar pensar en ello.', v:0}]},
+    { cat:'Atención', t:'Durante el día suelo prestar más atención a:', opts:[
+      {t:'Lo que estoy haciendo.', v:4},{t:'Lo urgente.', v:3},{t:'Lo que me preocupa.', v:1},{t:'Lo que me molesta.', v:0}]},
+    { cat:'Interpretación', t:'Cuando algo no sale como esperaba, generalmente pienso:', opts:[
+      {t:'¿Qué puedo aprender?', v:4},{t:'Necesito revisar lo que ocurrió.', v:3},{t:'No tengo suerte.', v:1},{t:'Siempre me pasa lo mismo.', v:0}]},
+    { cat:'Interpretación', t:'Frente a un error importante:', opts:[
+      {t:'Lo utilizo para mejorar.', v:4},{t:'Me incomoda pero sigo adelante.', v:3},{t:'Me cuesta dejar de pensar en él.', v:1},{t:'Me define como persona.', v:0}]},
+    { cat:'Interpretación', t:'Cuando recibo una crítica:', opts:[
+      {t:'Analizo lo que me dijeron e identifico qué es útil para mí.', v:4},{t:'Escucho, aunque me incomode.', v:3},{t:'Me pongo a la defensiva.', v:1},{t:'Me afecta durante mucho tiempo.', v:0}]},
+    { cat:'Responsabilidad', t:'Mi vida actual depende principalmente de:', opts:[
+      {t:'Las decisiones que tomo cada día.', v:4},{t:'Una combinación de circunstancias y decisiones.', v:3},{t:'Lo que otros piensen de mí.', v:1},{t:'Factores que no puedo controlar.', v:0}]},
+    { cat:'Responsabilidad', t:'Cuando algo necesita cambiar:', opts:[
+      {t:'Busco primero qué puedo hacer.', v:4},{t:'Espero un poco antes de actuar.', v:2},{t:'Espero que alguien más lo resuelva.', v:1},{t:'Normalmente no hago nada.', v:0}]},
+    { cat:'Responsabilidad', t:'Cuando enfrento dificultades importantes:', opts:[
+      {t:'Asumo mi parte de responsabilidad.', v:4},{t:'Analizo qué ocurrió.', v:3},{t:'Busco culpables.', v:1},{t:'Me siento completamente impotente.', v:0}]},
+    { cat:'Regulación emocional', t:'Cuando me siento frustrado/a:', opts:[
+      {t:'Me detengo, reflexiono y continúo.', v:4},{t:'Necesito algo de tiempo para recuperarme.', v:3},{t:'Reacciono impulsivamente.', v:1},{t:'Me quedo atrapado en la emoción.', v:0}]},
+    { cat:'Regulación emocional', t:'Ante una situación estresante:', opts:[
+      {t:'Busco formas saludables de afrontarla.', v:4},{t:'Intento distraerme.', v:2},{t:'Descargo mi malestar en otros.', v:1},{t:'Me paralizo.', v:0}]},
+    { cat:'Regulación emocional', t:'Mis emociones suelen:', opts:[
+      {t:'Orientarme sin controlarme.', v:4},{t:'Influirme moderadamente.', v:3},{t:'Dominar muchas de mis decisiones.', v:1},{t:'Determinar casi todo lo que hago.', v:0}]},
+    { cat:'Perseverancia', t:'Cuando algo importante se vuelve difícil:', opts:[
+      {t:'Ajusto la estrategia y continúo.', v:4},{t:'Me esfuerzo más.', v:3},{t:'Pierdo motivación rápidamente.', v:1},{t:'Suelo abandonar.', v:0}]},
+    { cat:'Perseverancia', t:'Los obstáculos normalmente los veo como:', opts:[
+      {t:'Parte natural de todo proceso.', v:4},{t:'Algo incómodo pero esperado.', v:3},{t:'Una señal de que quizá no debería seguir.', v:1},{t:'Una prueba de que no puedo lograrlo.', v:0}]},
+    { cat:'Perseverancia', t:'Si tuviera que describir mi actitud general ante la vida, diría que es:', opts:[
+      {t:'Constructiva y resiliente.', v:4},{t:'Variable según las circunstancias.', v:3},{t:'Frecuentemente negativa.', v:1},{t:'Derrotista o pesimista.', v:0}]}
   ];
-  const scaleOpts = ['Nunca','Rara vez','Algunas veces','Frecuentemente','Casi siempre'];
 
-  // Perfiles por puntaje (rango 30-150). El número NO se muestra al usuario.
+  // Perfiles por puntaje (máx 60). El número NO se muestra al usuario.
   const profiles = [
-    { nm:'Arquitectura Emergente',        min:30,  max:69,
-      d:'Tu estructura interna presenta áreas importantes de oportunidad. Es posible que hoy experimentes dificultades para mantener estabilidad o claridad, o para generar metas y objetivos claros.',
-      reco:'Iniciar un proceso estructurado de desarrollo: Asesoría en estructuración de Arquitectura Mental y del Criterio.',
-      link:'asesoria.html', color:'#C75D5D' },
-    { nm:'Arquitectura en Desarrollo',    min:70,  max:89,
-      d:'Tienes recursos personales valiosos, pero también áreas que limitan tu crecimiento y la calidad de algunas decisiones importantes.',
-      reco:'Fortalecer las dimensiones con menor puntuación: Asesoría en fortalecimiento de Arquitectura Mental y del Criterio — Etapa 1.',
-      link:'asesoria.html', color:'#D69655' },
-    { nm:'Arquitectura en Consolidación', min:90,  max:109,
-      d:'Has desarrollado bases importantes y probablemente ya has realizado trabajo personal significativo. Aún existen oportunidades de fortalecimiento.',
-      reco:'Consolidar hábitos, criterio y dirección: Asesoría en fortalecimiento de Arquitectura Mental y del Criterio — Etapa 2.',
-      link:'asesoria.html', color:'#C9C24F' },
-    { nm:'Arquitectura Funcional',        min:110, max:129,
-      d:'Tu estructura muestra niveles saludables de adaptación, estabilidad y capacidad de decisión. El reto principal es optimizar y expandir tu potencial.',
-      reco:'Programas de crecimiento y desarrollo estratégico: Asesoría individual o Talleres Evoluciona.',
-      link:'evoluciona.html', color:'#5FA9D6' },
-    { nm:'Arquitectura de Alto Desempeño',min:130, max:150,
-      d:'Presentas altos niveles de solidez, coherencia, estabilidad, criterio y dirección. Tu desafío ya no es reconstruir, sino potenciar y multiplicar tu impacto.',
-      reco:'Criterio Ejecutivo Avanzado®.',
-      link:'cea.html', color:'#3E86CF' }
+    { nm:'Arquitectura de Actitud en Reconstrucción', min:0,  max:19,
+      d:'Actualmente podrías estar operando desde el agotamiento, la frustración o la sensación de falta de control. La buena noticia: la actitud se fortalece cuando se fortalece la estructura que la sostiene.',
+      reco:'Conoce lo que podríamos trabajar juntos en una asesoría.',
+      link:'asesoria.html', cta:'Conocer la asesoría', color:'#C75D5D' },
+    { nm:'Arquitectura de Actitud Vulnerable', min:20, max:34,
+      d:'Existen patrones de pensamiento, interpretación o regulación emocional que probablemente están limitando tu bienestar y tus resultados.',
+      reco:'Descubre qué áreas de tu arquitectura están más afectadas con la Evaluación de Arquitectura Mental y del Criterio.',
+      link:'cuestionario.html', cta:'Hacer la evaluación de Criterio', color:'#D69655' },
+    { nm:'Arquitectura de Actitud Funcional', min:35, max:49,
+      d:'Posees recursos importantes, pero ciertas circunstancias pueden debilitar tu forma de enfrentar los desafíos.',
+      reco:'Identifica tus áreas de oportunidad con la Evaluación de Arquitectura Mental y del Criterio.',
+      link:'cuestionario.html', cta:'Hacer la evaluación de Criterio', color:'#C9C24F' },
+    { nm:'Arquitectura de Actitud Sólida', min:50, max:60,
+      d:'Tiendes a interpretar la realidad de manera constructiva, asumir responsabilidad y mantener el rumbo incluso bajo presión. Estás en un buen momento para desarrollarte y generar nuevos proyectos.',
+      reco:'Refuerza tu resultado con la Evaluación de Arquitectura Mental y del Criterio.',
+      link:'cuestionario.html', cta:'Hacer la evaluación de Criterio', color:'#3E86CF' }
   ];
-  // etiquetas cortas para la barra de 5 perfiles
-  const profileShort = ['Emergente','En Desarrollo','En Consolidación','Funcional','Alto Desempeño'];
+  const profileShort = ['En Reconstrucción','Vulnerable','Funcional','Sólida'];
 
-  // construir lista plana de preguntas
-  const questions = [];
-  dimensions.forEach(dim => dim.items.forEach(it => questions.push({ dim:dim.name, text:it })));
   const total = questions.length;
-  const answers = new Array(total).fill(0);
+  const answers = new Array(total).fill(null); // índice de opción elegida (null = sin responder)
 
   const elQuiz = document.getElementById('quiz');
   const elResult = document.getElementById('result');
@@ -285,6 +264,10 @@
   document.getElementById('qTotal').textContent = total;
   const arrow = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>';
 
+  // número de categoría para el encabezado
+  const cats = [];
+  questions.forEach(q => { if(!cats.includes(q.cat)) cats.push(q.cat); });
+
   let cur = 0; // 0..total-1 = preguntas ; total = captura
 
   function renderQuestion(){
@@ -295,14 +278,14 @@
 
     if(!isContact){
       const q = questions[cur];
-      qDim.textContent = 'Dimensión ' + (dimensions.findIndex(d=>d.name===q.dim)+1) + ' — ' + q.dim;
-      qText.textContent = q.text;
+      qDim.textContent = 'Categoría ' + (cats.indexOf(q.cat)+1) + ' — ' + q.cat;
+      qText.textContent = (cur+1) + '. ' + q.t;
       qOpts.innerHTML = '';
-      scaleOpts.forEach((label, i) => {
+      q.opts.forEach((opt, i) => {
         const div = document.createElement('div');
-        div.className = 'opt' + (answers[cur] === i+1 ? ' sel' : '');
-        div.innerHTML = '<span class="mark"></span>' + label;
-        div.addEventListener('click', () => { answers[cur] = i+1; renderQuestion(); refresh(); });
+        div.className = 'opt' + (answers[cur] === i ? ' sel' : '');
+        div.innerHTML = '<span class="mark"></span><span>' + opt.t + '</span>';
+        div.addEventListener('click', () => { answers[cur] = i; renderQuestion(); refresh(); });
         qOpts.appendChild(div);
       });
       qNum.textContent = cur + 1;
@@ -316,7 +299,7 @@
       const e = document.getElementById('c-email').value.trim();
       return n.length > 1 && /.+@.+\..+/.test(e);
     }
-    return answers[cur] > 0;
+    return answers[cur] !== null;
   }
 
   function refresh(){
@@ -327,18 +310,21 @@
   }
 
   function showResult(){
-    const sum = answers.reduce((a,b)=>a+b,0); // 30..150 — interno, no se muestra
+    // suma ponderada (0..60) — interno, no se muestra
+    let sum = 0;
+    answers.forEach((ai, qi) => { if(ai !== null) sum += questions[qi].opts[ai].v; });
     let idx = profiles.findIndex(p => sum >= p.min && sum <= p.max);
-    if(idx < 0) idx = sum < 30 ? 0 : profiles.length - 1;
+    if(idx < 0) idx = sum < 0 ? 0 : profiles.length - 1;
     const p = profiles[idx];
 
     document.getElementById('rTitle').textContent = p.nm;
     document.getElementById('rBar').style.background = p.color;
     document.getElementById('rDesc').textContent = p.d;
     document.getElementById('rReco').textContent = p.reco;
-    document.getElementById('rCta').setAttribute('href', p.link);
+    const cta = document.getElementById('rCta');
+    cta.setAttribute('href', p.link);
+    cta.firstChild.textContent = p.cta + ' ';
 
-    // barra de 5 perfiles, resalta el alcanzado
     const sc = document.getElementById('rScale');
     sc.innerHTML = '';
     profileShort.forEach((label,i) => {
@@ -353,7 +339,7 @@
     elResult.classList.add('show');
     document.getElementById('intro').scrollIntoView({behavior:'smooth'});
 
-    // Aviso por correo a Mario + Rafa (demo). No bloquea la UI si falla.
+    // Aviso por correo a Mario + Rafa + resultado al prospecto (demo). No bloquea la UI.
     const nombre = (document.getElementById('c-nombre')||{}).value || '';
     const email  = (document.getElementById('c-email') ||{}).value || '';
     const tel    = (document.getElementById('c-tel')   ||{}).value || '';
@@ -361,7 +347,7 @@
       fetch('/api/demo/mario-criterio', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ test:'criterio', nombre, email, tel, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:'Ver mi ruta recomendada' })
+        body: JSON.stringify({ test:'actitud', nombre, email, tel, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:p.cta })
       }).catch(()=>{});
     } catch(_) {}
   }
