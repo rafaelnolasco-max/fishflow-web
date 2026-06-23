@@ -761,10 +761,9 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
             {[
-              { label: "Freelance suelto",   cons: ["Desaparece cuando tiene otro proyecto","Tecnología improvisada caso por caso","Sin documentación cuando lo necesitas"], highlight: false },
-              { label: "Software gringo",    cons: ["Sin soporte en español","Pensado para mercado de EUA","Pagas en dólares por funciones que no usas"], highlight: false },
+              { label: "Otras opciones",     cons: ["Aparece y desaparece según su disponibilidad","Tecnología improvisada, distinta cada vez","Pagas de más por funciones que no usas, sin soporte cercano"], highlight: false },
               { label: "FishFlow",           cons: ["Socio constante, mes con mes","Tecnología probada y replicable","Soporte directo, en tu zona horaria"], highlight: true },
             ].map((col) => (
               <div key={col.label} className={`rounded-lg p-5 border ${col.highlight ? "bg-primary/15 border-primary/40" : "bg-white/5 border-white/10"}`}>
