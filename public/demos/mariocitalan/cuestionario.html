@@ -361,7 +361,7 @@
       fetch('/api/demo/mario-criterio', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ nombre, email, tel, perfil:p.nm, ruta:p.reco })
+        body: JSON.stringify({ nombre, email, tel, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link })
       }).catch(()=>{});
     } catch(_) {}
   }

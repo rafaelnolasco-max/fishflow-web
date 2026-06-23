@@ -3,17 +3,19 @@ import { Resend } from 'resend'
 
 export const runtime = 'nodejs'
 
-// Notificación de demo: avisa a Mario + Rafa cuando alguien completa la
-// Evaluación de Arquitectura Mental y del Criterio en el demo.
-// NO guarda en Supabase (es demo). Solo envía el correo de aviso.
-const NOTIFY_TO = ['mariocitalan@gmail.com', 'raf@fishflow.mx']
+// Notificación de demo: al completar la Evaluación de Arquitectura Mental y del
+// Criterio se envían DOS correos:
+//   1) Interno → Mario + Rafa (admin): aviso con los datos del prospecto.
+//   2) Al prospecto → su resultado (perfil + ruta recomendada).
+// NO guarda en Supabase (es demo).
+const ADMIN_TO = ['mariocitalan@gmail.com', 'raf@fishflow.mx']
 
 function esc(s: string) {
   return String(s ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
-function buildHtml(d: {
+function adminHtml(d: {
   nombre: string; email: string; tel: string; perfil: string; ruta: string
 }) {
   return `
@@ -35,6 +37,35 @@ function buildHtml(d: {
   </div>`
 }
 
+function leadHtml(d: {
+  nombre: string; perfil: string; desc: string; ruta: string; ctaUrl: string
+}) {
+  const primer = d.nombre.split(' ')[0] || d.nombre
+  return `
+  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#0F1A24">
+    <div style="background:#0F1A24;color:#fff;padding:26px">
+      <div style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#67D4E8">Tu resultado</div>
+      <div style="font-family:Georgia,serif;font-size:26px;margin-top:8px">${esc(d.perfil)}</div>
+    </div>
+    <div style="padding:26px;border:1px solid #DCE4EC;border-top:none">
+      <p style="font-size:16px;margin:0 0 16px">Hola ${esc(primer)},</p>
+      <p style="font-size:15px;line-height:1.6;margin:0 0 18px">Gracias por completar la Evaluación de Arquitectura Mental y del Criterio. Este es tu perfil general:</p>
+      <div style="border-left:3px solid #3E86CF;padding:4px 0 4px 18px;margin:0 0 22px">
+        <div style="font-family:Georgia,serif;font-size:19px;color:#0F1A24">${esc(d.perfil)}</div>
+        <div style="font-size:14.5px;color:#283845;line-height:1.6;margin-top:6px">${esc(d.desc)}</div>
+      </div>
+      <div style="background:#F4F7FA;border:1px solid #DCE4EC;border-left:3px solid #3E86CF;padding:18px 20px;margin:0 0 24px">
+        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#2A6AAE;margin-bottom:6px">Tu siguiente paso</div>
+        <div style="font-size:15px;color:#0F1A24;line-height:1.5">${esc(d.ruta)}</div>
+      </div>
+      <a href="${esc(d.ctaUrl)}" style="display:inline-block;background:#0F1A24;color:#fff;text-decoration:none;padding:14px 26px;font-size:13px;letter-spacing:.08em;text-transform:uppercase">Ver mi ruta recomendada</a>
+      <p style="font-size:14px;color:#283845;line-height:1.6;margin:26px 0 0">Te escribo personalmente en menos de 24 horas hábiles con la lectura completa de tu resultado.</p>
+      <p style="font-size:14px;color:#283845;margin:18px 0 0">Un abrazo,<br><strong>Mario Citalán</strong></p>
+      <p style="font-size:11px;color:#7B8794;line-height:1.5;margin-top:24px;border-top:1px solid #DCE4EC;padding-top:16px">Esta evaluación es una herramienta de desarrollo humano y autoconocimiento. No constituye una prueba psicológica, psiquiátrica ni diagnóstica, y sus resultados son orientativos.</p>
+    </div>
+  </div>`
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}))
@@ -43,6 +74,8 @@ export async function POST(req: Request) {
     const tel = (body.tel ?? '').toString().trim()
     const perfil = (body.perfil ?? '').toString().trim()
     const ruta = (body.ruta ?? '').toString().trim()
+    const desc = (body.desc ?? '').toString().trim()
+    const link = (body.link ?? '').toString().trim()
 
     if (!nombre || !/.+@.+\..+/.test(email)) {
       return NextResponse.json({ error: 'Datos incompletos.' }, { status: 400 })
@@ -54,21 +87,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, note: 'email no configurado' })
     }
 
+    // URL absoluta del CTA hacia la ruta recomendada del demo
+    let ctaUrl = 'https://www.fishflow.mx/demos/mariocitalan/index.html#soluciones'
+    try {
+      const origin = new URL(req.url).origin
+      ctaUrl = new URL(link || 'index.html#soluciones', `${origin}/demos/mariocitalan/`).toString()
+    } catch (_) {}
+
     const resend = new Resend(resendKey)
-    const { error } = await resend.emails.send({
+
+    // 1) Aviso interno → Mario + Rafa
+    const { error: adminErr } = await resend.emails.send({
       from: 'FishFlow <recibos@fishflow.mx>',
-      to: NOTIFY_TO,
+      to: ADMIN_TO,
       replyTo: email,
       subject: `Nueva evaluación de Criterio — ${nombre} (${perfil})`,
-      html: buildHtml({ nombre, email, tel, perfil, ruta }),
+      html: adminHtml({ nombre, email, tel, perfil, ruta }),
     })
+    if (adminErr) console.error('[demo/mario-criterio] admin email error:', adminErr)
 
-    if (error) {
-      console.error('[demo/mario-criterio] Resend error:', error)
-      return NextResponse.json({ ok: false }, { status: 502 })
-    }
+    // 2) Resultado → prospecto
+    const { error: leadErr } = await resend.emails.send({
+      from: 'Mario Citalán <recibos@fishflow.mx>',
+      to: [email],
+      replyTo: 'raf@fishflow.mx',
+      subject: `${nombre.split(' ')[0] || nombre}, tu resultado: ${perfil}`,
+      html: leadHtml({ nombre, perfil, desc, ruta, ctaUrl }),
+    })
+    if (leadErr) console.error('[demo/mario-criterio] lead email error:', leadErr)
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: !adminErr && !leadErr })
   } catch (err: any) {
     console.error('[demo/mario-criterio] Error:', err?.message ?? err)
     return NextResponse.json({ error: 'Error al procesar.' }, { status: 500 })
