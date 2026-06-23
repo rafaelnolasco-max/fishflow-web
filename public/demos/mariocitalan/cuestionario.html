@@ -352,6 +352,18 @@
     elQuiz.style.display = 'none';
     elResult.classList.add('show');
     document.getElementById('intro').scrollIntoView({behavior:'smooth'});
+
+    // Aviso por correo a Mario + Rafa (demo). No bloquea la UI si falla.
+    const nombre = (document.getElementById('c-nombre')||{}).value || '';
+    const email  = (document.getElementById('c-email') ||{}).value || '';
+    const tel    = (document.getElementById('c-tel')   ||{}).value || '';
+    try {
+      fetch('/api/demo/mario-criterio', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ nombre, email, tel, perfil:p.nm, ruta:p.reco })
+      }).catch(()=>{});
+    } catch(_) {}
   }
 
   back.addEventListener('click', () => { if(cur>0){ cur--; renderQuestion(); } });
