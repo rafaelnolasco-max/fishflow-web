@@ -165,6 +165,14 @@
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  /* MOBILE HARDENING */
+  html,body{overflow-x:hidden;max-width:100%}
+  img,svg{max-width:100%}
+  @media(max-width:860px){
+    .app{flex-direction:column}
+    .sidebar{width:100%}
+    .right-col{width:100%}
+  }
 </style>
 </head>
 <body>

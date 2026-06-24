@@ -277,6 +277,13 @@
   .toast.error { border-color:var(--danger); color:var(--danger); }
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
   .bottom-space { height:20px; }
+  /* MOBILE HARDENING */
+  html,body{overflow-x:hidden;max-width:100%}
+  img,svg{max-width:100%}
+  @media(max-width:760px){
+    .daily-strip,.services-grid,.report-summary{grid-template-columns:1fr}
+    .dash-kpis{grid-template-columns:repeat(2,1fr)}
+  }
 </style>
 </head>
 <body>

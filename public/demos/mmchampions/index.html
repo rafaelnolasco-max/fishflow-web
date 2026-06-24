@@ -313,6 +313,31 @@ button{font-family:inherit;cursor:pointer;}
 .foot__bar{border-top:1px solid var(--line-dark);padding:22px var(--pad);display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted-d);max-width:var(--max);margin:0 auto;}
 .foot__bar .marks span b{color:var(--cyan);font-weight:500;}
 .svg-i{width:24px;height:24px;flex:none;}
+
+/* ============================================================
+   MOBILE HARDENING (tablet / teléfono)
+   ============================================================ */
+html,body{overflow-x:hidden;max-width:100%;}
+svg{max-width:100%;}
+@media(max-width:900px){
+  .hero__inner{padding-bottom:clamp(40px,7vw,72px);}
+  .hero__vis{max-width:340px;margin-top:6px;}
+}
+@media(max-width:600px){
+  :root{--pad:18px;}
+  .hero__vis{display:none;}            /* decorativo (aria-hidden): evita overflow horizontal */
+  .hero__copy h1{font-size:clamp(33px,9vw,46px);}
+  .hero__lede{font-size:16px;}
+  .hero__stats{grid-template-columns:repeat(2,1fr);gap:18px 16px;margin-top:30px;padding-top:22px;}
+  .hero__ctas{flex-direction:column;align-items:stretch;}
+  .hero__ctas .btn{width:100%;justify-content:center;}
+  .section__head{margin-bottom:36px;}
+  .cat-hero__inner{gap:18px;}
+}
+@media(max-width:560px){
+  .nav__right .btn--primary{display:none;}  /* deja accesos desde hero/categorías/footer */
+  .nav__brand svg{height:34px;}
+}
 </style>
 </head>
 <body>

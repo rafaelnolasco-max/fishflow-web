@@ -178,6 +178,13 @@
     .det-tbl td{padding:8px 10px;border-bottom:1px solid var(--g100);color:var(--g800);white-space:nowrap}
     .det-tbl tr:last-child td{border-bottom:none}
     .det-tbl tr:hover td{background:var(--g50)}
+    /* MOBILE HARDENING */
+    html,body{overflow-x:hidden;max-width:100%}
+    img,svg{max-width:100%}
+    @media(max-width:760px){
+      .kpig{grid-template-columns:repeat(2,1fr)}
+      .krow{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>

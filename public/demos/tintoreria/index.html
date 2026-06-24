@@ -457,6 +457,12 @@
     .text-muted { font-size: 13px; color: var(--gray-400); }
     .mt-8 { margin-top: 8px; }
     .fw-600 { font-weight: 600; }
+    /* MOBILE HARDENING */
+    html,body{overflow-x:hidden;max-width:100%}
+    img,svg{max-width:100%}
+    @media(max-width:560px){
+      .stats-grid{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
