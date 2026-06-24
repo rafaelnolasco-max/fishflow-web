@@ -509,6 +509,9 @@ table.tbl tr.clk:hover td{background:var(--paper);}
 
 /* Panel two-column layout */
 .p2col{display:grid;grid-template-columns:1.3fr .9fr;gap:24px;align-items:start;}
+.p2col>*{min-width:0;}
+.kpis>*,.kanban>*,.co-grid>*,.cfdi__grid>*{min-width:0;}
+.tbl-wrap{max-width:100%;}
 
 /* ============================================================
    MOBILE HARDENING (tablet / teléfono)
@@ -540,8 +543,8 @@ svg{max-width:100%;}
   .cfdi__totes .ln{grid-template-columns:auto 110px;}
   .confirm h1{font-size:27px;}
   .confirm .actions .btn{width:100%;justify-content:center;}
-  table.tbl{min-width:520px;}
-  table.tbl th,table.tbl td{padding:11px 12px;font-size:13px;}
+  table.tbl{min-width:0;}
+  table.tbl th,table.tbl td{padding:10px 9px;font-size:12px;white-space:normal;}
   .kpi .v{font-size:26px;}
 }
 @media(max-width:560px){
