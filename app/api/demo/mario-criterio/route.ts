@@ -39,8 +39,14 @@ function adminHtml(d: {
 
 function leadHtml(d: {
   nombre: string; perfil: string; desc: string; ruta: string; ctaUrl: string; ctaLabel: string
+  pdfUrl: string; pdfNombre: string
 }) {
   const primer = d.nombre.split(' ')[0] || d.nombre
+  const pdfBlock = d.pdfUrl ? `
+      <div style="background:#0F1A24;border-radius:4px;padding:20px 22px;margin:0 0 24px;text-align:center">
+        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#67D4E8;margin-bottom:10px">Tu material de regalo</div>
+        <a href="${esc(d.pdfUrl)}" style="display:inline-block;background:#fff;color:#0F1A24;text-decoration:none;padding:13px 24px;font-size:13px;letter-spacing:.06em;text-transform:uppercase">Descargar PDF · ${esc(d.pdfNombre)}</a>
+      </div>` : ''
   return `
   <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#0F1A24">
     <div style="background:#0F1A24;color:#fff;padding:26px">
@@ -49,11 +55,12 @@ function leadHtml(d: {
     </div>
     <div style="padding:26px;border:1px solid #DCE4EC;border-top:none">
       <p style="font-size:16px;margin:0 0 16px">Hola ${esc(primer)},</p>
-      <p style="font-size:15px;line-height:1.6;margin:0 0 18px">Gracias por completar la Evaluación de Arquitectura Mental y del Criterio. Este es tu perfil general:</p>
+      <p style="font-size:15px;line-height:1.6;margin:0 0 18px">Gracias por completar tu evaluación. Este es tu perfil general:</p>
       <div style="border-left:3px solid #3E86CF;padding:4px 0 4px 18px;margin:0 0 22px">
         <div style="font-family:Georgia,serif;font-size:19px;color:#0F1A24">${esc(d.perfil)}</div>
         <div style="font-size:14.5px;color:#283845;line-height:1.6;margin-top:6px">${esc(d.desc)}</div>
       </div>
+      ${pdfBlock}
       <div style="background:#F4F7FA;border:1px solid #DCE4EC;border-left:3px solid #3E86CF;padding:18px 20px;margin:0 0 24px">
         <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#2A6AAE;margin-bottom:6px">Tu siguiente paso</div>
         <div style="font-size:15px;color:#0F1A24;line-height:1.5">${esc(d.ruta)}</div>
@@ -78,6 +85,8 @@ export async function POST(req: Request) {
     const link = (body.link ?? '').toString().trim()
     const test = (body.test ?? 'criterio').toString().trim().toLowerCase()
     const ctaLabel = (body.ctaLabel ?? 'Ver mi ruta recomendada').toString().trim()
+    const pdf = (body.pdf ?? '').toString().trim()
+    const pdfNombre = (body.pdfNombre ?? 'Tu PDF').toString().trim()
     const testLabel = test === 'actitud' ? 'Actitud' : 'Criterio'
 
     if (!nombre || !/.+@.+\..+/.test(email)) {
@@ -92,9 +101,12 @@ export async function POST(req: Request) {
 
     // URL absoluta del CTA hacia la ruta recomendada del demo
     let ctaUrl = 'https://www.fishflow.mx/demos/mariocitalan/index.html#soluciones'
+    let pdfUrl = ''
     try {
       const origin = new URL(req.url).origin
-      ctaUrl = new URL(link || 'index.html#soluciones', `${origin}/demos/mariocitalan/`).toString()
+      const base = `${origin}/demos/mariocitalan/`
+      ctaUrl = new URL(link || 'index.html#soluciones', base).toString()
+      if (pdf) pdfUrl = new URL(pdf, base).toString()
     } catch (_) {}
 
     const resend = new Resend(resendKey)
@@ -115,7 +127,7 @@ export async function POST(req: Request) {
       to: [email],
       replyTo: 'raf@fishflow.mx',
       subject: `${nombre.split(' ')[0] || nombre}, tu resultado: ${perfil}`,
-      html: leadHtml({ nombre, perfil, desc, ruta, ctaUrl, ctaLabel }),
+      html: leadHtml({ nombre, perfil, desc, ruta, ctaUrl, ctaLabel, pdfUrl, pdfNombre }),
     })
     if (leadErr) console.error('[demo/mario-criterio] lead email error:', leadErr)
 

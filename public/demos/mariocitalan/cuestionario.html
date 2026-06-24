@@ -88,8 +88,13 @@
   .reco{background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);padding:20px 22px;max-width:520px;margin:0 auto 30px;text-align:left}
   .reco .reco-l{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:8px}
   .reco .reco-t{font-family:"Fraunces",serif;font-size:19px;color:var(--ink);line-height:1.3}
+  .res-actions{display:flex;flex-direction:column;align-items:center;gap:12px}
   .res-cta{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:var(--paper);padding:15px 26px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
   .res-cta:hover{background:var(--accent-deep)}
+  .res-cta svg{width:13px;height:13px}
+  .res-dl{display:inline-flex;align-items:center;gap:9px;background:transparent;color:var(--ink);border:1px solid var(--ink);padding:14px 24px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .res-dl:hover{border-color:var(--accent-deep);color:var(--accent-deep)}
+  .res-dl svg{width:13px;height:13px}
 
   .metodo{max-width:620px;margin:36px auto 0;padding-top:22px;border-top:1px solid var(--rule);font-size:11.5px;color:var(--muted);line-height:1.6;text-align:left}
 
@@ -175,9 +180,14 @@
           <div class="reco-l">Ruta recomendada</div>
           <div class="reco-t" id="rReco"></div>
         </div>
-        <a class="res-cta" id="rCta" href="index.html#soluciones">Ver mi ruta recomendada
-          <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
-        </a>
+        <div class="res-actions">
+          <a class="res-cta" id="rDl" href="assets/pdf/arquitectura-mental-y-del-criterio.pdf" download>Descargar tu PDF · Arquitectura Mental y del Criterio
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 1v9M3 6l4 4 4-4M1 13h12"/></svg>
+          </a>
+          <a class="res-dl" id="rCta" href="index.html#soluciones">Ver mi ruta recomendada
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+          </a>
+        </div>
         <p class="note" style="margin-top:22px">Te escribo personalmente en menos de 24 horas hábiles con la lectura completa.</p>
         <p class="metodo">La Evaluación de Arquitectura Mental y Arquitectura del Criterio® es una herramienta de desarrollo humano y autoconocimiento. No constituye una prueba psicológica, psiquiátrica, diagnóstica ni de tamizaje, y no sustituye la valoración de profesionales de la salud mental. Sus resultados son orientativos y tienen como propósito favorecer la reflexión, el aprendizaje y el desarrollo personal.</p>
       </div>
@@ -361,7 +371,7 @@
       fetch('/api/demo/mario-criterio', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ test:'criterio', nombre, email, tel, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:'Ver mi ruta recomendada' })
+        body: JSON.stringify({ test:'criterio', nombre, email, tel, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:'Ver mi ruta recomendada', pdf:'assets/pdf/arquitectura-mental-y-del-criterio.pdf', pdfNombre:'Arquitectura Mental y del Criterio' })
       }).catch(()=>{});
     } catch(_) {}
   }
