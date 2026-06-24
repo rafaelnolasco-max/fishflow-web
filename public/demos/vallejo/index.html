@@ -1,0 +1,1628 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tableros y Herrajes Vallejo — Distribuidor para carpintería y mueblería</title>
+<meta name="description" content="Tableros, herrajes y accesorios para carpinteros, mueblerías y constructores. Catálogo, tienda en línea y atención profesional." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Brand tokens — Tableros y Herrajes Vallejo (madera + acero)
+   ============================================================ */
+:root{
+  --ink:#1B1611; --ink-2:#241D16; --ink-3:#342A20;
+  --line-dark:#3D3024; --paper:#F4EEE6; --paper-2:#E9DFD1; --paper-3:#DCCFB9;
+  --line-light:#CBBCA1;
+  --cyan:#3E86B5; --cyan-deep:#2A6088; --cyan-soft:#BBD9EC;       /* acero / herraje */
+  --orange:#C0792F; --orange-deep:#9A5C1C; --orange-soft:#EED7B4; /* madera / ámbar */
+  --green:#3E9A5E; --warn:#D08A2A;
+  --muted-d:#A99B86; --muted-l:#7A6E5C;
+  --f-display:"Bricolage Grotesque",system-ui,sans-serif;
+  --f-body:"Manrope",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,monospace;
+  --max:1320px; --pad:clamp(20px,4vw,56px); --radius:18px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--f-body);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+.mono{font-family:var(--f-mono);}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan-deep);display:inline-flex;align-items:center;gap:10px;}
+.eyebrow::before{content:"";width:8px;height:8px;background:var(--cyan);border-radius:999px;box-shadow:0 0 0 4px color-mix(in oklab,var(--cyan) 25%,transparent);}
+.eyebrow--light{color:var(--cyan);}
+.eyebrow--light::before{background:var(--cyan);}
+.kicker{font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-l);}
+.kicker--dark{color:var(--muted-d);}
+
+/* Buttons */
+.btn{font-family:var(--f-body);font-weight:600;font-size:16px;padding:14px 22px;border-radius:999px;border:1px solid transparent;display:inline-flex;align-items:center;gap:10px;transition:transform .15s,background .15s,color .15s;white-space:nowrap;}
+.btn:hover{transform:translateY(-1px);}
+.btn--primary{background:var(--orange);color:#fff;box-shadow:0 6px 18px -6px color-mix(in oklab,var(--orange) 70%,transparent);}
+.btn--primary:hover{background:var(--orange-deep);}
+.btn--ghost{background:transparent;color:var(--ink);border-color:color-mix(in oklab,var(--ink) 20%,transparent);}
+.btn--ghost:hover{background:color-mix(in oklab,var(--ink) 8%,transparent);}
+.btn--ghost-d{background:transparent;color:#fff;border-color:color-mix(in oklab,#fff 25%,transparent);}
+.btn--ghost-d:hover{background:color-mix(in oklab,#fff 8%,transparent);}
+.btn--cyan{background:var(--cyan);color:#fff;}
+.btn--cyan:hover{background:var(--cyan-deep);}
+.btn--lg{font-size:18px;padding:18px 28px;}
+.btn--ink{background:var(--ink);color:var(--paper);}
+.btn--ink:hover{background:var(--ink-3);}
+.btn--sm{font-size:13px;padding:9px 14px;}
+.btn .arr{display:inline-block;transition:transform .2s;}
+.btn:hover .arr{transform:translateX(3px);}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* Demo banner */
+.demobar{background:var(--ink-3);color:var(--paper);font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-align:center;padding:7px var(--pad);text-transform:uppercase;}
+.demobar b{color:var(--orange);font-weight:500;}
+
+/* Nav */
+.nav{position:sticky;top:0;z-index:50;background:color-mix(in oklab,var(--paper) 92%,transparent);backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid transparent;transition:border-color .2s,background .2s;}
+.nav.is-scrolled{border-bottom-color:var(--line-light);background:color-mix(in oklab,var(--paper) 97%,transparent);}
+.nav__inner{max-width:var(--max);margin:0 auto;padding:12px var(--pad);display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px;}
+.nav__brand{display:inline-flex;align-items:center;gap:12px;cursor:pointer;}
+.nav__links{display:flex;gap:26px;justify-content:center;font-size:14.5px;font-weight:500;}
+.nav__links a{color:var(--ink);opacity:.78;transition:opacity .15s,color .15s;cursor:pointer;}
+.nav__links a:hover,.nav__links a.is-active{opacity:1;color:var(--cyan-deep);}
+.nav__right{display:flex;align-items:center;gap:12px;}
+.cartbtn{position:relative;width:44px;height:44px;border-radius:999px;border:1px solid var(--line-light);background:#fff;display:grid;place-items:center;color:var(--ink);}
+.cartbtn:hover{border-color:var(--cyan);}
+.cartbtn .count{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:999px;background:var(--orange);color:#fff;font-family:var(--f-mono);font-size:11px;display:grid;place-items:center;padding:0 5px;}
+.cartbtn .count.empty{display:none;}
+@media(max-width:920px){.nav__links{display:none;}}
+
+/* Hero */
+.hero{position:relative;background:var(--ink);color:var(--paper);overflow:hidden;isolation:isolate;}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(900px 600px at 15% 20%,color-mix(in oklab,var(--orange) 16%,transparent),transparent 60%),radial-gradient(700px 600px at 85% 90%,color-mix(in oklab,var(--cyan) 14%,transparent),transparent 60%);z-index:0;}
+.hero__inner{position:relative;z-index:2;max-width:var(--max);margin:0 auto;padding:clamp(48px,8vw,92px) var(--pad) clamp(56px,9vw,112px);display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,4vw,64px);align-items:center;}
+@media(max-width:980px){.hero__inner{grid-template-columns:1fr;}}
+.hero__copy h1{font-family:var(--f-display);font-weight:700;font-size:clamp(38px,6vw,76px);line-height:1;letter-spacing:-.025em;margin:22px 0 22px;color:var(--paper);text-wrap:balance;}
+.hero__copy h1 .accent{color:var(--orange);font-style:italic;font-weight:600;}
+.hero__copy h1 .stroke{-webkit-text-stroke:1.6px var(--orange);color:transparent;font-weight:800;}
+.hero__lede{font-size:clamp(16px,1.45vw,19px);color:var(--muted-d);max-width:54ch;margin:0 0 30px;line-height:1.55;}
+.hero__ctas{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:34px;}
+.hero__chips{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px;}
+.hero__chips li{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line-dark);border-radius:999px;padding:7px 12px;color:var(--muted-d);}
+.hero__chips li b{color:var(--orange);font-weight:500;}
+.hero__stats{margin-top:42px;padding-top:26px;border-top:1px solid var(--line-dark);display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.hero__stats div b{display:block;font-family:var(--f-display);font-size:clamp(24px,3vw,36px);font-weight:700;color:var(--paper);letter-spacing:-.02em;line-height:1;}
+.hero__stats div b sup{color:var(--cyan);font-size:.5em;font-weight:600;vertical-align:super;}
+.hero__stats div span{display:block;margin-top:8px;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-d);}
+.hero__vis{position:relative;aspect-ratio:1/1.02;width:100%;max-width:520px;justify-self:end;}
+@media(max-width:980px){.hero__vis{justify-self:start;max-width:440px;}}
+.hero__vis .board{position:absolute;inset:8% 6% auto auto;width:78%;aspect-ratio:1;border-radius:14px;background:
+   repeating-linear-gradient(92deg,#7a5024 0 5px,#8a5c2a 5px 11px,#6f4720 11px 17px),
+   linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.25));
+  box-shadow:0 30px 70px -22px rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.08);}
+.hero__vis .board::after{content:"";position:absolute;inset:0;border-radius:14px;background:radial-gradient(120px 80px at 70% 30%,rgba(0,0,0,.28),transparent 70%);}
+.hero__vis .hinge{position:absolute;right:9%;top:5%;width:96px;height:120px;background:linear-gradient(180deg,#cfd6db,#8c969d);border-radius:10px;box-shadow:0 20px 44px -16px rgba(0,0,0,.6);}
+.hero__vis .hinge::before{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:14px;transform:translateX(-50%);background:linear-gradient(90deg,#6c757c,#aeb6bc,#6c757c);border-radius:999px;}
+.hero__vis .hinge::after{content:"";position:absolute;left:18px;top:22px;width:14px;height:14px;border-radius:50%;background:#566066;box-shadow:0 52px 0 #566066;}
+.hero__vis .specsheet{position:absolute;left:0;top:6%;background:var(--paper);color:var(--ink);padding:14px 16px;border-radius:12px;font-family:var(--f-mono);font-size:11px;line-height:1.65;box-shadow:0 24px 50px -16px rgba(0,0,0,.5);min-width:208px;transform:rotate(-4deg);}
+.hero__vis .specsheet h6{margin:0 0 6px;font-family:var(--f-display);font-weight:600;font-size:13px;}
+.hero__vis .specsheet .row{display:flex;justify-content:space-between;gap:12px;}
+.hero__vis .specsheet .row span:last-child{color:var(--cyan-deep);font-weight:700;}
+.hero__vis .specsheet .price{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line-light);display:flex;justify-content:space-between;align-items:baseline;}
+.hero__vis .specsheet .price b{font-family:var(--f-display);font-size:18px;}
+.hero__vis .specsheet .price s{color:var(--muted-l);opacity:.8;}
+.hero__vis .screw{position:absolute;left:6%;bottom:9%;width:84px;height:84px;border-radius:50%;background:conic-gradient(from 0deg,#aeb6bc,#7b848a,#aeb6bc,#7b848a,#aeb6bc);box-shadow:0 16px 34px -14px rgba(0,0,0,.6);display:grid;place-items:center;}
+.hero__vis .screw::before{content:"";width:46px;height:6px;background:#3a4045;border-radius:2px;}
+.hero__vis .screw::after{content:"";position:absolute;width:6px;height:46px;background:#3a4045;border-radius:2px;}
+
+/* Marquee */
+.marquee{background:var(--ink);color:var(--paper);border-top:1px solid var(--line-dark);border-bottom:1px solid var(--line-dark);overflow:hidden;}
+.marquee__track{display:flex;gap:56px;padding:18px 0;animation:marquee 32s linear infinite;width:max-content;}
+.marquee__item{display:inline-flex;align-items:center;gap:14px;font-family:var(--f-display);font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--paper);white-space:nowrap;}
+.marquee__item .dot{width:6px;height:6px;border-radius:999px;background:var(--orange);}
+.marquee__item.alt{color:var(--orange);}
+.marquee__item .num{font-family:var(--f-mono);color:var(--cyan);font-size:18px;}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* Sections */
+.section{max-width:var(--max);margin:0 auto;padding:clamp(60px,9vw,116px) var(--pad);}
+.section--dark{background:var(--ink);color:var(--paper);max-width:none;}
+.section--dark>.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--pad);}
+.section--cyan{background:var(--cyan);color:#fff;max-width:none;}
+.section--cyan>.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--pad);}
+.section__head{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:end;margin-bottom:52px;}
+.section__head h2{font-family:var(--f-display);font-weight:700;font-size:clamp(32px,4.4vw,58px);line-height:1.02;letter-spacing:-.025em;margin:14px 0 0;text-wrap:balance;}
+.section__head h2 em{font-style:italic;font-weight:600;color:var(--cyan-deep);}
+.section--dark .section__head h2 em{color:var(--orange);}
+.section__head p{max-width:38ch;margin:0;color:var(--muted-l);font-size:15.5px;line-height:1.55;}
+.section--dark .section__head p{color:var(--muted-d);}
+@media(max-width:800px){.section__head{grid-template-columns:1fr;}}
+
+/* Plataforma (3 módulos) */
+.plat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:900px){.plat{grid-template-columns:1fr;}}
+.plat__card{background:#fff;border:1px solid var(--line-light);border-radius:var(--radius);padding:28px;display:grid;gap:12px;align-content:start;}
+.plat__card .n{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;color:var(--cyan-deep);}
+.plat__card h3{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0;letter-spacing:-.01em;}
+.plat__card p{margin:0;color:var(--muted-l);font-size:15px;line-height:1.55;}
+.plat__card ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:7px;}
+.plat__card li{font-size:14px;display:flex;gap:9px;align-items:flex-start;color:var(--ink);}
+.plat__card li svg{flex:none;margin-top:3px;color:var(--cyan);width:15px;height:15px;}
+.plat__card .link{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.05em;color:var(--orange-deep);display:inline-flex;gap:6px;align-items:center;margin-top:4px;cursor:pointer;}
+
+/* Advantage cards */
+.adv{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:1000px){.adv{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:620px){.adv{grid-template-columns:1fr;}}
+.adv__card{background:#fff;border:1px solid var(--line-light);border-radius:var(--radius);padding:28px 28px 24px;display:grid;gap:10px;position:relative;}
+.adv__card.is-hi{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.adv__card .num{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;color:var(--cyan);margin-bottom:4px;}
+.adv__card h3{font-family:var(--f-display);font-weight:700;font-size:20px;line-height:1.1;margin:0;letter-spacing:-.01em;}
+.adv__card h3 em{color:var(--orange);font-style:normal;}
+.adv__card.is-hi h3 em{color:var(--orange);}
+.adv__card p{margin:0;font-size:15px;color:var(--muted-l);line-height:1.5;}
+.adv__card.is-hi p{color:var(--muted-d);}
+.adv__card .tag{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line-light);border-radius:999px;padding:5px 10px;width:fit-content;color:var(--muted-l);}
+.adv__card.is-hi .tag{border-color:var(--line-dark);color:var(--muted-d);}
+.adv__icon{width:44px;height:44px;background:color-mix(in oklab,var(--orange) 14%,transparent);border-radius:12px;display:grid;place-items:center;color:var(--orange-deep);}
+.adv__card.is-hi .adv__icon{background:color-mix(in oklab,var(--orange) 18%,transparent);color:var(--orange);}
+
+/* Comparison table */
+.cmp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;border-radius:var(--radius);overflow:hidden;}
+@media(max-width:860px){.cmp{grid-template-columns:1fr 1fr;}.cmp__feat{display:none;}}
+.cmp__head{padding:20px 22px;background:var(--ink-2);}
+.cmp__head h4{font-family:var(--f-display);font-weight:700;font-size:18px;margin:0;color:var(--paper);}
+.cmp__head .sub{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-d);display:block;margin-bottom:6px;}
+.cmp__feat{background:var(--ink-3);}
+.cmp__feat .cmp__row{color:var(--muted-d);font-size:14px;}
+.cmp__col--mm{background:color-mix(in oklab,var(--orange) 14%,var(--ink-2));}
+.cmp__col--mm .cmp__head{background:color-mix(in oklab,var(--orange) 18%,var(--ink-2));}
+.cmp__col--alt{background:var(--ink-2);}
+.cmp__row{padding:16px 22px;display:flex;align-items:center;gap:12px;border-top:1px solid var(--line-dark);font-size:15px;color:var(--paper);}
+.cmp__feat .cmp__head{background:var(--ink-3);}
+.tick{width:18px;height:18px;flex:none;}
+.tick--ok{color:var(--orange);}
+.tick--no{color:var(--cyan);opacity:.7;}
+
+/* Category cards */
+.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:900px){.cats{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.cats{grid-template-columns:1fr;}}
+.cat{background:#fff;border:1px solid var(--line-light);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;}
+.cat:hover{transform:translateY(-4px);border-color:var(--cyan);box-shadow:0 20px 44px -22px color-mix(in oklab,var(--cyan) 50%,transparent);}
+.cat__media{position:relative;aspect-ratio:16/9;background:var(--ink-3);overflow:hidden;}
+.cat__media .pattern{position:absolute;inset:0;}
+.cat__media .count{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.14);backdrop-filter:blur(8px);color:#fff;font-size:10.5px;letter-spacing:.08em;padding:5px 10px;border-radius:999px;}
+.cat__media .label{position:absolute;bottom:14px;left:14px;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:var(--orange);color:#fff;padding:5px 10px;border-radius:999px;}
+.cat__body{padding:20px 22px 22px;display:grid;gap:8px;flex:1;}
+.cat__body h3{font-family:var(--f-display);font-weight:700;font-size:20px;margin:0;letter-spacing:-.01em;}
+.cat__body p{margin:0;font-size:14px;color:var(--muted-l);line-height:1.5;}
+.cat__body .more{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;color:var(--cyan-deep);display:inline-flex;align-items:center;gap:6px;}
+.pat-tableros{background:repeating-linear-gradient(94deg,#6f4720 0 6px,#825427 6px 13px,#5e3c1c 13px 20px);opacity:.85;}
+.pat-correderas{background:linear-gradient(135deg,#2A6088,#1b2a36);}
+.pat-bisagras{background:linear-gradient(135deg,#8c969d,#3a4045);}
+.pat-jaladeras{background:repeating-linear-gradient(90deg,#cbbca1 0 2px,#bcab8e 2px 22px);}
+.pat-conectores{background:radial-gradient(circle at 30% 60%,var(--cyan-deep),var(--ink-3));}
+.pat-cantos{background:linear-gradient(135deg,var(--ink-2),var(--ink-3));}
+.pat-oferta{background:repeating-linear-gradient(-45deg,var(--orange) 0 18px,var(--orange-deep) 18px 36px);position:relative;}
+.pat-oferta::before{content:"OFERTA";position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:44px;color:#fff;letter-spacing:.02em;text-shadow:0 4px 18px rgba(0,0,0,.25);}
+
+/* Trust band */
+.trust{display:grid;grid-template-columns:1fr auto;gap:36px;align-items:center;}
+@media(max-width:920px){.trust{grid-template-columns:1fr;}}
+.trust h2{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,3.4vw,44px);line-height:1.05;letter-spacing:-.02em;margin:0;max-width:22ch;text-wrap:balance;}
+.trust h2 em{font-style:italic;color:#fff;opacity:.85;font-weight:600;}
+.trust__badges{display:flex;flex-wrap:wrap;gap:10px;max-width:500px;}
+.trust__badge{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:999px;font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;}
+.trust__badge .check{color:var(--orange);display:inline-flex;}
+
+/* Catalog hero */
+.cat-hero{background:var(--ink);color:var(--paper);padding:clamp(30px,5vw,66px) var(--pad);}
+.cat-hero__inner{max-width:var(--max);margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:end;}
+@media(max-width:720px){.cat-hero__inner{grid-template-columns:1fr;}}
+.cat-hero h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,4vw,50px);line-height:1.02;letter-spacing:-.025em;margin:14px 0 0;text-wrap:balance;}
+.cat-hero h1 em{font-style:italic;color:var(--orange);font-weight:600;}
+.cat-hero .summary{text-align:right;font-family:var(--f-mono);font-size:13px;color:var(--muted-d);line-height:1.6;}
+.cat-hero .summary b{font-family:var(--f-display);font-size:clamp(38px,5vw,60px);font-weight:700;color:var(--paper);display:block;letter-spacing:-.025em;line-height:1;}
+@media(max-width:720px){.cat-hero .summary{text-align:left;}}
+
+/* Price-mode switch */
+.pricemode{display:inline-flex;align-items:center;gap:0;background:var(--ink-2);border:1px solid var(--line-dark);border-radius:999px;padding:4px;margin-top:18px;}
+.pricemode button{background:transparent;border:none;color:var(--muted-d);font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:999px;transition:background .15s,color .15s;}
+.pricemode button.on{background:var(--orange);color:#fff;}
+
+/* Breadcrumbs */
+.crumbs{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;margin-bottom:22px;}
+.crumbs .sep{color:var(--muted-d);opacity:.6;}
+.crumbs .cur{color:var(--orange);}
+.crumbs a{cursor:pointer;}
+.crumbs a:hover{color:var(--orange);}
+
+/* Catalog shell */
+.cat-shell{max-width:var(--max);margin:0 auto;padding:30px var(--pad) 80px;display:grid;grid-template-columns:280px 1fr;gap:32px;align-items:start;}
+@media(max-width:980px){.cat-shell{grid-template-columns:1fr;}}
+.filters{display:grid;gap:24px;position:sticky;top:120px;}
+.f-group{display:grid;gap:10px;}
+.f-group h4{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-l);margin:0;}
+.search-wrap{position:relative;}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted-l);}
+.search-wrap input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line-light);border-radius:12px;font-family:var(--f-body);font-size:14px;background:var(--paper);outline:none;}
+.search-wrap input:focus{border-color:var(--cyan);background:#fff;}
+.opts{display:grid;gap:6px;}
+.f-opt{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;}
+.f-opt input[type=checkbox]{width:16px;height:16px;accent-color:var(--cyan);cursor:pointer;}
+.f-opt .count{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--muted-l);}
+.toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:14px;}
+.toggle input[type=checkbox]{display:none;}
+.toggle .sw{width:40px;height:22px;background:var(--line-light);border-radius:999px;position:relative;transition:background .2s;}
+.toggle .sw::before{content:"";position:absolute;width:16px;height:16px;top:3px;left:3px;background:#fff;border-radius:999px;transition:transform .2s;}
+.toggle input:checked+.sw{background:var(--cyan);}
+.toggle input:checked+.sw::before{transform:translateX(18px);}
+.price-range{display:flex;gap:8px;}
+.price-range input{flex:1;min-width:0;border:1px solid var(--line-light);border-radius:8px;padding:8px 10px;font-family:var(--f-mono);font-size:13px;background:var(--paper);outline:none;}
+.price-range input:focus{border-color:var(--cyan);background:#fff;}
+.f-actions button{background:var(--paper);border:1px solid var(--line-light);border-radius:999px;padding:10px 14px;font-size:12.5px;font-family:var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);transition:background .15s,border-color .15s;}
+.f-actions button:hover{background:var(--paper-2);border-color:var(--cyan);}
+
+/* Results panel */
+.results-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:14px;}
+.results-bar .count{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.06em;color:var(--muted-l);}
+.results-bar .count b{color:var(--ink);font-weight:700;}
+.sort-wrap{display:flex;align-items:center;gap:8px;}
+.sort-wrap label{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-l);}
+.sort-wrap select{appearance:none;border:1px solid var(--line-light);border-radius:999px;padding:9px 36px 9px 14px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%231B1611' d='M0 2l5 6 5-6z'/%3E%3C/svg%3E") right 14px center/10px no-repeat;font-family:inherit;font-size:14px;color:var(--ink);cursor:pointer;outline:none;}
+.sort-wrap select:focus{border-color:var(--cyan);}
+.active-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:var(--paper);padding:6px 10px 6px 12px;border-radius:999px;font-size:12px;font-family:var(--f-mono);letter-spacing:.04em;}
+.chip button{background:transparent;border:none;color:var(--orange);font-size:16px;line-height:1;padding:0;cursor:pointer;}
+
+/* Product grid */
+.p-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;}
+.p-card{background:#fff;border:1px solid var(--line-light);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative;}
+.p-card:hover{transform:translateY(-3px);border-color:var(--cyan);box-shadow:0 18px 36px -22px color-mix(in oklab,var(--cyan) 70%,transparent);}
+.p-card__body{padding:16px 18px 14px;display:grid;gap:10px;flex:1;}
+.p-card__cat{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan-deep);}
+.p-card__name{font-family:var(--f-display);font-weight:600;font-size:16px;line-height:1.18;letter-spacing:-.005em;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38px;}
+.p-card__row{display:flex;justify-content:space-between;align-items:end;gap:8px;}
+.p-card__price{font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:-.015em;color:var(--ink);line-height:1;}
+.p-card__price small{font-family:var(--f-mono);font-size:11px;color:var(--muted-l);font-weight:500;margin-left:2px;}
+.p-card__price s{font-family:var(--f-mono);font-size:12px;color:var(--muted-l);font-weight:400;margin-right:4px;}
+.p-card__stock{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;color:var(--muted-l);}
+.p-card__stock .dot{width:7px;height:7px;border-radius:50%;background:var(--line-light);}
+.p-card__stock.in .dot{background:var(--green);box-shadow:0 0 0 3px color-mix(in oklab,var(--green) 25%,transparent);}
+.p-card__stock.low .dot{background:var(--warn);}
+.p-card__stock.in{color:var(--green);}
+.p-card__stock.low{color:var(--warn);}
+.p-card__badge{position:absolute;top:10px;left:10px;z-index:4;background:var(--orange);color:#fff;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;padding:4px 8px;border-radius:999px;text-transform:uppercase;}
+.p-card__cta{padding:0 18px 18px;}
+.p-card__cta .btn{width:100%;justify-content:center;font-size:14px;padding:11px 16px;}
+
+/* Thumb visual */
+.thumb{aspect-ratio:1;background:var(--paper-2);overflow:hidden;position:relative;}
+.thumb svg{width:100%;height:100%;display:block;}
+.thumb__cat{position:absolute;bottom:10px;left:10px;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;background:rgba(244,238,230,.9);color:var(--ink);padding:3px 8px;border-radius:999px;}
+.thumb__sku{position:absolute;top:10px;right:10px;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.06em;background:rgba(27,22,17,.8);color:rgba(255,255,255,.85);padding:3px 8px;border-radius:999px;}
+
+/* Empty state */
+.empty{border:1px dashed var(--line-light);border-radius:var(--radius);padding:64px 24px;text-align:center;color:var(--muted-l);}
+.empty h3{font-family:var(--f-display);font-size:22px;font-weight:600;color:var(--ink);margin:0 0 8px;}
+
+/* Pagination */
+.pag{margin-top:32px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap;}
+.pag button{min-width:38px;height:38px;border-radius:999px;border:1px solid var(--line-light);background:#fff;font-family:var(--f-mono);font-size:13px;color:var(--ink);padding:0 12px;transition:background .15s,border-color .15s,color .15s;}
+.pag button:hover{border-color:var(--cyan);}
+.pag button.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+.pag button:disabled{opacity:.4;cursor:not-allowed;}
+
+/* Mobile filter toggle */
+.f-toggle{display:none;width:100%;margin-bottom:16px;background:var(--ink);color:var(--paper);border:none;padding:14px 18px;border-radius:999px;font-weight:600;}
+@media(max-width:980px){.f-toggle{display:inline-flex;align-items:center;justify-content:center;gap:10px;}.filters{display:none;}.filters.is-open{display:grid;}}
+
+/* ============================================================
+   CART DRAWER
+   ============================================================ */
+.scrim{position:fixed;inset:0;background:rgba(15,11,8,.5);backdrop-filter:blur(2px);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s;}
+.scrim.open{opacity:1;pointer-events:auto;}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(420px,92vw);background:var(--paper);z-index:100;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:-20px 0 60px -20px rgba(0,0,0,.4);}
+.drawer.open{transform:translateX(0);}
+.drawer__head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--line-light);}
+.drawer__head h3{font-family:var(--f-display);font-size:20px;font-weight:700;margin:0;}
+.drawer__close{width:36px;height:36px;border-radius:999px;border:1px solid var(--line-light);background:#fff;display:grid;place-items:center;font-size:18px;color:var(--ink);}
+.drawer__body{flex:1;overflow-y:auto;padding:16px 22px;display:grid;gap:12px;align-content:start;}
+.drawer__empty{text-align:center;color:var(--muted-l);padding:48px 12px;}
+.ci{display:grid;grid-template-columns:54px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid var(--line-light);border-radius:14px;padding:10px;}
+.ci__thumb{width:54px;height:54px;border-radius:10px;overflow:hidden;background:var(--paper-2);}
+.ci__name{font-family:var(--f-display);font-weight:600;font-size:13.5px;line-height:1.2;margin:0 0 4px;}
+.ci__meta{font-family:var(--f-mono);font-size:11px;color:var(--muted-l);}
+.ci__qty{display:inline-flex;align-items:center;gap:8px;margin-top:6px;}
+.ci__qty button{width:24px;height:24px;border-radius:7px;border:1px solid var(--line-light);background:var(--paper);font-size:15px;line-height:1;color:var(--ink);display:grid;place-items:center;}
+.ci__qty span{font-family:var(--f-mono);font-size:13px;min-width:18px;text-align:center;}
+.ci__right{text-align:right;display:grid;gap:8px;justify-items:end;}
+.ci__price{font-family:var(--f-display);font-weight:700;font-size:15px;}
+.ci__rm{background:none;border:none;color:var(--muted-l);font-family:var(--f-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;}
+.ci__rm:hover{color:var(--orange-deep);}
+.drawer__foot{border-top:1px solid var(--line-light);padding:18px 22px 22px;display:grid;gap:8px;}
+.drawer__line{display:flex;justify-content:space-between;font-size:14px;color:var(--muted-l);}
+.drawer__line.total{font-family:var(--f-display);font-size:20px;font-weight:700;color:var(--ink);margin-top:4px;}
+.drawer__foot .btn{width:100%;justify-content:center;margin-top:6px;}
+.modeflag{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan-deep);background:var(--cyan-soft);padding:3px 9px;border-radius:999px;width:fit-content;}
+
+/* ============================================================
+   GENERIC PAGE (checkout / panel)
+   ============================================================ */
+.page{max-width:var(--max);margin:0 auto;padding:36px var(--pad) 90px;}
+.page__head{margin-bottom:28px;}
+.page__head h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,4vw,46px);letter-spacing:-.025em;margin:10px 0 0;line-height:1.02;}
+.page__head h1 em{font-style:italic;color:var(--cyan-deep);font-weight:600;}
+.card{background:#fff;border:1px solid var(--line-light);border-radius:var(--radius);padding:24px;}
+.card h3{font-family:var(--f-display);font-weight:700;font-size:18px;margin:0 0 16px;}
+
+/* Checkout */
+.co-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:24px;align-items:start;}
+@media(max-width:880px){.co-grid{grid-template-columns:1fr;}}
+.field{display:grid;gap:6px;margin-bottom:14px;}
+.field label{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-l);}
+.field input,.field select,.field textarea{border:1px solid var(--line-light);border-radius:10px;padding:11px 13px;font-family:var(--f-body);font-size:14.5px;background:var(--paper);outline:none;color:var(--ink);}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--cyan);background:#fff;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:520px){.field-row{grid-template-columns:1fr;}}
+.pay-opts{display:grid;gap:10px;margin-top:6px;}
+.pay-opt{display:flex;align-items:center;gap:12px;border:1px solid var(--line-light);border-radius:12px;padding:14px;cursor:pointer;transition:border-color .15s,background .15s;}
+.pay-opt.on{border-color:var(--cyan);background:color-mix(in oklab,var(--cyan) 7%,#fff);}
+.pay-opt .radio{width:18px;height:18px;border-radius:999px;border:2px solid var(--line-light);flex:none;display:grid;place-items:center;}
+.pay-opt.on .radio{border-color:var(--cyan);}
+.pay-opt.on .radio::after{content:"";width:8px;height:8px;border-radius:999px;background:var(--cyan);}
+.pay-opt .pi{width:40px;height:28px;border-radius:6px;background:var(--paper-2);display:grid;place-items:center;font-family:var(--f-mono);font-size:9px;font-weight:700;color:var(--ink-3);flex:none;}
+.pay-opt b{font-size:14.5px;}
+.pay-opt span{font-size:12.5px;color:var(--muted-l);display:block;}
+.osum{display:grid;gap:10px;}
+.osum__line{display:flex;justify-content:space-between;font-size:14px;color:var(--muted-l);}
+.osum__line.total{font-family:var(--f-display);font-size:22px;font-weight:700;color:var(--ink);border-top:1px solid var(--line-light);padding-top:12px;margin-top:4px;}
+.osum__items{display:grid;gap:8px;margin-bottom:8px;max-height:240px;overflow-y:auto;}
+.osum__item{display:flex;justify-content:space-between;gap:10px;font-size:13px;}
+.osum__item span:first-child{color:var(--ink);}
+.osum__item b{font-family:var(--f-mono);font-weight:500;white-space:nowrap;}
+
+/* Confirmation */
+.confirm{text-align:center;max-width:560px;margin:0 auto;}
+.confirm .ok{width:80px;height:80px;border-radius:999px;background:color-mix(in oklab,var(--green) 16%,#fff);color:var(--green);display:grid;place-items:center;margin:0 auto 20px;}
+.confirm h1{font-family:var(--f-display);font-size:34px;font-weight:700;margin:0 0 10px;letter-spacing:-.02em;}
+.confirm p{color:var(--muted-l);font-size:16px;margin:0 0 8px;}
+.confirm .ord{font-family:var(--f-mono);font-size:13px;color:var(--cyan-deep);background:var(--cyan-soft);padding:6px 14px;border-radius:999px;display:inline-block;margin:14px 0 24px;}
+.confirm .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+/* ============================================================
+   PANEL (back-office)
+   ============================================================ */
+.panel-top{background:var(--ink);color:var(--paper);}
+.panel-top__inner{max-width:var(--max);margin:0 auto;padding:26px var(--pad) 0;}
+.panel-top h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,3.6vw,40px);margin:6px 0 4px;letter-spacing:-.02em;}
+.panel-top p{color:var(--muted-d);font-size:14.5px;margin:0 0 20px;max-width:60ch;}
+.ptabs{display:flex;gap:4px;flex-wrap:wrap;}
+.ptab{background:transparent;border:none;color:var(--muted-d);font-family:var(--f-body);font-weight:600;font-size:14.5px;padding:13px 18px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+.ptab.on{color:var(--paper);border-bottom-color:var(--orange);}
+.ptab:hover{color:var(--paper);}
+.panel-body{max-width:var(--max);margin:0 auto;padding:30px var(--pad) 90px;}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+@media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr);}}
+.kpi{background:#fff;border:1px solid var(--line-light);border-radius:14px;padding:18px 20px;}
+.kpi .l{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-l);}
+.kpi .v{font-family:var(--f-display);font-size:30px;font-weight:700;letter-spacing:-.02em;margin-top:6px;line-height:1;}
+.kpi .d{font-family:var(--f-mono);font-size:11px;margin-top:6px;color:var(--green);}
+.kpi .d.down{color:var(--orange-deep);}
+
+/* Kanban */
+.kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+@media(max-width:1080px){.kanban{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.kanban{grid-template-columns:1fr;}}
+.kcol{background:var(--paper-2);border-radius:14px;padding:12px;}
+.kcol__head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 4px;}
+.kcol__head h4{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin:0;color:var(--muted-l);}
+.kcol__head .n{font-family:var(--f-mono);font-size:11px;background:#fff;border:1px solid var(--line-light);border-radius:999px;padding:2px 9px;color:var(--ink);}
+.kcol__cards{display:grid;gap:10px;}
+.kc{background:#fff;border:1px solid var(--line-light);border-radius:12px;padding:13px;border-left:3px solid var(--cyan);}
+.kc.s-ganado{border-left-color:var(--green);}
+.kc.s-perdido{border-left-color:var(--muted-d);opacity:.75;}
+.kc.s-negociacion{border-left-color:var(--orange);}
+.kc h5{font-family:var(--f-display);font-weight:700;font-size:14px;margin:0 0 4px;}
+.kc .cliente{font-size:12.5px;color:var(--muted-l);margin:0 0 8px;}
+.kc .foot{display:flex;justify-content:space-between;align-items:center;}
+.kc .monto{font-family:var(--f-mono);font-size:13px;font-weight:700;color:var(--ink);}
+.kc .ag{font-family:var(--f-mono);font-size:10px;color:var(--cyan-deep);background:var(--cyan-soft);padding:2px 7px;border-radius:999px;}
+
+/* Table */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line-light);border-radius:14px;background:#fff;}
+table.tbl{width:100%;border-collapse:collapse;min-width:640px;}
+table.tbl th{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-l);text-align:left;padding:13px 16px;border-bottom:1px solid var(--line-light);background:var(--paper-2);}
+table.tbl td{padding:13px 16px;border-bottom:1px solid var(--paper-2);font-size:14px;vertical-align:middle;}
+table.tbl tr:last-child td{border-bottom:none;}
+table.tbl tr.clk{cursor:pointer;}
+table.tbl tr.clk:hover td{background:var(--paper);}
+.pill{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.04em;padding:4px 10px;border-radius:999px;display:inline-block;}
+.pill--ok{background:color-mix(in oklab,var(--green) 16%,#fff);color:var(--green);}
+.pill--pend{background:var(--orange-soft);color:var(--orange-deep);}
+.pill--vig{background:var(--cyan-soft);color:var(--cyan-deep);}
+.pill--mayoreo{background:var(--cyan-soft);color:var(--cyan-deep);}
+.pill--publico{background:var(--paper-2);color:var(--muted-l);}
+.tnum{font-family:var(--f-mono);}
+.tlink{color:var(--cyan-deep);font-weight:600;cursor:pointer;}
+.tlink:hover{text-decoration:underline;}
+
+/* Reminders */
+.rem{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--paper-2);}
+.rem:last-child{border-bottom:none;}
+.rem__dot{width:9px;height:9px;border-radius:999px;background:var(--orange);margin-top:6px;flex:none;}
+.rem__dot.soon{background:var(--warn);}
+.rem__dot.later{background:var(--cyan);}
+.rem b{font-size:14px;}
+.rem p{margin:2px 0 0;font-size:13px;color:var(--muted-l);}
+.rem time{font-family:var(--f-mono);font-size:11px;color:var(--muted-l);white-space:nowrap;margin-left:auto;}
+
+/* CFDI */
+.cfdi{max-width:760px;margin:0 auto;background:#fff;border:1px solid var(--line-light);border-radius:var(--radius);overflow:hidden;}
+.cfdi__head{background:var(--ink);color:var(--paper);padding:22px 26px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;}
+.cfdi__head .emisor b{font-family:var(--f-display);font-size:18px;display:block;}
+.cfdi__head .emisor span{font-family:var(--f-mono);font-size:11.5px;color:var(--muted-d);display:block;line-height:1.7;}
+.cfdi__head .tipo{text-align:right;font-family:var(--f-mono);font-size:11px;color:var(--muted-d);}
+.cfdi__head .tipo b{display:block;color:var(--orange);font-size:13px;letter-spacing:.06em;}
+.cfdi__sec{padding:20px 26px;border-bottom:1px solid var(--paper-2);}
+.cfdi__sec h5{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-l);margin:0 0 10px;}
+.cfdi__grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:13px;}
+.cfdi__grid div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dotted var(--paper-3);padding:3px 0;}
+.cfdi__grid div span:first-child{color:var(--muted-l);}
+.cfdi__grid div span:last-child{font-family:var(--f-mono);text-align:right;}
+.cfdi table{width:100%;border-collapse:collapse;}
+.cfdi table th{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-l);text-align:left;padding:8px 26px;background:var(--paper-2);}
+.cfdi table th.r,.cfdi table td.r{text-align:right;}
+.cfdi table td{padding:9px 26px;border-bottom:1px solid var(--paper-2);font-size:13px;}
+.cfdi__totes{padding:16px 26px;display:grid;gap:5px;justify-items:end;}
+.cfdi__totes .ln{display:grid;grid-template-columns:auto 130px;gap:18px;font-size:13.5px;color:var(--muted-l);}
+.cfdi__totes .ln.tot{font-family:var(--f-display);font-size:20px;font-weight:700;color:var(--ink);}
+.cfdi__totes .ln span:last-child{font-family:var(--f-mono);text-align:right;}
+.cfdi__stamp{padding:20px 26px;background:var(--paper-2);display:grid;grid-template-columns:64px 1fr;gap:16px;align-items:center;}
+.cfdi__qr{width:64px;height:64px;background:#fff;border:1px solid var(--line-light);border-radius:8px;}
+.cfdi__stamp .sello{font-family:var(--f-mono);font-size:9px;line-height:1.5;color:var(--muted-l);word-break:break-all;}
+.cfdi__stamp .sello b{color:var(--ink);font-size:10px;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:4px;}
+
+/* Footer */
+.foot{background:var(--ink);color:var(--paper);}
+.foot__inner{max-width:var(--max);margin:0 auto;padding:clamp(48px,7vw,88px) var(--pad) 40px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:36px;}
+@media(max-width:880px){.foot__inner{grid-template-columns:1fr 1fr;}}
+@media(max-width:520px){.foot__inner{grid-template-columns:1fr;}}
+.foot__brand-logo{height:40px;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.foot__tag{color:var(--muted-d);max-width:34ch;font-size:15px;}
+.foot h5{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-d);margin:4px 0 14px;}
+.foot ul{list-style:none;padding:0;margin:0;display:grid;gap:10px;}
+.foot a{color:var(--paper);opacity:.85;cursor:pointer;}
+.foot a:hover{color:var(--orange);opacity:1;}
+.foot__contact a{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:13px;}
+.foot__bar{border-top:1px solid var(--line-dark);padding:22px var(--pad);display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted-d);max-width:var(--max);margin:0 auto;}
+.foot__bar .marks span b{color:var(--orange);font-weight:500;}
+.svg-i{width:24px;height:24px;flex:none;}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:13px 20px;border-radius:999px;font-size:14px;font-weight:600;z-index:120;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;display:flex;align-items:center;gap:10px;box-shadow:0 16px 40px -12px rgba(0,0,0,.5);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast svg{color:var(--green);}
+</style>
+</head>
+<body>
+
+<!-- DEMO BANNER -->
+<div class="demobar">Demo interactivo · <b>FishFlow</b> para Tableros y Herrajes Vallejo · sitio + tienda + CRM + facturación</div>
+
+<!-- NAV -->
+<header class="nav" id="topnav">
+  <div class="nav__inner">
+    <a class="nav__brand" onclick="goHome();return false;" aria-label="Vallejo — Inicio">
+      <svg height="40" viewBox="0 0 250 40" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="7" width="26" height="26" rx="4" fill="#C0792F"/>
+        <rect x="5" y="12" width="16" height="3.4" rx="1" fill="#1B1611"/>
+        <rect x="5" y="18" width="16" height="3.4" rx="1" fill="#1B1611"/>
+        <rect x="5" y="24" width="16" height="3.4" rx="1" fill="#1B1611"/>
+        <text x="36" y="27" font-family="Bricolage Grotesque,system-ui,sans-serif" font-weight="800" font-size="20" fill="#1B1611" letter-spacing="-0.4">VALLEJO</text>
+        <text x="142" y="27" font-family="Bricolage Grotesque,system-ui,sans-serif" font-weight="500" font-size="20" fill="#3E86B5" letter-spacing="-0.3">·herrajes</text>
+      </svg>
+    </a>
+    <nav class="nav__links" aria-label="Principal">
+      <a onclick="goHome()">Inicio</a>
+      <a onclick="landingAnchor('plataforma')">Plataforma</a>
+      <a class="nav-catalogo" onclick="location.hash='catalogo'">Catálogo</a>
+      <a onclick="landingAnchor('ventajas')">¿Por qué Vallejo?</a>
+      <a class="nav-panel" onclick="location.hash='panel'">Panel interno</a>
+    </nav>
+    <div class="nav__right">
+      <button class="cartbtn" onclick="openCart()" aria-label="Carrito">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12.4a1.6 1.6 0 0 0 1.6 1.3h8.6a1.6 1.6 0 0 0 1.6-1.3L22 7H6"/></svg>
+        <span class="count empty" id="cartCount">0</span>
+      </button>
+      <a class="btn btn--primary" onclick="location.hash='catalogo'">Ver catálogo <span class="arr">→</span></a>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================
+     VIEW: LANDING
+     ============================================================ -->
+<div id="view-landing">
+<main id="top">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero__inner">
+    <div class="hero__copy">
+      <span class="eyebrow eyebrow--light">Distribuidor · Masisa · Blum · Hettich · Häfele</span>
+      <h1>Tableros y herrajes<br/><span class="stroke">de calidad</span> <span class="accent">para tu taller.</span></h1>
+      <p class="hero__lede">MDF, melamina, triplay, correderas, bisagras y todo el herraje para carpinteros, mueblerías y constructores. Cotiza en línea, paga con tarjeta u OXXO y recibe tu pedido sin perder tiempo en el mostrador.</p>
+      <div class="hero__ctas">
+        <a class="btn btn--primary btn--lg" onclick="location.hash='catalogo'">Ver catálogo <span class="arr">→</span></a>
+        <a class="btn btn--ghost-d btn--lg" onclick="landingAnchor('plataforma')">Conoce la plataforma</a>
+      </div>
+      <ul class="hero__chips">
+        <li><b>Mayoreo</b> y público</li>
+        <li>Pedidos 24/7</li>
+        <li>Factura automática</li>
+        <li>Stock en tiempo real</li>
+      </ul>
+      <div class="hero__stats">
+        <div><b>1,200<sup>+</sup></b><span>Claves en catálogo</span></div>
+        <div><b>7</b><span>Líneas de producto</span></div>
+        <div><b>24/7</b><span>Tienda en línea</span></div>
+        <div><b>CFDI</b><span>4.0 automático</span></div>
+      </div>
+    </div>
+    <div class="hero__vis" aria-hidden="true">
+      <div class="board"></div>
+      <div class="hinge"></div>
+      <div class="specsheet">
+        <h6>Corredera Blum cierre suave</h6>
+        <div class="row"><span>Clave</span><span>BL-MOV-450</span></div>
+        <div class="row"><span>Medida</span><span>45 cm</span></div>
+        <div class="row"><span>Stock</span><span>EN ALMACÉN</span></div>
+        <div class="price"><s class="mono">$520</s><b>$445<small style="font-size:.6em;font-family:var(--f-mono);color:var(--muted-l);"> MXN</small></b></div>
+      </div>
+      <div class="screw"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<section class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    <span class="marquee__item">Masisa</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item">Blum</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item">Hettich</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item">Häfele</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item">Rehau</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item"><span class="num">1,200+</span> claves en stock</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item">Masisa</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item">Blum</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item">Hettich</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item">Häfele</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item">Rehau</span><span class="marquee__item alt">★</span>
+    <span class="marquee__item"><span class="num">1,200+</span> claves en stock</span><span class="marquee__item alt">★</span>
+  </div>
+</section>
+
+<!-- PLATAFORMA (3 módulos) -->
+<section class="section" id="plataforma">
+  <div class="section__head">
+    <div>
+      <span class="kicker">01 · Una sola plataforma</span>
+      <h2>De la búsqueda al cobro,<br/><em>sin captura manual</em>.</h2>
+    </div>
+    <p>Tres frentes que funcionan por separado y juntos forman una sola operación: presencia, venta y relación con el cliente.</p>
+  </div>
+  <div class="plat">
+    <article class="plat__card">
+      <span class="n">/ Presencia</span>
+      <h3>Sitio + catálogo</h3>
+      <p>La cara digital de Vallejo. Catálogo navegable por línea y marca, con buscador y fichas de producto.</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Búsqueda y filtros por línea/marca</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Fichas con clave, medida y stock</li>
+      </ul>
+      <span class="link" onclick="location.hash='catalogo'">Ver catálogo →</span>
+    </article>
+    <article class="plat__card">
+      <span class="n">/ Venta</span>
+      <h3>Tienda en línea</h3>
+      <p>Carrito y checkout con pagos tarjeta y OXXO, listas de precio por tipo de cliente e inventario conectado.</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Precios mayoreo y público</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Pedidos 24/7 con pago en línea</li>
+      </ul>
+      <span class="link" onclick="location.hash='catalogo'">Probar la tienda →</span>
+    </article>
+    <article class="plat__card">
+      <span class="n">/ Relación</span>
+      <h3>CRM + facturación</h3>
+      <p>Clientes, cotizaciones y seguimiento en un solo lugar. Cada venta genera su CFDI 4.0 timbrado, sin capturar nada.</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Embudo de oportunidades</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Facturación CFDI 4.0 automática</li>
+      </ul>
+      <span class="link" onclick="location.hash='panel'">Ver el panel interno →</span>
+    </article>
+  </div>
+</section>
+
+<!-- VENTAJAS -->
+<section class="section" id="ventajas" style="padding-top:0;">
+  <div class="section__head">
+    <div>
+      <span class="kicker">02 · Por qué Vallejo</span>
+      <h2>El taller que surte aquí<br/><em>no regresa al mostrador</em>.</h2>
+    </div>
+    <p>Disponibilidad, precio y rapidez de respuesta. Eso es lo que decide la compra, y es justo donde la plataforma ayuda.</p>
+  </div>
+  <div class="adv">
+    <article class="adv__card">
+      <span class="num">/ 01</span>
+      <div class="adv__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg></div>
+      <h3>Catálogo <em>siempre actualizado</em></h3>
+      <p>El cliente ve qué hay en stock antes de levantar el teléfono. Menos llamadas, más pedidos cerrados.</p>
+      <span class="tag">1,200+ claves</span>
+    </article>
+    <article class="adv__card is-hi">
+      <span class="num">/ 02</span>
+      <div class="adv__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></div>
+      <h3>Pedidos <em>24/7</em> con pago en línea</h3>
+      <p>La mueblería ordena de noche o en fin de semana y paga con tarjeta u OXXO. La venta no espera al horario.</p>
+      <span class="tag">Tarjeta · OXXO</span>
+    </article>
+    <article class="adv__card">
+      <span class="num">/ 03</span>
+      <div class="adv__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M4 7l8-4 8 4"/><path d="M4 7v6c0 4 4 6 8 6s8-2 8-6V7"/></svg></div>
+      <h3>Precios de <em>mayoreo y público</em></h3>
+      <p>Cada cliente ve su lista. El carpintero mayorista y el público general, sin confusiones ni descuentos a mano.</p>
+      <span class="tag">2 listas automáticas</span>
+    </article>
+    <article class="adv__card">
+      <span class="num">/ 04</span>
+      <div class="adv__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"/><path d="M4 9h16M9 5v14"/></svg></div>
+      <h3>CRM que <em>no pierde</em> el seguimiento</h3>
+      <p>Embudo de oportunidades, historial de compra y recordatorios. Deja de perderse el seguimiento entre vendedores.</p>
+      <span class="tag">Un solo lugar</span>
+    </article>
+    <article class="adv__card">
+      <span class="num">/ 05</span>
+      <div class="adv__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/><path d="m9 14 2 2 4-4"/></svg></div>
+      <h3>Factura <em>CFDI 4.0</em> automática</h3>
+      <p>Cada venta genera su factura timbrada sin que el equipo capture nada. Adiós a la chamba doble al cierre del día.</p>
+      <span class="tag">Sin captura manual</span>
+    </article>
+    <article class="adv__card is-hi">
+      <span class="num">/ 06</span>
+      <div class="adv__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0"/><path d="M12 7v5l3 3"/></svg></div>
+      <h3>Inventario <em>conectado</em></h3>
+      <p>Lo que se vende en línea descuenta del mismo stock que el mostrador. Una sola verdad para todo el negocio.</p>
+      <span class="tag">Stock en tiempo real</span>
+    </article>
+  </div>
+</section>
+
+<!-- COMPARATIVA -->
+<section class="section--dark" id="comparativa">
+  <div class="wrap" style="padding-top:clamp(60px,9vw,116px);padding-bottom:clamp(60px,9vw,116px);">
+    <div class="section__head">
+      <div>
+        <span class="kicker kicker--dark">03 · Antes y después</span>
+        <h2 style="color:var(--paper);">Cómo opera Vallejo<br/><em>hoy vs. con la plataforma</em>.</h2>
+      </div>
+      <p>La operación actual funciona, pero no escala y deja ventas sobre la mesa. Esto es lo que cambia.</p>
+    </div>
+    <div class="cmp">
+      <div class="cmp__feat">
+        <div class="cmp__head"><h4>Proceso</h4></div>
+        <div class="cmp__row">Cotización</div>
+        <div class="cmp__row">Levantamiento de pedido</div>
+        <div class="cmp__row">Cobro</div>
+        <div class="cmp__row">Seguimiento de clientes</div>
+        <div class="cmp__row">Inventario</div>
+        <div class="cmp__row">Facturación</div>
+      </div>
+      <div class="cmp__col cmp__col--mm">
+        <div class="cmp__head"><span class="sub">Con la plataforma</span><h4>Vallejo digital</h4></div>
+        <div class="cmp__row"><svg class="tick tick--ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>En línea</b>, 24/7</span></div>
+        <div class="cmp__row"><svg class="tick tick--ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>Carrito</b> que arma el cliente</span></div>
+        <div class="cmp__row"><svg class="tick tick--ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>Tarjeta y OXXO</b> al instante</span></div>
+        <div class="cmp__row"><svg class="tick tick--ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>CRM</b> con embudo e historial</span></div>
+        <div class="cmp__row"><svg class="tick tick--ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>Conectado</b> en tiempo real</span></div>
+        <div class="cmp__row"><svg class="tick tick--ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>CFDI 4.0</b> automático</span></div>
+      </div>
+      <div class="cmp__col cmp__col--alt">
+        <div class="cmp__head"><span class="sub">Operación actual</span><h4>Como hoy</h4></div>
+        <div class="cmp__row"><svg class="tick tick--no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Manual, en horario</span></div>
+        <div class="cmp__row"><svg class="tick tick--no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Por teléfono / WhatsApp</span></div>
+        <div class="cmp__row"><svg class="tick tick--no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Transferencia / efectivo</span></div>
+        <div class="cmp__row"><svg class="tick tick--no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>En la cabeza del vendedor</span></div>
+        <div class="cmp__row"><svg class="tick tick--no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Hojas y conteos a mano</span></div>
+        <div class="cmp__row"><svg class="tick tick--no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Captura aparte en el portal SAT</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORÍAS -->
+<section class="section" id="categorias-section">
+  <div class="section__head">
+    <div>
+      <span class="kicker">04 · Nuestro catálogo</span>
+      <h2>Todo para fabricar mueble,<br/>en <em>un solo</em> proveedor.</h2>
+    </div>
+    <p>Siete líneas curadas. Da clic para ver productos, precios y disponibilidad.</p>
+  </div>
+  <div class="cats">
+    <a class="cat" onclick="location.hash='catalogo/cat=Tableros'">
+      <div class="cat__media"><div class="pattern pat-tableros"></div><span class="count mono">10 productos</span><span class="label">01 · Tableros</span></div>
+      <div class="cat__body"><h3>Tableros</h3><p>MDF, melamina, triplay y aglomerado. Masisa, Arauco y Rexcel en distintos calibres.</p><span class="more">Explorar tableros <span class="arr">→</span></span></div>
+    </a>
+    <a class="cat" onclick="location.hash='catalogo/cat=Correderas'">
+      <div class="cat__media"><div class="pattern pat-correderas"></div><span class="count mono">6 productos</span><span class="label">02 · Correderas</span></div>
+      <div class="cat__body"><h3>Correderas</h3><p>Telescópicas, ocultas y de balero con cierre suave. Blum y Hettich.</p><span class="more">Explorar correderas <span class="arr">→</span></span></div>
+    </a>
+    <a class="cat" onclick="location.hash='catalogo/cat=Bisagras'">
+      <div class="cat__media"><div class="pattern pat-bisagras"></div><span class="count mono">6 productos</span><span class="label">03 · Bisagras</span></div>
+      <div class="cat__body"><h3>Bisagras</h3><p>Cazoleta 35 mm, cierre suave y ángulos especiales. Blum, Hettich y Häfele.</p><span class="more">Explorar bisagras <span class="arr">→</span></span></div>
+    </a>
+    <a class="cat" onclick="location.hash='catalogo/cat=Jaladeras'">
+      <div class="cat__media"><div class="pattern pat-jaladeras"></div><span class="count mono">5 productos</span><span class="label">04 · Jaladeras</span></div>
+      <div class="cat__body"><h3>Jaladeras y perfiles</h3><p>Tiradores, perfiles Gola y jaladeras minimalistas en varios acabados.</p><span class="more">Explorar jaladeras <span class="arr">→</span></span></div>
+    </a>
+    <a class="cat" onclick="location.hash='catalogo/cat=Conectores+y+torniller%C3%ADa'">
+      <div class="cat__media"><div class="pattern pat-conectores"></div><span class="count mono">5 productos</span><span class="label">05 · Tornillería</span></div>
+      <div class="cat__body"><h3>Conectores y tornillería</h3><p>Minifix, tarugos, tornillo aglomerado, niveladores. Todo para el armado.</p><span class="more">Explorar tornillería <span class="arr">→</span></span></div>
+    </a>
+    <a class="cat" onclick="location.hash='catalogo/cat=Cantos'">
+      <div class="cat__media"><div class="pattern pat-cantos"></div><span class="count mono">3 productos</span><span class="label">06 · Cantos</span></div>
+      <div class="cat__body"><h3>Cantos y adhesivos</h3><p>Canto PVC en color, rollos de 100 m y hot melt para canteadora.</p><span class="more">Explorar cantos <span class="arr">→</span></span></div>
+    </a>
+  </div>
+</section>
+
+<!-- CONFIANZA -->
+<section class="section--cyan" id="confianza">
+  <div class="wrap" style="padding-top:clamp(56px,7vw,96px);padding-bottom:clamp(56px,7vw,96px);">
+    <div class="trust">
+      <div>
+        <span class="kicker" style="color:#fff;opacity:.85;">05 · Confianza</span>
+        <h2 style="margin-top:14px;color:#fff;">Más de 15 años surtiendo talleres y mueblerías en México. <em>Confía en quien conoce el oficio.</em></h2>
+      </div>
+      <div class="trust__badges">
+        <span class="trust__badge"><span class="check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Distribuidor autorizado</span>
+        <span class="trust__badge"><span class="check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Precio de mayoreo</span>
+        <span class="trust__badge"><span class="check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Entrega a obra</span>
+        <span class="trust__badge"><span class="check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>+15 años en el mercado</span>
+        <span class="trust__badge"><span class="check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Factura CFDI 4.0</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div><!-- /view-landing -->
+
+<!-- ============================================================
+     VIEW: CATÁLOGO / TIENDA
+     ============================================================ -->
+<div id="view-catalogo" style="display:none;">
+<section class="cat-hero">
+  <div class="cat-hero__inner">
+    <div>
+      <nav class="crumbs" style="color:var(--muted-d);">
+        <a onclick="goHome()" style="color:var(--muted-d);">Inicio</a>
+        <span class="sep">/</span>
+        <span class="cur">Catálogo y tienda</span>
+      </nav>
+      <h1>Todo nuestro inventario.<br/><em>Filtra, agrega y paga en línea.</em></h1>
+      <div class="pricemode" id="priceMode">
+        <button data-mode="publico" class="on" onclick="setPriceMode('publico')">Precio público</button>
+        <button data-mode="mayoreo" onclick="setPriceMode('mayoreo')">Precio mayoreo</button>
+      </div>
+    </div>
+    <div class="summary">
+      <b id="totalCount">—</b>
+      Productos disponibles<br/>
+      <span style="color:var(--orange);">6</span> Líneas · en stock ahora
+    </div>
+  </div>
+</section>
+
+<div class="cat-shell">
+  <button class="f-toggle" id="fToggle">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+    Mostrar filtros
+  </button>
+  <aside class="filters" id="filters">
+    <div class="f-group">
+      <h4>Buscar</h4>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search" type="text" placeholder="Clave, nombre, marca…" autocomplete="off" />
+      </div>
+    </div>
+    <div class="f-group">
+      <h4>Línea</h4>
+      <div class="opts" id="catOpts"></div>
+    </div>
+    <div class="f-group">
+      <h4>Marca</h4>
+      <div class="opts" id="marcaOpts"></div>
+    </div>
+    <div class="f-group">
+      <h4>Rango de precio (MXN)</h4>
+      <div class="price-range">
+        <input id="pMin" type="number" placeholder="Mín" min="0" />
+        <input id="pMax" type="number" placeholder="Máx" min="0" />
+      </div>
+    </div>
+    <div class="f-group">
+      <label class="toggle"><span>Solo ofertas</span><input id="offerOnly" type="checkbox" /><span class="sw"></span></label>
+    </div>
+    <div class="f-actions">
+      <button id="clearBtn" type="button">Limpiar filtros</button>
+    </div>
+  </aside>
+  <section class="results">
+    <div class="results-bar">
+      <div class="count">Mostrando <b id="shownCount">0</b> de <b id="filteredCount">0</b> productos · <span id="modeLabel" class="modeflag">Precio público</span></div>
+      <div class="sort-wrap">
+        <label for="sort">Ordenar</label>
+        <select id="sort">
+          <option value="rel">Relevancia</option>
+          <option value="asc">Precio · menor a mayor</option>
+          <option value="desc">Precio · mayor a menor</option>
+          <option value="name">Nombre A → Z</option>
+        </select>
+      </div>
+    </div>
+    <div class="active-chips" id="chips"></div>
+    <div class="p-grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none;">
+      <h3>No encontramos productos</h3>
+      <p>Prueba a quitar algunos filtros o usa la búsqueda con palabras más generales.</p>
+    </div>
+    <div class="pag" id="pag"></div>
+  </section>
+</div>
+</div><!-- /view-catalogo -->
+
+<!-- ============================================================
+     VIEW: CHECKOUT
+     ============================================================ -->
+<div id="view-checkout" style="display:none;">
+  <div class="page">
+    <div class="page__head">
+      <nav class="crumbs"><a onclick="location.hash='catalogo'">Catálogo</a><span class="sep">/</span><span class="cur">Checkout</span></nav>
+      <h1>Finaliza tu <em>pedido</em></h1>
+    </div>
+    <div id="checkoutInner"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     VIEW: CONFIRMACIÓN
+     ============================================================ -->
+<div id="view-confirm" style="display:none;">
+  <div class="page"><div id="confirmInner"></div></div>
+</div>
+
+<!-- ============================================================
+     VIEW: PANEL (CRM + Facturación)
+     ============================================================ -->
+<div id="view-panel" style="display:none;">
+  <div class="panel-top">
+    <div class="panel-top__inner">
+      <span class="kicker kicker--dark">Panel interno · solo Vallejo</span>
+      <h1>Tu operación, <span style="color:var(--orange);">de un vistazo</span></h1>
+      <p>Lo que tus clientes no ven: el back-office donde viven clientes, cotizaciones, el embudo de ventas y la facturación. Todo conectado con la tienda.</p>
+      <div class="ptabs" id="ptabs">
+        <button class="ptab on" data-tab="resumen" onclick="setPanelTab('resumen')">Resumen</button>
+        <button class="ptab" data-tab="embudo" onclick="setPanelTab('embudo')">Embudo</button>
+        <button class="ptab" data-tab="clientes" onclick="setPanelTab('clientes')">Clientes</button>
+        <button class="ptab" data-tab="cotizaciones" onclick="setPanelTab('cotizaciones')">Cotizaciones</button>
+        <button class="ptab" data-tab="facturacion" onclick="setPanelTab('facturacion')">Facturación</button>
+      </div>
+    </div>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+</div>
+
+<!-- ============================================================
+     VIEW: CFDI (detalle)
+     ============================================================ -->
+<div id="view-cfdi" style="display:none;">
+  <div class="page">
+    <div class="page__head">
+      <nav class="crumbs"><a onclick="location.hash='panel'">Panel</a><span class="sep">/</span><a onclick="setPanelTab('facturacion');location.hash='panel'">Facturación</a><span class="sep">/</span><span class="cur">CFDI</span></nav>
+    </div>
+    <div id="cfdiInner"></div>
+    <div style="text-align:center;margin-top:24px;">
+      <button class="btn btn--ghost" onclick="location.hash='panel';setPanelTab('facturacion')">← Volver a facturación</button>
+    </div>
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="scrim" id="scrim" onclick="closeCart()"></div>
+<aside class="drawer" id="drawer" aria-label="Carrito">
+  <div class="drawer__head">
+    <h3>Tu carrito</h3>
+    <button class="drawer__close" onclick="closeCart()">×</button>
+  </div>
+  <div class="drawer__body" id="drawerBody"></div>
+  <div class="drawer__foot" id="drawerFoot"></div>
+</aside>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="foot" id="contacto">
+  <div class="foot__inner">
+    <div>
+      <div class="foot__brand-logo">
+        <svg height="36" viewBox="0 0 250 36" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="5" width="24" height="24" rx="4" fill="#C0792F"/>
+          <rect x="4" y="10" width="15" height="3" rx="1" fill="#1B1611"/>
+          <rect x="4" y="15.5" width="15" height="3" rx="1" fill="#1B1611"/>
+          <rect x="4" y="21" width="15" height="3" rx="1" fill="#1B1611"/>
+          <text x="33" y="25" font-family="Bricolage Grotesque,system-ui,sans-serif" font-weight="800" font-size="18" fill="#F4EEE6" letter-spacing="-0.4">VALLEJO</text>
+          <text x="130" y="25" font-family="Bricolage Grotesque,system-ui,sans-serif" font-weight="500" font-size="18" fill="#3E86B5" letter-spacing="-0.3">·herrajes</text>
+        </svg>
+      </div>
+      <p class="foot__tag">Distribuidor de tableros, herrajes y accesorios para carpinteros, mueblerías y constructores en México.</p>
+    </div>
+    <div>
+      <h5>Catálogo</h5>
+      <ul>
+        <li><a onclick="location.hash='catalogo/cat=Tableros'">Tableros</a></li>
+        <li><a onclick="location.hash='catalogo/cat=Correderas'">Correderas</a></li>
+        <li><a onclick="location.hash='catalogo/cat=Bisagras'">Bisagras</a></li>
+        <li><a onclick="location.hash='catalogo/cat=Jaladeras'">Jaladeras</a></li>
+        <li><a onclick="location.hash='catalogo/cat=Cantos'">Cantos</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Plataforma</h5>
+      <ul>
+        <li><a onclick="landingAnchor('plataforma')">Sitio + catálogo</a></li>
+        <li><a onclick="location.hash='catalogo'">Tienda en línea</a></li>
+        <li><a onclick="location.hash='panel'">CRM</a></li>
+        <li><a onclick="location.hash='panel';setPanelTab('facturacion')">Facturación</a></li>
+      </ul>
+    </div>
+    <div class="foot__contact">
+      <h5>Contacto</h5>
+      <ul>
+        <li><a href="tel:+525500000000">+52 55 0000 0000</a></li>
+        <li><a href="mailto:ventas@herrajesvallejo.mx">ventas@herrajesvallejo.mx</a></li>
+        <li><a onclick="location.hash='catalogo'">Hacer un pedido</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot__bar">
+    <span>© <span id="year"></span> Tableros y Herrajes Vallejo · Demo construido por FishFlow.</span>
+    <span class="marks"><span>Hecho en <b>México</b> 🇲🇽</span></span>
+  </div>
+</footer>
+
+<script>
+// ============================================================
+// PRODUCTS — tableros y herrajes (solo en stock)
+// ============================================================
+window.__products = [
+  // TABLEROS (10)
+  {id:'TAB-001',codigo:'MDF-CR-15',nombre:'MDF crudo 15 mm · 1.22 × 2.44 m',categoria:'Tableros',marca:'Masisa',precio:485,mayoreo:420,stock:140,enOferta:false},
+  {id:'TAB-002',codigo:'MDF-CR-18',nombre:'MDF crudo 18 mm · 1.22 × 2.44 m',categoria:'Tableros',marca:'Masisa',precio:585,mayoreo:505,stock:120,enOferta:false},
+  {id:'TAB-003',codigo:'MEL-BL-18',nombre:'Melamina blanca 18 mm · 1.22 × 2.44 m',categoria:'Tableros',marca:'Masisa',precio:720,mayoreo:625,stock:95,enOferta:false},
+  {id:'TAB-004',codigo:'MEL-NG-18',nombre:'Melamina Nogal 18 mm · 1.22 × 2.44 m',categoria:'Tableros',marca:'Masisa',precio:760,mayoreo:660,stock:60,enOferta:false},
+  {id:'TAB-005',codigo:'MEL-GC-18',nombre:'Melamina Gris Cristal 18 mm · 1.22 × 2.44 m',categoria:'Tableros',marca:'Rexcel',precio:740,mayoreo:640,stock:48,enOferta:true},
+  {id:'TAB-006',codigo:'TRI-PN-12',nombre:'Triplay de pino 12 mm · 1.22 × 2.44 m',categoria:'Tableros',marca:'Arauco',precio:560,mayoreo:485,stock:70,enOferta:false},
+  {id:'TAB-007',codigo:'TRI-PN-18',nombre:'Triplay de pino 18 mm · 1.22 × 2.44 m',categoria:'Tableros',marca:'Arauco',precio:820,mayoreo:715,stock:42,enOferta:false},
+  {id:'TAB-008',codigo:'AGL-16',nombre:'Aglomerado 16 mm · 1.22 × 2.44 m',categoria:'Tableros',marca:'Masisa',precio:410,mayoreo:355,stock:110,enOferta:false},
+  {id:'TAB-009',codigo:'MDF-HI-18',nombre:'MDF hidrófugo 18 mm · 1.22 × 2.44 m',categoria:'Tableros',marca:'Masisa',precio:910,mayoreo:790,stock:30,enOferta:false},
+  {id:'TAB-010',codigo:'MEL-OL-18',nombre:'Melamina Olmo 18 mm · 1.22 × 2.44 m',categoria:'Tableros',marca:'Rexcel',precio:755,mayoreo:655,stock:38,enOferta:false},
+  // CORREDERAS (6)
+  {id:'COR-001',codigo:'BL-MOV-450',nombre:'Corredera oculta Blum Movento 45 cm · cierre suave',categoria:'Correderas',marca:'Blum',precio:520,mayoreo:445,stock:80,enOferta:false},
+  {id:'COR-002',codigo:'BL-TAN-500',nombre:'Corredera oculta Blum Tandem 50 cm · cierre suave',categoria:'Correderas',marca:'Blum',precio:560,mayoreo:480,stock:64,enOferta:false},
+  {id:'COR-003',codigo:'HT-BAL-400',nombre:'Corredera de balero Hettich 40 cm · extracción total',categoria:'Correderas',marca:'Hettich',precio:185,mayoreo:158,stock:150,enOferta:false},
+  {id:'COR-004',codigo:'HT-PTO-500',nombre:'Corredera Hettich 50 cm · push-to-open',categoria:'Correderas',marca:'Hettich',precio:340,mayoreo:292,stock:55,enOferta:true},
+  {id:'COR-005',codigo:'HF-ECO-350',nombre:'Corredera de balero Häfele 35 cm · económica',categoria:'Correderas',marca:'Häfele',precio:95,mayoreo:78,stock:220,enOferta:false},
+  {id:'COR-006',codigo:'HT-HD-600',nombre:'Corredera carga pesada Hettich 60 cm · 45 kg',categoria:'Correderas',marca:'Hettich',precio:410,mayoreo:352,stock:36,enOferta:false},
+  // BISAGRAS (6)
+  {id:'BIS-001',codigo:'BL-CT-0',nombre:'Bisagra cazoleta Blum Clip-top 35 mm codo 0 · cierre suave',categoria:'Bisagras',marca:'Blum',precio:78,mayoreo:64,stock:400,enOferta:false},
+  {id:'BIS-002',codigo:'BL-CT-9',nombre:'Bisagra cazoleta Blum Clip-top 35 mm codo 9 · cierre suave',categoria:'Bisagras',marca:'Blum',precio:82,mayoreo:67,stock:360,enOferta:false},
+  {id:'BIS-003',codigo:'HT-SEN-0',nombre:'Bisagra Hettich Sensys recta · cierre suave',categoria:'Bisagras',marca:'Hettich',precio:62,mayoreo:51,stock:300,enOferta:true},
+  {id:'BIS-004',codigo:'HF-165',nombre:'Bisagra Häfele 165° · gran apertura',categoria:'Bisagras',marca:'Häfele',precio:96,mayoreo:80,stock:120,enOferta:false},
+  {id:'BIS-005',codigo:'HF-CRI',nombre:'Bisagra minicristal Häfele · puerta de vidrio',categoria:'Bisagras',marca:'Häfele',precio:140,mayoreo:118,stock:85,enOferta:false},
+  {id:'BIS-006',codigo:'HF-STD-50',nombre:'Bisagra estándar 35 mm · caja 50 piezas',categoria:'Bisagras',marca:'Häfele',precio:1450,mayoreo:1240,stock:40,enOferta:false},
+  // JALADERAS (5)
+  {id:'JAL-001',codigo:'HF-TUB-128',nombre:'Jaladera tubular aluminio 128 mm',categoria:'Jaladeras',marca:'Häfele',precio:54,mayoreo:44,stock:260,enOferta:false},
+  {id:'JAL-002',codigo:'HF-BAR-256',nombre:'Jaladera tipo barra acero inox 256 mm',categoria:'Jaladeras',marca:'Häfele',precio:118,mayoreo:98,stock:140,enOferta:false},
+  {id:'JAL-003',codigo:'HF-GOLA-3',nombre:'Perfil Gola superior aluminio · 3 m',categoria:'Jaladeras',marca:'Häfele',precio:380,mayoreo:325,stock:60,enOferta:true},
+  {id:'JAL-004',codigo:'HF-J-192',nombre:'Tirador oculto tipo J 192 mm',categoria:'Jaladeras',marca:'Häfele',precio:88,mayoreo:73,stock:110,enOferta:false},
+  {id:'JAL-005',codigo:'GN-MIN-160',nombre:'Jaladera minimalista negro mate 160 mm',categoria:'Jaladeras',marca:'Genérico',precio:46,mayoreo:37,stock:300,enOferta:false},
+  // CONECTORES Y TORNILLERÍA (5)
+  {id:'CON-001',codigo:'HF-MNF-100',nombre:'Minifix 15 mm + perno · caja 100 juegos',categoria:'Conectores y tornillería',marca:'Häfele',precio:520,mayoreo:445,stock:90,enOferta:false},
+  {id:'CON-002',codigo:'GN-TAR-500',nombre:'Tarugo de madera 8 mm · bolsa 500 piezas',categoria:'Conectores y tornillería',marca:'Genérico',precio:140,mayoreo:118,stock:160,enOferta:false},
+  {id:'CON-003',codigo:'GN-TOR-1000',nombre:'Tornillo aglomerado 4 × 40 mm · caja 1000',categoria:'Conectores y tornillería',marca:'Genérico',precio:260,mayoreo:222,stock:130,enOferta:true},
+  {id:'CON-004',codigo:'HF-RAF-50',nombre:'Conector excéntrico Rafix · caja 50 juegos',categoria:'Conectores y tornillería',marca:'Häfele',precio:680,mayoreo:580,stock:45,enOferta:false},
+  {id:'CON-005',codigo:'GN-NIV-25',nombre:'Patas niveladoras 100 mm · caja 25 piezas',categoria:'Conectores y tornillería',marca:'Genérico',precio:310,mayoreo:265,stock:70,enOferta:false},
+  // CANTOS (3)
+  {id:'CAN-001',codigo:'RH-PVC-BL',nombre:'Canto PVC blanco 22 mm · rollo 100 m',categoria:'Cantos',marca:'Rehau',precio:420,mayoreo:360,stock:75,enOferta:false},
+  {id:'CAN-002',codigo:'RH-PVC-NG',nombre:'Canto PVC nogal 22 mm · rollo 100 m',categoria:'Cantos',marca:'Rehau',precio:450,mayoreo:385,stock:55,enOferta:false},
+  {id:'CAN-003',codigo:'GN-HM-1K',nombre:'Adhesivo termofusible (hot melt) · 1 kg',categoria:'Cantos',marca:'Genérico',precio:180,mayoreo:150,stock:120,enOferta:false},
+  // OFERTAS (5)
+  {id:'OFR-001',codigo:'OFR-COC-KIT',nombre:'Combo cocina: 10 bisagras Blum + 4 correderas Movento',categoria:'Ofertas',marca:'Blum',precio:3200,mayoreo:0,stock:25,enOferta:true},
+  {id:'OFR-002',codigo:'OFR-MEL-5',nombre:'Paquete melamina: 5 hojas blancas 18 mm',categoria:'Ofertas',marca:'Masisa',precio:3300,mayoreo:0,stock:30,enOferta:true},
+  {id:'OFR-003',codigo:'OFR-RTA-KIT',nombre:'Kit armado RTA: minifix + tarugos + tornillería',categoria:'Ofertas',marca:'Häfele',precio:850,mayoreo:0,stock:40,enOferta:true},
+  {id:'OFR-004',codigo:'OFR-MDF-10',nombre:'Promo MDF: 10 hojas crudo 15 mm',categoria:'Ofertas',marca:'Masisa',precio:4400,mayoreo:0,stock:18,enOferta:true},
+  {id:'OFR-005',codigo:'OFR-JAL-20',nombre:'Starter herrajes: jaladeras surtidas · 20 piezas',categoria:'Ofertas',marca:'Genérico',precio:790,mayoreo:0,stock:35,enOferta:true},
+];
+
+// ============================================================
+// THUMB SVG (tableros / herrajes)
+// ============================================================
+(function(){
+  const CAT_COLORS = {
+    'Tableros':['#6f4720','#caa06a','#3a2614'],
+    'Correderas':['#1b2a36','#9fb6c6','#3E86B5'],
+    'Bisagras':['#2b3036','#aeb6bc','#C0792F'],
+    'Jaladeras':['#cbbca1','#1B1611','#8a949b'],
+    'Conectores y tornillería':['#23303a','#8fa4ac','#3E86B5'],
+    'Cantos':['#241D16','#caa06a','#C0792F'],
+    'Ofertas':['#C0792F','#9A5C1C','#fff'],
+    'Otros':['#241D16','#A99B86','#3E86B5'],
+  };
+  function hash(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h);}
+  function thumbSvg(p){
+    const cols=CAT_COLORS[p.categoria]||CAT_COLORS['Otros'];
+    const h=hash(p.id);const [bg,fg,acc]=cols;let inner='';
+    const sid=p.id.replace(/[^a-z0-9]/gi,'');
+    if(p.categoria==='Tableros'){
+      let grain='';for(let i=0;i<7;i++){const y=18+i*10;grain+=`<path d="M8 ${y} q 42 ${(i%2?6:-6)} 84 0" stroke="${acc}" stroke-width="1" fill="none" opacity=".35"/>`;}
+      inner=`<rect width="100" height="100" fill="${bg}"/><rect x="6" y="10" width="88" height="80" rx="3" fill="${fg}" opacity=".22"/>${grain}<rect x="6" y="10" width="88" height="80" rx="3" fill="none" stroke="${fg}" stroke-width="1.2" opacity=".5"/>`;
+    } else if(p.categoria==='Correderas'){
+      inner=`<rect width="100" height="100" fill="${bg}"/><rect x="14" y="42" width="72" height="16" rx="3" fill="${fg}" opacity=".9"/><rect x="14" y="42" width="50" height="16" rx="3" fill="${acc}"/><circle cx="26" cy="50" r="3.4" fill="${bg}"/><circle cx="54" cy="50" r="3.4" fill="${bg}"/><rect x="14" y="62" width="72" height="3" rx="1.5" fill="${fg}" opacity=".4"/>`;
+    } else if(p.categoria==='Bisagras'){
+      inner=`<rect width="100" height="100" fill="${bg}"/><circle cx="50" cy="50" r="22" fill="none" stroke="${fg}" stroke-width="3" opacity=".9"/><circle cx="50" cy="50" r="12" fill="${bg}" stroke="${acc}" stroke-width="2"/><rect x="20" y="30" width="10" height="40" rx="2" fill="${fg}" opacity=".7"/><rect x="70" y="30" width="10" height="40" rx="2" fill="${fg}" opacity=".7"/><circle cx="25" cy="40" r="2" fill="${acc}"/><circle cx="25" cy="60" r="2" fill="${acc}"/><circle cx="75" cy="40" r="2" fill="${acc}"/><circle cx="75" cy="60" r="2" fill="${acc}"/>`;
+    } else if(p.categoria==='Jaladeras'){
+      inner=`<rect width="100" height="100" fill="${bg}"/><rect x="18" y="46" width="64" height="8" rx="4" fill="${fg}"/><rect x="22" y="40" width="6" height="8" rx="2" fill="${acc}"/><rect x="72" y="40" width="6" height="8" rx="2" fill="${acc}"/>`;
+    } else if(p.categoria==='Conectores y tornillería'){
+      let gear='';for(let i=0;i<6;i++){const a=i*60;gear+=`<rect x="48" y="22" width="4" height="9" fill="${acc}" transform="rotate(${a} 50 50)"/>`;}
+      inner=`<rect width="100" height="100" fill="${bg}"/>${gear}<circle cx="50" cy="50" r="20" fill="${fg}" opacity=".22"/><circle cx="50" cy="50" r="16" fill="none" stroke="${acc}" stroke-width="2"/><path d="M50 40 v20 M42 50 h16" stroke="${acc}" stroke-width="2.4"/>`;
+    } else if(p.categoria==='Cantos'){
+      inner=`<rect width="100" height="100" fill="${bg}"/><circle cx="50" cy="50" r="30" fill="none" stroke="${fg}" stroke-width="9" opacity=".85"/><circle cx="50" cy="50" r="30" fill="none" stroke="${acc}" stroke-width="2"/><circle cx="50" cy="50" r="12" fill="${bg}"/>`;
+    } else if(p.categoria==='Ofertas'){
+      inner=`<defs><pattern id="s${sid}" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(-45)"><rect width="5" height="10" fill="${fg}"/></pattern></defs><rect width="100" height="100" fill="${bg}"/><rect width="100" height="100" fill="url(#s${sid})" opacity=".5"/><text x="50" y="56" text-anchor="middle" fill="${acc}" font-family="Bricolage Grotesque,sans-serif" font-size="17" font-weight="800">OFERTA</text>`;
+    } else {
+      inner=`<rect width="100" height="100" fill="${bg}"/><circle cx="50" cy="50" r="30" fill="none" stroke="${acc}" stroke-width="1"/><text x="50" y="56" text-anchor="middle" fill="${fg}" font-family="Bricolage Grotesque,sans-serif" font-size="20" font-weight="700">V</text>`;
+    }
+    return `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+  }
+  window.MM={thumb:thumbSvg,fmtMoney:n=>'$'+Math.round(n).toLocaleString('es-MX')};
+})();
+
+// ============================================================
+// PRICE MODE + CART STATE
+// ============================================================
+let priceMode='publico'; // 'publico' | 'mayoreo'
+const cart=[]; // {id, qty}
+const fmt=window.MM.fmtMoney;
+
+function unitPrice(p){
+  if(priceMode==='mayoreo' && p.mayoreo>0) return p.mayoreo;
+  return p.precio;
+}
+function listPrice(p){ return p.precio; }
+function prodById(id){ return window.__products.find(p=>p.id===id); }
+
+function setPriceMode(m){
+  priceMode=m;
+  document.querySelectorAll('#priceMode button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
+  const lbl=document.getElementById('modeLabel');
+  if(lbl){lbl.textContent=m==='mayoreo'?'Precio mayoreo':'Precio público';}
+  if(document.getElementById('view-catalogo').style.display!=='none') render();
+  renderCart();
+}
+
+// ---- Cart ops ----
+function cartQty(id){const i=cart.find(c=>c.id===id);return i?i.qty:0;}
+function addToCart(id){
+  const ex=cart.find(c=>c.id===id);
+  if(ex)ex.qty++; else cart.push({id,qty:1});
+  updateCartCount();renderCart();
+  const p=prodById(id);
+  showToast(`${p.nombre.split('·')[0].trim()} agregado`);
+}
+function setQty(id,q){
+  const ex=cart.find(c=>c.id===id);if(!ex)return;
+  ex.qty=q;
+  if(ex.qty<=0)cart.splice(cart.indexOf(ex),1);
+  updateCartCount();renderCart();
+  if(document.getElementById('view-checkout').style.display!=='none')renderCheckout();
+}
+function removeFromCart(id){
+  const ex=cart.find(c=>c.id===id);if(ex)cart.splice(cart.indexOf(ex),1);
+  updateCartCount();renderCart();
+  if(document.getElementById('view-checkout').style.display!=='none')renderCheckout();
+}
+function cartCount(){return cart.reduce((s,c)=>s+c.qty,0);}
+function cartSubtotal(){return cart.reduce((s,c)=>{const p=prodById(c.id);return s+(p?unitPrice(p)*c.qty:0);},0);}
+function updateCartCount(){
+  const el=document.getElementById('cartCount');const n=cartCount();
+  el.textContent=n;el.classList.toggle('empty',n===0);
+}
+
+function openCart(){renderCart();document.getElementById('scrim').classList.add('open');document.getElementById('drawer').classList.add('open');}
+function closeCart(){document.getElementById('scrim').classList.remove('open');document.getElementById('drawer').classList.remove('open');}
+
+function renderCart(){
+  const body=document.getElementById('drawerBody');
+  const foot=document.getElementById('drawerFoot');
+  if(!cart.length){
+    body.innerHTML=`<div class="drawer__empty"><p>Tu carrito está vacío.</p><button class="btn btn--primary btn--sm" style="margin-top:12px" onclick="closeCart();location.hash='catalogo'">Ir al catálogo</button></div>`;
+    foot.innerHTML='';return;
+  }
+  body.innerHTML=cart.map(c=>{
+    const p=prodById(c.id);
+    return `<div class="ci"><div class="ci__thumb">${window.MM.thumb(p)}</div>
+      <div><p class="ci__name">${p.nombre}</p><div class="ci__meta">${p.codigo} · ${fmt(unitPrice(p))} c/u</div>
+        <div class="ci__qty"><button onclick="setQty('${p.id}',${c.qty-1})">−</button><span>${c.qty}</span><button onclick="setQty('${p.id}',${c.qty+1})">+</button></div></div>
+      <div class="ci__right"><span class="ci__price">${fmt(unitPrice(p)*c.qty)}</span><button class="ci__rm" onclick="removeFromCart('${p.id}')">Quitar</button></div></div>`;
+  }).join('');
+  const sub=cartSubtotal();const iva=sub*0.16;
+  foot.innerHTML=`<span class="modeflag">${priceMode==='mayoreo'?'Lista mayoreo':'Lista público'}</span>
+    <div class="drawer__line"><span>Subtotal</span><span>${fmt(sub)}</span></div>
+    <div class="drawer__line"><span>IVA 16%</span><span>${fmt(iva)}</span></div>
+    <div class="drawer__line total"><span>Total</span><span>${fmt(sub+iva)}</span></div>
+    <button class="btn btn--primary" onclick="closeCart();location.hash='checkout'">Ir a pagar <span class="arr">→</span></button>`;
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTo;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ${msg}`;
+  t.classList.add('show');clearTimeout(toastTo);toastTo=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ============================================================
+// CATALOG
+// ============================================================
+const catState={search:'',cats:new Set(),marcas:new Set(),pMin:null,pMax:null,offerOnly:false,sort:'rel',page:1,pageSize:24};
+let catListenersAttached=false;
+const CAT_ORDER=['Tableros','Correderas','Bisagras','Jaladeras','Conectores y tornillería','Cantos','Ofertas','Otros'];
+
+function initCatalog(paramStr){
+  catState.search='';catState.cats=new Set();catState.marcas=new Set();
+  catState.pMin=null;catState.pMax=null;catState.offerOnly=false;catState.sort='rel';catState.page=1;
+  if(paramStr){
+    const p=new URLSearchParams(paramStr.replace(/\+/g,' '));
+    if(p.get('cat'))catState.cats=new Set([p.get('cat')]);
+    if(p.get('marca'))catState.marcas=new Set([p.get('marca')]);
+    if(p.get('q'))catState.search=p.get('q');
+    if(p.get('oferta')==='1')catState.offerOnly=true;
+  }
+  const inStock=window.__products.filter(p=>p.stock>0);
+  document.getElementById('totalCount').textContent=inStock.length;
+  renderCatOpts();renderMarcaOpts();
+  document.getElementById('search').value=catState.search;
+  document.getElementById('offerOnly').checked=catState.offerOnly;
+  document.getElementById('pMin').value='';document.getElementById('pMax').value='';
+  document.getElementById('sort').value=catState.sort;
+  setPriceMode(priceMode);
+  render();
+  if(!catListenersAttached){
+    catListenersAttached=true;let to;
+    document.getElementById('search').addEventListener('input',e=>{clearTimeout(to);to=setTimeout(()=>{catState.search=e.target.value;catState.page=1;render();},180);});
+    document.getElementById('offerOnly').addEventListener('change',e=>{catState.offerOnly=e.target.checked;catState.page=1;render();});
+    document.getElementById('pMin').addEventListener('input',e=>{const v=parseFloat(e.target.value);catState.pMin=isNaN(v)?null:v;catState.page=1;render();});
+    document.getElementById('pMax').addEventListener('input',e=>{const v=parseFloat(e.target.value);catState.pMax=isNaN(v)?null:v;catState.page=1;render();});
+    document.getElementById('sort').addEventListener('change',e=>{catState.sort=e.target.value;render();});
+    document.getElementById('clearBtn').addEventListener('click',()=>{
+      catState.search='';catState.cats.clear();catState.marcas.clear();
+      catState.pMin=null;catState.pMax=null;catState.offerOnly=false;catState.page=1;
+      document.getElementById('search').value='';document.getElementById('pMin').value='';
+      document.getElementById('pMax').value='';document.getElementById('offerOnly').checked=false;
+      renderCatOpts();renderMarcaOpts();render();
+    });
+    document.getElementById('fToggle').addEventListener('click',()=>document.getElementById('filters').classList.toggle('is-open'));
+  }
+}
+
+function catFiltered(){
+  const prods=window.__products.filter(p=>p.stock>0);
+  const q=catState.search.trim().toLowerCase();
+  let arr=prods.filter(p=>{
+    if(catState.cats.size&&!catState.cats.has(p.categoria))return false;
+    if(catState.marcas.size&&!catState.marcas.has(p.marca))return false;
+    if(catState.offerOnly&&!p.enOferta)return false;
+    if(catState.pMin!=null&&unitPrice(p)<catState.pMin)return false;
+    if(catState.pMax!=null&&unitPrice(p)>catState.pMax)return false;
+    if(q&&!(p.nombre+' '+p.codigo+' '+p.marca+' '+p.categoria).toLowerCase().includes(q))return false;
+    return true;
+  });
+  if(catState.sort==='asc')arr.sort((a,b)=>unitPrice(a)-unitPrice(b));
+  else if(catState.sort==='desc')arr.sort((a,b)=>unitPrice(b)-unitPrice(a));
+  else if(catState.sort==='name')arr.sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+  return arr;
+}
+
+function renderCatOpts(){
+  const prods=window.__products.filter(p=>p.stock>0);
+  const counts={};for(const p of prods)counts[p.categoria]=(counts[p.categoria]||0)+1;
+  const el=document.getElementById('catOpts');
+  el.innerHTML=CAT_ORDER.filter(c=>counts[c]).map(c=>`<label class="f-opt"><input type="checkbox" data-cat="${c}" ${catState.cats.has(c)?'checked':''}/><span>${c}</span><span class="count">${counts[c]}</span></label>`).join('');
+  el.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{
+    if(inp.checked)catState.cats.add(inp.dataset.cat);else catState.cats.delete(inp.dataset.cat);catState.page=1;render();
+  }));
+}
+function renderMarcaOpts(){
+  const prods=window.__products.filter(p=>p.stock>0);
+  const counts={};for(const p of prods)counts[p.marca]=(counts[p.marca]||0)+1;
+  const order=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+  const el=document.getElementById('marcaOpts');
+  el.innerHTML=order.map(m=>`<label class="f-opt"><input type="checkbox" data-marca="${m}" ${catState.marcas.has(m)?'checked':''}/><span>${m}</span><span class="count">${counts[m]}</span></label>`).join('');
+  el.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{
+    if(inp.checked)catState.marcas.add(inp.dataset.marca);else catState.marcas.delete(inp.dataset.marca);catState.page=1;render();
+  }));
+}
+function renderChips(){
+  const chips=[];
+  if(catState.search)chips.push({l:`"${catState.search}"`,k:'search'});
+  catState.cats.forEach(c=>chips.push({l:c,k:'cat:'+c}));
+  catState.marcas.forEach(m=>chips.push({l:m,k:'marca:'+m}));
+  if(catState.offerOnly)chips.push({l:'Solo ofertas',k:'offerOnly'});
+  if(catState.pMin!=null)chips.push({l:`≥ $${catState.pMin}`,k:'pMin'});
+  if(catState.pMax!=null)chips.push({l:`≤ $${catState.pMax}`,k:'pMax'});
+  const el=document.getElementById('chips');
+  el.innerHTML=chips.map(c=>`<span class="chip">${c.l} <button data-key="${c.k}">×</button></span>`).join('');
+  el.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+    const k=btn.dataset.key;
+    if(k==='search'){catState.search='';document.getElementById('search').value='';}
+    else if(k.startsWith('cat:'))catState.cats.delete(k.slice(4));
+    else if(k.startsWith('marca:'))catState.marcas.delete(k.slice(6));
+    else if(k==='offerOnly'){catState.offerOnly=false;document.getElementById('offerOnly').checked=false;}
+    else if(k==='pMin'){catState.pMin=null;document.getElementById('pMin').value='';}
+    else if(k==='pMax'){catState.pMax=null;document.getElementById('pMax').value='';}
+    catState.page=1;render();
+  }));
+}
+
+function render(){
+  const arr=catFiltered();
+  const start=(catState.page-1)*catState.pageSize;
+  const slice=arr.slice(start,start+catState.pageSize);
+  document.getElementById('shownCount').textContent=start+slice.length;
+  document.getElementById('filteredCount').textContent=arr.length;
+  renderChips();
+  const grid=document.getElementById('grid');const empty=document.getElementById('empty');const pag=document.getElementById('pag');
+  if(!arr.length){grid.innerHTML='';empty.style.display='block';pag.innerHTML='';return;}
+  empty.style.display='none';
+  grid.innerHTML=slice.map(p=>{
+    const sc=p.stock>30?'in':p.stock>0?'low':'';
+    const st=p.stock>30?`${p.stock} en stock`:p.stock>0?`Pocas · ${p.stock}`:'Consultar';
+    const badge=p.enOferta?'<span class="p-card__badge">Oferta</span>':'';
+    const u=unitPrice(p);const showStrike=priceMode==='mayoreo'&&p.mayoreo>0&&p.precio>u;
+    const priceHtml=`${showStrike?`<s>${fmt(p.precio)}</s>`:''}${fmt(u)}<small> MXN</small>`;
+    return `<div class="p-card">${badge}<div class="thumb">${window.MM.thumb(p)}<span class="thumb__cat">${p.categoria}</span><span class="thumb__sku">${p.codigo}</span></div><div class="p-card__body"><span class="p-card__cat">${p.marca}</span><h3 class="p-card__name">${p.nombre}</h3><div class="p-card__row"><span class="p-card__price">${priceHtml}</span><span class="p-card__stock ${sc}"><span class="dot"></span>${st}</span></div></div><div class="p-card__cta"><button class="btn btn--ink" onclick="addToCart('${p.id}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12.4a1.6 1.6 0 0 0 1.6 1.3h8.6a1.6 1.6 0 0 0 1.6-1.3L22 7H6"/></svg> Agregar</button></div></div>`;
+  }).join('');
+  const total=Math.ceil(arr.length/catState.pageSize);
+  if(total<=1){pag.innerHTML='';return;}
+  const cur=catState.page;const btns=[];
+  btns.push(`<button data-pg="prev" ${cur===1?'disabled':''}>← Ant</button>`);
+  const pages=new Set([1,total,cur,cur-1,cur+1]);let last=0;
+  for(let i=1;i<=total;i++){
+    if(!pages.has(i))continue;
+    if(last&&i-last>1)btns.push(`<button disabled style="border:none;background:transparent">…</button>`);
+    btns.push(`<button data-pg="${i}" class="${i===cur?'active':''}">${i}</button>`);last=i;
+  }
+  btns.push(`<button data-pg="next" ${cur===total?'disabled':''}>Sig →</button>`);
+  pag.innerHTML=btns.join('');
+  pag.querySelectorAll('button[data-pg]').forEach(b=>b.addEventListener('click',()=>{
+    const v=b.dataset.pg;
+    if(v==='prev')catState.page=Math.max(1,cur-1);
+    else if(v==='next')catState.page=Math.min(total,cur+1);
+    else catState.page=parseInt(v,10);
+    render();window.scrollTo({top:0,behavior:'smooth'});
+  }));
+}
+
+// ============================================================
+// CHECKOUT
+// ============================================================
+let payMethod='tarjeta';
+function setPay(m){payMethod=m;document.querySelectorAll('.pay-opt').forEach(o=>o.classList.toggle('on',o.dataset.pay===m));}
+
+function renderCheckout(){
+  const inner=document.getElementById('checkoutInner');
+  if(!cart.length){
+    inner.innerHTML=`<div class="empty"><h3>Tu carrito está vacío</h3><p>Agrega productos del catálogo para continuar.</p><button class="btn btn--primary" style="margin-top:16px" onclick="location.hash='catalogo'">Ir al catálogo</button></div>`;
+    return;
+  }
+  const sub=cartSubtotal();const iva=sub*0.16;const tot=sub+iva;
+  const items=cart.map(c=>{const p=prodById(c.id);return `<div class="osum__item"><span>${c.qty} × ${p.nombre.split('·')[0].trim()}</span><b>${fmt(unitPrice(p)*c.qty)}</b></div>`;}).join('');
+  inner.innerHTML=`<div class="co-grid">
+    <div style="display:grid;gap:20px;">
+      <div class="card">
+        <h3>Datos del cliente</h3>
+        <div class="field"><label>Tipo de cliente</label><select id="coTipo">
+          <option value="publico" ${priceMode==='publico'?'selected':''}>Público general</option>
+          <option value="mayoreo" ${priceMode==='mayoreo'?'selected':''}>Mayorista (taller / mueblería)</option></select></div>
+        <div class="field-row"><div class="field"><label>Nombre / Razón social</label><input id="coNombre" placeholder="Carpintería Hernández" value="Carpintería Hernández"/></div>
+        <div class="field"><label>RFC (para factura)</label><input id="coRfc" placeholder="XAXX010101000" value="HEHC850312AB1"/></div></div>
+        <div class="field-row"><div class="field"><label>Correo</label><input id="coMail" value="compras@carpinteriahdz.mx"/></div>
+        <div class="field"><label>Teléfono</label><input id="coTel" value="55 1234 5678"/></div></div>
+        <div class="field"><label>Dirección de entrega</label><input id="coDir" value="Av. Carpinteros 145, Iztapalapa, CDMX"/></div>
+      </div>
+      <div class="card">
+        <h3>Método de pago</h3>
+        <div class="pay-opts">
+          <div class="pay-opt on" data-pay="tarjeta" onclick="setPay('tarjeta')"><span class="radio"></span><span class="pi">CARD</span><div><b>Tarjeta de crédito / débito</b><span>Visa, Mastercard, Amex · pago inmediato</span></div></div>
+          <div class="pay-opt" data-pay="oxxo" onclick="setPay('oxxo')"><span class="radio"></span><span class="pi">OXXO</span><div><b>Pago en OXXO</b><span>Recibe una ficha con referencia · 24 h para pagar</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Resumen del pedido</h3>
+      <div class="osum">
+        <div class="osum__items">${items}</div>
+        <div class="osum__line"><span>Subtotal</span><span>${fmt(sub)}</span></div>
+        <div class="osum__line"><span>IVA 16%</span><span>${fmt(iva)}</span></div>
+        <div class="osum__line total"><span>Total</span><span>${fmt(tot)}</span></div>
+        <span class="modeflag" style="margin-top:6px">${priceMode==='mayoreo'?'Lista mayoreo aplicada':'Lista público aplicada'}</span>
+        <button class="btn btn--primary" style="width:100%;justify-content:center;margin-top:10px" onclick="placeOrder()">Pagar ${fmt(tot)} <span class="arr">→</span></button>
+        <button class="btn btn--ghost" style="width:100%;justify-content:center" onclick="location.hash='catalogo'">Seguir comprando</button>
+        <p style="font-family:var(--f-mono);font-size:11px;color:var(--muted-l);text-align:center;margin:8px 0 0;">Demo · no se procesa ningún cobro real</p>
+      </div>
+    </div>
+  </div>`;
+  setPay(payMethod);
+  document.getElementById('coTipo').addEventListener('change',e=>{setPriceMode(e.target.value);renderCheckout();});
+}
+
+let lastOrder=null;
+function placeOrder(){
+  const nombre=document.getElementById('coNombre').value||'Cliente';
+  const rfc=(document.getElementById('coRfc').value||'XAXX010101000').toUpperCase();
+  const mail=document.getElementById('coMail').value||'';
+  const sub=cartSubtotal();const iva=sub*0.16;const tot=sub+iva;
+  const folio='V-'+(1840+Math.floor(Math.random()*160));
+  const items=cart.map(c=>{const p=prodById(c.id);return {nombre:p.nombre,codigo:p.codigo,qty:c.qty,unit:unitPrice(p),imp:unitPrice(p)*c.qty};});
+  lastOrder={folio,nombre,rfc,mail,items,sub,iva,tot,pago:payMethod,modo:priceMode,fecha:new Date()};
+  // generate CFDI record + push to facturas
+  const uuid=genUUID();
+  const fact={uuid,folio,nombre,rfc,mail,items,sub,iva,tot,fecha:new Date(),metodo:payMethod==='tarjeta'?'PUE · Tarjeta':'PUE · Efectivo (OXXO)'};
+  FACTURAS.unshift(fact);
+  cart.length=0;updateCartCount();
+  location.hash='confirm';
+}
+
+function renderConfirm(){
+  const inner=document.getElementById('confirmInner');
+  if(!lastOrder){location.hash='catalogo';return;}
+  const o=lastOrder;const f=FACTURAS[0];
+  const pagoTxt=o.pago==='tarjeta'?'Pago con tarjeta aprobado':'Ficha OXXO generada · paga en cualquier tienda en 24 h';
+  inner.innerHTML=`<div class="confirm">
+    <div class="ok"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h1>¡Pedido confirmado!</h1>
+    <p>${pagoTxt}.</p>
+    <p>Gracias, <b>${o.nombre}</b>. Te enviamos la confirmación a ${o.mail||'tu correo'}.</p>
+    <span class="ord">Pedido ${o.folio} · ${fmt(o.tot)} MXN</span>
+    <div class="card" style="text-align:left;max-width:420px;margin:0 auto 22px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:42px;height:42px;border-radius:10px;background:color-mix(in oklab,var(--orange) 14%,#fff);display:grid;place-items:center;color:var(--orange-deep);flex:none;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg></div>
+        <div><b style="font-family:var(--f-display);">CFDI 4.0 timbrado automáticamente</b><div style="font-family:var(--f-mono);font-size:11px;color:var(--muted-l);margin-top:3px;">Folio fiscal ${f.uuid.slice(0,18)}…</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--muted-l);margin:12px 0 0;">Sin captura manual: la factura se generó sola al confirmar el pago.</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn--primary" onclick="viewCFDI('${f.uuid}')">Ver factura CFDI</button>
+      <button class="btn btn--ghost" onclick="location.hash='catalogo'">Seguir comprando</button>
+      <button class="btn btn--ghost" onclick="location.hash='panel'">Ir al panel</button>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// CRM DATA
+// ============================================================
+const CLIENTES=[
+  {id:'C1',nombre:'Carpintería Hernández',contacto:'Carlos Hernández',tipo:'mayoreo',tel:'55 1234 5678',compras:184500,pedidos:23,ultima:'2026-06-18'},
+  {id:'C2',nombre:'Muebles Domínguez',contacto:'Laura Domínguez',tipo:'mayoreo',tel:'55 2233 8890',compras:312800,pedidos:41,ultima:'2026-06-21'},
+  {id:'C3',nombre:'Constructora Vértice',contacto:'Ing. Pablo Ríos',tipo:'mayoreo',tel:'55 9087 1122',compras:528000,pedidos:12,ultima:'2026-06-10'},
+  {id:'C4',nombre:'Cocinas Integrales MA',contacto:'Marisol Ayala',tipo:'mayoreo',tel:'55 6677 4321',compras:96300,pedidos:15,ultima:'2026-06-22'},
+  {id:'C5',nombre:'Taller El Roble',contacto:'Don Beto',tipo:'mayoreo',tel:'55 4456 7788',compras:42100,pedidos:9,ultima:'2026-05-30'},
+  {id:'C6',nombre:'Público — Mostrador',contacto:'Varios',tipo:'publico',tel:'—',compras:73900,pedidos:118,ultima:'2026-06-23'},
+];
+const OPORTS=[
+  {id:'O1',titulo:'Surtido cocina 12 módulos',cliente:'Cocinas Integrales MA',etapa:'nuevo',monto:48000,ag:'Hoy'},
+  {id:'O2',titulo:'Melamina + cantos obra Polanco',cliente:'Constructora Vértice',etapa:'nuevo',monto:126000,ag:'Mañana'},
+  {id:'O3',titulo:'Recurrente herraje Blum',cliente:'Muebles Domínguez',etapa:'cotizado',monto:54200,ag:'24 jun'},
+  {id:'O4',titulo:'Closets residencia Satélite',cliente:'Carpintería Hernández',etapa:'cotizado',monto:38900,ag:'25 jun'},
+  {id:'O5',titulo:'MDF hidrófugo baños',cliente:'Constructora Vértice',etapa:'negociacion',monto:88000,ag:'26 jun'},
+  {id:'O6',titulo:'Reposición correderas',cliente:'Taller El Roble',etapa:'negociacion',monto:14500,ag:'27 jun'},
+  {id:'O7',titulo:'Pedido mensual junio',cliente:'Muebles Domínguez',etapa:'ganado',monto:71200,ag:'Cerrado'},
+  {id:'O8',titulo:'Triplay proyecto escolar',cliente:'Constructora Vértice',etapa:'ganado',monto:152000,ag:'Cerrado'},
+  {id:'O9',titulo:'Jaladeras premium importadas',cliente:'Cocinas Integrales MA',etapa:'perdido',monto:22000,ag:'Sin stock'},
+];
+const ETAPAS=[
+  {k:'nuevo',l:'Nuevo'},{k:'cotizado',l:'Cotizado'},{k:'negociacion',l:'Negociación'},{k:'ganado',l:'Ganado'},{k:'perdido',l:'Perdido'},
+];
+const COTIZACIONES=[
+  {folio:'COT-0312',cliente:'Constructora Vértice',fecha:'2026-06-20',monto:126000,estado:'vig'},
+  {folio:'COT-0311',cliente:'Muebles Domínguez',fecha:'2026-06-19',monto:54200,estado:'vig'},
+  {folio:'COT-0309',cliente:'Carpintería Hernández',fecha:'2026-06-18',monto:38900,estado:'vig'},
+  {folio:'COT-0305',cliente:'Cocinas Integrales MA',fecha:'2026-06-15',monto:48000,estado:'pend'},
+  {folio:'COT-0301',cliente:'Taller El Roble',fecha:'2026-06-12',monto:14500,estado:'ok'},
+];
+const FACTURAS=[
+  {uuid:'A1B2C3D4-5E6F-7A8B-9C0D-1E2F3A4B5C6D',folio:'V-1834',nombre:'Muebles Domínguez',rfc:'MUDO900215XY2',mail:'pagos@mueblesdominguez.mx',fecha:new Date('2026-06-21T11:20:00'),metodo:'PUE · Transferencia',sub:61379.31,iva:9820.69,tot:71200,
+   items:[{nombre:'Melamina blanca 18 mm',codigo:'MEL-BL-18',qty:40,unit:625,imp:25000},{nombre:'Bisagra Blum Clip-top codo 0',codigo:'BL-CT-0',qty:300,unit:64,imp:19200},{nombre:'Corredera Blum Movento 45 cm',codigo:'BL-MOV-450',qty:60,unit:445,imp:26700}]},
+  {uuid:'F9E8D7C6-B5A4-3210-9F8E-7D6C5B4A3210',folio:'V-1831',nombre:'Constructora Vértice',rfc:'COVE110808QR5',mail:'admin@vertice.mx',fecha:new Date('2026-06-19T16:05:00'),metodo:'PUE · Tarjeta',sub:131034.48,iva:20965.52,tot:152000,
+   items:[{nombre:'Triplay de pino 18 mm',codigo:'TRI-PN-18',qty:120,unit:715,imp:85800},{nombre:'MDF crudo 18 mm',codigo:'MDF-CR-18',qty:80,unit:505,imp:40400},{nombre:'Tornillo aglomerado 4×40',codigo:'GN-TOR-1000',qty:30,unit:222,imp:6660}]},
+];
+
+// ============================================================
+// PANEL
+// ============================================================
+let panelTab='resumen';
+function setPanelTab(t){
+  panelTab=t;
+  document.querySelectorAll('#ptabs .ptab').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  renderPanel();
+}
+function renderPanel(){
+  const b=document.getElementById('panelBody');
+  if(panelTab==='resumen')b.innerHTML=panelResumen();
+  else if(panelTab==='embudo')b.innerHTML=panelEmbudo();
+  else if(panelTab==='clientes')b.innerHTML=panelClientes();
+  else if(panelTab==='cotizaciones')b.innerHTML=panelCotizaciones();
+  else if(panelTab==='facturacion')b.innerHTML=panelFacturacion();
+}
+function panelResumen(){
+  const pipeline=OPORTS.filter(o=>['nuevo','cotizado','negociacion'].includes(o.etapa)).reduce((s,o)=>s+o.monto,0);
+  const ganadoMes=OPORTS.filter(o=>o.etapa==='ganado').reduce((s,o)=>s+o.monto,0);
+  return `<div class="kpis">
+    <div class="kpi"><div class="l">Ventas del mes</div><div class="v">${fmt(486300)}</div><div class="d">▲ 18% vs. mayo</div></div>
+    <div class="kpi"><div class="l">Pedidos en línea</div><div class="v">64</div><div class="d">▲ 12 esta semana</div></div>
+    <div class="kpi"><div class="l">Pipeline abierto</div><div class="v">${fmt(pipeline)}</div><div class="d">6 oportunidades</div></div>
+    <div class="kpi"><div class="l">Por facturar</div><div class="v">3</div><div class="d down">2 vencen hoy</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1.3fr .9fr;gap:24px;align-items:start;">
+    <div class="card">
+      <h3>Últimos pedidos en línea</h3>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Pedido</th><th>Cliente</th><th>Lista</th><th class="r">Total</th><th>Estado</th></tr></thead><tbody>
+        <tr><td class="tnum">V-1837</td><td>Cocinas Integrales MA</td><td><span class="pill pill--mayoreo">Mayoreo</span></td><td class="tnum" style="text-align:right">${fmt(18400)}</td><td><span class="pill pill--ok">Pagado</span></td></tr>
+        <tr><td class="tnum">V-1836</td><td>Público — Mostrador</td><td><span class="pill pill--publico">Público</span></td><td class="tnum" style="text-align:right">${fmt(2360)}</td><td><span class="pill pill--ok">Pagado</span></td></tr>
+        <tr><td class="tnum">V-1835</td><td>Taller El Roble</td><td><span class="pill pill--mayoreo">Mayoreo</span></td><td class="tnum" style="text-align:right">${fmt(9750)}</td><td><span class="pill pill--pend">OXXO pendiente</span></td></tr>
+        <tr><td class="tnum">V-1834</td><td>Muebles Domínguez</td><td><span class="pill pill--mayoreo">Mayoreo</span></td><td class="tnum" style="text-align:right">${fmt(71200)}</td><td><span class="pill pill--ok">Pagado</span></td></tr>
+      </tbody></table></div>
+    </div>
+    <div class="card">
+      <h3>Recordatorios</h3>
+      <div class="rem"><span class="rem__dot"></span><div><b>Seguir cotización Vértice</b><p>COT-0312 · melamina obra Polanco</p></div><time>Hoy</time></div>
+      <div class="rem"><span class="rem__dot soon"></span><div><b>Llamar a Cocinas MA</b><p>Surtido cocina 12 módulos</p></div><time>Hoy</time></div>
+      <div class="rem"><span class="rem__dot soon"></span><div><b>Confirmar pago OXXO</b><p>Pedido V-1835 · Taller El Roble</p></div><time>Mañana</time></div>
+      <div class="rem"><span class="rem__dot later"></span><div><b>Reorden herraje Blum</b><p>Stock bajo en correderas Movento</p></div><time>27 jun</time></div>
+    </div>
+  </div>`;
+}
+function panelEmbudo(){
+  const cols=ETAPAS.map(e=>{
+    const ops=OPORTS.filter(o=>o.etapa===e.k);
+    const tot=ops.reduce((s,o)=>s+o.monto,0);
+    const cards=ops.map(o=>`<div class="kc s-${o.etapa}"><h5>${o.titulo}</h5><p class="cliente">${o.cliente}</p><div class="foot"><span class="monto">${fmt(o.monto)}</span><span class="ag">${o.ag}</span></div></div>`).join('');
+    return `<div class="kcol"><div class="kcol__head"><h4>${e.l}</h4><span class="n">${ops.length}</span></div><div style="font-family:var(--f-mono);font-size:11px;color:var(--muted-l);padding:0 4px 8px;">${fmt(tot)}</div><div class="kcol__cards">${cards||'<div style="font-family:var(--f-mono);font-size:11px;color:var(--muted-l);padding:8px 4px;">—</div>'}</div></div>`;
+  }).join('');
+  return `<div style="margin-bottom:18px;font-size:14px;color:var(--muted-l);">Arrastra (en producción) las oportunidades entre etapas. Cada cliente y cada cotización viven aquí, sin perderse entre vendedores.</div><div class="kanban">${cols}</div>`;
+}
+function panelClientes(){
+  const rows=CLIENTES.map(c=>`<tr class="clk" onclick="showToast('Ficha de ${c.nombre.replace(/'/g,'')} — demo')"><td><b>${c.nombre}</b><div style="font-size:12px;color:var(--muted-l)">${c.contacto}</div></td><td>${c.tipo==='mayoreo'?'<span class="pill pill--mayoreo">Mayoreo</span>':'<span class="pill pill--publico">Público</span>'}</td><td class="tnum">${c.tel}</td><td class="tnum">${c.pedidos}</td><td class="tnum" style="text-align:right">${fmt(c.compras)}</td><td class="tnum">${c.ultima}</td></tr>`).join('');
+  return `<div class="card" style="padding:0;overflow:hidden;"><div style="padding:20px 24px 0"><h3>Clientes</h3></div><div class="tbl-wrap" style="border:none"><table class="tbl"><thead><tr><th>Cliente</th><th>Lista</th><th>Teléfono</th><th>Pedidos</th><th class="r">Compra histórica</th><th>Última compra</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function panelCotizaciones(){
+  const pillMap={vig:'<span class="pill pill--vig">Vigente</span>',pend:'<span class="pill pill--pend">Por seguir</span>',ok:'<span class="pill pill--ok">Convertida</span>'};
+  const rows=COTIZACIONES.map(q=>`<tr class="clk" onclick="showToast('Abrir ${q.folio} — demo')"><td class="tnum tlink">${q.folio}</td><td>${q.cliente}</td><td class="tnum">${q.fecha}</td><td class="tnum" style="text-align:right">${fmt(q.monto)}</td><td>${pillMap[q.estado]||''}</td></tr>`).join('');
+  return `<div class="card" style="padding:0;overflow:hidden;"><div style="padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0">Cotizaciones</h3><button class="btn btn--primary btn--sm" onclick="showToast('Nueva cotización — demo')">+ Nueva</button></div><div style="padding:0 24px 20px"></div><div class="tbl-wrap" style="border:none"><table class="tbl"><thead><tr><th>Folio</th><th>Cliente</th><th>Fecha</th><th class="r">Monto</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function panelFacturacion(){
+  const rows=FACTURAS.map(f=>`<tr class="clk" onclick="viewCFDI('${f.uuid}')"><td class="tnum tlink">${f.folio}</td><td>${f.nombre}</td><td class="tnum">${f.rfc}</td><td class="tnum">${f.fecha.toLocaleDateString('es-MX')}</td><td class="tnum" style="text-align:right">${fmt(f.tot)}</td><td><span class="pill pill--ok">Timbrada</span></td></tr>`).join('');
+  return `<div style="margin-bottom:18px;font-size:14px;color:var(--muted-l);">Cada pedido pagado genera su <b>CFDI 4.0</b> timbrado automáticamente. Haz una compra en la tienda y aparecerá aquí. Da clic en un folio para ver la factura.</div>
+  <div class="card" style="padding:0;overflow:hidden;"><div style="padding:20px 24px 0"><h3>Facturas emitidas</h3></div><div class="tbl-wrap" style="border:none"><table class="tbl"><thead><tr><th>Folio</th><th>Cliente</th><th>RFC</th><th>Fecha</th><th class="r">Total</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+// ============================================================
+// CFDI
+// ============================================================
+function genUUID(){
+  const hex='0123456789ABCDEF';const seg=n=>Array.from({length:n},()=>hex[Math.floor(Math.random()*16)]).join('');
+  return `${seg(8)}-${seg(4)}-${seg(4)}-${seg(4)}-${seg(12)}`;
+}
+function viewCFDI(uuid){
+  const f=FACTURAS.find(x=>x.uuid===uuid);if(!f)return;
+  const rows=f.items.map(it=>`<tr><td class="tnum">${it.codigo}</td><td>${it.nombre}</td><td class="r tnum">${it.qty}</td><td class="r tnum">${fmt(it.unit)}</td><td class="r tnum">${fmt(it.imp)}</td></tr>`).join('');
+  document.getElementById('cfdiInner').innerHTML=`<div class="cfdi">
+    <div class="cfdi__head">
+      <div class="emisor"><b>Tableros y Herrajes Vallejo S.A. de C.V.</b><span>RFC: THV180524JK9</span><span>Régimen 601 · General de Ley Personas Morales</span><span>Av. Vallejo 1020, Azcapotzalco, CDMX</span></div>
+      <div class="tipo"><b>CFDI 4.0</b>Factura · Ingreso<br/>Folio ${f.folio}<br/>${f.fecha.toLocaleDateString('es-MX')} ${f.fecha.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+    <div class="cfdi__sec"><h5>Receptor</h5><div class="cfdi__grid">
+      <div><span>Razón social</span><span>${f.nombre}</span></div>
+      <div><span>RFC</span><span>${f.rfc}</span></div>
+      <div><span>Uso CFDI</span><span>G03 · Gastos en general</span></div>
+      <div><span>Método de pago</span><span>${f.metodo}</span></div>
+      <div><span>Forma de pago</span><span>${f.metodo.includes('Tarjeta')?'04 · Tarjeta':f.metodo.includes('Transfer')?'03 · Transferencia':'01 · Efectivo'}</span></div>
+      <div><span>Lugar de expedición</span><span>02300</span></div>
+    </div></div>
+    <table><thead><tr><th>Clave</th><th>Descripción</th><th class="r">Cant.</th><th class="r">P. Unit.</th><th class="r">Importe</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="cfdi__totes">
+      <div class="ln"><span>Subtotal</span><span>${fmt(f.sub)}</span></div>
+      <div class="ln"><span>IVA 16%</span><span>${fmt(f.iva)}</span></div>
+      <div class="ln tot"><span>Total</span><span>${fmt(f.tot)} MXN</span></div>
+    </div>
+    <div class="cfdi__stamp">
+      <div class="cfdi__qr">${qrSvg()}</div>
+      <div class="sello"><b>Folio fiscal (UUID)</b>${f.uuid}<br/><b style="margin-top:6px">Sello digital del SAT</b>kJ8nQv2mZ1wYxP0rT7sB9cD3eF6gH4iL...n2pR5tU8wX1zA4cE7gJ0mN3qS6vY9bD2</div>
+    </div>
+  </div>`;
+  location.hash='cfdi';
+}
+function qrSvg(){
+  let cells='';const n=11;
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+    const corner=(x<3&&y<3)||(x>n-4&&y<3)||(x<3&&y>n-4);
+    if(corner||((x*7+y*13+x*y)%3===0))cells+=`<rect x="${x*6}" y="${y*6}" width="6" height="6" fill="#1B1611"/>`;
+  }
+  return `<svg viewBox="0 0 ${n*6} ${n*6}" width="64" height="64">${cells}</svg>`;
+}
+
+// ============================================================
+// ROUTER
+// ============================================================
+const VIEWS=['landing','catalogo','checkout','confirm','panel','cfdi'];
+function showView(name){
+  VIEWS.forEach(v=>{const el=document.getElementById('view-'+v);if(el)el.style.display=v===name?'':'none';});
+  document.querySelectorAll('.nav-catalogo').forEach(a=>a.classList.toggle('is-active',name==='catalogo'||name==='checkout'||name==='confirm'));
+  document.querySelectorAll('.nav-panel').forEach(a=>a.classList.toggle('is-active',name==='panel'||name==='cfdi'));
+}
+function route(){
+  const h=location.hash.slice(1);
+  if(!h||h==='top'){showView('landing');window.scrollTo(0,0);return;}
+  if(h.startsWith('catalogo')){showView('catalogo');const param=h.includes('/')?h.slice(h.indexOf('/')+1):'';initCatalog(param);window.scrollTo(0,0);return;}
+  if(h==='checkout'){showView('checkout');renderCheckout();window.scrollTo(0,0);return;}
+  if(h==='confirm'){showView('confirm');renderConfirm();window.scrollTo(0,0);return;}
+  if(h==='panel'){showView('panel');renderPanel();window.scrollTo(0,0);return;}
+  if(h==='cfdi'){showView('cfdi');window.scrollTo(0,0);return;}
+  const anchors=['plataforma','ventajas','comparativa','categorias-section','confianza','contacto'];
+  if(anchors.includes(h)){showView('landing');setTimeout(()=>{const el=document.getElementById(h);if(el)el.scrollIntoView({behavior:'smooth'});},50);return;}
+  showView('landing');
+}
+function goHome(){showView('landing');history.pushState('','',location.pathname);window.scrollTo(0,0);}
+function landingAnchor(id){
+  if(location.hash.slice(1)===id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth'});return;}
+  showView('landing');history.pushState('','',location.pathname);
+  setTimeout(()=>{const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth'});},60);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.getElementById('year').textContent=new Date().getFullYear();
+const nav=document.getElementById('topnav');
+window.addEventListener('scroll',()=>nav.classList.toggle('is-scrolled',window.scrollY>12),{passive:true});
+window.addEventListener('hashchange',route);
+updateCartCount();
+route();
+</script>
+</body>
+</html>
