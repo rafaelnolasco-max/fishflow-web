@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>El Ecosistema — Arquitectura Mental y del Criterio® · Mario Citalán</title>
+<meta name="description" content="El mapa completo del ecosistema Arquitectura Mental y del Criterio®: una teoría madre, cuatro niveles de aplicación, tres escalas de decisión y el recorrido del diagnóstico a la certificación. Por qué es diferente.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1A24; --ink-2:#283845; --ink-3:#4C5C6A;
+    --paper:#F4F7FA; --paper-2:#E7EEF4; --bone:#FFFFFF; --muted:#7B8794;
+    --accent:#3E86CF; --accent-deep:#2A6AAE; --steel:#1F4E79;
+    --rule:#DCE4EC; --rule-dark:rgba(255,255,255,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter",system-ui,sans-serif;font-weight:400;font-size:16px;line-height:1.65;letter-spacing:.01em}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  .display{font-family:"Fraunces",Georgia,serif;font-weight:500;letter-spacing:-.01em;line-height:1.0}
+  .serif{font-family:"Fraunces",Georgia,serif}
+  .italic{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:400;color:var(--accent-deep)}
+  .eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-deep)}
+  .container{max-width:1280px;margin:0 auto;padding:0 56px}
+  .ornament{display:flex;align-items:center;gap:13px;color:var(--accent-deep)}
+  .ornament .line{width:74px;height:1px;background:var(--accent-deep)}
+  .ornament .diamond{width:8px;height:8px;background:var(--accent-deep);transform:rotate(45deg)}
+
+  /* NAV */
+  .topstack{position:fixed;top:0;left:0;right:0;z-index:50}
+  .nav{position:relative;backdrop-filter:blur(14px);background:rgba(255,255,255,.92);border-bottom:1px solid transparent;transition:.4s}
+  .nav.scrolled{border-bottom-color:var(--rule)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 56px}
+  .nav-mark{display:flex;align-items:center;gap:11px;font-family:"Fraunces",serif;font-weight:500;font-size:19px;letter-spacing:.02em}
+  .nav-logo{height:34px;width:auto;display:block}
+  .nav-links{display:flex;gap:30px;font-size:13px;letter-spacing:.02em;color:var(--ink-2)}
+  .nav-links a:hover,.nav-links a.active{color:var(--accent-deep)}
+  .nav-cta{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:12px 20px;border:1px solid var(--ink);transition:.3s;white-space:nowrap}
+  .nav-cta:hover{background:var(--ink);color:var(--paper)}
+
+  /* DEMO BANNER */
+  .demo-banner{background:var(--accent);color:#fff;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 16px}
+  .demo-banner a{text-decoration:underline}
+
+  /* HERO */
+  .eco-hero{padding:172px 0 70px;position:relative;overflow:hidden}
+  .eco-hero .meta{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+  .eco-hero .meta .bar{width:52px;height:1px;background:var(--accent-deep)}
+  .eco-hero h1{font-size:clamp(44px,5.6vw,88px);margin:0 0 22px;letter-spacing:-.02em;max-width:16ch}
+  .eco-hero .lead{max-width:620px;font-size:18px;line-height:1.7;color:var(--ink-2)}
+
+  /* SECTION SHELL */
+  section{padding:108px 0;position:relative}
+  .section-head{display:grid;grid-template-columns:230px 1fr;gap:56px;margin-bottom:64px;align-items:end}
+  .section-head h2{font-size:clamp(38px,4.2vw,62px);line-height:1.02;letter-spacing:-.015em}
+  .section-head .kicker .eyebrow{margin-bottom:14px;display:block}
+  .section-head .kicker p{color:var(--ink-2);max-width:50ch}
+  .section-head .kicker.dark p{color:rgba(247,250,252,.74)}
+
+  /* TEORÍA MADRE (paraguas) */
+  .teoria{background:var(--ink);color:var(--paper)}
+  .teoria .eyebrow{color:var(--accent)}
+  .umbrella{max-width:880px}
+  .umbrella .big{font-family:"Fraunces",serif;font-weight:400;font-size:clamp(26px,3.2vw,44px);line-height:1.3;color:var(--paper);margin-bottom:18px}
+  .umbrella .big .accent{color:var(--accent);font-style:italic}
+  .umbrella p{color:rgba(247,250,252,.72);max-width:60ch;margin-bottom:30px}
+  .umbrella-tags{display:flex;flex-wrap:wrap;gap:10px}
+  .umbrella-tags span{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);border:1px solid var(--rule-dark);padding:10px 16px;background:rgba(255,255,255,.04)}
+  .umbrella-tags span b{color:var(--accent);font-weight:500}
+
+  /* ESCALAS */
+  .escalas{background:var(--bone)}
+  .escalas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .escala{border:1px solid var(--rule);border-top:3px solid var(--accent);padding:34px 30px;display:flex;flex-direction:column;gap:14px;background:var(--paper)}
+  .escala .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-deep)}
+  .escala h3{font-family:"Fraunces",serif;font-weight:500;font-size:26px}
+  .escala .q{font-family:"Fraunces",serif;font-style:italic;font-size:20px;color:var(--accent-deep);line-height:1.35}
+  .escala p{font-size:14px;color:var(--ink-2);line-height:1.6}
+
+  /* NIVELES */
+  .niveles-eco{background:var(--paper)}
+  .nv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .nv{border:1px solid var(--rule);padding:34px 32px;display:flex;flex-direction:column;gap:14px;background:var(--bone);transition:.35s;position:relative}
+  .nv:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 24px 50px -34px rgba(15,26,36,.5)}
+  .nv .lvl{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-deep)}
+  .nv h3{font-family:"Fraunces",serif;font-weight:500;font-size:25px;line-height:1.12}
+  .nv .who{font-size:14px;color:var(--ink-2);line-height:1.6}
+  .nv .who b{color:var(--ink);font-weight:600}
+  .nv .more{margin-top:auto;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);display:inline-flex;gap:8px;align-items:center}
+  .nv .smartabs{font-size:12.5px;color:var(--muted);border-top:1px dashed var(--rule);padding-top:12px;line-height:1.55}
+  .nv .smartabs b{color:var(--accent-deep)}
+
+  /* RECORRIDO (timeline) */
+  .recorrido{background:var(--ink);color:var(--paper)}
+  .recorrido .eyebrow{color:var(--accent)}
+  .recorrido h2{color:var(--paper)}
+  .ruta{position:relative;margin-top:6px}
+  .ruta::before{content:"";position:absolute;left:23px;top:8px;bottom:38px;width:1px;background:rgba(255,255,255,.16)}
+  .paso{position:relative;display:grid;grid-template-columns:48px 1fr;gap:26px;padding-bottom:34px}
+  .paso:last-child{padding-bottom:0}
+  .paso-num{width:48px;height:48px;border-radius:50%;background:var(--ink);border:1px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-family:"Fraunces",serif;font-size:19px;color:var(--paper);z-index:2;position:relative}
+  .paso.is-cert .paso-num{background:var(--accent);border-color:var(--accent)}
+  .paso-body{padding-top:4px}
+  .paso-body .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+  .paso-body h4{font-family:"Fraunces",serif;font-weight:500;font-size:24px;margin:6px 0 7px;color:var(--paper)}
+  .paso-body p{font-size:14.5px;color:rgba(247,250,252,.72);max-width:60ch;line-height:1.6}
+  .paso-body .links{margin-top:12px;display:flex;flex-wrap:wrap;gap:10px 22px}
+  .paso-body .links a{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid rgba(62,134,207,.5);padding-bottom:3px}
+  .paso-body .links a:hover{color:#fff;border-color:#fff}
+  .paso-body .soon{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px dashed rgba(255,255,255,.25);padding:4px 9px;display:inline-block;margin-top:12px}
+
+  /* POR QUÉ ES DIFERENTE */
+  .diferente{background:var(--bone)}
+  .dif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:46px;margin-top:8px}
+  .dif{display:flex;flex-direction:column;gap:16px}
+  .dif .ico{width:48px;height:48px;border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;color:var(--accent-deep)}
+  .dif .ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.4}
+  .dif h3{font-family:"Fraunces",serif;font-weight:500;font-size:26px}
+  .dif p{font-size:14.5px;color:var(--ink-2);line-height:1.65;max-width:38ch}
+  .dif .note{font-size:12px;color:var(--muted);font-family:"JetBrains Mono",monospace;letter-spacing:.06em}
+
+  /* CTA */
+  .cta-eco{background:var(--paper-2);text-align:center}
+  .cta-eco h2{font-size:clamp(34px,4vw,58px);line-height:1.05;margin-bottom:18px;max-width:18ch;margin-inline:auto}
+  .cta-eco p{color:var(--ink-2);max-width:46ch;margin:0 auto 34px;font-size:17px}
+  .cta-eco .row{display:inline-flex;gap:16px;flex-wrap:wrap;justify-content:center}
+  .btn-primary{display:inline-flex;align-items:center;gap:14px;padding:18px 30px;background:var(--ink);color:var(--paper);font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .btn-primary:hover{background:var(--accent-deep)}
+  .btn-primary svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.3}
+  .btn-outline{display:inline-flex;align-items:center;gap:14px;padding:18px 30px;background:transparent;color:var(--ink);border:1px solid var(--ink);font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .btn-outline:hover{border-color:var(--accent-deep);color:var(--accent-deep)}
+  .btn-outline svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.3}
+
+  /* FOOTER */
+  footer{padding:78px 0 30px;border-top:1px solid var(--rule);background:var(--paper)}
+  .foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:56px;margin-bottom:72px}
+  .foot-mark{font-family:"Fraunces",serif;font-size:22px;letter-spacing:.02em;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+  .foot-mark .dot{width:7px;height:7px;background:var(--accent);transform:rotate(45deg);display:inline-block}
+  .foot-tag{color:var(--ink-2);max-width:36ch;font-size:14px}
+  .foot-col h5{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+  .foot-col ul{list-style:none;display:flex;flex-direction:column;gap:10px;font-family:"Fraunces",serif;font-size:18px}
+  .foot-col a:hover{color:var(--accent-deep)}
+  .foot-bottom{border-top:1px solid var(--rule);padding-top:24px;display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);gap:24px;flex-wrap:wrap}
+  .made-by{display:inline-flex;align-items:center;gap:14px;padding:8px 14px;border:1px solid var(--rule);background:var(--bone);transition:.3s}
+  .made-by:hover{border-color:var(--ink)}
+  .made-by .made-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .made-by .ff-logo{height:17px;width:auto;display:block;opacity:.92}
+  .made-by .made-url{font-size:11px;letter-spacing:.1em;text-transform:lowercase;color:var(--ink-2);border-left:1px solid var(--rule);padding-left:14px;font-family:"Inter",sans-serif}
+
+  /* RESPONSIVE — iPad / tablet */
+  @media (max-width:900px){
+    .container{padding:0 26px}
+    .nav-inner{padding:14px 26px}
+    .nav-links{display:none}
+    .eco-hero{padding:128px 0 50px}
+    section{padding:74px 0}
+    .section-head{grid-template-columns:1fr;gap:22px;margin-bottom:44px}
+    .escalas-grid,.dif-grid{grid-template-columns:1fr;gap:38px}
+    .nv-grid{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr 1fr;gap:38px}
+  }
+  /* RESPONSIVE — móvil */
+  @media (max-width:640px){
+    .container{padding:0 20px}
+    section{padding:58px 0}
+    .section-head h2{font-size:clamp(30px,8vw,62px);overflow-wrap:break-word}
+    .nav-cta{padding:10px 14px;font-size:10px;letter-spacing:.1em}
+    .nav-mark{font-size:16px}
+    .nav-logo{height:28px}
+    .eco-hero{padding:104px 0 40px}
+    .eco-hero h1{font-size:clamp(33px,9vw,56px)}
+    .eco-hero .lead{font-size:15.5px}
+    .umbrella .big{font-size:23px}
+    .escala,.nv{padding:26px 22px}
+    .paso{grid-template-columns:40px 1fr;gap:18px}
+    .paso-num{width:40px;height:40px;font-size:16px}
+    .ruta::before{left:19px}
+    .cta-eco .row .btn-primary,.cta-eco .row .btn-outline{width:100%;justify-content:center}
+    .foot-grid{grid-template-columns:1fr;gap:30px}
+    .foot-bottom{flex-direction:column;align-items:flex-start;gap:16px}
+    .made-by{width:100%;justify-content:flex-start}
+  }
+
+  /* MOBILE HARDENING (estandar FishFlow) */
+  html,body{overflow-x:hidden;max-width:100%}
+  img,svg,video{max-width:100%;height:auto}
+</style>
+</head>
+<body>
+
+<!-- Barra fija (banner demo + navegación) -->
+<div class="topstack">
+  <div class="demo-banner">Demo de rediseño · Propuesta FishFlow para Mario Citalán · <a href="panel.html">Ver tu panel de prospectos →</a></div>
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-mark"><img class="nav-logo" src="https://mariocitalan.net/wp-content/uploads/2020/05/Dr.-Mente.png" alt="Dr. Mente"> Mario Citalán</a>
+      <div class="nav-links">
+        <a href="ecosistema.html" class="active">El Ecosistema</a>
+        <a href="index.html#modelo">El modelo</a>
+        <a href="index.html#soluciones">Soluciones</a>
+        <a href="ciencia-en-escena.html">Ciencia en Escena</a>
+        <a href="recursos.html">Recursos</a>
+        <a href="panel.html">Tu panel</a>
+      </div>
+      <a href="actitud.html" class="nav-cta">Evalúa tu actitud</a>
+    </div>
+  </nav>
+</div>
+
+<!-- HERO -->
+<section class="eco-hero" id="inicio">
+  <div class="container">
+    <div class="meta">
+      <span class="bar"></span>
+      <span class="eyebrow">El Ecosistema · Arquitectura Mental y del Criterio®</span>
+    </div>
+    <h1 class="display">Un solo modelo para decidir <span class="italic">mejor tu vida, tu trabajo y tu empresa</span>.</h1>
+    <p class="lead">Todo lo que hago &mdash; el libro, los shows, las conferencias, la asesoría y los entrenamientos &mdash; nace de una misma teoría madre y se conecta en un solo recorrido. Este es el mapa completo y por qué es diferente.</p>
+  </div>
+</section>
+
+<!-- TEORÍA MADRE -->
+<section class="teoria" id="teoria">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">La teoría madre</span></div>
+      <div class="kicker dark">
+        <div class="ornament" style="margin-bottom:14px"><span class="line"></span><span class="diamond"></span></div>
+        <p>Una sola teoría sostiene todo el ecosistema. No son técnicas sueltas: es un modelo con su propio lenguaje, metodología y aplicaciones.</p>
+      </div>
+    </div>
+    <div class="umbrella">
+      <p class="big">Arquitectura Mental y del Criterio® es <span class="accent">el paraguas</span> que une todo: una teoría madre, cuatro niveles de aplicación y productos alineados a ella.</p>
+      <p>Es la teoría y es la práctica. Es el modelo desde el que una persona, un líder o una organización aprende a interpretar la realidad y tomar mejores decisiones &mdash; con un lenguaje común que atraviesa cada formato.</p>
+      <div class="umbrella-tags">
+        <span><b>Es</b> la teoría</span>
+        <span><b>Es</b> el libro</span>
+        <span><b>Es</b> el show</span>
+        <span><b>Es</b> la metodología</span>
+        <span><b>Es</b> el lenguaje común</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ESCALAS -->
+<section class="escalas" id="escalas">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Tres escalas</span></div>
+      <div class="kicker">
+        <h2 class="display">El mismo criterio,<br>en <span class="italic">tres escalas</span>.</h2>
+        <p style="margin-top:18px">La Arquitectura del Criterio no es solo desarrollo humano: es aplicable a la persona, al profesional y a la organización. Cambia la pregunta, no el modelo.</p>
+      </div>
+    </div>
+    <div class="escalas-grid">
+      <div class="escala">
+        <span class="k">Escala 01</span>
+        <h3>Personal</h3>
+        <p class="q">¿Cómo decido mi vida?</p>
+        <p>La estructura desde la que interpretas, eliges y construyes tu vida cotidiana.</p>
+      </div>
+      <div class="escala">
+        <span class="k">Escala 02</span>
+        <h3>Profesional</h3>
+        <p class="q">¿Cómo decido mi trabajo?</p>
+        <p>El criterio aplicado a tu carrera, tu desempeño y las decisiones que mueven resultados.</p>
+      </div>
+      <div class="escala">
+        <span class="k">Escala 03</span>
+        <h3>Organizacional</h3>
+        <p class="q">¿Cómo decide una empresa?</p>
+        <p>Sistemas de decisión sólidos para liderazgo, cultura y crecimiento sostenible.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NIVELES -->
+<section class="niveles-eco" id="niveles">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Cuatro niveles de aplicación</span></div>
+      <div class="kicker">
+        <h2 class="display">Un punto de entrada<br>para <span class="italic">cada quien</span>.</h2>
+        <p style="margin-top:18px">De la persona que quiere mejorar sus resultados al consejo directivo que decide el rumbo de una empresa.</p>
+      </div>
+    </div>
+    <div class="nv-grid">
+      <article class="nv">
+        <span class="lvl">Nivel 1 · Personas</span>
+        <h3>Constructor de Criterio®</h3>
+        <p class="who">Acompañamiento individual <b>1 a 1</b> para el público general. Para cualquier persona que quiera mejorar sus resultados y construir una arquitectura mental más sólida.</p>
+        <a href="asesoria.html" class="more">Conocer la asesoría →</a>
+      </article>
+      <article class="nv">
+        <span class="lvl">Nivel 2 · Profesionistas</span>
+        <h3>Arquitectura para el Alto Desempeño®</h3>
+        <p class="who">Para <b>profesionistas y emprendedores</b> que quieren mejorar resultados con un programa estructurado de desarrollo.</p>
+        <a href="evoluciona.html" class="more">Ver el programa →</a>
+      </article>
+      <article class="nv">
+        <span class="lvl">Nivel 3 · Directivos</span>
+        <h3>Arquitectura del Criterio Ejecutivo®</h3>
+        <p class="who">Para <b>directivos, dueños de empresa, CEO, consejos</b> y tomadores de decisiones de alto impacto.</p>
+        <a href="cea.html" class="more">Conocer el programa →</a>
+      </article>
+      <article class="nv">
+        <span class="lvl">Nivel 4 · Organizaciones</span>
+        <h3>Arquitectura Organizacional del Criterio</h3>
+        <p class="who">Sistemas de decisión más sólidos para impulsar <b>crecimiento, liderazgo y sostenibilidad</b>: visión estratégica, cultura, prioridades, contratación, gestión del cambio y desarrollo de talento.</p>
+        <p class="smartabs">Conecta con <b>Smartabs</b> (investigación de mercados), consultoría y conferencias para sustentar las decisiones con datos.</p>
+        <a href="ciencia-en-escena.html" class="more">Llevar a tu organización →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- RECORRIDO -->
+<section class="recorrido" id="recorrido">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">El recorrido</span></div>
+      <div class="kicker dark">
+        <h2 class="display">Del <span class="italic" style="color:var(--accent)">diagnóstico</span><br>a la certificación.</h2>
+        <p style="margin-top:18px">Un camino, no piezas sueltas. Cada etapa lleva a la siguiente &mdash; y todas hablan el mismo lenguaje.</p>
+      </div>
+    </div>
+    <div class="ruta">
+      <div class="paso">
+        <div class="paso-num">1</div>
+        <div class="paso-body">
+          <div class="k">Diagnóstico</div>
+          <h4>Evaluaciones en línea</h4>
+          <p>Arquitectura de la Actitud y Arquitectura del Criterio. El punto de partida: descubrir desde qué estructura interpretas y decides.</p>
+          <div class="links"><a href="actitud.html">Evaluación de la Actitud →</a><a href="cuestionario.html">Evaluación del Criterio →</a></div>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">2</div>
+        <div class="paso-body">
+          <div class="k">Asesoría</div>
+          <h4>Asesoría individual (1 a 1)</h4>
+          <p>Trabajo personalizado para reconstruir tu arquitectura mental desde la raíz.</p>
+          <div class="links"><a href="asesoria.html">Conocer la asesoría →</a></div>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">3</div>
+        <div class="paso-body">
+          <div class="k">Formación</div>
+          <h4>Laboratorios inmersivos y cursos</h4>
+          <p>Experiencias de formación y cursos específicos para profundizar en el modelo.</p>
+          <span class="soon">En desarrollo</span>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">4</div>
+        <div class="paso-body">
+          <div class="k">Entrenamientos avanzados</div>
+          <h4>Alto Desempeño® y Criterio Ejecutivo®</h4>
+          <p>Programas estructurados para profesionistas, emprendedores y tomadores de decisiones.</p>
+          <div class="links"><a href="evoluciona.html">Alto Desempeño® →</a><a href="cea.html">Criterio Ejecutivo® →</a></div>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">5</div>
+        <div class="paso-body">
+          <div class="k">Conferencias</div>
+          <h4>Conferencias escénicas</h4>
+          <p>Charlas que mueven a equipos y públicos a pensar distinto sobre cómo deciden.</p>
+          <div class="links"><a href="ciencia-en-escena.html">Ver propuesta →</a></div>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">6</div>
+        <div class="paso-body">
+          <div class="k">Experiencias escénicas</div>
+          <h4>Ciencia en Escena</h4>
+          <p>Espectáculos que unen ciencia, emoción y aprendizaje para transformar a públicos masivos.</p>
+          <div class="links"><a href="ciencia-en-escena.html">Ver los espectáculos →</a></div>
+        </div>
+      </div>
+      <div class="paso is-cert">
+        <div class="paso-num">7</div>
+        <div class="paso-body">
+          <div class="k">Certificación</div>
+          <h4>Réplica del ecosistema</h4>
+          <p>Personas que se capacitan para replicar este ecosistema y extender el modelo.</p>
+          <span class="soon">Próximamente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POR QUÉ ES DIFERENTE -->
+<section class="diferente" id="diferente">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Por qué es diferente</span></div>
+      <div class="kicker">
+        <h2 class="display">No es motivación.<br>Es <span class="italic">criterio con método</span>.</h2>
+        <p style="margin-top:18px">Tres cosas separan este ecosistema de la oferta tradicional de desarrollo: los conceptos, el respaldo y los resultados.</p>
+      </div>
+    </div>
+    <div class="dif-grid">
+      <div class="dif">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 4-8 4-8-4 8-4z"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4"/></svg></div>
+        <h3>Conceptos</h3>
+        <p>Una teoría madre propia &mdash; Arquitectura Mental y del Criterio® &mdash; con marcas registradas, metodología y un lenguaje común que atraviesa el libro, los shows y los programas. No técnicas sueltas.</p>
+      </div>
+      <div class="dif">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Respaldo</h3>
+        <p>Médico y psicoterapeuta con más de 30 años de experiencia clínica y neurociencia aplicada. En el plano organizacional, <strong>Smartabs</strong> aporta investigación de mercados para sustentar las decisiones con datos.</p>
+      </div>
+      <div class="dif">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></div>
+        <h3>Resultados</h3>
+        <p>Personas, líderes y organizaciones que deciden con más claridad y congruencia &mdash; en su vida, su trabajo y su empresa, incluso bajo presión.</p>
+        <span class="note">// casos y métricas: pendiente de Mario</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-eco" id="empezar">
+  <div class="container">
+    <h2 class="display">¿Desde qué estructura <span class="italic">decides</span> hoy?</h2>
+    <p>Empieza por el diagnóstico. En minutos descubres tu perfil y la ruta del ecosistema que te corresponde.</p>
+    <div class="row">
+      <a href="actitud.html" class="btn-primary">Evalúa tu actitud · 15 preguntas
+        <svg viewBox="0 0 14 14"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+      </a>
+      <a href="cuestionario.html" class="btn-outline">Evaluación completa de Criterio
+        <svg viewBox="0 0 14 14"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-mark"><span class="dot"></span> Mario Citalán</div>
+        <div class="ornament" style="margin-bottom:18px"><span class="line" style="width:46px"></span><span class="diamond"></span></div>
+        <p class="foot-tag">Arquitectura Mental y del Criterio®. Un ecosistema para evaluar y fortalecer cómo piensas, decides y construyes tu vida.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Ecosistema</h5>
+        <ul>
+          <li><a href="ecosistema.html">El mapa completo</a></li>
+          <li><a href="index.html#modelo">El modelo</a></li>
+          <li><a href="actitud.html">Evalúa tu actitud</a></li>
+          <li><a href="cuestionario.html">Evaluación de Criterio</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>Niveles</h5>
+        <ul>
+          <li><a href="asesoria.html">Constructor de Criterio®</a></li>
+          <li><a href="evoluciona.html">Alto Desempeño®</a></li>
+          <li><a href="cea.html">Criterio Ejecutivo®</a></li>
+          <li><a href="ciencia-en-escena.html">Ciencia en Escena</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>Sígueme</h5>
+        <ul>
+          <li><a href="https://www.instagram.com/mario_citalan/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://www.youtube.com/channel/UCnA2v-vmKEAkegEwnzmA32Q" target="_blank" rel="noopener">YouTube</a></li>
+          <li><a href="https://www.tiktok.com/@drmente" target="_blank" rel="noopener">TikTok</a></li>
+          <li><a href="https://www.linkedin.com/in/mariocitalán/" target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>© MMXXVI — Mario Citalán. Todos los derechos reservados. · <a href="#" style="color:inherit;text-decoration:underline">Aviso de privacidad</a></div>
+      <a class="made-by" href="https://www.fishflow.mx" target="_blank" rel="noopener" aria-label="Creado por FishFlow">
+        <span class="made-label">Creado por</span>
+        <img src="assets/fishflow-logo-mono.svg" alt="FishFlow" class="ff-logo">
+        <span class="made-url">www.fishflow.mx</span>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 30);
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+</script>
+
+</body>
+</html>
