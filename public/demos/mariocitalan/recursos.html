@@ -49,6 +49,14 @@
   .res p{font-size:14px;color:var(--ink-2);line-height:1.6}
   .res .more{margin-top:auto;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);display:inline-flex;gap:8px;align-items:center}
   .res .tag{position:absolute;top:22px;right:22px;font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--rule);padding:4px 8px}
+  .group-label{display:flex;align-items:center;gap:16px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:30px 0 0}
+  .group-label::after{content:"";flex:1;height:1px;background:var(--rule)}
+  .grid.soon{padding-top:18px}
+  .res.soon{cursor:default;border-style:dashed;background:transparent;min-height:200px}
+  .res.soon:hover{transform:none;border-color:var(--rule)}
+  .res.soon .ic{color:var(--muted)}
+  .res.soon h3{color:var(--ink-3)}
+  .res.soon .more{color:var(--muted)}
 
   .capture{background:var(--ink);color:var(--paper);padding:80px 0;margin-top:20px}
   .cap-inner{max-width:680px;margin:0 auto;text-align:center}
@@ -98,9 +106,9 @@
 </section>
 
 <div class="container">
+  <div class="group-label">Disponibles ahora</div>
   <div class="grid">
     <a class="res" href="actitud.html">
-      <span class="tag">Disponible</span>
       <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
       <h3>Test de Actitud</h3>
       <p>Evaluación rápida de 15 preguntas que te da un primer diagnóstico inmediato en 4 perfiles.</p>
@@ -108,7 +116,6 @@
     </a>
 
     <a class="res" href="cuestionario.html">
-      <span class="tag">Disponible</span>
       <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg></div>
       <h3>Diagnóstico del Criterio</h3>
       <p>La evaluación profunda: 30 reactivos, 6 dimensiones, tu perfil y la ruta recomendada.</p>
@@ -116,7 +123,6 @@
     </a>
 
     <a class="res" href="assets/pdf/arquitectura-de-la-actitud.pdf" download>
-      <span class="tag">Disponible</span>
       <div class="ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></div>
       <h3>PDF: La Arquitectura de la Actitud</h3>
       <p>Guía gratuita: qué es realmente la actitud, por qué cuesta cambiarla y cómo fortalecerla.</p>
@@ -124,35 +130,31 @@
     </a>
 
     <a class="res" href="assets/pdf/arquitectura-mental-y-del-criterio.pdf" download>
-      <span class="tag">Disponible</span>
       <div class="ic"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></div>
       <h3>PDF: Arquitectura Mental y del Criterio</h3>
       <p>Guía gratuita: por qué tus decisiones definen tu vida y cómo fortalecer tu criterio.</p>
       <span class="more">Descargar PDF →</span>
     </a>
+  </div>
 
-    <div class="res">
-      <span class="tag">Pendiente</span>
+  <div class="group-label">Próximamente</div>
+  <div class="grid soon">
+    <div class="res soon">
       <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
       <h3>Artículos</h3>
       <p>Contenido de profundidad sobre las dimensiones de la arquitectura mental.</p>
-      <span class="more">Próximamente</span>
     </div>
 
-    <div class="res">
-      <span class="tag">Pendiente</span>
+    <div class="res soon">
       <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg></div>
       <h3>Podcast</h3>
       <p>Episodios que exploran casos, conceptos y aplicaciones prácticas del modelo.</p>
-      <span class="more">Próximamente</span>
     </div>
 
-    <div class="res">
-      <span class="tag">Pendiente</span>
+    <div class="res soon">
       <div class="ic"><svg viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><path d="M16 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/></svg></div>
       <h3>Videos</h3>
       <p>Contenido visual que explica conceptos de forma accesible y emocional.</p>
-      <span class="more">Próximamente</span>
     </div>
   </div>
 </div>
