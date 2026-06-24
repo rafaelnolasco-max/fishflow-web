@@ -506,6 +506,41 @@ table.tbl tr.clk:hover td{background:var(--paper);}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:13px 20px;border-radius:999px;font-size:14px;font-weight:600;z-index:120;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;display:flex;align-items:center;gap:10px;box-shadow:0 16px 40px -12px rgba(0,0,0,.5);}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast svg{color:var(--green);}
+
+/* ============================================================
+   MOBILE HARDENING (tablet / teléfono)
+   ============================================================ */
+html,body{overflow-x:hidden;max-width:100%;}
+svg{max-width:100%;}
+@media(max-width:900px){
+  .hero__inner{padding-bottom:clamp(40px,7vw,72px);}
+  .hero__vis{max-width:340px;margin-top:6px;}
+}
+@media(max-width:600px){
+  :root{--pad:18px;}
+  .demobar{font-size:10px;letter-spacing:.03em;}
+  .nav__inner{gap:12px;}
+  .hero__vis{display:none;}            /* decorativo (aria-hidden): evita overflow horizontal */
+  .hero__copy h1{font-size:clamp(33px,9vw,46px);}
+  .hero__lede{font-size:16px;}
+  .hero__stats{grid-template-columns:repeat(2,1fr);gap:18px 16px;margin-top:30px;padding-top:22px;}
+  .hero__ctas{flex-direction:column;align-items:stretch;}
+  .hero__ctas .btn{width:100%;justify-content:center;}
+  .section__head{margin-bottom:36px;}
+  .pricemode{width:100%;justify-content:center;}
+  .cat-hero__inner{gap:18px;}
+  .cfdi__head{grid-template-columns:1fr;}
+  .cfdi__head .tipo{text-align:left;}
+  .cfdi__grid{grid-template-columns:1fr;}
+  .cfdi table th,.cfdi table td{padding-left:16px;padding-right:16px;}
+  .cfdi__totes .ln{grid-template-columns:auto 110px;}
+  .confirm h1{font-size:27px;}
+  .confirm .actions .btn{width:100%;justify-content:center;}
+}
+@media(max-width:560px){
+  .nav__right .btn--primary{display:none;}  /* deja el carrito; al catálogo se llega desde el hero, categorías o footer */
+  .nav__brand svg{height:34px;}
+}
 </style>
 </head>
 <body>
