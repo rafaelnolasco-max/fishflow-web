@@ -185,7 +185,7 @@
           <div class="reco-t" id="rReco"></div>
         </div>
         <div class="res-actions">
-          <a class="res-cta" id="rDl" href="assets/pdf/arquitectura-mental-y-del-criterio.pdf" download>Descargar tu PDF · Arquitectura Mental y del Criterio
+          <a class="res-cta" id="rDl" href="assets/pdf/arquitectura-mental-y-del-criterio-2026.pdf" download="Arquitectura Mental y del Criterio — Dr. Mario Citalán.pdf">Descargar tu PDF · Arquitectura Mental y del Criterio
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 1v9M3 6l4 4 4-4M1 13h12"/></svg>
           </a>
           <a class="res-dl" id="rCta" href="index.html#soluciones">Ver mi ruta recomendada
@@ -375,7 +375,7 @@
       fetch('/api/demo/mario-criterio', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ test:'criterio', nombre, email, tel, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:'Ver mi ruta recomendada', pdf:'assets/pdf/arquitectura-mental-y-del-criterio.pdf', pdfNombre:'Arquitectura Mental y del Criterio' })
+        body: JSON.stringify({ test:'criterio', nombre, email, tel, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:'Ver mi ruta recomendada', pdf:'assets/pdf/arquitectura-mental-y-del-criterio-2026.pdf', pdfNombre:'Arquitectura Mental y del Criterio' })
       }).catch(()=>{});
     } catch(_) {}
   }
