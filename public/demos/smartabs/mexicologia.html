@@ -3,261 +3,165 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mexicología® — Segmentación poblacional · Smartabs®</title>
-<meta name="description" content="Mexicología® es un algoritmo propio de segmentación poblacional que identifica cinco perfiles de percepción para enriquecer la investigación de mercados tradicional. No es diagnóstico clínico.">
+<title>Mexicología® — Salud Mental e investigación de mercados · SmarTabs®</title>
+<meta name="description" content="Mexicología® es el algoritmo de SmarTabs que segmenta a la población en cinco perfiles según rasgos de ansiedad y depresión, para enriquecer la investigación de mercados. No es una prueba clínica.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;}*,*::before,*::after{min-width:0;}
-html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
-img,svg{max-width:100%;display:block;height:auto;}
-.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
-.ff-grid--lg{--ff-min:300px;}
-.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.ff-tablewrap>table{min-width:720px;}
-@media(max-width:600px){.ff-grid{--ff-gap:14px;}}
-:root{
-  --ink:#0C1722;--ink-2:#33424F;--ink-3:#5A6B78;--paper:#F5F7F8;--paper-2:#E9EEF1;--bone:#FFFFFF;
-  --muted:#7C8893;--accent:#127B6B;--accent-deep:#0C5A4F;--gold:#C7873F;--rule:#DDE4E9;
-  --s1:#2F6F8F;--s2:#C9803A;--s3:#5E5AA8;--s4:#179F88;--s5:#C8503F;
-}
-*{margin:0;padding:0}
-html{scroll-behavior:smooth}
-html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
-body{font-family:"Inter",system-ui,sans-serif;font-size:16px;line-height:1.65}
-a{color:inherit;text-decoration:none}
-.display{font-family:"Space Grotesk",sans-serif;font-weight:600;letter-spacing:-.02em;line-height:1.02}
-.eyebrow{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent-deep)}
-.container{max-width:1240px;margin:0 auto;padding:0 clamp(18px,4vw,56px)}
-.reg{font-size:.55em;vertical-align:super;opacity:.7}
-/* NAV */
-.topstack{position:fixed;top:0;left:0;right:0;z-index:60}
-.nav{backdrop-filter:blur(14px);background:rgba(245,247,248,.9);border-bottom:1px solid transparent;transition:.4s}
-.nav.scrolled{border-bottom-color:var(--rule)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px clamp(18px,4vw,56px)}
-.brand{display:flex;align-items:center;gap:11px;font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:21px;letter-spacing:-.01em}
-.brand .glyph{width:26px;height:26px;flex:none;border-radius:6px;background:linear-gradient(140deg,var(--accent),var(--accent-deep));position:relative}
-.brand .glyph::before{content:"";position:absolute;inset:7px;border:2px solid rgba(255,255,255,.85);border-radius:2px}
-.nav-links{display:flex;gap:26px;font-size:13.5px;color:var(--ink-2)}
-.nav-links a:hover{color:var(--accent-deep)}
-.nav-cta{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:11px 18px;border:1px solid var(--ink);transition:.3s;white-space:nowrap}
-.nav-cta:hover{background:var(--ink);color:var(--paper)}
-@media(max-width:880px){.nav-links{display:none}}
-/* HERO */
-.phero{padding:150px 0 70px;background:linear-gradient(165deg,#0C1722,#123A37);color:#fff;position:relative;overflow:hidden}
-.phero .eyebrow{color:var(--gold)}
-.phero h1{font-size:clamp(38px,5.4vw,78px);letter-spacing:-.025em;margin:18px 0 12px}
-.phero p{max-width:600px;font-size:18px;line-height:1.7;color:rgba(255,255,255,.74)}
-.crumb{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5)}
-.crumb a:hover{color:#fff}
-section{padding:96px 0}
-.shead{display:grid;grid-template-columns:220px 1fr;gap:48px;margin-bottom:48px;align-items:end}
-.shead h2{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:clamp(28px,4vw,52px);line-height:1.03;letter-spacing:-.02em}
-.shead .kick .eyebrow{display:block;margin-bottom:12px}
-.shead .kick p{color:var(--ink-2);max-width:46ch}
-@media(max-width:760px){.shead{grid-template-columns:1fr;gap:16px}section{padding:66px 0}}
-/* ES / NO */
-.esno{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);background:var(--bone)}
-.esno>div{padding:34px}
-.esno .no{border-left:1px solid var(--rule);background:var(--paper)}
-.esno h3{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:17px;display:flex;align-items:center;gap:10px;margin-bottom:18px}
-.esno .es h3{color:var(--accent-deep)}
-.esno .no h3{color:var(--ink-3)}
-.esno ul{list-style:none;display:flex;flex-direction:column;gap:11px}
-.esno li{font-size:14.5px;color:var(--ink-2);padding-left:24px;position:relative;line-height:1.5}
-.esno .es li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:600}
-.esno .no li::before{content:"✕";position:absolute;left:0;color:#B9543F;font-weight:600}
-@media(max-width:680px){.esno{grid-template-columns:1fr}.esno .no{border-left:none;border-top:1px solid var(--rule)}}
-/* SEGMENTOS */
-.seg{background:var(--bone);border:1px solid var(--rule);border-top:4px solid var(--c);padding:26px;display:flex;flex-direction:column;gap:12px}
-.seg .num{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
-.seg h3{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:22px}
-.seg .one{font-size:14.5px;color:var(--ink-2);line-height:1.55}
-.seg .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
-.seg .tags span{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.03em;color:var(--ink-2);background:var(--paper-2);padding:5px 9px;border-radius:20px}
-/* MATRIZ */
-.matriz{background:var(--ink);color:#fff}
-.matriz .shead h2{color:#fff}.matriz .shead .kick p{color:rgba(255,255,255,.66)}.matriz .eyebrow{color:var(--gold)}
-table.mtx{width:100%;border-collapse:collapse;font-size:13.5px}
-table.mtx th,table.mtx td{padding:14px 16px;text-align:left;border:1px solid rgba(255,255,255,.13)}
-table.mtx thead th{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:13px}
-table.mtx tbody th{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
-table.mtx td{color:rgba(255,255,255,.82)}
-.dotcol{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;vertical-align:middle}
-/* CAVEAT */
-.caveat{border-left:3px solid var(--gold);background:var(--bone);border:1px solid var(--rule);border-left:3px solid var(--gold);padding:28px 30px;max-width:74ch}
-.caveat h3{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:18px;margin-bottom:12px}
-.caveat p{font-size:14.5px;color:var(--ink-2);line-height:1.6}
-.caveat .em{color:var(--accent-deep);font-weight:500}
-/* CTA + FOOTER (compartido) */
-.cta{background:linear-gradient(155deg,#0C1722,#123A37)}
-.cta .container{text-align:center}
-.cta h2{font-family:"Space Grotesk",sans-serif;font-weight:600;color:#fff;font-size:clamp(26px,4vw,46px);letter-spacing:-.02em;margin-bottom:16px}
-.cta p{color:rgba(255,255,255,.7);max-width:52ch;margin:0 auto 28px;font-size:16px}
-.btn-primary{display:inline-flex;align-items:center;gap:12px;padding:17px 28px;background:var(--accent);color:#fff;font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.13em;text-transform:uppercase;transition:.3s}
-.btn-primary:hover{background:#fff;color:var(--ink)}
-footer{background:var(--ink);color:rgba(255,255,255,.6);padding:46px 0 36px}
-.foot-note{font-size:12px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.1);padding-top:20px;margin-top:8px}
-.demobadge{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--gold)}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/smartabs.css">
 </head>
 <body>
 
-<div class="topstack">
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <a class="brand" href="index.html"><span class="glyph"></span>Smartabs<span class="reg">®</span></a>
-      <div class="nav-links">
-        <a href="mexicologia.html">Mexicología®</a>
-        <a href="empresas-rh.html">Empresas / RH</a>
-        <a href="escuelas.html">Escuelas</a>
-        <a href="comercial.html">Comercial</a>
-      </div>
-      <a class="nav-cta" href="diagnostico.html">Solicitar diagnóstico</a>
-    </div>
-  </nav>
-</div>
+<div class="annc">🌱 <b>Humanizando datos; decisiones trascendentes</b></div>
+
+<div class="topstack"><nav class="nav" id="nav"><div class="nav-inner">
+  <a class="brand" href="index.html"><span class="glyph"><svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8FD64C"/><stop offset=".55" stop-color="#36C7E2"/><stop offset="1" stop-color="#2E7BD6"/></linearGradient></defs><path d="M20 3c8 0 14 6 14 15 0 6-3 9-3 13v6h-8v-4c0-2-1-3-3-3-6 0-11-5-11-13C9 9 13 3 20 3z" fill="none" stroke="url(#g)" stroke-width="1.6"/><g fill="url(#g)"><circle cx="16" cy="13" r="1.6"/><circle cx="24" cy="11" r="1.6"/><circle cx="27" cy="18" r="1.6"/><circle cx="19" cy="20" r="1.6"/><circle cx="15" cy="24" r="1.6"/><circle cx="24" cy="25" r="1.6"/></g><g stroke="url(#g)" stroke-width="1"><line x1="16" y1="13" x2="24" y2="11"/><line x1="24" y1="11" x2="27" y2="18"/><line x1="27" y1="18" x2="19" y2="20"/><line x1="19" y1="20" x2="16" y2="13"/><line x1="19" y1="20" x2="15" y2="24"/><line x1="15" y1="24" x2="24" y2="25"/><line x1="24" y1="25" x2="27" y2="18"/></g></svg></span>SmarTabs<span class="reg">®</span></a>
+  <div class="nav-links">
+    <a href="pymes.html">Pymes</a>
+    <a href="oferta-de-valor.html">Oferta de valor</a>
+    <a href="portafolio-de-servicios.html">Portafolio</a>
+    <a href="entregables.html">Entregables</a>
+    <a href="mexicologia.html" class="active">Mexicología®</a>
+    <a href="elecciones.html">Elecciones</a>
+    <a href="empresas.html">Empresas</a>
+    <a href="identidad.html">Identidad</a>
+  </div>
+  <a class="nav-cta" href="index.html#contacto">Escríbenos</a>
+</div></nav></div>
 
 <section class="phero">
   <div class="container">
-    <div class="crumb"><a href="index.html">Smartabs®</a> / Mexicología®</div>
-    <span class="eyebrow" style="display:block;margin-top:18px">El diferenciador</span>
+    <div class="crumb"><a href="index.html">SmarTabs®</a> / Mexicología®</div>
+    <span class="eyebrow" style="display:block;margin-top:16px">Salud Mental e investigación de mercados</span>
     <h1 class="display">Mexicología<span class="reg">®</span></h1>
-    <p>Un algoritmo propio de segmentación poblacional. A partir de un conjunto acotado de preguntas, agrupa a la población estudiada en cinco perfiles de percepción que enriquecen la lectura de cualquier investigación tradicional.</p>
+    <p>La salud mental afecta cómo pensamos, sentimos y decidimos: desde elegir una marca hasta percibir un producto. Mexicología® es nuestro algoritmo de segmentación que integra ese estado emocional al análisis de datos.</p>
   </div>
 </section>
 
-<!-- ES / NO -->
+<!-- CÓMO INFLUYE -->
 <section>
   <div class="container">
     <div class="shead">
-      <div class="kick"><span class="eyebrow">Qué es y qué no</span><p>Definir los límites con precisión es parte del método. Esto garantiza coherencia en toda comunicación.</p></div>
-      <h2>Una herramienta de<br>segmentación, no de<br>diagnóstico</h2>
+      <div class="kick"><span class="eyebrow">Antecedentes</span><p>Formas en que la salud mental influye en la elección y el comportamiento.</p></div>
+      <h2>Salud mental y<br>toma de decisiones</h2>
     </div>
-    <div class="esno">
-      <div class="es">
-        <h3>Mexicología® sí</h3>
-        <ul>
-          <li>Segmenta a la población estudiada en cinco perfiles de percepción.</li>
-          <li>Se construye a partir de un conjunto acotado de preguntas.</li>
-          <li>Identifica patrones de interpretación que matizan los resultados.</li>
-          <li>Complementa y fortalece los datos de la investigación tradicional.</li>
-        </ul>
-      </div>
-      <div class="no">
-        <h3>Mexicología® no</h3>
-        <ul>
-          <li>No diagnostica ni mide salud mental clínica.</li>
-          <li>No sustituye evaluación psicológica o psiquiátrica.</li>
-          <li>No mide productividad, liderazgo ni desempeño individual.</li>
-          <li>No describe ni predice el comportamiento de personas específicas.</li>
-        </ul>
-      </div>
+    <div class="ff-grid ff-grid--md">
+      <div class="card"><span class="k">01</span><h3>Procesamiento de información</h3><p>Con la salud mental equilibrada hay mayor capacidad para procesar y analizar información de forma clara y objetiva.</p></div>
+      <div class="card"><span class="k">02</span><h3>Influencia emocional</h3><p>El estado emocional abre o cierra la disposición a explorar opciones nuevas o diferentes al comprar.</p></div>
+      <div class="card"><span class="k">03</span><h3>Identidad y autoestima</h3><p>La relación entre salud mental y autoestima lleva a elegir marcas que se alinean con la identidad y valores personales.</p></div>
     </div>
   </div>
 </section>
 
-<!-- SEGMENTOS -->
-<section style="background:var(--bone);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+<!-- CÓMO SE CONSTRUYE -->
+<section style="background:var(--bg-2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
   <div class="container">
     <div class="shead">
-      <div class="kick"><span class="eyebrow">Los cinco segmentos</span><p>Cada segmento representa una forma potencial de interpretar mensajes, experiencias y contextos. No son buenos ni malos: son distintos.</p></div>
-      <h2>Cinco perfiles<br>de percepción</h2>
+      <div class="kick"><span class="eyebrow">Cómo se construye</span><p>Un instrumento de investigación propio y, a partir de sus datos, un algoritmo de segmentación por clústers.</p></div>
+      <h2>Nuestro<br>algoritmo</h2>
+    </div>
+    <div class="callout" style="margin-bottom:26px"><p>A partir de los datos de nuestra plataforma creamos clústers (segmentos) que conforman <span class="em">un algoritmo poderoso y preciso</span>: más que un instrumento de medición, una ventana a la esencia de las audiencias. Ninguna otra empresa ofrece hoy este nivel de precisión y profundidad.</p></div>
+    <div class="statgrid">
+      <div><span class="n grad">3</span><span class="l">Ciudades del estudio: CDMX, Guadalajara y Monterrey</span></div>
+      <div><span class="n grad">±4%</span><span class="l">Margen de error a nivel nacional</span></div>
+      <div><span class="n grad">Trim.</span><span class="l">Renovación trimestral de los datos</span></div>
+      <div><span class="n grad">5</span><span class="l">Segmentos poblacionales</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- BASES CIENTÍFICAS + DISCLAIMER -->
+<section>
+  <div class="container">
+    <div class="shead">
+      <div class="kick"><span class="eyebrow">Bases científicas</span><p>Respaldo en neurociencia y neuropsicología cognitiva.</p></div>
+      <h2>Qué mide<br>—y qué no</h2>
+    </div>
+    <div class="ff-grid" style="--ff-min:340px">
+      <div class="card"><span class="k">Qué identifica</span><h3>Ansiedad y depresión</h3><p>Mexicología® se enfoca en los rasgos representativos de las dos alteraciones mentales más frecuentes entre los mexicanos, para entender preocupaciones, gustos y hábitos desde su núcleo emocional.</p></div>
+      <div class="card" style="border-left:3px solid var(--cyan)"><span class="k">Aclaración</span><h3>No es clínico</h3><p>No es una investigación de tipo clínico ni una prueba de tamizaje médico. No diagnostica ni sustituye una evaluación psicológica: identifica rasgos a nivel poblacional para enriquecer la investigación.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SEGMENTOS REALES -->
+<section style="background:var(--bg-2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+  <div class="container">
+    <div class="shead">
+      <div class="kick"><span class="eyebrow">Modelo de segmentación</span><p>Cinco perfiles poblacionales con su peso a nivel nacional. No son diagnósticos: son tendencias interpretativas.</p></div>
+      <h2>Los cinco<br>segmentos</h2>
     </div>
     <div class="ff-grid ff-grid--lg">
-      <div class="seg" style="--c:var(--s1)">
-        <span class="num">Segmento 01</span><h3>Skeptics</h3>
-        <p class="one">Postura más preventiva o defensiva frente al entorno. Priorizan seguridad, estabilidad y previsibilidad.</p>
-        <div class="tags"><span>Cautela</span><span>Reducción de riesgo</span><span>Validación previa</span></div>
+      <div class="seg" style="--c:var(--seg1)">
+        <div class="top"><h3>Decepcionado</h3><span class="pct">20%</span></div>
+        <p class="one">Gran cantidad de características depresivas. Menores de 35 años; millennials que tienden a sentirse resignados a su estado emocional.</p>
+        <div class="tags"><span>Depresivo</span><span>Resignación</span><span>&lt;35 años</span></div>
       </div>
-      <div class="seg" style="--c:var(--s2)">
-        <span class="num">Segmento 02</span><h3>Connectors</h3>
-        <p class="one">Se ajustan con facilidad al entorno. Alta adaptabilidad y sensibilidad social; buscan aceptación.</p>
-        <div class="tags"><span>Adaptabilidad</span><span>Flexibilidad</span><span>Pertenencia</span></div>
+      <div class="seg" style="--c:var(--seg2)">
+        <div class="top"><h3>Camaleónico</h3><span class="pct">12%</span></div>
+        <p class="one">Jóvenes menores de 35, clase media-alta. Fluctúan entre estados ansiosos y depresivos; cambian preferencias y percepciones constantemente.</p>
+        <div class="tags"><span>Fluctuante</span><span>Media-alta</span><span>Cambiante</span></div>
       </div>
-      <div class="seg" style="--c:var(--s3)">
-        <span class="num">Segmento 03</span><h3>Stabilizers</h3>
-        <p class="one">Procesamiento interno profundo y reflexivo. Analizan e interpretan antes de actuar; buscan significado.</p>
-        <div class="tags"><span>Reflexión</span><span>Profundidad</span><span>Significado</span></div>
+      <div class="seg" style="--c:var(--seg3)">
+        <div class="top"><h3>Melancólico</h3><span class="pct">21%</span></div>
+        <p class="one">68% mujeres; 50% nivel socioeconómico bajo. Tienden a la culpa y la desesperanza; inclinación a la depresión con datos ansiosos compensatorios.</p>
+        <div class="tags"><span>Depresivo</span><span>Pesimista</span><span>NSE bajo</span></div>
       </div>
-      <div class="seg" style="--c:var(--s4)">
-        <span class="num">Segmento 04</span><h3>Navigators</h3>
-        <p class="one">Orientados a posibilidades, crecimiento y visión futura. Creatividad y entusiasmo por lo nuevo.</p>
-        <div class="tags"><span>Creatividad</span><span>Prospectiva</span><span>Crecimiento</span></div>
+      <div class="seg" style="--c:var(--seg4)">
+        <div class="top"><h3>Soñador</h3><span class="pct">22%</span></div>
+        <p class="one">Optimistas pero fantasiosos: cimientan su pensamiento en que todo está bien y el futuro será mejor. Mayor presencia en niveles socioeconómicos altos.</p>
+        <div class="tags"><span>Optimista</span><span>Fantasioso</span><span>NSE alto</span></div>
       </div>
-      <div class="seg" style="--c:var(--s5)">
-        <span class="num">Segmento 05</span><h3>Builders</h3>
-        <p class="one">Orientación fuerte a la acción, la eficiencia y los resultados concretos. Practicidad y logro.</p>
-        <div class="tags"><span>Acción</span><span>Resultados</span><span>Practicidad</span></div>
+      <div class="seg" style="--c:var(--seg5)">
+        <div class="top"><h3>Pragmático</h3><span class="pct">26%</span></div>
+        <p class="one">Optimistas no fantasiosos: actúan para que las cosas sucedan. Sin sesgo de edad. Cuidan su salud, leen y acuden a terapia, entre otras actividades.</p>
+        <div class="tags"><span>Optimista</span><span>Activo</span><span>Autocuidado</span></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- MATRIZ -->
-<section class="matriz">
-  <div class="container">
-    <div class="shead">
-      <div class="kick"><span class="eyebrow">Matriz transversal</span><p>Cómo cada segmento tiende a relacionarse con decisión, riesgo, comunicación, consumo y motivación.</p></div>
-      <h2>La lectura<br>cruzada</h2>
-    </div>
-    <div class="ff-tablewrap">
-      <table class="mtx">
-        <thead>
-          <tr>
-            <th>Dimensión</th>
-            <th><span class="dotcol" style="background:var(--s1)"></span>Skeptics</th>
-            <th><span class="dotcol" style="background:var(--s2)"></span>Connectors</th>
-            <th><span class="dotcol" style="background:var(--s3)"></span>Stabilizers</th>
-            <th><span class="dotcol" style="background:var(--s4)"></span>Navigators</th>
-            <th><span class="dotcol" style="background:var(--s5)"></span>Builders</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><th>Decisión</th><td>Cautelosa</td><td>Social</td><td>Reflexiva</td><td>Inspiracional</td><td>Práctica</td></tr>
-          <tr><th>Riesgo</th><td>Bajo</td><td>Variable</td><td>Moderado</td><td>Alto</td><td>Calculado</td></tr>
-          <tr><th>Comunicación</th><td>Seguridad</td><td>Pertenencia</td><td>Significado</td><td>Cambio</td><td>Resultados</td></tr>
-          <tr><th>Consumo</th><td>Confianza</td><td>Aceptación</td><td>Autenticidad</td><td>Innovación</td><td>Utilidad</td></tr>
-          <tr><th>Motivador</th><td>Estabilidad</td><td>Integración</td><td>Sentido</td><td>Crecimiento</td><td>Logro</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p style="margin-top:18px;font-size:13px;color:rgba(255,255,255,.55);max-width:80ch">Los segmentos no describen individuos específicos, no predicen comportamiento individual ni constituyen diagnóstico. Representan tendencias interpretativas útiles para enriquecer análisis poblacionales.</p>
-  </div>
-</section>
-
-<!-- PRINCIPIO + CAVEAT -->
+<!-- DATOS -->
 <section>
   <div class="container">
     <div class="shead">
-      <div class="kick"><span class="eyebrow">Principio central</span><p>La magia ocurre al cruzar los segmentos con los datos de la investigación global de cada área.</p></div>
-      <h2>De "qué piensa"<br>a "por qué"</h2>
+      <div class="kick"><span class="eyebrow">Algunos datos</span><p>Hallazgos representativos de la población estudiada por SmarTabs.</p></div>
+      <h2>Lo que<br>encontramos</h2>
     </div>
-    <div class="caveat">
-      <h3>Consideración metodológica</h3>
-      <p>La segmentación se basa en patrones de percepción identificados a nivel poblacional. <span class="em">No representa diagnóstico de ningún tipo, no clasifica en cuanto a salud mental y no determina trastornos.</span> Su función es enriquecer la interpretación de investigaciones tradicionales para generar recomendaciones estratégicas mejor fundamentadas.</p>
+    <div class="statgrid">
+      <div><span class="n grad">33%</span><span class="l">Refiere problemas gástricos frecuentes, ligados al estrés</span></div>
+      <div><span class="n grad">25%</span><span class="l">Sensación súbita de falta de aire y palpitaciones</span></div>
+      <div><span class="n grad">30%</span><span class="l">Se encuentra preocupado por diversas situaciones</span></div>
+      <div><span class="n grad">43%</span><span class="l">Considera muy importante cuidar su salud mental</span></div>
     </div>
   </div>
 </section>
 
-<section class="cta">
+<!-- PROPUESTA DE VALOR -->
+<section style="background:var(--bg-2);border-top:1px solid var(--rule)">
   <div class="container">
-    <h2>¿Cómo se vería Mexicología®<br>aplicada a tu caso?</h2>
-    <p>Cada proyecto parte de un diagnóstico a la medida. Cuéntanos tu reto.</p>
-    <a class="btn-primary" href="diagnostico.html">Solicitar diagnóstico →</a>
+    <div class="shead">
+      <div class="kick"><span class="eyebrow">Propuesta de valor</span><p>Investigación de mercados y salud mental trabajando en sinergia.</p></div>
+      <h2>Por qué<br>cambia el juego</h2>
+    </div>
+    <ul class="checklist" style="max-width:none">
+      <li>Saber cómo el bienestar mental afecta percepciones y elecciones ayuda a <b>diseñar productos y experiencias</b> que resuenan con el estado emocional del consumidor.</li>
+      <li>Permite <b>adaptar mensajes y campañas</b> para conectar con diferentes perfiles psicológicos.</li>
+      <li>Construye <b>lealtad a la marca</b> al conectar de forma más profunda con el consumidor.</li>
+      <li>Aporta una mirada a la <b>cultura organizacional</b> y su impacto en la salud mental de los colaboradores.</li>
+      <li>En SmarTabs somos los <b>únicos en el mercado</b> que integran salud mental en la investigación: pioneros.</li>
+    </ul>
+    <div style="margin-top:30px"><a class="btn-primary" href="index.html#contacto">Escríbenos →</a></div>
   </div>
 </section>
 
 <footer>
   <div class="container">
     <div class="foot-note">
-      <span>© 2026 Smartabs®. Mexicología® es una metodología propia. No realiza diagnóstico clínico ni evaluación psicológica.</span>
+      <span>© 2026 SmarTabs® Soluciones en Procesamiento de Información SA de CV. Mexicología® no es una investigación clínica ni una prueba de tamizaje.</span>
       <span class="demobadge">Demo construido por FishFlow · marca y assets placeholder</span>
     </div>
   </div>
 </footer>
-
-<script>var nav=document.getElementById('nav');addEventListener('scroll',function(){nav.classList.toggle('scrolled',scrollY>10)});</script>
 </body>
 </html>

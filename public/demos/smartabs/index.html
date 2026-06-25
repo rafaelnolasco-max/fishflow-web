@@ -3,382 +3,231 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Smartabs® — Investigación de mercados estratégica · México</title>
-<meta name="description" content="Smartabs es una empresa de investigación de mercados que transforma datos en decisiones. Diferenciador: Mexicología®, un algoritmo propio de segmentación poblacional que enriquece la investigación tradicional.">
+<title>SmarTabs® — Investigación de mercados con enfoque en Salud Mental</title>
+<meta name="description" content="SmarTabs es la primera y única agencia de investigación de mercados con enfoque hacia la Salud Mental. Con Mexicología® entiende a tu mercado como nunca antes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/smartabs.css">
 <style>
-/* ============================================================
-   RESPONSIVE BASE (sistema FishFlow) — no editar valores clave
-   <=600 móvil / 601–900 iPad / >900 PC
-   ============================================================ */
-*{box-sizing:border-box;}
-*,*::before,*::after{min-width:0;}
-html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
-img,svg,video,canvas,iframe{max-width:100%;}
-img,svg,video{display:block;height:auto;}
-.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
-.ff-grid--sm{--ff-min:170px;}.ff-grid--md{--ff-min:240px;}.ff-grid--lg{--ff-min:300px;}
-.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.ff-tablewrap>table{min-width:var(--ff-tablemin,640px);}
-.ff-hide-mobile{}.ff-stack-mobile{}
-@media(max-width:600px){
-  .ff-hide-mobile{display:none !important;}
-  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
-  .ff-stack-mobile>*{width:100% !important;}
-  .ff-grid{--ff-gap:14px;}
-}
-
-/* ============================================================
-   SMARTABS · sistema de marca (placeholder — ajustar a assets)
-   ============================================================ */
-:root{
-  --ink:#0C1722;       /* navy casi negro */
-  --ink-2:#33424F;
-  --ink-3:#5A6B78;
-  --paper:#F5F7F8;     /* off-white frío */
-  --paper-2:#E9EEF1;
-  --bone:#FFFFFF;
-  --muted:#7C8893;
-  --accent:#127B6B;    /* petrol / teal Smartabs */
-  --accent-deep:#0C5A4F;
-  --gold:#C7873F;      /* ámbar cálido secundario */
-  --rule:#DDE4E9;
-  /* paleta de los 5 segmentos Mexicología */
-  --s1:#2F6F8F; --s2:#C9803A; --s3:#5E5AA8; --s4:#179F88; --s5:#C8503F;
-}
-*{margin:0;padding:0}
-html{scroll-behavior:smooth}
-html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
-body{font-family:"Inter",system-ui,sans-serif;font-weight:400;font-size:16px;line-height:1.65}
-a{color:inherit;text-decoration:none}
-.display{font-family:"Space Grotesk",system-ui,sans-serif;font-weight:600;letter-spacing:-.02em;line-height:1.02}
-.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:500;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent-deep)}
-.container{max-width:1240px;margin:0 auto;padding:0 clamp(18px,4vw,56px)}
-.reg{font-size:.55em;vertical-align:super;opacity:.7}
-
-/* NAV */
-.topstack{position:fixed;top:0;left:0;right:0;z-index:60}
-.nav{backdrop-filter:blur(14px);background:rgba(245,247,248,.9);border-bottom:1px solid transparent;transition:.4s}
-.nav.scrolled{border-bottom-color:var(--rule)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px clamp(18px,4vw,56px)}
-.brand{display:flex;align-items:center;gap:11px;font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:21px;letter-spacing:-.01em}
-.brand .glyph{width:26px;height:26px;flex:none;border-radius:6px;background:linear-gradient(140deg,var(--accent),var(--accent-deep));position:relative}
-.brand .glyph::before{content:"";position:absolute;inset:7px;border:2px solid rgba(255,255,255,.85);border-radius:2px}
-.brand .reg{font-weight:500}
-.nav-links{display:flex;gap:26px;font-size:13.5px;color:var(--ink-2)}
-.nav-links a:hover{color:var(--accent-deep)}
-.nav-cta{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:11px 18px;border:1px solid var(--ink);transition:.3s;white-space:nowrap}
-.nav-cta:hover{background:var(--ink);color:var(--paper)}
-@media(max-width:880px){.nav-links{display:none}}
-
-/* HERO */
-.hero{position:relative;padding:148px 0 84px;overflow:hidden}
-.hero::after{content:"";position:absolute;right:-12%;top:-10%;width:54%;height:120%;z-index:0;
-  background:radial-gradient(circle at 60% 40%,rgba(18,123,107,.10),transparent 62%)}
-.hero .container{position:relative;z-index:1}
-.hero-grid{display:grid;grid-template-columns:1.18fr .82fr;gap:64px;align-items:end}
-.hero-meta{display:flex;align-items:center;gap:14px;margin-bottom:26px}
-.hero-meta .bar{width:48px;height:1px;background:var(--accent-deep)}
-.hero h1{font-size:clamp(40px,5.4vw,84px);letter-spacing:-.025em;margin-bottom:8px}
-.hero h1 .em{color:var(--accent-deep)}
-.hero-lead{max-width:520px;margin-top:26px;font-size:18px;line-height:1.7;color:var(--ink-2)}
-.cta-row{display:flex;align-items:center;gap:16px;margin-top:36px;flex-wrap:wrap}
-.btn-primary{display:inline-flex;align-items:center;gap:12px;padding:17px 28px;background:var(--ink);color:var(--paper);font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.13em;text-transform:uppercase;transition:.3s}
-.btn-primary:hover{background:var(--accent-deep)}
-.btn-outline{display:inline-flex;align-items:center;gap:12px;padding:17px 28px;border:1px solid var(--ink);font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.13em;text-transform:uppercase;transition:.3s}
-.btn-outline:hover{border-color:var(--accent-deep);color:var(--accent-deep)}
-.hero-card{background:var(--bone);border:1px solid var(--rule);padding:30px}
-.hero-card .eyebrow{display:block;margin-bottom:18px}
-.hero-card .q{font-family:"Space Grotesk",sans-serif;font-size:21px;line-height:1.35;color:var(--ink);margin-bottom:10px}
-.hero-card .q .em{color:var(--accent-deep)}
-.hero-card .sep{height:1px;background:var(--rule);margin:20px 0}
-.hero-card .a{font-size:14.5px;color:var(--ink-2);line-height:1.6}
-.metrics{margin-top:88px;display:grid;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
-.metrics>div{padding:30px 24px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:7px}
-.metrics>div:last-child{border-right:none}
-.metrics .n{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:38px;line-height:1;color:var(--ink)}
-.metrics .l{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:40px}}
-
-/* SECTION SHELL */
-section{padding:104px 0;position:relative}
-.shead{display:grid;grid-template-columns:220px 1fr;gap:48px;margin-bottom:56px;align-items:end}
-.shead h2{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:clamp(30px,4vw,56px);line-height:1.02;letter-spacing:-.02em}
-.shead .kick .eyebrow{display:block;margin-bottom:12px}
-.shead .kick p{color:var(--ink-2);max-width:46ch}
-@media(max-width:760px){.shead{grid-template-columns:1fr;gap:18px}.section,section{padding:72px 0}}
-
-/* DIFERENCIADOR */
-.diff{background:var(--bone)}
-.diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule)}
-.diff-col{padding:38px 34px}
-.diff-col+.diff-col{border-left:1px solid var(--rule)}
-.diff-col .tag{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
-.diff-col.is-accent{background:linear-gradient(160deg,#0C1722,#13343A);color:#fff}
-.diff-col.is-accent .tag{color:var(--gold)}
-.diff-col .big{font-family:"Space Grotesk",sans-serif;font-size:22px;line-height:1.32}
-.diff-col.is-accent .big{color:#fff}
-.diff-col .big .em{color:var(--accent-deep)}
-.diff-col.is-accent .big .em{color:#5BD0BC}
-.frase{margin-top:34px;border-left:3px solid var(--accent);background:var(--paper);padding:24px 26px;max-width:62ch}
-.frase p{font-family:"Space Grotesk",sans-serif;font-size:17px;line-height:1.5;color:var(--ink)}
-.frase .em{color:var(--accent-deep)}
-@media(max-width:760px){.diff-grid{grid-template-columns:1fr}.diff-col+.diff-col{border-left:none;border-top:1px solid var(--rule)}}
-
-/* DIVISIONES */
-.divcard{display:flex;flex-direction:column;background:var(--bone);border:1px solid var(--rule);padding:0;overflow:hidden;transition:.3s}
-.divcard:hover{border-color:var(--accent);transform:translateY(-3px)}
-.divcard .top{padding:28px 28px 22px;border-bottom:1px solid var(--rule)}
-.divcard .idx{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.16em;color:var(--accent-deep)}
-.divcard h3{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:23px;margin:12px 0 8px;letter-spacing:-.01em}
-.divcard .top p{font-size:14.5px;color:var(--ink-2)}
-.divcard .list{padding:22px 28px;display:flex;flex-wrap:wrap;gap:8px;flex:1}
-.chip{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.04em;color:var(--ink-2);background:var(--paper-2);padding:6px 11px;border-radius:30px}
-.divcard .go{padding:18px 28px;border-top:1px solid var(--rule);font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent-deep);display:flex;align-items:center;gap:9px}
-.divcard:hover .go{gap:14px}
-
-/* PROCESO */
-.proceso{background:var(--ink);color:#fff}
-.proceso .shead h2{color:#fff}
-.proceso .shead .kick p{color:rgba(255,255,255,.66)}
-.proceso .eyebrow{color:var(--gold)}
-.steps{display:grid;gap:1px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.12);
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
-.step{background:var(--ink);padding:32px 28px}
-.step .num{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:15px;color:var(--gold);letter-spacing:.05em}
-.step h4{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:21px;margin:14px 0 9px}
-.step p{font-size:14px;color:rgba(255,255,255,.66);line-height:1.6}
-
-/* VALOR / cadena */
-.chain{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));align-items:stretch}
-.chain .node{background:var(--bone);border:1px solid var(--rule);padding:24px;position:relative}
-.chain .node .k{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:10px}
-.chain .node h4{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:18px;margin-bottom:7px}
-.chain .node p{font-size:13.5px;color:var(--ink-2);line-height:1.55}
-
-/* FUNDADORES */
-.fund{background:var(--bone)}
-.fund-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.founder{border:1px solid var(--rule);padding:32px;display:flex;flex-direction:column;gap:14px}
-.founder .ph{aspect-ratio:1/1;width:84px;border-radius:50%;background:
-  repeating-linear-gradient(135deg,rgba(18,123,107,.08) 0 2px,transparent 2px 14px),linear-gradient(150deg,var(--paper-2),#D7DFE4);
-  display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:9px;color:var(--muted);text-align:center}
-.founder h3{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:21px}
-.founder .role{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep)}
-.founder p{font-size:14.5px;color:var(--ink-2);line-height:1.6}
-@media(max-width:760px){.fund-grid{grid-template-columns:1fr}}
-
-/* CTA FINAL */
-.cta{background:linear-gradient(155deg,#0C1722,#123A37)}
-.cta .container{text-align:center;padding-top:18px;padding-bottom:18px}
-.cta h2{font-family:"Space Grotesk",sans-serif;font-weight:600;color:#fff;font-size:clamp(28px,4vw,52px);letter-spacing:-.02em;line-height:1.05;margin-bottom:18px}
-.cta p{color:rgba(255,255,255,.7);max-width:54ch;margin:0 auto 32px;font-size:17px}
-.cta .btn-primary{background:var(--accent);color:#fff}
-.cta .btn-primary:hover{background:#fff;color:var(--ink)}
-
-/* FOOTER */
-footer{background:var(--ink);color:rgba(255,255,255,.62);padding:54px 0 40px;border-top:1px solid rgba(255,255,255,.1)}
-.foot-grid{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;align-items:flex-start}
-.foot-brand{display:flex;align-items:center;gap:11px;color:#fff;font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:19px}
-.foot-links{display:flex;gap:40px;flex-wrap:wrap}
-.foot-links .col{display:flex;flex-direction:column;gap:9px;font-size:13.5px}
-.foot-links .col b{color:#fff;font-weight:600;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
-.foot-links a:hover{color:#fff}
-.foot-note{margin-top:34px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.demobadge{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;color:var(--gold)}
+  .hero{position:relative;padding:96px 0 80px;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-12%;top:-20%;width:62%;height:150%;z-index:0;
+    background:radial-gradient(circle at 60% 40%,rgba(54,199,226,.16),transparent 60%),radial-gradient(circle at 80% 70%,rgba(143,214,76,.10),transparent 55%)}
+  .hero .container{position:relative;z-index:1}
+  .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:56px;align-items:center}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+  .hero h1{font-size:clamp(38px,5.6vw,82px);letter-spacing:-.025em;margin:22px 0 18px}
+  .hero-lead{max-width:540px;font-size:18px;line-height:1.7;color:var(--ink-2)}
+  .cta-row{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
+  .hero-figure{aspect-ratio:1/1;border:1px solid var(--rule);border-radius:18px;background:
+    radial-gradient(circle at 50% 45%,rgba(54,199,226,.18),transparent 60%),linear-gradient(160deg,#0A1019,#05080F);
+    display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .hero-figure .mesh{width:78%;height:78%;opacity:.92}
+  .posband{background:linear-gradient(120deg,#0A1019,#0F1726);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .posband .container{padding-top:54px;padding-bottom:54px;text-align:center}
+  .posband .lamp{font-size:26px;margin-bottom:14px}
+  .posband p{font-family:"Exo 2",sans-serif;font-weight:500;font-size:clamp(22px,3.2vw,40px);line-height:1.25;letter-spacing:-.01em;max-width:20ch;margin:0 auto}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<div class="topstack">
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <a class="brand" href="index.html"><span class="glyph"></span>Smartabs<span class="reg">®</span></a>
-      <div class="nav-links">
-        <a href="mexicologia.html">Mexicología®</a>
-        <a href="empresas-rh.html">Empresas / RH</a>
-        <a href="escuelas.html">Escuelas</a>
-        <a href="comercial.html">Comercial</a>
-      </div>
-      <a class="nav-cta" href="diagnostico.html">Solicitar diagnóstico</a>
-    </div>
-  </nav>
-</div>
+<div class="annc">🌱 <b>Humanizando datos; decisiones trascendentes</b></div>
+
+<div class="topstack"><nav class="nav" id="nav"><div class="nav-inner">
+  <a class="brand" href="index.html">
+    <span class="glyph">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8FD64C"/><stop offset=".55" stop-color="#36C7E2"/><stop offset="1" stop-color="#2E7BD6"/></linearGradient></defs>
+      <path d="M20 3c8 0 14 6 14 15 0 6-3 9-3 13v6h-8v-4c0-2-1-3-3-3-6 0-11-5-11-13C9 9 13 3 20 3z" fill="none" stroke="url(#g)" stroke-width="1.6"/>
+      <g fill="url(#g)"><circle cx="16" cy="13" r="1.6"/><circle cx="24" cy="11" r="1.6"/><circle cx="27" cy="18" r="1.6"/><circle cx="19" cy="20" r="1.6"/><circle cx="15" cy="24" r="1.6"/><circle cx="24" cy="25" r="1.6"/></g>
+      <g stroke="url(#g)" stroke-width="1"><line x1="16" y1="13" x2="24" y2="11"/><line x1="24" y1="11" x2="27" y2="18"/><line x1="27" y1="18" x2="19" y2="20"/><line x1="19" y1="20" x2="16" y2="13"/><line x1="19" y1="20" x2="15" y2="24"/><line x1="15" y1="24" x2="24" y2="25"/><line x1="24" y1="25" x2="27" y2="18"/></g></svg>
+    </span>SmarTabs<span class="reg">®</span></a>
+  <div class="nav-links">
+    <a href="pymes.html">Pymes</a>
+    <a href="oferta-de-valor.html">Oferta de valor</a>
+    <a href="portafolio-de-servicios.html">Portafolio</a>
+    <a href="entregables.html">Entregables</a>
+    <a href="mexicologia.html">Mexicología®</a>
+    <a href="elecciones.html">Elecciones</a>
+    <a href="empresas.html">Empresas</a>
+    <a href="identidad.html">Identidad</a>
+  </div>
+  <a class="nav-cta" href="#contacto">Escríbenos</a>
+</div></nav></div>
 
 <!-- HERO -->
 <section class="hero">
   <div class="container">
     <div class="hero-grid">
-      <div class="hero-left">
-        <div class="hero-meta"><span class="bar"></span><span class="eyebrow">Investigación de mercados · Estrategia</span></div>
-        <h1 class="display">La investigación que se convierte en <span class="em">decisiones</span>.</h1>
-        <p class="hero-lead">Smartabs genera información estratégica para empresas, instituciones y escuelas. Combinamos metodologías tradicionales de investigación con <b>Mexicología®</b>, nuestro algoritmo propio de segmentación poblacional, para entender no solo qué piensa tu mercado, sino por qué.</p>
+      <div>
+        <span class="eyebrow">Investigación de mercados · Salud Mental</span>
+        <h1 class="display">Con SmarTabs entiende a tu mercado <span class="grad">como nunca antes.</span></h1>
+        <p class="hero-lead">Somos una agencia de investigación de mercados que suma a las metodologías tradicionales el estado emocional y mental de las personas, a través de <b>Mexicología®</b>, nuestro algoritmo propio de segmentación poblacional.</p>
         <div class="cta-row">
-          <a class="btn-primary" href="diagnostico.html">Solicitar diagnóstico →</a>
-          <a class="btn-outline" href="mexicologia.html">Conocer Mexicología®</a>
+          <a class="btn-primary" href="#contacto">Escríbenos →</a>
+          <a class="btn-outline" href="mexicologia.html">Conoce Mexicología®</a>
         </div>
       </div>
-      <div class="hero-right">
-        <div class="hero-card">
-          <span class="eyebrow">El cambio de pregunta</span>
-          <p class="q">La mayoría pregunta: <span class="em">¿qué piensa una población?</span></p>
-          <div class="sep"></div>
-          <p class="q">Nosotros añadimos: <span class="em">¿cómo influyen ciertos rasgos en esa percepción —y qué hacer al respecto?</span></p>
-          <p class="a" style="margin-top:14px">Ahí está el diferenciador: cruzar los segmentos de Mexicología® con tu investigación.</p>
-        </div>
+      <div class="hero-figure">
+        <svg class="mesh" viewBox="0 0 200 200" aria-hidden="true">
+          <defs><linearGradient id="gm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8FD64C"/><stop offset=".55" stop-color="#36C7E2"/><stop offset="1" stop-color="#2E7BD6"/></linearGradient></defs>
+          <path d="M100 18c40 0 68 30 68 74 0 30-16 44-16 64v22h-40v-18c0-10-6-16-16-16-32 0-58-26-58-64C38 48 60 18 100 18z" fill="none" stroke="url(#gm)" stroke-width="1.4" opacity=".55"/>
+          <g fill="url(#gm)">
+            <circle cx="78" cy="62" r="2.4"/><circle cx="120" cy="52" r="2.4"/><circle cx="138" cy="90" r="2.4"/><circle cx="96" cy="98" r="2.4"/><circle cx="70" cy="118" r="2.4"/><circle cx="120" cy="126" r="2.4"/><circle cx="150" cy="118" r="2.4"/><circle cx="92" cy="140" r="2.4"/>
+          </g>
+          <g stroke="url(#gm)" stroke-width=".9" opacity=".8">
+            <line x1="78" y1="62" x2="120" y2="52"/><line x1="120" y1="52" x2="138" y2="90"/><line x1="138" y1="90" x2="96" y2="98"/><line x1="96" y1="98" x2="78" y2="62"/><line x1="96" y1="98" x2="70" y2="118"/><line x1="70" y1="118" x2="120" y2="126"/><line x1="120" y1="126" x2="138" y2="90"/><line x1="120" y1="126" x2="150" y2="118"/><line x1="120" y1="126" x2="92" y2="140"/><line x1="92" y1="140" x2="70" y2="118"/>
+          </g>
+        </svg>
       </div>
-    </div>
-
-    <div class="metrics">
-      <div><span class="n">3</span><span class="l">Divisiones de práctica</span></div>
-      <div><span class="n">5</span><span class="l">Segmentos poblacionales</span></div>
-      <div><span class="n">+30</span><span class="l">Años experiencia clínica</span></div>
-      <div><span class="n">+25</span><span class="l">Años en market research</span></div>
     </div>
   </div>
 </section>
 
-<!-- DIFERENCIADOR -->
-<section class="diff">
+<!-- POSICIONAMIENTO -->
+<section class="posband">
+  <div class="container">
+    <div class="lamp">💡</div>
+    <p class="display">Somos la primera y única agencia de investigación de mercados con enfoque hacia la <span class="grad">Salud Mental</span>.</p>
+  </div>
+</section>
+
+<!-- CLIENTES -->
+<section>
+  <div class="container" style="text-align:center">
+    <span class="eyebrow" style="display:block;margin-bottom:26px">Nuestros clientes</span>
+    <div class="clients">
+      <span>Walmart</span><span>Nissan</span><span>Liverpool</span><span>AB InBev</span><span>Obelit</span><span>CIR</span><span>SEN PAT</span><span>Dynamic</span><span>OSE Healthcare</span>
+    </div>
+    <p style="margin-top:18px;font-size:13px;color:var(--muted)">Logos de muestra · se reemplazan por los oficiales del cliente</p>
+  </div>
+</section>
+
+<!-- DIFERENCIADOR MEXICOLOGÍA -->
+<section style="background:var(--bg-2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
   <div class="container">
     <div class="shead">
-      <div class="kick"><span class="eyebrow">Diferenciador</span><p>No nos quedamos en el dato. Interpretamos qué hay detrás de él.</p></div>
-      <h2>Lo que añade<br>Smartabs<span class="reg">®</span></h2>
+      <div class="kick"><span class="eyebrow">El diferenciador</span><p>Fusionamos la investigación de mercados con la salud mental para enriquecer la cantidad y la calidad de los datos.</p></div>
+      <h2>Mexicología<span class="reg">®</span></h2>
     </div>
-    <div class="diff-grid">
-      <div class="diff-col">
-        <div class="tag">Lo que hace la mayoría</div>
-        <p class="big">Reporta <span class="em">qué piensa</span> una población: percepciones, intención, satisfacción.</p>
-      </div>
-      <div class="diff-col is-accent">
-        <div class="tag">Lo que añade Smartabs®</div>
-        <p class="big">Identifica <span class="em">cómo ciertos rasgos influyen</span> en esa percepción, y traduce eso en acciones estratégicas concretas.</p>
-      </div>
+    <div class="ff-grid ff-grid--md">
+      <div class="card"><span class="k">Qué es</span><h3>Un algoritmo propio</h3><p>Segmentación poblacional construida sobre rasgos de ansiedad y depresión, con base en neurociencia y neuropsicología cognitiva.</p></div>
+      <div class="card"><span class="k">Qué aporta</span><h3>El "por qué"</h3><p>Pasa de "qué piensa una población" a "cómo su estado emocional influye en lo que percibe, elige y decide".</p></div>
+      <div class="card"><span class="k">Único</span><h3>Pioneros en México</h3><p>Ninguna otra empresa ofrece hoy este nivel de precisión y profundidad cruzando salud mental con investigación.</p></div>
     </div>
-    <div class="frase">
-      <p>Smartabs® es una empresa de investigación de mercados cuyo diferenciador es <span class="em">Mexicología®</span>, un algoritmo complementario que enriquece la investigación tradicional con información que otras metodologías no suelen aportar.</p>
-    </div>
+    <div style="margin-top:28px"><a class="btn-outline" href="mexicologia.html">Ver el modelo de 5 segmentos →</a></div>
   </div>
 </section>
 
-<!-- DIVISIONES -->
+<!-- CÓMO TRABAJAMOS -->
 <section>
   <div class="container">
     <div class="shead">
-      <div class="kick"><span class="eyebrow">Qué hacemos</span><p>Investigación y consultoría en tres divisiones, cada una con su lenguaje y sus métricas.</p></div>
-      <h2>Tres divisiones,<br>un mismo método</h2>
-    </div>
-    <div class="ff-grid ff-grid--lg">
-      <a class="divcard" href="empresas-rh.html">
-        <div class="top"><span class="idx">01</span><h3>Empresas / RH</h3><p>Percepción organizacional, clima, integración y apoyo preventivo (NOM-035, sin sustituir instrumentos oficiales).</p></div>
-        <div class="list"><span class="chip">Clima laboral</span><span class="chip">Permanencia</span><span class="chip">Comunicación interna</span><span class="chip">Desgaste</span><span class="chip">Integración</span></div>
-        <div class="go">Ver división <span>→</span></div>
-      </a>
-      <a class="divcard" href="escuelas.html">
-        <div class="top"><span class="idx">02</span><h3>Escuelas</h3><p>Ambiente escolar, convivencia, permanencia y reputación institucional, desde la mirada de cada perfil de la comunidad.</p></div>
-        <div class="list"><span class="chip">Retención de matrícula</span><span class="chip">Convivencia</span><span class="chip">Bullying</span><span class="chip">Padres</span><span class="chip">Reputación</span></div>
-        <div class="go">Ver división <span>→</span></div>
-      </a>
-      <a class="divcard" href="comercial.html">
-        <div class="top"><span class="idx">03</span><h3>Comercial</h3><p>Percepción de marca, intención de compra, experiencia del consumidor y efectividad de campañas por segmento.</p></div>
-        <div class="list"><span class="chip">Marca</span><span class="chip">Producto</span><span class="chip">Campañas</span><span class="chip">Comunicación</span><span class="chip">Experiencia</span></div>
-        <div class="go">Ver división <span>→</span></div>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- PROCESO -->
-<section class="proceso">
-  <div class="container">
-    <div class="shead">
-      <div class="kick"><span class="eyebrow">Cómo trabajamos</span><p>Una secuencia rigurosa que transforma datos crudos en propuestas accionables.</p></div>
+      <div class="kick"><span class="eyebrow">Cómo trabajamos</span><p>Una secuencia que convierte datos crudos en decisiones estratégicas.</p></div>
       <h2>Investiga · Segmenta<br>Interpreta · Recomienda</h2>
     </div>
     <div class="steps">
-      <div class="step"><div class="num">01</div><h4>Investiga</h4><p>Recopila información estratégica mediante metodologías validadas de investigación de mercados.</p></div>
-      <div class="step"><div class="num">02</div><h4>Segmenta</h4><p>Clasifica a la población con el algoritmo Mexicología® en cinco perfiles de percepción.</p></div>
-      <div class="step"><div class="num">03</div><h4>Interpreta</h4><p>Cruza segmentos y variables para encontrar los patrones detrás de los datos.</p></div>
-      <div class="step"><div class="num">04</div><h4>Recomienda</h4><p>Propone estrategias concretas y accionables para cada cliente y cada contexto.</p></div>
+      <div class="step"><div class="num">01</div><h4>Investiga</h4><p>Recopila información con metodologías cuali-cuantitativas validadas.</p></div>
+      <div class="step"><div class="num">02</div><h4>Segmenta</h4><p>Clasifica a la población con Mexicología® en cinco perfiles emocionales.</p></div>
+      <div class="step"><div class="num">03</div><h4>Interpreta</h4><p>Cruza segmentos y variables para encontrar los patrones detrás del dato.</p></div>
+      <div class="step"><div class="num">04</div><h4>Recomienda</h4><p>Entrega insights y decisiones accionables, no solo cifras.</p></div>
     </div>
   </div>
 </section>
 
-<!-- VALOR / cadena -->
+<!-- SERVICIOS RÁPIDO -->
+<section style="background:var(--bg-2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+  <div class="container">
+    <div class="shead">
+      <div class="kick"><span class="eyebrow">Qué hacemos</span><p>Investigación de mercados de extremo a extremo, para empresas, pymes, escuelas e instituciones.</p></div>
+      <h2>Portafolio</h2>
+    </div>
+    <div class="ff-grid ff-grid--md">
+      <div class="card"><h3>Marca y producto</h3><p>Percepción, posicionamiento, NPD y aceptación en cualquier etapa del ciclo de vida.</p></div>
+      <div class="card"><h3>Audiencias y consumidor</h3><p>Satisfacción, experiencia, Mystery Shopper y reputación corporativa.</p></div>
+      <div class="card"><h3>Electoral y social</h3><p>Imagen, posicionamiento e intención de voto; problemáticas sociales y de salud mental.</p></div>
+    </div>
+    <div style="margin-top:28px;display:flex;gap:14px;flex-wrap:wrap">
+      <a class="btn-outline" href="portafolio-de-servicios.html">Ver portafolio →</a>
+      <a class="btn-outline" href="entregables.html">Ver entregables →</a>
+    </div>
+  </div>
+</section>
+
+<!-- COMPROMISOS -->
 <section>
   <div class="container">
     <div class="shead">
-      <div class="kick"><span class="eyebrow">De los datos a la acción</span><p>Cada proyecto culmina en recomendaciones que permiten decidir con evidencia, no con suposiciones.</p></div>
-      <h2>El proceso<br>completo</h2>
+      <div class="kick"><span class="eyebrow">Por qué SmarTabs</span><p>Constituidos en 2021 con una sola idea: humanizar los datos.</p></div>
+      <h2>Nuestros<br>compromisos</h2>
     </div>
-    <div class="chain">
-      <div class="node"><div class="k">01 · Datos</div><h4>Información validada</h4><p>Datos recopilados y verificados con metodología rigurosa.</p></div>
-      <div class="node"><div class="k">02 · Interpretación</div><h4>Análisis y contexto</h4><p>Lectura profunda cruzando segmentos con cada variable del estudio.</p></div>
-      <div class="node"><div class="k">03 · Recomendaciones</div><h4>Estrategia concreta</h4><p>Acciones priorizadas según lo que más impacto genera.</p></div>
-      <div class="node"><div class="k">04 · Acción</div><h4>Implementación</h4><p>Acompañamiento en la ejecución y medición de resultados.</p></div>
-    </div>
+    <ul class="checklist ff-grid ff-grid--md" style="gap:18px">
+      <li><b>Innovación.</b> Únicos en investigación de mercados con enfoque en Salud Mental.</li>
+      <li><b>Puntualidad y calidad</b> en la entrega de tu información.</li>
+      <li><b>Soluciones</b> basadas en tus necesidades reales.</li>
+      <li><b>Asesoría</b> para tu toma de decisiones.</li>
+      <li><b>Orientación a resultados</b> y eficiencia.</li>
+      <li><b>Cobertura nacional</b> con renovación trimestral de datos.</li>
+    </ul>
   </div>
 </section>
 
-<!-- FUNDADORES -->
-<section class="fund">
+<!-- CONTACTO -->
+<section id="contacto" style="background:var(--bg-2);border-top:1px solid var(--rule)">
   <div class="container">
     <div class="shead">
-      <div class="kick"><span class="eyebrow">Quiénes somos</span><p>Mexicología® nace de la integración de dos trayectorias: investigación de mercados y salud organizacional.</p></div>
-      <h2>Detrás del<br>método</h2>
+      <div class="kick"><span class="eyebrow">Comunícate con nosotros</span><p>Cuéntanos tu reto y diseñamos una investigación a la medida.</p></div>
+      <h2>Escríbenos</h2>
     </div>
-    <div class="fund-grid">
-      <div class="founder">
-        <div class="ph"><span>FOTO<br>CARLOS&nbsp;FRÍAS</span></div>
-        <div><h3>Carlos Frías</h3><div class="role">Investigación de mercados</div></div>
-        <p>Más de 25 años en market research en firmas internacionales como Ipsos y GfK, donde fue Director de Operaciones para México y LATAM. Especializado en análisis poblacional, data science y procesamiento de datos.</p>
+    <div class="contact">
+      <div>
+        <h3>Hablemos</h3>
+        <p class="meta">Calle Medellín 10, colonia Roma Norte, Ciudad de México.</p>
+        <p class="meta">Lunes a viernes · 9:00 – 17:00</p>
+        <p class="meta">WhatsApp: +52 55 7455 2012</p>
+        <div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap">
+          <a class="btn-mint" href="https://wa.me/525574552012">Envíanos un mensaje</a>
+        </div>
       </div>
-      <div class="founder">
-        <div class="ph"><span>FOTO<br>MARIO&nbsp;CITALÁN</span></div>
-        <div><h3>Mario Citalán</h3><div class="role">Salud mental y organizacional</div></div>
-        <p>Más de 30 años en atención, prevención y difusión de la salud mental, emocional y organizacional. Aporta el marco interpretativo de los rasgos que dan origen a la segmentación de Mexicología®.</p>
-      </div>
+      <form id="cform" novalidate>
+        <div class="field"><label for="n">Nombre</label><input id="n" type="text" required></div>
+        <div class="field"><label for="e">Correo electrónico</label><input id="e" type="email" required></div>
+        <div class="field"><label for="m">Mensaje</label><textarea id="m"></textarea></div>
+        <button class="btn-primary" type="submit">Enviar →</button>
+        <p id="okmsg" style="display:none;margin-top:14px;color:var(--green);font-size:14px">Gracias, recibimos tu mensaje. Te contactamos pronto. <span style="color:var(--muted)">(demo — en producción conecta a /api/leads)</span></p>
+      </form>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta">
-  <div class="container">
-    <h2>¿Qué hay detrás de lo que<br>tu mercado piensa?</h2>
-    <p>Cuéntanos tu reto y diseñamos un diagnóstico a la medida. Cada proyecto se cotiza después de entender tu contexto.</p>
-    <a class="btn-primary" href="diagnostico.html">Solicitar diagnóstico →</a>
-  </div>
-</section>
-
-<!-- FOOTER -->
 <footer>
   <div class="container">
     <div class="foot-grid">
       <div style="max-width:300px">
-        <div class="foot-brand"><span class="glyph" style="width:24px;height:24px"></span>Smartabs<span class="reg">®</span></div>
-        <p style="margin-top:14px;font-size:13.5px">Investigación de mercados con segmentación poblacional propia. México.</p>
+        <div class="foot-brand">SmarTabs<span class="reg">®</span></div>
+        <p style="margin-top:14px;font-size:13.5px">Soluciones en Procesamiento de Información SA de CV. Investigación de mercados con enfoque en Salud Mental. México, desde 2021.</p>
       </div>
       <div class="foot-links">
-        <div class="col"><b>Divisiones</b><a href="empresas-rh.html">Empresas / RH</a><a href="escuelas.html">Escuelas</a><a href="comercial.html">Comercial</a></div>
-        <div class="col"><b>Método</b><a href="mexicologia.html">Mexicología®</a><a href="index.html#proceso">Cómo trabajamos</a></div>
-        <div class="col"><b>Contacto</b><a href="diagnostico.html">Solicitar diagnóstico</a><a href="#">correo@smartabs.mx</a></div>
+        <div class="col"><b>Compañía</b><a href="identidad.html">Identidad</a><a href="empresas.html">Empresas</a><a href="pymes.html">Pymes</a></div>
+        <div class="col"><b>Servicios</b><a href="portafolio-de-servicios.html">Portafolio</a><a href="oferta-de-valor.html">Oferta de valor</a><a href="entregables.html">Entregables</a></div>
+        <div class="col"><b>Método</b><a href="mexicologia.html">Mexicología®</a><a href="elecciones.html">Elecciones</a><a href="mexicologia-educacion.html">Mexicología y educación</a></div>
       </div>
     </div>
     <div class="foot-note">
-      <span>© 2026 Smartabs®. Mexicología® es una metodología propia. No realiza diagnóstico clínico ni evaluación psicológica.</span>
+      <span>© 2026 SmarTabs® Soluciones en Procesamiento de Información SA de CV. Mexicología® no es una investigación clínica ni una prueba de tamizaje.</span>
       <span class="demobadge">Demo construido por FishFlow · marca y assets placeholder</span>
     </div>
   </div>
 </footer>
 
 <script>
-  var nav=document.getElementById('nav');
-  addEventListener('scroll',function(){nav.classList.toggle('scrolled',scrollY>10)});
+  document.getElementById('cform').addEventListener('submit',function(e){
+    e.preventDefault();
+    var n=document.getElementById('n'),el=document.getElementById('e');
+    if(!n.value.trim()){n.focus();return;}
+    if(!el.value.trim()||el.value.indexOf('@')<0){el.focus();return;}
+    document.getElementById('okmsg').style.display='block';
+    this.querySelector('button').textContent='Enviado ✓';
+  });
 </script>
 </body>
 </html>
