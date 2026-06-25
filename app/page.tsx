@@ -204,6 +204,43 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Tira de confianza ───────────────────────────────────────────── */}
+      <section id="clientes" className="py-12 px-4 md:px-0 border-y border-primary/10 bg-white">
+        <div className="container max-w-5xl mx-auto">
+          <p className="text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-7">
+            Negocios que ya operan con FishFlow
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+            {[
+              { icon: Scissors,   name: "Estética Belange", note: "CDMX", soon: false },
+              { icon: Activity,   name: "CANE Neurofeedback", note: "Salud", soon: false },
+              { icon: Sparkles,   name: "Studio Jomay", note: "Micropigmentación", soon: false },
+              { icon: Navigation, name: "Lukon", note: "Telemática GPS", soon: false },
+              { icon: Brain,      name: "TherapyOS", note: "Terapia", soon: false },
+              { icon: PenTool,    name: "Mario Citalán", note: "Próximamente", soon: true },
+            ].map((c) => (
+              <div
+                key={c.name}
+                className={`inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 transition-colors ${
+                  c.soon
+                    ? "border-dashed border-accent/40 bg-accent/5"
+                    : "border-primary/15 bg-secondary/40 hover:border-primary/40"
+                }`}
+              >
+                <c.icon className={`h-4 w-4 flex-shrink-0 ${c.soon ? "text-accent" : "text-primary"}`} />
+                <span className="text-sm font-semibold text-foreground leading-none">{c.name}</span>
+                <span className={`text-[11px] leading-none ${c.soon ? "text-accent font-medium" : "text-muted-foreground"}`}>
+                  · {c.note}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-xs text-muted-foreground mt-7">
+            Estéticas, consultorios, telemática y más — cada negocio con su propia app y panel.
+          </p>
+        </div>
+      </section>
+
       {/* ── Cómo funciona ───────────────────────────────────────────────── */}
       <section id="how" className="py-20 px-4 md:px-0 bg-secondary/40">
         <div className="container max-w-5xl mx-auto">
@@ -701,6 +738,20 @@ export default function Home() {
                 tag: "Presencia digital",
                 desc: "Página web clínica profesional con actualizaciones continuas. Pacientes nuevos llegan con información clara y confianza — sin que el dueño tenga que tocar nada.",
                 ai: false,
+              },
+              {
+                icon: Sparkles, color: "accent",
+                title: "Studio Jomay · Micropigmentación",
+                tag: "Presencia digital",
+                desc: "Sitio web profesional con su propia marca y dominio (studiojomay.com.mx), administrado por FishFlow. Sus clientas la encuentran en línea y la contactan directo.",
+                ai: false,
+              },
+              {
+                icon: PenTool, color: "primary",
+                title: "Mario Citalán · Ecosistema digital",
+                tag: "Próximamente",
+                desc: "Plataforma de contenidos y diagnóstico para su método de criterio y actitud: sitio, cuestionarios guiados y panel — en construcción para lanzamiento.",
+                ai: true,
               },
             ].map((c, i) => (
               <Card key={i} className="hover:shadow-lg transition-shadow">
