@@ -189,6 +189,21 @@
   .media-live .pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(62,134,207,.6);animation:pulse 2s infinite}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(62,134,207,.55)}70%{box-shadow:0 0 0 12px rgba(62,134,207,0)}100%{box-shadow:0 0 0 0 rgba(62,134,207,0)}}
 
+  /* ---------------- TRAYECTORIA (collage de escena + medios) ---------------- */
+  .trayectoria{background:var(--paper)}
+  .trayectoria .eyebrow{color:var(--accent-deep)}
+  .tray-collage{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:188px;gap:10px;margin-top:4px}
+  .tray-tile{position:relative;overflow:hidden;background:var(--paper-2);border:1px solid var(--rule)}
+  .tray-tile img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+  .tray-tile:hover img{transform:scale(1.045)}
+  .tray-tile .cap{position:absolute;left:0;right:0;bottom:0;padding:18px 16px 13px;background:linear-gradient(to top,rgba(15,26,36,.88),rgba(15,26,36,.12) 70%,transparent);display:flex;flex-direction:column;gap:3px}
+  .tray-tile .cap .k{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+  .tray-tile .cap .t{font-family:"Fraunces",serif;font-size:16px;color:#fff;line-height:1.16}
+  .tray-feature{grid-column:1 / span 2;grid-row:1 / span 2}
+  .tray-feature .cap .t{font-size:24px}
+  .tray-note{margin-top:24px;display:inline-flex;align-items:center;gap:12px;font-size:13px;color:var(--ink-2)}
+  .tray-note .pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(62,134,207,.6);animation:pulse 2s infinite}
+
   /* ---------------- TESTIMONIOS ---------------- */
   .testimonios{background:var(--paper)}
   .quote-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:46px;margin-top:24px}
@@ -305,6 +320,8 @@
     .crit-stats > div{padding:20px 16px 20px 0;margin-right:16px}
     .media-strip .m:nth-child(2){border-right:none}
     .media-strip .m{border-bottom:1px solid var(--rule)}
+    .tray-collage{grid-template-columns:repeat(2,1fr);grid-auto-rows:156px}
+    .tray-collage .tray-tile:last-child{grid-column:1 / span 2}
     .foot-grid{grid-template-columns:1fr 1fr;gap:38px}
     section{padding:84px 0}
     .about-figure{max-width:420px}
@@ -343,6 +360,9 @@
     .sol.feature{grid-column:auto}
     .media-strip{border:none}
     .media-strip .m{border-right:none;border:1px solid var(--rule);margin-bottom:-1px}
+    .tray-collage{grid-template-columns:1fr;grid-auto-rows:212px;gap:8px}
+    .tray-feature{grid-column:auto;grid-row:auto}
+    .tray-feature .cap .t{font-size:20px}
     .about-figure{aspect-ratio:4/5;max-width:330px;margin:0 auto;width:100%}
     .about-creds{grid-template-columns:1fr 1fr;gap:16px 22px}
     .about-creds .val{font-size:17px}
@@ -413,7 +433,7 @@
 
       <div class="hero-right">
         <div class="hero-figure">
-          <img src="https://mariocitalan.net/wp-content/uploads/2026/03/Asesor-estrategico-en-criterio-y-toma-de-decisiones-scaled.png" alt="Mario Citalán" style="width:100%;height:100%;object-fit:cover;object-position:right center">
+          <img src="assets/img/estudio-hero.jpg" alt="Mario Citalán — Arquitectura del Criterio" style="width:100%;height:100%;object-fit:cover;object-position:center top">
         </div>
         <div class="hero-stamp-box">
           <span class="eyebrow">El modelo</span>
@@ -591,6 +611,48 @@
   </div>
 </section>
 
+<!-- ============== TRAYECTORIA (collage escena + medios) ============== -->
+<section class="trayectoria" id="trayectoria">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Trayectoria</span></div>
+      <div class="kicker">
+        <h2 class="display">Del foro de TV<br>al <span class="italic">escenario</span>.</h2>
+        <p style="margin-top:18px">Más de tres décadas llevando el criterio a auditorios llenos, televisión nacional, radio y aulas universitarias.</p>
+      </div>
+    </div>
+
+    <div class="tray-collage">
+      <figure class="tray-tile tray-feature">
+        <img src="assets/img/tray-masas.jpg" alt="Mario Citalán frente a un auditorio lleno" loading="lazy">
+        <figcaption class="cap"><span class="k">En escena</span><span class="t">Auditorios de miles de personas</span></figcaption>
+      </figure>
+      <figure class="tray-tile">
+        <img src="assets/img/tray-hechos.jpg" alt="Mario Citalán en Hechos AM, TV Azteca" loading="lazy">
+        <figcaption class="cap"><span class="k">TV Azteca</span><span class="t">Hechos AM</span></figcaption>
+      </figure>
+      <figure class="tray-tile">
+        <img src="assets/img/tray-foro.jpg" alt="Mario Citalán en ForoTV con Leo Zuckermann" loading="lazy">
+        <figcaption class="cap"><span class="k">ForoTV</span><span class="t">Análisis en vivo</span></figcaption>
+      </figure>
+      <figure class="tray-tile">
+        <img src="assets/img/tray-radio.jpg" alt="Mario Citalán en cabina de radio" loading="lazy">
+        <figcaption class="cap"><span class="k">Radio</span><span class="t">Entrevistas en cabina</span></figcaption>
+      </figure>
+      <figure class="tray-tile">
+        <img src="assets/img/tray-tec.jpg" alt="Conferencia del Dr. Mario Citalán en el Tec de Monterrey" loading="lazy">
+        <figcaption class="cap"><span class="k">Universidades</span><span class="t">Tec de Monterrey</span></figcaption>
+      </figure>
+      <figure class="tray-tile">
+        <img src="assets/img/tray-martha.jpg" alt="Mario Citalán con Martha Debayle" loading="lazy">
+        <figcaption class="cap"><span class="k">Podcast / Radio</span><span class="t">Con Martha Debayle</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="tray-note"><span class="pulse"></span> Presencia constante en medios nacionales y foros de alto impacto.</div>
+  </div>
+</section>
+
 <!-- ============== MEDIOS ============== -->
 <section class="medios" id="medios">
   <div class="container">
@@ -623,7 +685,7 @@
     <div class="about-grid">
       <div class="about-figure">
         <div class="sig">&mdash; Mario</div>
-        <img class="about-photo" src="https://mariocitalan.net/wp-content/uploads/2025/06/Quien-soy-1-scaled.png" alt="Mario Citalán" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:left center">
+        <img class="about-photo" src="assets/img/estudio-bio.jpg" alt="Mario Citalán" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top">
       </div>
       <div class="about-body">
         <h3>Más que motivación,<br><span class="italic">criterio sólido</span>.</h3>
