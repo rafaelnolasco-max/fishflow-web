@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Enlace Integral Seguros · Encuentra tu plan ideal</title>
+<meta name="description" content="Asesoría en ahorro para el retiro, protección de vida, gastos médicos y educación. Respaldados por Allianz®. Encuentra tu plan ideal en 1 minuto." />
+
+<!-- Open Graph: para que se vea bien al compartir en Facebook/WhatsApp -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Encuentra tu plan ideal en 1 minuto · Enlace Integral Seguros" />
+<meta property="og:description" content="Ahorro para el retiro, vida, gastos médicos y educación. Respaldados por Allianz®." />
+<meta property="og:locale" content="es_MX" />
+
+<!-- ===== PÍXEL DE META (Facebook/Instagram) — pegar el ID real al pautar =====
+<script>
+!function(f,b,e,v,n,t,s){...código del píxel...}();
+fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
+</script>
+============================================================================= -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   1) RESPONSIVE BASE  ·  copia idéntica de _template
+   ============================================================ */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1180px);margin-inline:auto;padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+.ff-hide-mobile{}
+.ff-stack-mobile{}
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}
+
+/* ============================================================
+   2) TOKENS DE MARCA · Enlace Integral (respaldo Allianz)
+   ============================================================ */
+:root{
+  /* Paleta real de Enlace Integral (tema Avada): carbón + verde + blanco */
+  --navy:#212934; --navy-2:#2c3a47; --blue:#2F7D7A; --gold:#65BC7B; --gold-2:#82cd97;
+  --ink:#1b2733; --paper:#FFFFFF; --soft:#F2F8F4; --line:#E2EAE5; --muted:#5d7080;
+  --green:#1F9D6B;
+  --f-display:"Plus Jakarta Sans",system-ui,sans-serif;
+  --f-body:"Inter",system-ui,sans-serif;
+  --ff-max:1180px;
+}
+body{font-family:var(--f-body);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.55;}
+a{color:inherit;text-decoration:none;cursor:pointer;}
+h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em;line-height:1.1;}
+.btn{font-family:var(--f-display);font-weight:800;font-size:16px;padding:15px 26px;border-radius:999px;border:2px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.btn:hover{transform:translateY(-2px)}
+.btn--primary{background:var(--gold);color:#10241a;box-shadow:0 8px 22px rgba(101,188,123,.40)}
+.btn--light{background:#fff;color:var(--navy)}
+.btn--ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+.eyebrow{font-family:var(--f-display);font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:40;background:rgba(33,41,52,.97);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav .row{display:flex;align-items:center;justify-content:space-between;padding:13px 0}
+.brand{display:flex;align-items:center;gap:11px;color:#fff}
+.brand .mk{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#8AD0A0);display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:800;font-family:var(--f-display);font-size:20px}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:16px;display:block;line-height:1.1}
+.brand small{color:#9fc0dd;font-size:11px}
+
+/* hero */
+.hero{background:radial-gradient(1100px 520px at 78% -10%,rgba(101,188,123,.30),transparent),linear-gradient(160deg,var(--navy),#161d26);color:#fff;position:relative;overflow:hidden}
+.hero .ff-container{position:relative;z-index:2}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;padding:54px 0 60px}
+.hero h1{font-size:clamp(30px,4.4vw,52px);font-weight:800}
+.hero h1 .hl{color:var(--gold)}
+.hero p.sub{font-size:clamp(16px,1.5vw,19px);color:#cfe0f0;margin:18px 0 26px;max-width:540px}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
+.trust{display:flex;gap:22px;flex-wrap:wrap;margin-top:26px;color:#bcd3e7;font-size:13px}
+.trust b{color:#fff;font-family:var(--f-display)}
+.heroCard{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:8px}
+.heroCard .inner{background:#fff;border-radius:14px;padding:22px;color:var(--ink)}
+.heroCard h3{font-size:18px;color:var(--navy)}
+.heroCard .q{font-size:13px;color:var(--muted);margin:3px 0 16px}
+.opt-mini{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px;font-weight:600;font-size:14px;transition:.15s}
+.opt-mini:hover{border-color:var(--gold);background:var(--soft)}
+.opt-mini .ic{width:30px;height:30px;border-radius:8px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:16px}
+
+/* sections */
+section{padding:60px 0}
+.sec-head{text-align:center;max-width:680px;margin:0 auto 38px}
+.sec-head h2{font-size:clamp(26px,3.4vw,40px);font-weight:800;color:var(--navy)}
+.sec-head p{color:var(--muted);font-size:17px;margin-top:12px}
+.soft{background:var(--soft)}
+
+/* product cards */
+.pcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px;transition:.18s;display:flex;flex-direction:column}
+.pcard:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(10,42,78,.10);border-color:transparent}
+.pcard .ic{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(135deg,var(--navy),var(--blue));margin-bottom:14px}
+.pcard h3{font-size:19px;color:var(--navy);margin-bottom:7px}
+.pcard p{color:var(--muted);font-size:14px;flex:1}
+.pcard a{margin-top:16px;color:var(--blue);font-weight:700;font-size:14px}
+
+/* why */
+.why{display:flex;gap:18px;align-items:flex-start}
+.why .n{flex:none;width:46px;height:46px;border-radius:12px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:22px}
+.why h3{font-size:17px;color:var(--navy)}
+.why p{color:var(--muted);font-size:14px;margin-top:4px}
+
+/* testimonial */
+.quote{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:0 14px 14px 0;padding:22px;font-size:15px;color:#33485c}
+.quote .who{margin-top:12px;font-weight:700;color:var(--navy);font-size:14px}
+
+/* ===== QUIZ ===== */
+.quizSec{background:linear-gradient(160deg,var(--navy),#161d26);color:#fff}
+.quizBox{max-width:680px;margin:0 auto;background:#fff;color:var(--ink);border-radius:22px;box-shadow:0 30px 70px rgba(3,18,36,.45);overflow:hidden}
+.quizTop{padding:20px 26px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.quizTop h3{font-size:16px;color:var(--navy)}
+.progress{height:7px;background:var(--soft);border-radius:99px;overflow:hidden;flex:1;max-width:260px}
+.progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#8AD0A0);transition:width .3s}
+.quizBody{padding:30px 26px 26px}
+.qstep{display:none}
+.qstep.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.qstep h4{font-family:var(--f-display);font-size:clamp(20px,2.6vw,26px);color:var(--navy);margin-bottom:4px;font-weight:800}
+.qstep .hint{color:var(--muted);font-size:14px;margin-bottom:20px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:2px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:11px;background:#fff;cursor:pointer;font-size:16px;font-weight:600;color:var(--ink);transition:.15s;font-family:var(--f-body)}
+.opt:hover{border-color:var(--gold);background:var(--soft)}
+.opt.sel{border-color:var(--gold);background:#edf9f0}
+.opt .ic{width:40px;height:40px;border-radius:10px;flex:none;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.lnk{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;font-weight:600;font-family:var(--f-body)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.field input{width:100%;border:2px solid var(--line);border-radius:12px;padding:13px 15px;font-size:16px;font-family:var(--f-body);color:var(--ink)}
+.field input:focus{outline:none;border-color:var(--gold)}
+.consent{display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--muted);margin:6px 0 16px}
+.result{text-align:center}
+.result .badge{display:inline-block;background:var(--soft);color:var(--blue);font-weight:800;font-family:var(--f-display);padding:6px 14px;border-radius:99px;font-size:13px;margin-bottom:14px}
+.result .pic{width:74px;height:74px;border-radius:18px;margin:0 auto 14px;background:linear-gradient(135deg,var(--gold),#8AD0A0);display:flex;align-items:center;justify-content:center;font-size:38px}
+.result h4{font-size:24px;color:var(--navy)}
+.result p{color:var(--muted);font-size:15px;margin:8px auto 0;max-width:440px}
+
+/* whatsapp float */
+.wa{position:fixed;right:18px;bottom:18px;z-index:60;width:58px;height:58px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:30px}
+.wa:hover{transform:scale(1.06)}
+
+/* footer */
+.foot{background:var(--navy);color:#a8c4dd;padding:40px 0;font-size:13px}
+.foot .row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+.foot b{color:#fff;font-family:var(--f-display)}
+
+@media(max-width:820px){.hero .wrap{grid-template-columns:1fr;gap:28px;padding:40px 0 46px}}
+.demoflag{background:var(--gold);color:#10241a;text-align:center;font-size:12px;font-weight:700;padding:7px 12px;font-family:var(--f-display)}
+</style>
+</head>
+<body>
+
+<div class="demoflag">Borrador de propuesta · Enlace Integral Seguros — construido por FishFlow</div>
+
+<div class="nav">
+ <div class="ff-container row">
+  <div class="brand">
+   <div class="mk">E</div>
+   <div><b>Enlace Integral</b><small>Seguros · Respaldados por Allianz®</small></div>
+  </div>
+  <a href="#cuestionario" class="btn btn--primary" style="padding:11px 20px;font-size:14px">Encuentra tu plan</a>
+ </div>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+ <div class="ff-container">
+  <div class="wrap">
+   <div>
+    <span class="eyebrow">Tu futuro, bien planeado</span>
+    <h1 style="margin-top:12px">El plan correcto para ti <span class="hl">en 1 minuto</span>, sin complicarte.</h1>
+    <p class="sub">Responde 5 preguntas y te decimos qué plan se ajusta a tu vida: ahorro para el retiro, protección para tu familia, gastos médicos o educación. Sin compromiso.</p>
+    <div class="ctas">
+     <a href="#cuestionario" class="btn btn--primary">Descubre tu plan ideal →</a>
+     <a id="waHero" class="btn btn--ghost" target="_blank">Hablar por WhatsApp</a>
+    </div>
+    <div class="trust">
+     <span><b>+20 años</b> de experiencia</span>
+     <span><b>Allianz®</b> nos respalda</span>
+     <span><b>+20 asesores</b> a tu servicio</span>
+    </div>
+   </div>
+   <div class="heroCard ff-hide-mobile">
+    <div class="inner">
+     <h3>¿Qué quieres lograr?</h3>
+     <div class="q">Empieza aquí — es rápido</div>
+     <a class="opt-mini" href="#cuestionario"><span class="ic">🌅</span> Asegurar mi retiro</a>
+     <a class="opt-mini" href="#cuestionario"><span class="ic">🛡️</span> Proteger a mi familia</a>
+     <a class="opt-mini" href="#cuestionario"><span class="ic">🏥</span> Cubrir gastos médicos</a>
+     <a class="opt-mini" href="#cuestionario"><span class="ic">🎓</span> Ahorrar para la educación</a>
+    </div>
+   </div>
+  </div>
+ </div>
+</header>
+
+<!-- QUIZ -->
+<section class="quizSec" id="cuestionario">
+ <div class="ff-container">
+  <div class="sec-head" style="color:#fff">
+   <span class="eyebrow">Cuestionario</span>
+   <h2 style="color:#fff">Encuentra tu plan ideal</h2>
+   <p style="color:#cfe0f0">5 preguntas rápidas. Al final te decimos qué plan te conviene y un asesor te contacta.</p>
+  </div>
+
+  <div class="quizBox">
+   <div class="quizTop">
+    <h3 id="qtitle">Pregunta 1 de 5</h3>
+    <div class="progress"><i id="qbar"></i></div>
+   </div>
+   <div class="quizBody">
+
+    <!-- Q1 objetivo (router de producto) -->
+    <div class="qstep on" data-step="1">
+     <h4>¿Qué es lo que más te interesa lograr?</h4>
+     <div class="hint">Elige tu prioridad principal.</div>
+     <button class="opt" data-k="objetivo" data-v="retiro" data-seg="ahorro"><span class="ic">🌅</span> Asegurar mi retiro / ahorrar para el futuro</button>
+     <button class="opt" data-k="objetivo" data-v="proteccion" data-seg="vida"><span class="ic">🛡️</span> Proteger a mi familia si algo me pasa</button>
+     <button class="opt" data-k="objetivo" data-v="salud" data-seg="gmm"><span class="ic">🏥</span> Cubrir gastos médicos u hospitalarios</button>
+     <button class="opt" data-k="objetivo" data-v="educacion" data-seg="educacion"><span class="ic">🎓</span> Ahorrar para la educación de mis hijos</button>
+    </div>
+
+    <!-- Q2 edad -->
+    <div class="qstep" data-step="2">
+     <h4>¿En qué etapa de vida estás?</h4>
+     <div class="hint">Nos ayuda a ajustar el plazo de tu plan.</div>
+     <button class="opt" data-k="edad" data-v="18-30"><span class="ic">🌱</span> 18 a 30 años</button>
+     <button class="opt" data-k="edad" data-v="31-45"><span class="ic">🚀</span> 31 a 45 años</button>
+     <button class="opt" data-k="edad" data-v="46-60"><span class="ic">🌳</span> 46 a 60 años</button>
+     <button class="opt" data-k="edad" data-v="60+"><span class="ic">🧭</span> Más de 60 años</button>
+    </div>
+
+    <!-- Q3 dependientes -->
+    <div class="qstep" data-step="3">
+     <h4>¿Quién depende económicamente de ti?</h4>
+     <div class="hint">Esto define cuánta protección necesitas.</div>
+     <button class="opt" data-k="dependientes" data-v="nadie"><span class="ic">🙋</span> Nadie por ahora</button>
+     <button class="opt" data-k="dependientes" data-v="pareja"><span class="ic">💑</span> Mi pareja</button>
+     <button class="opt" data-k="dependientes" data-v="hijos_pequenos"><span class="ic">👶</span> Hijos pequeños</button>
+     <button class="opt" data-k="dependientes" data-v="hijos_padres"><span class="ic">👨‍👩‍👧</span> Hijos y/o mis padres</button>
+    </div>
+
+    <!-- Q4 capacidad -->
+    <div class="qstep" data-step="4">
+     <h4>¿Cuánto podrías destinar al mes a este objetivo?</h4>
+     <div class="hint">Hay planes desde $1,500 al mes. Sin compromiso.</div>
+     <button class="opt" data-k="capacidad" data-v="<1500"><span class="ic">💵</span> Menos de $1,500</button>
+     <button class="opt" data-k="capacidad" data-v="1500-3000"><span class="ic">💰</span> $1,500 a $3,000</button>
+     <button class="opt" data-k="capacidad" data-v="3000-6000"><span class="ic">💎</span> $3,000 a $6,000</button>
+     <button class="opt" data-k="capacidad" data-v="6000+"><span class="ic">🏆</span> Más de $6,000</button>
+    </div>
+
+    <!-- Q5 ocupacion -->
+    <div class="qstep" data-step="5">
+     <h4>¿A qué te dedicas?</h4>
+     <div class="hint">Algunos planes ofrecen beneficios fiscales según tu actividad.</div>
+     <button class="opt" data-k="ocupacion" data-v="empleado"><span class="ic">🧑‍💼</span> Empleado</button>
+     <button class="opt" data-k="ocupacion" data-v="empresario"><span class="ic">🏢</span> Empresario / dueño de negocio</button>
+     <button class="opt" data-k="ocupacion" data-v="independiente"><span class="ic">🧑‍💻</span> Profesionista independiente</button>
+     <button class="opt" data-k="ocupacion" data-v="otro"><span class="ic">✨</span> Otro</button>
+    </div>
+
+    <!-- Captura -->
+    <div class="qstep" data-step="6">
+     <h4 id="resTitle">Tu plan recomendado</h4>
+     <div class="result" id="resultBlock" style="margin-bottom:18px">
+      <div class="pic" id="resIcon">🌅</div>
+      <div class="badge" id="resBadge">Plan recomendado</div>
+      <p id="resText"></p>
+     </div>
+     <div class="field"><label>Nombre completo</label><input id="f_nombre" placeholder="Tu nombre"></div>
+     <div class="field"><label>WhatsApp</label><input id="f_wa" inputmode="tel" placeholder="10 dígitos"></div>
+     <div class="field"><label>Correo electrónico</label><input id="f_email" type="email" placeholder="tu@correo.com"></div>
+     <label class="consent"><input type="checkbox" id="f_ok" checked> Acepto que un asesor de Enlace Integral me contacte con información de mi plan.</label>
+     <button class="btn btn--primary" style="width:100%" onclick="submitLead()">Recibir mi plan y que me contacten</button>
+    </div>
+
+    <!-- Gracias -->
+    <div class="qstep" data-step="7">
+     <div class="result">
+      <div class="pic" style="background:linear-gradient(135deg,var(--green),#27c07f)">✓</div>
+      <h4>¡Gracias, <span id="thxName">!</span></h4>
+      <p>Recibimos tus datos. Un asesor te contactará muy pronto por WhatsApp con tu plan a la medida.</p>
+      <a id="waThanks" target="_blank" class="btn btn--primary" style="margin-top:18px">Adelantar mi consulta por WhatsApp</a>
+     </div>
+    </div>
+
+    <div class="qnav" id="qnav">
+     <button class="lnk" id="backBtn" onclick="prevStep()">← Atrás</button>
+     <span style="font-size:12px;color:var(--muted)" id="stepInfo"></span>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- PRODUCTOS -->
+<section>
+ <div class="ff-container">
+  <div class="sec-head">
+   <span class="eyebrow">Nuestros planes</span>
+   <h2>Soluciones para cada etapa de tu vida</h2>
+   <p>Respaldados por Allianz®, la aseguradora No.1 del mundo.</p>
+  </div>
+  <div class="ff-grid ff-grid--lg">
+   <div class="pcard"><div class="ic">🌅</div><h3>Ahorro para el retiro</h3><p>OptiMaxx Plus: ahorra a tu ritmo con aportaciones flexibles, rendimientos y beneficios fiscales para retirarte con tranquilidad.</p><a href="#cuestionario">Ver si es para mí →</a></div>
+   <div class="pcard"><div class="ic">🛡️</div><h3>Protección de vida</h3><p>Asegura el bienestar de tu familia pase lo que pase. Planes de vida a tu medida que protegen su futuro.</p><a href="#cuestionario">Ver si es para mí →</a></div>
+   <div class="pcard"><div class="ic">🏥</div><h3>Gastos médicos mayores</h3><p>Atiende cualquier imprevisto de salud sin descapitalizarte, con la mejor red hospitalaria.</p><a href="#cuestionario">Ver si es para mí →</a></div>
+   <div class="pcard"><div class="ic">🎓</div><h3>Ahorro educativo</h3><p>Garantiza la universidad de tus hijos empezando hoy, con un plan de ahorro pensado para su futuro.</p><a href="#cuestionario">Ver si es para mí →</a></div>
+  </div>
+ </div>
+</section>
+
+<!-- POR QUÉ -->
+<section class="soft">
+ <div class="ff-container">
+  <div class="sec-head">
+   <span class="eyebrow">Por qué elegirnos</span>
+   <h2>Asesoría seria, de personas que cumplen</h2>
+  </div>
+  <div class="ff-grid ff-grid--md">
+   <div class="why"><div class="n">🏆</div><div><h3>Respaldo Allianz®</h3><p>Estás protegido por uno de los grupos financieros más grandes del mundo.</p></div></div>
+   <div class="why"><div class="n">📅</div><div><h3>+20 años de experiencia</h3><p>Dos décadas acompañando a familias mexicanas a proteger su patrimonio.</p></div></div>
+   <div class="why"><div class="n">🤝</div><div><h3>Asesor dedicado</h3><p>Una persona real que te explica con claridad y te acompaña en el proceso.</p></div></div>
+   <div class="why"><div class="n">📈</div><div><h3>Plan a tu medida</h3><p>Nada de paquetes genéricos: tu plan se ajusta a tu vida y tu bolsillo.</p></div></div>
+  </div>
+ </div>
+</section>
+
+<!-- TESTIMONIO -->
+<section>
+ <div class="ff-container">
+  <div class="sec-head"><span class="eyebrow">Clientes</span><h2>Lo que dicen de nosotros</h2></div>
+  <div class="ff-grid ff-grid--lg">
+   <div class="quote">"Soy cliente desde 2019 y he sido testigo de la seriedad y el compromiso. La transparencia de mis ahorros me da total tranquilidad para mi retiro."<div class="who">— Giselle A., clienta desde 2019</div></div>
+   <div class="quote" style="opacity:.55"><em>Espacio para tu testimonio</em><div class="who">— Agrega 2 o 3 testimonios reales con foto</div></div>
+   <div class="quote" style="opacity:.55"><em>Espacio para tu testimonio</em><div class="who">— La prueba social aumenta la conversión</div></div>
+  </div>
+ </div>
+</section>
+
+<!-- CTA final -->
+<section class="soft" style="text-align:center">
+ <div class="ff-container">
+  <h2 style="font-size:clamp(26px,3.4vw,38px);color:var(--navy)">Tu plan ideal está a 5 preguntas de distancia</h2>
+  <p style="color:var(--muted);font-size:17px;margin:12px auto 24px;max-width:520px">Sin compromiso y en menos de un minuto. Da el primer paso hacia tu tranquilidad.</p>
+  <a href="#cuestionario" class="btn btn--primary">Encontrar mi plan ahora →</a>
+ </div>
+</section>
+
+<a class="wa" id="waFloat" target="_blank" title="Escríbenos por WhatsApp">💬</a>
+
+<footer class="foot">
+ <div class="ff-container row">
+  <div><b>Enlace Integral Seguros</b> · Respaldados por Allianz® México<br>Asesoría en ahorro, vida, gastos médicos y educación.</div>
+  <div>raf@fishflow.mx · <span id="yr"></span> · Aviso de privacidad</div>
+ </div>
+</footer>
+
+<script>
+/* ====== CONFIG (ajustar) ====== */
+var WA_NUMBER = "525500000000"; // <- número de WhatsApp real (lada 52 + 10 dígitos)
+var WA_MSG = "Hola, vengo de su página y quiero información de un plan.";
+function waLink(extra){ return "https://wa.me/"+WA_NUMBER+"?text="+encodeURIComponent(extra||WA_MSG); }
+["waFloat","waHero","waThanks"].forEach(function(id){var e=document.getElementById(id);if(e)e.href=waLink();});
+document.getElementById("yr").textContent=new Date().getFullYear();
+
+/* ====== QUIZ ENGINE ====== */
+var TOTAL_Q = 5;            // preguntas (luego viene captura + gracias)
+var step = 1;
+var answers = {};
+var SEG = {
+  ahorro:    {icon:"🌅", badge:"Ahorro para el retiro", name:"OptiMaxx Plus",
+              text:"Un plan de ahorro flexible con beneficios fiscales para que llegues a tu retiro con tranquilidad. Tu asesor te arma uno a tu medida."},
+  vida:      {icon:"🛡️", badge:"Protección de vida", name:"Plan de Vida",
+              text:"Un plan de vida que protege el futuro de quienes dependen de ti, pase lo que pase. Tu asesor te muestra las opciones ideales."},
+  gmm:       {icon:"🏥", badge:"Gastos médicos mayores", name:"GMM Allianz",
+              text:"Cobertura para atender cualquier imprevisto de salud sin descapitalizarte. Tu asesor te explica coberturas y red hospitalaria."},
+  educacion: {icon:"🎓", badge:"Ahorro educativo", name:"Plan Educativo",
+              text:"Un plan para garantizar la educación de tus hijos empezando desde hoy. Tu asesor calcula cuánto necesitas y cómo lograrlo."}
+};
+
+function showStep(n){
+  document.querySelectorAll(".qstep").forEach(function(s){ s.classList.toggle("on", +s.dataset.step===n); });
+  step = n;
+  var bar = document.getElementById("qbar");
+  var pct = Math.min(100, Math.round(((Math.min(n,TOTAL_Q+1)-1)/(TOTAL_Q))*100));
+  bar.style.width = pct+"%";
+  var title = document.getElementById("qtitle");
+  var info = document.getElementById("stepInfo");
+  var nav = document.getElementById("qnav");
+  var back = document.getElementById("backBtn");
+  if(n<=TOTAL_Q){ title.textContent="Pregunta "+n+" de "+TOTAL_Q; info.textContent=""; nav.style.display="flex"; }
+  else if(n===TOTAL_Q+1){ title.textContent="Casi listo"; info.textContent="Tus datos están protegidos"; nav.style.display="flex"; }
+  else { title.textContent="¡Listo!"; nav.style.display="none"; }
+  back.style.visibility = (n===1)?"hidden":"visible";
+  document.querySelector("#cuestionario .quizBox").scrollIntoView({behavior:"smooth",block:"center"});
+}
+function prevStep(){ if(step>1) showStep(step-1); }
+
+document.querySelectorAll(".opt[data-k]").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var k=btn.dataset.k;
+    answers[k]=btn.dataset.v;
+    if(btn.dataset.seg) answers.segmento=btn.dataset.seg;
+    // marca selección dentro del paso
+    btn.parentNode.querySelectorAll(".opt").forEach(function(o){o.classList.remove("sel");});
+    btn.classList.add("sel");
+    if(step<TOTAL_Q){ setTimeout(function(){showStep(step+1);},180); }
+    else { setTimeout(buildResult,180); }
+  });
+});
+
+function buildResult(){
+  var seg = answers.segmento || "ahorro";
+  var s = SEG[seg];
+  document.getElementById("resIcon").textContent=s.icon;
+  document.getElementById("resBadge").textContent=s.badge;
+  document.getElementById("resText").innerHTML="<b>"+s.name+"</b> — "+s.text;
+  showStep(TOTAL_Q+1);
+}
+
+function submitLead(){
+  var nombre=document.getElementById("f_nombre").value.trim();
+  var wa=document.getElementById("f_wa").value.trim();
+  if(!nombre || !wa){ alert("Por favor completa tu nombre y WhatsApp."); return; }
+  var lead = {
+    nombre: nombre,
+    whatsapp: wa,
+    email: document.getElementById("f_email").value.trim(),
+    segmento: answers.segmento,
+    plan_recomendado: (SEG[answers.segmento]||{}).name,
+    objetivo: answers.objetivo, edad: answers.edad,
+    dependientes: answers.dependientes, capacidad: answers.capacidad,
+    ocupacion: answers.ocupacion,
+    fecha: new Date().toISOString()
+  };
+  /* ===== AQUÍ se conecta el lead al destino real =====
+     - POST a una API/Sheet/HubSpot, y/o
+     - disparar evento de Meta: fbq('track','Lead', {content_name: lead.plan_recomendado});
+     De momento queda en consola para la demo. */
+  console.log("LEAD CAPTURADO:", lead);
+  // if (typeof fbq==='function') fbq('track','Lead',{content_name:lead.plan_recomendado});
+  document.getElementById("thxName").textContent = nombre.split(" ")[0]+" 🎉";
+  document.getElementById("waThanks").href = waLink("Hola, soy "+nombre+". Me interesa el "+(lead.plan_recomendado||"plan")+" que vi en su página.");
+  showStep(TOTAL_Q+2);
+}
+
+showStep(1);
+</script>
+</body>
+</html>
