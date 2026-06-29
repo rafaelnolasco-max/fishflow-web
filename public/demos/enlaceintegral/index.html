@@ -394,7 +394,7 @@ var SEG = {
               text:"Un plan para garantizar la educación de tus hijos empezando desde hoy. Tu asesor calcula cuánto necesitas y cómo lograrlo."}
 };
 
-function showStep(n){
+function showStep(n, noScroll){
   document.querySelectorAll(".qstep").forEach(function(s){ s.classList.toggle("on", +s.dataset.step===n); });
   step = n;
   var bar = document.getElementById("qbar");
@@ -408,7 +408,7 @@ function showStep(n){
   else if(n===TOTAL_Q+1){ title.textContent="Casi listo"; info.textContent="Tus datos están protegidos"; nav.style.display="flex"; }
   else { title.textContent="¡Listo!"; nav.style.display="none"; }
   back.style.visibility = (n===1)?"hidden":"visible";
-  document.querySelector("#cuestionario .quizBox").scrollIntoView({behavior:"smooth",block:"center"});
+  if(!noScroll){ document.querySelector("#cuestionario .quizBox").scrollIntoView({behavior:"smooth",block:"center"}); }
 }
 function prevStep(){ if(step>1) showStep(step-1); }
 
@@ -460,7 +460,7 @@ function submitLead(){
   showStep(TOTAL_Q+2);
 }
 
-showStep(1);
+showStep(1, true); // carga inicial sin scroll: la página abre en el hero
 </script>
 </body>
 </html>
