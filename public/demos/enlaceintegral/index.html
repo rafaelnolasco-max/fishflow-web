@@ -12,12 +12,23 @@
 <meta property="og:description" content="Ahorro para el retiro, vida, gastos médicos y educación. Respaldados por Allianz®." />
 <meta property="og:locale" content="es_MX" />
 
-<!-- ===== PÍXEL DE META (Facebook/Instagram) — pegar el ID real al pautar =====
+<!-- ===== PÍXEL DE META (Facebook/Instagram) =====
+     Para activarlo de verdad: pon el ID del píxel en META_PIXEL_ID.
+     Si queda vacío, la página corre en "modo demostración": muestra
+     en pantalla qué eventos se enviarían, sin necesidad de cuenta de Meta. -->
 <script>
-!function(f,b,e,v,n,t,s){...código del píxel...}();
-fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
+  window.META_PIXEL_ID = ""; // <-- pega aquí el ID del píxel (ej. "1234567890123456")
+  (function(){
+    if(!window.META_PIXEL_ID) return; // sin ID -> modo demostración
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', window.META_PIXEL_ID);
+    fbq('track','PageView');
+  })();
 </script>
-============================================================================= -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,6 +170,23 @@ section{padding:60px 0}
 .foot b{color:#fff;font-family:var(--f-display)}
 
 @media(max-width:820px){.hero .wrap{grid-template-columns:1fr;gap:28px;padding:40px 0 46px}}
+/* Panel de integración Meta (demostración) */
+.mpx{position:fixed;left:14px;bottom:14px;z-index:60;width:300px;max-width:calc(100vw - 28px);background:#0f1620;color:#e8f0f7;border:1px solid #2b3a4a;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.4);font-family:var(--f-body);overflow:hidden}
+.mpx .mh{display:flex;align-items:center;gap:8px;padding:11px 14px;background:#16212e;border-bottom:1px solid #2b3a4a;cursor:pointer}
+.mpx .dot{width:9px;height:9px;border-radius:50%;background:#65BC7B;box-shadow:0 0 0 3px rgba(101,188,123,.25)}
+.mpx .mh b{font-family:var(--f-display);font-size:12.5px;font-weight:800;flex:1}
+.mpx .mh .tg{font-size:11px;color:#8fa9c2}
+.mpx .mb{padding:12px 14px;max-height:230px;overflow:auto}
+.mpx .note{font-size:11px;color:#8fa9c2;line-height:1.45;margin-bottom:10px}
+.mpx .ev{display:flex;gap:8px;align-items:flex-start;font-size:12px;padding:6px 0;border-top:1px solid #1c2734}
+.mpx .ev:first-child{border-top:none}
+.mpx .ev .ck{color:#65BC7B;font-weight:800}
+.mpx .ev .nm{font-weight:700}
+.mpx .ev .pr{color:#8fa9c2;font-size:11px}
+.mpx .ev .tm{margin-left:auto;color:#5d7287;font-size:10.5px;white-space:nowrap}
+.mpx.min .mb{display:none}
+.mpx .empty{font-size:11.5px;color:#5d7287;font-style:italic}
+@media(max-width:600px){.mpx{width:240px;left:10px;bottom:80px}}
 .demoflag{background:var(--gold);color:#10241a;text-align:center;font-size:12px;font-weight:700;padding:7px 12px;font-family:var(--f-display)}
 </style>
 </head>
@@ -362,6 +390,17 @@ section{padding:60px 0}
  </div>
 </section>
 
+<!-- Panel de demostración de la integración con Meta -->
+<div class="mpx" id="mpx">
+ <div class="mh" onclick="document.getElementById('mpx').classList.toggle('min')">
+  <span class="dot"></span><b>Integración Meta</b><span class="tg" id="mpxMode">demostración</span>
+ </div>
+ <div class="mb">
+  <div class="note">Cada acción importante se mide y se enviaría a Facebook/Instagram para optimizar tu pauta. Aquí ves los eventos en vivo:</div>
+  <div id="mpxLog"><div class="empty">Esperando actividad…</div></div>
+ </div>
+</div>
+
 <a class="wa" id="waFloat" target="_blank" title="Escríbenos por WhatsApp">💬</a>
 
 <footer class="foot">
@@ -378,6 +417,30 @@ var WA_MSG = "Hola, vengo de su página y quiero información de un plan.";
 function waLink(extra){ return "https://wa.me/"+WA_NUMBER+"?text="+encodeURIComponent(extra||WA_MSG); }
 ["waFloat","waHero","waThanks"].forEach(function(id){var e=document.getElementById(id);if(e)e.href=waLink();});
 document.getElementById("yr").textContent=new Date().getFullYear();
+
+/* ====== INTEGRACIÓN META (píxel + panel visible) ====== */
+var PIXEL_ON = !!window.META_PIXEL_ID;
+document.getElementById("mpxMode").textContent = PIXEL_ON ? "activo" : "demostración";
+// El panel se muestra en modo demostración (para enseñar la integración).
+// Con píxel real activo se oculta a los prospectos, salvo que abras con ?panel=1
+var SHOW_PANEL = !PIXEL_ON || /[?&]panel=1/.test(location.search);
+if(!SHOW_PANEL){ var _p=document.getElementById("mpx"); if(_p) _p.style.display="none"; }
+function pixelLog(name, params){
+  var log=document.getElementById("mpxLog");
+  var empty=log.querySelector(".empty"); if(empty) empty.remove();
+  var t=new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  var pr = params ? Object.keys(params).map(function(k){return k+": "+params[k];}).join(" · ") : "";
+  var row=document.createElement("div"); row.className="ev";
+  row.innerHTML='<span class="ck">✓</span><span><span class="nm">'+name+'</span>'+(pr?'<br><span class="pr">'+pr+'</span>':'')+'</span><span class="tm">'+t+'</span>';
+  log.appendChild(row); log.scrollTop=log.scrollHeight;
+}
+function metaTrack(name, params){
+  try{ if(window.fbq) fbq("track", name, params||{}); }catch(e){}
+  pixelLog(name, params);
+}
+// PageView (el píxel real ya lo disparó en el <head> si hay ID; aquí lo mostramos)
+window.addEventListener("load", function(){ pixelLog("PageView"); });
+var quizStarted=false;
 
 /* ====== QUIZ ENGINE ====== */
 var TOTAL_Q = 5;            // preguntas (luego viene captura + gracias)
@@ -414,6 +477,7 @@ function prevStep(){ if(step>1) showStep(step-1); }
 
 document.querySelectorAll(".opt[data-k]").forEach(function(btn){
   btn.addEventListener("click", function(){
+    if(!quizStarted){ quizStarted=true; metaTrack("ViewContent",{content_name:"Cuestionario"}); }
     var k=btn.dataset.k;
     answers[k]=btn.dataset.v;
     if(btn.dataset.seg) answers.segmento=btn.dataset.seg;
@@ -449,12 +513,16 @@ function submitLead(){
     ocupacion: answers.ocupacion,
     fecha: new Date().toISOString()
   };
-  /* ===== AQUÍ se conecta el lead al destino real =====
-     - POST a una API/Sheet/HubSpot, y/o
-     - disparar evento de Meta: fbq('track','Lead', {content_name: lead.plan_recomendado});
-     De momento queda en consola para la demo. */
   console.log("LEAD CAPTURADO:", lead);
-  // if (typeof fbq==='function') fbq('track','Lead',{content_name:lead.plan_recomendado});
+  // Evento de conversión a Meta (+ panel visible)
+  metaTrack("Lead", {content_name: lead.plan_recomendado || "Plan", currency:"MXN"});
+  // Guardar en Supabase + avisar por correo (endpoint en fishflow.mx)
+  try{
+    fetch("/api/demo/enlace-lead", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(lead)
+    }).catch(function(){});
+  }catch(e){}
   document.getElementById("thxName").textContent = nombre.split(" ")[0]+" 🎉";
   document.getElementById("waThanks").href = waLink("Hola, soy "+nombre+". Me interesa el "+(lead.plan_recomendado||"plan")+" que vi en su página.");
   showStep(TOTAL_Q+2);
