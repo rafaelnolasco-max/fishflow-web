@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
+import MetaPixel from "@/components/MetaPixel";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -104,6 +105,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={outfit.variable}>
       <body>
+        <MetaPixel />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

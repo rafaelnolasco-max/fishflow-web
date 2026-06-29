@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { fbqTrack } from '@/components/MetaPixel'
 
 type FormState = 'idle' | 'loading' | 'success' | 'error'
 
@@ -35,6 +36,8 @@ export default function LeadForm() {
 
       setState('success')
       setResponse(data.response)
+      // Conversión a Meta (solo dispara si el píxel está activo)
+      fbqTrack('Lead', { content_name: 'Diagnóstico IA FishFlow' })
     } catch {
       setState('error')
       setResponse('No pudimos procesar tu solicitud. Revisa tu conexión e intenta de nuevo.')
