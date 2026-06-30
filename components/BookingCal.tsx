@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { fbqTrack } from "@/components/MetaPixel";
 
 /**
  * Embed inline de Cal.com (sin dependencias npm).
@@ -74,6 +75,15 @@ export default function BookingCal() {
       },
       hideEventTypeDetails: false,
       layout: "month_view",
+    });
+
+    // Cuando alguien COMPLETA una cita dentro del iframe de Cal.com,
+    // Cal avisa a la página y disparamos el evento Schedule de Meta.
+    Cal.ns.diagnostico("on", {
+      action: "bookingSuccessful",
+      callback: () => {
+        fbqTrack("Schedule", { content_name: "Diagnóstico FishFlow" });
+      },
     });
   }, []);
 
