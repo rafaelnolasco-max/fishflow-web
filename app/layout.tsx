@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import MetaPixel from "@/components/MetaPixel";
+import MetaCtaTracker from "@/components/MetaCtaTracker";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -106,6 +107,7 @@ export default function RootLayout({
     <html lang="es" className={outfit.variable}>
       <body>
         <MetaPixel />
+        <MetaCtaTracker />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
