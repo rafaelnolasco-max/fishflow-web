@@ -49,6 +49,35 @@ const SOURCE_LABEL: Record<string, string> = {
   excel_upload: "Excel subido",
 };
 
+// ─── Export CSV para Meta (Customer List Custom Audience) ─────────────────────
+// Meta pide nombre y apellido por separado (no "nombre completo"). Heurística
+// para nombres mexicanos: últimas 1-2 palabras = apellidos, el resto = nombre(s).
+// No es perfecta pero es razonable — el match real lo hacen email + teléfono.
+function splitName(full: string): { first: string; last: string } {
+  const parts = full.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { first: "", last: "" };
+  if (parts.length === 1) return { first: parts[0], last: "" };
+  if (parts.length === 2) return { first: parts[0], last: parts[1] };
+  if (parts.length === 3) return { first: parts[0], last: `${parts[1]} ${parts[2]}` };
+  // 4+ palabras: asumimos N nombres + 2 apellidos (paterno + materno)
+  return { first: parts.slice(0, -2).join(" "), last: parts.slice(-2).join(" ") };
+}
+
+// Normaliza a formato con lada (+52) cuando parece un número mexicano de 10 dígitos.
+// Si no cuadra, se deja tal cual — mejor exportarlo imperfecto que perderlo.
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 10) return `+52${digits}`;
+  if (digits.length === 12 && digits.startsWith("52")) return `+${digits}`;
+  if (raw.trim().startsWith("+")) return raw.trim();
+  return digits || raw.trim();
+}
+
+function csvEscape(value: string): string {
+  if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
+  return value;
+}
+
 function useIsMobile(breakpoint = 720) {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -133,6 +162,38 @@ export default function EnlaceDashboardPage() {
     setExpanded(expanded === vendor ? null : vendor);
   }
 
+  function downloadCSV() {
+    const headers = ["Email", "Phone", "First Name", "Last Name", "City", "State", "Zip", "Country", "Gender", "Date of Birth / Age"];
+    const lines = [headers.join(",")];
+    for (const c of rows) {
+      const { first, last } = splitName(c.client_name);
+      const cells = [
+        c.email,
+        normalizePhone(c.phone),
+        first,
+        last,
+        c.city ?? "",
+        c.state ?? "",
+        c.postal_code ?? "",
+        "MX",
+        (c.gender ?? "").toLowerCase(),
+        c.birth_date_or_age ?? "",
+      ].map((v) => csvEscape(String(v)));
+      lines.push(cells.join(","));
+    }
+    const csv = "﻿" + lines.join("\n"); // BOM para acentos en Excel
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const today = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `enlace-integral-meta-audiencia-${today}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div style={{ minHeight: "100vh", backgroundColor: C.bg, fontFamily: "Inter, sans-serif" }}>
       <DashboardHeader
@@ -151,6 +212,27 @@ export default function EnlaceDashboardPage() {
           <StatCard theme={T} label="Vendedores completos (20/20)" value={vendedoresCompletos} accent={C.greenDark} />
           <StatCard theme={T} label="Avance total" value={`${metaRegistros ? Math.round((totalRegistros / metaRegistros) * 100) : 0}%`} />
         </StatGrid>
+
+        <div style={{ ...cardStyle, display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 12, flexWrap: "wrap", marginBottom: 24 }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.carbon }}>Exportar para Meta Ads</div>
+            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>
+              CSV listo para subir como "Customer list" en Meta Ads Manager ({totalRegistros} registro{totalRegistros !== 1 ? "s" : ""}).
+            </div>
+          </div>
+          <button
+            onClick={downloadCSV}
+            disabled={totalRegistros === 0}
+            style={{
+              background: totalRegistros === 0 ? C.gray : C.green, color: "#fff", border: "none",
+              borderRadius: 9, padding: "9px 18px", fontSize: 13.5, fontWeight: 700,
+              cursor: totalRegistros === 0 ? "not-allowed" : "pointer", whiteSpace: "nowrap",
+            }}
+          >
+            ⬇ Descargar CSV
+          </button>
+        </div>
 
         <Section
           title={<>Progreso por vendedor</>}
