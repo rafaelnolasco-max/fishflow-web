@@ -57,12 +57,6 @@ a{color:inherit;}
 .vendor-field input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;}
 .vendor-field input:focus{outline:none;border-color:var(--green);}
 
-/* Tabs */
-.tabs{display:flex;gap:8px;margin:20px 0 16px;}
-.tab-btn{flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);background:#fff;
-  font-family:inherit;font-weight:700;font-size:13.5px;color:var(--muted);cursor:pointer;}
-.tab-btn.active{background:var(--green);border-color:var(--green);color:#fff;}
-
 /* Progreso */
 .progress{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:13px;color:var(--muted);}
 .progress-bar{flex:1;height:8px;background:var(--line);border-radius:999px;overflow:hidden;}
@@ -106,11 +100,6 @@ a{color:inherit;}
 .msg--ok{background:#EAF7EE;color:var(--green-dark);border:1px solid #C7E8CE;}
 .msg--err{background:#FDECEC;color:var(--danger);border:1px solid #F5C2C2;}
 
-/* Upload */
-.upload-box{border:2px dashed var(--line);border-radius:12px;padding:28px 18px;text-align:center;}
-.upload-box input[type=file]{margin-top:10px;}
-.template-link{display:inline-block;margin-top:14px;font-size:13px;color:var(--green-dark);font-weight:700;}
-
 footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
 </style>
 </head>
@@ -131,12 +120,7 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
     <input id="vendorName" type="text" placeholder="Ej. Edna Cruz" autocomplete="name" />
   </div>
 
-  <div class="tabs">
-    <button class="tab-btn active" id="tabFormBtn" onclick="switchTab('form')">✍️ Llenar en línea</button>
-    <button class="tab-btn" id="tabUploadBtn" onclick="switchTab('upload')">📎 Subir mi Excel</button>
-  </div>
-
-  <!-- ───────── Vista: formulario en línea ───────── -->
+  <!-- ───────── Formulario en línea ───────── -->
   <div id="tabForm">
     <div class="progress">
       <span id="progressLabel">0 / 20 guardados</span>
@@ -152,22 +136,6 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
       </div>
     </div>
     <div id="formMsg"></div>
-  </div>
-
-  <!-- ───────── Vista: subir Excel ───────── -->
-  <div id="tabUpload" style="display:none;">
-    <div class="upload-box">
-      <div style="font-size:32px;">📄</div>
-      <div style="font-weight:700;margin-top:6px;">Sube tu Excel con la plantilla</div>
-      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Formato .xlsx — la misma plantilla que te compartió Ivonne</div>
-      <input type="file" id="fileInput" accept=".xlsx" />
-      <br/>
-      <a class="template-link" href="./plantilla-top20.xlsx" download>⬇ Descargar plantilla en blanco</a>
-    </div>
-    <div style="margin-top:18px;">
-      <button class="btn btn--primary" id="submitUploadBtn" onclick="submitUpload()">Subir Excel</button>
-    </div>
-    <div id="uploadMsg"></div>
   </div>
 
 </div>
@@ -279,13 +247,6 @@ function updateProgress(){
   document.getElementById('progressBar').style.width = (saved / MAX * 100) + '%';
 }
 
-function switchTab(tab){
-  document.getElementById('tabForm').style.display = tab === 'form' ? 'block' : 'none';
-  document.getElementById('tabUpload').style.display = tab === 'upload' ? 'block' : 'none';
-  document.getElementById('tabFormBtn').classList.toggle('active', tab === 'form');
-  document.getElementById('tabUploadBtn').classList.toggle('active', tab === 'upload');
-}
-
 async function saveProgress(){
   const vendedor = document.getElementById('vendorName').value.trim();
   const msgEl = document.getElementById('formMsg');
@@ -334,33 +295,6 @@ async function saveProgress(){
     msgEl.innerHTML = `<div class="msg msg--err">${e.message}</div>`;
   } finally {
     btn.disabled = false; btn.textContent = 'Guardar avance';
-  }
-}
-
-async function submitUpload(){
-  const vendedor = document.getElementById('vendorName').value.trim();
-  const fileInput = document.getElementById('fileInput');
-  const msgEl = document.getElementById('uploadMsg');
-  msgEl.innerHTML = '';
-  if (!fileInput.files || fileInput.files.length === 0) {
-    msgEl.innerHTML = '<div class="msg msg--err">Selecciona tu archivo Excel primero.</div>';
-    return;
-  }
-  const btn = document.getElementById('submitUploadBtn');
-  btn.disabled = true; btn.textContent = 'Subiendo...';
-  try {
-    const fd = new FormData();
-    fd.append('file', fileInput.files[0]);
-    if (vendedor) fd.append('vendedor', vendedor);
-    const res = await fetch('/api/demo/enlace-top-clientes/upload', { method: 'POST', body: fd });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error al subir el archivo.');
-    msgEl.innerHTML = `<div class="msg msg--ok">¡Listo! Se guardaron ${data.saved} clientes de ${data.vendor}.</div>`;
-    fileInput.value = '';
-  } catch(e) {
-    msgEl.innerHTML = `<div class="msg msg--err">${e.message}</div>`;
-  } finally {
-    btn.disabled = false; btn.textContent = 'Subir Excel';
   }
 }
 
