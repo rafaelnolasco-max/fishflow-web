@@ -217,9 +217,14 @@ export default function EnlaceDashboardPage() {
                               <div key={c.id} style={{ ...cardStyle, padding: 12 }}>
                                 <div style={{ fontSize: 13.5, fontWeight: 700, color: C.carbon }}>{c.client_name}</div>
                                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{c.phone} · {c.email}</div>
-                                {(c.city || c.state) && (
+                                {(c.city || c.state || c.postal_code) && (
                                   <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
-                                    {[c.city, c.state].filter(Boolean).join(", ")}
+                                    {[c.city, c.state, c.postal_code].filter(Boolean).join(", ")}
+                                  </div>
+                                )}
+                                {(c.gender || c.birth_date_or_age) && (
+                                  <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+                                    {[c.gender, c.birth_date_or_age].filter(Boolean).join(" · ")}
                                   </div>
                                 )}
                                 <div style={{ marginTop: 6 }}>
@@ -230,10 +235,10 @@ export default function EnlaceDashboardPage() {
                           </div>
                         ) : (
                           <div style={{ padding: "8px 16px 16px", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-                            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
+                            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 980 }}>
                               <thead>
                                 <tr>
-                                  {["Cliente", "Teléfono", "Email", "Ciudad / Estado", "Fuente", "Recibido"].map((h) => (
+                                  {["Cliente", "Teléfono", "Email", "Ciudad / Estado", "CP", "Género", "Nac. / Edad", "Fuente", "Recibido"].map((h) => (
                                     <th key={h} style={{
                                       padding: "8px 10px", textAlign: "left", fontSize: 11, fontWeight: 600,
                                       color: C.muted, textTransform: "uppercase", letterSpacing: "0.04em",
@@ -251,6 +256,9 @@ export default function EnlaceDashboardPage() {
                                     <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>
                                       {[c.city, c.state].filter(Boolean).join(", ") || "—"}
                                     </td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.postal_code || "—"}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.gender || "—"}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.birth_date_or_age || "—"}</td>
                                     <td style={{ padding: "8px 10px" }}>
                                       <Chip label={SOURCE_LABEL[c.source] ?? c.source} bg="#EEF1F3" fg={C.muted} />
                                     </td>
