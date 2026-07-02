@@ -524,3 +524,23 @@ export interface HiringInterview {
   created_at: string;
   updated_at: string;
 }
+
+// ─── Enlace Integral Seguros ───────────────────────────────────────────────────
+
+export const ENLACE_CLIENT_ID = "e8094119-0414-4d46-8506-6ee1a52e852c";
+
+export interface InsuranceVendorTopClient {
+  id:                 string;
+  client_id:          string;
+  vendor_name:        string;
+  client_name:        string;
+  phone:              string;
+  email:              string;
+  city:               string | null;
+  state:              string | null;
+  postal_code:        string | null;
+  gender:             string | null;
+  birth_date_or_age:  string | null;
+  source:             "web_form" | "excel_upload";
+  created_at:         string;
+}

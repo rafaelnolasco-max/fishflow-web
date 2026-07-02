@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Enlace Integral Seguros · Top 20 Clientes</title>
+<meta name="description" content="Formulario para que los vendedores de Enlace Integral Seguros compartan sus 20 clientes más valiosos." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   1) RESPONSIVE BASE — copia idéntica de demos/_template/responsive-base.css
+   ============================================================ */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,880px);margin-inline:auto;padding-inline:var(--ff-pad,clamp(16px,4vw,32px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-stack-mobile{}
+@media(max-width:600px){
+  :root{--ff-pad:16px;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:12px;}
+}
+
+/* ============================================================
+   2) TOKENS DE MARCA — Enlace Integral (verde + carbón)
+   ============================================================ */
+:root{
+  --green:#65BC7B; --green-dark:#4B9A62; --carbon:#212934;
+  --paper:#FFFFFF; --paper-2:#F4F7F5; --line:#E2EAE5; --muted:#5D7080; --danger:#D64545;
+  --f-display:"Plus Jakarta Sans",system-ui,sans-serif;
+  --f-body:"Inter",system-ui,sans-serif;
+}
+body{font-family:var(--f-body);background:var(--paper-2);color:var(--carbon);-webkit-font-smoothing:antialiased;line-height:1.5;margin:0;}
+h1,h2,h3{font-family:var(--f-display);margin:0;}
+a{color:inherit;}
+
+/* Header */
+.top{background:var(--carbon);color:#fff;padding:22px 0;}
+.top .brand{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);font-weight:700;}
+.top h1{font-size:clamp(22px,3.4vw,30px);margin-top:6px;}
+.top p{color:#B8C2C9;font-size:14px;margin:6px 0 0;max-width:640px;}
+
+/* Card general */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 20px;}
+
+/* Vendedor */
+.vendor-field{margin:22px 0;}
+.vendor-field label{display:block;font-size:13px;font-weight:700;color:var(--carbon);margin-bottom:6px;}
+.vendor-field input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;}
+.vendor-field input:focus{outline:none;border-color:var(--green);}
+
+/* Tabs */
+.tabs{display:flex;gap:8px;margin:20px 0 16px;}
+.tab-btn{flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);background:#fff;
+  font-family:inherit;font-weight:700;font-size:13.5px;color:var(--muted);cursor:pointer;}
+.tab-btn.active{background:var(--green);border-color:var(--green);color:#fff;}
+
+/* Progreso */
+.progress{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:13px;color:var(--muted);}
+.progress-bar{flex:1;height:8px;background:var(--line);border-radius:999px;overflow:hidden;}
+.progress-bar > div{height:100%;background:var(--green);width:0%;transition:width .25s;}
+
+/* Filas de cliente */
+#rows{display:flex;flex-direction:column;gap:10px;}
+.row-card{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;}
+.row-card.complete{border-color:var(--green);}
+.row-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.row-num{width:26px;height:26px;border-radius:999px;background:var(--paper-2);color:var(--muted);
+  font-size:12px;font-weight:800;display:grid;place-items:center;flex-shrink:0;}
+.row-card.complete .row-num{background:var(--green);color:#fff;}
+.row-fields{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;gap:8px;}
+.row-fields input, .row-fields select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);
+  font-size:13.5px;font-family:inherit;box-sizing:border-box;}
+.row-fields input:focus, .row-fields select:focus{outline:none;border-color:var(--green);}
+.more-toggle{font-size:12px;color:var(--green-dark);font-weight:700;background:none;border:none;
+  cursor:pointer;margin-top:8px;padding:0;}
+.more-fields{display:none;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px;}
+.more-fields.open{display:grid;}
+@media(max-width:600px){
+  .row-fields{grid-template-columns:1fr;}
+}
+
+/* Botones */
+.btn{font-family:var(--f-body);font-weight:700;font-size:14.5px;padding:13px 22px;border-radius:10px;
+  border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+.btn--primary{background:var(--green);color:#fff;width:100%;justify-content:center;}
+.btn--primary:disabled{background:#A8CBB2;cursor:not-allowed;}
+.btn--ghost{background:transparent;color:var(--carbon);border:1.5px solid var(--line);}
+
+/* Mensajes */
+.msg{border-radius:10px;padding:12px 14px;font-size:13.5px;margin-top:14px;}
+.msg--ok{background:#EAF7EE;color:var(--green-dark);border:1px solid #C7E8CE;}
+.msg--err{background:#FDECEC;color:var(--danger);border:1px solid #F5C2C2;}
+
+/* Upload */
+.upload-box{border:2px dashed var(--line);border-radius:12px;padding:28px 18px;text-align:center;}
+.upload-box input[type=file]{margin-top:10px;}
+.template-link{display:inline-block;margin-top:14px;font-size:13px;color:var(--green-dark);font-weight:700;}
+
+footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="ff-container">
+    <div class="brand">Enlace Integral Seguros</div>
+    <h1>Tu Top 20 de clientes</h1>
+    <p>Vamos a anunciarnos en Facebook e Instagram a personas parecidas a tus mejores clientes. Ayúdanos con los datos de tus 20 clientes más leales — toma unos minutos.</p>
+  </div>
+</div>
+
+<div class="ff-container" style="padding-top:22px;">
+
+  <div class="vendor-field">
+    <label for="vendorName">Tu nombre (vendedor) *</label>
+    <input id="vendorName" type="text" placeholder="Ej. Edna Cruz" autocomplete="name" />
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabFormBtn" onclick="switchTab('form')">✍️ Llenar en línea</button>
+    <button class="tab-btn" id="tabUploadBtn" onclick="switchTab('upload')">📎 Subir mi Excel</button>
+  </div>
+
+  <!-- ───────── Vista: formulario en línea ───────── -->
+  <div id="tabForm">
+    <div class="progress">
+      <span id="progressLabel">0 / 20 completos</span>
+      <div class="progress-bar"><div id="progressBar"></div></div>
+    </div>
+
+    <div id="rows"></div>
+
+    <div style="margin-top:18px;">
+      <button class="btn btn--primary" id="submitFormBtn" onclick="submitForm()">Enviar mis clientes</button>
+    </div>
+    <div id="formMsg"></div>
+  </div>
+
+  <!-- ───────── Vista: subir Excel ───────── -->
+  <div id="tabUpload" style="display:none;">
+    <div class="upload-box">
+      <div style="font-size:32px;">📄</div>
+      <div style="font-weight:700;margin-top:6px;">Sube tu Excel con la plantilla</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Formato .xlsx — la misma plantilla que te compartió Ivonne</div>
+      <input type="file" id="fileInput" accept=".xlsx" />
+      <br/>
+      <a class="template-link" href="./plantilla-top20.xlsx" download>⬇ Descargar plantilla en blanco</a>
+    </div>
+    <div style="margin-top:18px;">
+      <button class="btn btn--primary" id="submitUploadBtn" onclick="submitUpload()">Subir Excel</button>
+    </div>
+    <div id="uploadMsg"></div>
+  </div>
+
+</div>
+
+<footer>Esta información es confidencial y solo se usa para publicidad en Facebook/Instagram de Enlace Integral Seguros.</footer>
+
+<script>
+const MAX = 20;
+const REQUIRED_FIELDS = ['nombre','telefono','email'];
+const DRAFT_KEY = 'enlace_top20_draft_v1';
+
+function emptyClient(){ return {nombre:'',telefono:'',email:'',ciudad:'',estado:'',cp:'',genero:'',nacimiento:''}; }
+
+let state = {
+  vendedor: '',
+  clientes: Array.from({length: MAX}, emptyClient),
+};
+
+// ── Draft en localStorage (evita perder el trabajo si se recarga) ──
+function loadDraft(){
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.clientes)) state = parsed;
+    }
+  } catch(e) {}
+}
+function saveDraft(){
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch(e) {}
+}
+function clearDraft(){
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+}
+
+function isRowComplete(c){
+  return REQUIRED_FIELDS.every(k => (c[k] || '').trim().length > 0);
+}
+
+function renderRows(){
+  const container = document.getElementById('rows');
+  container.innerHTML = '';
+  state.clientes.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'row-card' + (isRowComplete(c) ? ' complete' : '');
+    card.innerHTML = `
+      <div class="row-head">
+        <div class="row-num">${i+1}</div>
+        <div style="font-size:12px;color:var(--muted);font-weight:600;">Cliente ${i+1} de ${MAX}</div>
+      </div>
+      <div class="row-fields">
+        <input type="text" placeholder="Nombre completo *" data-i="${i}" data-k="nombre" value="${c.nombre.replace(/"/g,'&quot;')}" />
+        <input type="tel" placeholder="Teléfono *" data-i="${i}" data-k="telefono" value="${c.telefono.replace(/"/g,'&quot;')}" />
+        <input type="email" placeholder="Email *" data-i="${i}" data-k="email" value="${c.email.replace(/"/g,'&quot;')}" />
+      </div>
+      <button type="button" class="more-toggle" data-toggle="${i}">+ más datos (opcional)</button>
+      <div class="more-fields" id="more-${i}">
+        <input type="text" placeholder="Ciudad" data-i="${i}" data-k="ciudad" value="${c.ciudad.replace(/"/g,'&quot;')}" />
+        <input type="text" placeholder="Estado" data-i="${i}" data-k="estado" value="${c.estado.replace(/"/g,'&quot;')}" />
+        <input type="text" placeholder="Código postal" data-i="${i}" data-k="cp" value="${c.cp.replace(/"/g,'&quot;')}" />
+        <select data-i="${i}" data-k="genero">
+          <option value="">Género</option>
+          <option value="M" ${c.genero==='M'?'selected':''}>M</option>
+          <option value="F" ${c.genero==='F'?'selected':''}>F</option>
+        </select>
+        <input type="text" placeholder="Fecha nac. o edad" data-i="${i}" data-k="nacimiento" value="${c.nacimiento.replace(/"/g,'&quot;')}" />
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // listeners
+  container.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', (e) => {
+      const i = +e.target.dataset.i, k = e.target.dataset.k;
+      state.clientes[i][k] = e.target.value;
+      saveDraft();
+      updateProgress();
+      const card = container.children[i];
+      card.classList.toggle('complete', isRowComplete(state.clientes[i]));
+    });
+  });
+  container.querySelectorAll('[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = btn.dataset.toggle;
+      document.getElementById('more-' + i).classList.toggle('open');
+    });
+  });
+}
+
+function updateProgress(){
+  const done = state.clientes.filter(isRowComplete).length;
+  document.getElementById('progressLabel').textContent = `${done} / ${MAX} completos`;
+  document.getElementById('progressBar').style.width = (done / MAX * 100) + '%';
+}
+
+function switchTab(tab){
+  document.getElementById('tabForm').style.display = tab === 'form' ? 'block' : 'none';
+  document.getElementById('tabUpload').style.display = tab === 'upload' ? 'block' : 'none';
+  document.getElementById('tabFormBtn').classList.toggle('active', tab === 'form');
+  document.getElementById('tabUploadBtn').classList.toggle('active', tab === 'upload');
+}
+
+async function submitForm(){
+  const vendedor = document.getElementById('vendorName').value.trim();
+  const msgEl = document.getElementById('formMsg');
+  msgEl.innerHTML = '';
+  if (!vendedor) {
+    msgEl.innerHTML = '<div class="msg msg--err">Escribe tu nombre arriba antes de enviar.</div>';
+    return;
+  }
+  const validClientes = state.clientes.filter(isRowComplete);
+  if (validClientes.length === 0) {
+    msgEl.innerHTML = '<div class="msg msg--err">Llena al menos un cliente con nombre, teléfono y email.</div>';
+    return;
+  }
+  const btn = document.getElementById('submitFormBtn');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  try {
+    const res = await fetch('/api/demo/enlace-top-clientes', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ vendedor, clientes: validClientes }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al enviar.');
+    msgEl.innerHTML = `<div class="msg msg--ok">¡Listo! Se enviaron ${data.saved} clientes. Gracias, ${vendedor.split(' ')[0]}.</div>`;
+    clearDraft();
+    state = { vendedor: '', clientes: Array.from({length: MAX}, emptyClient) };
+    renderRows(); updateProgress();
+  } catch(e) {
+    msgEl.innerHTML = `<div class="msg msg--err">${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Enviar mis clientes';
+  }
+}
+
+async function submitUpload(){
+  const vendedor = document.getElementById('vendorName').value.trim();
+  const fileInput = document.getElementById('fileInput');
+  const msgEl = document.getElementById('uploadMsg');
+  msgEl.innerHTML = '';
+  if (!fileInput.files || fileInput.files.length === 0) {
+    msgEl.innerHTML = '<div class="msg msg--err">Selecciona tu archivo Excel primero.</div>';
+    return;
+  }
+  const btn = document.getElementById('submitUploadBtn');
+  btn.disabled = true; btn.textContent = 'Subiendo...';
+  try {
+    const fd = new FormData();
+    fd.append('file', fileInput.files[0]);
+    if (vendedor) fd.append('vendedor', vendedor);
+    const res = await fetch('/api/demo/enlace-top-clientes/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al subir el archivo.');
+    msgEl.innerHTML = `<div class="msg msg--ok">¡Listo! Se guardaron ${data.saved} clientes de ${data.vendor}.</div>`;
+    fileInput.value = '';
+  } catch(e) {
+    msgEl.innerHTML = `<div class="msg msg--err">${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Subir Excel';
+  }
+}
+
+// Init
+loadDraft();
+document.getElementById('vendorName').value = state.vendedor || '';
+document.getElementById('vendorName').addEventListener('input', (e) => {
+  state.vendedor = e.target.value; saveDraft();
+});
+renderRows();
+updateProgress();
+</script>
+
+</body>
+</html>
