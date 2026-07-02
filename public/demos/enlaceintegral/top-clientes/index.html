@@ -72,14 +72,20 @@ a{color:inherit;}
 #rows{display:flex;flex-direction:column;gap:10px;}
 .row-card{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;}
 .row-card.complete{border-color:var(--green);}
+.row-card.saved{background:var(--paper-2);border-color:var(--green);}
 .row-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 .row-num{width:26px;height:26px;border-radius:999px;background:var(--paper-2);color:var(--muted);
   font-size:12px;font-weight:800;display:grid;place-items:center;flex-shrink:0;}
 .row-card.complete .row-num{background:var(--green);color:#fff;}
+.saved-badge{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--green-dark);
+  display:flex;align-items:center;gap:8px;}
+.correct-link{font-size:11.5px;font-weight:700;color:var(--muted);background:none;border:none;
+  cursor:pointer;text-decoration:underline;padding:0;}
 .row-fields{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;gap:8px;}
 .row-fields input, .row-fields select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);
   font-size:13.5px;font-family:inherit;box-sizing:border-box;}
 .row-fields input:focus, .row-fields select:focus{outline:none;border-color:var(--green);}
+.row-card.saved input, .row-card.saved select{background:var(--paper-2);color:var(--muted);}
 .more-toggle{font-size:12px;color:var(--green-dark);font-weight:700;background:none;border:none;
   cursor:pointer;margin-top:8px;padding:0;}
 .more-fields{display:none;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px;}
@@ -114,7 +120,7 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
   <div class="ff-container">
     <div class="brand">Enlace Integral Seguros</div>
     <h1>Tu Top 20 de clientes</h1>
-    <p>Vamos a anunciarnos en Facebook e Instagram a personas parecidas a tus mejores clientes. Ayúdanos con los datos de tus 20 clientes más leales — toma unos minutos.</p>
+    <p>Necesitamos tu ayuda con los datos de tus 20 clientes más leales — toma unos minutos.</p>
   </div>
 </div>
 
@@ -133,14 +139,17 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
   <!-- ───────── Vista: formulario en línea ───────── -->
   <div id="tabForm">
     <div class="progress">
-      <span id="progressLabel">0 / 20 completos</span>
+      <span id="progressLabel">0 / 20 guardados</span>
       <div class="progress-bar"><div id="progressBar"></div></div>
     </div>
 
     <div id="rows"></div>
 
     <div style="margin-top:18px;">
-      <button class="btn btn--primary" id="submitFormBtn" onclick="submitForm()">Enviar mis clientes</button>
+      <button class="btn btn--primary" id="submitFormBtn" onclick="saveProgress()">Guardar avance</button>
+      <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px;">
+        No hace falta terminar los 20 de una vez — guarda los que ya tengas y regresa después a completar el resto.
+      </div>
     </div>
     <div id="formMsg"></div>
   </div>
@@ -163,14 +172,14 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
 
 </div>
 
-<footer>Esta información es confidencial y solo se usa para publicidad en Facebook/Instagram de Enlace Integral Seguros.</footer>
+<footer>Esta información es confidencial y es solo para uso interno de Enlace Integral Seguros.</footer>
 
 <script>
 const MAX = 20;
 const REQUIRED_FIELDS = ['nombre','telefono','email'];
 const DRAFT_KEY = 'enlace_top20_draft_v1';
 
-function emptyClient(){ return {nombre:'',telefono:'',email:'',ciudad:'',estado:'',cp:'',genero:'',nacimiento:''}; }
+function emptyClient(){ return {nombre:'',telefono:'',email:'',ciudad:'',estado:'',cp:'',genero:'',nacimiento:'',saved:false}; }
 
 let state = {
   vendedor: '',
@@ -203,28 +212,30 @@ function renderRows(){
   container.innerHTML = '';
   state.clientes.forEach((c, i) => {
     const card = document.createElement('div');
-    card.className = 'row-card' + (isRowComplete(c) ? ' complete' : '');
+    card.className = 'row-card' + (isRowComplete(c) ? ' complete' : '') + (c.saved ? ' saved' : '');
+    const dis = c.saved ? 'disabled' : '';
     card.innerHTML = `
       <div class="row-head">
-        <div class="row-num">${i+1}</div>
+        <div class="row-num">${c.saved ? '✓' : i+1}</div>
         <div style="font-size:12px;color:var(--muted);font-weight:600;">Cliente ${i+1} de ${MAX}</div>
+        ${c.saved ? `<div class="saved-badge">Guardado <button type="button" class="correct-link" data-unlock="${i}">Corregir</button></div>` : ''}
       </div>
       <div class="row-fields">
-        <input type="text" placeholder="Nombre completo *" data-i="${i}" data-k="nombre" value="${c.nombre.replace(/"/g,'&quot;')}" />
-        <input type="tel" placeholder="Teléfono *" data-i="${i}" data-k="telefono" value="${c.telefono.replace(/"/g,'&quot;')}" />
-        <input type="email" placeholder="Email *" data-i="${i}" data-k="email" value="${c.email.replace(/"/g,'&quot;')}" />
+        <input type="text" placeholder="Nombre completo *" data-i="${i}" data-k="nombre" value="${c.nombre.replace(/"/g,'&quot;')}" ${dis} />
+        <input type="tel" placeholder="Teléfono *" data-i="${i}" data-k="telefono" value="${c.telefono.replace(/"/g,'&quot;')}" ${dis} />
+        <input type="email" placeholder="Email *" data-i="${i}" data-k="email" value="${c.email.replace(/"/g,'&quot;')}" ${dis} />
       </div>
       <button type="button" class="more-toggle" data-toggle="${i}">+ más datos (opcional)</button>
       <div class="more-fields" id="more-${i}">
-        <input type="text" placeholder="Ciudad" data-i="${i}" data-k="ciudad" value="${c.ciudad.replace(/"/g,'&quot;')}" />
-        <input type="text" placeholder="Estado" data-i="${i}" data-k="estado" value="${c.estado.replace(/"/g,'&quot;')}" />
-        <input type="text" placeholder="Código postal" data-i="${i}" data-k="cp" value="${c.cp.replace(/"/g,'&quot;')}" />
-        <select data-i="${i}" data-k="genero">
+        <input type="text" placeholder="Ciudad" data-i="${i}" data-k="ciudad" value="${c.ciudad.replace(/"/g,'&quot;')}" ${dis} />
+        <input type="text" placeholder="Estado" data-i="${i}" data-k="estado" value="${c.estado.replace(/"/g,'&quot;')}" ${dis} />
+        <input type="text" placeholder="Código postal" data-i="${i}" data-k="cp" value="${c.cp.replace(/"/g,'&quot;')}" ${dis} />
+        <select data-i="${i}" data-k="genero" ${dis}>
           <option value="">Género</option>
           <option value="M" ${c.genero==='M'?'selected':''}>M</option>
           <option value="F" ${c.genero==='F'?'selected':''}>F</option>
         </select>
-        <input type="text" placeholder="Fecha nac. o edad" data-i="${i}" data-k="nacimiento" value="${c.nacimiento.replace(/"/g,'&quot;')}" />
+        <input type="text" placeholder="Fecha nac. o edad" data-i="${i}" data-k="nacimiento" value="${c.nacimiento.replace(/"/g,'&quot;')}" ${dis} />
       </div>
     `;
     container.appendChild(card);
@@ -247,12 +258,25 @@ function renderRows(){
       document.getElementById('more-' + i).classList.toggle('open');
     });
   });
+  container.querySelectorAll('[data-unlock]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = +btn.dataset.unlock;
+      state.clientes[i].saved = false;
+      saveDraft();
+      renderRows();
+      updateProgress();
+    });
+  });
 }
 
 function updateProgress(){
-  const done = state.clientes.filter(isRowComplete).length;
-  document.getElementById('progressLabel').textContent = `${done} / ${MAX} completos`;
-  document.getElementById('progressBar').style.width = (done / MAX * 100) + '%';
+  const saved = state.clientes.filter(c => c.saved).length;
+  const readyNotSaved = state.clientes.filter(c => isRowComplete(c) && !c.saved).length;
+  const label = readyNotSaved > 0
+    ? `${saved} / ${MAX} guardados · ${readyNotSaved} listo${readyNotSaved > 1 ? 's' : ''} para guardar`
+    : `${saved} / ${MAX} guardados`;
+  document.getElementById('progressLabel').textContent = label;
+  document.getElementById('progressBar').style.width = (saved / MAX * 100) + '%';
 }
 
 function switchTab(tab){
@@ -262,37 +286,54 @@ function switchTab(tab){
   document.getElementById('tabUploadBtn').classList.toggle('active', tab === 'upload');
 }
 
-async function submitForm(){
+async function saveProgress(){
   const vendedor = document.getElementById('vendorName').value.trim();
   const msgEl = document.getElementById('formMsg');
   msgEl.innerHTML = '';
   if (!vendedor) {
-    msgEl.innerHTML = '<div class="msg msg--err">Escribe tu nombre arriba antes de enviar.</div>';
+    msgEl.innerHTML = '<div class="msg msg--err">Escribe tu nombre arriba antes de guardar.</div>';
     return;
   }
-  const validClientes = state.clientes.filter(isRowComplete);
-  if (validClientes.length === 0) {
-    msgEl.innerHTML = '<div class="msg msg--err">Llena al menos un cliente con nombre, teléfono y email.</div>';
+  // Índices de las filas completas que todavía no se han guardado
+  const pendingIdx = state.clientes
+    .map((c, i) => ({ c, i }))
+    .filter(({ c }) => isRowComplete(c) && !c.saved);
+
+  if (pendingIdx.length === 0) {
+    const totalSaved = state.clientes.filter(c => c.saved).length;
+    msgEl.innerHTML = totalSaved > 0
+      ? '<div class="msg msg--ok">Ya está guardado todo lo que llevas. Sigue agregando clientes cuando puedas.</div>'
+      : '<div class="msg msg--err">Llena al menos un cliente con nombre, teléfono y email.</div>';
     return;
   }
+
   const btn = document.getElementById('submitFormBtn');
-  btn.disabled = true; btn.textContent = 'Enviando...';
+  btn.disabled = true; btn.textContent = 'Guardando...';
   try {
     const res = await fetch('/api/demo/enlace-top-clientes', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ vendedor, clientes: validClientes }),
+      body: JSON.stringify({ vendedor, clientes: pendingIdx.map(({ c }) => c) }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error al enviar.');
-    msgEl.innerHTML = `<div class="msg msg--ok">¡Listo! Se enviaron ${data.saved} clientes. Gracias, ${vendedor.split(' ')[0]}.</div>`;
-    clearDraft();
-    state = { vendedor: '', clientes: Array.from({length: MAX}, emptyClient) };
-    renderRows(); updateProgress();
+    if (!res.ok) throw new Error(data.error || 'Error al guardar.');
+
+    // Marcar como guardadas solo las filas que se enviaron ahora
+    pendingIdx.forEach(({ i }) => { state.clientes[i].saved = true; });
+    saveDraft();
+    renderRows();
+    updateProgress();
+
+    const totalSaved = state.clientes.filter(c => c.saved).length;
+    if (totalSaved >= MAX) {
+      msgEl.innerHTML = `<div class="msg msg--ok">¡Completaste tus ${MAX} clientes! Gracias, ${vendedor.split(' ')[0]}.</div>`;
+    } else {
+      msgEl.innerHTML = `<div class="msg msg--ok">Se guardaron ${data.saved} clientes nuevos (${totalSaved}/${MAX} en total). Puedes seguir después.</div>`;
+    }
   } catch(e) {
     msgEl.innerHTML = `<div class="msg msg--err">${e.message}</div>`;
   } finally {
-    btn.disabled = false; btn.textContent = 'Enviar mis clientes';
+    btn.disabled = false; btn.textContent = 'Guardar avance';
   }
 }
 
