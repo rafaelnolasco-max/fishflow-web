@@ -129,10 +129,14 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
 
     <div id="rows"></div>
 
-    <div style="margin-top:18px;">
+    <div style="margin-top:14px;">
+      <button type="button" class="btn btn--ghost" style="width:100%;justify-content:center;" onclick="addRow()">+ Agregar otro cliente</button>
+    </div>
+
+    <div style="margin-top:14px;">
       <button class="btn btn--primary" id="submitFormBtn" onclick="saveProgress()">Guardar avance</button>
       <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px;">
-        No hace falta terminar los 20 de una vez — guarda los que ya tengas y regresa después a completar el resto.
+        No hace falta terminar los 20 de una vez — guarda los que ya tengas y regresa después a completar el resto. Si tienes más de 20 clientes leales, usa "+ Agregar otro cliente".
       </div>
     </div>
     <div id="formMsg"></div>
@@ -185,7 +189,7 @@ function renderRows(){
     card.innerHTML = `
       <div class="row-head">
         <div class="row-num">${c.saved ? '✓' : i+1}</div>
-        <div style="font-size:12px;color:var(--muted);font-weight:600;">Cliente ${i+1} de ${MAX}</div>
+        <div style="font-size:12px;color:var(--muted);font-weight:600;">Cliente ${i+1} de ${state.clientes.length}</div>
         ${c.saved ? `<div class="saved-badge">Guardado <button type="button" class="correct-link" data-unlock="${i}">Corregir</button></div>` : ''}
       </div>
       <div class="row-fields">
@@ -237,14 +241,26 @@ function renderRows(){
   });
 }
 
+function addRow(){
+  state.clientes.push(emptyClient());
+  saveDraft();
+  renderRows();
+  updateProgress();
+  // Enfoca el nuevo renglón
+  const container = document.getElementById('rows');
+  const last = container.lastElementChild;
+  if (last) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function updateProgress(){
   const saved = state.clientes.filter(c => c.saved).length;
   const readyNotSaved = state.clientes.filter(c => isRowComplete(c) && !c.saved).length;
+  const metaLabel = saved > MAX ? `${saved} guardados (meta: ${MAX})` : `${saved} / ${MAX} guardados`;
   const label = readyNotSaved > 0
-    ? `${saved} / ${MAX} guardados · ${readyNotSaved} listo${readyNotSaved > 1 ? 's' : ''} para guardar`
-    : `${saved} / ${MAX} guardados`;
+    ? `${metaLabel} · ${readyNotSaved} listo${readyNotSaved > 1 ? 's' : ''} para guardar`
+    : metaLabel;
   document.getElementById('progressLabel').textContent = label;
-  document.getElementById('progressBar').style.width = (saved / MAX * 100) + '%';
+  document.getElementById('progressBar').style.width = Math.min(saved / MAX * 100, 100) + '%';
 }
 
 async function saveProgress(){
@@ -286,10 +302,13 @@ async function saveProgress(){
     updateProgress();
 
     const totalSaved = state.clientes.filter(c => c.saved).length;
-    if (totalSaved >= MAX) {
-      msgEl.innerHTML = `<div class="msg msg--ok">¡Completaste tus ${MAX} clientes! Gracias, ${vendedor.split(' ')[0]}.</div>`;
+    const dupNote = data.duplicates > 0 ? ` (${data.duplicates} ya estaban guardados y se ignoraron)` : '';
+    if (totalSaved === MAX) {
+      msgEl.innerHTML = `<div class="msg msg--ok">¡Completaste tus ${MAX} clientes! Gracias, ${vendedor.split(' ')[0]}.${dupNote}</div>`;
+    } else if (totalSaved > MAX) {
+      msgEl.innerHTML = `<div class="msg msg--ok">Guardado. Llevas ${totalSaved} clientes en total — gracias por el extra, ${vendedor.split(' ')[0]}.${dupNote}</div>`;
     } else {
-      msgEl.innerHTML = `<div class="msg msg--ok">Se guardaron ${data.saved} clientes nuevos (${totalSaved}/${MAX} en total). Puedes seguir después.</div>`;
+      msgEl.innerHTML = `<div class="msg msg--ok">Se guardaron ${data.saved} clientes nuevos (${totalSaved}/${MAX} en total). Puedes seguir después.${dupNote}</div>`;
     }
   } catch(e) {
     msgEl.innerHTML = `<div class="msg msg--err">${e.message}</div>`;

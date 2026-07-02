@@ -11,7 +11,7 @@ export const runtime = 'nodejs'
 // busca la fila del vendedor y el encabezado por texto, no por posición fija.
 
 const ADMIN_TO = ['raf@fishflow.mx', 'rafaelnolasco@gmail.com']
-const MAX_CLIENTS = 20
+const MAX_CLIENTS = 50
 
 const HEADER_MAP: { match: RegExp; key: string }[] = [
   { match: /nombre completo/i, key: 'client_name' },
@@ -108,7 +108,7 @@ export async function POST(req: Request) {
       source: 'excel_upload' as const,
     }))
 
-    const validRows = parsed.filter((r) => r.client_name && r.phone && r.email)
+    let validRows = parsed.filter((r) => r.client_name && r.phone && r.email)
 
     if (validRows.length === 0) {
       return NextResponse.json(
@@ -117,11 +117,44 @@ export async function POST(req: Request) {
       )
     }
 
+    // Dedupe dentro del mismo archivo
+    const seen = new Set<string>()
+    validRows = validRows.filter((r) => {
+      const key = `${r.phone}|${r.email}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
-    const { error } = await supabase.from('insurance_vendor_top_clients').insert(validRows)
+
+    // Dedupe contra lo ya guardado de este vendedor
+    const { data: existing, error: fetchErr } = await supabase
+      .from('insurance_vendor_top_clients')
+      .select('phone, email')
+      .eq('client_id', ENLACE_CLIENT_ID)
+      .eq('vendor_name', vendorName)
+    if (fetchErr) {
+      console.error('[demo/enlace-top-clientes/upload] Supabase fetch error:', fetchErr)
+      return NextResponse.json({ error: 'Error al guardar. Intenta de nuevo.' }, { status: 500 })
+    }
+    const existingKeys = new Set(
+      (existing ?? []).flatMap((e) => [e.phone, e.email].filter(Boolean))
+    )
+    const newRows = validRows.filter((r) => !existingKeys.has(r.phone) && !existingKeys.has(r.email))
+    const duplicates = validRows.length - newRows.length
+
+    if (newRows.length === 0) {
+      return NextResponse.json(
+        { error: 'Estos clientes ya estaban guardados para este vendedor.' },
+        { status: 400 }
+      )
+    }
+
+    const { error } = await supabase.from('insurance_vendor_top_clients').insert(newRows)
     if (error) {
       console.error('[demo/enlace-top-clientes/upload] Supabase insert error:', error)
       return NextResponse.json({ error: 'Error al guardar. Intenta de nuevo.' }, { status: 500 })
@@ -134,15 +167,15 @@ export async function POST(req: Request) {
         await resend.emails.send({
           from: 'Enlace Integral <recibos@fishflow.mx>',
           to: ADMIN_TO,
-          subject: `Top clientes recibido (Excel) — ${vendorName} (${validRows.length})`,
-          html: `<p>El vendedor <strong>${vendorName}</strong> subió un Excel con <strong>${validRows.length}</strong> clientes.</p>`,
+          subject: `Top clientes recibido (Excel) — ${vendorName} (${newRows.length})`,
+          html: `<p>El vendedor <strong>${vendorName}</strong> subió un Excel con <strong>${newRows.length}</strong> clientes nuevos.${duplicates > 0 ? ` (${duplicates} ya estaban guardados y se ignoraron)` : ''}</p>`,
         })
       } catch (e) {
         console.error('[demo/enlace-top-clientes/upload] email error:', e)
       }
     }
 
-    return NextResponse.json({ ok: true, saved: validRows.length, vendor: vendorName })
+    return NextResponse.json({ ok: true, saved: newRows.length, duplicates, vendor: vendorName })
   } catch (err: unknown) {
     console.error('[demo/enlace-top-clientes/upload] Error:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Error al procesar el archivo.' }, { status: 500 })
