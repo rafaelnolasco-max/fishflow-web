@@ -1,0 +1,13 @@
+{
+  "name": "Finanzas Rafa",
+  "short_name": "Finanzas",
+  "start_url": "/app/rafa",
+  "scope": "/app/rafa",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0E9F6E",
+  "icons": [
+    { "src": "/icon-rafa-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icon-rafa-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
