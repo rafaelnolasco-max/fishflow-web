@@ -35,7 +35,8 @@ const SaveBtn  = (p: Omit<React.ComponentProps<typeof DSaveBtn>,  "theme">) => <
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type TxType = "ingreso" | "fijo" | "placer" | "futuro" | "extraordinario";
-type TabKey = "captura" | "mes" | "anio" | "config";
+type TabKey = "inicio" | "captura" | "mes" | "anio" | "config";
+interface ChatMsg { role: "user" | "assistant"; content: string; }
 
 interface Tx {
   id: string; tx_date: string; tx_type: TxType;
@@ -67,6 +68,8 @@ const QUICK: { concept: string; amount: number; tx_type: TxType }[] = [
   { concept: "Barba",        amount: 120, tx_type: "fijo" },
 ];
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+// Corte de era: desde jun-2026 Rafa vive de rentas + FishFlow + Lukon (sin Amdocs).
+const ERA_ACTUAL = "2026-06";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt  = (n: number) => `$${Math.round(n).toLocaleString("es-MX")}`;
@@ -109,8 +112,14 @@ function summarize(txs: Tx[]): MonthSummary {
 export default function RafaFinanzas() {
   const router = useRouter();
   const [authReady, setAuthReady] = useState(false);
-  const [tab, setTab] = useState<TabKey>("captura");
+  const [tab, setTab] = useState<TabKey>("inicio");
   const [toast, setToast] = useState<string | null>(null);
+
+  // Chat
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatBusy, setChatBusy] = useState(false);
 
   // Datos
   const [txs, setTxs] = useState<Tx[]>([]);
@@ -182,6 +191,61 @@ export default function RafaFinanzas() {
     return { ing, gto, retiro: gto - ing };
   }, [recurring]);
 
+  // ── Insights (tab Inicio) ───────────────────────────────────────────────
+  const insights = useMemo(() => {
+    const nowK = monthKey(todayStr());
+    const prevK = shiftMonth(nowK, -1);
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const dayOfMonth = now.getDate();
+
+    const cur = summarize(byMonth.get(nowK) ?? []);
+    const prevTxs = byMonth.get(prevK) ?? [];
+    const prev = summarize(prevTxs);
+
+    // Mediana de placer histórica (meses con dato, antes del mes actual)
+    const placerHist = [...byMonth.entries()]
+      .filter(([k, list]) => k < nowK && list.some(t => t.tx_type === "placer"))
+      .map(([, list]) => summarize(list).placer)
+      .sort((a, b) => a - b);
+    const medPlacer = placerHist.length
+      ? placerHist[Math.floor(placerHist.length / 2)] : 0;
+
+    // Proyección de cierre: fijo/futuro/extra ya cargados + placer a ritmo diario
+    const proy = cur.fijos + cur.futuro + cur.extra + (cur.placer / dayOfMonth) * daysInMonth;
+    const diasRestantes = Math.max(daysInMonth - dayOfMonth, 0);
+    const dispPorDia = diasRestantes > 0 ? Math.max(cap - cur.gasto, 0) / diasRestantes : 0;
+    const semaforo: "verde" | "amarillo" | "rojo" =
+      proy <= cap * 0.85 ? "verde" : proy <= cap ? "amarillo" : "rojo";
+
+    // Top gastos del mes anterior (sin futuro)
+    const topPrev = prevTxs
+      .filter(t => t.tx_type !== "ingreso" && t.tx_type !== "futuro")
+      .sort((a, b) => Number(b.amount) - Number(a.amount)).slice(0, 5);
+
+    // Frases del recap
+    const frases: string[] = [];
+    if (prevTxs.length > 0) {
+      frases.push(prev.gasto > cap
+        ? `Te pasaste del tope por ${fmt(prev.gasto - cap)}.`
+        : `Cerraste ${fmt(cap - prev.gasto)} abajo del tope.`);
+      if (medPlacer > 0 && prev.placer > 0) {
+        const d = Math.round(((prev.placer - medPlacer) / medPlacer) * 100);
+        frases.push(d > 10 ? `Placer ${d}% arriba de tu mediana histórica (${fmt(medPlacer)}).`
+          : d < -10 ? `Placer ${-d}% abajo de tu mediana histórica (${fmt(medPlacer)}).`
+          : `Placer en línea con tu mediana histórica (${fmt(medPlacer)}).`);
+      }
+      const partes: [string, number][] = [["fijos", prev.fijos], ["placer", prev.placer], ["extraordinarios", prev.extra]];
+      partes.sort((a, b) => b[1] - a[1]);
+      const oper = prev.fijos + prev.placer + prev.extra;
+      if (oper > 0 && partes[0][1] > 0)
+        frases.push(`Donde más se fue: ${partes[0][0]} (${Math.round((partes[0][1] / oper) * 100)}% del gasto operativo).`);
+      if (prevK < ERA_ACTUAL) frases.push("Ese mes aún era etapa Amdocs — compara con cuidado.");
+    }
+
+    return { nowK, prevK, cur, prev, prevTxs, medPlacer, proy, diasRestantes, dispPorDia, semaforo, topPrev, frases, dayOfMonth, daysInMonth };
+  }, [byMonth, cap]);
+
   // Tabla anual: 13 meses desde start_month
   const anual = useMemo(() => {
     if (!config) return [];
@@ -250,6 +314,29 @@ export default function RafaFinanzas() {
     loadAll();
   }
 
+  // ── Chat financiero ─────────────────────────────────────────────────────
+  async function sendChat() {
+    const q = chatInput.trim();
+    if (!q || chatBusy) return;
+    const next: ChatMsg[] = [...chatMsgs, { role: "user", content: q }];
+    setChatMsgs(next); setChatInput(""); setChatBusy(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch("/api/rafa/finanzas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token ?? ""}` },
+        body: JSON.stringify({ messages: next.slice(-12) }),
+      });
+      const data = await res.json();
+      const reply = data.reply ?? data.error ?? "Error — intenta de nuevo.";
+      setChatMsgs([...next, { role: "assistant", content: reply }]);
+      if (data.inserted) loadAll();
+    } catch {
+      setChatMsgs([...next, { role: "assistant", content: "Error de conexión — intenta de nuevo." }]);
+    }
+    setChatBusy(false);
+  }
+
   // ── Config updates ──────────────────────────────────────────────────────────
   async function saveConfig(patch: Partial<Config>) {
     const { error } = await supabase.from("finance_config")
@@ -283,11 +370,81 @@ export default function RafaFinanzas() {
 
       <main style={{ maxWidth: 860, margin: "0 auto", padding: "18px 16px 90px" }}>
         <TabBar theme={T} active={tab} onChange={setTab} tabs={[
+          { id: "inicio",  label: "Inicio",  icon: "🏁" },
           { id: "captura", label: "Captura", icon: "➕" },
           { id: "mes",     label: "Mes",     icon: "📅" },
           { id: "anio",    label: "Año",     icon: "📊" },
           { id: "config",  label: "Config",  icon: "⚙️" },
         ]} />
+
+        {/* ══ INICIO ══ */}
+        {tab === "inicio" && (
+          <>
+            {/* Cómo voy este mes */}
+            <Section title={`Cómo voy — ${monthLabel(insights.nowK)}`} theme={T}>
+              <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: 18, marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                  <span style={{ width: 12, height: 12, borderRadius: "50%", flexShrink: 0,
+                    background: insights.semaforo === "verde" ? "#4ADE80" : insights.semaforo === "amarillo" ? "#FACC15" : T.danger }} />
+                  <span style={{ fontSize: 14, fontWeight: 700 }}>
+                    {insights.semaforo === "verde" ? "Vas bien" : insights.semaforo === "amarillo" ? "Cuidado con el ritmo" : "Ritmo por arriba del tope"}
+                    <span style={{ color: T.muted, fontWeight: 500 }}> — proyección de cierre {fmt(insights.proy)} vs tope {fmt(cap)}</span>
+                  </span>
+                </div>
+                {/* Barra de progreso vs tope */}
+                <div style={{ background: FF_DARK, borderRadius: 8, height: 14, overflow: "hidden", marginBottom: 8 }}>
+                  <div style={{ width: `${Math.min((insights.cur.gasto / cap) * 100, 100)}%`, height: "100%",
+                    background: insights.cur.gasto > cap ? T.danger : `linear-gradient(90deg, ${FF_CYAN}, ${FF_ORANGE})` }} />
+                </div>
+                <div style={{ fontSize: 12, color: T.muted, marginBottom: 16 }}>
+                  Gasto al día {insights.dayOfMonth}: <b style={{ color: T.text }}>{fmt(insights.cur.gasto)}</b> ({Math.round((insights.cur.gasto / cap) * 100)}% del tope)
+                </div>
+                <StatGrid>
+                  <StatCard label="Disponible del mes" value={fmt(Math.max(cap - insights.cur.gasto, 0))} accent={FF_CYAN} soft />
+                  <StatCard label={`Por día (${insights.diasRestantes} días restantes)`} value={fmt(insights.dispPorDia)} soft />
+                  <StatCard label="Placer del mes" value={fmt(insights.cur.placer)} soft
+                    sub={insights.medPlacer > 0 ? `mediana hist. ${fmt(insights.medPlacer)}` : undefined}
+                    accent={insights.medPlacer > 0 && insights.cur.placer > insights.medPlacer ? FF_ORANGE : FF_CYAN} />
+                  <StatCard label="Futuro del mes" value={fmt(insights.cur.futuro)} soft sub="plan ~$13,000" />
+                </StatGrid>
+              </div>
+            </Section>
+
+            {/* Recap mes anterior */}
+            <Section title={`Cómo cerró ${monthLabel(insights.prevK)}`} theme={T}>
+              {insights.prevTxs.length === 0 ? <Empty msg="Sin datos del mes anterior" /> : (
+                <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: 18 }}>
+                  <StatGrid>
+                    <StatCard label="Gasto total" value={fmt(insights.prev.gasto)}
+                      accent={insights.prev.gasto > cap ? T.danger : T.text as string} soft />
+                    <StatCard label="Ingresos" value={fmt(insights.prev.ingresos)} accent={FF_CYAN} soft />
+                    <StatCard label="Retiro de cubetas" value={fmt(insights.prev.retiro)}
+                      accent={insights.prev.retiro > 0 ? FF_ORANGE : FF_CYAN} soft sub="gasto − ingresos" />
+                  </StatGrid>
+                  {/* Insights en texto */}
+                  <div style={{ marginBottom: 16 }}>
+                    {insights.frases.map((f, i) => (
+                      <div key={i} style={{ display: "flex", gap: 8, fontSize: 13, color: T.text, marginBottom: 6, lineHeight: 1.5 }}>
+                        <span style={{ color: FF_ORANGE }}>◆</span><span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Top gastos */}
+                  <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, marginBottom: 8 }}>TOP GASTOS (SIN FUTURO)</div>
+                  {insights.topPrev.map(t => (
+                    <div key={t.id} style={{ display: "flex", justifyContent: "space-between", gap: 10,
+                      fontSize: 13, padding: "7px 0", borderBottom: `1px solid ${T.border}` }}>
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {TX_META[t.tx_type].icon} {t.concept}
+                      </span>
+                      <b style={{ whiteSpace: "nowrap" }}>{fmt(Number(t.amount))}</b>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Section>
+          </>
+        )}
 
         {/* ══ CAPTURA ══ */}
         {tab === "captura" && (
@@ -491,6 +648,72 @@ export default function RafaFinanzas() {
           </>
         )}
       </main>
+
+      {/* ══ CHAT FLOTANTE ══ */}
+      {!chatOpen && (
+        <button onClick={() => setChatOpen(true)} aria-label="Chat financiero"
+          style={{ position: "fixed", bottom: 22, right: 22, width: 56, height: 56, borderRadius: "50%",
+            background: `linear-gradient(135deg, ${FF_CYAN}, ${FF_ORANGE})`, border: "none", fontSize: 24,
+            cursor: "pointer", boxShadow: "0 8px 24px rgba(0,0,0,.4)", zIndex: 90 }}>
+          💬
+        </button>
+      )}
+      {chatOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, display: "flex", flexDirection: "column",
+          justifyContent: "flex-end", background: "rgba(6,13,20,.55)" }}
+          onClick={() => setChatOpen(false)}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: T.surface, borderRadius: "18px 18px 0 0", maxWidth: 860, width: "100%",
+              margin: "0 auto", height: "min(72vh, 640px)", display: "flex", flexDirection: "column",
+              border: `1px solid ${T.border}`, borderBottom: "none" }}>
+            <div style={{ padding: "14px 18px", borderBottom: `1px solid ${T.border}`,
+              display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ fontSize: 15, fontWeight: 800, fontFamily: "'Plus Jakarta Sans', Inter, sans-serif" }}>
+                💬 Chat financiero
+              </div>
+              <button onClick={() => setChatOpen(false)}
+                style={{ background: "none", border: "none", fontSize: 22, color: T.muted, cursor: "pointer" }}>×</button>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+              {chatMsgs.length === 0 && (
+                <div style={{ color: T.muted, fontSize: 13, lineHeight: 1.7 }}>
+                  Pregúntame de tus finanzas o registra un gasto en lenguaje natural:
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 12 }}>
+                    {["¿En qué gasté más el mes pasado?", "¿Cuánto llevo en cafés este año?", "350 gasolina ayer"].map(s => (
+                      <button key={s} onClick={() => { setChatInput(s); }}
+                        style={{ textAlign: "left", background: T.panel, border: `1px solid ${T.border}`,
+                          borderRadius: 10, padding: "9px 13px", fontSize: 13, color: T.text, cursor: "pointer" }}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {chatMsgs.map((m, i) => (
+                <div key={i} style={{ alignSelf: m.role === "user" ? "flex-end" : "flex-start",
+                  maxWidth: "85%", padding: "10px 14px", borderRadius: 14, fontSize: 14, lineHeight: 1.55,
+                  whiteSpace: "pre-wrap",
+                  background: m.role === "user" ? T.accentSoft : T.panel,
+                  border: `1px solid ${T.border}`, color: T.text }}>
+                  {m.content}
+                </div>
+              ))}
+              {chatBusy && <div style={{ color: T.muted, fontSize: 13 }}>Pensando…</div>}
+            </div>
+            <div style={{ padding: 14, borderTop: `1px solid ${T.border}`, display: "flex", gap: 8 }}>
+              <input style={{ ...inp, flex: 1 }} placeholder="Pregunta o registra un gasto…"
+                value={chatInput} onChange={e => setChatInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") sendChat(); }} />
+              <button onClick={sendChat} disabled={chatBusy}
+                style={{ background: chatBusy ? T.disabled : T.accent, color: "#fff", border: "none",
+                  borderRadius: 10, padding: "0 18px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+                ➤
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Toast msg={toast} theme={T} />
     </div>
   );
