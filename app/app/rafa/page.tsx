@@ -6,18 +6,27 @@ import { supabase } from "@/lib/supabase";
 import {
   DashboardHeader, StatGrid, TabBar, Toast, Section,
   StatCard as DStatCard, Empty as DEmpty, Field as DField, SaveBtn as DSaveBtn,
-  inputStyle, type DashTheme,
+  type DashTheme,
 } from "@/components/dashboard";
 
 // ─── Client ───────────────────────────────────────────────────────────────────
 export const RAFA_CLIENT_ID = "40ee7b1f-ef78-4632-a9ea-0468e26320e1";
 
-// ─── Tema (finanzas personales — esmeralda) ───────────────────────────────────
+// ─── Tema FishFlow (dark #0D1B2A, naranja + cyan — brand/design-philosophy) ───
+const FF_ORANGE = "#FF8C35";
+const FF_CYAN   = "#67D4E8";
+const FF_DARK   = "#0D1B2A";
 const T: DashTheme = {
-  accent: "#0E9F6E", accentDark: "#046C4E", accentSoft: "#DEF7EC",
-  bg: "#F8FAFC", surface: "#FFFFFF", text: "#1E293B",
-  muted: "#94A3B8", border: "#E2E8F0", danger: "#EF4444", disabled: "#94A3B8",
-  panel: "#F1F5F9",
+  accent: FF_ORANGE, accentDark: FF_ORANGE, accentSoft: "rgba(255,140,53,.14)",
+  bg: FF_DARK, surface: "#14283E", text: "#F1F5F9",
+  muted: "#7E93A8", border: "#24405E", danger: "#F87171", disabled: "#41586F",
+  panel: "#1B3350",
+};
+// Inputs sobre fondo oscuro (inputStyle base asume superficie clara)
+const inp: React.CSSProperties = {
+  width: "100%", padding: "9px 12px", borderRadius: 9, border: `1px solid ${T.border}`,
+  fontSize: 14, fontFamily: "inherit", background: FF_DARK, color: T.text,
+  colorScheme: "dark",
 };
 const StatCard = (p: Omit<React.ComponentProps<typeof DStatCard>, "theme">) => <DStatCard theme={T} {...p} />;
 const Empty    = (p: Omit<React.ComponentProps<typeof DEmpty>,    "theme">) => <DEmpty    theme={T} {...p} />;
@@ -43,11 +52,11 @@ interface Config {
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 const TX_META: Record<TxType, { label: string; icon: string; color: string }> = {
-  ingreso:        { label: "Ingreso",        icon: "💰", color: "#0E9F6E" },
-  fijo:           { label: "Fijo",           icon: "🏠", color: "#3B82F6" },
-  placer:         { label: "Placer",         icon: "🎉", color: "#F59E0B" },
-  futuro:         { label: "Futuro",         icon: "📈", color: "#8B5CF6" },
-  extraordinario: { label: "Extraordinario", icon: "⚡", color: "#EF4444" },
+  ingreso:        { label: "Ingreso",        icon: "💰", color: FF_CYAN },
+  fijo:           { label: "Fijo",           icon: "🏠", color: "#7FA6FF" },
+  placer:         { label: "Placer",         icon: "🎉", color: FF_ORANGE },
+  futuro:         { label: "Futuro",         icon: "📈", color: "#B08CFF" },
+  extraordinario: { label: "Extraordinario", icon: "⚡", color: "#F87171" },
 };
 const GASTO_TYPES: TxType[] = ["fijo", "placer", "futuro", "extraordinario"];
 const EXTRA_CATS = ["VACACIONES", "CASA PICHI", "SALUD/MEDICAMENTOS", "AUTO IONIQ", "OTRO"];
@@ -266,8 +275,10 @@ export default function RafaFinanzas() {
   return (
     <div style={{ minHeight: "100vh", background: T.bg, color: T.text,
       fontFamily: "Inter, -apple-system, sans-serif" }}>
-      <DashboardHeader theme={T} sticky icon="🐟" iconBg={T.accentSoft}
-        title="Finanzas Rafa" subtitle="Gastos, cubetas y camino al retiro"
+      <DashboardHeader theme={T} sticky
+        icon={<img src="/isotipo.svg" alt="FishFlow" style={{ width: 26, height: 26 }} />}
+        iconBg="rgba(103,212,232,.10)"
+        title="Finanzas Rafa" subtitle="FishFlow · gastos, cubetas y camino al retiro"
         onLogout={async () => { await supabase.auth.signOut(); router.push("/login"); }} />
 
       <main style={{ maxWidth: 860, margin: "0 auto", padding: "18px 16px 90px" }}>
@@ -286,7 +297,7 @@ export default function RafaFinanzas() {
               <input inputMode="decimal" type="number" placeholder="$0" value={fAmount}
                 onChange={e => setFAmount(e.target.value)} autoFocus
                 style={{ width: "100%", fontSize: 40, fontWeight: 800, border: "none", outline: "none",
-                  textAlign: "center", color: fType === "ingreso" ? T.accent : T.text,
+                  textAlign: "center", color: fType === "ingreso" ? FF_CYAN : T.text,
                   fontFamily: "'Plus Jakarta Sans', Inter, sans-serif", background: "transparent",
                   padding: "6px 0 14px" }} />
               {/* Tipo */}
@@ -306,19 +317,19 @@ export default function RafaFinanzas() {
                 })}
               </div>
               <Field label="Concepto">
-                <input style={inputStyle(T)} placeholder="¿En qué fue?" value={fConcept}
+                <input style={inp} placeholder="¿En qué fue?" value={fConcept}
                   onChange={e => setFConcept(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter") saveTx(); }} />
               </Field>
               {fType === "extraordinario" && (
                 <Field label="Categoría">
-                  <select style={inputStyle(T)} value={fCat} onChange={e => setFCat(e.target.value)}>
+                  <select style={inp} value={fCat} onChange={e => setFCat(e.target.value)}>
                     {EXTRA_CATS.map(c => <option key={c}>{c}</option>)}
                   </select>
                 </Field>
               )}
               <Field label="Fecha">
-                <input type="date" style={inputStyle(T)} value={fDate} onChange={e => setFDate(e.target.value)} />
+                <input type="date" style={inp} value={fDate} onChange={e => setFDate(e.target.value)} />
               </Field>
               <SaveBtn onClick={() => saveTx()} disabled={saving} label={saving ? "Guardando…" : "Guardar"} />
               {/* Rápidos */}
@@ -358,13 +369,13 @@ export default function RafaFinanzas() {
             </div>
 
             <StatGrid>
-              <StatCard label="Ingresos" value={fmt(selSum.ingresos)} accent={T.accent} soft />
+              <StatCard label="Ingresos" value={fmt(selSum.ingresos)} accent={FF_CYAN} soft />
               <StatCard label="Gasto total" value={fmt(selSum.gasto)} soft />
               <StatCard label={`vs Tope ${fmt(cap)}`} value={fmt(cap - selSum.gasto)}
-                accent={selSum.gasto > cap ? T.danger : T.accent} soft
+                accent={selSum.gasto > cap ? T.danger : FF_CYAN} soft
                 sub={selSum.gasto > cap ? "Excedido" : "Disponible"} />
               <StatCard label="Retiro de cubetas" value={fmt(selSum.retiro)}
-                accent={selSum.retiro > 0 ? "#F59E0B" : T.accent} soft
+                accent={selSum.retiro > 0 ? FF_ORANGE : FF_CYAN} soft
                 sub="gasto − ingresos" />
             </StatGrid>
 
@@ -425,7 +436,7 @@ export default function RafaFinanzas() {
                         <Td>{fmt(r.s.ingresos)}</Td>
                         <Td>{fmt(r.s.gasto)}</Td>
                         <Td color={r.s.gasto > cap ? T.danger : undefined}>{fmt(cap - r.s.gasto)}</Td>
-                        <Td color={r.s.retiro > 0 ? "#B45309" : T.accentDark}>{fmt(r.s.retiro)}</Td>
+                        <Td color={r.s.retiro > 0 ? FF_ORANGE : FF_CYAN}>{fmt(r.s.retiro)}</Td>
                         <Td>{fmt(r.liquidez)}</Td>
                       </tr>
                     ))}
@@ -497,7 +508,7 @@ export default function RafaFinanzas() {
           <div style={{ fontSize: 11, color: T.muted }}>{dayLabel(t.tx_date)}</div>
         </div>
         <div style={{ fontSize: 14, fontWeight: 700,
-          color: t.tx_type === "ingreso" ? T.accentDark : T.text }}>
+          color: t.tx_type === "ingreso" ? FF_CYAN : T.text }}>
           {t.tx_type === "ingreso" ? "+" : "−"}{fmt(Number(t.amount))}
         </div>
         <button onClick={() => onDelete(t)} aria-label="Borrar"
@@ -528,7 +539,7 @@ export default function RafaFinanzas() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
         <div style={{ flex: 1, fontSize: 13, fontWeight: 600, color: T.muted }}>{label}</div>
         <input type="number" inputMode="decimal" value={v} onChange={e => setV(e.target.value)}
-          style={{ ...inputStyle(T), width: 140, textAlign: "right" }} />
+          style={{ ...inp, width: 140, textAlign: "right" }} />
         <button onClick={() => { const n = parseFloat(v); if (!isNaN(n)) onSave(n); }}
           style={{ background: T.accent, color: "#fff", border: "none", borderRadius: 8,
             padding: "8px 13px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>

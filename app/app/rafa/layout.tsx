@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   manifest: "/rafa.webmanifest",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Finanzas Rafa",
   },
   icons: {
@@ -19,7 +19,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1, // evita zoom accidental al enfocar inputs en iOS
-  themeColor: "#0E9F6E",
+  themeColor: "#0D1B2A",
 };
 
 export default function RafaLayout({ children }: { children: React.ReactNode }) {
