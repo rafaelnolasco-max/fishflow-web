@@ -56,18 +56,29 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Datos: todo el histórico en CSV compacto ──────────────────────────
-    const { data: txs, error: txErr } = await supabaseAdmin
-      .from("finance_transactions")
-      .select("tx_date, tx_type, concept, category, amount")
-      .eq("client_id", RAFA_CLIENT_ID)
-      .order("tx_date");
-    if (txErr) {
-      console.error("finanzas chat txs:", txErr);
-      return NextResponse.json({ error: "Error de datos" }, { status: 500 });
+    // OJO: Supabase regresa máx. 1000 filas por request — paginar siempre.
+    interface TxRow { tx_date: string; tx_type: string; concept: string; category: string | null; amount: number; }
+    const all: TxRow[] = [];
+    const PAGE = 1000;
+    for (let from = 0; ; from += PAGE) {
+      const { data: page, error: txErr } = await supabaseAdmin
+        .from("finance_transactions")
+        .select("tx_date, tx_type, concept, category, amount")
+        .eq("client_id", RAFA_CLIENT_ID)
+        .order("tx_date").order("created_at")
+        .range(from, from + PAGE - 1);
+      if (txErr) {
+        console.error("finanzas chat txs:", txErr);
+        return NextResponse.json({ error: "Error de datos" }, { status: 500 });
+      }
+      all.push(...((page ?? []) as TxRow[]));
+      if (!page || page.length < PAGE) break;
     }
 
-    interface TxRow { tx_date: string; tx_type: string; concept: string; category: string | null; amount: number; }
-    const csv = "fecha,tipo,concepto,categoria,monto\n" + ((txs ?? []) as TxRow[])
+    const rango = all.length
+      ? `Cobertura del registro: ${all[0].tx_date} a ${all[all.length - 1].tx_date} (${all.length} movimientos).`
+      : "El registro está vacío.";
+    const csv = "fecha,tipo,concepto,categoria,monto\n" + all
       .map(t => `${t.tx_date},${t.tx_type},"${String(t.concept).replace(/"/g, "'")}",${t.category ?? ""},${t.amount}`)
       .join("\n");
 
@@ -76,7 +87,7 @@ export async function POST(req: NextRequest) {
     const resp = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 600,
-      system: systemPrompt(today) + "\n\n=== REGISTRO COMPLETO ===\n" + csv,
+      system: systemPrompt(today) + "\n\n=== REGISTRO COMPLETO ===\n" + rango + "\n" + csv,
       messages: messages.map(m => ({ role: m.role, content: m.content })),
     });
 

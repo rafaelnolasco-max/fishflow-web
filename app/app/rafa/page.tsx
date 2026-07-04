@@ -147,17 +147,27 @@ export default function RafaFinanzas() {
 
   // ── Carga ───────────────────────────────────────────────────────────────────
   const loadAll = useCallback(async () => {
-    const [txR, recR, cfgR] = await Promise.all([
-      supabase.from("finance_transactions").select("*")
-        .eq("client_id", RAFA_CLIENT_ID).order("tx_date", { ascending: false }).order("created_at", { ascending: false }),
+    // Supabase regresa máx. 1000 filas por request — paginar las transacciones
+    const allTxs: Tx[] = [];
+    const PAGE = 1000;
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase.from("finance_transactions").select("*")
+        .eq("client_id", RAFA_CLIENT_ID)
+        .order("tx_date", { ascending: false }).order("created_at", { ascending: false })
+        .range(from, from + PAGE - 1);
+      if (error) { console.error("finance_transactions:", error); break; }
+      allTxs.push(...((data ?? []) as Tx[]));
+      if (!data || data.length < PAGE) break;
+    }
+    setTxs(allTxs);
+
+    const [recR, cfgR] = await Promise.all([
       supabase.from("finance_recurring").select("*")
         .eq("client_id", RAFA_CLIENT_ID).order("tx_type").order("sort_order"),
       supabase.from("finance_config").select("*").eq("client_id", RAFA_CLIENT_ID).single(),
     ]);
-    if (txR.error)  console.error("finance_transactions:", txR.error);
     if (recR.error) console.error("finance_recurring:", recR.error);
     if (cfgR.error) console.error("finance_config:", cfgR.error);
-    if (txR.data)  setTxs(txR.data as Tx[]);
     if (recR.data) setRecurring(recR.data as Recurring[]);
     if (cfgR.data) setConfig(cfgR.data as Config);
   }, []);
