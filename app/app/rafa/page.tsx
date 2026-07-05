@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
@@ -84,6 +84,20 @@ const shiftMonth = (key: string, delta: number) => {
   const d = new Date(y, m - 1 + delta, 1);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 };
+// Mime de grabación: Safari/iOS no soporta webm — detectar (lección iPad/Safari)
+function pickAudioMime(): { mime: string; ext: string } {
+  const candidates = [
+    { mime: "audio/webm;codecs=opus", ext: "webm" },
+    { mime: "audio/webm", ext: "webm" },
+    { mime: "audio/mp4", ext: "mp4" }, // Safari / iOS
+    { mime: "audio/aac", ext: "aac" },
+  ];
+  for (const c of candidates) {
+    if (typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(c.mime)) return c;
+  }
+  return { mime: "", ext: "webm" };
+}
+
 const dayLabel = (d: string) => {
   const [, m, day] = d.split("-").map(Number);
   return `${day} ${MESES[m - 1].slice(0, 3).toLowerCase()}`;
@@ -120,6 +134,13 @@ export default function RafaFinanzas() {
   const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatBusy, setChatBusy] = useState(false);
+
+  // Voz
+  const [voiceState, setVoiceState] = useState<"idle" | "recording" | "transcribing">("idle");
+  const [recSeconds, setRecSeconds] = useState(0);
+  const mediaRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const recTimerRef = useRef<number | null>(null);
 
   // Datos
   const [txs, setTxs] = useState<Tx[]>([]);
@@ -325,8 +346,8 @@ export default function RafaFinanzas() {
   }
 
   // ── Chat financiero ─────────────────────────────────────────────────────
-  async function sendChat() {
-    const q = chatInput.trim();
+  async function sendChat(text?: string) {
+    const q = (text ?? chatInput).trim();
     if (!q || chatBusy) return;
     const next: ChatMsg[] = [...chatMsgs, { role: "user", content: q }];
     setChatMsgs(next); setChatInput(""); setChatBusy(true);
@@ -345,6 +366,67 @@ export default function RafaFinanzas() {
       setChatMsgs([...next, { role: "assistant", content: "Error de conexión — intenta de nuevo." }]);
     }
     setChatBusy(false);
+  }
+
+  // ── Voz: grabar → transcribir (Edge Function compartido) → enviar ────────
+  async function startVoice() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+      });
+      const { mime } = pickAudioMime();
+      const opts: MediaRecorderOptions = { audioBitsPerSecond: 32000 };
+      if (mime) opts.mimeType = mime;
+      const mr = new MediaRecorder(stream, opts);
+      chunksRef.current = [];
+      mr.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.onstop = () => { stream.getTracks().forEach(t => t.stop()); void transcribeVoice(); };
+      mediaRef.current = mr;
+      mr.start();
+      setRecSeconds(0);
+      setVoiceState("recording");
+      recTimerRef.current = window.setInterval(() => setRecSeconds(s => s + 1), 1000);
+    } catch (e: unknown) {
+      const err = e as { name?: string };
+      showToast(err?.name === "NotAllowedError"
+        ? "Sin permiso de micrófono — actívalo en Ajustes"
+        : "No se pudo iniciar la grabación");
+      setVoiceState("idle");
+    }
+  }
+
+  function stopVoice() {
+    if (recTimerRef.current) { clearInterval(recTimerRef.current); recTimerRef.current = null; }
+    setVoiceState("transcribing");
+    mediaRef.current?.stop();
+  }
+
+  async function transcribeVoice() {
+    try {
+      const { mime, ext } = pickAudioMime();
+      const blob = new Blob(chunksRef.current, { type: mime || "audio/webm" });
+      if (blob.size < 1000) { setVoiceState("idle"); return; } // toque accidental
+      const filename = `chat-${Date.now()}.${ext}`;
+      const path = `${RAFA_CLIENT_ID}/finanzas-chat/${filename}`;
+      const { error: upErr } = await supabase.storage.from("audio")
+        .upload(path, blob, { contentType: blob.type, upsert: true });
+      if (upErr) { console.error("voz upload:", upErr); showToast("Error al subir el audio"); setVoiceState("idle"); return; }
+      const { data, error: fnErr } = await supabase.functions.invoke("transcribe-audio", {
+        body: { client_id: RAFA_CLIENT_ID, module: "finanzas-chat", storage_path: path, filename, language: "es" },
+      });
+      setVoiceState("idle");
+      const transcript = (data as { transcript?: string } | null)?.transcript?.trim();
+      if (fnErr || !transcript) {
+        console.error("voz transcribe:", fnErr ?? data);
+        showToast("No se pudo transcribir — intenta de nuevo");
+        return;
+      }
+      void sendChat(transcript);
+    } catch (e) {
+      console.error("voz:", e);
+      showToast("Error al transcribir");
+      setVoiceState("idle");
+    }
   }
 
   // ── Config updates ──────────────────────────────────────────────────────────
@@ -710,13 +792,36 @@ export default function RafaFinanzas() {
               ))}
               {chatBusy && <div style={{ color: T.muted, fontSize: 13 }}>Pensando…</div>}
             </div>
-            <div style={{ padding: 14, borderTop: `1px solid ${T.border}`, display: "flex", gap: 8 }}>
-              <input style={{ ...inp, flex: 1 }} placeholder="Pregunta o registra un gasto…"
-                value={chatInput} onChange={e => setChatInput(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") sendChat(); }} />
-              <button onClick={sendChat} disabled={chatBusy}
+            <div style={{ padding: 14, borderTop: `1px solid ${T.border}`, display: "flex", gap: 8, alignItems: "center" }}>
+              <style>{`@keyframes ffpulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }`}</style>
+              {voiceState === "recording" ? (
+                <div style={{ ...inp, flex: 1, display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: T.danger,
+                    animation: "ffpulse 1.1s ease-in-out infinite", flexShrink: 0 }} />
+                  <span style={{ fontSize: 14, color: T.text }}>
+                    Grabando… {Math.floor(recSeconds / 60)}:{String(recSeconds % 60).padStart(2, "0")}
+                  </span>
+                </div>
+              ) : (
+                <input style={{ ...inp, flex: 1 }}
+                  placeholder={voiceState === "transcribing" ? "Transcribiendo…" : "Pregunta o registra un gasto…"}
+                  disabled={voiceState === "transcribing"}
+                  value={chatInput} onChange={e => setChatInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") sendChat(); }} />
+              )}
+              <button
+                onClick={voiceState === "recording" ? stopVoice : startVoice}
+                disabled={chatBusy || voiceState === "transcribing"}
+                aria-label={voiceState === "recording" ? "Detener grabación" : "Grabar voz"}
+                style={{ width: 46, height: 46, borderRadius: "50%", border: `1.5px solid ${voiceState === "recording" ? T.danger : T.border}`,
+                  background: voiceState === "recording" ? "rgba(248,113,113,.15)" : T.panel,
+                  fontSize: 19, cursor: "pointer", flexShrink: 0,
+                  opacity: chatBusy || voiceState === "transcribing" ? 0.5 : 1 }}>
+                {voiceState === "recording" ? "■" : voiceState === "transcribing" ? "⏳" : "🎤"}
+              </button>
+              <button onClick={() => sendChat()} disabled={chatBusy || voiceState !== "idle"}
                 style={{ background: chatBusy ? T.disabled : T.accent, color: "#fff", border: "none",
-                  borderRadius: 10, padding: "0 18px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+                  borderRadius: 10, padding: "0 18px", height: 46, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
                 ➤
               </button>
             </div>
