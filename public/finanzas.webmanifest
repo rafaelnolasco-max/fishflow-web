@@ -1,0 +1,13 @@
+{
+  "name": "FishFlow Finanzas",
+  "short_name": "Finanzas",
+  "description": "Tus gastos del mes, claros y bajo control",
+  "start_url": "/finanzas",
+  "display": "standalone",
+  "background_color": "#0D1B2A",
+  "theme_color": "#0D1B2A",
+  "icons": [
+    { "src": "/icon-rafa-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icon-rafa-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
