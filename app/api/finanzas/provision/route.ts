@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     const startMonth = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" }).slice(0, 7) + "-01";
     const [accessRes, cfgRes] = await Promise.all([
       supabaseAdmin.from("user_client_access").insert({
-        user_id: user.id, client_id: client.id, role: "owner",
+        user_id: user.id, client_id: client.id, role: "admin",
       }),
       supabaseAdmin.from("finance_config").insert({
         client_id: client.id,
@@ -77,6 +77,8 @@ export async function POST(req: NextRequest) {
     if (accessRes.error || cfgRes.error) {
       console.error("finanzas provision access/config:", accessRes.error, cfgRes.error);
       // rollback best-effort para no dejar cliente huérfano
+      // (primero config por el FK, luego el cliente)
+      await supabaseAdmin.from("finance_config").delete().eq("client_id", client.id);
       await supabaseAdmin.from("clients").delete().eq("id", client.id);
       return NextResponse.json({ error: "Error al crear cuenta" }, { status: 500 });
     }
