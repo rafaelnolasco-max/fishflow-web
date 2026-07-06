@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -27,6 +27,23 @@ export default function FinanzasRegistro() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
+  // Si ya hay sesión (p.ej. al volver del link de confirmación de correo,
+  // que llega con ?code= y el cliente lo intercambia solo), entrar directo.
+  useEffect(() => {
+    let done = false;
+    async function tryEnter() {
+      if (done) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) { done = true; await provisionAndGo(); }
+    }
+    tryEnter();
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") tryEnter();
+    });
+    return () => sub.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function provisionAndGo() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return false;
@@ -44,7 +61,10 @@ export default function FinanzasRegistro() {
     setError(""); setNotice(""); setBusy(true);
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({
+          email, password,
+          options: { emailRedirectTo: `${window.location.origin}/finanzas/registro` },
+        });
         if (error) {
           setError(error.message.includes("already registered")
             ? "Ese correo ya tiene cuenta — usa Entrar." : "No se pudo registrar. Revisa correo y contraseña (mínimo 6 caracteres).");
