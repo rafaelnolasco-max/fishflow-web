@@ -516,20 +516,27 @@ export default function FinanzasApp() {
   return (
     <div style={{ minHeight: "100vh", background: T.bg, color: T.text,
       fontFamily: "Inter, -apple-system, sans-serif" }}>
-      <DashboardHeader theme={T} sticky
-        icon={<img src="/isotipo.svg" alt="FishFlow" style={{ width: 26, height: 26 }} />}
-        iconBg="rgba(103,212,232,.10)"
-        title="FishFlow Finanzas" subtitle="Tus gastos del mes, claros y bajo control"
-        onLogout={async () => { await supabase.auth.signOut(); router.push("/finanzas/registro"); }} />
+      {/* Header + tabs en un solo bloque sticky (fix: la barra se movía en móvil) */}
+      <div style={{ position: "sticky", top: 0, zIndex: 30 }}>
+        <DashboardHeader theme={T}
+          icon={<img src="/isotipo.svg" alt="FishFlow" style={{ width: 26, height: 26 }} />}
+          iconBg="rgba(103,212,232,.10)"
+          title="FishFlow Finanzas" subtitle="Tus gastos del mes, claros y bajo control"
+          onLogout={async () => { await supabase.auth.signOut(); router.push("/finanzas/registro"); }} />
+        <div style={{ background: T.bg, overflow: "hidden" }}>
+          <div style={{ maxWidth: 860, margin: "0 auto", padding: "6px 16px 0", marginBottom: -22 }}>
+            <TabBar theme={T} active={tab} onChange={setTab} tabs={[
+              { id: "inicio",  label: "Inicio",  icon: "🏁" },
+              { id: "captura", label: "Captura", icon: "➕" },
+              { id: "mes",     label: "Mes",     icon: "📅" },
+              { id: "anio",    label: "Año",     icon: "📊" },
+              { id: "config",  label: "Config",  icon: "⚙️" },
+            ]} />
+          </div>
+        </div>
+      </div>
 
       <main style={{ maxWidth: 860, margin: "0 auto", padding: "18px 16px 90px" }}>
-        <TabBar theme={T} active={tab} onChange={setTab} tabs={[
-          { id: "inicio",  label: "Inicio",  icon: "🏁" },
-          { id: "captura", label: "Captura", icon: "➕" },
-          { id: "mes",     label: "Mes",     icon: "📅" },
-          { id: "anio",    label: "Año",     icon: "📊" },
-          { id: "config",  label: "Config",  icon: "⚙️" },
-        ]} />
 
         {/* ══ INICIO ══ */}
         {tab === "inicio" && (
@@ -801,6 +808,10 @@ export default function FinanzasApp() {
               {recurring.length === 0 && <Empty msg="Sin recurrentes — agrega tu renta, nómina o suscripciones abajo" />}
               <AddRecurringForm onAdd={addRecurring} />
             </Section>
+
+            <Section title="Cuenta" theme={T}>
+              <ChangePasswordForm onToast={showToast} />
+            </Section>
           </>
         )}
       </main>
@@ -1025,6 +1036,43 @@ function AddRecurringForm({ onAdd }: { onAdd: (t: TxType, c: string, a: number) 
           padding: "9px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
         + Agregar
       </button>
+    </div>
+  );
+}
+
+// ─── Cambiar contraseña (Config → Cuenta) ─────────────────────────────────────
+function ChangePasswordForm({ onToast }: { onToast: (msg: string) => void }) {
+  const [pw1, setPw1] = useState("");
+  const [pw2, setPw2] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function save() {
+    if (pw1.length < 6) { onToast("Mínimo 6 caracteres"); return; }
+    if (pw1 !== pw2) { onToast("Las contraseñas no coinciden"); return; }
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: pw1 });
+    setBusy(false);
+    if (error) { console.error(error); onToast("Error al cambiar la contraseña"); return; }
+    setPw1(""); setPw2("");
+    onToast("Contraseña actualizada");
+  }
+
+  return (
+    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14,
+      padding: 16, marginBottom: 22 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Cambiar contraseña</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <input style={{ ...inp, flex: 1, minWidth: 150 }} type="password" autoComplete="new-password"
+          placeholder="Nueva contraseña" value={pw1} onChange={e => setPw1(e.target.value)} />
+        <input style={{ ...inp, flex: 1, minWidth: 150 }} type="password" autoComplete="new-password"
+          placeholder="Repetir contraseña" value={pw2} onChange={e => setPw2(e.target.value)} />
+        <button onClick={save} disabled={busy}
+          style={{ background: T.accent, color: "#fff", border: "none", borderRadius: 9,
+            padding: "9px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer",
+            opacity: busy ? 0.6 : 1 }}>
+          {busy ? "Guardando…" : "Guardar"}
+        </button>
+      </div>
     </div>
   );
 }
