@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { transcribeLongAudio } from "@/lib/whisper-chunked";
+
+export const runtime = "nodejs"; // ffmpeg requiere runtime Node, no edge
 
 // ════════════════════════════════════════════════════════════════════════════
 // TherapyOS — record-session
@@ -76,25 +79,67 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Paciente no encontrado" }, { status: 404 });
     }
 
-    // ── 2. Transcribir vía Edge Function compartido ────────────────────────────
-    const txRes = await fetch(`${SUPABASE_URL}/functions/v1/transcribe-audio`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${SERVICE_ROLE}`,
-      },
-      body: JSON.stringify({
+    // ── 2. Transcribir con re-codificación + troceo (robusto para sesiones largas) ─
+    // El Edge Function `transcribe-audio` sigue sirviendo notas de voz cortas
+    // (finanzas-chat, /app/rafa). Aquí, para terapia, el audio puede durar 45+ min:
+    // lo bajamos, lo re-codificamos a mp3 con ffmpeg (arregla el webm sin duración
+    // que Whisper rechaza) y lo troceamos. Ver lib/whisper-chunked.ts.
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (!openaiKey) {
+      return NextResponse.json({ error: "OPENAI_API_KEY no configurada" }, { status: 500 });
+    }
+
+    // Registro en `transcriptions` (bookkeeping multi-tenant)
+    const { data: txRow } = await supabaseAdmin
+      .from("transcriptions")
+      .insert({
         client_id: patient.client_id,
         module: "therapy_session",
         ref_id: patient_id,
+        source_type: "recorder",
+        storage_bucket: "audio",
         storage_path,
-        filename,
-      }),
-    });
-    const txData = await txRes.json();
-    if (!txRes.ok || !txData.transcript) {
+        status: "processing",
+        language: "es",
+      })
+      .select("id")
+      .single();
+    const transcription_id = txRow?.id ?? null;
+
+    const txData: { transcript?: string; transcription_id?: string; error?: string } = {
+      transcription_id: transcription_id ?? undefined,
+    };
+    try {
+      const { data: file, error: dlErr } = await supabaseAdmin.storage
+        .from("audio")
+        .download(storage_path);
+      if (dlErr || !file) throw new Error(`Storage: ${dlErr?.message ?? "sin datos"}`);
+
+      const { transcript } = await transcribeLongAudio(await file.arrayBuffer(), openaiKey, "es");
+      txData.transcript = transcript;
+
+      if (transcription_id) {
+        await supabaseAdmin
+          .from("transcriptions")
+          .update({ status: "done", transcript, updated_at: new Date().toISOString() })
+          .eq("id", transcription_id);
+      }
+    } catch (e) {
+      if (transcription_id) {
+        await supabaseAdmin
+          .from("transcriptions")
+          .update({ status: "error", error: String(e), updated_at: new Date().toISOString() })
+          .eq("id", transcription_id);
+      }
       return NextResponse.json(
-        { error: `Error al transcribir: ${txData.error ?? "sin transcripción"}` },
+        { error: `Error al transcribir: ${String(e)}` },
+        { status: 502 },
+      );
+    }
+
+    if (!txData.transcript) {
+      return NextResponse.json(
+        { error: "Error al transcribir: sin transcripción" },
         { status: 502 },
       );
     }
