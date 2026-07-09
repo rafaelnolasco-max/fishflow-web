@@ -99,7 +99,7 @@
 
   /* ---------------- MODELO (¿Qué es la Arquitectura Mental?) ---------------- */
   .modelo{background:var(--bone)}
-  .modelo-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:72px;align-items:center}
+  .modelo-grid{display:grid;grid-template-columns:1fr;max-width:880px;gap:72px;align-items:center}
   .modelo-body .lead-q{font-family:"Fraunces",serif;font-weight:400;font-size:clamp(24px,2.6vw,34px);line-height:1.32;color:var(--ink);margin-bottom:26px}
   .modelo-body .lead-q .accent{color:var(--accent-deep);font-style:italic}
   .modelo-body p{color:var(--ink-2);margin-bottom:18px;max-width:54ch}
@@ -107,11 +107,6 @@
   .modelo-def{border-left:3px solid var(--accent);padding:4px 0 4px 20px}
   .modelo-def .t{font-family:"Fraunces",serif;font-size:21px;margin-bottom:5px}
   .modelo-def .d{font-size:14.5px;color:var(--ink-2);line-height:1.6}
-  .video-ph{position:relative;aspect-ratio:4/3;border:1px solid var(--rule);background:var(--ink);overflow:hidden;display:flex;align-items:center;justify-content:center}
-  .video-ph .play{width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;transition:.3s}
-  .video-ph:hover .play{background:var(--accent);border-color:var(--accent)}
-  .video-ph .play svg{width:24px;height:24px;fill:#fff;margin-left:4px}
-  .video-ph .vlabel{position:absolute;bottom:18px;left:20px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.7);border:1px dashed rgba(255,255,255,.35);padding:6px 10px}
 
   /* ---------------- CRITERIO (prueba profunda) ---------------- */
   .criterio{background:var(--paper)}
@@ -297,8 +292,6 @@
   .made-by .made-url{font-size:11px;letter-spacing:.1em;text-transform:lowercase;color:var(--ink-2);border-left:1px solid var(--rule);padding-left:14px;font-family:"Inter",sans-serif}
 
   /* ---------------- DEMO BANNER ---------------- */
-  .demo-banner{background:var(--accent);color:#fff;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 16px}
-  .demo-banner a{text-decoration:underline}
 
   /* ---------------- RESPONSIVE — iPad / tablet ---------------- */
   @media (max-width:900px){
@@ -380,17 +373,26 @@
     .about-body h3,.diag-intro h3{font-size:30px}
   }
 
+
+  /* ---------------- NAV MOVIL (hamburguesa — estandar FishFlow) ---------------- */
+  .nav-burger{display:none;background:none;border:1px solid var(--ink);width:42px;height:42px;align-items:center;justify-content:center;cursor:pointer;font-size:17px;line-height:1;color:var(--ink);margin-left:14px}
+  .nav-mobile{display:none;flex-direction:column;background:rgba(255,255,255,.98);border-bottom:1px solid var(--rule);padding:6px 24px 20px}
+  .nav-mobile.open{display:flex}
+  .nav-mobile a{padding:14px 4px;border-bottom:1px solid var(--rule);font-size:14px;letter-spacing:.02em;color:var(--ink-2)}
+  .nav-mobile a.nav-mobile-cta{margin-top:16px;border:1px solid var(--ink);border-bottom:1px solid var(--ink);text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:13px 20px;color:var(--ink)}
+  @media (max-width:900px){.nav-burger{display:flex}}
+
   /* MOBILE HARDENING (estandar FishFlow) */
   html,body{overflow-x:hidden;max-width:100%}
   img,svg,video{max-width:100%;height:auto}
 </style>
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 </head>
 <body>
 
 <!-- Barra fija (banner demo + navegación) -->
 <div class="topstack">
-  <!-- Banner solo para la demo interna de FishFlow -->
-  <div class="demo-banner">Demo de rediseño · Propuesta FishFlow para Mario Citalán · <a href="panel.html">Ver tu panel de prospectos →</a></div>
 
   <!-- ============== NAV ============== -->
   <nav class="nav" id="nav">
@@ -403,7 +405,6 @@
         <a href="#soluciones">Soluciones</a>
         <a href="ciencia-en-escena.html">Ciencia en Escena</a>
         <a href="recursos.html">Recursos</a>
-        <a href="panel.html">Tu panel</a>
       </div>
       <a href="actitud.html" class="nav-cta">Evalúa tu actitud</a>
     </div>
@@ -479,10 +480,6 @@
         </div>
       </div>
 
-      <div class="video-ph" role="img" aria-label="Video de Mario explicando el modelo — pendiente">
-        <div class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-        <div class="vlabel">Video de Mario · 2 min · pendiente</div>
-      </div>
     </div>
   </div>
 </section>
@@ -772,5 +769,28 @@
   });
 </script>
 
+<script>
+(function(){
+  var inner=document.querySelector('.nav-inner');if(!inner)return;
+  var nav=inner.parentNode;
+  var links=inner.querySelector('.nav-links');
+  var cta=inner.querySelector('.nav-cta');
+  var b=document.createElement('button');
+  b.className='nav-burger';b.setAttribute('aria-label','Abrir men\u00fa');b.setAttribute('aria-expanded','false');b.innerHTML='\u2630';
+  inner.appendChild(b);
+  var m=document.createElement('div');m.className='nav-mobile';
+  if(links)m.innerHTML=links.innerHTML;
+  if(cta){var c=cta.cloneNode(true);c.className='nav-mobile-cta';m.appendChild(c);}
+  nav.appendChild(m);
+  function close(){m.classList.remove('open');b.setAttribute('aria-expanded','false');b.setAttribute('aria-label','Abrir men\u00fa');b.innerHTML='\u2630';}
+  b.addEventListener('click',function(){
+    var open=m.classList.toggle('open');
+    b.setAttribute('aria-expanded',String(open));
+    b.setAttribute('aria-label',open?'Cerrar men\u00fa':'Abrir men\u00fa');
+    b.innerHTML=open?'\u2715':'\u2630';
+  });
+  m.addEventListener('click',function(e){if(e.target.closest('a'))close();});
+})();
+</script>
 </body>
 </html>

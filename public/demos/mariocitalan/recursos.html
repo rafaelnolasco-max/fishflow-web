@@ -24,8 +24,6 @@
   .eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-deep)}
   .container{max-width:1180px;margin:0 auto;padding:0 56px}
 
-  .demo-banner{background:var(--accent);color:#fff;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 16px}
-  .demo-banner a{text-decoration:underline}
 
   .nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(14px);background:rgba(255,255,255,.85);border-bottom:1px solid var(--rule)}
   .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 56px}
@@ -85,14 +83,24 @@
     .cap-form input{min-width:0}
   }
 
+
+  /* ---------------- NAV MOVIL (hamburguesa — estandar FishFlow) ---------------- */
+  .nav-burger{display:none;background:none;border:1px solid var(--ink);width:42px;height:42px;align-items:center;justify-content:center;cursor:pointer;font-size:17px;line-height:1;color:var(--ink);margin-left:14px}
+  .nav-mobile{display:none;flex-direction:column;background:rgba(255,255,255,.98);border-bottom:1px solid var(--rule);padding:6px 24px 20px}
+  .nav-mobile.open{display:flex}
+  .nav-mobile a{padding:14px 4px;border-bottom:1px solid var(--rule);font-size:14px;letter-spacing:.02em;color:var(--ink-2)}
+  .nav-mobile a.nav-mobile-cta{margin-top:16px;border:1px solid var(--ink);border-bottom:1px solid var(--ink);text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:13px 20px;color:var(--ink)}
+  @media (max-width:900px){.nav-burger{display:flex}}
+
   /* MOBILE HARDENING (estandar FishFlow) */
   html,body{overflow-x:hidden;max-width:100%}
   img,svg,video{max-width:100%;height:auto}
 </style>
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 </head>
 <body>
 
-<div class="demo-banner">Demo de rediseño · Propuesta FishFlow para Mario Citalán · <a href="index.html">← Inicio</a></div>
 
 <nav class="nav">
   <div class="nav-inner">
@@ -195,5 +203,28 @@
   });
 </script>
 
+<script>
+(function(){
+  var inner=document.querySelector('.nav-inner');if(!inner)return;
+  var nav=inner.parentNode;
+  var links=inner.querySelector('.nav-links');
+  var cta=inner.querySelector('.nav-cta');
+  var b=document.createElement('button');
+  b.className='nav-burger';b.setAttribute('aria-label','Abrir men\u00fa');b.setAttribute('aria-expanded','false');b.innerHTML='\u2630';
+  inner.appendChild(b);
+  var m=document.createElement('div');m.className='nav-mobile';
+  if(links)m.innerHTML=links.innerHTML;
+  if(cta){var c=cta.cloneNode(true);c.className='nav-mobile-cta';m.appendChild(c);}
+  nav.appendChild(m);
+  function close(){m.classList.remove('open');b.setAttribute('aria-expanded','false');b.setAttribute('aria-label','Abrir men\u00fa');b.innerHTML='\u2630';}
+  b.addEventListener('click',function(){
+    var open=m.classList.toggle('open');
+    b.setAttribute('aria-expanded',String(open));
+    b.setAttribute('aria-label',open?'Cerrar men\u00fa':'Abrir men\u00fa');
+    b.innerHTML=open?'\u2715':'\u2630';
+  });
+  m.addEventListener('click',function(e){if(e.target.closest('a'))close();});
+})();
+</script>
 </body>
 </html>

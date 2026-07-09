@@ -3,6 +3,18 @@ import { Resend } from 'resend'
 
 export const runtime = 'nodejs'
 
+// CORS: el sitio público de Mario vive en su propio dominio (Hostinger) y hace
+// POST a este endpoint. Sin credenciales, por eso '*' es aceptable.
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS_HEADERS })
+}
+
 // Notificación de demo: al completar la Evaluación de Arquitectura Mental y del
 // Criterio se envían DOS correos:
 //   1) Interno → Mario + Rafa (admin): aviso con los datos del prospecto.
@@ -90,21 +102,23 @@ export async function POST(req: Request) {
     const testLabel = test === 'actitud' ? 'Actitud' : 'Criterio'
 
     if (!nombre || !/.+@.+\..+/.test(email)) {
-      return NextResponse.json({ error: 'Datos incompletos.' }, { status: 400 })
+      return NextResponse.json({ error: 'Datos incompletos.' }, { status: 400, headers: CORS_HEADERS })
     }
 
     const resendKey = process.env.RESEND_API_KEY
     if (!resendKey) {
       console.error('[demo/mario-criterio] RESEND_API_KEY no configurada')
-      return NextResponse.json({ ok: false, note: 'email no configurado' })
+      return NextResponse.json({ ok: false, note: 'email no configurado' }, { headers: CORS_HEADERS })
     }
 
     // URL absoluta del CTA hacia la ruta recomendada del demo
     let ctaUrl = 'https://www.fishflow.mx/demos/mariocitalan/index.html#soluciones'
     let pdfUrl = ''
     try {
-      const origin = new URL(req.url).origin
-      const base = `${origin}/demos/mariocitalan/`
+      const reqOrigin = req.headers.get('origin') || new URL(req.url).origin
+      const base = reqOrigin.includes('fishflow.mx')
+        ? `${reqOrigin}/demos/mariocitalan/`
+        : `${reqOrigin}/`
       ctaUrl = new URL(link || 'index.html#soluciones', base).toString()
       if (pdf) pdfUrl = new URL(pdf, base).toString()
     } catch (_) {}
@@ -131,9 +145,9 @@ export async function POST(req: Request) {
     })
     if (leadErr) console.error('[demo/mario-criterio] lead email error:', leadErr)
 
-    return NextResponse.json({ ok: !adminErr && !leadErr })
+    return NextResponse.json({ ok: !adminErr && !leadErr }, { headers: CORS_HEADERS })
   } catch (err: any) {
     console.error('[demo/mario-criterio] Error:', err?.message ?? err)
-    return NextResponse.json({ error: 'Error al procesar.' }, { status: 500 })
+    return NextResponse.json({ error: 'Error al procesar.' }, { status: 500, headers: CORS_HEADERS })
   }
 }
