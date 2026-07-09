@@ -120,8 +120,19 @@
   html,body{overflow-x:hidden;max-width:100%}
   img,svg,video{max-width:100%;height:auto}
 </style>
-<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mario Citalán · Dr. Mente">
+<meta property="og:title" content="Evaluación de la Arquitectura de la Actitud — Mario Citalán">
+<meta property="og:description" content="Evaluación de la Arquitectura de la Actitud: 15 preguntas rápidas. Descubre qué tan sólida es la estructura mental que sostiene tu forma de enfrentar la vida.">
+<meta property="og:url" content="https://mariocitalan.net/actitud.html">
+<meta property="og:image" content="https://mariocitalan.net/assets/img/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_MX">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://mariocitalan.net/actitud.html">
 </head>
 <body>
 
@@ -366,7 +377,7 @@
     const email  = (document.getElementById('c-email') ||{}).value || '';
     const tel    = (document.getElementById('c-tel')   ||{}).value || '';
     try {
-      fetch('https://www.fishflow.mx/api/demo/mario-criterio', {
+      fetch('https://www.fishflow.mx/api/demo/mario-criterio/', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ test:'actitud', nombre, email, tel, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:p.cta, pdf:'assets/pdf/arquitectura-de-la-actitud-2026.pdf', pdfNombre:'La Arquitectura de la Actitud' })
