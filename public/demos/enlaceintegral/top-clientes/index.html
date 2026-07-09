@@ -219,7 +219,13 @@ function renderRows(){
         <input type="text" placeholder="Profesión" data-i="${i}" data-k="profesion" value="${esc(c.profesion)}" ${dis} />
         <input type="text" placeholder="Ingreso aprox. mensual" data-i="${i}" data-k="ingreso" value="${esc(c.ingreso)}" ${dis} />
         <input type="text" placeholder="Dependientes (ej. 2)" data-i="${i}" data-k="dependientes" value="${esc(c.dependientes)}" ${dis} />
-        <input type="text" placeholder="Color" data-i="${i}" data-k="color" value="${esc(c.color)}" ${dis} />
+        <select data-i="${i}" data-k="color" ${dis} style="grid-column:1 / -1;">
+          <option value="">Color (personalidad DISC)</option>
+          <option value="Rojo" ${c.color==='Rojo'?'selected':''}>🔴 Rojo — Decisión: decidido, competitivo, exigente</option>
+          <option value="Amarillo" ${c.color==='Amarillo'?'selected':''}>🟡 Amarillo — Interacción: sociable, locuaz, persuasivo</option>
+          <option value="Azul" ${c.color==='Azul'?'selected':''}>🔵 Azul — Serenidad: preciso, lógico, disciplinado</option>
+          <option value="Verde" ${c.color==='Verde'?'selected':''}>🟢 Verde — Cumplimiento: calmado, cuidadoso, modesto</option>
+        </select>
         <input type="text" placeholder="Producto(s) contratados" data-i="${i}" data-k="productos" value="${esc(c.productos)}" ${dis} />
         <input type="text" placeholder="Punto relevante del cliente" data-i="${i}" data-k="nota" value="${esc(c.nota)}" style="grid-column:1 / -1;" ${dis} />
       </div>
