@@ -22,6 +22,16 @@ const HEADER_MAP: { match: RegExp; key: string }[] = [
   { match: /c[oó]digo postal|cp\b/i, key: 'postal_code' },
   { match: /g[eé]nero/i, key: 'gender' },
   { match: /nacimiento|edad/i, key: 'birth_date_or_age' },
+  // Campos Avatar CRM (HubSpot). Orden importa: "independiente" va antes que
+  // "dependientes" y que "profesión" porque "INDEPENDIENTE O PROFESIONISTA"
+  // contiene ambas como substring.
+  { match: /independiente/i, key: 'occupation_type' },
+  { match: /profesi[oó]n/i, key: 'profession' },
+  { match: /\bdependientes?\b/i, key: 'dependents' },
+  { match: /color/i, key: 'color' },
+  { match: /ingreso/i, key: 'income' },
+  { match: /relevante/i, key: 'relevant_note' },
+  { match: /producto/i, key: 'products' },
 ]
 
 function cellStr(v: unknown) {
@@ -105,6 +115,13 @@ export async function POST(req: Request) {
       postal_code: cellStr(row[colIndex.postal_code]) || null,
       gender: cellStr(row[colIndex.gender]) || null,
       birth_date_or_age: cellStr(row[colIndex.birth_date_or_age]) || null,
+      color: cellStr(row[colIndex.color]) || null,
+      occupation_type: cellStr(row[colIndex.occupation_type]) || null,
+      profession: cellStr(row[colIndex.profession]) || null,
+      income: cellStr(row[colIndex.income]) || null,
+      dependents: cellStr(row[colIndex.dependents]) || null,
+      relevant_note: cellStr(row[colIndex.relevant_note]) || null,
+      products: cellStr(row[colIndex.products]) || null,
       source: 'excel_upload' as const,
     }))
 

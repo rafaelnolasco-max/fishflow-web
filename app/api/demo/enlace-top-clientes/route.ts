@@ -23,6 +23,14 @@ type ClienteInput = {
   cp?: string
   genero?: string
   nacimiento?: string
+  // Campos Avatar CRM (HubSpot) — opcionales
+  color?: string
+  ocupacion?: string
+  profesion?: string
+  ingreso?: string
+  dependientes?: string
+  nota?: string
+  productos?: string
 }
 
 function clean(v: unknown) {
@@ -53,6 +61,13 @@ export async function POST(req: Request) {
         postal_code: clean(c.cp) || null,
         gender: clean(c.genero) || null,
         birth_date_or_age: clean(c.nacimiento) || null,
+        color: clean(c.color) || null,
+        occupation_type: clean(c.ocupacion) || null,
+        profession: clean(c.profesion) || null,
+        income: clean(c.ingreso) || null,
+        dependents: clean(c.dependientes) || null,
+        relevant_note: clean(c.nota) || null,
+        products: clean(c.productos) || null,
         source: 'web_form' as const,
       }))
       .filter((r) => r.client_name && r.phone && r.email)

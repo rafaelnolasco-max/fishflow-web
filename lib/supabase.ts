@@ -541,6 +541,14 @@ export interface InsuranceVendorTopClient {
   postal_code:        string | null;
   gender:             string | null;
   birth_date_or_age:  string | null;
+  // Campos Avatar CRM (HubSpot)
+  color:              string | null;
+  occupation_type:    string | null;
+  profession:         string | null;
+  income:             string | null;
+  dependents:         string | null;
+  relevant_note:      string | null;
+  products:           string | null;
   source:             "web_form" | "excel_upload";
   created_at:         string;
 }

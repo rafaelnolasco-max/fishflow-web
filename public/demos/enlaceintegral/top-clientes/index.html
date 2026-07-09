@@ -151,7 +151,10 @@ const MAX = 20;
 const REQUIRED_FIELDS = ['nombre','telefono','email'];
 const DRAFT_KEY = 'enlace_top20_draft_v1';
 
-function emptyClient(){ return {nombre:'',telefono:'',email:'',ciudad:'',estado:'',cp:'',genero:'',nacimiento:'',saved:false}; }
+function emptyClient(){ return {nombre:'',telefono:'',email:'',ciudad:'',estado:'',cp:'',genero:'',nacimiento:'',color:'',ocupacion:'',profesion:'',ingreso:'',dependientes:'',nota:'',productos:'',saved:false}; }
+
+// Escapa valores para atributos HTML; tolera undefined (drafts viejos sin los campos nuevos)
+function esc(v){ return (v || '').replace(/"/g,'&quot;'); }
 
 let state = {
   vendedor: '',
@@ -208,6 +211,17 @@ function renderRows(){
           <option value="F" ${c.genero==='F'?'selected':''}>F</option>
         </select>
         <input type="text" placeholder="Fecha nac. o edad" data-i="${i}" data-k="nacimiento" value="${c.nacimiento.replace(/"/g,'&quot;')}" ${dis} />
+        <select data-i="${i}" data-k="ocupacion" ${dis}>
+          <option value="">Ocupación</option>
+          <option value="Independiente" ${c.ocupacion==='Independiente'?'selected':''}>Independiente</option>
+          <option value="Profesionista" ${c.ocupacion==='Profesionista'?'selected':''}>Profesionista</option>
+        </select>
+        <input type="text" placeholder="Profesión" data-i="${i}" data-k="profesion" value="${esc(c.profesion)}" ${dis} />
+        <input type="text" placeholder="Ingreso aprox. mensual" data-i="${i}" data-k="ingreso" value="${esc(c.ingreso)}" ${dis} />
+        <input type="text" placeholder="Dependientes (ej. 2)" data-i="${i}" data-k="dependientes" value="${esc(c.dependientes)}" ${dis} />
+        <input type="text" placeholder="Color" data-i="${i}" data-k="color" value="${esc(c.color)}" ${dis} />
+        <input type="text" placeholder="Producto(s) contratados" data-i="${i}" data-k="productos" value="${esc(c.productos)}" ${dis} />
+        <input type="text" placeholder="Punto relevante del cliente" data-i="${i}" data-k="nota" value="${esc(c.nota)}" style="grid-column:1 / -1;" ${dis} />
       </div>
     `;
     container.appendChild(card);

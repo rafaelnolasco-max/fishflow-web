@@ -162,6 +162,48 @@ export default function EnlaceDashboardPage() {
     setExpanded(expanded === vendor ? null : vendor);
   }
 
+  // Descarga genérica de un CSV con BOM (acentos correctos en Excel)
+  function triggerDownload(lines: string[], filename: string) {
+    const csv = "﻿" + lines.join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // CSV con los 11 encabezados exactos de la plantilla "Avatar CRM" de HubSpot
+  function downloadAvatarCRM() {
+    const headers = [
+      "NOMBRE COMPLETO", "FECHA DE NACIMIENTO", "WHATS APP", "CORREO", "COLOR",
+      "INDEPENDIENTE O PROFESIONISTA", "PROFESION", "INGRESO", "DEPENDIENTES",
+      "PUNTO RELEVANTE", "PRODUCTO (S)",
+    ];
+    const lines = [headers.join(",")];
+    for (const c of rows) {
+      const cells = [
+        c.client_name,
+        c.birth_date_or_age ?? "",
+        normalizePhone(c.phone),
+        c.email,
+        c.color ?? "",
+        c.occupation_type ?? "",
+        c.profession ?? "",
+        c.income ?? "",
+        c.dependents ?? "",
+        c.relevant_note ?? "",
+        c.products ?? "",
+      ].map((v) => csvEscape(String(v)));
+      lines.push(cells.join(","));
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    triggerDownload(lines, `enlace-integral-avatar-crm-${today}.csv`);
+  }
+
   function downloadCSV() {
     const headers = ["Email", "Phone", "First Name", "Last Name", "City", "State", "Zip", "Country", "Gender", "Date of Birth / Age"];
     const lines = [headers.join(",")];
@@ -181,17 +223,8 @@ export default function EnlaceDashboardPage() {
       ].map((v) => csvEscape(String(v)));
       lines.push(cells.join(","));
     }
-    const csv = "﻿" + lines.join("\n"); // BOM para acentos en Excel
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
     const today = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = `enlace-integral-meta-audiencia-${today}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    triggerDownload(lines, `enlace-integral-meta-audiencia-${today}.csv`);
   }
 
   return (
@@ -231,6 +264,27 @@ export default function EnlaceDashboardPage() {
             }}
           >
             ⬇ Descargar CSV
+          </button>
+        </div>
+
+        <div style={{ ...cardStyle, display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 12, flexWrap: "wrap", marginBottom: 24 }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.carbon }}>Exportar Avatar CRM (HubSpot)</div>
+            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>
+              CSV con el formato Avatar CRM de Enlace, listo para importar contactos en HubSpot ({totalRegistros} registro{totalRegistros !== 1 ? "s" : ""}).
+            </div>
+          </div>
+          <button
+            onClick={downloadAvatarCRM}
+            disabled={totalRegistros === 0}
+            style={{
+              background: totalRegistros === 0 ? C.gray : C.carbon, color: "#fff", border: "none",
+              borderRadius: 9, padding: "9px 18px", fontSize: 13.5, fontWeight: 700,
+              cursor: totalRegistros === 0 ? "not-allowed" : "pointer", whiteSpace: "nowrap",
+            }}
+          >
+            ⬇ Descargar Avatar CRM
           </button>
         </div>
 
