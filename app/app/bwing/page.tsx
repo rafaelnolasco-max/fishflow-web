@@ -548,29 +548,52 @@ export default function BwingAdmin() {
   )
 }
 
-// ─── Resumen de la noche ─────────────────────────────────────────────────────
+// ─── Resumen de la noche (dashboard de venta) ────────────────────────────────
 // Todo se calcula en el cliente a partir de las requests de la sesión abierta
-// (incluye canceladas — por eso cancelar es soft delete).
+// (incluye canceladas — por eso cancelar es soft delete). SVG/CSS puro, sin deps.
+
+const GREEN = 'rgb(74,222,128)'
+
+function CountUp({ value }: { value: number }) {
+  const [n, setN] = useState(0)
+  useEffect(() => {
+    let raf = 0
+    const t0 = performance.now()
+    const dur = 900
+    const tick = (t: number) => {
+      const p = Math.min((t - t0) / dur, 1)
+      setN(Math.round(value * (1 - Math.pow(1 - p, 3))))
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value])
+  return <>{n}</>
+}
 
 function NightSummary({ rows, openedAt }: { rows: KRequest[]; openedAt: string }) {
   const total = rows.length
   const done = rows.filter((r) => r.status === 'done')
   const cancelled = rows.filter((r) => r.status === 'cancelled')
-  const waiting = rows.filter((r) => r.status === 'pending' || r.status === 'next')
+  const inPlay = rows.filter(
+    (r) => r.status === 'pending' || r.status === 'next' || r.status === 'singing'
+  )
 
   // Ritmo: canciones cantadas por hora desde que abrió la noche
   const hoursOpen = Math.max(
     (Date.now() - new Date(openedAt).getTime()) / 3_600_000,
     1 / 60
   )
-  const perHour = done.length / hoursOpen
+  const perHour = Math.round((done.length / hoursOpen) * 10) / 10
 
   // Espera promedio: creada → cantada (updated_at del done)
   const waits = done.map(
     (r) => new Date(r.updated_at).getTime() - new Date(r.created_at).getTime()
   )
   const avgWaitMin =
-    waits.length > 0 ? waits.reduce((a, b) => a + b, 0) / waits.length / 60_000 : null
+    waits.length > 0
+      ? Math.round(waits.reduce((a, b) => a + b, 0) / waits.length / 60_000)
+      : null
 
   function top(map: Record<string, number>, n = 5) {
     return Object.entries(map)
@@ -596,106 +619,328 @@ function NightSummary({ rows, openedAt }: { rows: KRequest[]; openedAt: string }
     return acc
   }, {})
 
-  // Actividad por hora (pedidas)
+  // Actividad por hora (pedidas) + hora pico
   const byHour = rows.reduce<Record<string, number>>((acc, r) => {
     const h = new Date(r.created_at).toLocaleTimeString('es-MX', { hour: '2-digit' })
     acc[h] = (acc[h] ?? 0) + 1
     return acc
   }, {})
+  const hours = Object.entries(byHour).sort((a, b) => a[0].localeCompare(b[0]))
   const hourMax = Math.max(1, ...Object.values(byHour))
+  const horaPico = hours.length > 0 ? hours.reduce((a, b) => (b[1] > a[1] ? b : a))[0] : null
+
+  const podium = top(byTable, 3)
+
+  if (total === 0) {
+    return (
+      <div className="text-center mt-16 space-y-3">
+        <div className="text-6xl">🎤</div>
+        <p className="text-neutral-400 text-lg font-bold">La noche apenas empieza</p>
+        <p className="text-neutral-600 text-sm">
+          Cuando las mesas pidan canciones, este tablero se llena solo — en vivo.
+        </p>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-5">
-      {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center">
-        <Stat label="Pedidas" value={total} />
-        <Stat label="Cantadas" value={done.length} />
-        <Stat label="En fila" value={waiting.length} />
-        <Stat label="Canceladas" value={cancelled.length} />
-        <Stat label="Por hora" value={Math.round(perHour * 10) / 10} />
-        <Stat
-          label="Espera prom."
-          value={avgWaitMin != null ? `${Math.round(avgWaitMin)} min` : '—'}
-        />
+    <div className="space-y-6">
+      <style>{`
+        @keyframes ffUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+        @keyframes ffGrow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+        @keyframes ffRise { from { transform: scaleY(0) } to { transform: scaleY(1) } }
+        @keyframes ffDash { from { stroke-dasharray: 0 999 } }
+        .ff-up { animation: ffUp .55s cubic-bezier(.22,1,.36,1) both }
+        .ff-grow { transform-origin: left; animation: ffGrow .8s cubic-bezier(.22,1,.36,1) both }
+        .ff-rise { transform-origin: bottom; animation: ffRise .7s cubic-bezier(.22,1,.36,1) both }
+        .ff-dash { animation: ffDash 1.1s ease-out both }
+      `}</style>
+
+      {/* Hero: la noche en números */}
+      <section
+        className="ff-up rounded-3xl border p-6 sm:p-8"
+        style={{
+          borderColor: 'rgba(247,169,23,0.35)',
+          background:
+            'radial-gradient(ellipse at 20% -30%, rgba(247,169,23,0.16) 0%, rgba(18,14,8,0) 60%), rgba(23,18,10,0.6)',
+        }}
+      >
+        <div className="text-xs font-bold uppercase tracking-[0.3em] text-neutral-500 mb-5">
+          ✨ La noche en números
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <Hero label="Canciones pedidas" value={<CountUp value={total} />} color={AMBER} />
+          <Hero label="Cantadas" value={<CountUp value={done.length} />} color={GREEN} />
+          <Hero
+            label="Ritmo"
+            value={
+              <>
+                {perHour}
+                <span className="text-xl text-neutral-500 font-bold"> /hora</span>
+              </>
+            }
+            color="#fff"
+          />
+          <Hero
+            label="Espera promedio"
+            value={
+              avgWaitMin != null ? (
+                <>
+                  <CountUp value={avgWaitMin} />
+                  <span className="text-xl text-neutral-500 font-bold"> min</span>
+                </>
+              ) : (
+                <span className="text-neutral-600">—</span>
+              )
+            }
+            color="#fff"
+          />
+        </div>
+      </section>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Donut: destino de las canciones */}
+        <Card title="🎯 Destino de las canciones" delay={0.05}>
+          <div className="flex items-center gap-6">
+            <Donut
+              total={total}
+              segments={[
+                { value: done.length, color: GREEN },
+                { value: inPlay.length, color: AMBER },
+                { value: cancelled.length, color: '#525252' },
+              ]}
+              center={done.length}
+              centerLabel="cantadas"
+            />
+            <ul className="space-y-2.5 text-sm">
+              <Legend color={GREEN} label="Cantadas" value={done.length} />
+              <Legend color={AMBER} label="En juego" value={inPlay.length} />
+              <Legend color="#525252" label="Canceladas" value={cancelled.length} />
+            </ul>
+          </div>
+        </Card>
+
+        {/* Podio de mesas */}
+        <Card title="🏆 Podio de mesas" delay={0.1}>
+          {podium.length === 0 ? (
+            <Empty />
+          ) : (
+            <div className="flex items-end justify-center gap-4 h-44 pt-2">
+              {[podium[1], podium[0], podium[2]]
+                .filter((e): e is [string, number] => Boolean(e))
+                .map((entry) => {
+                  const rank = podium.indexOf(entry) // 0=oro
+                  const heights = ['92%', '64%', '46%']
+                  const medals = ['🥇', '🥈', '🥉']
+                  return (
+                    <div key={entry[0]} className="flex flex-col items-center justify-end h-full w-24">
+                      <div className="text-2xl mb-1">{medals[rank]}</div>
+                      <div className="text-lg font-extrabold" style={{ color: AMBER }}>
+                        {entry[1]}
+                      </div>
+                      <div
+                        className="ff-rise w-full rounded-t-xl mt-1"
+                        style={{
+                          height: heights[rank],
+                          background: `linear-gradient(180deg, ${
+                            rank === 0 ? AMBER : 'rgba(247,169,23,0.45)'
+                          } 0%, rgba(247,169,23,0.08) 100%)`,
+                          animationDelay: `${0.15 + rank * 0.12}s`,
+                        }}
+                      />
+                      <div className="text-xs font-bold text-neutral-300 mt-2 text-center truncate w-full">
+                        {entry[0]}
+                      </div>
+                    </div>
+                  )
+                })}
+            </div>
+          )}
+        </Card>
+
+        {/* Top artistas */}
+        <Card title="🎸 Artistas más pedidos" delay={0.15}>
+          <Bars items={top(byArtist)} />
+        </Card>
+
+        {/* Top canciones */}
+        <Card title="🎵 Canciones más pedidas" delay={0.2}>
+          <Bars items={top(bySong)} />
+        </Card>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        {/* Top mesas */}
-        <RankCard title="🏆 Mesas más activas" items={top(byTable)} unit="canciones" />
-        {/* Top artistas */}
-        <RankCard title="🎸 Artistas más pedidos" items={top(byArtist)} unit="veces" />
-        {/* Top canciones */}
-        <RankCard title="🎵 Canciones más pedidas" items={top(bySong)} unit="veces" />
-
-        {/* Actividad por hora */}
-        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-4">
-          <h2 className="font-bold text-sm uppercase tracking-widest text-neutral-400 mb-3">
-            ⏰ Peticiones por hora
-          </h2>
-          {Object.keys(byHour).length === 0 ? (
-            <p className="text-neutral-600 text-sm">Sin actividad todavía.</p>
-          ) : (
-            <ul className="space-y-2">
-              {Object.entries(byHour)
-                .sort((a, b) => a[0].localeCompare(b[0]))
-                .map(([h, n]) => (
-                  <li key={h} className="flex items-center gap-3 text-sm">
-                    <span className="w-14 shrink-0 text-neutral-400">{h} h</span>
-                    <div className="flex-1 h-4 rounded bg-neutral-800 overflow-hidden">
-                      <div
-                        className="h-full rounded"
-                        style={{ width: `${(n / hourMax) * 100}%`, background: AMBER }}
-                      />
+      {/* Peticiones por hora */}
+      <Card title="⏰ El pulso de la noche" delay={0.25}>
+        {hours.length === 0 ? (
+          <Empty />
+        ) : (
+          <>
+            <div className="flex items-end gap-2 h-40 pt-2">
+              {hours.map(([h, n], i) => {
+                const pico = h === horaPico
+                return (
+                  <div key={h} className="flex-1 flex flex-col items-center justify-end h-full min-w-0">
+                    <div className="text-xs font-extrabold mb-1" style={{ color: pico ? GREEN : AMBER }}>
+                      {pico && '🔥'}{n}
                     </div>
-                    <span className="w-8 shrink-0 text-right font-bold" style={{ color: AMBER }}>
-                      {n}
-                    </span>
-                  </li>
-                ))}
-            </ul>
-          )}
-        </section>
+                    <div
+                      className="ff-rise w-full max-w-14 rounded-t-lg"
+                      style={{
+                        height: `${Math.max((n / hourMax) * 100, 6)}%`,
+                        background: pico
+                          ? `linear-gradient(180deg, ${GREEN} 0%, rgba(74,222,128,0.1) 100%)`
+                          : `linear-gradient(180deg, ${AMBER} 0%, rgba(247,169,23,0.08) 100%)`,
+                        boxShadow: pico ? '0 0 18px rgba(74,222,128,0.35)' : undefined,
+                        animationDelay: `${0.1 + i * 0.06}s`,
+                      }}
+                    />
+                    <div className="text-[11px] text-neutral-500 mt-2 font-bold">{h}h</div>
+                  </div>
+                )
+              })}
+            </div>
+            {horaPico && (
+              <p className="text-xs text-neutral-500 mt-3">
+                🔥 Hora pico: <span className="font-bold" style={{ color: GREEN }}>{horaPico}:00</span> — la
+                hora con más peticiones de la noche.
+              </p>
+            )}
+          </>
+        )}
+      </Card>
+    </div>
+  )
+}
+
+// ─── Piezas del dashboard ────────────────────────────────────────────────────
+
+function Hero({ label, value, color }: { label: string; value: React.ReactNode; color: string }) {
+  return (
+    <div>
+      <div className="text-4xl sm:text-5xl font-extrabold tabular-nums" style={{ color }}>
+        {value}
+      </div>
+      <div className="text-[11px] uppercase tracking-widest text-neutral-500 mt-1.5">{label}</div>
+    </div>
+  )
+}
+
+function Card({
+  title,
+  children,
+  delay = 0,
+}: {
+  title: string
+  children: React.ReactNode
+  delay?: number
+}) {
+  return (
+    <section
+      className="ff-up rounded-3xl border border-neutral-800 bg-neutral-900/50 p-5"
+      style={{ animationDelay: `${delay}s` }}
+    >
+      <h2 className="font-bold text-sm uppercase tracking-widest text-neutral-400 mb-4">{title}</h2>
+      {children}
+    </section>
+  )
+}
+
+function Donut({
+  total,
+  segments,
+  center,
+  centerLabel,
+}: {
+  total: number
+  segments: { value: number; color: string }[]
+  center: number
+  centerLabel: string
+}) {
+  const R = 52
+  const C = 2 * Math.PI * R
+  let acc = 0
+  return (
+    <div className="relative shrink-0" style={{ width: 150, height: 150 }}>
+      <svg viewBox="0 0 140 140" className="w-full h-full -rotate-90">
+        <circle cx="70" cy="70" r={R} stroke="#262626" strokeWidth="16" fill="none" />
+        {segments.map((s, i) => {
+          if (s.value === 0 || total === 0) return null
+          const len = (s.value / total) * C
+          const el = (
+            <circle
+              key={i}
+              cx="70"
+              cy="70"
+              r={R}
+              stroke={s.color}
+              strokeWidth="16"
+              fill="none"
+              strokeDasharray={`${len} ${C - len}`}
+              strokeDashoffset={-acc}
+              strokeLinecap="butt"
+              className="ff-dash"
+            />
+          )
+          acc += len
+          return el
+        })}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="text-3xl font-extrabold" style={{ color: GREEN }}>
+          <CountUp value={center} />
+        </div>
+        <div className="text-[10px] uppercase tracking-widest text-neutral-500">{centerLabel}</div>
       </div>
     </div>
   )
 }
 
-function RankCard({
-  title,
-  items,
-  unit,
-}: {
-  title: string
-  items: [string, number][]
-  unit: string
-}) {
+function Legend({ color, label, value }: { color: string; label: string; value: number }) {
   return (
-    <section className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-4">
-      <h2 className="font-bold text-sm uppercase tracking-widest text-neutral-400 mb-3">
-        {title}
-      </h2>
-      {items.length === 0 ? (
-        <p className="text-neutral-600 text-sm">Sin datos todavía.</p>
-      ) : (
-        <ul className="space-y-1.5">
-          {items.map(([name, n], i) => (
-            <li
-              key={name}
-              className="flex items-center justify-between gap-3 text-sm border-b border-neutral-800/60 pb-1.5"
-            >
-              <span className="min-w-0 truncate text-neutral-300">
-                <span className="text-neutral-600 font-bold mr-2">{i + 1}</span>
-                {name}
-              </span>
-              <span className="shrink-0 font-bold" style={{ color: AMBER }}>
-                {n} <span className="text-neutral-600 font-normal">{unit}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+    <li className="flex items-center gap-2.5">
+      <span className="inline-block w-3 h-3 rounded-full shrink-0" style={{ background: color }} />
+      <span className="text-neutral-300">{label}</span>
+      <span className="font-extrabold ml-auto pl-4 tabular-nums" style={{ color }}>
+        {value}
+      </span>
+    </li>
   )
+}
+
+function Bars({ items }: { items: [string, number][] }) {
+  if (items.length === 0) return <Empty />
+  const max = Math.max(...items.map(([, n]) => n))
+  return (
+    <ul className="space-y-3">
+      {items.map(([name, n], i) => (
+        <li key={name}>
+          <div className="flex justify-between text-sm mb-1 gap-3">
+            <span className="min-w-0 truncate text-neutral-200 font-semibold">
+              <span className="text-neutral-600 font-extrabold mr-2">{i + 1}</span>
+              {name}
+            </span>
+            <span className="shrink-0 font-extrabold tabular-nums" style={{ color: AMBER }}>
+              {n}
+            </span>
+          </div>
+          <div className="h-2.5 rounded-full bg-neutral-800 overflow-hidden">
+            <div
+              className="ff-grow h-full rounded-full"
+              style={{
+                width: `${(n / max) * 100}%`,
+                background: `linear-gradient(90deg, rgba(247,169,23,0.35) 0%, ${AMBER} 100%)`,
+                animationDelay: `${0.1 + i * 0.08}s`,
+              }}
+            />
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function Empty() {
+  return <p className="text-neutral-600 text-sm">Sin datos todavía — la noche apenas arranca.</p>
 }
 
 // ─── Auxiliares ──────────────────────────────────────────────────────────────
