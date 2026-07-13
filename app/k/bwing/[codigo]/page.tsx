@@ -2,12 +2,14 @@
 
 // ============================================================
 // B-Wing Karaoke — Vista pública de mesa
-// Ruta: fishflow.mx/k/bwing/[numero]   (QR pegado en cada mesa)
+// Ruta: fishflow.mx/k/bwing/[codigo]   (QR pegado en cada mesa)
+// El código es aleatorio por mesa (karaoke_tables): nadie puede
+// adivinar la URL de otra mesa para meterle o quitarle canciones.
 // Sin login. La mesa pide canciones, ve SOLO sus canciones
 // (nunca la fila global ni su posición — la fila la maneja
 // Jesús con discrecionalidad), puede reordenar y cancelar
 // las suyas mientras estén en espera.
-// Escrituras → /api/bwing/requests (service role).
+// Escrituras → /api/bwing/requests (service role, valida el código).
 // Lecturas → Supabase anon + Realtime (policy solo sesión open).
 // ============================================================
 
@@ -42,10 +44,13 @@ const STATUS_LABEL: Record<KRequest['status'], string> = {
 }
 
 export default function MesaBwing() {
-  const params = useParams<{ numero: string }>()
-  const mesa = parseInt(params.numero ?? '', 10)
-  const storageKey = `bwing_mesa_${mesa}`
+  const params = useParams<{ codigo: string }>()
+  const codigo = (params.codigo ?? '').toLowerCase()
+  const storageKey = `bwing_mesa_${codigo}`
 
+  const [mesa, setMesa] = useState<number | null>(null)
+  const [maxPending, setMaxPending] = useState(12)
+  const [invalid, setInvalid] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [ownRefs, setOwnRefs] = useState<OwnRef[]>([])
@@ -101,6 +106,26 @@ export default function MesaBwing() {
     let channel: ReturnType<typeof supabase.channel> | null = null
 
     async function init() {
+      // 1) Resolver código → mesa (el servidor valida; anon no puede listar códigos)
+      try {
+        const res = await fetch(
+          `/api/bwing/requests?code=${encodeURIComponent(codigo)}`
+        )
+        if (!res.ok) {
+          setInvalid(true)
+          setLoading(false)
+          return
+        }
+        const json = await res.json()
+        setMesa(json.table_number)
+        if (json.max_pending) setMaxPending(json.max_pending)
+      } catch {
+        setInvalid(true)
+        setLoading(false)
+        return
+      }
+
+      // 2) Sesión abierta + Realtime
       const { data: sess } = await supabase
         .from('karaoke_sessions')
         .select('id')
@@ -113,7 +138,7 @@ export default function MesaBwing() {
       await fetchRows(sess.id)
 
       channel = supabase
-        .channel(`bwing-mesa-${mesa}`)
+        .channel(`bwing-mesa-${codigo}`)
         .on(
           'postgres_changes',
           {
@@ -131,7 +156,7 @@ export default function MesaBwing() {
     return () => {
       if (channel) supabase.removeChannel(channel)
     }
-  }, [mesa, fetchRows])
+  }, [codigo, fetchRows])
 
   // refetch cuando cambian mis refs (p. ej. acabo de agregar una)
   useEffect(() => {
@@ -148,7 +173,7 @@ export default function MesaBwing() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          table_number: mesa,
+          code: codigo,
           song,
           artist,
           singer_name: singer,
@@ -229,10 +254,15 @@ export default function MesaBwing() {
   const pendingCount = visible.filter((r) => r.status === 'pending').length
 
   // ── UI ────────────────────────────────────────────────────────────────────
-  if (!Number.isInteger(mesa) || mesa < 1) {
+  if (invalid) {
     return (
       <Shell>
-        <p className="text-center text-neutral-400 mt-20">Mesa no válida.</p>
+        <div className="text-center mt-20 space-y-3">
+          <div className="text-5xl">🤔</div>
+          <p className="text-neutral-400">
+            Este QR no corresponde a ninguna mesa. Pídele al staff el QR de tu mesa.
+          </p>
+        </div>
       </Shell>
     )
   }
@@ -257,7 +287,7 @@ export default function MesaBwing() {
             Mesa
           </div>
           <div className="text-2xl font-extrabold" style={{ color: AMBER }}>
-            {mesa}
+            {mesa ?? '·'}
           </div>
         </div>
       </header>
@@ -323,15 +353,15 @@ export default function MesaBwing() {
             {error && <p className="text-red-400 text-sm">{error}</p>}
             <button
               type="submit"
-              disabled={sending || pendingCount >= 3}
+              disabled={sending || pendingCount >= maxPending}
               className="w-full rounded-xl py-4 font-extrabold text-black text-lg disabled:opacity-40"
               style={{ background: AMBER }}
             >
               {sending ? 'Enviando…' : '🎤 ¡A la fila!'}
             </button>
-            {pendingCount >= 3 && (
+            {pendingCount >= maxPending && (
               <p className="text-neutral-500 text-xs text-center">
-                Tu mesa ya tiene 3 canciones en espera. Cuando pase una, puedes pedir otra.
+                Tu mesa ya tiene {maxPending} canciones en espera. Cuando pase una, puedes pedir otra.
               </p>
             )}
           </form>

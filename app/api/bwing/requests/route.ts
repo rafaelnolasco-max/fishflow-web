@@ -4,11 +4,14 @@ import { createClient } from '@supabase/supabase-js'
 export const runtime = 'nodejs'
 
 // ─── Módulo Karaoke B-Wing ────────────────────────────────────────────────────
-// Todas las escrituras de la ruta pública de mesa (/k/bwing/[numero]) pasan por
+// Todas las escrituras de la ruta pública de mesa (/k/bwing/[codigo]) pasan por
 // aquí con service role. Las tablas karaoke_* NO tienen policies de escritura
 // anon: este endpoint es la única puerta, y valida todas las reglas de negocio.
 //
 // Reglas:
+// - La mesa se identifica por CÓDIGO aleatorio (karaoke_tables), no por número:
+//   nadie puede adivinar la URL de otra mesa. GET ?code= resuelve código→mesa
+//   (karaoke_tables no tiene ningún grant anon; solo service role la lee).
 // - Solo se escribe sobre la sesión 'open' del cliente bwing.
 // - Editar / cancelar / reordenar: solo requests en status 'pending' y solo
 //   con el edit_token correcto (se genera al crear y vive en localStorage).
@@ -17,10 +20,10 @@ export const runtime = 'nodejs'
 // - position global la controla solo el admin; la mesa solo permuta SUS
 //   canciones entre SUS propios lugares (reorder_own).
 // - Límite de pendientes por mesa para que nadie acapare la fila.
+//   12 = mesas grandes (10+ personas) piden de una sola vez sin toparse.
 
 const BWING_SLUG = 'bwing'
-const MAX_PENDING_PER_TABLE = 3
-const MAX_TABLE = 50
+const MAX_PENDING_PER_TABLE = 12
 
 function svc() {
   return createClient(
@@ -50,6 +53,40 @@ function bad(msg: string, code = 400) {
   return NextResponse.json({ error: msg }, { status: code })
 }
 
+// Resuelve código de mesa → número. Solo códigos activos del cliente bwing.
+async function resolveTable(
+  supabase: ReturnType<typeof svc>,
+  code: string,
+  clientId: string
+) {
+  if (!/^[a-z0-9]{4,12}$/i.test(code)) return null
+  const { data } = await supabase
+    .from('karaoke_tables')
+    .select('table_number')
+    .eq('client_id', clientId)
+    .eq('code', code.toLowerCase())
+    .eq('active', true)
+    .maybeSingle()
+  return data?.table_number ?? null
+}
+
+// ─── GET ?code=xxx: resolver código → mesa (lo usa la página de mesa) ────────
+export async function GET(req: Request) {
+  const code = new URL(req.url).searchParams.get('code') ?? ''
+  const supabase = svc()
+  const { session, clientId } = await getOpenSession(supabase)
+  if (!clientId) return bad('Cliente no encontrado', 500)
+
+  const table_number = await resolveTable(supabase, code, clientId)
+  if (!table_number) return bad('Mesa no válida', 404)
+
+  return NextResponse.json({
+    table_number,
+    open: !!session,
+    max_pending: MAX_PENDING_PER_TABLE,
+  })
+}
+
 // ─── POST: crear petición de canción ─────────────────────────────────────────
 export async function POST(req: Request) {
   let body: Record<string, unknown>
@@ -59,18 +96,19 @@ export async function POST(req: Request) {
     return bad('JSON inválido')
   }
 
-  const table_number = Number(body.table_number)
+  const code = String(body.code ?? '')
   const song = String(body.song ?? '').trim().slice(0, 120)
   const artist = String(body.artist ?? '').trim().slice(0, 120) || null
   const singer_name = String(body.singer_name ?? '').trim().slice(0, 60)
 
-  if (!Number.isInteger(table_number) || table_number < 1 || table_number > MAX_TABLE)
-    return bad('Mesa inválida')
   if (!song) return bad('Falta la canción')
   if (!singer_name) return bad('Falta el nombre de quien canta')
 
   const supabase = svc()
-  const { session } = await getOpenSession(supabase)
+  const { session, clientId } = await getOpenSession(supabase)
+  if (!clientId) return bad('Cliente no encontrado', 500)
+  const table_number = await resolveTable(supabase, code, clientId)
+  if (!table_number) return bad('Mesa no válida', 403)
   if (!session) return bad('El karaoke no está abierto en este momento', 409)
 
   // Límite de pendientes por mesa

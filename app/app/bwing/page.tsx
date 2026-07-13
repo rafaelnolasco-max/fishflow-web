@@ -18,6 +18,11 @@ import { supabase } from '@/lib/supabase'
 const AMBER = '#F7A917'
 const BWING_CLIENT_ID = '1ced78d9-f137-4d8b-b7d6-82178fd90806'
 
+// Mesa 0 = el host (Jesús agrega sus canciones desde el admin)
+function mesaLabel(n: number) {
+  return n === 0 ? '🎙 Host' : `Mesa ${n}`
+}
+
 interface KRequest {
   id: string
   session_id: string
@@ -28,6 +33,7 @@ interface KRequest {
   status: 'pending' | 'next' | 'singing' | 'done' | 'cancelled'
   position: number | null
   created_at: string
+  updated_at: string
 }
 
 interface KSession {
@@ -42,6 +48,11 @@ export default function BwingAdmin() {
   const [rows, setRows] = useState<KRequest[]>([])
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [view, setView] = useState<'fila' | 'resumen'>('fila')
+  const [hostOpen, setHostOpen] = useState(false)
+  const [hostSong, setHostSong] = useState('')
+  const [hostArtist, setHostArtist] = useState('')
+  const [hostSinger, setHostSinger] = useState('Jesús')
 
   function notify(msg: string) {
     setToast(msg)
@@ -135,6 +146,35 @@ export default function BwingAdmin() {
     setSession(null)
     setRows([])
     notify('Noche cerrada')
+  }
+
+  // ── Canción del host (Jesús canta) ────────────────────────────────────────
+  // Inserta directo con el cliente autenticado (RLS user_has_access_to_client);
+  // mesa 0 = host. Entra a la fila como cualquier petición.
+  async function addHostSong() {
+    if (!session || !hostSong.trim() || !hostSinger.trim()) return
+    setBusy(true)
+    const maxPos = Math.max(0, ...rows.map((r) => r.position ?? 0))
+    const { error } = await supabase.from('karaoke_requests').insert({
+      session_id: session.id,
+      client_id: BWING_CLIENT_ID,
+      table_number: 0,
+      song: hostSong.trim().slice(0, 120),
+      artist: hostArtist.trim().slice(0, 120) || null,
+      singer_name: hostSinger.trim().slice(0, 60),
+      position: maxPos + 1,
+    })
+    setBusy(false)
+    if (error) {
+      console.error('[bwing admin] addHostSong:', error)
+      notify('No se pudo agregar la canción')
+      return
+    }
+    setHostSong('')
+    setHostArtist('')
+    setHostOpen(false)
+    notify('🎙 Canción del host en la fila')
+    fetchAll(session.id)
   }
 
   // ── Acciones sobre la fila ────────────────────────────────────────────────
@@ -283,6 +323,71 @@ export default function BwingAdmin() {
             </p>
           </div>
         ) : (
+          <>
+            {/* Tabs Fila / Resumen + canción del host */}
+            <div className="flex gap-2 mb-5 flex-wrap items-center">
+              {(['fila', 'resumen'] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`rounded-xl px-5 py-2.5 font-bold text-sm ${
+                    view === v ? 'text-black' : 'border border-neutral-700 text-neutral-400'
+                  }`}
+                  style={view === v ? { background: AMBER } : undefined}
+                >
+                  {v === 'fila' ? `🎤 Fila (${queue.length})` : '📊 Resumen de la noche'}
+                </button>
+              ))}
+              <button
+                onClick={() => setHostOpen((v) => !v)}
+                className="rounded-xl px-5 py-2.5 font-bold text-sm border text-neutral-200 ml-auto"
+                style={{ borderColor: AMBER }}
+              >
+                🎙 Canción del host
+              </button>
+            </div>
+
+            {/* Form del host */}
+            {hostOpen && (
+              <div
+                className="rounded-2xl border bg-neutral-900/60 p-4 mb-5 grid gap-2 sm:grid-cols-[2fr_2fr_1fr_auto]"
+                style={{ borderColor: AMBER }}
+              >
+                <input
+                  value={hostSong}
+                  onChange={(e) => setHostSong(e.target.value)}
+                  placeholder="Canción *"
+                  maxLength={120}
+                  className="rounded-xl bg-neutral-800 border border-neutral-700 px-4 py-3 outline-none focus:border-[#F7A917]"
+                />
+                <input
+                  value={hostArtist}
+                  onChange={(e) => setHostArtist(e.target.value)}
+                  placeholder="Artista"
+                  maxLength={120}
+                  className="rounded-xl bg-neutral-800 border border-neutral-700 px-4 py-3 outline-none focus:border-[#F7A917]"
+                />
+                <input
+                  value={hostSinger}
+                  onChange={(e) => setHostSinger(e.target.value)}
+                  placeholder="¿Quién canta? *"
+                  maxLength={60}
+                  className="rounded-xl bg-neutral-800 border border-neutral-700 px-4 py-3 outline-none focus:border-[#F7A917]"
+                />
+                <button
+                  onClick={addHostSong}
+                  disabled={busy || !hostSong.trim() || !hostSinger.trim()}
+                  className="rounded-xl px-5 py-3 font-extrabold text-black disabled:opacity-40"
+                  style={{ background: AMBER }}
+                >
+                  ¡A la fila!
+                </button>
+              </div>
+            )}
+
+            {view === 'resumen' ? (
+              <NightSummary rows={rows} openedAt={session.opened_at} />
+            ) : (
           <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
             {/* Columna principal: cantando + fila */}
             <div>
@@ -291,7 +396,7 @@ export default function BwingAdmin() {
                 {singing ? (
                   <div className="rounded-2xl p-5 bg-green-400 text-black">
                     <div className="text-xs uppercase tracking-widest font-bold opacity-70">
-                      Cantando ahora · Mesa {singing.table_number}
+                      Cantando ahora · {mesaLabel(singing.table_number)}
                     </div>
                     <div className="text-2xl font-extrabold mt-1">{singing.song}</div>
                     <div className="font-semibold">
@@ -350,7 +455,7 @@ export default function BwingAdmin() {
                             )}
                           </div>
                           <div className="text-sm text-neutral-500">
-                            Mesa {r.table_number} · {r.singer_name}
+                            {mesaLabel(r.table_number)} · {r.singer_name}
                             {r.status === 'next' && (
                               <span className="font-bold ml-2" style={{ color: AMBER }}>
                                 SIGUIENTE
@@ -424,7 +529,7 @@ export default function BwingAdmin() {
                           key={mesa}
                           className="flex justify-between text-sm border-b border-neutral-800/60 pb-1.5"
                         >
-                          <span className="text-neutral-300">Mesa {mesa}</span>
+                          <span className="text-neutral-300">{mesaLabel(Number(mesa))}</span>
                           <span className="font-bold" style={{ color: AMBER }}>
                             {n}
                           </span>
@@ -435,9 +540,161 @@ export default function BwingAdmin() {
               </section>
             </aside>
           </div>
+            )}
+          </>
         )}
       </div>
     </main>
+  )
+}
+
+// ─── Resumen de la noche ─────────────────────────────────────────────────────
+// Todo se calcula en el cliente a partir de las requests de la sesión abierta
+// (incluye canceladas — por eso cancelar es soft delete).
+
+function NightSummary({ rows, openedAt }: { rows: KRequest[]; openedAt: string }) {
+  const total = rows.length
+  const done = rows.filter((r) => r.status === 'done')
+  const cancelled = rows.filter((r) => r.status === 'cancelled')
+  const waiting = rows.filter((r) => r.status === 'pending' || r.status === 'next')
+
+  // Ritmo: canciones cantadas por hora desde que abrió la noche
+  const hoursOpen = Math.max(
+    (Date.now() - new Date(openedAt).getTime()) / 3_600_000,
+    1 / 60
+  )
+  const perHour = done.length / hoursOpen
+
+  // Espera promedio: creada → cantada (updated_at del done)
+  const waits = done.map(
+    (r) => new Date(r.updated_at).getTime() - new Date(r.created_at).getTime()
+  )
+  const avgWaitMin =
+    waits.length > 0 ? waits.reduce((a, b) => a + b, 0) / waits.length / 60_000 : null
+
+  function top(map: Record<string, number>, n = 5) {
+    return Object.entries(map)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, n)
+  }
+
+  const active = rows.filter((r) => r.status !== 'cancelled')
+  const byTable = active.reduce<Record<string, number>>((acc, r) => {
+    const k = mesaLabel(r.table_number)
+    acc[k] = (acc[k] ?? 0) + 1
+    return acc
+  }, {})
+  const byArtist = active.reduce<Record<string, number>>((acc, r) => {
+    if (!r.artist) return acc
+    const k = r.artist.trim()
+    acc[k] = (acc[k] ?? 0) + 1
+    return acc
+  }, {})
+  const bySong = active.reduce<Record<string, number>>((acc, r) => {
+    const k = r.artist ? `${r.song.trim()} · ${r.artist.trim()}` : r.song.trim()
+    acc[k] = (acc[k] ?? 0) + 1
+    return acc
+  }, {})
+
+  // Actividad por hora (pedidas)
+  const byHour = rows.reduce<Record<string, number>>((acc, r) => {
+    const h = new Date(r.created_at).toLocaleTimeString('es-MX', { hour: '2-digit' })
+    acc[h] = (acc[h] ?? 0) + 1
+    return acc
+  }, {})
+  const hourMax = Math.max(1, ...Object.values(byHour))
+
+  return (
+    <div className="space-y-5">
+      {/* KPIs */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center">
+        <Stat label="Pedidas" value={total} />
+        <Stat label="Cantadas" value={done.length} />
+        <Stat label="En fila" value={waiting.length} />
+        <Stat label="Canceladas" value={cancelled.length} />
+        <Stat label="Por hora" value={Math.round(perHour * 10) / 10} />
+        <Stat
+          label="Espera prom."
+          value={avgWaitMin != null ? `${Math.round(avgWaitMin)} min` : '—'}
+        />
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2">
+        {/* Top mesas */}
+        <RankCard title="🏆 Mesas más activas" items={top(byTable)} unit="canciones" />
+        {/* Top artistas */}
+        <RankCard title="🎸 Artistas más pedidos" items={top(byArtist)} unit="veces" />
+        {/* Top canciones */}
+        <RankCard title="🎵 Canciones más pedidas" items={top(bySong)} unit="veces" />
+
+        {/* Actividad por hora */}
+        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-4">
+          <h2 className="font-bold text-sm uppercase tracking-widest text-neutral-400 mb-3">
+            ⏰ Peticiones por hora
+          </h2>
+          {Object.keys(byHour).length === 0 ? (
+            <p className="text-neutral-600 text-sm">Sin actividad todavía.</p>
+          ) : (
+            <ul className="space-y-2">
+              {Object.entries(byHour)
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .map(([h, n]) => (
+                  <li key={h} className="flex items-center gap-3 text-sm">
+                    <span className="w-14 shrink-0 text-neutral-400">{h} h</span>
+                    <div className="flex-1 h-4 rounded bg-neutral-800 overflow-hidden">
+                      <div
+                        className="h-full rounded"
+                        style={{ width: `${(n / hourMax) * 100}%`, background: AMBER }}
+                      />
+                    </div>
+                    <span className="w-8 shrink-0 text-right font-bold" style={{ color: AMBER }}>
+                      {n}
+                    </span>
+                  </li>
+                ))}
+            </ul>
+          )}
+        </section>
+      </div>
+    </div>
+  )
+}
+
+function RankCard({
+  title,
+  items,
+  unit,
+}: {
+  title: string
+  items: [string, number][]
+  unit: string
+}) {
+  return (
+    <section className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-4">
+      <h2 className="font-bold text-sm uppercase tracking-widest text-neutral-400 mb-3">
+        {title}
+      </h2>
+      {items.length === 0 ? (
+        <p className="text-neutral-600 text-sm">Sin datos todavía.</p>
+      ) : (
+        <ul className="space-y-1.5">
+          {items.map(([name, n], i) => (
+            <li
+              key={name}
+              className="flex items-center justify-between gap-3 text-sm border-b border-neutral-800/60 pb-1.5"
+            >
+              <span className="min-w-0 truncate text-neutral-300">
+                <span className="text-neutral-600 font-bold mr-2">{i + 1}</span>
+                {name}
+              </span>
+              <span className="shrink-0 font-bold" style={{ color: AMBER }}>
+                {n} <span className="text-neutral-600 font-normal">{unit}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }
 
@@ -467,7 +724,7 @@ function IconBtn({
   )
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-xl bg-neutral-800/60 py-3">
       <div className="text-2xl font-extrabold" style={{ color: AMBER }}>
