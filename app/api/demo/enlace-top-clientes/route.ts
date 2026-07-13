@@ -41,6 +41,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}))
     const vendorName = clean(body.vendedor)
+    const pin = clean(body.pin)
     const clientesRaw: ClienteInput[] = Array.isArray(body.clientes) ? body.clientes : []
 
     if (!vendorName) {
@@ -92,6 +93,25 @@ export async function POST(req: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
+
+    // Verificación de NIP — el portal registra al vendedor al entrar, así que
+    // aquí el registro ya debe existir y el NIP debe coincidir.
+    const { data: vendor, error: vendorErr } = await supabase
+      .from('insurance_vendors')
+      .select('pin')
+      .eq('client_id', ENLACE_CLIENT_ID)
+      .eq('name', vendorName)
+      .maybeSingle()
+    if (vendorErr) {
+      console.error('[demo/enlace-top-clientes] vendor fetch error:', vendorErr)
+      return NextResponse.json({ error: 'Error al verificar. Intenta de nuevo.' }, { status: 500 })
+    }
+    if (!vendor || vendor.pin !== pin) {
+      return NextResponse.json(
+        { error: 'NIP incorrecto. Entra de nuevo desde la página principal.' },
+        { status: 401 }
+      )
+    }
 
     // Dedupe contra lo ya guardado de este vendedor (mismo teléfono o email ya registrado)
     const { data: existing, error: fetchErr } = await supabase

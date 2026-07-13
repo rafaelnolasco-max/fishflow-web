@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Enlace Integral Seguros · Top 20 Clientes</title>
-<meta name="description" content="Formulario para que los vendedores de Enlace Integral Seguros compartan sus 20 clientes más valiosos." />
+<title>Enlace Integral Seguros · Mis Clientes</title>
+<meta name="description" content="Portal para que los vendedores de Enlace Integral Seguros registren y completen los datos de sus clientes más valiosos." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -51,41 +51,61 @@ a{color:inherit;}
 /* Card general */
 .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 20px;}
 
-/* Vendedor */
-.vendor-field{margin:22px 0;}
-.vendor-field label{display:block;font-size:13px;font-weight:700;color:var(--carbon);margin-bottom:6px;}
-.vendor-field input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;}
-.vendor-field input:focus{outline:none;border-color:var(--green);}
+/* ── Pantalla de entrada ── */
+#gate{max-width:520px;margin-inline:auto;}
+.gate-label{display:block;font-size:13px;font-weight:700;margin:16px 0 8px;}
+.vendor-list{display:flex;flex-direction:column;gap:8px;max-height:290px;overflow-y:auto;}
+.vendor-btn{text-align:left;font-family:inherit;font-size:14.5px;font-weight:600;padding:12px 14px;
+  border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer;color:var(--carbon);}
+.vendor-btn:hover{border-color:var(--green);}
+.vendor-btn.sel{border-color:var(--green);background:#EAF7EE;}
+.vendor-btn small{color:var(--muted);font-weight:500;}
+.gate-input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);font-size:15px;font-family:inherit;}
+.gate-input:focus{outline:none;border-color:var(--green);}
+.pin-input{letter-spacing:.4em;font-weight:700;text-align:center;max-width:180px;}
+.pin-hint{font-size:12px;color:var(--muted);margin-top:6px;}
 
-/* Progreso */
-.progress{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:13px;color:var(--muted);}
+/* ── Portal ── */
+.hello{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0 6px;}
+.hello h2{font-size:19px;}
+.hello button{font-size:12px;font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;}
+h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--green-dark);margin:22px 0 10px;}
+
+/* Progreso doble */
+.progress{display:flex;align-items:center;gap:10px;margin:8px 0 4px;font-size:13px;color:var(--muted);}
+.progress span{min-width:190px;}
 .progress-bar{flex:1;height:8px;background:var(--line);border-radius:999px;overflow:hidden;}
 .progress-bar > div{height:100%;background:var(--green);width:0%;transition:width .25s;}
+.progress-bar > div.alt{background:var(--carbon);}
 
-/* Filas de cliente */
-#rows{display:flex;flex-direction:column;gap:10px;}
+/* Tarjetas de cliente */
+#savedRows,#rows{display:flex;flex-direction:column;gap:10px;}
 .row-card{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;}
 .row-card.complete{border-color:var(--green);}
-.row-card.saved{background:var(--paper-2);border-color:var(--green);}
-.row-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.row-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .row-num{width:26px;height:26px;border-radius:999px;background:var(--paper-2);color:var(--muted);
   font-size:12px;font-weight:800;display:grid;place-items:center;flex-shrink:0;}
-.row-card.complete .row-num{background:var(--green);color:#fff;}
-.saved-badge{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--green-dark);
-  display:flex;align-items:center;gap:8px;}
-.correct-link{font-size:11.5px;font-weight:700;color:var(--muted);background:none;border:none;
-  cursor:pointer;text-decoration:underline;padding:0;}
-.row-fields{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;gap:8px;}
-.row-fields input, .row-fields select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);
+.row-card.complete .row-num,.row-card.saved .row-num{background:var(--green);color:#fff;}
+.row-title{font-size:14px;font-weight:700;}
+.row-sub{font-size:12px;color:var(--muted);}
+.chip{margin-left:auto;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--paper-2);color:var(--muted);flex-shrink:0;}
+.chip.full{background:#EAF7EE;color:var(--green-dark);}
+.expand-btn{font-size:12px;font-weight:700;color:var(--green-dark);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;}
+.row-fields{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;gap:8px;margin-top:10px;}
+.row-fields input, .row-fields select, .more-fields input, .more-fields select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);
   font-size:13.5px;font-family:inherit;box-sizing:border-box;}
-.row-fields input:focus, .row-fields select:focus{outline:none;border-color:var(--green);}
-.row-card.saved input, .row-card.saved select{background:var(--paper-2);color:var(--muted);}
+.row-fields input:focus, .row-fields select:focus, .more-fields input:focus, .more-fields select:focus{outline:none;border-color:var(--green);}
 .more-toggle{font-size:12px;color:var(--green-dark);font-weight:700;background:none;border:none;
   cursor:pointer;margin-top:8px;padding:0;}
 .more-fields{display:none;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px;}
 .more-fields.open{display:grid;}
+.edit-body{display:none;}
+.edit-body.open{display:block;}
+.save-one{margin-top:10px;font-size:13px;font-weight:700;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;background:var(--green);color:#fff;}
+.save-one:disabled{background:#A8CBB2;cursor:not-allowed;}
 @media(max-width:600px){
   .row-fields{grid-template-columns:1fr;}
+  .progress span{min-width:0;}
 }
 
 /* Botones */
@@ -101,6 +121,7 @@ a{color:inherit;}
 .msg--err{background:#FDECEC;color:var(--danger);border:1px solid #F5C2C2;}
 
 footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
+.hidden{display:none !important;}
 </style>
 </head>
 <body>
@@ -108,35 +129,62 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
 <div class="top">
   <div class="ff-container">
     <div class="brand">Enlace Integral Seguros</div>
-    <h1>Tu Top 20 de clientes</h1>
-    <p>Necesitamos tu ayuda con los datos de tus 20 clientes más leales — toma unos minutos.</p>
+    <h1>Mis clientes valiosos</h1>
+    <p>Registra a tus mejores clientes y completa sus datos poco a poco — entre más datos, mejor los podemos atender.</p>
   </div>
 </div>
 
 <div class="ff-container" style="padding-top:22px;">
 
-  <div class="vendor-field">
-    <label for="vendorName">Tu nombre (vendedor) *</label>
-    <input id="vendorName" type="text" placeholder="Ej. Edna Cruz" autocomplete="name" />
+  <!-- ───────── Pantalla de entrada ───────── -->
+  <div id="gate">
+    <div class="card">
+      <label class="gate-label" style="margin-top:0;">¿Quién eres?</label>
+      <div class="vendor-list" id="vendorList"><div class="row-sub">Cargando vendedores…</div></div>
+      <button type="button" class="vendor-btn" id="newVendorBtn" style="margin-top:8px;">＋ Soy nuevo — mi nombre no aparece</button>
+      <div id="newVendorWrap" class="hidden" style="margin-top:8px;">
+        <input class="gate-input" id="newVendorName" type="text" placeholder="Tu nombre completo" autocomplete="name" />
+      </div>
+
+      <label class="gate-label" id="pinLabel">Tu NIP de 4 dígitos</label>
+      <input class="gate-input pin-input" id="pinInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" />
+      <div class="pin-hint" id="pinHint"></div>
+
+      <div style="margin-top:18px;">
+        <button class="btn btn--primary" id="enterBtn" onclick="enter()">Entrar</button>
+      </div>
+      <div id="gateMsg"></div>
+    </div>
   </div>
 
-  <!-- ───────── Formulario en línea ───────── -->
-  <div id="tabForm">
+  <!-- ───────── Portal del vendedor ───────── -->
+  <div id="portal" class="hidden">
+    <div class="hello">
+      <h2 id="helloName"></h2>
+      <button type="button" onclick="logout()">Cambiar de vendedor</button>
+    </div>
+
     <div class="progress">
       <span id="progressLabel">0 / 20 guardados</span>
       <div class="progress-bar"><div id="progressBar"></div></div>
     </div>
+    <div class="progress">
+      <span id="crmLabel">0% de datos completos para el CRM</span>
+      <div class="progress-bar"><div id="crmBar" class="alt"></div></div>
+    </div>
 
+    <h3 class="sec">Tus clientes guardados <span id="savedCount" style="color:var(--muted);font-weight:600;"></span></h3>
+    <div id="savedRows"><div class="row-sub">Aún no tienes clientes guardados.</div></div>
+
+    <h3 class="sec">Agregar clientes nuevos</h3>
     <div id="rows"></div>
-
     <div style="margin-top:14px;">
       <button type="button" class="btn btn--ghost" style="width:100%;justify-content:center;" onclick="addRow()">+ Agregar otro cliente</button>
     </div>
-
     <div style="margin-top:14px;">
-      <button class="btn btn--primary" id="submitFormBtn" onclick="saveProgress()">Guardar avance</button>
+      <button class="btn btn--primary" id="submitFormBtn" onclick="saveNew()">Guardar clientes nuevos</button>
       <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px;">
-        No hace falta terminar los 20 de una vez — guarda los que ya tengas y regresa después a completar el resto. Si tienes más de 20 clientes leales, usa "+ Agregar otro cliente".
+        No hace falta terminar de una vez — guarda los que ya tengas y regresa cuando quieras. Tus clientes guardados siempre aparecerán aquí para completar sus datos.
       </div>
     </div>
     <div id="formMsg"></div>
@@ -147,204 +195,364 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:30px 0 40px;}
 <footer>Esta información es confidencial y es solo para uso interno de Enlace Integral Seguros.</footer>
 
 <script>
-const MAX = 20;
-const REQUIRED_FIELDS = ['nombre','telefono','email'];
-const DRAFT_KEY = 'enlace_top20_draft_v1';
+const META = 20;
+const REQUIRED = ['nombre','telefono','email'];
+const OPTIONAL = ['ciudad','estado','cp','genero','nacimiento','color','ocupacion','profesion','ingreso','dependientes','productos','nota'];
+const SESSION_KEY = 'enlace_portal_session_v1';
+const API = '/api/demo/enlace-top-clientes';
 
-function emptyClient(){ return {nombre:'',telefono:'',email:'',ciudad:'',estado:'',cp:'',genero:'',nacimiento:'',color:'',ocupacion:'',profesion:'',ingreso:'',dependientes:'',nota:'',productos:'',saved:false}; }
+let session = null;          // {vendedor, pin}
+let saved = [];              // clientes del servidor [{id, nombre, ...}]
+let nuevos = [];             // filas nuevas sin enviar
+let vendors = [];            // [{name, hasPin}]
+let gateSel = null;          // vendedor seleccionado en la entrada (o '__new__')
 
-// Escapa valores para atributos HTML; tolera undefined (drafts viejos sin los campos nuevos)
-function esc(v){ return (v || '').replace(/"/g,'&quot;'); }
+function esc(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function emptyClient(){ return {nombre:'',telefono:'',email:'',ciudad:'',estado:'',cp:'',genero:'',nacimiento:'',color:'',ocupacion:'',profesion:'',ingreso:'',dependientes:'',nota:'',productos:''}; }
+function isComplete(c){ return REQUIRED.every(k => (c[k]||'').trim().length > 0); }
+function optCount(c){ return OPTIONAL.filter(k => (c[k]||'').trim().length > 0).length; }
+function draftKey(){ return 'enlace_portal_draft_' + (session ? session.vendedor : ''); }
 
-let state = {
-  vendedor: '',
-  clientes: Array.from({length: MAX}, emptyClient),
+/* ══════════ Entrada ══════════ */
+async function loadVendors(){
+  const list = document.getElementById('vendorList');
+  try {
+    const res = await fetch(API + '/vendors');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error');
+    vendors = data.vendors || [];
+    if (vendors.length === 0) {
+      list.innerHTML = '<div class="row-sub">Todavía no hay vendedores registrados — usa "Soy nuevo".</div>';
+      return;
+    }
+    list.innerHTML = '';
+    vendors.forEach(v => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'vendor-btn';
+      b.dataset.name = v.name;
+      b.innerHTML = esc(v.name) + (v.hasPin ? '' : ' <small>· primera vez: crea tu NIP</small>');
+      b.onclick = () => selectVendor(v.name);
+      list.appendChild(b);
+    });
+  } catch(e) {
+    list.innerHTML = '<div class="row-sub">No se pudo cargar la lista. Recarga la página.</div>';
+  }
+}
+
+function selectVendor(name){
+  gateSel = name;
+  document.getElementById('newVendorWrap').classList.add('hidden');
+  document.querySelectorAll('.vendor-btn').forEach(b => {
+    b.classList.toggle('sel', b.dataset.name === name);
+  });
+  const v = vendors.find(x => x.name === name);
+  const label = document.getElementById('pinLabel');
+  const hint = document.getElementById('pinHint');
+  if (v && v.hasPin) { label.textContent = 'Tu NIP de 4 dígitos'; hint.textContent = ''; }
+  else { label.textContent = 'Crea tu NIP de 4 dígitos'; hint.textContent = 'Guárdalo bien — lo usarás cada vez que entres.'; }
+  document.getElementById('pinInput').focus();
+}
+
+document.getElementById('newVendorBtn').onclick = () => {
+  gateSel = '__new__';
+  document.querySelectorAll('.vendor-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('newVendorBtn').classList.add('sel');
+  document.getElementById('newVendorWrap').classList.remove('hidden');
+  document.getElementById('pinLabel').textContent = 'Crea tu NIP de 4 dígitos';
+  document.getElementById('pinHint').textContent = 'Guárdalo bien — lo usarás cada vez que entres.';
+  document.getElementById('newVendorName').focus();
 };
 
-// ── Draft en localStorage (evita perder el trabajo si se recarga) ──
-function loadDraft(){
+async function enter(){
+  const msgEl = document.getElementById('gateMsg');
+  msgEl.innerHTML = '';
+  let name = gateSel === '__new__' ? document.getElementById('newVendorName').value.trim() : gateSel;
+  const pin = document.getElementById('pinInput').value.trim();
+  if (!name) { msgEl.innerHTML = '<div class="msg msg--err">Elige tu nombre de la lista o escribe uno nuevo.</div>'; return; }
+  if (!/^\d{4}$/.test(pin)) { msgEl.innerHTML = '<div class="msg msg--err">El NIP debe ser de 4 dígitos.</div>'; return; }
+
+  const btn = document.getElementById('enterBtn');
+  btn.disabled = true; btn.textContent = 'Entrando...';
   try {
-    const raw = localStorage.getItem(DRAFT_KEY);
+    const res = await fetch(API + '/portal', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ vendedor: name, pin }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'No se pudo entrar.');
+    session = { vendedor: name, pin };
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(session)); } catch(e) {}
+    saved = data.clientes || [];
+    loadNewDraft();
+    showPortal(data.pinCreated);
+  } catch(e) {
+    msgEl.innerHTML = `<div class="msg msg--err">${esc(e.message)}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+}
+
+function logout(){
+  session = null; saved = []; nuevos = []; gateSel = null;
+  try { sessionStorage.removeItem(SESSION_KEY); } catch(e) {}
+  document.getElementById('portal').classList.add('hidden');
+  document.getElementById('gate').classList.remove('hidden');
+  document.getElementById('pinInput').value = '';
+  loadVendors();
+}
+
+/* ══════════ Portal ══════════ */
+function showPortal(pinCreated){
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('portal').classList.remove('hidden');
+  document.getElementById('helloName').textContent = 'Hola, ' + session.vendedor.split(' ')[0];
+  if (nuevos.length === 0) {
+    const faltan = Math.max(META - saved.length, 1);
+    nuevos = Array.from({length: Math.min(faltan, 5)}, emptyClient);
+  }
+  renderSaved();
+  renderNew();
+  updateProgress();
+  if (pinCreated) {
+    document.getElementById('formMsg').innerHTML = '<div class="msg msg--ok">Tu NIP quedó registrado. Bienvenido.</div>';
+  }
+}
+
+function fieldGrid(c, prefix, i){
+  const dk = (k) => `data-p="${prefix}" data-i="${i}" data-k="${k}"`;
+  return `
+    <div class="row-fields">
+      <input type="text" placeholder="Nombre completo *" ${dk('nombre')} value="${esc(c.nombre)}" />
+      <input type="tel" placeholder="Teléfono *" ${dk('telefono')} value="${esc(c.telefono)}" />
+      <input type="email" placeholder="Email *" ${dk('email')} value="${esc(c.email)}" />
+    </div>
+    <div class="more-fields open">
+      <input type="text" placeholder="Ciudad" ${dk('ciudad')} value="${esc(c.ciudad)}" />
+      <input type="text" placeholder="Estado" ${dk('estado')} value="${esc(c.estado)}" />
+      <input type="text" placeholder="Código postal" ${dk('cp')} value="${esc(c.cp)}" />
+      <select ${dk('genero')}>
+        <option value="">Género</option>
+        <option value="M" ${c.genero==='M'?'selected':''}>M</option>
+        <option value="F" ${c.genero==='F'?'selected':''}>F</option>
+      </select>
+      <input type="text" placeholder="Fecha nac. o edad" ${dk('nacimiento')} value="${esc(c.nacimiento)}" />
+      <select ${dk('ocupacion')}>
+        <option value="">Ocupación</option>
+        <option value="Independiente" ${c.ocupacion==='Independiente'?'selected':''}>Independiente</option>
+        <option value="Profesionista" ${c.ocupacion==='Profesionista'?'selected':''}>Profesionista</option>
+      </select>
+      <input type="text" placeholder="Profesión" ${dk('profesion')} value="${esc(c.profesion)}" />
+      <input type="text" placeholder="Ingreso aprox. mensual" ${dk('ingreso')} value="${esc(c.ingreso)}" />
+      <input type="text" placeholder="Dependientes (ej. 2)" ${dk('dependientes')} value="${esc(c.dependientes)}" />
+      <select ${dk('color')} style="grid-column:1 / -1;">
+        <option value="">Color (personalidad DISC)</option>
+        <option value="Rojo" ${c.color==='Rojo'?'selected':''}>🔴 Rojo — Decisión: decidido, competitivo, exigente</option>
+        <option value="Amarillo" ${c.color==='Amarillo'?'selected':''}>🟡 Amarillo — Interacción: sociable, locuaz, persuasivo</option>
+        <option value="Azul" ${c.color==='Azul'?'selected':''}>🔵 Azul — Serenidad: preciso, lógico, disciplinado</option>
+        <option value="Verde" ${c.color==='Verde'?'selected':''}>🟢 Verde — Cumplimiento: calmado, cuidadoso, modesto</option>
+      </select>
+      <input type="text" placeholder="Producto(s) contratados" ${dk('productos')} value="${esc(c.productos)}" />
+      <input type="text" placeholder="Punto relevante del cliente" ${dk('nota')} value="${esc(c.nota)}" style="grid-column:1 / -1;" />
+    </div>`;
+}
+
+function renderSaved(){
+  const wrap = document.getElementById('savedRows');
+  document.getElementById('savedCount').textContent = saved.length ? `(${saved.length})` : '';
+  if (saved.length === 0) {
+    wrap.innerHTML = '<div class="row-sub">Aún no tienes clientes guardados.</div>';
+    return;
+  }
+  wrap.innerHTML = '';
+  saved.forEach((c, i) => {
+    const n = optCount(c);
+    const card = document.createElement('div');
+    card.className = 'row-card saved';
+    card.innerHTML = `
+      <div class="row-head">
+        <div class="row-num">✓</div>
+        <div>
+          <div class="row-title">${esc(c.nombre)}</div>
+          <div class="row-sub">${esc(c.telefono)} · ${esc(c.email)}</div>
+        </div>
+        <div class="chip ${n === OPTIONAL.length ? 'full' : ''}">${n}/${OPTIONAL.length} datos</div>
+        <button type="button" class="expand-btn" data-exp="${i}">${n === OPTIONAL.length ? 'Editar' : 'Completar datos'}</button>
+      </div>
+      <div class="edit-body" id="edit-${i}">
+        ${fieldGrid(c, 'saved', i)}
+        <button type="button" class="save-one" data-save="${i}">Guardar cambios</button>
+        <span class="row-sub" id="saveMsg-${i}" style="margin-left:10px;"></span>
+      </div>`;
+    wrap.appendChild(card);
+  });
+
+  wrap.querySelectorAll('[data-exp]').forEach(b => {
+    b.onclick = () => document.getElementById('edit-' + b.dataset.exp).classList.toggle('open');
+  });
+  wrap.querySelectorAll('input,select').forEach(el => {
+    el.addEventListener('input', e => {
+      saved[+e.target.dataset.i][e.target.dataset.k] = e.target.value;
+    });
+  });
+  wrap.querySelectorAll('[data-save]').forEach(b => {
+    b.onclick = () => saveOne(+b.dataset.save, b);
+  });
+}
+
+async function saveOne(i, btn){
+  const c = saved[i];
+  const msg = document.getElementById('saveMsg-' + i);
+  msg.textContent = '';
+  if (!isComplete(c)) { msg.textContent = 'Nombre, teléfono y email son obligatorios.'; return; }
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    const res = await fetch(API + '/portal', {
+      method: 'PATCH', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ vendedor: session.vendedor, pin: session.pin, id: c.id, cliente: c }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al guardar.');
+    renderSaved();
+    updateProgress();
+  } catch(e) {
+    msg.textContent = e.message;
+    btn.disabled = false; btn.textContent = 'Guardar cambios';
+  }
+}
+
+/* ── Clientes nuevos ── */
+function loadNewDraft(){
+  try {
+    const raw = localStorage.getItem(draftKey());
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.clientes)) state = parsed;
+      if (Array.isArray(parsed)) nuevos = parsed;
     }
   } catch(e) {}
 }
-function saveDraft(){
-  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch(e) {}
-}
-function clearDraft(){
-  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+function saveNewDraft(){
+  try { localStorage.setItem(draftKey(), JSON.stringify(nuevos)); } catch(e) {}
 }
 
-function isRowComplete(c){
-  return REQUIRED_FIELDS.every(k => (c[k] || '').trim().length > 0);
-}
-
-function renderRows(){
-  const container = document.getElementById('rows');
-  container.innerHTML = '';
-  state.clientes.forEach((c, i) => {
+function renderNew(){
+  const wrap = document.getElementById('rows');
+  wrap.innerHTML = '';
+  nuevos.forEach((c, i) => {
     const card = document.createElement('div');
-    card.className = 'row-card' + (isRowComplete(c) ? ' complete' : '') + (c.saved ? ' saved' : '');
-    const dis = c.saved ? 'disabled' : '';
+    card.className = 'row-card' + (isComplete(c) ? ' complete' : '');
     card.innerHTML = `
       <div class="row-head">
-        <div class="row-num">${c.saved ? '✓' : i+1}</div>
-        <div style="font-size:12px;color:var(--muted);font-weight:600;">Cliente ${i+1} de ${state.clientes.length}</div>
-        ${c.saved ? `<div class="saved-badge">Guardado <button type="button" class="correct-link" data-unlock="${i}">Corregir</button></div>` : ''}
+        <div class="row-num">${saved.length + i + 1}</div>
+        <div class="row-sub">Cliente nuevo</div>
       </div>
-      <div class="row-fields">
-        <input type="text" placeholder="Nombre completo *" data-i="${i}" data-k="nombre" value="${c.nombre.replace(/"/g,'&quot;')}" ${dis} />
-        <input type="tel" placeholder="Teléfono *" data-i="${i}" data-k="telefono" value="${c.telefono.replace(/"/g,'&quot;')}" ${dis} />
-        <input type="email" placeholder="Email *" data-i="${i}" data-k="email" value="${c.email.replace(/"/g,'&quot;')}" ${dis} />
-      </div>
-      <button type="button" class="more-toggle" data-toggle="${i}">+ más datos (opcional)</button>
-      <div class="more-fields" id="more-${i}">
-        <input type="text" placeholder="Ciudad" data-i="${i}" data-k="ciudad" value="${c.ciudad.replace(/"/g,'&quot;')}" ${dis} />
-        <input type="text" placeholder="Estado" data-i="${i}" data-k="estado" value="${c.estado.replace(/"/g,'&quot;')}" ${dis} />
-        <input type="text" placeholder="Código postal" data-i="${i}" data-k="cp" value="${c.cp.replace(/"/g,'&quot;')}" ${dis} />
-        <select data-i="${i}" data-k="genero" ${dis}>
-          <option value="">Género</option>
-          <option value="M" ${c.genero==='M'?'selected':''}>M</option>
-          <option value="F" ${c.genero==='F'?'selected':''}>F</option>
-        </select>
-        <input type="text" placeholder="Fecha nac. o edad" data-i="${i}" data-k="nacimiento" value="${c.nacimiento.replace(/"/g,'&quot;')}" ${dis} />
-        <select data-i="${i}" data-k="ocupacion" ${dis}>
-          <option value="">Ocupación</option>
-          <option value="Independiente" ${c.ocupacion==='Independiente'?'selected':''}>Independiente</option>
-          <option value="Profesionista" ${c.ocupacion==='Profesionista'?'selected':''}>Profesionista</option>
-        </select>
-        <input type="text" placeholder="Profesión" data-i="${i}" data-k="profesion" value="${esc(c.profesion)}" ${dis} />
-        <input type="text" placeholder="Ingreso aprox. mensual" data-i="${i}" data-k="ingreso" value="${esc(c.ingreso)}" ${dis} />
-        <input type="text" placeholder="Dependientes (ej. 2)" data-i="${i}" data-k="dependientes" value="${esc(c.dependientes)}" ${dis} />
-        <select data-i="${i}" data-k="color" ${dis} style="grid-column:1 / -1;">
-          <option value="">Color (personalidad DISC)</option>
-          <option value="Rojo" ${c.color==='Rojo'?'selected':''}>🔴 Rojo — Decisión: decidido, competitivo, exigente</option>
-          <option value="Amarillo" ${c.color==='Amarillo'?'selected':''}>🟡 Amarillo — Interacción: sociable, locuaz, persuasivo</option>
-          <option value="Azul" ${c.color==='Azul'?'selected':''}>🔵 Azul — Serenidad: preciso, lógico, disciplinado</option>
-          <option value="Verde" ${c.color==='Verde'?'selected':''}>🟢 Verde — Cumplimiento: calmado, cuidadoso, modesto</option>
-        </select>
-        <input type="text" placeholder="Producto(s) contratados" data-i="${i}" data-k="productos" value="${esc(c.productos)}" ${dis} />
-        <input type="text" placeholder="Punto relevante del cliente" data-i="${i}" data-k="nota" value="${esc(c.nota)}" style="grid-column:1 / -1;" ${dis} />
-      </div>
-    `;
-    container.appendChild(card);
+      ${fieldGrid(c, 'new', i)}`;
+    // Colapsa los opcionales de filas nuevas hasta que llenen lo básico
+    const more = card.querySelector('.more-fields');
+    more.classList.remove('open');
+    const t = document.createElement('button');
+    t.type = 'button'; t.className = 'more-toggle'; t.textContent = '+ más datos (opcional)';
+    t.onclick = () => more.classList.toggle('open');
+    more.before(t);
+    wrap.appendChild(card);
   });
-
-  // listeners
-  container.querySelectorAll('input, select').forEach(el => {
-    el.addEventListener('input', (e) => {
-      const i = +e.target.dataset.i, k = e.target.dataset.k;
-      state.clientes[i][k] = e.target.value;
-      saveDraft();
-      updateProgress();
-      const card = container.children[i];
-      card.classList.toggle('complete', isRowComplete(state.clientes[i]));
-    });
-  });
-  container.querySelectorAll('[data-toggle]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const i = btn.dataset.toggle;
-      document.getElementById('more-' + i).classList.toggle('open');
-    });
-  });
-  container.querySelectorAll('[data-unlock]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const i = +btn.dataset.unlock;
-      state.clientes[i].saved = false;
-      saveDraft();
-      renderRows();
+  wrap.querySelectorAll('input,select').forEach(el => {
+    el.addEventListener('input', e => {
+      const i = +e.target.dataset.i;
+      nuevos[i][e.target.dataset.k] = e.target.value;
+      saveNewDraft();
+      wrap.children[i].classList.toggle('complete', isComplete(nuevos[i]));
       updateProgress();
     });
   });
 }
 
 function addRow(){
-  state.clientes.push(emptyClient());
-  saveDraft();
-  renderRows();
-  updateProgress();
-  // Enfoca el nuevo renglón
-  const container = document.getElementById('rows');
-  const last = container.lastElementChild;
+  nuevos.push(emptyClient());
+  saveNewDraft();
+  renderNew();
+  const last = document.getElementById('rows').lastElementChild;
   if (last) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-function updateProgress(){
-  const saved = state.clientes.filter(c => c.saved).length;
-  const readyNotSaved = state.clientes.filter(c => isRowComplete(c) && !c.saved).length;
-  const metaLabel = saved > MAX ? `${saved} guardados (meta: ${MAX})` : `${saved} / ${MAX} guardados`;
-  const label = readyNotSaved > 0
-    ? `${metaLabel} · ${readyNotSaved} listo${readyNotSaved > 1 ? 's' : ''} para guardar`
-    : metaLabel;
-  document.getElementById('progressLabel').textContent = label;
-  document.getElementById('progressBar').style.width = Math.min(saved / MAX * 100, 100) + '%';
-}
-
-async function saveProgress(){
-  const vendedor = document.getElementById('vendorName').value.trim();
+async function saveNew(){
   const msgEl = document.getElementById('formMsg');
   msgEl.innerHTML = '';
-  if (!vendedor) {
-    msgEl.innerHTML = '<div class="msg msg--err">Escribe tu nombre arriba antes de guardar.</div>';
+  const listos = nuevos.filter(isComplete);
+  if (listos.length === 0) {
+    msgEl.innerHTML = '<div class="msg msg--err">Llena al menos un cliente nuevo con nombre, teléfono y email.</div>';
     return;
   }
-  // Índices de las filas completas que todavía no se han guardado
-  const pendingIdx = state.clientes
-    .map((c, i) => ({ c, i }))
-    .filter(({ c }) => isRowComplete(c) && !c.saved);
-
-  if (pendingIdx.length === 0) {
-    const totalSaved = state.clientes.filter(c => c.saved).length;
-    msgEl.innerHTML = totalSaved > 0
-      ? '<div class="msg msg--ok">Ya está guardado todo lo que llevas. Sigue agregando clientes cuando puedas.</div>'
-      : '<div class="msg msg--err">Llena al menos un cliente con nombre, teléfono y email.</div>';
-    return;
-  }
-
   const btn = document.getElementById('submitFormBtn');
   btn.disabled = true; btn.textContent = 'Guardando...';
   try {
-    const res = await fetch('/api/demo/enlace-top-clientes', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ vendedor, clientes: pendingIdx.map(({ c }) => c) }),
+    const res = await fetch(API, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ vendedor: session.vendedor, pin: session.pin, clientes: listos }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error al guardar.');
 
-    // Marcar como guardadas solo las filas que se enviaron ahora
-    pendingIdx.forEach(({ i }) => { state.clientes[i].saved = true; });
-    saveDraft();
-    renderRows();
+    // Quita las filas enviadas y refresca la lista guardada desde el servidor
+    nuevos = nuevos.filter(c => !isComplete(c));
+    saveNewDraft();
+    const ref = await fetch(API + '/portal', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ vendedor: session.vendedor, pin: session.pin }),
+    });
+    const refData = await ref.json();
+    if (ref.ok) saved = refData.clientes || saved;
+    renderSaved();
+    renderNew();
     updateProgress();
 
-    const totalSaved = state.clientes.filter(c => c.saved).length;
     const dupNote = data.duplicates > 0 ? ` (${data.duplicates} ya estaban guardados y se ignoraron)` : '';
-    if (totalSaved === MAX) {
-      msgEl.innerHTML = `<div class="msg msg--ok">¡Completaste tus ${MAX} clientes! Gracias, ${vendedor.split(' ')[0]}.${dupNote}</div>`;
-    } else if (totalSaved > MAX) {
-      msgEl.innerHTML = `<div class="msg msg--ok">Guardado. Llevas ${totalSaved} clientes en total — gracias por el extra, ${vendedor.split(' ')[0]}.${dupNote}</div>`;
-    } else {
-      msgEl.innerHTML = `<div class="msg msg--ok">Se guardaron ${data.saved} clientes nuevos (${totalSaved}/${MAX} en total). Puedes seguir después.${dupNote}</div>`;
-    }
+    msgEl.innerHTML = `<div class="msg msg--ok">Se guardaron ${data.saved} clientes nuevos — llevas ${saved.length} en total.${dupNote}</div>`;
   } catch(e) {
-    msgEl.innerHTML = `<div class="msg msg--err">${e.message}</div>`;
+    msgEl.innerHTML = `<div class="msg msg--err">${esc(e.message)}</div>`;
   } finally {
-    btn.disabled = false; btn.textContent = 'Guardar avance';
+    btn.disabled = false; btn.textContent = 'Guardar clientes nuevos';
   }
 }
 
-// Init
-loadDraft();
-document.getElementById('vendorName').value = state.vendedor || '';
-document.getElementById('vendorName').addEventListener('input', (e) => {
-  state.vendedor = e.target.value; saveDraft();
-});
-renderRows();
-updateProgress();
+function updateProgress(){
+  const total = saved.length;
+  const metaLabel = total >= META ? `${total} guardados (meta: ${META}) ✓` : `${total} / ${META} guardados`;
+  document.getElementById('progressLabel').textContent = metaLabel;
+  document.getElementById('progressBar').style.width = Math.min(total / META * 100, 100) + '%';
+
+  const maxOpt = total * OPTIONAL.length;
+  const got = saved.reduce((s, c) => s + optCount(c), 0);
+  const pct = maxOpt === 0 ? 0 : Math.round(got / maxOpt * 100);
+  document.getElementById('crmLabel').textContent = `${pct}% de datos completos para el CRM`;
+  document.getElementById('crmBar').style.width = pct + '%';
+}
+
+/* ══════════ Init ══════════ */
+(async function init(){
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s && s.vendedor && s.pin) {
+        session = s;
+        const res = await fetch(API + '/portal', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ vendedor: s.vendedor, pin: s.pin }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          saved = data.clientes || [];
+          loadNewDraft();
+          showPortal(false);
+          return;
+        }
+        session = null;
+        sessionStorage.removeItem(SESSION_KEY);
+      }
+    }
+  } catch(e) {}
+  loadVendors();
+})();
 </script>
 
 </body>

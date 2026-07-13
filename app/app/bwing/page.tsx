@@ -326,7 +326,7 @@ export default function BwingAdmin() {
                     {queue.map((r, i) => (
                       <li
                         key={r.id}
-                        className={`rounded-2xl border p-4 flex items-center gap-4 ${
+                        className={`rounded-2xl border p-4 flex flex-wrap items-center gap-3 sm:gap-4 ${
                           r.status === 'next'
                             ? 'bg-neutral-900'
                             : 'border-neutral-800 bg-neutral-900/50'
@@ -342,7 +342,7 @@ export default function BwingAdmin() {
                         >
                           {i + 1}
                         </div>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1 basis-40">
                           <div className="font-bold truncate">
                             {r.song}
                             {r.artist && (
@@ -358,7 +358,7 @@ export default function BwingAdmin() {
                             )}
                           </div>
                         </div>
-                        <div className="flex gap-1.5 shrink-0">
+                        <div className="flex gap-1.5 w-full justify-end sm:w-auto sm:shrink-0">
                           <IconBtn label="Al frente" onClick={() => moveToFront(r)} disabled={i === 0}>
                             ⏫
                           </IconBtn>
