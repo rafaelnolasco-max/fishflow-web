@@ -52,7 +52,11 @@ function LoginForm() {
     setLoading(true);
     setError("");
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    // Normalizar correo: el teclado móvil autocapitaliza y GoTrue hace match
+    // sensible a mayúsculas, así que limpiamos espacios y pasamos a minúsculas.
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
 
     if (error) {
       setError("Correo o contraseña incorrectos.");
@@ -64,7 +68,7 @@ function LoginForm() {
     const destination =
       nextParam && nextParam !== "/"
         ? nextParam
-        : (EMAIL_TO_ROUTE[data.user?.email ?? ""] ?? "/");
+        : (EMAIL_TO_ROUTE[(data.user?.email ?? "").toLowerCase()] ?? "/");
 
     router.push(destination);
     router.refresh();
@@ -134,6 +138,10 @@ function LoginForm() {
               placeholder="tu@correo.com"
               required
               autoFocus
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              inputMode="email"
               style={{
                 width: "100%",
                 padding: "10px 12px",
