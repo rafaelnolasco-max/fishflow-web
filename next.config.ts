@@ -6,8 +6,8 @@ const nextConfig: NextConfig = {
   // Sin esto, Vercel no lo empaqueta (es un binario, no un import) y el spawn
   // falla con ENOENT. Ver lib/whisper-chunked.ts (transcripción de sesiones largas).
   outputFileTracingIncludes: {
-    "/api/therapyos/record-session": ["./node_modules/ffmpeg-static/ffmpeg"],
-    "/api/therapyos/reprocess-audio": ["./node_modules/ffmpeg-static/ffmpeg"],
+    // Comodín: empata la ruta con o sin diagonal final (trailingSlash: true).
+    "/api/therapyos/**": ["./node_modules/ffmpeg-static/ffmpeg"],
   },
   images: {
     // Allow SVG logos from /public to render without optimization restrictions
