@@ -897,3 +897,13 @@ em { font-style: italic; color: var(--brand-deep); font-weight: 500; }
   .meta { grid-template-columns: 1fr; }
   .cta { padding: 80px 24px; }
 }
+
+/* =========================================================
+   MOBILE HARDENING (estándar FishFlow)
+   ========================================================= */
+html, body { overflow-x: hidden; max-width: 100%; }
+img, svg, video { max-width: 100%; height: auto; }
+.mv--mision { overflow: hidden; }   /* contiene el círculo decorativo ::after (right:-120px) */
+@media (max-width: 640px) {
+  .mv--mision::after { width: 220px; height: 220px; right: -80px; bottom: -80px; }
+}

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FishFlow · Plantilla base de demo (responsiva)</title>
+<meta name="description" content="Esqueleto base para construir demos FishFlow optimizados para PC, iPad y móvil." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   1) RESPONSIVE BASE  ·  pegar SIEMPRE este bloque primero
+   (copia idéntica de demos/_template/responsive-base.css)
+   ============================================================ */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1280px);margin-inline:auto;padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-tablewrap > table{min-width:var(--ff-tablemin,520px);}
+.ff-shell{display:grid;gap:var(--ff-gap,24px);align-items:start;grid-template-columns:var(--ff-side,260px) minmax(0,1fr);}
+.ff-shell--3{grid-template-columns:var(--ff-side,260px) minmax(0,1fr) var(--ff-right,300px);}
+.ff-h1{font-size:clamp(32px,5vw,64px);line-height:1.02;letter-spacing:-.02em;}
+.ff-h2{font-size:clamp(26px,3.6vw,46px);line-height:1.06;letter-spacing:-.02em;}
+.ff-lede{font-size:clamp(15px,1.4vw,19px);line-height:1.55;}
+@media(max-width:900px){ .ff-shell,.ff-shell--3{grid-template-columns:1fr;} }
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}
+
+/* ============================================================
+   2) TOKENS DE MARCA  ·  ajusta por demo
+   ============================================================ */
+:root{
+  --orange:#FF8C35; --cyan:#67D4E8; --dark:#0D1B2A;
+  --ink:#0D1B2A; --paper:#FFFFFF; --paper-2:#F4F6F8; --line:#E3E8EC; --muted:#5B6B78;
+  --f-display:"Plus Jakarta Sans",system-ui,sans-serif;
+  --f-body:"Inter",system-ui,sans-serif;
+  --ff-max:1280px;
+}
+body{font-family:var(--f-body);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;}
+a{color:inherit;text-decoration:none;cursor:pointer;}
+h1,h2,h3{font-family:var(--f-display);margin:0;}
+.btn{font-family:var(--f-body);font-weight:600;font-size:15px;padding:13px 20px;border-radius:999px;border:1px solid transparent;display:inline-flex;align-items:center;gap:9px;cursor:pointer;transition:transform .15s,background .15s;}
+.btn:hover{transform:translateY(-1px);}
+.btn--primary{background:var(--orange);color:#fff;}
+.btn--ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+
+/* ============================================================
+   3) COMPONENTES DEL DEMO  ·  reemplaza con lo tuyo.
+   Nota: usa .ff-grid / .ff-shell / .ff-tablewrap y NO grids
+   fijos repeat(4,1fr). Pon .ff-hide-mobile en lo decorativo.
+   ============================================================ */
+.nav{position:sticky;top:0;z-index:30;background:color-mix(in oklab,var(--paper) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.nav__in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px;}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--f-display);font-weight:800;font-size:18px;}
+.brand .dot{width:26px;height:26px;border-radius:7px;background:var(--orange);display:grid;place-items:center;color:#fff;font-size:14px;}
+.nav__links{display:flex;gap:22px;font-size:14.5px;font-weight:500;}
+.nav__links a{color:var(--muted);}
+.nav__links a:hover{color:var(--ink);}
+@media(max-width:760px){ .nav__links{display:none;} }   /* en móvil: menú reducido o hamburguesa */
+
+.hero{background:var(--dark);color:#fff;}
+.hero__in{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,4vw,56px);align-items:center;padding-block:clamp(48px,7vw,96px);}
+@media(max-width:900px){ .hero__in{grid-template-columns:1fr;} }
+.eyebrow{font-family:var(--f-body);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);font-weight:600;}
+.hero h1{margin:18px 0;color:#fff;}
+.hero h1 em{color:var(--orange);font-style:normal;}
+.hero p{color:#AFC0CC;max-width:52ch;margin:0 0 26px;}
+.hero__cta{display:flex;flex-wrap:wrap;gap:12px;}
+.hero__vis{aspect-ratio:1/1;border-radius:20px;background:
+  radial-gradient(120% 120% at 20% 10%,rgba(103,212,232,.35),transparent 55%),
+  linear-gradient(135deg,#13283d,#0a1622);
+  border:1px solid rgba(255,255,255,.08);display:grid;place-items:center;color:rgba(255,255,255,.25);font-family:var(--f-display);font-weight:800;}
+/* el visual del hero es decorativo → se oculta en móvil para no causar overflow */
+
+.section{padding-block:clamp(48px,7vw,96px);}
+.section h2{margin-bottom:10px;}
+.section .sub{color:var(--muted);margin:0 0 32px;max-width:46ch;}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:22px;}
+.card h3{font-size:18px;margin-bottom:8px;}
+.card p{margin:0;color:var(--muted);font-size:14.5px;}
+.kpi{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:18px;}
+.kpi .v{font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1;}
+.kpi .l{font-size:12px;color:var(--muted);margin-top:6px;}
+
+/* Ejemplo de shell de dashboard (sidebar + contenido + panel) */
+.demo-shell{padding-block:clamp(32px,5vw,64px);}
+.side,.rail{background:var(--paper-2);border:1px solid var(--line);border-radius:16px;padding:18px;}
+.side h4,.rail h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;}
+.main-panel{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:22px;}
+table.t{width:100%;border-collapse:collapse;}
+table.t th,table.t td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);font-size:14px;}
+table.t th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+
+.foot{background:var(--dark);color:#AFC0CC;}
+.foot__in{padding-block:36px;display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;font-size:13px;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="nav__in ff-container">
+    <a class="brand"><span class="dot">F</span> Demo FishFlow</a>
+    <nav class="nav__links">
+      <a>Inicio</a><a>Sección</a><a>Catálogo</a><a>Contacto</a>
+    </nav>
+    <a class="btn btn--primary">Acción <span>→</span></a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero__in ff-container">
+    <div>
+      <span class="eyebrow">Plantilla base · responsiva</span>
+      <h1 class="ff-h1">Construye demos <em>bien</em> desde el primer pixel.</h1>
+      <p class="ff-lede">Este esqueleto ya viene optimizado para PC, iPad y móvil. Reemplaza el contenido, conserva las clases <code>ff-*</code> y no uses grids de columnas fijas.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary">Empezar <span>→</span></a>
+        <a class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.25)">Ver catálogo</a>
+      </div>
+    </div>
+    <!-- decorativo: se oculta en móvil -->
+    <div class="hero__vis ff-hide-mobile" aria-hidden="true">VISUAL</div>
+  </div>
+</section>
+
+<!-- SECCIÓN con grid auto-colapsable -->
+<section class="section ff-container">
+  <h2 class="ff-h2">Tarjetas (grid que se reacomoda solo)</h2>
+  <p class="sub">Usa <code>.ff-grid</code>: las columnas se ajustan al ancho sin media queries.</p>
+  <div class="ff-grid ff-grid--md">
+    <div class="card"><h3>Uno</h3><p>En PC se ven varias columnas; en iPad menos; en móvil una sola, automáticamente.</p></div>
+    <div class="card"><h3>Dos</h3><p>Sin tocar nada. El minmax(240px,1fr) hace el trabajo.</p></div>
+    <div class="card"><h3>Tres</h3><p>Agrega las que quieras; el grid se reacomoda.</p></div>
+    <div class="card"><h3>Cuatro</h3><p>Cero overflow horizontal gracias a min-width:0 global.</p></div>
+  </div>
+</section>
+
+<!-- KPIs -->
+<section class="section ff-container" style="padding-top:0;">
+  <div class="ff-grid ff-grid--sm">
+    <div class="kpi"><div class="v">1,200+</div><div class="l">Claves</div></div>
+    <div class="kpi"><div class="v">24/7</div><div class="l">Disponible</div></div>
+    <div class="kpi"><div class="v">98%</div><div class="l">Satisfacción</div></div>
+    <div class="kpi"><div class="v">3</div><div class="l">Entornos</div></div>
+  </div>
+</section>
+
+<!-- DASHBOARD SHELL (sidebar + contenido + panel) -->
+<section class="demo-shell ff-container">
+  <h2 class="ff-h2" style="margin-bottom:18px;">Shell de dashboard (se apila en iPad/móvil)</h2>
+  <div class="ff-shell--3">
+    <aside class="side"><h4>Menú</h4><p style="font-size:14px;color:var(--muted);margin:0;">Sidebar. En ≤900px pasa arriba, ancho completo.</p></aside>
+    <div class="main-panel">
+      <h3 style="margin:0 0 14px;">Tabla con scroll propio</h3>
+      <div class="ff-tablewrap">
+        <table class="t">
+          <thead><tr><th>Folio</th><th>Cliente</th><th>Estado</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>A-001</td><td>Ejemplo S.A. de C.V.</td><td>Pagado</td><td>$12,400</td></tr>
+            <tr><td>A-002</td><td>Otro Cliente</td><td>Pendiente</td><td>$3,950</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <aside class="rail"><h4>Panel</h4><p style="font-size:14px;color:var(--muted);margin:0;">Columna derecha. También se apila en móvil.</p></aside>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="foot__in ff-container">
+    <span>© <span id="y"></span> Demo construido por FishFlow.</span>
+    <span>PC · iPad · móvil ✓</span>
+  </div>
+</footer>
+
+<script>document.getElementById('y').textContent=new Date().getFullYear();</script>
+</body>
+</html>

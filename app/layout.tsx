@@ -3,6 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import MetaPixel from "@/components/MetaPixel";
 import MetaCtaTracker from "@/components/MetaCtaTracker";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -108,6 +109,7 @@ export default function RootLayout({
       <body>
         <MetaPixel />
         <MetaCtaTracker />
+        <GoogleAnalytics />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

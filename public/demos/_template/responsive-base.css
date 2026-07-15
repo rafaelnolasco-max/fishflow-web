@@ -1,0 +1,73 @@
+/* ============================================================
+   FishFlow · responsive-base.css
+   Base responsiva para TODOS los demos. PC / iPad / móvil.
+   ------------------------------------------------------------
+   Cómo usar:
+   - Opción A (recomendada para single-file): copia este bloque
+     COMPLETO dentro del <style> del demo, al inicio.
+   - Opción B: enlázalo  <link rel="stylesheet"
+     href="../_template/responsive-base.css">  (solo si el demo
+     vive bajo /public/demos/ y no se va a copiar a otro repo).
+
+   Breakpoints fijos del sistema:
+     <= 600px  → móvil
+     601–900px → iPad / tablet
+     > 900px   → escritorio
+   ============================================================ */
+
+/* 1. Reset + box model seguro --------------------------------
+   min-width:0 evita el bug clásico de overflow en grid/flex
+   (un hijo ancho empuja toda la columna fuera de pantalla). */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+
+/* 2. Contenedor fluido --------------------------------------- */
+.ff-container{width:100%;max-width:var(--ff-max,1280px);margin-inline:auto;
+  padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+
+/* 3. Grids que colapsan SOLOS (sin media queries) ------------
+   Usa esto en vez de repeat(4,1fr) fijo. El minmax + auto-fit
+   reacomoda las columnas según el ancho disponible. */
+.ff-grid{display:grid;gap:var(--ff-gap,18px);
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+
+/* 4. Tablas: scroll propio, nunca rompen la página ----------- */
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-tablewrap > table{min-width:var(--ff-tablemin,520px);}
+
+/* 5. Shell de dashboard (sidebar + contenido [+ panel]) ------
+   Se apila automáticamente en iPad y móvil. */
+.ff-shell{display:grid;gap:var(--ff-gap,24px);align-items:start;
+  grid-template-columns:var(--ff-side,260px) minmax(0,1fr);}
+.ff-shell--3{grid-template-columns:var(--ff-side,260px) minmax(0,1fr) var(--ff-right,300px);}
+
+/* 6. Tipografía fluida (helpers opcionales) ------------------ */
+.ff-h1{font-size:clamp(32px,5vw,64px);line-height:1.02;letter-spacing:-.02em;}
+.ff-h2{font-size:clamp(26px,3.6vw,46px);line-height:1.06;letter-spacing:-.02em;}
+.ff-lede{font-size:clamp(15px,1.4vw,19px);line-height:1.55;}
+
+/* 7. Utilidades responsivas --------------------------------- */
+.ff-hide-mobile{}      /* se oculta en <=600 (ver media query)  */
+.ff-stack-mobile{}     /* flex que se apila en <=600            */
+
+/* ====================== BREAKPOINTS ======================== */
+
+/* iPad / tablet y abajo */
+@media(max-width:900px){
+  .ff-shell,.ff-shell--3{grid-template-columns:1fr;}
+}
+
+/* Móvil */
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}

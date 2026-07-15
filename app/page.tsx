@@ -50,14 +50,27 @@ import {
   FileText,
   Phone,
   Package,
+  Menu,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const EMAIL = "raf@fishflow.mx";
 const MAILTO_GENERIC = `mailto:${EMAIL}?subject=Quiero%20conocer%20m%C3%A1s%20de%20FishFlow`;
 
+const NAV_ITEMS = [
+  { label: "Cómo funciona", id: "how" },
+  { label: "Capacidades",   id: "capacidades" },
+  { label: "Servicios",     id: "services" },
+  { label: "Apps",          id: "apps" },
+  { label: "Tu panel",      id: "panel" },
+  { label: "Por qué FishFlow", id: "why" },
+  { label: "FAQ",           id: "faq" },
+];
+
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -66,6 +79,7 @@ export default function Home() {
   }, []);
 
   const scrollToSection = (id: string) => {
+    setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -96,15 +110,7 @@ export default function Home() {
           </button>
 
           <div className="hidden md:flex items-center gap-7">
-            {[
-              { label: "Cómo funciona", id: "how" },
-              { label: "Capacidades",   id: "capacidades" },
-              { label: "Servicios",     id: "services" },
-              { label: "Apps",          id: "apps" },
-              { label: "Tu panel",      id: "panel" },
-              { label: "Por qué FishFlow", id: "why" },
-              { label: "FAQ",           id: "faq" },
-            ].map((item) => (
+            {NAV_ITEMS.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
@@ -115,14 +121,47 @@ export default function Home() {
             ))}
           </div>
 
-          <Button
-            onClick={() => scrollToSection("agenda")}
-            className="bg-primary hover:bg-primary/90 text-white"
-            size="sm"
-          >
-            Agendar
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => scrollToSection("agenda")}
+              className="bg-primary hover:bg-primary/90 text-white"
+              size="sm"
+            >
+              Agendar
+            </Button>
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="md:hidden p-2 -mr-2 text-foreground/80 hover:text-primary transition-colors"
+              aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+              aria-expanded={menuOpen}
+            >
+              {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </nav>
+
+        {/* Panel móvil */}
+        {menuOpen && (
+          <div className="md:hidden bg-white border-t border-border/60 shadow-lg">
+            <div className="container py-3 flex flex-col">
+              {NAV_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className="text-left py-3 text-base font-medium text-foreground/80 hover:text-primary border-b border-border/40 last:border-b-0 transition-colors"
+                >
+                  {item.label}
+                </button>
+              ))}
+              <Button
+                onClick={() => scrollToSection("agenda")}
+                className="bg-primary hover:bg-primary/90 text-white mt-3 w-full"
+              >
+                Agendar diagnóstico
+              </Button>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
