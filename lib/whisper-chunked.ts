@@ -15,7 +15,7 @@
 // Requiere la dependencia `ffmpeg-static`.
 
 import { spawn } from "node:child_process";
-import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import ffmpegPath from "ffmpeg-static";
@@ -66,6 +66,13 @@ export async function transcribeLongAudio(
   language = "es",
 ): Promise<{ transcript: string; chunks: number; durationSec: number }> {
   if (!ffmpegPath) throw new Error("ffmpeg-static no disponible");
+  // En Vercel el binario traceado a veces pierde el bit de ejecución → chmod
+  // defensivo. Si el archivo no existe, el spawn dará el error real (ENOENT).
+  try {
+    await chmod(ffmpegPath, 0o755);
+  } catch {
+    /* noop */
+  }
   const dir = await mkdtemp(join(tmpdir(), "ffx-"));
   try {
     const inPath = join(dir, "in.bin");
