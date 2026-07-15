@@ -27,37 +27,8 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
 
 const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-// ── GET ?diag=1: diagnóstico de ffmpeg en el entorno serverless ─────────────
-async function ffmpegDiag() {
-  const fs = await import("node:fs");
-  const path = await import("node:path");
-  const mod = await import("ffmpeg-static");
-  const ffmpegPath = (mod.default ?? mod) as unknown as string | null;
-  const out: Record<string, unknown> = {
-    ffmpegPath,
-    cwd: process.cwd(),
-    exists_ffmpegPath: ffmpegPath ? fs.existsSync(ffmpegPath) : false,
-  };
-  const candidates = [
-    ffmpegPath ? path.dirname(ffmpegPath) : null,
-    path.join(process.cwd(), "node_modules/ffmpeg-static"),
-    "/var/task/node_modules/ffmpeg-static",
-  ].filter(Boolean) as string[];
-  out.dirs = candidates.map((d) => {
-    try {
-      return { dir: d, entries: fs.readdirSync(d) };
-    } catch (e) {
-      return { dir: d, error: String(e) };
-    }
-  });
-  return out;
-}
-
 // ── GET: descubrir audios huérfanos de un paciente ──────────────────────────
 export async function GET(req: NextRequest) {
-  if (req.nextUrl.searchParams.get("diag") === "1") {
-    return NextResponse.json(await ffmpegDiag());
-  }
   const patient_id = req.nextUrl.searchParams.get("patient_id");
   if (!patient_id) {
     return NextResponse.json({ error: "Falta patient_id" }, { status: 400 });

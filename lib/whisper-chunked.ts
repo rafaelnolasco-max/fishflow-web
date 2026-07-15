@@ -15,10 +15,26 @@
 // Requiere la dependencia `ffmpeg-static`.
 
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { chmod, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import ffmpegPath from "ffmpeg-static";
+
+// En Vercel, ffmpeg-static devuelve una ruta congelada en build ("/ROOT/...")
+// que NO existe en runtime, aunque el binario SÍ se empaqueta bajo
+// process.cwd() (/var/task). Resolvemos la ruta real probando candidatos.
+function resolveFfmpeg(): string {
+  const candidates = [
+    ffmpegPath || "",
+    join(process.cwd(), "node_modules", "ffmpeg-static", "ffmpeg"),
+    "/var/task/node_modules/ffmpeg-static/ffmpeg",
+  ].filter(Boolean);
+  for (const c of candidates) {
+    if (existsSync(c)) return c;
+  }
+  throw new Error(`ffmpeg no encontrado. Probé: ${candidates.join(", ")}`);
+}
 
 const WHISPER_API_URL = "https://api.openai.com/v1/audio/transcriptions";
 const SEGMENT_SECONDS = 600; // 10 min por trozo
@@ -65,11 +81,10 @@ export async function transcribeLongAudio(
   openaiKey: string,
   language = "es",
 ): Promise<{ transcript: string; chunks: number; durationSec: number }> {
-  if (!ffmpegPath) throw new Error("ffmpeg-static no disponible");
-  // En Vercel el binario traceado a veces pierde el bit de ejecución → chmod
-  // defensivo. Si el archivo no existe, el spawn dará el error real (ENOENT).
+  const ffmpeg = resolveFfmpeg();
+  // El binario traceado a veces pierde el bit de ejecución → chmod defensivo.
   try {
-    await chmod(ffmpegPath, 0o755);
+    await chmod(ffmpeg, 0o755);
   } catch {
     /* noop */
   }
@@ -80,7 +95,7 @@ export async function transcribeLongAudio(
 
     // 1) Transcodificar a mp3 16 kHz mono (headers limpios, tamaño chico)
     const mp3Path = join(dir, "full.mp3");
-    await run(ffmpegPath, [
+    await run(ffmpeg, [
       "-hide_banner", "-loglevel", "error", "-y",
       "-i", inPath,
       "-ar", "16000", "-ac", "1", "-c:a", "libmp3lame", "-b:a", "48k",
@@ -88,7 +103,7 @@ export async function transcribeLongAudio(
     ]);
 
     // 2) Trocear en segmentos de 10 min
-    await run(ffmpegPath, [
+    await run(ffmpeg, [
       "-hide_banner", "-loglevel", "error", "-y",
       "-i", mp3Path,
       "-f", "segment", "-segment_time", String(SEGMENT_SECONDS), "-c", "copy",
