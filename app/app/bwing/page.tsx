@@ -59,6 +59,11 @@ export default function BwingAdmin() {
     setTimeout(() => setToast(null), 2500)
   }
 
+  async function signOut() {
+    await supabase.auth.signOut()
+    window.location.href = '/login'
+  }
+
   // ── Carga ─────────────────────────────────────────────────────────────────
   const fetchAll = useCallback(async (sid: string) => {
     const { data, error } = await supabase
@@ -283,6 +288,12 @@ export default function BwingAdmin() {
                 })}
               </div>
             )}
+            <button
+              onClick={signOut}
+              className="text-xs text-neutral-500 underline underline-offset-2 mt-1 hover:text-neutral-300"
+            >
+              Cerrar sesión
+            </button>
           </div>
           {session ? (
             <button
