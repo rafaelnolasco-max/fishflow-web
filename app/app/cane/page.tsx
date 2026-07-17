@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { supabase, CANE_CLIENT_ID } from "@/lib/supabase";
 import type { CANEAppointment, CANECallLog } from "@/lib/supabase";
 import {
-  DashboardHeader, Chip,
+  DashboardHeader, Chip, TabBar,
   Section as DSection, Field as DField,
   inputStyle as mkInput, cardStyle as mkCard,
   type DashTheme,
 } from "@/components/dashboard";
+import ReviewsTab, { normalizePhone } from "./ReviewsTab";
 
 // ─── Paleta CANE ──────────────────────────────────────────────────────────────
 const C = {
@@ -124,6 +125,7 @@ export default function CANEAppointmentsPage() {
   const [form, setForm]                 = useState(EMPTY_FORM);
   const [saving, setSaving]             = useState(false);
   const [error, setError]               = useState<string | null>(null);
+  const [tab, setTab]                   = useState<"citas" | "resenas">("citas");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -211,6 +213,25 @@ export default function CANEAppointmentsPage() {
     if (error) { setError(error.message); }
     else { setForm(EMPTY_FORM); setShowForm(false); await fetchAppointments(); }
     setSaving(false);
+  }
+
+  // ── Mandar paciente a la cola de reseñas ────────────────────────────────────
+  async function requestReview(appt: CANEAppointment) {
+    const { error } = await supabase.from("review_requests").insert({
+      client_id:      CANE_CLIENT_ID,
+      contact_name:   appt.patient_name,
+      contact_phone:  normalizePhone(appt.patient_phone),
+      source:         "appointment",
+      appointment_id: appt.id,
+    });
+    if (error) {
+      setError(error.code === "23505"
+        ? `${appt.patient_name} ya está en la cola de reseñas`
+        : error.message);
+      return;
+    }
+    setError(null);
+    setTab("resenas");
   }
 
   async function logout() {
@@ -317,6 +338,19 @@ export default function CANEAppointmentsPage() {
 
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px" }}>
 
+        <TabBar
+          theme={T}
+          tabs={[
+            { id: "citas",   label: "Citas",   icon: "📅" },
+            { id: "resenas", label: "Reseñas", icon: "⭐" },
+          ]}
+          active={tab}
+          onChange={setTab}
+        />
+
+        {tab === "resenas" && <ReviewsTab />}
+
+        {tab === "citas" && (
         <Section
           title={<>
             Citas
@@ -470,6 +504,15 @@ export default function CANEAppointmentsPage() {
                     </div>
                     {/* Botón llamar full width */}
                     <CallButton appt={appt} block />
+                    <button
+                      onClick={() => requestReview(appt)}
+                      style={{
+                        width: "100%", marginTop: 8, background: "none",
+                        border: `1px solid ${C.border}`, borderRadius: 6,
+                        padding: "9px", fontSize: 12.5, fontWeight: 600,
+                        color: C.text, cursor: "pointer",
+                      }}
+                    >⭐ Pedir reseña</button>
                     {/* Toggle historial */}
                     <button onClick={() => toggleExpand(appt.id)} style={{
                       background: "none", border: "none", cursor: "pointer",
@@ -545,7 +588,17 @@ export default function CANEAppointmentsPage() {
                           />
                         </td>
                         <td style={{ padding: "12px 14px" }}>
-                          <CallButton appt={appt} />
+                          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                            <CallButton appt={appt} />
+                            <button
+                              onClick={() => requestReview(appt)}
+                              title="Pedir reseña a este paciente"
+                              style={{
+                                background: "none", border: `1px solid ${C.border}`,
+                                borderRadius: 6, padding: "5px 9px", fontSize: 13, cursor: "pointer",
+                              }}
+                            >⭐</button>
+                          </div>
                         </td>
                       </tr>
 
@@ -569,6 +622,7 @@ export default function CANEAppointmentsPage() {
           </div>
         )}
         </Section>
+        )}
       </main>
     </div>
   );
