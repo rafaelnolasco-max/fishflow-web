@@ -5,7 +5,9 @@
 
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { supabase, LUKON_CLIENT_ID } from "@/lib/supabase";
+import ReviewsTab from "@/components/reviews/ReviewsTab";
+import type { DashTheme } from "@/components/dashboard";
 
 // ─── Brand tokens de Lukon ────────────────────────────────────────────────────
 const L = {
@@ -66,7 +68,14 @@ function statusLabel(s: string) {
 }
 
 // ─── Componente principal ─────────────────────────────────────────────────────
-type Tab = "cobrar" | "facturar" | "historial";
+type Tab = "cobrar" | "facturar" | "historial" | "resenas";
+
+// Tema para el módulo compartido de Reseñas, en clave Lukon (página crema, ink)
+const REVIEWS_THEME: DashTheme = {
+  accent: L.ink, accentDark: L.ink, accentSoft: L.paper2,
+  bg: L.paper, surface: "#FBF9F3", text: L.ink,
+  muted: L.mutedL, border: L.lineL, danger: L.crimson, disabled: "#999",
+};
 
 interface PayResult {
   transaction_id: string;
@@ -332,11 +341,12 @@ function LukonDashboard() {
         display: "flex", gap: 4, padding: "20px 32px 0",
         borderBottom: `1px solid ${L.lineL}`,
       }}>
-        {(["cobrar", "facturar", "historial"] as Tab[]).map(t => {
+        {(["cobrar", "facturar", "historial", "resenas"] as Tab[]).map(t => {
           const labels: Record<Tab, string> = {
             cobrar:    "💳  Cobrar",
             facturar:  "🧾  Facturar",
             historial: "📋  Historial",
+            resenas:   "⭐  Reseñas",
           };
           const active = tab === t;
           return (
@@ -729,6 +739,16 @@ function LukonDashboard() {
               </div>
             )}
           </div>
+        )}
+
+        {/* ════ TAB: RESEÑAS ═══════════════════════════════════════════════════ */}
+        {tab === "resenas" && (
+          <ReviewsTab
+            clientId={LUKON_CLIENT_ID}
+            theme={REVIEWS_THEME}
+            personLabel="cliente"
+            personLabelPlural="clientes"
+          />
         )}
       </main>
 
