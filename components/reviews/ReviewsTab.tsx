@@ -100,11 +100,11 @@ export default function ReviewsTab({
   personLabelPlural?: string;  // "pacientes" / "clientas"
   emptyHint?: string;          // texto extra en el estado vacío (ej. "o usa ⭐ desde una cita")
 }) {
+  // ⚠️ No definir componentes aquí dentro (se recrean en cada render y React
+  // desmonta los inputs → el teclado móvil se cierra a cada tecla). Usar
+  // DSection/DField/DModal directo con theme={T}.
   const inputStyle = mkInput(T);
   const cardStyle = mkCard(T);
-  const Section = (p: Omit<React.ComponentProps<typeof DSection>, "theme">) => <DSection theme={T} {...p} />;
-  const Field = (p: Omit<React.ComponentProps<typeof DField>, "theme">) => <DField theme={T} {...p} />;
-  const Modal = (p: Omit<React.ComponentProps<typeof DModal>, "theme">) => <DModal theme={T} {...p} />;
 
   const [settings, setSettings] = useState<ReviewSettings | null>(null);
   const [requests, setRequests] = useState<ReviewRequest[]>([]);
@@ -280,10 +280,10 @@ export default function ReviewsTab({
     notify("Configuración guardada");
   }
 
-  // ── Fila de la cola ─────────────────────────────────────────────────────────
-  function RequestRow({ r }: { r: ReviewRequest }) {
+  // ── Fila de la cola (función normal, no componente — evita remounts) ───────
+  const renderRow = (r: ReviewRequest) => {
     return (
-      <div style={{ ...cardStyle, padding: 14, display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+      <div key={r.id} style={{ ...cardStyle, padding: 14, display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
         <div style={{ minWidth: 140, flex: "1 1 160px" }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>{r.contact_name}</div>
           <div style={{ fontSize: 12, color: T.muted }}>{r.contact_phone} · {SOURCE_LABEL[r.source]}</div>
@@ -325,7 +325,7 @@ export default function ReviewsTab({
         </div>
       </div>
     );
-  }
+  };
 
   // ── Render ──────────────────────────────────────────────────────────────────
   if (loading) return <div style={{ textAlign: "center", padding: 60, color: T.muted }}>Cargando reseñas...</div>;
@@ -352,7 +352,8 @@ export default function ReviewsTab({
         <StatCard theme={T} icon="🔗" label="Link de reseña" value={settings?.review_link ? "Listo ✓" : "Pendiente"} accent={settings?.review_link ? U.green : U.yellow} />
       </StatGrid>
 
-      <Section
+      <DSection
+        theme={T}
         title="Cola de reseñas"
         action={{ label: `+ Agregar ${personLabel}`, onClick: () => setShowAdd(true) }}
       >
@@ -377,7 +378,7 @@ export default function ReviewsTab({
           <Empty theme={T} msg={`Sin ${personLabelPlural} en la cola. Agrega ${personLabel === "clienta" ? "una" : "uno"}, importa un CSV${emptyHint ? ` ${emptyHint}` : ""}.`} />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {active.map(r => <RequestRow key={r.id} r={r} />)}
+            {active.map(renderRow)}
           </div>
         )}
 
@@ -395,28 +396,28 @@ export default function ReviewsTab({
             ))}
           </div>
         )}
-      </Section>
+      </DSection>
 
       {/* ── Modal alta manual ── */}
       {showAdd && (
-        <Modal title={`Agregar ${personLabel} a la cola`} onClose={() => setShowAdd(false)}>
-          <Field label="Nombre *">
+        <DModal theme={T} title={`Agregar ${personLabel} a la cola`} onClose={() => setShowAdd(false)}>
+          <DField theme={T} label="Nombre *">
             <input value={addForm.name} placeholder="Nombre completo"
               onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))}
               style={{ ...inputStyle, boxSizing: "border-box", outline: "none" }} />
-          </Field>
-          <Field label="Teléfono * (10 dígitos)">
+          </DField>
+          <DField theme={T} label="Teléfono * (10 dígitos)">
             <input value={addForm.phone} type="tel" placeholder="5512345678"
               onChange={e => setAddForm(f => ({ ...f, phone: e.target.value }))}
               style={{ ...inputStyle, boxSizing: "border-box", outline: "none" }} />
-          </Field>
+          </DField>
           <SaveBtn theme={T} onClick={saveManual} disabled={saving} label={saving ? "Guardando..." : "Agregar a la cola"} />
-        </Modal>
+        </DModal>
       )}
 
       {/* ── Modal CSV ── */}
       {showCsv && (
-        <Modal title={`Importar ${personLabelPlural} (CSV)`} onClose={() => { setShowCsv(false); setCsvRows([]); }}>
+        <DModal theme={T} title={`Importar ${personLabelPlural} (CSV)`} onClose={() => { setShowCsv(false); setCsvRows([]); }}>
           <p style={{ fontSize: 13, color: T.muted, marginTop: 0 }}>
             Archivo con dos columnas: <b>nombre, teléfono</b>. Los teléfonos repetidos o ya en cola se omiten.
           </p>
@@ -439,13 +440,13 @@ export default function ReviewsTab({
           )}
           <SaveBtn theme={T} onClick={importCsv} disabled={saving || csvRows.length === 0}
             label={saving ? "Importando..." : `Importar ${csvRows.length || ""}`} />
-        </Modal>
+        </DModal>
       )}
 
       {/* ── Modal configuración ── */}
       {showSettings && (
-        <Modal title="Configuración de reseñas" onClose={() => setShowSettings(false)} wide>
-          <Field label="Google Place ID">
+        <DModal theme={T} title="Configuración de reseñas" onClose={() => setShowSettings(false)} wide>
+          <DField theme={T} label="Google Place ID">
             <input value={settingsForm.place_id} placeholder="ChIJ..."
               onChange={e => setSettingsForm(f => ({ ...f, place_id: e.target.value }))}
               style={{ ...inputStyle, boxSizing: "border-box", outline: "none" }} />
@@ -455,29 +456,29 @@ export default function ReviewsTab({
                 Place ID Finder
               </a>{" "}con el nombre de tu negocio en Google Maps{settings?.business_display_name ? ` (${settings.business_display_name})` : ""}.
             </div>
-          </Field>
+          </DField>
           {settings?.review_link && (
             <div style={{ fontSize: 12.5, color: T.muted, marginBottom: 14, wordBreak: "break-all" }}>
               Link actual: <a href={settings.review_link} target="_blank" rel="noreferrer" style={{ color: T.accent }}>{settings.review_link}</a>
             </div>
           )}
           {([["Mensaje 1 — saludo", "t1"], ["Mensaje 2 — petición", "t2"], ["Mensaje 3 — link ({link})", "t3"]] as const).map(([label, key]) => (
-            <Field key={key} label={label}>
+            <DField theme={T} key={key} label={label}>
               <textarea rows={2} value={settingsForm[key]}
                 onChange={e => setSettingsForm(f => ({ ...f, [key]: e.target.value }))}
                 style={{ ...inputStyle, resize: "vertical", boxSizing: "border-box", outline: "none" }} />
-            </Field>
+            </DField>
           ))}
-          <Field label="Meta de reseñas">
+          <DField theme={T} label="Meta de reseñas">
             <input type="number" value={settingsForm.goal}
               onChange={e => setSettingsForm(f => ({ ...f, goal: e.target.value }))}
               style={{ ...inputStyle, boxSizing: "border-box", outline: "none", maxWidth: 120 }} />
-          </Field>
+          </DField>
           <div style={{ fontSize: 11.5, color: T.muted, marginBottom: 10 }}>
             Usa <b>{"{nombre}"}</b> para el nombre y <b>{"{link}"}</b> para el link de reseña.
           </div>
           <SaveBtn theme={T} onClick={saveSettings} disabled={saving} label={saving ? "Guardando..." : "Guardar configuración"} />
-        </Modal>
+        </DModal>
       )}
 
       <Toast msg={toast} theme={T} />
