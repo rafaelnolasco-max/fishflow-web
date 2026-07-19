@@ -90,10 +90,29 @@ function useIsMobile(breakpoint = 720) {
   return isMobile;
 }
 
+// Campos que componen el "avatar" de HubSpot (los 7 nuevos + fecha nac.).
+// Nombre/tel/email casi siempre vienen llenos, así que no cuentan para el %.
+const AVATAR_FIELDS = [
+  "birth_date_or_age", "color", "occupation_type", "profession",
+  "income", "dependents", "relevant_note", "products",
+] as const;
+
+function avatarPct(clients: InsuranceVendorTopClient[]): number {
+  if (clients.length === 0) return 0;
+  let filled = 0;
+  for (const c of clients) {
+    for (const f of AVATAR_FIELDS) {
+      if (String((c as Record<string, unknown>)[f] ?? "").trim()) filled++;
+    }
+  }
+  return Math.round((filled / (clients.length * AVATAR_FIELDS.length)) * 100);
+}
+
 type VendorGroup = {
   vendorName: string;
   clients: InsuranceVendorTopClient[];
   lastSubmission: string;
+  avatar: number;
 };
 
 export default function EnlaceDashboardPage() {
@@ -139,6 +158,7 @@ export default function EnlaceDashboardPage() {
         vendorName,
         clients,
         lastSubmission: clients.reduce((max, c) => (c.created_at > max ? c.created_at : max), clients[0]?.created_at ?? ""),
+        avatar: avatarPct(clients),
       }))
       .sort((a, b) => b.clients.length - a.clients.length || a.vendorName.localeCompare(b.vendorName));
   }, [rows]);
@@ -357,7 +377,12 @@ export default function EnlaceDashboardPage() {
                           <div style={{ fontSize: 12, color: C.muted }}>Última entrega: {fmtDate(g.lastSubmission)}</div>
                         </div>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                        <Chip
+                          label={`Avatar ${g.avatar}%`}
+                          bg={g.avatar >= 80 ? C.greenSoft : g.avatar >= 40 ? "#FFF4E5" : "#FDECEC"}
+                          fg={g.avatar >= 80 ? C.greenDark : g.avatar >= 40 ? "#B96A1E" : C.red}
+                        />
                         <Chip
                           label={`${g.clients.length} / ${META_CLIENTES_POR_VENDEDOR}`}
                           bg={complete ? C.greenSoft : "#FFF4E5"}
