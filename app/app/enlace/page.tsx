@@ -102,7 +102,7 @@ function avatarPct(clients: InsuranceVendorTopClient[]): number {
   let filled = 0;
   for (const c of clients) {
     for (const f of AVATAR_FIELDS) {
-      if (String((c as Record<string, unknown>)[f] ?? "").trim()) filled++;
+      if (String((c as unknown as Record<string, unknown>)[f] ?? "").trim()) filled++;
     }
   }
   return Math.round((filled / (clients.length * AVATAR_FIELDS.length)) * 100);
