@@ -103,6 +103,7 @@ export default function EnlaceDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"meta" | "avatar">("meta");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -291,7 +292,8 @@ export default function EnlaceDashboardPage() {
         <Section
           title={<>Progreso por vendedor</>}
         >
-          <div style={{ marginBottom: 14 }}>
+          <div style={{ marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between",
+            gap: 12, flexWrap: "wrap" }}>
             <input
               type="text"
               placeholder="Buscar vendedor..."
@@ -302,6 +304,25 @@ export default function EnlaceDashboardPage() {
                 border: `1px solid ${C.border}`, fontSize: 13.5, fontFamily: "inherit", boxSizing: "border-box",
               }}
             />
+            <div style={{ display: "inline-flex", borderRadius: 9, border: `1px solid ${C.border}`,
+              overflow: "hidden", flexShrink: 0 }}>
+              {([["meta", "Vista Meta"], ["avatar", "Vista Avatar CRM"]] as const).map(([mode, label]) => {
+                const active = viewMode === mode;
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    style={{
+                      background: active ? C.green : C.white, color: active ? "#fff" : C.muted,
+                      border: "none", padding: "9px 16px", fontSize: 13, fontWeight: 700,
+                      cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {loading ? (
@@ -353,14 +374,36 @@ export default function EnlaceDashboardPage() {
                               <div key={c.id} style={{ ...cardStyle, padding: 12 }}>
                                 <div style={{ fontSize: 13.5, fontWeight: 700, color: C.carbon }}>{c.client_name}</div>
                                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{c.phone} · {c.email}</div>
-                                {(c.city || c.state || c.postal_code) && (
-                                  <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
-                                    {[c.city, c.state, c.postal_code].filter(Boolean).join(", ")}
-                                  </div>
-                                )}
-                                {(c.gender || c.birth_date_or_age) && (
-                                  <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
-                                    {[c.gender, c.birth_date_or_age].filter(Boolean).join(" · ")}
+                                {viewMode === "meta" ? (
+                                  <>
+                                    {(c.city || c.state || c.postal_code) && (
+                                      <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+                                        {[c.city, c.state, c.postal_code].filter(Boolean).join(", ")}
+                                      </div>
+                                    )}
+                                    {(c.gender || c.birth_date_or_age) && (
+                                      <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+                                        {[c.gender, c.birth_date_or_age].filter(Boolean).join(" · ")}
+                                      </div>
+                                    )}
+                                  </>
+                                ) : (
+                                  <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 3 }}>
+                                    {([
+                                      ["Fecha nac.", c.birth_date_or_age],
+                                      ["Color", c.color],
+                                      ["Indep./Profesionista", c.occupation_type],
+                                      ["Profesión", c.profession],
+                                      ["Ingreso", c.income],
+                                      ["Dependientes", c.dependents],
+                                      ["Punto relevante", c.relevant_note],
+                                      ["Producto(s)", c.products],
+                                    ] as const).map(([label, val]) => (
+                                      <div key={label} style={{ fontSize: 12, color: C.muted }}>
+                                        <span style={{ fontWeight: 600, color: C.carbon }}>{label}:</span>{" "}
+                                        {val || "—"}
+                                      </div>
+                                    ))}
                                   </div>
                                 )}
                                 <div style={{ marginTop: 6 }}>
@@ -368,6 +411,39 @@ export default function EnlaceDashboardPage() {
                                 </div>
                               </div>
                             ))}
+                          </div>
+                        ) : viewMode === "avatar" ? (
+                          <div style={{ padding: "8px 16px 16px", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1180 }}>
+                              <thead>
+                                <tr>
+                                  {["Nombre completo", "Fecha nac.", "WhatsApp", "Correo", "Color", "Indep./Profesionista", "Profesión", "Ingreso", "Dependientes", "Punto relevante", "Producto(s)"].map((h) => (
+                                    <th key={h} style={{
+                                      padding: "8px 10px", textAlign: "left", fontSize: 11, fontWeight: 600,
+                                      color: C.muted, textTransform: "uppercase", letterSpacing: "0.04em",
+                                      borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap",
+                                    }}>{h}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {g.clients.map((c) => (
+                                  <tr key={c.id}>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon, fontWeight: 600 }}>{c.client_name}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.birth_date_or_age || "—"}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon }}>{c.phone}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon }}>{c.email}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.color || "—"}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.occupation_type || "—"}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.profession || "—"}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.income || "—"}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.dependents || "—"}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.relevant_note || "—"}</td>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.products || "—"}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
                         ) : (
                           <div style={{ padding: "8px 16px 16px", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>

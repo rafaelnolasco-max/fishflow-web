@@ -105,7 +105,16 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
 .nav-links a:hover{color:#fff}
 .nav-cta{background:var(--gold);color:#fff;font-size:14.5px;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:transform .15s}
 .nav-cta:hover{transform:translateY(-1px)}
-@media(max-width:600px){.nav-links a{display:none}}
+.nav-toggle{display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:10px;width:44px;height:42px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:4px;flex-shrink:0}
+.nav-toggle span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;transition:.2s}
+@media(max-width:820px){
+  .nav-toggle{display:inline-flex}
+  .nav-links{position:absolute;top:74px;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;background:rgba(6,74,79,0.98);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.1);padding:8px 18px 16px;display:none}
+  .nav-links.open{display:flex}
+  .nav-links a{padding:13px 6px;font-size:16px;border-top:1px solid rgba(255,255,255,.08)}
+  .nav-links a:first-child{border-top:none}
+  .nav-links .nav-cta{margin-top:12px;text-align:center;border-top:none}
+}
 
 /* ============================================================
    5) HERO
@@ -152,13 +161,11 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
 .goals-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:22px}
 .goals-head h2{font-size:22px;font-weight:800;margin:0;letter-spacing:-.01em}
 .goals-head span{font-size:14px;color:var(--muted)}
-.goals-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.goals-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px}
 .goal-chip{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:22px 20px;color:var(--ink);transition:all .15s;cursor:pointer;text-decoration:none}
 .goal-chip:hover{border-color:var(--navy);transform:translateY(-2px);box-shadow:0 12px 28px rgba(6,74,79,.10)}
 .goal-chip .ic{font-size:24px;flex-shrink:0}
-.goal-chip span:last-child{font-weight:700;font-size:15.5px;line-height:1.25}
-@media(max-width:720px){.goals-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:400px){.goals-grid{grid-template-columns:1fr}}
+.goal-chip span:last-child{font-weight:700;font-size:15px;line-height:1.25}
 
 /* ============================================================
    7) QUIZ
@@ -191,6 +198,11 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
 .rec-eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-lt)}
 .rec-name{font-size:21px;font-weight:800;margin-top:3px}
 .rec-tag{font-size:13.5px;color:#A6D6D8;margin-top:3px}
+.rec-comp{display:flex;align-items:center;gap:13px;background:#EAF1FB;border:1px solid #D3E2F5;border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.rec-comp .rec-comp-ic{width:40px;height:40px;border-radius:11px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.rec-comp .rec-comp-lbl{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#5B7BB0}
+.rec-comp b{font-size:16px;color:var(--navy);font-weight:800}
+.rec-insight{font-size:14.5px;color:#4C5A6E;margin:0 0 22px;line-height:1.55;background:#F6FBFB;border-left:3px solid var(--gold);padding:12px 14px;border-radius:0 10px 10px 0}
 .field{display:flex;flex-direction:column;gap:14px;margin-top:4px}
 .field input{width:100%;padding:15px 16px;border-radius:12px;border:1.5px solid #E1E6EE;font-size:16px;font-family:var(--f-sans);color:var(--ink);outline:none;transition:border-color .15s}
 .field input:focus{border-color:var(--blue)}
@@ -316,6 +328,35 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
    14) DEMOFLAG
    ============================================================ */
 .demoflag{background:var(--gold);color:#064A4F;text-align:center;font-size:12px;font-weight:700;padding:7px 12px;font-family:var(--f-sans)}
+
+/* ============================================================
+   15) QUIÉNES SOMOS
+   ============================================================ */
+.about-sec{background:#fff}
+.about-sec .inner{max-width:1180px;margin:0 auto;padding:84px clamp(18px,4vw,28px)}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center}
+.about-copy h2{font-size:clamp(26px,3.4vw,38px);font-weight:800;letter-spacing:-.02em;margin:12px 0 0}
+.about-copy p{font-size:16px;color:#4C5A6E;line-height:1.65;margin:16px 0 0}
+.about-stats{display:flex;gap:30px;margin-top:26px;flex-wrap:wrap}
+.about-stat .num{font-size:28px;font-weight:800;color:var(--navy)}
+.about-stat .lbl{font-size:13.5px;color:var(--muted);margin-top:2px}
+.about-imgs{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(2,1fr);gap:14px}
+.about-imgs img{width:100%;height:100%;object-fit:cover;border-radius:16px;display:block}
+.about-imgs img:first-child{grid-row:span 2;aspect-ratio:auto}
+.recog{margin-top:30px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+.recog .rw{width:44px;height:44px;border-radius:11px;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.recog b{font-size:15px;color:var(--navy);font-weight:800}
+.recog span{font-size:14px;color:var(--muted)}
+@media(max-width:820px){.about-grid{grid-template-columns:1fr;gap:32px}.about-imgs{max-width:460px}}
+
+/* ============================================================
+   16) ÚNETE AL EQUIPO
+   ============================================================ */
+.recruit-sec{background:var(--navy)}
+.recruit-sec .inner{max-width:1180px;margin:0 auto;padding:56px clamp(18px,4vw,28px);display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap}
+.recruit-copy .eyebrow{color:var(--gold-lt)}
+.recruit-copy h2{font-size:clamp(22px,2.6vw,30px);font-weight:800;color:#fff;margin:8px 0 0;letter-spacing:-.02em}
+.recruit-copy p{font-size:15.5px;color:#A6D6D8;line-height:1.55;margin:10px 0 0;max-width:560px}
 </style>
 </head>
 <body>
@@ -328,9 +369,14 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
     <a href="#top" class="brand">
       <img src="Logo.png" alt="Enlace Integral Seguros · Distribuidor Autorizado Allianz" class="brand-logo">
     </a>
-    <nav class="nav-links">
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navLinks">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="navLinks">
+      <a href="#planes">Planes</a>
+      <a href="#nosotros">Quiénes somos</a>
       <a href="#porque">Por qué</a>
-      <a href="#testimonios">Clientes</a>
+      <a href="#agentes">Ser agente</a>
       <a href="#cuestionario" class="nav-cta">Encuentra tu plan</a>
     </nav>
   </div>
@@ -406,6 +452,7 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
       <a class="goal-chip" href="#cuestionario" onclick="startWith('familia')"><span class="ic">🛡️</span><span>Proteger a mi familia</span></a>
       <a class="goal-chip" href="#cuestionario" onclick="startWith('medicos')"><span class="ic">🏥</span><span>Cubrir gastos médicos</span></a>
       <a class="goal-chip" href="#cuestionario" onclick="startWith('educacion')"><span class="ic">🎓</span><span>Ahorrar para educación</span></a>
+      <a class="goal-chip" href="#cuestionario" onclick="startWith('empresa')"><span class="ic">🏢</span><span>Proteger mi empresa</span></a>
     </div>
   </div>
 </section>
@@ -416,29 +463,31 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
     <div class="quiz-head">
       <span class="eyebrow">Cuestionario</span>
       <h2>Encuentra tu plan ideal</h2>
-      <p>5 preguntas rápidas. Al final te decimos qué plan te conviene y un asesor te contacta.</p>
+      <p>4 preguntas rápidas. Según lo que buscas, te decimos qué plan te conviene y un asesor especializado te contacta.</p>
     </div>
 
     <div class="quiz-box">
       <div class="quiz-bar"><div class="quiz-bar-fill" id="qbar"></div></div>
       <div class="quiz-inner">
 
-        <!-- Q1 objetivo -->
-        <div class="qstep on" data-step="1">
-          <span class="quiz-step-label" id="qtitle">Pregunta 1 de 5</span>
+        <!-- Q1 objetivo (compartida) -->
+        <div class="qstep on" id="qs-objetivo">
+          <span class="quiz-step-label">Pregunta 1 de 4</span>
           <h3>¿Qué es lo que más te interesa lograr?</h3>
-          <p class="hint">Elige tu prioridad principal.</p>
+          <p class="hint">Elige tu prioridad principal — de aquí en adelante ajustamos las preguntas a lo que buscas.</p>
           <div class="opts">
             <button class="opt" data-k="objetivo" data-v="retiro" data-seg="ahorro"><span class="ic" style="background:#FAF1DD">🌅</span><span class="lbl">Asegurar mi retiro / ahorrar para el futuro</span><span class="chk"></span></button>
             <button class="opt" data-k="objetivo" data-v="proteccion" data-seg="vida"><span class="ic" style="background:#EAF1FB">🛡️</span><span class="lbl">Proteger a mi familia si algo me pasa</span><span class="chk"></span></button>
             <button class="opt" data-k="objetivo" data-v="salud" data-seg="gmm"><span class="ic" style="background:#E7F6EC">🏥</span><span class="lbl">Cubrir gastos médicos u hospitalarios</span><span class="chk"></span></button>
             <button class="opt" data-k="objetivo" data-v="educacion" data-seg="educacion"><span class="ic" style="background:#F3ECFB">🎓</span><span class="lbl">Ahorrar para la educación de mis hijos</span><span class="chk"></span></button>
+            <button class="opt" data-k="objetivo" data-v="empresa" data-seg="empresa"><span class="ic" style="background:#E3F4F4">🏢</span><span class="lbl">Proteger a mi empresa y a mis empleados</span><span class="chk"></span></button>
           </div>
         </div>
 
-        <!-- Q2 edad -->
-        <div class="qstep" data-step="2">
-          <span class="quiz-step-label">Pregunta 2 de 5</span>
+        <!-- ===== VÍA PERSONAL ===== -->
+        <!-- P edad -->
+        <div class="qstep" id="qs-edad">
+          <span class="quiz-step-label">Pregunta 2 de 4</span>
           <h3>¿En qué etapa de vida estás?</h3>
           <p class="hint">Nos ayuda a ajustar el plazo de tu plan.</p>
           <div class="opts">
@@ -449,11 +498,11 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
           </div>
         </div>
 
-        <!-- Q3 dependientes -->
-        <div class="qstep" data-step="3">
-          <span class="quiz-step-label">Pregunta 3 de 5</span>
+        <!-- P dependientes -->
+        <div class="qstep" id="qs-dependientes">
+          <span class="quiz-step-label">Pregunta 3 de 4</span>
           <h3>¿Quién depende económicamente de ti?</h3>
-          <p class="hint">Esto define cuánta protección necesitas.</p>
+          <p class="hint">Esto define cuánta protección necesitas — y qué complemento te conviene.</p>
           <div class="opts">
             <button class="opt" data-k="dependientes" data-v="nadie"><span class="ic" style="background:#EAF1FB">🙋</span><span class="lbl">Nadie por ahora</span><span class="chk"></span></button>
             <button class="opt" data-k="dependientes" data-v="pareja"><span class="ic" style="background:#FAF1DD">💑</span><span class="lbl">Mi pareja</span><span class="chk"></span></button>
@@ -462,9 +511,9 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
           </div>
         </div>
 
-        <!-- Q4 capacidad -->
-        <div class="qstep" data-step="4">
-          <span class="quiz-step-label">Pregunta 4 de 5</span>
+        <!-- P capacidad -->
+        <div class="qstep" id="qs-capacidad">
+          <span class="quiz-step-label">Pregunta 4 de 4</span>
           <h3>¿Cuánto podrías destinar al mes a este objetivo?</h3>
           <p class="hint">Hay planes desde $2,500 al mes. Sin compromiso.</p>
           <div class="opts">
@@ -475,21 +524,48 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
           </div>
         </div>
 
-        <!-- Q5 ocupacion -->
-        <div class="qstep" data-step="5">
-          <span class="quiz-step-label">Pregunta 5 de 5</span>
-          <h3>¿A qué te dedicas?</h3>
-          <p class="hint">Algunos planes ofrecen beneficios fiscales según tu actividad.</p>
+        <!-- ===== VÍA EMPRESA ===== -->
+        <!-- E empleados -->
+        <div class="qstep" id="qs-empleados">
+          <span class="quiz-step-label">Pregunta 2 de 4</span>
+          <h3>¿Cuántos empleados tiene tu empresa?</h3>
+          <p class="hint">Con esto dimensionamos el esquema de cobertura.</p>
           <div class="opts">
-            <button class="opt" data-k="ocupacion" data-v="empleado"><span class="ic" style="background:#EAF1FB">🧑‍💼</span><span class="lbl">Empleado</span><span class="chk"></span></button>
-            <button class="opt" data-k="ocupacion" data-v="empresario"><span class="ic" style="background:#FAF1DD">🏢</span><span class="lbl">Empresario / dueño de negocio</span><span class="chk"></span></button>
-            <button class="opt" data-k="ocupacion" data-v="independiente"><span class="ic" style="background:#E7F6EC">🧑‍💻</span><span class="lbl">Profesionista independiente</span><span class="chk"></span></button>
-            <button class="opt" data-k="ocupacion" data-v="otro"><span class="ic" style="background:#F3ECFB">✨</span><span class="lbl">Otro</span><span class="chk"></span></button>
+            <button class="opt" data-k="empleados" data-v="1-10"><span class="ic" style="background:#E7F6EC">👥</span><span class="lbl">1 a 10 empleados</span><span class="chk"></span></button>
+            <button class="opt" data-k="empleados" data-v="11-50"><span class="ic" style="background:#EAF1FB">🏢</span><span class="lbl">11 a 50 empleados</span><span class="chk"></span></button>
+            <button class="opt" data-k="empleados" data-v="51-200"><span class="ic" style="background:#FAF1DD">🏬</span><span class="lbl">51 a 200 empleados</span><span class="chk"></span></button>
+            <button class="opt" data-k="empleados" data-v="200+"><span class="ic" style="background:#F3ECFB">🏭</span><span class="lbl">Más de 200 empleados</span><span class="chk"></span></button>
+          </div>
+        </div>
+
+        <!-- E necesidad -->
+        <div class="qstep" id="qs-necesidad">
+          <span class="quiz-step-label">Pregunta 3 de 4</span>
+          <h3>¿Qué necesitas proteger principalmente?</h3>
+          <p class="hint">Elige tu prioridad — de aquí sale tu cobertura recomendada.</p>
+          <div class="opts">
+            <button class="opt" data-k="necesidad" data-v="vida_grupo"><span class="ic" style="background:#EAF1FB">🛡️</span><span class="lbl">La vida de mis empleados (Vida Grupo)</span><span class="chk"></span></button>
+            <button class="opt" data-k="necesidad" data-v="gmm_colectivo"><span class="ic" style="background:#E7F6EC">🏥</span><span class="lbl">Su salud (Gastos Médicos Colectivos)</span><span class="chk"></span></button>
+            <button class="opt" data-k="necesidad" data-v="danos"><span class="ic" style="background:#FAF1DD">🏭</span><span class="lbl">Mis instalaciones y bienes (Daños)</span><span class="chk"></span></button>
+            <button class="opt" data-k="necesidad" data-v="integral"><span class="ic" style="background:#F3ECFB">🧭</span><span class="lbl">No estoy seguro, quiero asesoría</span><span class="chk"></span></button>
+          </div>
+        </div>
+
+        <!-- E giro -->
+        <div class="qstep" id="qs-giro">
+          <span class="quiz-step-label">Pregunta 4 de 4</span>
+          <h3>¿Cuál es el giro de tu empresa?</h3>
+          <p class="hint">Ajustamos la propuesta al riesgo de tu sector.</p>
+          <div class="opts">
+            <button class="opt" data-k="giro" data-v="comercio"><span class="ic" style="background:#EAF1FB">🛍️</span><span class="lbl">Comercio / retail</span><span class="chk"></span></button>
+            <button class="opt" data-k="giro" data-v="servicios"><span class="ic" style="background:#E7F6EC">💼</span><span class="lbl">Servicios / oficina</span><span class="chk"></span></button>
+            <button class="opt" data-k="giro" data-v="industria"><span class="ic" style="background:#FAF1DD">🏭</span><span class="lbl">Manufactura / industria</span><span class="chk"></span></button>
+            <button class="opt" data-k="giro" data-v="otro"><span class="ic" style="background:#F3ECFB">✨</span><span class="lbl">Otro</span><span class="chk"></span></button>
           </div>
         </div>
 
         <!-- Captura -->
-        <div class="qstep" data-step="6">
+        <div class="qstep" id="qs-captura">
           <div class="rec-card" id="recCard">
             <div class="rec-icon" id="resIcon">🌅</div>
             <div>
@@ -498,7 +574,11 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
               <div class="rec-tag" id="resTag">–</div>
             </div>
           </div>
-          <p style="font-size:14.5px;color:#4C5A6E;margin:0 0 22px;line-height:1.5">Déjanos tus datos y un asesor te contacta con el detalle de tu plan a la medida.</p>
+          <div class="rec-comp" id="recComp" style="display:none">
+            <span class="rec-comp-ic" id="recCompIcon">➕</span>
+            <div><span class="rec-comp-lbl">Te sugerimos complementar con</span><br><b id="recCompName">–</b></div>
+          </div>
+          <p class="rec-insight" id="recInsight">Un asesor te arma el plan a la medida según tus respuestas.</p>
           <div class="field">
             <input id="f_nombre" placeholder="Nombre completo">
             <input id="f_wa" inputmode="tel" placeholder="WhatsApp (10 dígitos)">
@@ -509,7 +589,7 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
         </div>
 
         <!-- Gracias -->
-        <div class="qstep" data-step="7">
+        <div class="qstep" id="qs-gracias">
           <div class="thanks">
             <div class="check">✓</div>
             <h3>¡Gracias, <span id="thxName"></span></h3>
@@ -558,6 +638,46 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
         <h3>Ahorro educativo</h3>
         <p>Garantiza la universidad de tus hijos empezando hoy, con un plan de ahorro pensado para su futuro.</p>
         <a href="#cuestionario">Ver si es para mí →</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-icon" style="background:#FDECEC">🏠</div>
+        <h3>Seguro de hogar</h3>
+        <p>Protege tu casa y tu patrimonio ante incendio, robo o desastres. Tranquilidad para lo que más te costó construir.</p>
+        <a href="#cuestionario">Ver si es para mí →</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-icon" style="background:#E3F4F4">🏢</div>
+        <h3>Seguros empresariales</h3>
+        <p>Protege a tus empleados y a tu negocio frente a los riesgos que surgen día a día: vida grupo, gastos médicos colectivos y daños.</p>
+        <a href="#cuestionario">Ver si es para mí →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== QUIÉNES SOMOS ===== -->
+<section class="about-sec" id="nosotros">
+  <div class="inner">
+    <div class="about-grid">
+      <div class="about-copy">
+        <span class="eyebrow">Quiénes somos</span>
+        <h2>Más de 20 años cuidando el futuro de las familias y empresas mexicanas</h2>
+        <p>En Enlace Integral acompañamos a nuestros clientes a transferir sus riesgos personales, patrimoniales y financieros a través de estrategias a la medida. Somos una promotoría autorizada por Allianz®, con un equipo de asesores consolidados y comprometidos con el servicio.</p>
+        <p>Nuestros agentes están altamente capacitados para brindar un excelente servicio, con conocimiento profundo de los productos, eficiencia y, sobre todo, confianza.</p>
+        <div class="about-stats">
+          <div class="about-stat"><div class="num">+20 años</div><div class="lbl">de experiencia</div></div>
+          <div class="about-stat"><div class="num">+20</div><div class="lbl">asesores a tu servicio</div></div>
+          <div class="about-stat"><div class="num">CDMX</div><div class="lbl">Campestre Churubusco</div></div>
+        </div>
+        <div class="recog">
+          <span class="rw">🏆</span>
+          <div><b>Reconocidos por Allianz®</b><br><span>Distinciones a nuestros asesores por desempeño y servicio.</span></div>
+        </div>
+      </div>
+      <div class="about-imgs">
+        <img src="nosotros-03.jpg" alt="Asesor de Enlace Integral atendiendo a un cliente">
+        <img src="nosotros-01.jpg" alt="Familia protegida por Enlace Integral">
+        <img src="mas-beneficios-para-tu-futuro.jpg" alt="Más beneficios para tu futuro">
       </div>
     </div>
   </div>
@@ -626,10 +746,22 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
   </div>
 </section>
 
+<!-- ===== ÚNETE AL EQUIPO ===== -->
+<section class="recruit-sec" id="agentes">
+  <div class="inner">
+    <div class="recruit-copy">
+      <span class="eyebrow">Quiero ser agente</span>
+      <h2>Construye tu carrera con nosotros</h2>
+      <p>¿Te apasiona ayudar a las personas a proteger su futuro? Únete a nuestro equipo de asesores, con respaldo de Allianz®, capacitación continua e ingresos sin límite.</p>
+    </div>
+    <a id="waAgente" target="_blank" class="btn btn--gold" style="white-space:nowrap">Quiero unirme →</a>
+  </div>
+</section>
+
 <!-- ===== CTA FINAL ===== -->
 <section class="cta-sec">
   <div class="inner">
-    <h2>Tu plan ideal está a 5 preguntas de distancia</h2>
+    <h2>Tu plan ideal está a 4 preguntas de distancia</h2>
     <p>Sin compromiso y en menos de un minuto. Da el primer paso hacia tu tranquilidad.</p>
     <a href="#cuestionario" class="btn btn--navy" style="margin-top:30px;font-size:17px;padding:17px 34px">Encontrar mi plan ahora →</a>
   </div>
@@ -661,6 +793,7 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
       <div class="foot-links">
         <a id="waFoot" target="_blank">WhatsApp · 55 1685 9769</a>
         <a href="mailto:contacto@enlaceintegralseguros.com.mx">contacto@enlaceintegralseguros.com.mx</a>
+        <span style="color:#86C2C5">Campestre Churubusco, CDMX</span>
         <a href="https://www.facebook.com/EnlaceIntegralSeguros" target="_blank" rel="noopener">Facebook</a>
         <a href="https://www.instagram.com/enlaceintegralseguros/" target="_blank" rel="noopener">Instagram</a>
       </div>
@@ -672,6 +805,8 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
         <a href="#cuestionario">Protección de vida</a>
         <a href="#cuestionario">Gastos médicos</a>
         <a href="#cuestionario">Ahorro educativo</a>
+        <a href="#cuestionario">Seguro de hogar</a>
+        <a href="#cuestionario">Seguros empresariales</a>
       </div>
     </div>
   </div>
@@ -692,7 +827,22 @@ function waLink(extra){ return "https://wa.me/"+WA_NUMBER+"?text="+encodeURIComp
   var e=document.getElementById(id);
   if(e){ e.href=waLink(); e.addEventListener("click",function(){ metaTrack("Contact",{content_name:"WhatsApp"}); }); }
 });
+var waAg=document.getElementById("waAgente");
+if(waAg){ waAg.href=waLink("Hola, me interesa unirme a Enlace Integral como agente de seguros."); waAg.addEventListener("click",function(){ metaTrack("Contact",{content_name:"Quiero ser agente"}); }); }
 document.getElementById("yr").textContent=new Date().getFullYear();
+
+/* ====== MENÚ MÓVIL ====== */
+(function(){
+  var t=document.getElementById("navToggle"), m=document.getElementById("navLinks");
+  if(!t||!m) return;
+  t.addEventListener("click",function(){
+    var open=m.classList.toggle("open");
+    t.setAttribute("aria-expanded",open?"true":"false");
+  });
+  m.querySelectorAll("a").forEach(function(a){
+    a.addEventListener("click",function(){ m.classList.remove("open"); t.setAttribute("aria-expanded","false"); });
+  });
+})();
 
 /* ====== INTEGRACIÓN META ====== */
 var PIXEL_ON = !!window.META_PIXEL_ID;
@@ -716,39 +866,55 @@ function metaTrack(name,params){
 window.addEventListener("load",function(){ pixelLog("PageView"); });
 var quizStarted=false;
 
-/* ====== QUIZ ENGINE ====== */
-var TOTAL_Q=5;
-var step=1;
+/* ====== QUIZ ENGINE (con ramas Personal / Empresa) ====== */
+var FLOWS={
+  personal:["qs-objetivo","qs-edad","qs-dependientes","qs-capacidad","qs-captura","qs-gracias"],
+  empresa: ["qs-objetivo","qs-empleados","qs-necesidad","qs-giro","qs-captura","qs-gracias"]
+};
+var track="personal", flow=FLOWS.personal, idx=0;
 var answers={};
+
+/* Planes personales */
 var SEG={
-  ahorro:    {icon:"🌅", name:"Ahorro para el retiro",    tag:"OptiMaxx Plus · Allianz®",   text:"Un plan de ahorro flexible con beneficios fiscales para que llegues a tu retiro con tranquilidad."},
-  vida:      {icon:"🛡️", name:"Protección de vida",       tag:"Vida · Allianz®",            text:"Un plan de vida que protege el futuro de quienes dependen de ti, pase lo que pase."},
-  gmm:       {icon:"🏥", name:"Gastos médicos mayores",   tag:"Salud · Allianz®",           text:"Cobertura para atender cualquier imprevisto de salud sin descapitalizarte."},
-  educacion: {icon:"🎓", name:"Ahorro educativo",         tag:"Educación · Allianz®",       text:"Un plan para garantizar la educación de tus hijos empezando desde hoy."}
+  ahorro:    {icon:"🌅", name:"Ahorro para el retiro",    tag:"OptiMaxx Plus · Allianz®"},
+  vida:      {icon:"🛡️", name:"Protección de vida",       tag:"Vida · Allianz®"},
+  gmm:       {icon:"🏥", name:"Gastos médicos mayores",   tag:"Salud · Allianz®"},
+  educacion: {icon:"🎓", name:"Ahorro educativo",         tag:"Educación · Allianz®"}
+};
+/* Coberturas empresariales */
+var NEED={
+  vida_grupo:    {icon:"🛡️", name:"Vida Grupo para empleados",       tag:"Empresas · Allianz®"},
+  gmm_colectivo: {icon:"🏥", name:"Gastos Médicos Colectivos",       tag:"Empresas · Allianz®"},
+  danos:         {icon:"🏭", name:"Seguro de Daños Patrimoniales",   tag:"Empresas · Allianz®"},
+  integral:      {icon:"🏢", name:"Protección empresarial integral", tag:"Empresas · Allianz®"}
 };
 
-function showStep(n,noScroll){
-  document.querySelectorAll(".qstep").forEach(function(s){ s.classList.toggle("on",+s.dataset.step===n); });
-  step=n;
-  var bar=document.getElementById("qbar");
-  var pct=Math.min(100,Math.round(((Math.min(n,TOTAL_Q+1)-1)/TOTAL_Q)*100));
-  bar.style.width=pct+"%";
-  var title=document.getElementById("qtitle");
-  var nav=document.getElementById("qnav");
-  var back=document.getElementById("backBtn");
-  if(n<=TOTAL_Q){ if(title) title.textContent="Pregunta "+n+" de "+TOTAL_Q; nav.style.display="flex"; }
-  else if(n===TOTAL_Q+1){ nav.style.display="flex"; }
-  else { nav.style.display="none"; }
-  back.style.visibility=(n===1)?"hidden":"visible";
+function qCount(){ return flow.length-2; } /* preguntas antes de la captura */
+
+function goIdx(i,noScroll){
+  idx=i;
+  var id=flow[i];
+  document.querySelectorAll(".qstep").forEach(function(s){ s.classList.toggle("on", s.id===id); });
+  var total=qCount();
+  var pct=Math.min(100,Math.round((Math.min(i,total)/total)*100));
+  document.getElementById("qbar").style.width=pct+"%";
+  var nav=document.getElementById("qnav"), back=document.getElementById("backBtn");
+  if(id==="qs-gracias"){ nav.style.display="none"; }
+  else { nav.style.display="flex"; back.style.visibility=(i===0)?"hidden":"visible"; }
   if(!noScroll){ document.querySelector("#cuestionario .quiz-box").scrollIntoView({behavior:"smooth",block:"center"}); }
 }
-function prevStep(){ if(step>1) showStep(step-1); }
+function prevStep(){ if(idx>0) goIdx(idx-1); }
+
+function setTrack(t){ track=t; flow=FLOWS[t]; }
 
 /* Chips de objetivo en la sección goal */
 window.startWith=function(value){
-  var map={retiro:"ahorro",familia:"vida",medicos:"gmm",educacion:"educacion"};
-  answers.objetivo=value; answers.segmento=map[value]||"ahorro";
-  showStep(2);
+  var map={retiro:"ahorro",familia:"vida",medicos:"gmm",educacion:"educacion",empresa:"empresa"};
+  answers.objetivo=value;
+  if(value==="empresa"){ setTrack("empresa"); answers.segmento="empresa"; }
+  else { setTrack("personal"); answers.segmento=map[value]||"ahorro"; }
+  if(!quizStarted){ quizStarted=true; metaTrack("ViewContent",{content_name:"Cuestionario"}); }
+  goIdx(1);
 };
 
 document.querySelectorAll(".opt[data-k]").forEach(function(btn){
@@ -759,18 +925,64 @@ document.querySelectorAll(".opt[data-k]").forEach(function(btn){
     if(btn.dataset.seg) answers.segmento=btn.dataset.seg;
     btn.parentNode.querySelectorAll(".opt").forEach(function(o){ o.classList.remove("sel"); o.querySelector(".chk").textContent=""; });
     btn.classList.add("sel"); btn.querySelector(".chk").textContent="✓";
-    if(step<TOTAL_Q){ setTimeout(function(){showStep(step+1);},200); }
-    else { setTimeout(buildResult,200); }
+    var stepEl=btn.closest(".qstep");
+    if(stepEl && stepEl.id==="qs-objetivo"){ setTrack(btn.dataset.v==="empresa"?"empresa":"personal"); }
+    var next=idx+1;
+    if(flow[next]==="qs-captura"){ buildResult(); }
+    setTimeout(function(){ goIdx(next); },200);
   });
 });
 
+/* Reglas de complemento (cross-sell) */
+function complementPersonal(base){
+  var d=answers.dependientes;
+  if(d==="hijos_pequenos") return (base!=="educacion")?"educacion":"vida";
+  if(d==="hijos_padres"||d==="pareja") return (base!=="vida")?"vida":"gmm";
+  if(d==="nadie") return (base!=="gmm")?"gmm":"ahorro";
+  return (base!=="gmm")?"gmm":"vida";
+}
+function complementEmpresa(need){
+  if(need==="gmm_colectivo") return "vida_grupo";
+  return "gmm_colectivo";
+}
+function insightPersonal(base){
+  if((answers.edad==="46-60"||answers.edad==="60+") && base==="ahorro") return "Conviene empezar cuanto antes para aprovechar el rendimiento compuesto.";
+  if(answers.capacidad==="6000+") return "Con tu capacidad puedes acceder a portafolios premium en distintas monedas.";
+  if(answers.capacidad==="<2500") return "Hay planes flexibles que se ajustan a tu presupuesto.";
+  return "Un asesor te arma el plan a la medida según tus respuestas.";
+}
+function insightEmpresa(){
+  if(answers.empleados==="1-10") return "Paquetes pensados para PyME, con trámite ágil.";
+  if(answers.empleados==="51-200"||answers.empleados==="200+") return "Esquema corporativo a la medida para tu plantilla.";
+  return "Un asesor especializado en empresas te contacta con la propuesta.";
+}
+
 function buildResult(){
-  var seg=answers.segmento||"ahorro";
-  var s=SEG[seg];
-  document.getElementById("resIcon").textContent=s.icon;
-  document.getElementById("resName").textContent=s.name;
-  document.getElementById("resTag").textContent=s.tag;
-  showStep(TOTAL_Q+1);
+  var primary, comp=null, insight;
+  if(track==="empresa"){
+    var need=answers.necesidad||"integral";
+    primary=NEED[need];
+    comp=(need==="integral")?null:NEED[complementEmpresa(need)];
+    insight=insightEmpresa();
+  } else {
+    var base=answers.segmento||"ahorro";
+    primary=SEG[base]||SEG.ahorro;
+    var c=complementPersonal(base);
+    comp=(c && c!==base)?SEG[c]:null;
+    insight=insightPersonal(base);
+  }
+  answers.plan_recomendado=primary.name;
+  answers.plan_complemento=comp?comp.name:"";
+  document.getElementById("resIcon").textContent=primary.icon;
+  document.getElementById("resName").textContent=primary.name;
+  document.getElementById("resTag").textContent=primary.tag;
+  document.getElementById("recInsight").textContent=insight;
+  var compEl=document.getElementById("recComp");
+  if(comp){
+    compEl.style.display="flex";
+    document.getElementById("recCompIcon").textContent=comp.icon;
+    document.getElementById("recCompName").textContent=comp.name;
+  } else { compEl.style.display="none"; }
 }
 
 function submitLead(){
@@ -778,16 +990,12 @@ function submitLead(){
   var wa=document.getElementById("f_wa").value.trim();
   var ok=document.getElementById("f_ok").checked;
   if(!nombre||!wa||!ok){ alert("Por favor completa tu nombre y WhatsApp, y acepta el aviso de privacidad."); return; }
-  var lead={
+  var lead=Object.assign({}, answers, {
     nombre:nombre, whatsapp:wa,
     email:document.getElementById("f_email").value.trim(),
-    segmento:answers.segmento,
-    plan_recomendado:(SEG[answers.segmento]||{}).name,
-    objetivo:answers.objetivo, edad:answers.edad,
-    dependientes:answers.dependientes, capacidad:answers.capacidad,
-    ocupacion:answers.ocupacion,
+    via:track,
     fecha:new Date().toISOString()
-  };
+  });
   console.log("LEAD CAPTURADO:",lead);
   metaTrack("Lead",{content_name:lead.plan_recomendado||"Plan",currency:"MXN"});
   try{
@@ -798,10 +1006,10 @@ function submitLead(){
   }catch(e){}
   document.getElementById("thxName").textContent=nombre.split(" ")[0]+" 🎉";
   document.getElementById("waThanks").href=waLink("Hola, soy "+nombre+". Me interesa el "+(lead.plan_recomendado||"plan")+" que vi en su página.");
-  showStep(TOTAL_Q+2);
+  goIdx(flow.indexOf("qs-gracias"));
 }
 
-showStep(1,true);
+goIdx(0,true);
 </script>
 </body>
 </html>
