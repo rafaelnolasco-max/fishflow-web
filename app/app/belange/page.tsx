@@ -30,6 +30,7 @@ import {
   inputStyle as mkInput,
   type DashTheme,
 } from "@/components/dashboard";
+import ReviewsTab from "@/components/reviews/ReviewsTab";
 
 // ─── Brand ────────────────────────────────────────────────────────────────────
 const FF_CYAN   = "#00B8CC";
@@ -289,7 +290,7 @@ export default function BelangePage() {
   const [transactions, setTransactions] = useState<BelangeTransaction[]>([]);
   const [products,     setProducts]     = useState<BelangeInventoryProduct[]>([]);
   const [loading,      setLoading]      = useState(true);
-  const [view,         setView]         = useState<"ingresos" | "inventario">("ingresos");
+  const [view,         setView]         = useState<"ingresos" | "inventario" | "resenas">("ingresos");
   const [invSearch,    setInvSearch]    = useState("");
 
   // ── Edit payment method inline ──
@@ -850,7 +851,8 @@ export default function BelangePage() {
               {([
                 { id: "ingresos",    label: "📊 Ingresos" },
                 { id: "inventario",  label: "🧴 Inventario" },
-              ] as { id: "ingresos" | "inventario"; label: string }[]).map(v => (
+                { id: "resenas",     label: "⭐ Reseñas" },
+              ] as { id: "ingresos" | "inventario" | "resenas"; label: string }[]).map(v => (
                 <button key={v.id} onClick={() => setView(v.id)} style={{
                   flex: 1, padding: "7px 0",
                   border: view === v.id ? "0.5px solid #ddd" : "none",
@@ -1183,6 +1185,16 @@ export default function BelangePage() {
               </div>
               )}
             </>)}
+
+            {view === "resenas" && (
+              <ReviewsTab
+                clientId={BELANGE_CLIENT_ID}
+                theme={T}
+                personLabel="clienta"
+                personLabelPlural="clientas"
+                emptyHint="o agrégala al cobrar en mostrador"
+              />
+            )}
           </div>
         </div>
 
