@@ -748,6 +748,7 @@ function LukonDashboard() {
             theme={REVIEWS_THEME}
             personLabel="cliente"
             personLabelPlural="clientes"
+            smartReplies
           />
         )}
       </main>

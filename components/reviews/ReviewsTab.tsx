@@ -45,6 +45,10 @@ export type ReviewRequest = {
   stage1_sent_at: string | null;
   stage2_sent_at: string | null;
   stage3_sent_at: string | null;
+  reply_1: string | null;
+  reply_2: string | null;
+  draft_2: string | null;
+  draft_3: string | null;
   notes: string | null;
   created_at: string;
 };
@@ -93,12 +97,14 @@ export default function ReviewsTab({
   personLabel = "cliente",
   personLabelPlural = "clientes",
   emptyHint,
+  smartReplies = false,
 }: {
   clientId: string;
   theme: DashTheme;
   personLabel?: string;        // "paciente" / "clienta" — para el copy
   personLabelPlural?: string;  // "pacientes" / "clientas"
   emptyHint?: string;          // texto extra en el estado vacío (ej. "o usa ⭐ desde una cita")
+  smartReplies?: boolean;      // opt-in: mensajes 2 y 3 redactados por IA con la respuesta del cliente
 }) {
   // ⚠️ No definir componentes aquí dentro (se recrean en cada render y React
   // desmonta los inputs → el teclado móvil se cierra a cada tecla). Usar
@@ -119,6 +125,20 @@ export default function ReviewsTab({
   const [csvRows, setCsvRows] = useState<{ name: string; phone: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // ── Smart replies (opt-in): estado por fila ────────────────────────────────
+  const [pasteBox, setPasteBox] = useState<Record<string, string>>({});   // respuesta pegada del cliente
+  const [draftBox, setDraftBox] = useState<Record<string, string>>({});    // borrador IA editable
+  const [busyRow, setBusyRow] = useState<Record<string, boolean>>({});     // generando
+
+  function replyCol(stage: number) { return stage === 1 ? "reply_1" : "reply_2"; }
+  function draftCol(stage: number) { return stage === 1 ? "draft_2" : "draft_3"; }
+  function pasteVal(r: ReviewRequest) {
+    return pasteBox[r.id] ?? (r.stage === 1 ? r.reply_1 : r.reply_2) ?? "";
+  }
+  function draftVal(r: ReviewRequest) {
+    return draftBox[r.id] ?? (r.stage === 1 ? r.draft_2 : r.draft_3) ?? "";
+  }
 
   function notify(msg: string) {
     setToast(msg);
@@ -158,23 +178,73 @@ export default function ReviewsTab({
   );
 
   // ── Avanzar etapa (abre WhatsApp + registra) ────────────────────────────────
-  async function advanceStage(r: ReviewRequest) {
+  // opts.message: texto ya listo (ej. borrador IA) — si falta, usa la plantilla.
+  // opts.extraPatch: columnas extra a guardar (ej. reply_1/draft_2).
+  async function advanceStage(
+    r: ReviewRequest,
+    opts?: { message?: string; extraPatch?: Record<string, unknown> },
+  ) {
     const tpl = r.stage === 0 ? settings?.msg_template_1 : r.stage === 1 ? settings?.msg_template_2 : settings?.msg_template_3;
-    if (!tpl) { notify("Configura las plantillas primero"); return; }
+    if (!opts?.message?.trim() && !tpl) { notify("Configura las plantillas primero"); return; }
     if (r.stage === 2 && !settings?.review_link) {
       notify("Falta el Place ID de Google en Configuración");
       setShowSettings(true);
       return;
     }
-    const msg = fillTemplate(tpl, r.contact_name, settings?.review_link ?? null);
+    const msg = opts?.message?.trim() || fillTemplate(tpl ?? "", r.contact_name, settings?.review_link ?? null);
     window.open(waLink(r.contact_phone, msg), "_blank");
 
     const nextStage = (r.stage + 1) as ReviewRequest["stage"];
-    const patch: Record<string, unknown> = { stage: nextStage, updated_at: new Date().toISOString() };
+    const patch: Record<string, unknown> = { stage: nextStage, updated_at: new Date().toISOString(), ...(opts?.extraPatch ?? {}) };
     patch[`stage${nextStage}_sent_at`] = new Date().toISOString();
     const { error } = await supabase.from("review_requests").update(patch).eq("id", r.id);
     if (error) { console.error(error); notify(`Error: ${error.message}`); return; }
     setRequests(prev => prev.map(x => x.id === r.id ? { ...x, ...patch } as ReviewRequest : x));
+  }
+
+  // ── Smart replies: generar borrador IA con la respuesta del cliente ─────────
+  async function generateDraft(r: ReviewRequest) {
+    const reply = pasteVal(r).trim();
+    if (!reply) { notify("Pega primero la respuesta del cliente"); return; }
+    if (r.stage === 2 && !settings?.review_link) {
+      notify("Falta el Place ID de Google en Configuración");
+      setShowSettings(true);
+      return;
+    }
+    setBusyRow(prev => ({ ...prev, [r.id]: true }));
+    try {
+      const res = await fetch("/api/reviews/draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, stage: r.stage, reply, contactName: r.contact_name }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.draft) { notify(data?.error ?? "No se pudo generar el mensaje"); return; }
+      setDraftBox(prev => ({ ...prev, [r.id]: data.draft as string }));
+      // Persistir respuesta + borrador (no avanza etapa hasta que envíes)
+      const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      patch[replyCol(r.stage)] = reply;
+      patch[draftCol(r.stage)] = data.draft;
+      const { error } = await supabase.from("review_requests").update(patch).eq("id", r.id);
+      if (error) console.error(error);
+      setRequests(prev => prev.map(x => x.id === r.id ? { ...x, ...patch } as ReviewRequest : x));
+    } catch (e: any) {
+      console.error(e); notify("Error de red al generar el mensaje");
+    } finally {
+      setBusyRow(prev => ({ ...prev, [r.id]: false }));
+    }
+  }
+
+  // Enviar usando el borrador IA (o la plantilla si no hay borrador) y avanzar.
+  async function sendSmart(r: ReviewRequest) {
+    const draft = draftVal(r).trim();
+    const reply = pasteVal(r).trim();
+    const extraPatch: Record<string, unknown> = {};
+    if (reply) extraPatch[replyCol(r.stage)] = reply;
+    if (draft) extraPatch[draftCol(r.stage)] = draft;
+    await advanceStage(r, { message: draft || undefined, extraPatch });
+    setPasteBox(prev => { const n = { ...prev }; delete n[r.id]; return n; });
+    setDraftBox(prev => { const n = { ...prev }; delete n[r.id]; return n; });
   }
 
   // ── Mensaje privado para feedback negativo ──────────────────────────────────
@@ -282,47 +352,108 @@ export default function ReviewsTab({
 
   // ── Fila de la cola (función normal, no componente — evita remounts) ───────
   const renderRow = (r: ReviewRequest) => {
+    const smartActive = smartReplies && (r.stage === 1 || r.stage === 2);
+    const busy = !!busyRow[r.id];
+    const draft = draftVal(r);
     return (
-      <div key={r.id} style={{ ...cardStyle, padding: 14, display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
-        <div style={{ minWidth: 140, flex: "1 1 160px" }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>{r.contact_name}</div>
-          <div style={{ fontSize: 12, color: T.muted }}>{r.contact_phone} · {SOURCE_LABEL[r.source]}</div>
-        </div>
-        <span style={{ display: "inline-block", padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 600,
-          whiteSpace: "nowrap",
-          background: r.stage === 3 ? `${U.green}20` : `${U.blue}15`,
-          color: r.stage === 3 ? U.green : U.blue }}>
-          {STAGE_LABEL[r.stage]}
-        </span>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginLeft: "auto" }}>
-          {r.stage < 3 ? (
-            <button onClick={() => advanceStage(r)} style={{
-              background: U.wa, color: "#fff", border: "none", borderRadius: 8,
-              padding: "8px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+      <div key={r.id} style={{ ...cardStyle, padding: 14, display: "flex", flexDirection: "column", gap: 10 }}>
+        {/* Encabezado de la fila */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+          <div style={{ minWidth: 140, flex: "1 1 160px" }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>{r.contact_name}</div>
+            <div style={{ fontSize: 12, color: T.muted }}>{r.contact_phone} · {SOURCE_LABEL[r.source]}</div>
+          </div>
+          <span style={{ display: "inline-block", padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 600,
+            whiteSpace: "nowrap",
+            background: r.stage === 3 ? `${U.green}20` : `${U.blue}15`,
+            color: r.stage === 3 ? U.green : U.blue }}>
+            {STAGE_LABEL[r.stage]}
+          </span>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginLeft: "auto" }}>
+            {/* En smartActive el botón de envío vive en el panel de abajo */}
+            {r.stage < 3 && !smartActive && (
+              <button onClick={() => advanceStage(r)} style={{
+                background: U.wa, color: "#fff", border: "none", borderRadius: 8,
+                padding: "8px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+              }}>
+                {STAGE_BTN[r.stage]}
+              </button>
+            )}
+            {r.stage === 3 && (
+              <button onClick={() => setStatus(r, "completed")} style={{
+                background: U.green, color: "#fff", border: "none", borderRadius: 8,
+                padding: "8px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+              }}>
+                ⭐ Publicó reseña
+              </button>
+            )}
+            <button onClick={() => setStatus(r, "no_response")} title="Marcar sin respuesta" style={{
+              background: "none", border: `1px solid ${T.border}`, borderRadius: 8,
+              padding: "8px 10px", fontSize: 12, color: T.muted, cursor: "pointer",
             }}>
-              {STAGE_BTN[r.stage]}
+              Sin resp.
             </button>
-          ) : (
-            <button onClick={() => setStatus(r, "completed")} style={{
-              background: U.green, color: "#fff", border: "none", borderRadius: 8,
-              padding: "8px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+            <button onClick={() => setStatus(r, "negative_feedback")} title="Tuvo mala experiencia — abrir chat privado, sin link de reseña" style={{
+              background: "none", border: `1px solid ${T.border}`, borderRadius: 8,
+              padding: "8px 10px", fontSize: 12, color: U.red, cursor: "pointer",
             }}>
-              ⭐ Publicó reseña
+              😕
             </button>
-          )}
-          <button onClick={() => setStatus(r, "no_response")} title="Marcar sin respuesta" style={{
-            background: "none", border: `1px solid ${T.border}`, borderRadius: 8,
-            padding: "8px 10px", fontSize: 12, color: T.muted, cursor: "pointer",
-          }}>
-            Sin resp.
-          </button>
-          <button onClick={() => setStatus(r, "negative_feedback")} title="Tuvo mala experiencia — abrir chat privado, sin link de reseña" style={{
-            background: "none", border: `1px solid ${T.border}`, borderRadius: 8,
-            padding: "8px 10px", fontSize: 12, color: U.red, cursor: "pointer",
-          }}>
-            😕
-          </button>
+          </div>
         </div>
+
+        {/* Panel de IA (solo smartReplies, etapas 2 y 3) */}
+        {smartActive && (
+          <div style={{ borderTop: `1px dashed ${T.border}`, paddingTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+            <label style={{ fontSize: 11.5, fontWeight: 600, color: T.muted }}>
+              Respuesta del cliente por WhatsApp (pégala aquí para redactar {r.stage === 1 ? "el mensaje 2" : "el mensaje 3"})
+            </label>
+            <textarea
+              rows={2}
+              value={pasteVal(r)}
+              placeholder="Ej. Todo bien, las unidades ya reportan sin problema"
+              onChange={e => setPasteBox(prev => ({ ...prev, [r.id]: e.target.value }))}
+              style={{ ...inputStyle, resize: "vertical", boxSizing: "border-box", outline: "none", fontSize: 13 }}
+            />
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button onClick={() => generateDraft(r)} disabled={busy || !pasteVal(r).trim()} style={{
+                background: busy ? T.border : T.accent, color: "#fff", border: "none", borderRadius: 8,
+                padding: "8px 14px", fontSize: 12.5, fontWeight: 700,
+                cursor: busy || !pasteVal(r).trim() ? "not-allowed" : "pointer", opacity: !pasteVal(r).trim() ? .6 : 1,
+              }}>
+                {busy ? "Generando..." : draft ? "✨ Regenerar" : "✨ Generar con IA"}
+              </button>
+            </div>
+
+            {draft && (
+              <>
+                <label style={{ fontSize: 11.5, fontWeight: 600, color: T.muted, marginTop: 2 }}>
+                  Borrador (edítalo si quieres antes de enviar)
+                </label>
+                <textarea
+                  rows={3}
+                  value={draft}
+                  onChange={e => setDraftBox(prev => ({ ...prev, [r.id]: e.target.value }))}
+                  style={{ ...inputStyle, resize: "vertical", boxSizing: "border-box", outline: "none", fontSize: 13 }}
+                />
+              </>
+            )}
+
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button onClick={() => sendSmart(r)} style={{
+                background: U.wa, color: "#fff", border: "none", borderRadius: 8,
+                padding: "8px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+              }}>
+                {draft ? "Enviar por WhatsApp" : STAGE_BTN[r.stage]}
+              </button>
+              {!draft && (
+                <span style={{ fontSize: 11.5, color: T.muted, alignSelf: "center" }}>
+                  Sin borrador se envía la plantilla de siempre.
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
