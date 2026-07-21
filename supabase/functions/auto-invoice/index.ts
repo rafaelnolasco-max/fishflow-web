@@ -6,7 +6,7 @@
 //
 // MODO ACTUAL (Opción A):
 //   Envía un email con el link al recibo usando Resend.
-//   Destinatarios: payer_email (del metadata) + rafaelnolasco@gmail.com
+//   Destinatarios: payer_email (del metadata) + raf@fishflow.mx
 //
 // FUTURO (Opción B):
 //   Agregar emisión de CFDI via Facturapi cuando factura_auto esté activo.

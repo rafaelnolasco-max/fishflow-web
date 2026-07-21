@@ -10,7 +10,7 @@ export const runtime = 'nodejs'
 // insurance_vendor_top_clients. Acepta ligeras variaciones de formato:
 // busca la fila del vendedor y el encabezado por texto, no por posición fija.
 
-const ADMIN_TO = ['raf@fishflow.mx', 'rafaelnolasco@gmail.com']
+const ADMIN_TO = ['raf@fishflow.mx']
 const MAX_CLIENTS = 50
 
 const HEADER_MAP: { match: RegExp; key: string }[] = [

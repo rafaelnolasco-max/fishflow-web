@@ -9,7 +9,7 @@ export const runtime = 'nodejs'
 // (/demos/enlaceintegral/top-clientes). Guarda cada cliente en
 // insurance_vendor_top_clients con service role — nunca toca git, nunca es público.
 
-const ADMIN_TO = ['raf@fishflow.mx', 'rafaelnolasco@gmail.com']
+const ADMIN_TO = ['raf@fishflow.mx']
 // Techo de seguridad por envío (no es una meta — un vendedor puede mandar más de 20
 // en varios envíos). Solo evita que un bug o reintento infle miles de filas de golpe.
 const MAX_CLIENTS_PER_REQUEST = 50

@@ -9,7 +9,7 @@ export const runtime = 'nodejs'
 // 2) Envía aviso inmediato por Resend a Rafa (y opcionalmente al asesor).
 // Reutiliza la infraestructura existente; no requiere migración.
 
-const ADMIN_TO = ['raf@fishflow.mx', 'rafaelnolasco@gmail.com']
+const ADMIN_TO = ['raf@fishflow.mx']
 
 const PLAN_LABEL: Record<string, string> = {
   ahorro: 'Ahorro para el retiro (OptiMaxx Plus)',

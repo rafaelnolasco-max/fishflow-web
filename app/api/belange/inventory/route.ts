@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 const BELANGE_CLIENT_ID = "33933663-79d2-4caa-86fe-7ea046082b7f";
 
 const STOCK_ALERT_EMAILS = [
-  "rafaelnolasco@gmail.com",
+  "raf@fishflow.mx",
   "belangestudio@gmail.com",
 ];
 

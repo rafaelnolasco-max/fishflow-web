@@ -448,7 +448,7 @@ function buildHtml(data: {
 
   <div class="r-foot">
     FishFlow · CDMX, México<br>
-    rafaelnolasco@gmail.com
+    raf@fishflow.mx
     <span class="url">${appUrl}/receipt/${data.txnId}</span>
   </div>
 
