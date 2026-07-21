@@ -9,7 +9,16 @@ export const runtime = 'nodejs'
 // 2) Envía aviso inmediato por Resend a Rafa (y opcionalmente al asesor).
 // Reutiliza la infraestructura existente; no requiere migración.
 
-const ADMIN_TO = ['raf@fishflow.mx']
+// client_id de Enlace Integral en la tabla `clients` (multi-tenant).
+// Los leads de la landing quedan etiquetados a Enlace → Ivonne solo ve los suyos
+// en /app/enlace, separados de los leads generales de FishFlow en /admin.
+const ENLACE_CLIENT_ID = 'e8094119-0414-4d46-8506-6ee1a52e852c'
+
+// Destinatarios del aviso. Rafa siempre. A Enlace se le avisa también, salvo que
+// se apague/ajuste con la variable de entorno ENLACE_LEAD_TO (coma-separada; "" = no enviar a Enlace).
+const ENLACE_TO = (process.env.ENLACE_LEAD_TO ?? 'contacto@enlaceintegralseguros.com.mx')
+  .split(',').map((s) => s.trim()).filter(Boolean)
+const NOTIFY_TO = ['raf@fishflow.mx', ...ENLACE_TO]
 
 const PLAN_LABEL: Record<string, string> = {
   ahorro: 'Ahorro para el retiro (OptiMaxx Plus)',
@@ -90,6 +99,8 @@ export async function POST(req: Request) {
         email: email || `wa-${whatsapp.replace(/\D/g, '')}@enlace.local`,
         problem: resumen,
         ai_response: `Plan recomendado: ${plan}`,
+        source: 'enlace_landing',
+        client_id: ENLACE_CLIENT_ID,
       })
       if (error) console.error('[demo/enlace-lead] Supabase insert error:', error)
     } catch (e) {
@@ -102,7 +113,7 @@ export async function POST(req: Request) {
       const resend = new Resend(resendKey)
       const { error: mailErr } = await resend.emails.send({
         from: 'Enlace Integral <recibos@fishflow.mx>',
-        to: ADMIN_TO,
+        to: NOTIFY_TO,
         replyTo: email || undefined,
         subject: `Nuevo lead — ${nombre} · ${plan}`,
         html: adminHtml({ nombre, whatsapp, email, plan, objetivo, edad, dependientes, capacidad, ocupacion }),

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase, ENLACE_CLIENT_ID } from "@/lib/supabase";
 import type { InsuranceVendorTopClient } from "@/lib/supabase";
 import {
-  DashboardHeader, StatGrid, StatCard, Chip,
+  TabBar, StatGrid, StatCard, Chip,
   Section as DSection,
   cardStyle as mkCard,
   type DashTheme,
@@ -48,6 +48,40 @@ const SOURCE_LABEL: Record<string, string> = {
   web_form: "Formulario web",
   excel_upload: "Excel subido",
 };
+
+// ─── Prospectos de la landing (tabla `leads`, filtrados a Enlace por client_id) ──
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  problem: string;
+  ai_response: string | null;
+  source: string | null;
+  created_at: string;
+}
+
+// El `problem` viene como "[Landing Enlace Integral] · Plan: X · WhatsApp: Y · ..."
+// Extrae el valor de una etiqueta puntual sin depender del orden.
+function leadField(problem: string, label: string): string {
+  for (const part of (problem || "").split(" · ")) {
+    const i = part.indexOf(":");
+    if (i > -1 && part.slice(0, i).trim().toLowerCase() === label.toLowerCase()) {
+      return part.slice(i + 1).trim();
+    }
+  }
+  return "";
+}
+function leadPlan(l: Lead): string {
+  const fromAi = (l.ai_response || "").replace(/^Plan recomendado:\s*/i, "").trim();
+  return fromAi || leadField(l.problem, "Plan") || "—";
+}
+function leadWhats(l: Lead): string {
+  return leadField(l.problem, "WhatsApp");
+}
+function leadEmail(l: Lead): string {
+  // los leads sin correo se guardan con un placeholder wa-...@enlace.local
+  return /@enlace\.local$/i.test(l.email) ? "" : l.email;
+}
 
 // ─── Export CSV para Meta (Customer List Custom Audience) ─────────────────────
 // Meta pide nombre y apellido por separado (no "nombre completo"). Heurística
@@ -123,12 +157,31 @@ export default function EnlaceDashboardPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"meta" | "avatar">("meta");
+  const [mainTab, setMainTab] = useState<"captura" | "prospectos">("captura");
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [leadsLoading, setLeadsLoading] = useState(true);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) router.push("/login?next=/app/enlace");
     });
   }, [router]);
+
+  useEffect(() => {
+    async function fetchLeads() {
+      setLeadsLoading(true);
+      // RLS ya limita a los leads de Enlace; el filtro explícito es defensa en profundidad.
+      const { data, error } = await supabase
+        .from("leads")
+        .select("id,name,email,problem,ai_response,source,created_at")
+        .eq("client_id", ENLACE_CLIENT_ID)
+        .order("created_at", { ascending: false });
+      if (error) console.error(error);
+      else setLeads((data as Lead[]) ?? []);
+      setLeadsLoading(false);
+    }
+    fetchLeads();
+  }, []);
 
   useEffect(() => {
     async function fetchRows() {
@@ -250,16 +303,40 @@ export default function EnlaceDashboardPage() {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: C.bg, fontFamily: "Inter, sans-serif" }}>
-      <DashboardHeader
-        icon={<span style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>EI</span>}
-        title="Enlace Integral Seguros"
-        subtitle="Top 20 clientes por vendedor · público similar Meta"
-        theme={T}
-        onLogout={logout}
-      />
+      {/* Header con la identidad de la landing (logo + borde verde) para que el
+          dashboard se sienta del mismo producto que su página. */}
+      <header style={{ background: C.white, borderBottom: `3px solid ${C.green}` }}>
+        <div style={{ maxWidth: 1040, margin: "0 auto", padding: "14px 16px",
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <img src="/clients/enlace/logo.png" alt="Enlace Integral Seguros"
+            style={{ height: 40, width: "auto", display: "block" }} />
+          <button
+            onClick={logout}
+            style={{ fontSize: 13, color: C.muted, background: "none",
+              border: `1px solid ${C.border}`, borderRadius: 8, padding: "7px 14px",
+              cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}
+          >
+            Salir
+          </button>
+        </div>
+      </header>
 
       <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px" }}>
 
+        <div style={{ marginBottom: 20 }}>
+          <TabBar
+            theme={T}
+            active={mainTab}
+            onChange={setMainTab}
+            tabs={[
+              { id: "captura", label: "Captura Top 20", icon: "📋" },
+              { id: "prospectos", label: `Prospectos${leads.length ? ` (${leads.length})` : ""}`, icon: "🎯" },
+            ]}
+          />
+        </div>
+
+      {mainTab === "captura" && (
+      <>
         <StatGrid>
           <StatCard theme={T} label="Registros totales" value={totalRegistros} sub={`meta: ${metaRegistros}`} />
           <StatCard theme={T} label="Vendedores que enviaron" value={`${totalVendedores} / ${META_VENDEDORES}`} />
@@ -514,6 +591,85 @@ export default function EnlaceDashboardPage() {
             </div>
           )}
         </Section>
+      </>
+      )}
+
+      {mainTab === "prospectos" && (
+      <>
+        <StatGrid>
+          <StatCard theme={T} label="Prospectos totales" value={leads.length} sub="desde la página" />
+          <StatCard
+            theme={T}
+            label="Últimos 7 días"
+            value={leads.filter((l) => Date.now() - new Date(l.created_at).getTime() < 7 * 864e5).length}
+            accent={C.greenDark}
+          />
+          <StatCard
+            theme={T}
+            label="Con correo"
+            value={leads.filter((l) => leadEmail(l)).length}
+          />
+        </StatGrid>
+
+        <Section title={<>Prospectos de la página</>}>
+          <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 14 }}>
+            Cada persona que completa el cuestionario en la página aparece aquí. Contáctala por WhatsApp
+            mientras está interesada.
+          </div>
+
+          {leadsLoading ? (
+            <div style={{ textAlign: "center", padding: 60, color: C.muted }}>Cargando...</div>
+          ) : leads.length === 0 ? (
+            <div style={{ ...cardStyle, padding: 48, textAlign: "center" }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>🎯</div>
+              <div style={{ fontSize: 15, fontWeight: 600, color: C.carbon, marginBottom: 4 }}>Aún no hay prospectos</div>
+              <div style={{ fontSize: 13, color: C.muted }}>
+                Cuando alguien llene el cuestionario en la página, su contacto aparecerá aquí al instante.
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {leads.map((l) => {
+                const tel = leadWhats(l);
+                const telDigits = tel.replace(/\D/g, "");
+                const mail = leadEmail(l);
+                return (
+                  <div key={l.id} style={{ ...cardStyle, padding: "14px 16px" }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: C.carbon }}>{l.name}</div>
+                        <div style={{ marginTop: 4, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          <Chip label={leadPlan(l)} bg={C.greenSoft} fg={C.greenDark} />
+                        </div>
+                        <div style={{ fontSize: 12.5, color: C.muted, marginTop: 8, lineHeight: 1.6 }}>
+                          {tel && <>WhatsApp: <b style={{ color: C.carbon }}>{tel}</b><br /></>}
+                          {mail && <>Correo: <b style={{ color: C.carbon }}>{mail}</b><br /></>}
+                          {leadField(l.problem, "Objetivo") && <>Objetivo: {leadField(l.problem, "Objetivo")} · </>}
+                          {leadField(l.problem, "Edad") && <>Edad: {leadField(l.problem, "Edad")} · </>}
+                          {leadField(l.problem, "Capacidad") && <>Capacidad: {leadField(l.problem, "Capacidad")}</>}
+                        </div>
+                        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 6 }}>Recibido: {fmtDateTime(l.created_at)}</div>
+                      </div>
+                      {telDigits && (
+                        <a
+                          href={`https://wa.me/${telDigits.length === 10 ? "52" + telDigits : telDigits}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ background: "#25D366", color: "#fff", textDecoration: "none",
+                            padding: "9px 16px", borderRadius: 9, fontSize: 13, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}
+                        >
+                          Escribir por WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Section>
+      </>
+      )}
       </main>
     </div>
   );
