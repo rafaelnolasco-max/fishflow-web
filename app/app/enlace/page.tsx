@@ -32,6 +32,10 @@ const T: DashTheme = {
 };
 
 const cardStyle = mkCard(T);
+const selectStyle: React.CSSProperties = {
+  padding: "6px 10px", borderRadius: 8, border: `1px solid ${C.border}`,
+  fontSize: 13, fontFamily: "inherit", background: C.white, color: C.carbon, cursor: "pointer",
+};
 const Section = (p: Omit<React.ComponentProps<typeof DSection>, "theme">) => <DSection theme={T} {...p} />;
 
 const META_VENDEDORES = 40;
@@ -58,6 +62,19 @@ interface Lead {
   ai_response: string | null;
   source: string | null;
   created_at: string;
+  assigned_to: string | null;
+  status: string | null;
+}
+
+// Embudo simple de atención del prospecto
+const LEAD_STATUS: { id: string; label: string; bg: string; fg: string }[] = [
+  { id: "nuevo",      label: "Nuevo",      bg: "#EEF2F6", fg: "#5D7080" },
+  { id: "asignado",   label: "Asignado",   bg: "#E5F0FF", fg: "#2563EB" },
+  { id: "contactado", label: "Contactado", bg: "#FFF4E5", fg: "#B96A1E" },
+  { id: "cerrado",    label: "Cerrado",    bg: "#EAF7EE", fg: "#4B9A62" },
+];
+function statusMeta(id: string | null) {
+  return LEAD_STATUS.find((s) => s.id === (id || "nuevo")) ?? LEAD_STATUS[0];
 }
 
 // El `problem` viene como "[Landing Enlace Integral] · Plan: X · WhatsApp: Y · ..."
@@ -173,7 +190,7 @@ export default function EnlaceDashboardPage() {
       // RLS ya limita a los leads de Enlace; el filtro explícito es defensa en profundidad.
       const { data, error } = await supabase
         .from("leads")
-        .select("id,name,email,problem,ai_response,source,created_at")
+        .select("id,name,email,problem,ai_response,source,created_at,assigned_to,status")
         .eq("client_id", ENLACE_CLIENT_ID)
         .order("created_at", { ascending: false });
       if (error) console.error(error);
@@ -222,6 +239,20 @@ export default function EnlaceDashboardPage() {
     return vendorGroups.filter((g) => g.vendorName.toLowerCase().includes(q));
   }, [vendorGroups, search]);
 
+  // Vendedoras registradas (para asignar prospectos), dedup y sin el placeholder
+  const vendorOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const g of vendorGroups) {
+      const name = g.vendorName.trim();
+      const key = name.toLowerCase();
+      if (!name || key === "vendedor o representante por definir" || seen.has(key)) continue;
+      seen.add(key);
+      out.push(name);
+    }
+    return out.sort((a, b) => a.localeCompare(b));
+  }, [vendorGroups]);
+
   const totalRegistros = rows.length;
   const totalVendedores = vendorGroups.length;
   const vendedoresCompletos = vendorGroups.filter((g) => g.clients.length >= META_CLIENTES_POR_VENDEDOR).length;
@@ -234,6 +265,25 @@ export default function EnlaceDashboardPage() {
 
   function toggleExpand(vendor: string) {
     setExpanded(expanded === vendor ? null : vendor);
+  }
+
+  // Asignar un prospecto a una vendedora (o desasignar con "")
+  async function assignLead(leadId: string, vendor: string) {
+    const patch = {
+      assigned_to: vendor || null,
+      assigned_at: vendor ? new Date().toISOString() : null,
+      status: vendor ? "asignado" : "nuevo",
+    };
+    const { error } = await supabase.from("leads").update(patch).eq("id", leadId);
+    if (error) { console.error(error); alert("No se pudo asignar: " + error.message); return; }
+    setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, assigned_to: patch.assigned_to, status: patch.status } : l)));
+  }
+
+  // Cambiar el estatus del embudo (nuevo/asignado/contactado/cerrado)
+  async function changeLeadStatus(leadId: string, status: string) {
+    const { error } = await supabase.from("leads").update({ status }).eq("id", leadId);
+    if (error) { console.error(error); alert("No se pudo actualizar el estatus: " + error.message); return; }
+    setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, status } : l)));
   }
 
   // Descarga genérica de un CSV con BOM (acentos correctos en Excel)
@@ -327,7 +377,7 @@ export default function EnlaceDashboardPage() {
           <TabBar
             theme={T}
             active={mainTab}
-            onChange={setMainTab}
+            onChange={(id) => setMainTab(id === "prospectos" ? "prospectos" : "captura")}
             tabs={[
               { id: "captura", label: "Captura Top 20", icon: "📋" },
               { id: "prospectos", label: `Prospectos${leads.length ? ` (${leads.length})` : ""}`, icon: "🎯" },
@@ -606,8 +656,9 @@ export default function EnlaceDashboardPage() {
           />
           <StatCard
             theme={T}
-            label="Con correo"
-            value={leads.filter((l) => leadEmail(l)).length}
+            label="Sin asignar"
+            value={leads.filter((l) => !l.assigned_to).length}
+            accent={C.red}
           />
         </StatGrid>
 
@@ -661,6 +712,30 @@ export default function EnlaceDashboardPage() {
                           Escribir por WhatsApp
                         </a>
                       )}
+                    </div>
+
+                    {/* Asignación y estatus — Edna reparte cada prospecto a una vendedora */}
+                    <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${C.border}`,
+                      display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: 999,
+                        fontSize: 11, fontWeight: 700, background: statusMeta(l.status).bg, color: statusMeta(l.status).fg }}>
+                        {statusMeta(l.status).label}
+                      </span>
+
+                      <label style={{ fontSize: 12, color: C.muted }}>Estatus</label>
+                      <select value={statusMeta(l.status).id}
+                        onChange={(e) => changeLeadStatus(l.id, e.target.value)} style={selectStyle}>
+                        {LEAD_STATUS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                      </select>
+
+                      <label style={{ fontSize: 12, color: C.muted, marginLeft: "auto" }}>Asignar a</label>
+                      <select value={l.assigned_to ?? ""}
+                        onChange={(e) => assignLead(l.id, e.target.value)} style={selectStyle}>
+                        <option value="">Sin asignar</option>
+                        {vendorOptions.map((v) => <option key={v} value={v}>{v}</option>)}
+                        {l.assigned_to && !vendorOptions.includes(l.assigned_to) &&
+                          <option value={l.assigned_to}>{l.assigned_to}</option>}
+                      </select>
                     </div>
                   </div>
                 );
