@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { markStoreOrderPaidByTxn } from '@/lib/storeRmz'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -39,7 +40,17 @@ export async function POST(req: NextRequest) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
       apiVersion: '2026-04-22.dahlia',
     })
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    // Intentar primero el secret principal; si falla y existe el secret del
+    // endpoint de pruebas RMZ (modo test), intentar con ese.
+    try {
+      event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    } catch (primaryErr) {
+      if (process.env.RMZ_STRIPE_WEBHOOK_SECRET) {
+        event = stripe.webhooks.constructEvent(body, sig, process.env.RMZ_STRIPE_WEBHOOK_SECRET)
+      } else {
+        throw primaryErr
+      }
+    }
   } catch (err: any) {
     console.error('[stripe/webhook] Signature verification failed:', err.message)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
@@ -61,6 +72,7 @@ export async function POST(req: NextRequest) {
       // Con OXXO:   payment_status = 'unpaid' → voucher generado, esperar pago en tienda
       if (session.payment_status === 'paid') {
         await markTransaction(txnId, 'paid', session)
+        await markStoreOrderPaidByTxn(txnId) // pedidos de tienda B2C (RMZ)
         console.log(`[stripe/webhook] card payment complete → txn ${txnId} paid`)
       } else {
         // OXXO: voucher listo, el pago llegará via async_payment_succeeded
@@ -72,6 +84,7 @@ export async function POST(req: NextRequest) {
     // ── Cliente pagó en OXXO ──────────────────────────────────────────────────
     case 'checkout.session.async_payment_succeeded': {
       await markTransaction(txnId, 'paid', session)
+      await markStoreOrderPaidByTxn(txnId) // pedidos de tienda B2C (RMZ)
       console.log(`[stripe/webhook] OXXO cash payment received → txn ${txnId} paid`)
       break
     }

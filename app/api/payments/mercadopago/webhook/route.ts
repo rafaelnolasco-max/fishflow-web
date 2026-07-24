@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createHmac } from 'crypto'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
 import { createClient } from '@supabase/supabase-js'
+import { markStoreOrderPaidByTxn } from '@/lib/storeRmz'
 
 // Admin client — server-side only
 const supabaseAdmin = createClient(
@@ -17,8 +18,12 @@ const supabaseAdmin = createClient(
  * Manifest: `id:<data.id>;request-id:<x-request-id>;ts:<ts>;`
  */
 function verifyMpSignature(req: NextRequest, dataId: string): boolean {
-  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET
-  if (!secret) {
+  // Secrets aceptados: producción + endpoint de pruebas RMZ (modo test)
+  const secrets = [
+    process.env.MERCADOPAGO_WEBHOOK_SECRET,
+    process.env.RMZ_MP_WEBHOOK_SECRET,
+  ].filter(Boolean) as string[]
+  if (!secrets.length) {
     // Allow requests in dev/test when secret is not configured
     console.warn('[webhook] MERCADOPAGO_WEBHOOK_SECRET not set — skipping signature check')
     return true
@@ -40,9 +45,9 @@ function verifyMpSignature(req: NextRequest, dataId: string): boolean {
   if (!ts || !v1) return false
 
   const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`
-  const expected = createHmac('sha256', secret).update(manifest).digest('hex')
-
-  return expected === v1
+  return secrets.some(
+    (secret) => createHmac('sha256', secret).update(manifest).digest('hex') === v1
+  )
 }
 
 /** Maps MP payment status to our internal status */
@@ -81,11 +86,21 @@ export async function POST(req: NextRequest) {
     }
 
     // ── 3. Fetch payment details from MP ─────────────────────────────
-    const mp = new MercadoPagoConfig({
-      accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
-    })
-    const mpPayment = new Payment(mp)
-    const paymentData = await mpPayment.get({ id: paymentId })
+    // Intentar con el token de producción; si falla y hay token de pruebas
+    // RMZ (modo test), reintentar con ese.
+    let paymentData
+    try {
+      const mp = new MercadoPagoConfig({
+        accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
+      })
+      paymentData = await new Payment(mp).get({ id: paymentId })
+    } catch (primaryErr) {
+      if (!process.env.RMZ_MP_ACCESS_TOKEN) throw primaryErr
+      const mpTest = new MercadoPagoConfig({
+        accessToken: process.env.RMZ_MP_ACCESS_TOKEN,
+      })
+      paymentData = await new Payment(mpTest).get({ id: paymentId })
+    }
 
     const externalRef = paymentData.external_reference // = our transaction_id (uuid)
     const mpStatus = paymentData.status
@@ -113,6 +128,11 @@ export async function POST(req: NextRequest) {
     if (updateError) {
       console.error('[webhook] Failed to update transaction:', updateError)
       return NextResponse.json({ error: 'Failed to update transaction' }, { status: 500 })
+    }
+
+    // Pedidos de tienda B2C (RMZ): confirmar pedido + correo al cliente
+    if (status === 'paid') {
+      await markStoreOrderPaidByTxn(externalRef)
     }
 
     console.log(`[webhook] payment ${paymentId} → txn ${externalRef} → ${status}`)
