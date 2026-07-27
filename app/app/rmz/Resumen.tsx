@@ -366,8 +366,7 @@ export default function Resumen({ orders, items, products, theme: t, accent, acc
       </div>
 
       <StatGrid>
-        <DStatCard theme={t} highlight icon="💰" label="Ventas cobradas" value={money(d.rev)}
-          sub={undefined} />
+        <DStatCard theme={t} icon="💰" label="Ventas cobradas" value={money(d.rev)} accent={accent} />
         <DStatCard theme={t} icon="🛒" label="Pedidos pagados" value={String(d.cnt)} />
         <DStatCard theme={t} icon="🎫" label="Ticket promedio" value={money(d.tk)} />
         <DStatCard theme={t} icon="📦" label="Piezas vendidas" value={String(d.un)} />

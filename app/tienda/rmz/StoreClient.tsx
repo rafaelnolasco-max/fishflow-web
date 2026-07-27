@@ -16,8 +16,11 @@ export type StoreProduct = {
 };
 
 const BRAND = {
-  name: "Cocinas & Closets RMZ",
-  short: "Cocinas & Closets",
+  name: "Vallejo Tableros & Herrajes",
+  short: "Vallejo",
+  line: "Cocinas y Closets RMZ",   // línea de muebles del mismo dueño
+  logo: "/rmz/logo.png",
+  logoLight: "/rmz/logo-light.png",
   tel: "55 1144 2279",
   tel2: "55 3777 0823",
   mail: "contacto@cocinasrmz.mx",
@@ -99,7 +102,7 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
 
   function addToCart(p: StoreProduct) {
     const ci = sel[p.id] ?? 0;
-    const color = p.colors[ci] ?? ["", "#C0923A"];
+    const color = p.colors[ci] ?? ["", "var(--accent)"];
     const key = p.id + "__" + color[0];
     setCart((c) => ({ ...c, [key]: { p, color, qty: (c[key]?.qty ?? 0) + 1 } }));
     toast(`${p.name}${color[0] ? ` (${color[0]})` : ""} agregado`);
@@ -159,7 +162,7 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
   return (
     <div className="rmz">
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
       {/* HEADER */}
@@ -167,12 +170,8 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
         <div className="wrap nav">
           <a className="brand" href="#top">
             <span className="logo" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#C0923A" strokeWidth="1.8">
-                <rect x="3" y="3" width="7.5" height="7.5" rx="1" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="1" />
-                <rect x="3" y="13.5" width="7.5" height="7.5" rx="1" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1" />
-              </svg>
+              <img src={BRAND.logo} alt={BRAND.name} />
             </span>
-            <span className="wm"><span>{BRAND.short}</span><small>RMZ</small></span>
           </a>
           <nav className="navlinks">
             <a href="#catalogo">Catálogo</a>
@@ -193,7 +192,7 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
             {[["#catalogo", "Catálogo"], ["#como", "Cómo funciona"], ["#calidad", "Calidad"], ["#contacto", "Contacto"]].map(([href, label]) => (
               <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
             ))}
-            <a href="#catalogo" onClick={() => setMenuOpen(false)} style={{ color: "#C0923A", fontWeight: 600 }}>Ver muebles →</a>
+            <a href="#catalogo" onClick={() => setMenuOpen(false)} style={{ color: "var(--accent)", fontWeight: 600 }}>Ver muebles →</a>
           </div></div>
         )}
       </header>
@@ -203,9 +202,9 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
         <section className="hero">
           <div className="wrap hero-grid">
             <div>
-              <span className="pill">RMZ · Diseño 100% personalizado</span>
-              <h1 style={{ marginTop: 14 }}>Muebles listos, entregados <span style={{ color: "#C0923A" }}>armados</span> en tu casa.</h1>
-              <p>La nueva línea prefabricada de <b>Cocinas &amp; Closets RMZ</b>: alacenas, burós, zapateras y coffee stations, fabricadas en nuestro taller con CNC. Elige modelo y color, paga en línea y te lo llevamos montado. La misma calidad de nuestras cocinas y closets a la medida.</p>
+              <span className="pill">{BRAND.line} · Diseño 100% personalizado</span>
+              <h1 style={{ marginTop: 14 }}>Muebles listos, entregados <span style={{ color: "var(--accent)" }}>armados</span> en tu casa.</h1>
+              <p>La línea prefabricada de <b>{BRAND.line}</b>, fabricada con los tableros y herrajes de <b>{BRAND.name}</b>: alacenas, burós, zapateras y coffee stations hechas en nuestro taller con CNC. Elige modelo y color, paga en línea y te lo llevamos montado.</p>
               <div className="hero-actions">
                 <a href="#catalogo" className="btn btn--primary">Ver catálogo</a>
                 <a href="#como" className="btn btn--ghost">Cómo funciona</a>
@@ -244,7 +243,7 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
             <div className="pgrid">
               {list.map((p) => {
                 const ci = sel[p.id] ?? 0;
-                const color = p.colors[ci] ?? ["", "#C0923A"];
+                const color = p.colors[ci] ?? ["", "var(--accent)"];
                 return (
                   <article className="pcard" key={p.id}>
                     <div className="pmedia">
@@ -278,13 +277,13 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
           <div className="wrap">
             <div className="cta-medida">
               <div style={{ maxWidth: "54ch" }}>
-                <span className="pill" style={{ background: "#3A2F27", color: "#E8C9A8" }}>¿Buscas algo a la medida?</span>
+                <span className="pill" style={{ background: "#262E38", color: "#BFD4FA" }}>¿Buscas algo a la medida?</span>
                 <h2 style={{ fontSize: "clamp(22px,3vw,32px)", fontWeight: 600, color: "#fff", margin: "12px 0 6px" }}>Cocinas, closets, tocadores y comedores para tu espacio.</h2>
                 <p style={{ opacity: 0.85, margin: 0, fontSize: 15 }}>Este es el negocio de siempre de RMZ: diseño 100% personalizado, fabricado con CNC en CDMX e instalado en CDMX y Edo. de México. Cuéntanos tu proyecto y te cotizamos.</p>
               </div>
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 <a href={BRAND.whatsapp} className="btn btn--primary">Cotizar por WhatsApp</a>
-                <a href={BRAND.instagram} className="btn btn--ghost" style={{ background: "transparent", color: "#F3E9DD", borderColor: "#4A3D33" }}>Ver proyectos en Instagram</a>
+                <a href={BRAND.instagram} className="btn btn--ghost" style={{ background: "transparent", color: "#E7EDF7", borderColor: "#2E3742" }}>Ver proyectos en Instagram</a>
               </div>
             </div>
           </div>
@@ -315,8 +314,8 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
         <div className="wrap">
           <div className="foot-grid">
             <div>
-              <div className="foot-brand">{BRAND.name}</div>
-              <p style={{ opacity: 0.8, fontSize: 14, maxWidth: "34ch", margin: 0 }}>Línea de muebles prefabricados entregados armados a domicilio. También fabricamos cocinas y closets a la medida. CDMX y área metropolitana.</p>
+              <div className="foot-brand"><img src={BRAND.logoLight} alt={BRAND.name} /></div>
+              <p style={{ opacity: 0.8, fontSize: 14, maxWidth: "34ch", margin: 0 }}>Tableros, herrajes y la línea de muebles <b>{BRAND.line}</b>: prefabricados entregados armados a domicilio. También fabricamos cocinas y closets a la medida. CDMX y área metropolitana.</p>
               <div className="foot-social">
                 <a href={BRAND.instagram} aria-label="Instagram" title="Instagram">◎</a>
                 <a href={BRAND.whatsapp} aria-label="WhatsApp" title="WhatsApp">✆</a>
@@ -428,11 +427,11 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
 
 // ─── CSS (port del mockup, prefijado bajo .rmz) ──────────────────────────────
 const CSS = `
-.rmz{--accent:#C0923A;--accent-dark:#9E7328;--ink:#241C16;--muted:#6E645C;--cream:#FAF7F2;--line:#EAE0D5;
+.rmz{--accent:#0944C2;--accent-dark:#06349A;--accent-soft:#E9F0FD;--ink:#1B2027;--steel:#505050;--muted:#69707A;--cream:#F6F8FB;--line:#E2E7EE;
   font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--cream);line-height:1.55;min-height:100vh;}
 .rmz *{box-sizing:border-box;min-width:0;}
 .rmz img,.rmz svg{max-width:100%;display:block;height:auto;}
-.rmz h1,.rmz h2,.rmz h3{font-family:Fraunces,Georgia,serif;letter-spacing:-.01em;margin:0;}
+.rmz h1,.rmz h2,.rmz h3{font-family:Manrope,system-ui,sans-serif;letter-spacing:-.01em;margin:0;}
 .rmz a{color:inherit;text-decoration:none;}
 .rmz .wrap{width:100%;max-width:1200px;margin-inline:auto;padding-inline:clamp(18px,4vw,56px);}
 .rmz .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;
@@ -442,11 +441,13 @@ const CSS = `
 .rmz .btn--ghost{background:#fff;color:var(--ink);border:1px solid var(--line);}
 .rmz .btn--ghost:hover{border-color:var(--accent);color:var(--accent);}
 .rmz .btn--block{width:100%;}
-.rmz .pill{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:#F1E7DA;color:var(--accent-dark);}
+.rmz .pill{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-dark);}
 .rmz .rz-header{position:sticky;top:0;z-index:40;background:rgba(250,246,240,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
 .rmz .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px;}
-.rmz .brand{display:flex;align-items:center;gap:10px;font-family:Fraunces,serif;font-weight:700;font-size:21px;}
-.rmz .brand .logo{width:40px;height:40px;border-radius:9px;background:var(--ink);display:grid;place-items:center;}
+.rmz .brand{display:flex;align-items:center;gap:10px;font-family:Manrope,system-ui,sans-serif;font-weight:700;font-size:21px;}
+.rmz .brand .logo{display:block;line-height:0;}
+.rmz .brand .logo img{height:38px;width:auto;display:block;}
+@media(max-width:600px){.rmz .brand .logo img{height:30px;}.rmz .foot-brand img{height:36px;}}
 .rmz .brand .logo svg{width:22px;height:22px;}
 .rmz .brand .wm{display:flex;flex-direction:column;line-height:1;}
 .rmz .brand .wm small{font-family:Inter,sans-serif;font-size:10px;font-weight:700;letter-spacing:.22em;color:var(--accent);margin-top:3px;}
@@ -464,7 +465,7 @@ const CSS = `
 .rmz .hero h1{font-size:clamp(34px,5.4vw,60px);line-height:1.02;font-weight:700;}
 .rmz .hero p{font-size:clamp(16px,1.5vw,19px);color:var(--muted);margin:18px 0 26px;max-width:44ch;}
 .rmz .hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
-.rmz .hero-visual{aspect-ratio:4/3;border-radius:22px;background:radial-gradient(120% 120% at 70% 20%, #E7CDb4 0%, #C89B78 45%, var(--accent) 100%);
+.rmz .hero-visual{aspect-ratio:4/3;border-radius:22px;background:radial-gradient(120% 120% at 70% 20%, #6E8FD8 0%, #2A5CC9 45%, var(--accent-dark) 100%);
   box-shadow:0 10px 30px rgba(60,40,25,.10);position:relative;overflow:hidden;display:grid;place-items:center;}
 .rmz .hero-visual .tag{position:absolute;left:18px;bottom:18px;background:rgba(255,255,255,.92);border-radius:12px;padding:10px 14px;font-size:13px;font-weight:600;}
 .rmz .trust{display:flex;gap:26px;flex-wrap:wrap;margin-top:26px;color:var(--muted);font-size:14px;}
@@ -475,7 +476,7 @@ const CSS = `
 .rmz .sec-head p{color:var(--muted);margin-top:10px;}
 .rmz .grid3{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));}
 .rmz .step{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;}
-.rmz .step .n{width:38px;height:38px;border-radius:11px;background:#F1E7DA;color:var(--accent-dark);font-weight:700;display:grid;place-items:center;margin-bottom:14px;}
+.rmz .step .n{width:38px;height:38px;border-radius:11px;background:var(--accent-soft);color:var(--accent-dark);font-weight:700;display:grid;place-items:center;margin-bottom:14px;}
 .rmz .step h3{font-size:19px;font-weight:600;margin-bottom:6px;}
 .rmz .step p{color:var(--muted);font-size:15px;margin:0;}
 .rmz .filters{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:26px;}
@@ -492,22 +493,23 @@ const CSS = `
 .rmz .pbody .cat{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;}
 .rmz .pbody h3{font-size:18px;font-weight:600;}
 .rmz .pdim{font-size:13px;color:var(--muted);}
-.rmz .price{font-size:22px;font-weight:700;font-family:Fraunces,serif;}
+.rmz .price{font-size:22px;font-weight:700;font-family:Manrope,system-ui,sans-serif;}
 .rmz .swatches{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .rmz .swatch{width:26px;height:26px;border-radius:8px;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);}
 .rmz .swatch.sel{box-shadow:0 0 0 2px var(--accent);}
 .rmz .swatch-name{font-size:12px;color:var(--muted);margin-left:2px;}
 .rmz .pbody .btn{margin-top:auto;}
-.rmz .cta-medida{background:var(--ink);color:#F3E9DD;border-radius:22px;padding:clamp(24px,4vw,40px);display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
-.rmz footer{background:var(--ink);color:#EADFD3;padding:44px 0 30px;margin-top:20px;}
+.rmz .cta-medida{background:var(--ink);color:#E7EDF7;border-radius:22px;padding:clamp(24px,4vw,40px);display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.rmz footer{background:var(--ink);color:#DCE2EA;padding:44px 0 30px;margin-top:20px;}
 .rmz .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:28px;}
-.rmz footer h4{font-family:Inter;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#B6A695;margin:0 0 12px;}
-.rmz footer a{display:block;color:#EADFD3;opacity:.85;padding:4px 0;font-size:14px;}
+.rmz footer h4{font-family:Inter;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#8E97A3;margin:0 0 12px;}
+.rmz footer a{display:block;color:#DCE2EA;opacity:.85;padding:4px 0;font-size:14px;}
 .rmz footer a:hover{opacity:1;}
-.rmz .foot-brand{font-family:Fraunces,serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:10px;}
+.rmz .foot-brand{margin-bottom:14px;line-height:0;}
+.rmz .foot-brand img{height:44px;width:auto;display:block;}
 .rmz .foot-social{display:flex;gap:10px;margin-top:6px;}
-.rmz .foot-social a{width:38px;height:38px;border:1px solid #4A3D33;border-radius:10px;display:grid;place-items:center;padding:0;}
-.rmz .foot-legal{border-top:1px solid #3A2F27;margin-top:26px;padding-top:16px;font-size:12px;color:#9A8B7C;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.rmz .foot-social a{width:38px;height:38px;border:1px solid #2E3742;border-radius:10px;display:grid;place-items:center;padding:0;}
+.rmz .foot-legal{border-top:1px solid #262E38;margin-top:26px;padding-top:16px;font-size:12px;color:#79818C;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 .rmz .overlay{position:fixed;inset:0;background:rgba(30,20,12,.45);opacity:0;pointer-events:none;transition:.2s;z-index:50;}
 .rmz .overlay.open{opacity:1;pointer-events:auto;}
 .rmz .drawer{position:fixed;top:0;right:0;height:100%;width:min(420px,100%);background:var(--cream);z-index:60;
@@ -527,7 +529,7 @@ const CSS = `
 .rmz .citem .rm{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;align-self:flex-start;}
 .rmz .drawer-foot{padding:18px 20px;border-top:1px solid var(--line);background:#fff;}
 .rmz .rowline{display:flex;justify-content:space-between;font-size:15px;margin-bottom:6px;}
-.rmz .rowline.total{font-size:19px;font-weight:700;font-family:Fraunces,serif;margin:8px 0 14px;}
+.rmz .rowline.total{font-size:19px;font-weight:700;font-family:Manrope,system-ui,sans-serif;margin:8px 0 14px;}
 .rmz .empty{color:var(--muted);text-align:center;padding:40px 0;}
 .rmz .modal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(30,20,12,.5);}
 .rmz .modal.open{display:flex;}

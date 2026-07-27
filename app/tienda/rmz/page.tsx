@@ -6,9 +6,19 @@ import { RMZ_CLIENT_ID } from '@/lib/storeRmz'
 import StoreClient, { type StoreProduct } from './StoreClient'
 
 export const metadata: Metadata = {
-  title: 'RMZ — Muebles listos, cocinas y closets a la medida',
+  title: 'Vallejo Tableros & Herrajes — Muebles listos, entregados armados',
   description:
-    'RMZ: muebles prefabricados de fábrica (alacenas, burós, zapateras, coffee stations) entregados armados a domicilio. También cocinas y closets a la medida.',
+    'Línea Cocinas y Closets RMZ de Vallejo Tableros & Herrajes: alacenas, burós, zapateras y coffee stations entregados armados a domicilio. También cocinas y closets a la medida.',
+  // Favicon de la marca del cliente, no el de FishFlow (estándar de landings)
+  icons: {
+    icon: [{ url: '/rmz/favicon-32.png', sizes: '32x32', type: 'image/png' }],
+    apple: [{ url: '/rmz/apple-touch-icon.png' }],
+  },
+  openGraph: {
+    title: 'Vallejo Tableros & Herrajes — Muebles listos, entregados armados',
+    description: 'Línea Cocinas y Closets RMZ. Elige modelo y color, paga en línea y te lo llevamos montado.',
+    images: ['/rmz/logo.png'],
+  },
 }
 
 export const revalidate = 60 // catálogo se refresca cada minuto

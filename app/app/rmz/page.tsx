@@ -15,21 +15,21 @@ import Resumen from "./Resumen";
 
 export const RMZ_CLIENT_ID = "80a067ff-fce7-4642-97c1-ac7f56ff4ba1";
 
-// ─── Tema RMZ (dorado / ink) ─────────────────────────────────────────────────
-const AC = "#C0923A";
-const AC_D = "#9E7328";
-const AC_L = "#F7EFE3";
-const INK = "#241C16";
-const CREAM = "#FAF7F2";
-const LINE = "#EAE0D5";
-const MUT = "#8A7D70";
+// ─── Tema Vallejo (azul de marca / grafito) ──────────────────────────────────
+const AC = "#0944C2";
+const AC_D = "#06349A";
+const AC_L = "#E9F0FD";
+const INK = "#1B2027";
+const CREAM = "#F6F8FB";
+const LINE = "#E2E7EE";
+const MUT = "#69707A";
 const WH = "#FFFFFF";
 
 const T: DashTheme = {
   accent: AC, accentDark: AC_D, accentSoft: AC_L,
   bg: CREAM, surface: WH, text: INK,
   muted: MUT, border: LINE, danger: "#B3261E", disabled: MUT,
-  panel: "#F3EDE4",
+  panel: "#EEF2F8",
 };
 
 // Wrappers a nivel módulo (nunca dentro del render)
@@ -75,7 +75,7 @@ const FULFILL_LABEL: Record<string, string> = {
 function payChip(o: Order) {
   if (o.payment_status === "paid") return <Chip label="Pagado" bg="#EAF6F0" fg="#1E5E44" />;
   if (o.payment_status === "failed") return <Chip label="Pago fallido" bg="#FDECEA" fg="#B3261E" />;
-  if (o.payment_status === "cancelled") return <Chip label="Cancelado" bg="#F3EDE4" fg={MUT} />;
+  if (o.payment_status === "cancelled") return <Chip label="Cancelado" bg="#EEF2F8" fg={MUT} />;
   return <Chip label={o.payment_method === "transferencia" ? "Depósito pendiente" : "Pago en proceso"} bg="#FFF3D9" fg="#8A6516" />;
 }
 
@@ -218,9 +218,11 @@ export default function RmzDashboard() {
   return (
     <div style={{ minHeight: "100vh", background: CREAM, color: INK, fontFamily: "Inter, system-ui, sans-serif" }}>
       <DashboardHeader
-        icon="🪑" iconBg={INK} theme={T} sticky onLogout={logout}
-        title="Cocinas y Closets RMZ"
-        subtitle="Pedidos de la tienda en línea"
+        theme={T} sticky onLogout={logout}
+        iconBg="transparent"
+        icon={<img src="/rmz/icon.png" alt="" style={{ width: 38, height: 38, borderRadius: 10, display: "block" }} />}
+        title="Vallejo Tableros & Herrajes"
+        subtitle="Línea Cocinas y Closets RMZ · pedidos de la tienda en línea"
         right={
           <a href="/tienda/rmz" target="_blank" rel="noreferrer"
             style={{ fontSize: 13, fontWeight: 700, color: AC_D, textDecoration: "none", border: `1px solid ${LINE}`, borderRadius: 10, padding: "8px 14px", background: WH }}>
@@ -233,7 +235,7 @@ export default function RmzDashboard() {
         {/* Los KPIs del mes viven arriba salvo en Resumen, que trae los suyos por periodo */}
         {tab !== "resumen" && (
           <StatGrid>
-            <StatCard label="Ventas cobradas (mes)" value={money(salesMonth)} icon="💰" highlight />
+            <StatCard label="Ventas cobradas (mes)" value={money(salesMonth)} icon="💰" accent={AC} />
             <StatCard label="Pedidos del mes" value={String(monthOrders.length)} icon="🛒" />
             <StatCard label="Depósitos por confirmar" value={String(pendingTransfers.length)} icon="🏦"
               accent={pendingTransfers.length ? "#8A6516" : undefined} />
@@ -277,7 +279,7 @@ export default function RmzDashboard() {
                     <b style={{ fontSize: 16 }}>{ref(o)}</b>
                     {payChip(o)}
                     <Chip label={FULFILL_LABEL[o.fulfillment_status]} bg={AC_L} fg={AC_D} />
-                    <Chip label={PAY_LABEL[o.payment_method]} bg="#F3EDE4" fg={MUT} />
+                    <Chip label={PAY_LABEL[o.payment_method]} bg="#EEF2F8" fg={MUT} />
                     {o.invoice_requested && <Chip label="🧾 Factura solicitada" bg="#EDE7F6" fg="#5E35B1" />}
                     <span style={{ marginLeft: "auto", fontWeight: 800, fontSize: 17 }}>{money(o.total)}</span>
                   </div>
