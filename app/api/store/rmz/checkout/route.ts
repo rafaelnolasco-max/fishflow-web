@@ -44,6 +44,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Correo inválido' }, { status: 400 })
     if (!['stripe', 'mercadopago', 'transferencia'].includes(payment_method))
       return NextResponse.json({ error: 'Método de pago inválido' }, { status: 400 })
+    // Mercado Pago apagado: sin las llaves de prueba RMZ_MP_* caería en el token
+    // live de FishFlow y cobraría de verdad. Reactivar junto con MP_ENABLED en
+    // app/tienda/rmz/StoreClient.tsx cuando existan RMZ_MP_ACCESS_TOKEN + RMZ_MP_WEBHOOK_SECRET.
+    if (payment_method === 'mercadopago')
+      return NextResponse.json(
+        { error: 'Mercado Pago no está disponible por ahora. Usa tarjeta, OXXO o transferencia.' },
+        { status: 400 }
+      )
     if (!Array.isArray(items) || !items.length || items.length > 30)
       return NextResponse.json({ error: 'Carrito vacío' }, { status: 400 })
 

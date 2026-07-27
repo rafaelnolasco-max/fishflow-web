@@ -60,6 +60,10 @@ function shade(hex: string, pct: number) {
 type CartLine = { p: StoreProduct; color: [string, string]; qty: number };
 type PayMethod = "stripe" | "mercadopago" | "transferencia";
 
+// Mercado Pago está apagado hasta tener las llaves de prueba RMZ_MP_* en Vercel.
+// Poner en true (y quitar el bloqueo en /api/store/rmz/checkout) para reactivarlo.
+const MP_ENABLED = false;
+
 function Placeholder({ cat, color, soon }: { cat: string; color: string; soon?: boolean }) {
   return (
     <div className="ph" style={{ background: `linear-gradient(160deg, ${shade(color, 18)}, ${color})` }}>
@@ -222,7 +226,7 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
             <div className="sec-head"><h2>Comprar es de tres pasos</h2><p>Tú eliges, nosotros fabricamos y te lo entregamos armado. Así de simple.</p></div>
             <div className="grid3">
               <div className="step"><div className="n">1</div><h3>Elige modelo y color</h3><p>Cada mueble tiene varios acabados. Escoge el que combine con tu espacio.</p></div>
-              <div className="step"><div className="n">2</div><h3>Paga en línea</h3><p>Checkout seguro: tarjeta, OXXO, Mercado Pago o transferencia bancaria.</p></div>
+              <div className="step"><div className="n">2</div><h3>Paga en línea</h3><p>Checkout seguro: tarjeta, OXXO o transferencia bancaria.</p></div>
               <div className="step"><div className="n">3</div><h3>Recíbelo armado</h3><p>Lo fabricamos y el chofer te lo lleva montado a domicilio. Sin que armes nada.</p></div>
             </div>
           </div>
@@ -393,7 +397,9 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
                 <div className="paylist">
                   {([
                     ["stripe", "💳 Tarjeta u OXXO", "Pago seguro en línea. Con OXXO recibes un voucher para pagar en tienda."],
-                    ["mercadopago", "🔵 Mercado Pago", "Paga con tu cuenta de Mercado Pago, tarjeta o meses sin intereses."],
+                    ...(MP_ENABLED
+                      ? [["mercadopago", "🔵 Mercado Pago", "Paga con tu cuenta de Mercado Pago, tarjeta o meses sin intereses."] as [PayMethod, string, string]]
+                      : []),
                     ["transferencia", "🏦 Transferencia SPEI", "Te enviamos la CLABE por correo. Confirmamos tu pedido al recibir el depósito."],
                   ] as [PayMethod, string, string][]).map(([val, label, desc]) => (
                     <label key={val} className={`payopt ${payMethod === val ? "sel" : ""}`}>
