@@ -11,6 +11,7 @@ import {
   StatCard as DStatCard, Empty as DEmpty, Field as DField, Chip,
   type DashTheme,
 } from "@/components/dashboard";
+import Resumen from "./Resumen";
 
 export const RMZ_CLIENT_ID = "80a067ff-fce7-4642-97c1-ac7f56ff4ba1";
 
@@ -49,14 +50,14 @@ type Order = {
   created_at: string;
 };
 type OrderItem = {
-  order_id: string; product_name: string; color_name: string | null;
+  order_id: string; product_name: string; color_name: string | null; color_hex: string | null;
   unit_price: number; qty: number; line_total: number;
 };
 type Product = {
   id: string; category: string; name: string; dimensions: string | null;
   price: number; active: boolean; sort_order: number;
 };
-type TabKey = "pedidos" | "catalogo";
+type TabKey = "resumen" | "pedidos" | "catalogo";
 
 const money = (n: number) => "$" + Number(n).toLocaleString("es-MX");
 const ref = (o: Order) => `RMZ-${o.order_no}`;
@@ -80,7 +81,7 @@ function payChip(o: Order) {
 
 export default function RmzDashboard() {
   const router = useRouter();
-  const [tab, setTab] = useState<TabKey>("pedidos");
+  const [tab, setTab] = useState<TabKey>("resumen");
   const [orders, setOrders] = useState<Order[]>([]);
   const [items, setItems] = useState<Record<string, OrderItem[]>>({});
   const [products, setProducts] = useState<Product[]>([]);
@@ -97,30 +98,43 @@ export default function RmzDashboard() {
   }, []);
 
   const load = useCallback(async () => {
-    const [{ data: ords, error: e1 }, { data: prods, error: e2 }] = await Promise.all([
-      supabase.from("store_orders").select("*")
-        .eq("client_id", RMZ_CLIENT_ID).order("created_at", { ascending: false }).limit(200),
-      supabase.from("store_products").select("id, category, name, dimensions, price, active, sort_order")
-        .eq("client_id", RMZ_CLIENT_ID).order("sort_order"),
-    ]);
-    if (e1) console.error("[rmz] orders:", e1);
+    // Supabase devuelve máximo 1000 filas por request → paginar con .range()
+    const PAGE = 1000;
+    const allOrders: Order[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase.from("store_orders").select("*")
+        .eq("client_id", RMZ_CLIENT_ID)
+        .order("created_at", { ascending: false })
+        .range(from, from + PAGE - 1);
+      if (error) { console.error("[rmz] orders:", error); break; }
+      allOrders.push(...((data ?? []) as Order[]));
+      if (!data || data.length < PAGE) break;
+    }
+
+    const { data: prods, error: e2 } = await supabase
+      .from("store_products").select("id, category, name, dimensions, price, active, sort_order")
+      .eq("client_id", RMZ_CLIENT_ID).order("sort_order");
     if (e2) console.error("[rmz] products:", e2);
-    setOrders((ords ?? []) as Order[]);
+
+    setOrders(allOrders);
     setProducts((prods ?? []) as Product[]);
 
-    const ids = (ords ?? []).map((o) => o.id);
-    if (ids.length) {
-      const { data: its, error: e3 } = await supabase
-        .from("store_order_items")
-        .select("order_id, product_name, color_name, unit_price, qty, line_total")
-        .in("order_id", ids);
-      if (e3) console.error("[rmz] items:", e3);
-      const grouped: Record<string, OrderItem[]> = {};
-      for (const it of (its ?? []) as OrderItem[]) {
-        (grouped[it.order_id] ??= []).push(it);
+    const ids = allOrders.map((o) => o.id);
+    const grouped: Record<string, OrderItem[]> = {};
+    for (let i = 0; i < ids.length; i += 150) {
+      const chunk = ids.slice(i, i + 150);
+      for (let from = 0; ; from += PAGE) {
+        const { data: its, error: e3 } = await supabase
+          .from("store_order_items")
+          .select("order_id, product_name, color_name, color_hex, unit_price, qty, line_total")
+          .in("order_id", chunk)
+          .range(from, from + PAGE - 1);
+        if (e3) { console.error("[rmz] items:", e3); break; }
+        for (const it of (its ?? []) as OrderItem[]) (grouped[it.order_id] ??= []).push(it);
+        if (!its || its.length < PAGE) break;
       }
-      setItems(grouped);
     }
+    setItems(grouped);
     setLoading(false);
   }, []);
 
@@ -216,18 +230,22 @@ export default function RmzDashboard() {
       />
 
       <main style={{ maxWidth: 1080, margin: "0 auto", padding: "20px clamp(14px, 3vw, 28px) 60px" }}>
-        <StatGrid>
-          <StatCard label="Ventas cobradas (mes)" value={money(salesMonth)} icon="💰" highlight />
-          <StatCard label="Pedidos del mes" value={String(monthOrders.length)} icon="🛒" />
-          <StatCard label="Depósitos por confirmar" value={String(pendingTransfers.length)} icon="🏦"
-            accent={pendingTransfers.length ? "#8A6516" : undefined} />
-          <StatCard label="Ticket promedio" value={money(Math.round(avgTicket))} icon="📈" />
-        </StatGrid>
+        {/* Los KPIs del mes viven arriba salvo en Resumen, que trae los suyos por periodo */}
+        {tab !== "resumen" && (
+          <StatGrid>
+            <StatCard label="Ventas cobradas (mes)" value={money(salesMonth)} icon="💰" highlight />
+            <StatCard label="Pedidos del mes" value={String(monthOrders.length)} icon="🛒" />
+            <StatCard label="Depósitos por confirmar" value={String(pendingTransfers.length)} icon="🏦"
+              accent={pendingTransfers.length ? "#8A6516" : undefined} />
+            <StatCard label="Ticket promedio" value={money(Math.round(avgTicket))} icon="📈" />
+          </StatGrid>
+        )}
 
         <div style={{ margin: "18px 0" }}>
           <TabBar<TabKey>
             theme={T} active={tab} onChange={setTab}
             tabs={[
+              { id: "resumen", label: "Resumen", icon: "📊" },
               { id: "pedidos", label: `Pedidos${pendingTransfers.length ? ` · ${pendingTransfers.length} ⚠️` : ""}`, icon: "📦" },
               { id: "catalogo", label: "Catálogo", icon: "🪑" },
             ]}
@@ -235,6 +253,12 @@ export default function RmzDashboard() {
         </div>
 
         {loading && <Empty msg="Cargando…" />}
+
+        {/* ── RESUMEN ── */}
+        {!loading && tab === "resumen" && (
+          <Resumen orders={orders} items={items} products={products}
+            theme={T} accent={AC} accentDark={AC_D} />
+        )}
 
         {/* ── PEDIDOS ── */}
         {!loading && tab === "pedidos" && (
