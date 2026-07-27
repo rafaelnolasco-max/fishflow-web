@@ -232,7 +232,7 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
         </section>
 
         {/* CATÁLOGO */}
-        <section id="catalogo" style={{ background: "#fff", borderBlock: "1px solid #EAE0D5" }}>
+        <section id="catalogo" style={{ background: "#fff", borderBlock: "1px solid var(--line)" }}>
           <div className="wrap">
             <div className="sec-head"><h2>Nuestra línea</h2><p>Modelos prefabricados listos para pedir. Toca los colores para ver los acabados.</p></div>
             <div className="filters">
@@ -292,13 +292,13 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
         {/* CALIDAD */}
         <section id="calidad">
           <div className="wrap hero-grid">
-            <div className="hero-visual" style={{ background: "radial-gradient(120% 120% at 30% 20%,#EAD9C6,#B98F6B 60%,#9E7328)" }}>
+            <div className="hero-visual" style={{ background: "radial-gradient(120% 120% at 30% 20%,#8FA8DE,#3E68C9 60%,#06349A)" }}>
               <div className="tag">📷 Foto de detalle: herrajes / armado</div>
             </div>
             <div>
               <span className="pill">Por qué duran</span>
               <h2 style={{ fontSize: "clamp(26px,3.6vw,40px)", fontWeight: 600, margin: "14px 0 12px" }}>No son las alacenas que se deshacen en tres días.</h2>
-              <p style={{ color: "#6E645C", maxWidth: "46ch" }}>Las nuestras se cortan en CNC con el mismo grosor de tablero de punta a punta y se ensamblan con tornillería real, no con tarugos que se aflojan. Llegan armadas y listas para usar.</p>
+              <p style={{ color: "var(--muted)", maxWidth: "46ch" }}>Las nuestras se cortan en CNC con el mismo grosor de tablero de punta a punta y se ensamblan con tornillería real, no con tarugos que se aflojan. Llegan armadas y listas para usar.</p>
               <div className="trust" style={{ marginTop: 22 }}>
                 <span><b>CNC</b><br />corte de precisión</span>
                 <span><b>Tornillería</b><br />no tarugos</span>
@@ -365,7 +365,7 @@ export default function StoreClient({ products }: { products: StoreProduct[] }) 
         </div>
         <div className="drawer-foot">
           <div className="rowline"><span>Subtotal</span><span>{money(total)}</span></div>
-          <div className="rowline" style={{ color: "#6E645C", fontSize: 13 }}><span>Envío a domicilio</span><span>Se cotiza al confirmar</span></div>
+          <div className="rowline" style={{ color: "var(--muted)", fontSize: 13 }}><span>Envío a domicilio</span><span>Se cotiza al confirmar</span></div>
           <div className="rowline total"><span>Total</span><span>{money(total)}</span></div>
           <button className="btn btn--primary btn--block" disabled={!items.length} style={{ opacity: items.length ? 1 : 0.5 }}
             onClick={() => { setCheckoutOpen(true); }}>
@@ -466,7 +466,7 @@ const CSS = `
 .rmz .hero p{font-size:clamp(16px,1.5vw,19px);color:var(--muted);margin:18px 0 26px;max-width:44ch;}
 .rmz .hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
 .rmz .hero-visual{aspect-ratio:4/3;border-radius:22px;background:radial-gradient(120% 120% at 70% 20%, #6E8FD8 0%, #2A5CC9 45%, var(--accent-dark) 100%);
-  box-shadow:0 10px 30px rgba(60,40,25,.10);position:relative;overflow:hidden;display:grid;place-items:center;}
+  box-shadow:0 10px 30px rgba(20,35,70,.12);position:relative;overflow:hidden;display:grid;place-items:center;}
 .rmz .hero-visual .tag{position:absolute;left:18px;bottom:18px;background:rgba(255,255,255,.92);border-radius:12px;padding:10px 14px;font-size:13px;font-weight:600;}
 .rmz .trust{display:flex;gap:26px;flex-wrap:wrap;margin-top:26px;color:var(--muted);font-size:14px;}
 .rmz .trust b{color:var(--ink);}
@@ -480,10 +480,12 @@ const CSS = `
 .rmz .step h3{font-size:19px;font-weight:600;margin-bottom:6px;}
 .rmz .step p{color:var(--muted);font-size:15px;margin:0;}
 .rmz .filters{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:26px;}
-.rmz .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted);}
-.rmz .chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.rmz .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s;}
+.rmz .chip:hover{border-color:var(--accent);color:var(--accent);}
+.rmz .chip.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;}
 .rmz .pgrid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));}
-.rmz .pcard{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 14px rgba(60,40,25,.05);}
+.rmz .pcard{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 14px rgba(20,35,70,.06);transition:box-shadow .18s,border-color .18s;}
+.rmz .pcard:hover{box-shadow:0 8px 22px rgba(9,68,194,.10);border-color:#C7D6F5;}
 .rmz .pmedia{aspect-ratio:1/1;position:relative;display:grid;place-items:center;overflow:hidden;}
 .rmz .pmedia img{width:100%;height:100%;object-fit:cover;}
 .rmz .pmedia .ph{width:100%;height:100%;display:grid;place-items:center;position:relative;}
@@ -533,7 +535,7 @@ const CSS = `
 .rmz .empty{color:var(--muted);text-align:center;padding:40px 0;}
 .rmz .modal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(30,20,12,.5);}
 .rmz .modal.open{display:flex;}
-.rmz .sheet{background:var(--cream);border-radius:20px;width:min(540px,100%);max-height:92vh;overflow-y:auto;box-shadow:0 10px 30px rgba(60,40,25,.10);}
+.rmz .sheet{background:var(--cream);border-radius:20px;width:min(540px,100%);max-height:92vh;overflow-y:auto;box-shadow:0 10px 30px rgba(20,35,70,.12);}
 .rmz .sheet-head{padding:22px 24px 8px;}
 .rmz .sheet-head h3{font-size:23px;font-weight:600;}
 .rmz .sheet-head p{color:var(--muted);font-size:14px;margin:6px 0 0;}
@@ -548,7 +550,7 @@ const CSS = `
 .rmz .payopt small{color:var(--muted);}
 .rmz .errbox{background:#FDECEA;border:1px solid #F5C6C0;color:#B3261E;border-radius:10px;padding:10px 14px;font-size:13px;}
 .rmz .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;
-  padding:12px 18px;border-radius:12px;font-size:14px;font-weight:500;z-index:90;box-shadow:0 10px 30px rgba(60,40,25,.2);}
+  padding:12px 18px;border-radius:12px;font-size:14px;font-weight:500;z-index:90;box-shadow:0 10px 30px rgba(20,35,70,.25);}
 @media(max-width:900px){
   .rmz .hero-grid{grid-template-columns:1fr;}
   .rmz .hero-visual{order:-1;max-height:320px;}
