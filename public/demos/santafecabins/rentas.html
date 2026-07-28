@@ -164,7 +164,7 @@
       </div>
       <div class="nocom">
         <span style="font-size:19px">✓</span>
-        <span><b>Reservando aquí pagas menos.</b> Sin cargo de servicio de plataformas: ese 14-16% se queda en tu bolsillo, no en el de un intermediario.</span>
+        <span><b>Confirmación inmediata, a cualquier hora.</b> Reservas directo con nosotros: sin esperar a que alguien conteste el teléfono y sin cargos de intermediarios.</span>
       </div>
     </div>
   </div>
@@ -179,6 +179,10 @@
         <h2 class="ff-h2 mt0 mb0" id="resTit">Nuestras 8 cabañas</h2>
       </div>
       <span id="resSub" style="font-size:13.5px;color:#8A7663"></span>
+    </div>
+    <div class="nocom" style="margin:0 0 22px;background:rgba(194,128,60,.10);border-color:rgba(194,128,60,.30);color:#8A5620">
+      <span style="font-size:19px">◆</span>
+      <span><b>Tarifa base $1,600 por noche entre semana.</b> Viernes y sábado suben a $2,160. El sistema aplica la temporada sola, sin que tengas que acordarte.</span>
     </div>
     <div id="lista"></div>
   </div>
@@ -271,41 +275,41 @@
 <script>
 /* ---------- LAS 8 CABAÑAS ---------- */
 var CABANAS = [
-  {id:'ocote', n:'Cabaña Ocote', pers:4, rec:1, banos:1, tarifa:2150, modelo:'SFC35',
+  {id:'ocote', n:'Cabaña Ocote', pers:4, rec:1, banos:1, tarifa:1600, modelo:'SFC35',
    img:'img/imagen-destacadaSFC35.jpg', loc:'Bosque alto · vista al valle',
    desc:'La más acogedora del conjunto. Una recámara con cama king, sala con chimenea de leña y terraza para dos. Perfecta para una escapada de pareja o una familia pequeña.',
    amen:['Chimenea de leña','WiFi','Cocina equipada','Terraza','Estacionamiento','Pet friendly']},
-  {id:'encino', n:'Cabaña Encino', pers:4, rec:1, banos:1, tarifa:2300, modelo:'SFC40',
+  {id:'encino', n:'Cabaña Encino', pers:4, rec:1, banos:1, tarifa:1600, modelo:'SFC40',
    img:'img/SFC402.jpg', loc:'Ladera norte · entre encinos',
    desc:'Ventanal de piso a techo hacia el bosque. Recámara principal más sofá cama en sala. La favorita para trabajar unos días desde el bosque.',
    amen:['Chimenea de leña','WiFi de fibra','Cocina equipada','Escritorio','Asador','Estacionamiento']},
-  {id:'manantial', n:'Cabaña Manantial', pers:4, rec:2, banos:1, tarifa:2650, modelo:'SFC45',
+  {id:'manantial', n:'Cabaña Manantial', pers:4, rec:2, banos:1, tarifa:1600, modelo:'SFC45',
    img:'img/imagen-destacadaSFC45.jpg', loc:'Junto al arroyo',
    desc:'Dos recámaras y el sonido del agua toda la noche. Cocina integral completa y comedor para seis. La que más repiten las familias con niños.',
    amen:['Chimenea de leña','WiFi','Cocina integral','2 recámaras','Asador','Área de juegos']},
-  {id:'niebla', n:'Cabaña Niebla', pers:6, rec:2, banos:2, tarifa:3100, modelo:'SFC60',
+  {id:'niebla', n:'Cabaña Niebla', pers:6, rec:2, banos:2, tarifa:1600, modelo:'SFC60',
    img:'img/Modelo-SFC60.jpg', loc:'Mirador poniente',
    desc:'Amanece encima de las nubes. Dos recámaras, dos baños completos y una sala amplia con doble altura. La mejor para ver el atardecer sobre la sierra.',
    amen:['Chimenea de leña','WiFi','Cocina integral','2 baños','Terraza panorámica','Asador']},
-  {id:'cedro', n:'Cabaña Cedro', pers:6, rec:2, banos:2, tarifa:3250, modelo:'SFC70',
+  {id:'cedro', n:'Cabaña Cedro', pers:6, rec:2, banos:2, tarifa:1600, modelo:'SFC70',
    img:'img/Modelo-SFC70.jpg', loc:'Bosque central',
    desc:'Interior enteramente en cedro rojo: el aroma se queda contigo. Dos recámaras, sala-comedor generosa y una terraza techada con asador de leña.',
    amen:['Chimenea de leña','WiFi','Cocina integral','Terraza techada','Asador de leña','Estacionamiento 2 autos']},
-  {id:'abeto', n:'Cabaña Abeto', pers:8, rec:3, banos:2, tarifa:3900, modelo:'SFC80',
+  {id:'abeto', n:'Cabaña Abeto', pers:8, rec:3, banos:2, tarifa:1600, modelo:'SFC80',
    img:'img/Modelo-SFC80.jpg', loc:'Claro del bosque',
    desc:'Tres recámaras para grupos de amigos o dos familias. Mesa para diez, cocina completa y fogatero exterior con troncos incluidos.',
    amen:['Chimenea de leña','WiFi','3 recámaras','Fogatero','Asador','Comedor para 10']},
-  {id:'mirador', n:'Cabaña Mirador', pers:10, rec:3, banos:3, tarifa:4600, modelo:'SFC80-2N',
+  {id:'mirador', n:'Cabaña Mirador', pers:10, rec:3, banos:3, tarifa:1600, modelo:'SFC80-2N',
    img:'img/802N.jpg', loc:'Punto más alto del predio',
    desc:'Dos niveles con balcón corrido en la planta alta y la vista más abierta de todo el conjunto. Tres recámaras, tres baños y sala de estar independiente arriba.',
    amen:['2 niveles','Chimenea de leña','WiFi','3 baños','Balcón corrido','Jacuzzi exterior']},
-  {id:'bosquealto', n:'Cabaña Bosque Alto', pers:12, rec:4, banos:3, tarifa:5400, modelo:'SFC120',
+  {id:'bosquealto', n:'Cabaña Bosque Alto', pers:12, rec:4, banos:3, tarifa:1600, modelo:'SFC120',
    img:'img/120.jpg', loc:'Extremo sur · máxima privacidad',
    desc:'La más grande. Cuatro recámaras en dos niveles, sala con chimenea de piedra y terraza para veinte personas. Para reuniones familiares y retiros de equipo.',
    amen:['2 niveles','12 personas','Chimenea de piedra','WiFi','Terraza grande','Sala de juntas','Jacuzzi']}
 ];
 
-var LIMPIEZA = 450;
+var LIMPIEZA = 350;
 var COMISION_PLATAFORMA = 0.155; /* referencia de cargo de servicio al huésped */
 
 /* ---------- DISPONIBILIDAD SIMULADA (determinista) ---------- */
@@ -422,7 +426,7 @@ function pintarResumen(){
       '<p style="color:#A79582;font-size:14px;line-height:1.6;margin:10px 0 0">Elige la fecha de llegada y la de salida en el calendario para ver tu total.</p>';
     document.getElementById('bkTotal').textContent = '$0';
     document.getElementById('bkAhorro').innerHTML =
-      '<b>Reserva directa.</b> Aquí no pagas cargo de servicio de plataforma. Elige fechas para ver cuánto te ahorras.';
+      '<b>Reserva directa con el dueño.</b> Sin cargos por servicio ni comisiones de intermediarios. Elige tus fechas para ver el total exacto.';
     btn.disabled = true; btn.textContent = 'Elige tus fechas';
     return;
   }
@@ -442,12 +446,12 @@ function pintarResumen(){
     + '<div class="bk-row"><span>Salida</span><b>'+fmt(fOut)+'</b></div>'
     + '<div class="bk-row"><span>'+noches+' noche'+(noches>1?'s':'')+' (tarifa variable)</span><b>'+mxn(subtotal)+'</b></div>'
     + '<div class="bk-row"><span>Limpieza final</span><b>'+mxn(LIMPIEZA)+'</b></div>'
-    + '<div class="bk-row" style="color:#8FCFA9"><span>Cargo de plataforma</span><b style="color:#8FCFA9">$0</b></div>';
+    + '<div class="bk-row" style="color:#8FCFA9"><span>Cargo por servicio</span><b style="color:#8FCFA9">$0</b></div>';
   document.getElementById('bkTotal').textContent = mxn(total);
 
   var ahorro = Math.round(total * COMISION_PLATAFORMA);
   document.getElementById('bkAhorro').innerHTML =
-    '<b>Te ahorras '+mxn(ahorro)+'.</b> Es lo que te cobraría de cargo de servicio una plataforma de hospedaje por esta misma reserva.';
+    '<b>Este es el total, sin sorpresas.</b> En una plataforma de hospedaje esta misma reserva te costaría alrededor de '+mxn(total+ahorro)+' por el cargo por servicio.';
 
   window._bkTotal = total;
   window._bkFechas = fmt(fIn)+' – '+fmt(fOut);
