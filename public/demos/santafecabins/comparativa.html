@@ -16,21 +16,22 @@
 body{background:var(--cream);}
 .top{background:var(--ink);color:var(--cream);padding:clamp(40px,6vw,78px) 0 clamp(36px,5vw,64px);position:relative;overflow:hidden;}
 .top::before{content:"";position:absolute;inset:0;
-  background:radial-gradient(800px 480px at 78% 4%,rgba(194,128,60,.28),transparent 62%),
-             radial-gradient(620px 420px at 6% 96%,rgba(46,94,72,.32),transparent 66%);}
+  background:radial-gradient(800px 490px at 78% 4%,rgba(46,94,72,.55),transparent 64%),
+             radial-gradient(620px 420px at 6% 96%,rgba(85,169,127,.20),transparent 66%),
+             radial-gradient(400px 280px at 94% 88%,rgba(217,164,65,.15),transparent 70%);}
 .top > *{position:relative;}
 .top h1{font-size:clamp(30px,4.6vw,54px);line-height:1.04;margin:0 0 16px;color:#fff;}
 .top h1 em{font-style:normal;color:var(--wood-lt);}
-.top p{font-size:clamp(15px,1.5vw,18px);line-height:1.6;color:#C8B9A8;max-width:60ch;margin:0;}
+.top p{font-size:clamp(15px,1.5vw,18px);line-height:1.6;color:#B8CBBF;max-width:60ch;margin:0;}
 .ff-mark{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.16em;
-  text-transform:uppercase;color:#8A7663;margin-bottom:22px;}
+  text-transform:uppercase;color:#6E8578;margin-bottom:22px;}
 .ff-mark b{color:var(--wood-lt);font-weight:700;}
 
 /* comparador */
 .vs{display:grid;gap:16px;grid-template-columns:1fr 1fr;align-items:start;}
 @media(max-width:700px){.vs{grid-template-columns:1fr;gap:22px;}}
 .pane{border-radius:15px;overflow:hidden;border:1px solid var(--line-dk);background:#fff;
-  box-shadow:0 12px 34px rgba(23,17,12,.10);}
+  box-shadow:0 12px 34px rgba(14,33,26,.10);}
 .pane img{width:100%;display:block;}
 .tag{display:flex;align-items:center;gap:8px;padding:11px 14px;font-size:12px;font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;}
@@ -39,7 +40,7 @@ body{background:var(--cream);}
 .tag .dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px;}
 .tag-bad .dot{background:#C0392B;}
 .tag-good .dot{background:#2E9B6B;}
-.pane-note{padding:12px 14px;font-size:12.5px;line-height:1.55;color:#6B5B4B;border-top:1px solid var(--line-dk);}
+.pane-note{padding:12px 14px;font-size:12.5px;line-height:1.55;color:#48594E;border-top:1px solid var(--line-dk);}
 .frame-phone{max-width:300px;margin:0 auto;}
 
 /* hallazgos */
@@ -48,16 +49,16 @@ body{background:var(--cream);}
 .find-ico{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:#FCEDEA;color:#B03A28;
   display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;}
 .find h4{margin:0 0 4px;font-size:15.5px;}
-.find p{margin:0;font-size:13.5px;line-height:1.55;color:#6B5B4B;}
+.find p{margin:0;font-size:13.5px;line-height:1.55;color:#48594E;}
 .find code{font-family:ui-monospace,monospace;font-size:12px;background:var(--cream-2);
   padding:2px 6px;border-radius:5px;}
 
 /* beneficios */
 .ben{background:#fff;border:1px solid var(--line-dk);border-radius:15px;padding:20px;}
-.ben-ico{width:40px;height:40px;border-radius:12px;background:rgba(194,128,60,.14);
+.ben-ico{width:40px;height:40px;border-radius:12px;background:rgba(217,164,65,.14);
   display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:13px;}
 .ben h3{margin:0 0 7px;font-size:17px;}
-.ben p{margin:0;font-size:13.5px;line-height:1.6;color:#6B5B4B;}
+.ben p{margin:0;font-size:13.5px;line-height:1.6;color:#48594E;}
 .ben .gain{display:inline-block;margin-top:11px;font-size:12px;font-weight:700;color:var(--forest);
   background:rgba(46,94,72,.10);padding:5px 11px;border-radius:999px;}
 
@@ -65,17 +66,18 @@ body{background:var(--cream);}
 .cta{background:var(--ink);color:var(--cream);border-radius:22px;padding:clamp(28px,4.5vw,54px);
   text-align:center;position:relative;overflow:hidden;}
 .cta::before{content:"";position:absolute;inset:0;
-  background:radial-gradient(600px 340px at 50% 0%,rgba(194,128,60,.24),transparent 66%);}
+  background:radial-gradient(620px 360px at 50% 0%,rgba(46,94,72,.55),transparent 66%),
+              radial-gradient(340px 220px at 82% 92%,rgba(217,164,65,.14),transparent 70%);}
 .cta > *{position:relative;}
 .cta h2{color:#fff;margin:0 0 14px;}
-.cta p{color:#C8B9A8;font-size:16px;line-height:1.6;max-width:52ch;margin:0 auto 26px;}
+.cta p{color:#B8CBBF;font-size:16px;line-height:1.6;max-width:52ch;margin:0 auto 26px;}
 .demo-links{display:grid;gap:11px;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));
   max-width:760px;margin:0 auto;}
-.dlink{display:block;background:rgba(247,242,234,.07);border:1px solid var(--line);border-radius:13px;
+.dlink{display:block;background:rgba(245,247,243,.07);border:1px solid var(--line);border-radius:13px;
   padding:16px;text-decoration:none;color:var(--cream);transition:.18s;text-align:left;}
-.dlink:hover{background:rgba(194,128,60,.16);border-color:var(--wood);transform:translateY(-3px);}
+.dlink:hover{background:rgba(217,164,65,.16);border-color:var(--wood);transform:translateY(-3px);}
 .dlink .n{font-family:'Fraunces',serif;font-size:16px;margin-bottom:5px;}
-.dlink .d{font-size:12.5px;color:#A79582;line-height:1.45;}
+.dlink .d{font-size:12.5px;color:#93A89A;line-height:1.45;}
 </style>
 </head>
 <body>
@@ -254,7 +256,7 @@ body{background:var(--cream);}
         <a class="dlink" href="rentas.html"><div class="n">Reservas de Zacatlán</div><div class="d">Las 8 cabañas con calendario real</div></a>
         <a class="dlink" href="panel.html"><div class="n">Tu panel</div><div class="d">Lo que verías tú cada mañana</div></a>
       </div>
-      <p style="margin:30px auto 0;font-size:14.5px;color:#A79582">¿Te late? Escríbeme y lo vemos con calma en media hora.<br>
+      <p style="margin:30px auto 0;font-size:14.5px;color:#93A89A">¿Te late? Escríbeme y lo vemos con calma en media hora.<br>
         <b style="color:var(--wood-lt)">raf@fishflow.mx</b></p>
     </div>
   </div>

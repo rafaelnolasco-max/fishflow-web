@@ -12,60 +12,60 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="sfc.css">
 <style>
-body{background:#12100E;color:var(--cream);}
+body{background:#0B1A14;color:var(--cream);}
 .pnl{padding:28px 0 70px;}
 .pnl-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;
   flex-wrap:wrap;margin-bottom:26px;}
 .pnl-head h1{margin:0;font-size:clamp(24px,3vw,34px);color:#fff;}
-.pnl-head p{margin:6px 0 0;font-size:14px;color:#A79582;}
+.pnl-head p{margin:6px 0 0;font-size:14px;color:#93A89A;}
 
 .tabs{display:flex;gap:7px;background:var(--ink-2);padding:5px;border-radius:13px;
   border:1px solid var(--line);margin-bottom:24px;flex-wrap:wrap;}
 .tab{flex:1;min-width:130px;padding:11px 16px;border-radius:9px;border:0;background:none;
-  color:#A79582;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:.16s;}
+  color:#93A89A;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:.16s;}
 .tab:hover{color:var(--cream);}
-.tab.on{background:var(--wood);color:#1A1109;}
+.tab.on{background:var(--wood);color:#0E211A;}
 
 .kpi{background:var(--ink-2);border:1px solid var(--line);border-radius:15px;padding:19px;}
-.kpi-l{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:#8A7663;font-weight:700;}
+.kpi-l{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:#6E8578;font-weight:700;}
 .kpi-v{font-family:'Fraunces',serif;font-size:clamp(24px,2.6vw,31px);color:#fff;line-height:1.1;margin-top:9px;}
-.kpi-d{font-size:12px;margin-top:7px;color:#8A7663;}
+.kpi-d{font-size:12px;margin-top:7px;color:#6E8578;}
 .up{color:#5FBF8C;}.down{color:#E08A6B;}
 
 .box{background:var(--ink-2);border:1px solid var(--line);border-radius:16px;padding:21px;margin-bottom:18px;}
 .box h3{margin:0 0 4px;font-size:16.5px;color:#fff;}
-.box .bsub{font-size:12.5px;color:#8A7663;margin:0 0 17px;}
+.box .bsub{font-size:12.5px;color:#6E8578;margin:0 0 17px;}
 
 /* tape chart */
 .tape{font-size:11px;}
 .tape-row{display:grid;grid-template-columns:118px repeat(30,minmax(13px,1fr));gap:2px;
   align-items:center;margin-bottom:3px;}
-.tape-name{font-size:11.5px;color:#C8B9A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.tape-name{font-size:11.5px;color:#B8CBBF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   padding-right:7px;font-weight:500;}
 .tape-c{height:22px;border-radius:3px;background:rgba(255,255,255,.05);}
 .tape-c.b{background:var(--wood);}
 .tape-c.w{background:var(--forest-lt);}
-.tape-hd{font-size:9px;color:#8A7663;text-align:center;height:auto;background:none;}
+.tape-hd{font-size:9px;color:#6E8578;text-align:center;height:auto;background:none;}
 
-.pnl-table td{border-bottom:1px solid var(--line);color:#C8B9A8;}
-.pnl-table th{color:#8A7663;border-bottom:1.5px solid var(--line);}
-.pnl-table tbody tr:hover{background:rgba(194,128,60,.07);}
+.pnl-table td{border-bottom:1px solid var(--line);color:#B8CBBF;}
+.pnl-table th{color:#6E8578;border-bottom:1.5px solid var(--line);}
+.pnl-table tbody tr:hover{background:rgba(217,164,65,.07);}
 .pnl-table b{color:#fff;font-weight:600;}
 
 .bar-row{display:flex;align-items:center;gap:11px;margin-bottom:11px;font-size:13px;}
-.bar-n{width:118px;flex:0 0 118px;color:#C8B9A8;font-size:12.5px;}
+.bar-n{width:118px;flex:0 0 118px;color:#B8CBBF;font-size:12.5px;}
 .bar-t{flex:1;height:9px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;}
 .bar-f{height:100%;background:linear-gradient(90deg,var(--wood),var(--wood-lt));border-radius:99px;}
 .bar-v{width:78px;text-align:right;color:#fff;font-weight:600;font-size:12.5px;}
 
 .stage{display:inline-flex;padding:4px 11px;border-radius:999px;font-size:11px;font-weight:600;}
 .s1{background:rgba(103,212,232,.14);color:#7FD2E4;}
-.s2{background:rgba(194,128,60,.18);color:#E0A76A;}
+.s2{background:rgba(217,164,65,.18);color:#EFC677;}
 .s3{background:rgba(62,155,109,.18);color:#6FD3A2;}
-.s4{background:rgba(255,255,255,.09);color:#B5A492;}
+.s4{background:rgba(255,255,255,.09);color:#A1B6A9;}
 
-.alert{display:flex;gap:12px;align-items:flex-start;background:rgba(194,128,60,.11);
-  border:1px solid rgba(194,128,60,.30);border-radius:13px;padding:14px 16px;margin-bottom:11px;font-size:13.5px;line-height:1.5;color:#D8CBBA;}
+.alert{display:flex;gap:12px;align-items:flex-start;background:rgba(217,164,65,.11);
+  border:1px solid rgba(217,164,65,.30);border-radius:13px;padding:14px 16px;margin-bottom:11px;font-size:13.5px;line-height:1.5;color:#C6D8CD;}
 .alert b{color:#fff;}
 .pane{display:none;}
 .pane.on{display:block;}
@@ -79,10 +79,10 @@ body{background:#12100E;color:var(--cream);}
   <div class="ff-container nav-in">
     <a class="brand" href="index.html">
       <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M32 12 L54 30 H48 V52 H16 V30 H10 Z" fill="#C2803C"/>
-        <rect x="22" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
-        <rect x="34" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
-        <rect x="27" y="44" width="10" height="8" rx="1.5" fill="#17110C"/>
+        <path d="M32 12 L54 30 H48 V52 H16 V30 H10 Z" fill="#D9A441"/>
+        <rect x="22" y="34" width="8" height="8" rx="1.5" fill="#0E211A"/>
+        <rect x="34" y="34" width="8" height="8" rx="1.5" fill="#0E211A"/>
+        <rect x="27" y="44" width="10" height="8" rx="1.5" fill="#0E211A"/>
       </svg>
       <span class="brand-txt">Santa Fe Cabins<small>Panel del dueño</small></span>
     </a>
@@ -146,7 +146,7 @@ body{background:#12100E;color:var(--cream);}
 
       <div class="box">
         <h3>Ocupación por cabaña · julio</h3>
-        <p class="bsub">Cada celda es una noche. Ámbar = ocupada, verde = llegada hoy.</p>
+        <p class="bsub">Cada celda es una noche. Dorado = ocupada, verde = llegada hoy.</p>
         <div class="ff-tablewrap" style="--ff-tablemin:640px">
           <div class="tape" id="tape" style="min-width:640px"></div>
         </div>
@@ -195,13 +195,13 @@ body{background:#12100E;color:var(--cream);}
           <table class="pnl-table">
             <thead><tr><th>Prospecto</th><th>Modelo</th><th>Configuración</th><th>Zona</th><th>Estimado</th><th>Etapa</th></tr></thead>
             <tbody>
-              <tr><td><b>Marisol Vega</b><br><span style="font-size:11.5px;color:#8A7663">55 1487 ····</span></td><td>SFC60</td><td>Confort + terraza + chimenea</td><td>Amecameca</td><td><b>$943,500</b></td><td><span class="stage s3">Anticipo pagado</span></td></tr>
-              <tr><td><b>Rodrigo Herrera</b><br><span style="font-size:11.5px;color:#8A7663">222 310 ····</span></td><td>SFC120</td><td>Premium + solar + cochera</td><td>Puebla</td><td><b>$1,912,000</b></td><td><span class="stage s2">Visita técnica</span></td></tr>
-              <tr><td><b>Claudia Nieto</b><br><span style="font-size:11.5px;color:#8A7663">55 2290 ····</span></td><td>SFC40</td><td>Esencial + aislamiento</td><td>Valle de Bravo</td><td><b>$550,000</b></td><td><span class="stage s2">Visita técnica</span></td></tr>
-              <tr><td><b>Grupo Tepoztlán</b><br><span style="font-size:11.5px;color:#8A7663">739 118 ····</span></td><td>SFC80 ×3</td><td>Confort + terraza (proyecto hotelero)</td><td>Morelos</td><td><b>$3,240,000</b></td><td><span class="stage s2">Cotización enviada</span></td></tr>
-              <tr><td><b>Enrique Badillo</b><br><span style="font-size:11.5px;color:#8A7663">55 6704 ····</span></td><td>SFC100</td><td>Premium + doble vidrio + solar</td><td>Mazamitla</td><td><b>$1,708,500</b></td><td><span class="stage s1">Nuevo</span></td></tr>
-              <tr><td><b>Paola Guzmán</b><br><span style="font-size:11.5px;color:#8A7663">55 8823 ····</span></td><td>SFC35</td><td>Esencial (oficina de jardín)</td><td>CDMX</td><td><b>$410,000</b></td><td><span class="stage s1">Nuevo</span></td></tr>
-              <tr><td><b>Javier Olmos</b><br><span style="font-size:11.5px;color:#8A7663">998 442 ····</span></td><td>SFC45</td><td>Confort + terraza</td><td>Tulum</td><td><b>$708,500</b></td><td><span class="stage s4">Sin terreno aún</span></td></tr>
+              <tr><td><b>Marisol Vega</b><br><span style="font-size:11.5px;color:#6E8578">55 1487 ····</span></td><td>SFC60</td><td>Confort + terraza + chimenea</td><td>Amecameca</td><td><b>$943,500</b></td><td><span class="stage s3">Anticipo pagado</span></td></tr>
+              <tr><td><b>Rodrigo Herrera</b><br><span style="font-size:11.5px;color:#6E8578">222 310 ····</span></td><td>SFC120</td><td>Premium + solar + cochera</td><td>Puebla</td><td><b>$1,912,000</b></td><td><span class="stage s2">Visita técnica</span></td></tr>
+              <tr><td><b>Claudia Nieto</b><br><span style="font-size:11.5px;color:#6E8578">55 2290 ····</span></td><td>SFC40</td><td>Esencial + aislamiento</td><td>Valle de Bravo</td><td><b>$550,000</b></td><td><span class="stage s2">Visita técnica</span></td></tr>
+              <tr><td><b>Grupo Tepoztlán</b><br><span style="font-size:11.5px;color:#6E8578">739 118 ····</span></td><td>SFC80 ×3</td><td>Confort + terraza (proyecto hotelero)</td><td>Morelos</td><td><b>$3,240,000</b></td><td><span class="stage s2">Cotización enviada</span></td></tr>
+              <tr><td><b>Enrique Badillo</b><br><span style="font-size:11.5px;color:#6E8578">55 6704 ····</span></td><td>SFC100</td><td>Premium + doble vidrio + solar</td><td>Mazamitla</td><td><b>$1,708,500</b></td><td><span class="stage s1">Nuevo</span></td></tr>
+              <tr><td><b>Paola Guzmán</b><br><span style="font-size:11.5px;color:#6E8578">55 8823 ····</span></td><td>SFC35</td><td>Esencial (oficina de jardín)</td><td>CDMX</td><td><b>$410,000</b></td><td><span class="stage s1">Nuevo</span></td></tr>
+              <tr><td><b>Javier Olmos</b><br><span style="font-size:11.5px;color:#6E8578">998 442 ····</span></td><td>SFC45</td><td>Confort + terraza</td><td>Tulum</td><td><b>$708,500</b></td><td><span class="stage s4">Sin terreno aún</span></td></tr>
             </tbody>
           </table>
         </div>

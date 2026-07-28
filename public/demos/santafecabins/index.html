@@ -17,8 +17,9 @@
   padding:clamp(64px,8vw,120px) 0 clamp(56px,7vw,96px);}
 .hero::before{content:"";position:absolute;inset:0;
   background:
-    radial-gradient(900px 520px at 78% 8%,rgba(194,128,60,.30),transparent 62%),
-    radial-gradient(700px 460px at 12% 92%,rgba(46,94,72,.34),transparent 66%),
+    radial-gradient(900px 540px at 76% 6%,rgba(46,94,72,.55),transparent 64%),
+    radial-gradient(700px 460px at 10% 94%,rgba(85,169,127,.22),transparent 66%),
+    radial-gradient(420px 300px at 92% 88%,rgba(217,164,65,.16),transparent 70%),
     repeating-linear-gradient(96deg,rgba(255,255,255,.022) 0 3px,transparent 3px 9px);
   pointer-events:none;}
 .hero-in{position:relative;display:grid;gap:clamp(34px,5vw,60px);align-items:center;
@@ -26,9 +27,9 @@
 @media(max-width:900px){.hero-in{grid-template-columns:1fr;}}
 .hero h1{font-size:clamp(38px,5.6vw,68px);line-height:1.02;margin:0 0 20px;color:#fff;}
 .hero h1 em{font-style:normal;color:var(--wood-lt);}
-.hero p.sub{font-size:clamp(16px,1.5vw,19px);line-height:1.6;color:#C8B9A8;max-width:52ch;margin:0 0 30px;}
+.hero p.sub{font-size:clamp(16px,1.5vw,19px);line-height:1.6;color:#B8CBBF;max-width:52ch;margin:0 0 30px;}
 .hero-badge{display:inline-flex;align-items:center;gap:9px;padding:7px 15px;border-radius:999px;
-  background:rgba(247,242,234,.09);border:1px solid var(--line);font-size:12.5px;
+  background:rgba(245,247,243,.09);border:1px solid var(--line);font-size:12.5px;
   letter-spacing:.05em;margin-bottom:24px;color:var(--cream);}
 .hero-badge b{color:var(--wood-lt);}
 /* collage */
@@ -39,7 +40,7 @@
 .collage figure:first-child{grid-column:1/-1;}
 .collage figure:first-child img{aspect-ratio:16/8;}
 .collage figcaption{position:absolute;left:11px;bottom:10px;font-size:11px;font-weight:600;
-  background:rgba(23,17,12,.78);color:var(--cream);padding:5px 11px;border-radius:999px;
+  background:rgba(14,33,26,.78);color:var(--cream);padding:5px 11px;border-radius:999px;
   backdrop-filter:blur(6px);}
 
 /* ---------- STATS ---------- */
@@ -50,25 +51,25 @@
 .door{position:relative;border-radius:20px;overflow:hidden;min-height:400px;display:flex;
   flex-direction:column;justify-content:flex-end;padding:30px;color:#fff;text-decoration:none;
   transition:transform .22s,box-shadow .22s;isolation:isolate;}
-.door:hover{transform:translateY(-5px);box-shadow:0 26px 60px rgba(23,17,12,.30);}
+.door:hover{transform:translateY(-5px);box-shadow:0 26px 60px rgba(14,33,26,.30);}
 .door img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;}
 .door::after{content:"";position:absolute;inset:0;z-index:-1;
-  background:linear-gradient(180deg,rgba(23,17,12,.18) 0%,rgba(23,17,12,.62) 46%,rgba(23,17,12,.94) 100%);}
+  background:linear-gradient(180deg,rgba(14,33,26,.18) 0%,rgba(14,33,26,.62) 46%,rgba(14,33,26,.94) 100%);}
 .door h3{font-size:clamp(25px,2.8vw,34px);margin:12px 0 10px;color:#fff;}
-.door p{font-size:14.5px;line-height:1.55;color:#D8CBBA;margin:0 0 20px;max-width:40ch;}
+.door p{font-size:14.5px;line-height:1.55;color:#C6D8CD;margin:0 0 20px;max-width:40ch;}
 .door .go{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:14.5px;
   color:var(--wood-lt);}
 
 /* ---------- PROCESO ---------- */
 .step{position:relative;padding-left:56px;}
 .step-n{position:absolute;left:0;top:0;width:40px;height:40px;border-radius:12px;
-  background:var(--wood);color:#1A1109;display:flex;align-items:center;justify-content:center;
+  background:var(--wood);color:#0E211A;display:flex;align-items:center;justify-content:center;
   font-family:'Fraunces',serif;font-size:18px;font-weight:700;}
 .step h4{margin:6px 0 7px;font-size:17px;}
-.step p{margin:0;font-size:14px;line-height:1.55;color:#6B5B4B;}
+.step p{margin:0;font-size:14px;line-height:1.55;color:#48594E;}
 
 /* ---------- ÁNGULO CRUZADO ---------- */
-.cross{background:linear-gradient(135deg,var(--forest),#1E4232);color:#fff;
+.cross{background:linear-gradient(135deg,#3A7458,#1E4232);color:#fff;
   border-radius:22px;padding:clamp(30px,4.5vw,56px);position:relative;overflow:hidden;}
 .cross::before{content:"";position:absolute;right:-70px;top:-70px;width:280px;height:280px;
   border-radius:50%;background:rgba(255,255,255,.055);}
@@ -77,7 +78,7 @@
 
 /* ---------- MODELOS ---------- */
 .mprice{font-family:'Fraunces',serif;font-size:19px;color:var(--wood);}
-.mmeta{display:flex;gap:14px;font-size:12.5px;color:#8A7663;margin-top:9px;flex-wrap:wrap;}
+.mmeta{display:flex;gap:14px;font-size:12.5px;color:#6E8578;margin-top:9px;flex-wrap:wrap;}
 </style>
 </head>
 <body>
@@ -89,10 +90,10 @@
   <div class="ff-container nav-in">
     <a class="brand" href="index.html">
       <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M32 12 L54 30 H48 V52 H16 V30 H10 Z" fill="#C2803C"/>
-        <rect x="22" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
-        <rect x="34" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
-        <rect x="27" y="44" width="10" height="8" rx="1.5" fill="#17110C"/>
+        <path d="M32 12 L54 30 H48 V52 H16 V30 H10 Z" fill="#D9A441"/>
+        <rect x="22" y="34" width="8" height="8" rx="1.5" fill="#0E211A"/>
+        <rect x="34" y="34" width="8" height="8" rx="1.5" fill="#0E211A"/>
+        <rect x="27" y="44" width="10" height="8" rx="1.5" fill="#0E211A"/>
       </svg>
       <span class="brand-txt">Santa Fe Cabins<small>Madera maciza · 1993</small></span>
     </a>
@@ -178,7 +179,7 @@
 <section class="sec sec-cream">
   <div class="ff-container">
     <div class="cross">
-      <span class="eyebrow" style="color:#9FD6B6">El showroom que se renta solo</span>
+      <span class="eyebrow" style="color:var(--sage)">El showroom que se renta solo</span>
       <h2 class="ff-h2">Duerme en una antes de comprarla.</h2>
       <p>Nuestras 8 cabañas de Zacatlán no son solo un negocio de hospedaje: son el showroom vivo de la fábrica. Pasas el fin de semana adentro, sientes el aislamiento térmico de la madera maciza, ves los acabados de cerca. Si después decides construir la tuya, <strong>te descontamos el importe de tu estancia del anticipo.</strong></p>
       <div class="row">
@@ -240,7 +241,7 @@
         </div>
       </article>
     </div>
-    <p style="font-size:12px;color:#8A7663;margin-top:18px">Precios de ejemplo para efectos de este demo. Se sustituyen por la lista de precios real de Santa Fe Cabins.</p>
+    <p style="font-size:12px;color:#6E8578;margin-top:18px">Precios de ejemplo para efectos de este demo. Se sustituyen por la lista de precios real de Santa Fe Cabins.</p>
   </div>
 </section>
 
@@ -250,10 +251,10 @@
     <span class="eyebrow">Cómo trabajamos</span>
     <h2 class="ff-h2 mt0" style="color:#fff;margin-bottom:38px">De la idea a la llave, en 4 pasos</h2>
     <div class="ff-grid ff-grid--md" style="--ff-gap:32px">
-      <div class="step"><div class="step-n">1</div><h4 style="color:#fff">Cotiza en línea</h4><p style="color:#B5A492">Eliges modelo, metros y acabados en el configurador. Obtienes precio estimado en el momento, sin llamadas.</p></div>
-      <div class="step"><div class="step-n">2</div><h4 style="color:#fff">Visita técnica</h4><p style="color:#B5A492">Revisamos tu terreno, accesos y nivelación. Ajustamos el proyecto y firmamos con anticipo del 30%.</p></div>
-      <div class="step"><div class="step-n">3</div><h4 style="color:#fff">Fabricación</h4><p style="color:#B5A492">12 a 17 semanas en taller, con control de calidad total. Sigues el avance desde tu expediente en línea.</p></div>
-      <div class="step"><div class="step-n">4</div><h4 style="color:#fff">Instalación en un día</h4><p style="color:#B5A492">Llegamos con los módulos listos. Tu cabaña queda montada y habitable el mismo día.</p></div>
+      <div class="step"><div class="step-n">1</div><h4 style="color:#fff">Cotiza en línea</h4><p style="color:#A1B6A9">Eliges modelo, metros y acabados en el configurador. Obtienes precio estimado en el momento, sin llamadas.</p></div>
+      <div class="step"><div class="step-n">2</div><h4 style="color:#fff">Visita técnica</h4><p style="color:#A1B6A9">Revisamos tu terreno, accesos y nivelación. Ajustamos el proyecto y firmamos con anticipo del 30%.</p></div>
+      <div class="step"><div class="step-n">3</div><h4 style="color:#fff">Fabricación</h4><p style="color:#A1B6A9">12 a 17 semanas en taller, con control de calidad total. Sigues el avance desde tu expediente en línea.</p></div>
+      <div class="step"><div class="step-n">4</div><h4 style="color:#fff">Instalación en un día</h4><p style="color:#A1B6A9">Llegamos con los módulos listos. Tu cabaña queda montada y habitable el mismo día.</p></div>
     </div>
   </div>
 </section>
@@ -293,7 +294,7 @@
         <div id="okmsg" style="display:none;text-align:center;padding:26px 0">
           <div style="font-size:40px">🌲</div>
           <h3 style="margin:12px 0 8px">¡Listo, recibimos tus datos!</h3>
-          <p style="color:#6B5B4B;font-size:14px">En el sitio real esto entra directo al panel de Erick y dispara un correo automático con el catálogo.</p>
+          <p style="color:#48594E;font-size:14px">En el sitio real esto entra directo al panel de Erick y dispara un correo automático con el catálogo.</p>
         </div>
       </div>
     </div>
@@ -307,12 +308,12 @@
       <div>
         <div class="brand" style="margin-bottom:14px">
           <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
-            <path d="M32 12 L54 30 H48 V52 H16 V30 H10 Z" fill="#C2803C"/>
-            <rect x="22" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
-            <rect x="34" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
-            <rect x="27" y="44" width="10" height="8" rx="1.5" fill="#17110C"/>
+            <path d="M32 12 L54 30 H48 V52 H16 V30 H10 Z" fill="#D9A441"/>
+            <rect x="22" y="34" width="8" height="8" rx="1.5" fill="#0E211A"/>
+            <rect x="34" y="34" width="8" height="8" rx="1.5" fill="#0E211A"/>
+            <rect x="27" y="44" width="10" height="8" rx="1.5" fill="#0E211A"/>
           </svg>
-          <span class="brand-txt" style="color:#F7F2EA">Santa Fe Cabins<small>Madera maciza · 1993</small></span>
+          <span class="brand-txt" style="color:#F5F7F3">Santa Fe Cabins<small>Madera maciza · 1993</small></span>
         </div>
         <p style="max-width:34ch;line-height:1.6;margin:0">Casas y cabañas de madera maciza tipo log home. Fabricación modular con instalación en un día, en cualquier parte del país.</p>
       </div>

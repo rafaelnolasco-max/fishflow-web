@@ -14,15 +14,16 @@
 <style>
 .pagehead{background:var(--ink);color:var(--cream);padding:clamp(48px,6vw,80px) 0 clamp(40px,5vw,64px);position:relative;overflow:hidden;}
 .pagehead::before{content:"";position:absolute;inset:0;
-  background:radial-gradient(700px 420px at 80% 10%,rgba(194,128,60,.26),transparent 62%),
-             radial-gradient(560px 380px at 8% 92%,rgba(46,94,72,.30),transparent 66%);}
+  background:radial-gradient(700px 430px at 78% 8%,rgba(46,94,72,.52),transparent 64%),
+             radial-gradient(560px 380px at 8% 92%,rgba(85,169,127,.20),transparent 66%),
+             radial-gradient(360px 260px at 94% 86%,rgba(217,164,65,.14),transparent 70%);}
 .pagehead > *{position:relative;}
 .pagehead h1{font-size:clamp(32px,4.4vw,54px);margin:0 0 14px;color:#fff;}
-.pagehead p{color:#C8B9A8;font-size:16.5px;line-height:1.6;max-width:58ch;margin:0;}
+.pagehead p{color:#B8CBBF;font-size:16.5px;line-height:1.6;max-width:58ch;margin:0;}
 
 .filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:28px;}
-.fbtn{padding:9px 18px;border-radius:999px;border:1.5px solid #DCCFBD;background:#fff;
-  font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;color:#6B5B4B;transition:.16s;}
+.fbtn{padding:9px 18px;border-radius:999px;border:1.5px solid #C7D5CB;background:#fff;
+  font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;color:#48594E;transition:.16s;}
 .fbtn:hover{border-color:var(--wood-lt);}
 .fbtn.on{background:var(--ink);color:var(--cream);border-color:var(--ink);}
 
@@ -40,38 +41,38 @@
 .cfg-step-h h3{margin:0;font-size:17px;}
 
 .mgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));}
-.mcard{border:1.5px solid #DCCFBD;border-radius:13px;background:#fff;cursor:pointer;
+.mcard{border:1.5px solid #C7D5CB;border-radius:13px;background:#fff;cursor:pointer;
   overflow:hidden;transition:.16s;text-align:left;padding:0;font-family:inherit;}
 .mcard:hover{border-color:var(--wood-lt);}
-.mcard.sel{border-color:var(--wood);box-shadow:0 0 0 3px rgba(194,128,60,.16);}
+.mcard.sel{border-color:var(--wood);box-shadow:0 0 0 3px rgba(217,164,65,.16);}
 .mcard img{width:100%;aspect-ratio:5/3;object-fit:cover;}
 .mcard-b{padding:10px 12px 12px;}
 .mcard-t{font-weight:700;font-size:13.5px;}
-.mcard-s{font-size:11.5px;color:#8A7663;margin-top:2px;}
+.mcard-s{font-size:11.5px;color:#6E8578;margin-top:2px;}
 
 .sum-row{display:flex;justify-content:space-between;gap:14px;padding:11px 0;
-  border-bottom:1px solid var(--line);font-size:14px;color:#C8B9A8;}
+  border-bottom:1px solid var(--line);font-size:14px;color:#B8CBBF;}
 .sum-row b{color:var(--cream);font-weight:600;text-align:right;}
 .sum-total{margin-top:20px;padding-top:20px;border-top:2px solid var(--wood);}
 .sum-total .lbl{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--wood-lt);font-weight:700;}
 .sum-total .amt{font-family:'Fraunces',serif;font-size:clamp(30px,3.6vw,42px);color:#fff;line-height:1.1;margin-top:7px;}
-.sum-note{font-size:11.5px;color:#8A7663;margin-top:9px;line-height:1.5;}
-.anticipo{background:rgba(194,128,60,.14);border:1px solid rgba(194,128,60,.34);border-radius:13px;
+.sum-note{font-size:11.5px;color:#6E8578;margin-top:9px;line-height:1.5;}
+.anticipo{background:rgba(217,164,65,.14);border:1px solid rgba(217,164,65,.34);border-radius:13px;
   padding:15px;margin-top:20px;}
 .anticipo .a-l{font-size:12px;color:var(--wood-lt);font-weight:600;}
 .anticipo .a-v{font-family:'Fraunces',serif;font-size:24px;color:#fff;margin-top:3px;}
 
 /* modal */
-.modal{position:fixed;inset:0;background:rgba(23,17,12,.72);backdrop-filter:blur(5px);
+.modal{position:fixed;inset:0;background:rgba(14,33,26,.72);backdrop-filter:blur(5px);
   display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
 .modal.open{display:flex;}
 .modal-box{background:var(--cream);border-radius:20px;max-width:520px;width:100%;
   max-height:90vh;overflow-y:auto;padding:clamp(24px,3.4vw,38px);position:relative;}
 .modal-x{position:absolute;top:16px;right:16px;background:none;border:0;font-size:24px;
-  cursor:pointer;color:#8A7663;line-height:1;}
-.pay-opt{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid #DCCFBD;
+  cursor:pointer;color:#6E8578;line-height:1;}
+.pay-opt{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid #C7D5CB;
   border-radius:12px;background:#fff;cursor:pointer;margin-bottom:9px;transition:.16s;}
-.pay-opt.sel{border-color:var(--wood);background:rgba(194,128,60,.07);}
+.pay-opt.sel{border-color:var(--wood);background:rgba(217,164,65,.07);}
 .pay-ico{width:38px;height:38px;flex:0 0 38px;border-radius:10px;background:var(--ink);
   display:flex;align-items:center;justify-content:center;font-size:17px;}
 </style>
@@ -84,10 +85,10 @@
   <div class="ff-container nav-in">
     <a class="brand" href="index.html">
       <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M32 12 L54 30 H48 V52 H16 V30 H10 Z" fill="#C2803C"/>
-        <rect x="22" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
-        <rect x="34" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
-        <rect x="27" y="44" width="10" height="8" rx="1.5" fill="#17110C"/>
+        <path d="M32 12 L54 30 H48 V52 H16 V30 H10 Z" fill="#D9A441"/>
+        <rect x="22" y="34" width="8" height="8" rx="1.5" fill="#0E211A"/>
+        <rect x="34" y="34" width="8" height="8" rx="1.5" fill="#0E211A"/>
+        <rect x="27" y="44" width="10" height="8" rx="1.5" fill="#0E211A"/>
       </svg>
       <span class="brand-txt">Santa Fe Cabins<small>Madera maciza · 1993</small></span>
     </a>
@@ -132,7 +133,7 @@
       <button class="fbtn" onclick="filtrar('grande',this)">100 m² o más</button>
     </div>
     <div class="ff-grid ff-grid--md" id="catalogo"></div>
-    <p style="font-size:12px;color:#8A7663;margin-top:20px">Precios de ejemplo construidos para este demo. Se sustituyen por la lista real de Santa Fe Cabins antes de publicar.</p>
+    <p style="font-size:12px;color:#6E8578;margin-top:20px">Precios de ejemplo construidos para este demo. Se sustituyen por la lista real de Santa Fe Cabins antes de publicar.</p>
   </div>
 </section>
 
@@ -196,9 +197,9 @@
     <div id="pagoPaso1">
       <span class="eyebrow">Apartado</span>
       <h2 style="margin:0 0 10px;font-size:25px">Aparta tu <span id="pagoModelo">cabaña</span></h2>
-      <p style="color:#6B5B4B;font-size:14.5px;line-height:1.55;margin:0 0 22px">Con el anticipo bloqueamos tu lugar en producción y agendamos la visita técnica a tu terreno. Reembolsable si la visita determina que el terreno no es viable.</p>
+      <p style="color:#48594E;font-size:14.5px;line-height:1.55;margin:0 0 22px">Con el anticipo bloqueamos tu lugar en producción y agendamos la visita técnica a tu terreno. Reembolsable si la visita determina que el terreno no es viable.</p>
       <div style="background:#fff;border:1px solid var(--line-dk);border-radius:13px;padding:17px;margin-bottom:22px">
-        <div style="display:flex;justify-content:space-between;font-size:14px;color:#6B5B4B;padding-bottom:9px">
+        <div style="display:flex;justify-content:space-between;font-size:14px;color:#48594E;padding-bottom:9px">
           <span>Precio estimado</span><b id="pagoTotal">$0</b></div>
         <div style="display:flex;justify-content:space-between;font-size:15px;padding-top:11px;border-top:1px solid var(--line-dk)">
           <span style="font-weight:600">Anticipo 30%</span>
@@ -206,21 +207,21 @@
       </div>
       <label class="fld"><span>Nombre completo</span><input class="inp" id="pgNombre" placeholder="Tu nombre"></label>
       <label class="fld"><span>WhatsApp</span><input class="inp" placeholder="55 0000 0000"></label>
-      <div style="font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#8A7663;margin:18px 0 9px">Forma de pago</div>
-      <div class="pay-opt sel" onclick="selPago(this)"><div class="pay-ico">💳</div><div><div style="font-weight:600;font-size:14px">Tarjeta de crédito o débito</div><div style="font-size:12px;color:#8A7663">Hasta 12 meses sin intereses</div></div></div>
-      <div class="pay-opt" onclick="selPago(this)"><div class="pay-ico">🏪</div><div><div style="font-weight:600;font-size:14px">Efectivo en OXXO</div><div style="font-size:12px;color:#8A7663">Referencia válida 3 días</div></div></div>
-      <div class="pay-opt" onclick="selPago(this)"><div class="pay-ico">🏦</div><div><div style="font-weight:600;font-size:14px">Transferencia SPEI</div><div style="font-size:12px;color:#8A7663">CLABE a tu nombre</div></div></div>
+      <div style="font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#6E8578;margin:18px 0 9px">Forma de pago</div>
+      <div class="pay-opt sel" onclick="selPago(this)"><div class="pay-ico">💳</div><div><div style="font-weight:600;font-size:14px">Tarjeta de crédito o débito</div><div style="font-size:12px;color:#6E8578">Hasta 12 meses sin intereses</div></div></div>
+      <div class="pay-opt" onclick="selPago(this)"><div class="pay-ico">🏪</div><div><div style="font-weight:600;font-size:14px">Efectivo en OXXO</div><div style="font-size:12px;color:#6E8578">Referencia válida 3 días</div></div></div>
+      <div class="pay-opt" onclick="selPago(this)"><div class="pay-ico">🏦</div><div><div style="font-weight:600;font-size:14px">Transferencia SPEI</div><div style="font-size:12px;color:#6E8578">CLABE a tu nombre</div></div></div>
       <button class="btn btn-primary btn-block" style="margin-top:20px" onclick="confirmarPago()">Pagar anticipo</button>
-      <p style="font-size:11.5px;color:#8A7663;text-align:center;margin:13px 0 0">Demo · no se procesa ningún cobro real</p>
+      <p style="font-size:11.5px;color:#6E8578;text-align:center;margin:13px 0 0">Demo · no se procesa ningún cobro real</p>
     </div>
     <div id="pagoPaso2" style="display:none;text-align:center;padding:22px 0">
       <div style="font-size:52px">🏡</div>
       <h2 style="margin:14px 0 10px;font-size:25px">¡Tu cabaña está apartada!</h2>
-      <p style="color:#6B5B4B;font-size:14.5px;line-height:1.6;margin:0 0 22px">Te llegó el comprobante por correo y WhatsApp. Erick recibe la notificación en su panel y te contacta en menos de 24 h para agendar la visita técnica.</p>
+      <p style="color:#48594E;font-size:14.5px;line-height:1.6;margin:0 0 22px">Te llegó el comprobante por correo y WhatsApp. Erick recibe la notificación en su panel y te contacta en menos de 24 h para agendar la visita técnica.</p>
       <div style="background:#fff;border:1px solid var(--line-dk);border-radius:13px;padding:17px;text-align:left;font-size:14px">
-        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#8A7663">Folio</span><b>SFC-2026-0447</b></div>
-        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#8A7663">Visita técnica</span><b>Por agendar</b></div>
-        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#8A7663">Entrega estimada</span><b>14-19 semanas</b></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#6E8578">Folio</span><b>SFC-2026-0447</b></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#6E8578">Visita técnica</span><b>Por agendar</b></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#6E8578">Entrega estimada</span><b>14-19 semanas</b></div>
       </div>
       <button class="btn btn-dark btn-block" style="margin-top:20px" onclick="cerrarModal()">Cerrar</button>
     </div>
