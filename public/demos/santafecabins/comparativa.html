@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Santa Fe Cabins — Tu sitio hoy vs. lo que podría ser</title>
+<meta name="description" content="Comparativa del sitio actual de Santa Fe Cabins contra una propuesta funcional, con cotizador de cabañas y motor de reservas para las 8 cabañas de Puebla.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="sfc.css">
+<style>
+body{background:var(--cream);}
+.top{background:var(--ink);color:var(--cream);padding:clamp(40px,6vw,78px) 0 clamp(36px,5vw,64px);position:relative;overflow:hidden;}
+.top::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(800px 480px at 78% 4%,rgba(194,128,60,.28),transparent 62%),
+             radial-gradient(620px 420px at 6% 96%,rgba(46,94,72,.32),transparent 66%);}
+.top > *{position:relative;}
+.top h1{font-size:clamp(30px,4.6vw,54px);line-height:1.04;margin:0 0 16px;color:#fff;}
+.top h1 em{font-style:normal;color:var(--wood-lt);}
+.top p{font-size:clamp(15px,1.5vw,18px);line-height:1.6;color:#C8B9A8;max-width:60ch;margin:0;}
+.ff-mark{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:#8A7663;margin-bottom:22px;}
+.ff-mark b{color:var(--wood-lt);font-weight:700;}
+
+/* comparador */
+.vs{display:grid;gap:16px;grid-template-columns:1fr 1fr;align-items:start;}
+@media(max-width:700px){.vs{grid-template-columns:1fr;gap:22px;}}
+.pane{border-radius:15px;overflow:hidden;border:1px solid var(--line-dk);background:#fff;
+  box-shadow:0 12px 34px rgba(23,17,12,.10);}
+.pane img{width:100%;display:block;}
+.tag{display:flex;align-items:center;gap:8px;padding:11px 14px;font-size:12px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;}
+.tag-bad{background:#FCEDEA;color:#B03A28;}
+.tag-good{background:#E8F5EE;color:#1B6F4C;}
+.tag .dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px;}
+.tag-bad .dot{background:#C0392B;}
+.tag-good .dot{background:#2E9B6B;}
+.pane-note{padding:12px 14px;font-size:12.5px;line-height:1.55;color:#6B5B4B;border-top:1px solid var(--line-dk);}
+.frame-phone{max-width:300px;margin:0 auto;}
+
+/* hallazgos */
+.find{display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px solid var(--line-dk);}
+.find:last-child{border-bottom:0;}
+.find-ico{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:#FCEDEA;color:#B03A28;
+  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;}
+.find h4{margin:0 0 4px;font-size:15.5px;}
+.find p{margin:0;font-size:13.5px;line-height:1.55;color:#6B5B4B;}
+.find code{font-family:ui-monospace,monospace;font-size:12px;background:var(--cream-2);
+  padding:2px 6px;border-radius:5px;}
+
+/* beneficios */
+.ben{background:#fff;border:1px solid var(--line-dk);border-radius:15px;padding:20px;}
+.ben-ico{width:40px;height:40px;border-radius:12px;background:rgba(194,128,60,.14);
+  display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:13px;}
+.ben h3{margin:0 0 7px;font-size:17px;}
+.ben p{margin:0;font-size:13.5px;line-height:1.6;color:#6B5B4B;}
+.ben .gain{display:inline-block;margin-top:11px;font-size:12px;font-weight:700;color:var(--forest);
+  background:rgba(46,94,72,.10);padding:5px 11px;border-radius:999px;}
+
+/* cta final */
+.cta{background:var(--ink);color:var(--cream);border-radius:22px;padding:clamp(28px,4.5vw,54px);
+  text-align:center;position:relative;overflow:hidden;}
+.cta::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(600px 340px at 50% 0%,rgba(194,128,60,.24),transparent 66%);}
+.cta > *{position:relative;}
+.cta h2{color:#fff;margin:0 0 14px;}
+.cta p{color:#C8B9A8;font-size:16px;line-height:1.6;max-width:52ch;margin:0 auto 26px;}
+.demo-links{display:grid;gap:11px;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));
+  max-width:760px;margin:0 auto;}
+.dlink{display:block;background:rgba(247,242,234,.07);border:1px solid var(--line);border-radius:13px;
+  padding:16px;text-decoration:none;color:var(--cream);transition:.18s;text-align:left;}
+.dlink:hover{background:rgba(194,128,60,.16);border-color:var(--wood);transform:translateY(-3px);}
+.dlink .n{font-family:'Fraunces',serif;font-size:16px;margin-bottom:5px;}
+.dlink .d{font-size:12.5px;color:#A79582;line-height:1.45;}
+</style>
+</head>
+<body>
+
+<div class="demobar">Preparado por <b>FishFlow</b> para Santa Fe Cabins · 28 de julio de 2026</div>
+
+<!-- HERO -->
+<section class="top">
+  <div class="ff-container">
+    <span class="ff-mark">Revisión de <b>santafecabins.com.mx</b></span>
+    <h1>Así se ve tu sitio hoy<br>en un celular. <em>Así podría verse.</em></h1>
+    <p>Nadie de FishFlow te ha llamado todavía. Antes de pedirte tiempo, preferimos enseñarte el trabajo hecho: revisamos tu sitio, encontramos cosas que ya no funcionan y construimos una versión nueva que puedes navegar completa.</p>
+  </div>
+</section>
+
+<!-- MÓVIL -->
+<section class="sec">
+  <div class="ff-container">
+    <span class="eyebrow">Lo primero que ve un cliente</span>
+    <h2 class="ff-h2 mt0" style="margin-bottom:10px">En el celular, que es donde busca casi todo el mundo</h2>
+    <p class="lede" style="margin-bottom:30px">Siete de cada diez personas que buscan "cabañas de madera" lo hacen desde el teléfono. Esto es exactamente lo que ven hoy, sin retoques.</p>
+    <div class="vs">
+      <div>
+        <div class="pane frame-phone">
+          <div class="tag tag-bad"><span class="dot"></span>Hoy · santafecabins.com.mx</div>
+          <img src="img/antes-movil.png" alt="Sitio actual de Santa Fe Cabins en celular" loading="lazy">
+          <div class="pane-note">El logo y el menú se salen de la pantalla, el texto se corta a media palabra y arriba aparece el aviso de Flash Player. No hay forma de contactarte desde aquí.</div>
+        </div>
+      </div>
+      <div>
+        <div class="pane frame-phone">
+          <div class="tag tag-good"><span class="dot"></span>Propuesta · ya construida</div>
+          <img src="img/despues-movil.png" alt="Propuesta de sitio nuevo en celular" loading="lazy">
+          <div class="pane-note">Todo cabe, todo se lee, hay menú y hay dos botones claros: cotizar una cabaña o reservar en Zacatlán. Funciona igual en iPhone que en Android.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ESCRITORIO -->
+<section class="sec sec-cream">
+  <div class="ff-container">
+    <span class="eyebrow">En computadora</span>
+    <h2 class="ff-h2 mt0" style="margin-bottom:30px">La misma empresa, contada de otra forma</h2>
+    <div class="vs">
+      <div class="pane">
+        <div class="tag tag-bad"><span class="dot"></span>Hoy</div>
+        <img src="img/antes-pc.png" alt="Sitio actual en computadora" loading="lazy">
+        <div class="pane-note">El carrusel principal y el video de montaje no cargan: corren en Flash, tecnología descontinuada desde 2020. El espacio queda en blanco.</div>
+      </div>
+      <div class="pane">
+        <div class="tag tag-good"><span class="dot"></span>Propuesta</div>
+        <img src="img/despues-pc.png" alt="Propuesta de sitio nuevo en computadora" loading="lazy">
+        <div class="pane-note">Treinta y tres años de trayectoria al frente, los modelos con foto y ficha, y las dos formas de comprarte: la cabaña o la noche.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HALLAZGOS -->
+<section class="sec">
+  <div class="ff-container">
+    <span class="eyebrow">Lo que encontramos</span>
+    <h2 class="ff-h2 mt0" style="margin-bottom:10px">Seis cosas que hoy te están costando clientes</h2>
+    <p class="lede" style="margin-bottom:26px">Todo esto es verificable desde cualquier computadora, ahora mismo.</p>
+    <div class="ff-grid" style="--ff-min:330px;--ff-gap:34px">
+      <div>
+        <div class="find">
+          <div class="find-ico">1</div>
+          <div><h4>El sitio corre en Flash</h4><p>Adobe lo descontinuó en 2020 y ningún navegador lo ejecuta ya. El carrusel y el video de montaje muestran el mensaje "You need to upgrade your Flash Player".</p></div>
+        </div>
+        <div class="find">
+          <div class="find-ico">2</div>
+          <div><h4>La página de precios está caída</h4><p><code>/precios.html</code> devuelve <b>error 500</b>. Quien busca precios —o sea, quien está más cerca de comprar— se topa con una pantalla de error del servidor.</p></div>
+        </div>
+        <div class="find">
+          <div class="find-ico">3</div>
+          <div><h4>No funciona en celular</h4><p>No hay diseño responsivo. En teléfono se muestra la versión de escritorio encogida, con el contenido cortado y sin menú.</p></div>
+        </div>
+      </div>
+      <div>
+        <div class="find">
+          <div class="find-ico">4</div>
+          <div><h4>No hay forma de dejar datos</h4><p>Sin formulario. Solo dos teléfonos fijos y un correo de Gmail. Quien entra un domingo a las 11 de la noche se va sin dejar rastro.</p></div>
+        </div>
+        <div class="find">
+          <div class="find-ico">5</div>
+          <div><h4>Google no entiende el sitio</h4><p>Las direcciones son del tipo <code>?page_id=27</code>, sin títulos ni descripciones. Estás compitiendo en buscadores con una mano atada.</p></div>
+        </div>
+        <div class="find">
+          <div class="find-ico">6</div>
+          <div><h4>Las cabañas de Puebla no existen</h4><p>Tus ocho cabañas de Zacatlán no aparecen en ningún lado del sitio. Es un negocio completo que hoy es invisible para quien te visita.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFICIOS -->
+<section class="sec sec-cream">
+  <div class="ff-container">
+    <span class="eyebrow">Lo que ganas</span>
+    <h2 class="ff-h2 mt0" style="margin-bottom:10px">No es una página más bonita. Es otra forma de vender.</h2>
+    <p class="lede" style="margin-bottom:30px">Cada pieza del sistema nuevo existe por una razón de negocio, no de diseño.</p>
+    <div class="ff-grid ff-grid--md">
+      <div class="ben">
+        <div class="ben-ico">📐</div>
+        <h3>Cotizador de cabañas</h3>
+        <p>El cliente elige modelo, acabados y extras, y ve el precio al instante. Llega a ti sabiendo ya qué quiere y cuánto cuesta, en vez de preguntar "¿cuánto sale una cabaña?".</p>
+        <span class="gain">Dejas de cotizar desde cero</span>
+      </div>
+      <div class="ben">
+        <div class="ben-ico">🗓️</div>
+        <h3>Reservas 24 horas</h3>
+        <p>Las ocho cabañas con calendario real y cobro en línea. Quien planea su fin de semana un viernes a las once de la noche reserva y paga solo, sin que nadie conteste.</p>
+        <span class="gain">Capturas lo que hoy se pierde</span>
+      </div>
+      <div class="ben">
+        <div class="ben-ico">💰</div>
+        <h3>Tarifas por temporada</h3>
+        <p>Hoy cobras lo mismo un martes que un sábado, y lo mismo por la cabaña de cuatro personas que por la de doce. El sistema aplica el recargo de fin de semana solo.</p>
+        <span class="gain">Más ingreso sin más noches</span>
+      </div>
+      <div class="ben">
+        <div class="ben-ico">🔁</div>
+        <h3>Del huésped al comprador</h3>
+        <p>Cada cabaña de Zacatlán es un modelo de tu catálogo. Quien duerme en una ya probó el producto: el sistema le da seguimiento solo y le ofrece descontar su estancia del anticipo.</p>
+        <span class="gain">Tu showroom se renta</span>
+      </div>
+      <div class="ben">
+        <div class="ben-ico">📊</div>
+        <h3>Saber qué está pasando</h3>
+        <p>Una pantalla con ocupación por cabaña, ingreso del mes, llegadas del día y todos los prospectos que cotizaron. Hoy nada de eso se mide.</p>
+        <span class="gain">Decisiones con datos</span>
+      </div>
+      <div class="ben">
+        <div class="ben-ico">🔍</div>
+        <h3>Que Google te encuentre</h3>
+        <p>Una página por modelo y una por cabaña, con la estructura que los buscadores necesitan. Y analítica para saber por fin de dónde llega la gente.</p>
+        <span class="gain">Tráfico que no pagas</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEGUNDO NEGOCIO -->
+<section class="sec">
+  <div class="ff-container">
+    <div class="vs" style="align-items:center">
+      <div>
+        <span class="eyebrow">El negocio que está escondido</span>
+        <h2 class="ff-h2 mt0" style="margin-bottom:14px">Tus ocho cabañas de Zacatlán, reservables en línea</h2>
+        <p class="lede" style="margin-bottom:18px">A partir del 15 de septiembre de 2026, Airbnb cobra en México una comisión única del <b>16%</b> al anfitrión. Sobre ocho cabañas eso es dinero serio, cada año, para siempre.</p>
+        <p class="lede" style="margin-bottom:22px">Con motor propio el huésped es tuyo, el calendario es tuyo y la comisión no existe. Y como cada cabaña corresponde a un modelo de fábrica, el hospedaje se convierte en el mejor canal de venta que tienes.</p>
+        <a href="rentas.html" class="btn btn-forest">Probar el motor de reservas &rarr;</a>
+      </div>
+      <div class="pane">
+        <div class="tag tag-good"><span class="dot"></span>Reservas · funcionando</div>
+        <img src="img/despues-rentas.png" alt="Motor de reservas de las 8 cabañas" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="sec sec-cream">
+  <div class="ff-container">
+    <div class="cta">
+      <span class="eyebrow" style="justify-content:center;color:var(--wood-lt)">Está en línea, funcionando</span>
+      <h2 class="ff-h2 mt0">Pruébalo tú mismo. No hay que registrarse.</h2>
+      <p>Puedes cotizar una cabaña de principio a fin y hacer una reserva de prueba. Son cuatro pantallas y no toma más de cinco minutos.</p>
+      <div class="demo-links">
+        <a class="dlink" href="index.html"><div class="n">El sitio nuevo</div><div class="d">Cómo se vería Santa Fe Cabins hoy</div></a>
+        <a class="dlink" href="catalogo.html#configurador"><div class="n">Cotizador de cabañas</div><div class="d">Arma un SFC60 y mira el precio en vivo</div></a>
+        <a class="dlink" href="rentas.html"><div class="n">Reservas de Zacatlán</div><div class="d">Las 8 cabañas con calendario real</div></a>
+        <a class="dlink" href="panel.html"><div class="n">Tu panel</div><div class="d">Lo que verías tú cada mañana</div></a>
+      </div>
+      <p style="margin:30px auto 0;font-size:14.5px;color:#A79582">¿Te late? Escríbeme y lo vemos con calma en media hora.<br>
+        <b style="color:var(--wood-lt)">raf@fishflow.mx</b></p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="ff-container">
+    <div class="foot-btm" style="margin-top:0;border-top:0;padding-top:0">
+      <span>Documento preparado para Santa Fe Cabins · Casas Bozzo de México S.A. de C.V.</span>
+      <span>FishFlow S.A.P.I. de C.V. · fishflow.mx</span>
+    </div>
+  </div>
+</footer>
+
+<script src="sfc.js"></script>
+</body>
+</html>
