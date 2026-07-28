@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Modelos y cotizador — Santa Fe Cabins</title>
+<meta name="description" content="Catálogo de modelos de cabañas de madera maciza de 1 y 2 niveles. Configura modelo, acabados y extras y obtén tu precio estimado al instante.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="sfc.css">
+<style>
+.pagehead{background:var(--ink);color:var(--cream);padding:clamp(48px,6vw,80px) 0 clamp(40px,5vw,64px);position:relative;overflow:hidden;}
+.pagehead::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(700px 420px at 80% 10%,rgba(194,128,60,.26),transparent 62%),
+             radial-gradient(560px 380px at 8% 92%,rgba(46,94,72,.30),transparent 66%);}
+.pagehead > *{position:relative;}
+.pagehead h1{font-size:clamp(32px,4.4vw,54px);margin:0 0 14px;color:#fff;}
+.pagehead p{color:#C8B9A8;font-size:16.5px;line-height:1.6;max-width:58ch;margin:0;}
+
+.filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:28px;}
+.fbtn{padding:9px 18px;border-radius:999px;border:1.5px solid #DCCFBD;background:#fff;
+  font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;color:#6B5B4B;transition:.16s;}
+.fbtn:hover{border-color:var(--wood-lt);}
+.fbtn.on{background:var(--ink);color:var(--cream);border-color:var(--ink);}
+
+/* CONFIGURADOR */
+.cfg{background:var(--ink);color:var(--cream);border-radius:22px;overflow:hidden;
+  display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);}
+@media(max-width:900px){.cfg{grid-template-columns:1fr;border-radius:18px;}}
+.cfg-form{padding:clamp(24px,3.4vw,42px);background:var(--cream);color:var(--ink);}
+.cfg-side{padding:clamp(24px,3.4vw,42px);background:var(--ink);position:relative;}
+@media(min-width:901px){.cfg-side{position:sticky;top:70px;align-self:start;}}
+.cfg-step{margin-bottom:32px;}
+.cfg-step-h{display:flex;align-items:center;gap:11px;margin-bottom:15px;}
+.cfg-step-n{width:27px;height:27px;flex:0 0 27px;border-radius:9px;background:var(--ink);color:var(--wood-lt);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:'Fraunces',serif;}
+.cfg-step-h h3{margin:0;font-size:17px;}
+
+.mgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));}
+.mcard{border:1.5px solid #DCCFBD;border-radius:13px;background:#fff;cursor:pointer;
+  overflow:hidden;transition:.16s;text-align:left;padding:0;font-family:inherit;}
+.mcard:hover{border-color:var(--wood-lt);}
+.mcard.sel{border-color:var(--wood);box-shadow:0 0 0 3px rgba(194,128,60,.16);}
+.mcard img{width:100%;aspect-ratio:5/3;object-fit:cover;}
+.mcard-b{padding:10px 12px 12px;}
+.mcard-t{font-weight:700;font-size:13.5px;}
+.mcard-s{font-size:11.5px;color:#8A7663;margin-top:2px;}
+
+.sum-row{display:flex;justify-content:space-between;gap:14px;padding:11px 0;
+  border-bottom:1px solid var(--line);font-size:14px;color:#C8B9A8;}
+.sum-row b{color:var(--cream);font-weight:600;text-align:right;}
+.sum-total{margin-top:20px;padding-top:20px;border-top:2px solid var(--wood);}
+.sum-total .lbl{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--wood-lt);font-weight:700;}
+.sum-total .amt{font-family:'Fraunces',serif;font-size:clamp(30px,3.6vw,42px);color:#fff;line-height:1.1;margin-top:7px;}
+.sum-note{font-size:11.5px;color:#8A7663;margin-top:9px;line-height:1.5;}
+.anticipo{background:rgba(194,128,60,.14);border:1px solid rgba(194,128,60,.34);border-radius:13px;
+  padding:15px;margin-top:20px;}
+.anticipo .a-l{font-size:12px;color:var(--wood-lt);font-weight:600;}
+.anticipo .a-v{font-family:'Fraunces',serif;font-size:24px;color:#fff;margin-top:3px;}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(23,17,12,.72);backdrop-filter:blur(5px);
+  display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.modal.open{display:flex;}
+.modal-box{background:var(--cream);border-radius:20px;max-width:520px;width:100%;
+  max-height:90vh;overflow-y:auto;padding:clamp(24px,3.4vw,38px);position:relative;}
+.modal-x{position:absolute;top:16px;right:16px;background:none;border:0;font-size:24px;
+  cursor:pointer;color:#8A7663;line-height:1;}
+.pay-opt{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid #DCCFBD;
+  border-radius:12px;background:#fff;cursor:pointer;margin-bottom:9px;transition:.16s;}
+.pay-opt.sel{border-color:var(--wood);background:rgba(194,128,60,.07);}
+.pay-ico{width:38px;height:38px;flex:0 0 38px;border-radius:10px;background:var(--ink);
+  display:flex;align-items:center;justify-content:center;font-size:17px;}
+</style>
+</head>
+<body>
+
+<div class="demobar">Demo interactivo preparado por <b>FishFlow</b> para Santa Fe Cabins · precios de ejemplo</div>
+
+<header class="nav">
+  <div class="ff-container nav-in">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M32 12 L54 30 H48 V52 H16 V30 H10 Z" fill="#C2803C"/>
+        <rect x="22" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
+        <rect x="34" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
+        <rect x="27" y="44" width="10" height="8" rx="1.5" fill="#17110C"/>
+      </svg>
+      <span class="brand-txt">Santa Fe Cabins<small>Madera maciza · 1993</small></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="catalogo.html" class="on">Modelos</a>
+      <a href="#configurador">Cotiza tu cabaña</a>
+      <a href="rentas.html">Cabañas en renta</a>
+      <a href="panel.html">Panel</a>
+      <a href="index.html#contacto" class="btn btn-primary btn-sm">Contáctanos</a>
+    </nav>
+    <button class="burger" id="burger" onclick="toggleMenu()" aria-label="Abrir menú" aria-expanded="false">&#9776;</button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="ff-container">
+      <a href="index.html">Inicio</a>
+      <a href="catalogo.html">Modelos</a>
+      <a href="#configurador">Cotiza tu cabaña</a>
+      <a href="rentas.html">Cabañas en renta</a>
+      <a href="panel.html">Panel del dueño</a>
+      <a href="index.html#contacto">Contáctanos</a>
+    </div>
+  </div>
+</header>
+
+<section class="pagehead">
+  <div class="ff-container">
+    <span class="eyebrow">Catálogo 2026</span>
+    <h1>Más de 50 modelos.<br>Uno es el tuyo.</h1>
+    <p>Desde la cabaña de recreo de 20 m² hasta la residencia de dos niveles de 200 m². Todos en madera maciza, con diseño computarizado e instalación en un día.</p>
+  </div>
+</section>
+
+<!-- CATÁLOGO -->
+<section class="sec">
+  <div class="ff-container">
+    <div class="filters">
+      <button class="fbtn on" onclick="filtrar('todos',this)">Todos los modelos</button>
+      <button class="fbtn" onclick="filtrar('1n',this)">1 nivel</button>
+      <button class="fbtn" onclick="filtrar('2n',this)">2 niveles</button>
+      <button class="fbtn" onclick="filtrar('chico',this)">Hasta 45 m²</button>
+      <button class="fbtn" onclick="filtrar('grande',this)">100 m² o más</button>
+    </div>
+    <div class="ff-grid ff-grid--md" id="catalogo"></div>
+    <p style="font-size:12px;color:#8A7663;margin-top:20px">Precios de ejemplo construidos para este demo. Se sustituyen por la lista real de Santa Fe Cabins antes de publicar.</p>
+  </div>
+</section>
+
+<!-- CONFIGURADOR -->
+<section class="sec sec-cream" id="configurador">
+  <div class="ff-container">
+    <span class="eyebrow">Cotizador en línea</span>
+    <h2 class="ff-h2 mt0" style="margin-bottom:12px">Arma tu cabaña y mira el precio en vivo</h2>
+    <p class="lede" style="margin-bottom:32px">Cada cambio actualiza el estimado al instante. Cuando estés listo, apartas con el 30% y bloqueamos tu lugar en la línea de producción.</p>
+
+    <div class="cfg">
+      <div class="cfg-form">
+        <!-- paso 1 -->
+        <div class="cfg-step">
+          <div class="cfg-step-h"><span class="cfg-step-n">1</span><h3>Elige tu modelo</h3></div>
+          <div class="mgrid" id="cfgModelos"></div>
+        </div>
+        <!-- paso 2 -->
+        <div class="cfg-step">
+          <div class="cfg-step-h"><span class="cfg-step-n">2</span><h3>Nivel de acabados</h3></div>
+          <div class="ff-grid ff-grid--sm" style="--ff-gap:10px" id="cfgAcabados"></div>
+        </div>
+        <!-- paso 3 -->
+        <div class="cfg-step">
+          <div class="cfg-step-h"><span class="cfg-step-n">3</span><h3>Extras</h3></div>
+          <div class="ff-grid" style="--ff-min:230px;--ff-gap:10px" id="cfgExtras"></div>
+        </div>
+        <!-- paso 4 -->
+        <div class="cfg-step" style="margin-bottom:0">
+          <div class="cfg-step-h"><span class="cfg-step-n">4</span><h3>¿Dónde la instalamos?</h3></div>
+          <label class="fld"><span>Zona de entrega</span>
+            <select class="inp" id="cfgZona" onchange="calcular()"></select>
+          </label>
+        </div>
+      </div>
+
+      <aside class="cfg-side">
+        <span class="eyebrow">Tu cotización</span>
+        <h3 style="color:#fff;margin:0 0 18px;font-size:20px" id="sumTitulo">Modelo SFC60</h3>
+        <div id="sumDetalle"></div>
+        <div class="sum-total">
+          <div class="lbl">Precio estimado</div>
+          <div class="amt" id="sumTotal">$0</div>
+          <div class="sum-note">Incluye fabricación, transporte e instalación. No incluye cimentación, permisos ni conexiones municipales. Vigencia 30 días.</div>
+        </div>
+        <div class="anticipo">
+          <div class="a-l">Apartas hoy con el 30%</div>
+          <div class="a-v" id="sumAnticipo">$0</div>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top:18px" onclick="abrirApartado()">Apartar mi cabaña &rarr;</button>
+        <button class="btn btn-ghost btn-block" style="margin-top:9px" onclick="alert('En el sitio real: se genera el PDF de la cotización y se envía por correo y WhatsApp, y el prospecto entra al panel de Erick.')">Enviarme esta cotización</button>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- MODAL APARTADO -->
+<div class="modal" id="modalPago">
+  <div class="modal-box">
+    <button class="modal-x" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
+    <div id="pagoPaso1">
+      <span class="eyebrow">Apartado</span>
+      <h2 style="margin:0 0 10px;font-size:25px">Aparta tu <span id="pagoModelo">cabaña</span></h2>
+      <p style="color:#6B5B4B;font-size:14.5px;line-height:1.55;margin:0 0 22px">Con el anticipo bloqueamos tu lugar en producción y agendamos la visita técnica a tu terreno. Reembolsable si la visita determina que el terreno no es viable.</p>
+      <div style="background:#fff;border:1px solid var(--line-dk);border-radius:13px;padding:17px;margin-bottom:22px">
+        <div style="display:flex;justify-content:space-between;font-size:14px;color:#6B5B4B;padding-bottom:9px">
+          <span>Precio estimado</span><b id="pagoTotal">$0</b></div>
+        <div style="display:flex;justify-content:space-between;font-size:15px;padding-top:11px;border-top:1px solid var(--line-dk)">
+          <span style="font-weight:600">Anticipo 30%</span>
+          <b id="pagoAnticipo" style="color:var(--wood);font-family:'Fraunces',serif;font-size:21px">$0</b></div>
+      </div>
+      <label class="fld"><span>Nombre completo</span><input class="inp" id="pgNombre" placeholder="Tu nombre"></label>
+      <label class="fld"><span>WhatsApp</span><input class="inp" placeholder="55 0000 0000"></label>
+      <div style="font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#8A7663;margin:18px 0 9px">Forma de pago</div>
+      <div class="pay-opt sel" onclick="selPago(this)"><div class="pay-ico">💳</div><div><div style="font-weight:600;font-size:14px">Tarjeta de crédito o débito</div><div style="font-size:12px;color:#8A7663">Hasta 12 meses sin intereses</div></div></div>
+      <div class="pay-opt" onclick="selPago(this)"><div class="pay-ico">🏪</div><div><div style="font-weight:600;font-size:14px">Efectivo en OXXO</div><div style="font-size:12px;color:#8A7663">Referencia válida 3 días</div></div></div>
+      <div class="pay-opt" onclick="selPago(this)"><div class="pay-ico">🏦</div><div><div style="font-weight:600;font-size:14px">Transferencia SPEI</div><div style="font-size:12px;color:#8A7663">CLABE a tu nombre</div></div></div>
+      <button class="btn btn-primary btn-block" style="margin-top:20px" onclick="confirmarPago()">Pagar anticipo</button>
+      <p style="font-size:11.5px;color:#8A7663;text-align:center;margin:13px 0 0">Demo · no se procesa ningún cobro real</p>
+    </div>
+    <div id="pagoPaso2" style="display:none;text-align:center;padding:22px 0">
+      <div style="font-size:52px">🏡</div>
+      <h2 style="margin:14px 0 10px;font-size:25px">¡Tu cabaña está apartada!</h2>
+      <p style="color:#6B5B4B;font-size:14.5px;line-height:1.6;margin:0 0 22px">Te llegó el comprobante por correo y WhatsApp. Erick recibe la notificación en su panel y te contacta en menos de 24 h para agendar la visita técnica.</p>
+      <div style="background:#fff;border:1px solid var(--line-dk);border-radius:13px;padding:17px;text-align:left;font-size:14px">
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#8A7663">Folio</span><b>SFC-2026-0447</b></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#8A7663">Visita técnica</span><b>Por agendar</b></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#8A7663">Entrega estimada</span><b>14-19 semanas</b></div>
+      </div>
+      <button class="btn btn-dark btn-block" style="margin-top:20px" onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="ff-container">
+    <div class="foot-btm" style="margin-top:0;border-top:0;padding-top:0">
+      <span>© 2026 Santa Fe Cabins · Casas Bozzo de México S.A. de C.V.</span>
+      <span>Demo construido por FishFlow · fishflow.mx</span>
+    </div>
+  </div>
+</footer>
+
+<script src="sfc.js"></script>
+<script>
+/* ---------- DATOS ---------- */
+var MODELOS = [
+  {id:'SFC20', m2:20,  niveles:1, rec:1, pers:'2',    precio:245000,  img:'img/Modelo-SFC20.jpg'},
+  {id:'SFC30', m2:30,  niveles:1, rec:1, pers:'2-3',  precio:355000,  img:'img/SC20.jpg'},
+  {id:'SFC35', m2:35,  niveles:1, rec:2, pers:'4',    precio:410000,  img:'img/imagen-destacadaSFC35.jpg'},
+  {id:'SFC40', m2:40,  niveles:1, rec:2, pers:'4',    precio:470000,  img:'img/SFC402.jpg'},
+  {id:'SFC45', m2:45,  niveles:1, rec:2, pers:'4-5',  precio:525000,  img:'img/imagen-destacadaSFC45.jpg'},
+  {id:'SFC60', m2:60,  niveles:1, rec:2, pers:'4-6',  precio:690000,  img:'img/Modelo-SFC60.jpg'},
+  {id:'SFC70', m2:70,  niveles:1, rec:3, pers:'6',    precio:800000,  img:'img/Modelo-SFC70.jpg'},
+  {id:'SFC80', m2:80,  niveles:1, rec:3, pers:'6',    precio:890000,  img:'img/Modelo-SFC80.jpg'},
+  {id:'SFC100',m2:100, niveles:1, rec:3, pers:'6-8',  precio:1095000, img:'img/Modelo-SFC100.jpg'},
+  {id:'SFC60-2N', m2:60, niveles:2, rec:2, pers:'4-6', precio:715000,  img:'img/SFC60-2N1.jpg'},
+  {id:'SFC80-2N', m2:80, niveles:2, rec:3, pers:'6-8', precio:920000,  img:'img/802N.jpg'},
+  {id:'SFC90-2N', m2:90, niveles:2, rec:3, pers:'8',   precio:1030000, img:'img/90-2N.jpg'},
+  {id:'SFC120',m2:120, niveles:2, rec:4, pers:'8-10', precio:1340000, img:'img/120.jpg'},
+  {id:'SFC160',m2:160, niveles:2, rec:4, pers:'10-12',precio:1760000, img:'img/160.jpg'},
+  {id:'SFC200',m2:200, niveles:2, rec:5, pers:'12+',  precio:2180000, img:'img/200.jpg'}
+];
+
+var ACABADOS = [
+  {id:'esencial', t:'Esencial', s:'Duela de pino, cocina básica', f:1.00},
+  {id:'confort',  t:'Confort',  s:'Cocina integral, piso laminado', f:1.14},
+  {id:'premium',  t:'Premium',  s:'Encino, cantería y granito',    f:1.30}
+];
+
+var EXTRAS = [
+  {id:'terraza',  t:'Terraza techada',        s:'12 m² con barandal de troncos', p:78000},
+  {id:'aisl',     t:'Aislamiento reforzado',  s:'Para clima de montaña',         p:52000},
+  {id:'vidrio',   t:'Ventanal doble vidrio',  s:'Termoacústico',                 p:64000},
+  {id:'chimenea', t:'Chimenea de leña',       s:'Con base de piedra',            p:46000},
+  {id:'solar',    t:'Paquete solar',          s:'3 kW + boiler solar',           p:112000},
+  {id:'cochera',  t:'Cochera techada',        s:'Para un auto',                  p:58000}
+];
+
+var ZONAS = [
+  {id:'cdmx',   t:'CDMX y Estado de México (flete incluido)', p:0},
+  {id:'centro', t:'Puebla, Morelos, Hidalgo, Tlaxcala, Querétaro', p:28000},
+  {id:'resto',  t:'Resto del país', p:65000},
+  {id:'lejos',  t:'Península de Yucatán / frontera norte', p:110000}
+];
+
+/* ---------- ESTADO ---------- */
+var sel = {modelo:'SFC60', acabado:'confort', extras:['terraza'], zona:'cdmx'};
+
+/* ---------- CATÁLOGO ---------- */
+function pintarCatalogo(filtro){
+  var lista = MODELOS.filter(function(m){
+    if(filtro==='1n') return m.niveles===1;
+    if(filtro==='2n') return m.niveles===2;
+    if(filtro==='chico') return m.m2<=45;
+    if(filtro==='grande') return m.m2>=100;
+    return true;
+  });
+  document.getElementById('catalogo').innerHTML = lista.map(function(m){
+    return '<article class="card">'
+      + '<img class="card-img" src="'+m.img+'" alt="Modelo '+m.id+'" loading="lazy">'
+      + '<div class="card-body">'
+      + '<span class="chip'+(m.niveles===2?' chip-forest':'')+'">'+m.niveles+' nivel'+(m.niveles===2?'es':'')+'</span>'
+      + '<h3 style="margin-top:10px">Modelo '+m.id+'</h3>'
+      + '<p>'+m.m2+' m² · '+m.rec+' recámara'+(m.rec>1?'s':'')+' · hasta '+m.pers+' personas</p>'
+      + '<div class="row" style="justify-content:space-between;margin-top:14px">'
+      + '<span class="mprice" style="font-family:Fraunces,serif;font-size:18px;color:var(--wood)">desde '+mxn(m.precio)+'</span>'
+      + '<button class="btn btn-primary btn-sm" onclick="cotizar(\''+m.id+'\')">Cotizar</button>'
+      + '</div></div></article>';
+  }).join('');
+}
+function filtrar(f, btn){
+  document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  pintarCatalogo(f);
+}
+function cotizar(id){
+  sel.modelo = id;
+  pintarConfig(); calcular();
+  document.getElementById('configurador').scrollIntoView({behavior:'smooth'});
+}
+
+/* ---------- CONFIGURADOR ---------- */
+function pintarConfig(){
+  document.getElementById('cfgModelos').innerHTML = MODELOS.map(function(m){
+    return '<button class="mcard'+(sel.modelo===m.id?' sel':'')+'" onclick="setModelo(\''+m.id+'\')">'
+      + '<img src="'+m.img+'" alt="'+m.id+'" loading="lazy">'
+      + '<div class="mcard-b"><div class="mcard-t">'+m.id+'</div>'
+      + '<div class="mcard-s">'+m.m2+' m² · '+m.niveles+'N</div></div></button>';
+  }).join('');
+
+  document.getElementById('cfgAcabados').innerHTML = ACABADOS.map(function(a){
+    return '<label class="opt'+(sel.acabado===a.id?' sel':'')+'">'
+      + '<input type="radio" name="acab" '+(sel.acabado===a.id?'checked':'')+' onchange="setAcabado(\''+a.id+'\')">'
+      + '<span><span class="opt-t">'+a.t+'</span><span class="opt-s">'+a.s+'</span></span></label>';
+  }).join('');
+
+  document.getElementById('cfgExtras').innerHTML = EXTRAS.map(function(e){
+    var on = sel.extras.indexOf(e.id)>-1;
+    return '<label class="opt'+(on?' sel':'')+'">'
+      + '<input type="checkbox" '+(on?'checked':'')+' onchange="toggleExtra(\''+e.id+'\')">'
+      + '<span style="flex:1"><span class="opt-t">'+e.t+'</span><span class="opt-s">'+e.s+' · +'+mxn(e.p)+'</span></span></label>';
+  }).join('');
+
+  var z = document.getElementById('cfgZona');
+  if(!z.options.length){
+    z.innerHTML = ZONAS.map(function(zz){return '<option value="'+zz.id+'">'+zz.t+'</option>';}).join('');
+  }
+  z.value = sel.zona;
+}
+function setModelo(id){ sel.modelo=id; pintarConfig(); calcular(); }
+function setAcabado(id){ sel.acabado=id; pintarConfig(); calcular(); }
+function toggleExtra(id){
+  var i = sel.extras.indexOf(id);
+  if(i>-1) sel.extras.splice(i,1); else sel.extras.push(id);
+  pintarConfig(); calcular();
+}
+
+function calcular(){
+  sel.zona = document.getElementById('cfgZona').value || sel.zona;
+  var m = MODELOS.find(function(x){return x.id===sel.modelo;});
+  var a = ACABADOS.find(function(x){return x.id===sel.acabado;});
+  var z = ZONAS.find(function(x){return x.id===sel.zona;});
+
+  var base = m.precio;
+  var conAcabado = base * a.f;
+  var deltaAcabado = conAcabado - base;
+  var sumExtras = 0, filasExtras = '';
+  sel.extras.forEach(function(id){
+    var e = EXTRAS.find(function(x){return x.id===id;});
+    if(e){ sumExtras += e.p; filasExtras += '<div class="sum-row"><span>'+e.t+'</span><b>+'+mxn(e.p)+'</b></div>'; }
+  });
+  var total = conAcabado + sumExtras + z.p;
+
+  document.getElementById('sumTitulo').textContent = 'Modelo '+m.id;
+  document.getElementById('sumDetalle').innerHTML =
+      '<div class="sum-row"><span>Base '+m.m2+' m² · '+m.niveles+' nivel'+(m.niveles===2?'es':'')+'</span><b>'+mxn(base)+'</b></div>'
+    + '<div class="sum-row"><span>Acabado '+a.t+'</span><b>'+(deltaAcabado>0?'+'+mxn(deltaAcabado):'incluido')+'</b></div>'
+    + filasExtras
+    + '<div class="sum-row"><span>Transporte e instalación</span><b>'+(z.p>0?'+'+mxn(z.p):'incluido')+'</b></div>';
+  document.getElementById('sumTotal').textContent = mxn(total);
+  document.getElementById('sumAnticipo').textContent = mxn(total*0.30);
+  window._total = total;
+}
+
+/* ---------- MODAL ---------- */
+function abrirApartado(){
+  document.getElementById('pagoModelo').textContent = 'modelo '+sel.modelo;
+  document.getElementById('pagoTotal').textContent = mxn(window._total);
+  document.getElementById('pagoAnticipo').textContent = mxn(window._total*0.30);
+  document.getElementById('pagoPaso1').style.display='block';
+  document.getElementById('pagoPaso2').style.display='none';
+  document.getElementById('modalPago').classList.add('open');
+}
+function cerrarModal(){ document.getElementById('modalPago').classList.remove('open'); }
+function selPago(el){
+  document.querySelectorAll('.pay-opt').forEach(function(p){p.classList.remove('sel');});
+  el.classList.add('sel');
+}
+function confirmarPago(){
+  document.getElementById('pagoPaso1').style.display='none';
+  document.getElementById('pagoPaso2').style.display='block';
+}
+document.getElementById('modalPago').addEventListener('click', function(e){
+  if(e.target===this) cerrarModal();
+});
+
+/* ---------- INIT ---------- */
+pintarCatalogo('todos');
+pintarConfig();
+calcular();
+</script>
+</body>
+</html>

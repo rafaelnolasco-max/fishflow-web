@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel del dueño — Santa Fe Cabins</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="sfc.css">
+<style>
+body{background:#12100E;color:var(--cream);}
+.pnl{padding:28px 0 70px;}
+.pnl-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;
+  flex-wrap:wrap;margin-bottom:26px;}
+.pnl-head h1{margin:0;font-size:clamp(24px,3vw,34px);color:#fff;}
+.pnl-head p{margin:6px 0 0;font-size:14px;color:#A79582;}
+
+.tabs{display:flex;gap:7px;background:var(--ink-2);padding:5px;border-radius:13px;
+  border:1px solid var(--line);margin-bottom:24px;flex-wrap:wrap;}
+.tab{flex:1;min-width:130px;padding:11px 16px;border-radius:9px;border:0;background:none;
+  color:#A79582;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:.16s;}
+.tab:hover{color:var(--cream);}
+.tab.on{background:var(--wood);color:#1A1109;}
+
+.kpi{background:var(--ink-2);border:1px solid var(--line);border-radius:15px;padding:19px;}
+.kpi-l{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:#8A7663;font-weight:700;}
+.kpi-v{font-family:'Fraunces',serif;font-size:clamp(24px,2.6vw,31px);color:#fff;line-height:1.1;margin-top:9px;}
+.kpi-d{font-size:12px;margin-top:7px;color:#8A7663;}
+.up{color:#5FBF8C;}.down{color:#E08A6B;}
+
+.box{background:var(--ink-2);border:1px solid var(--line);border-radius:16px;padding:21px;margin-bottom:18px;}
+.box h3{margin:0 0 4px;font-size:16.5px;color:#fff;}
+.box .bsub{font-size:12.5px;color:#8A7663;margin:0 0 17px;}
+
+/* tape chart */
+.tape{font-size:11px;}
+.tape-row{display:grid;grid-template-columns:118px repeat(30,minmax(13px,1fr));gap:2px;
+  align-items:center;margin-bottom:3px;}
+.tape-name{font-size:11.5px;color:#C8B9A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  padding-right:7px;font-weight:500;}
+.tape-c{height:22px;border-radius:3px;background:rgba(255,255,255,.05);}
+.tape-c.b{background:var(--wood);}
+.tape-c.w{background:var(--forest-lt);}
+.tape-hd{font-size:9px;color:#8A7663;text-align:center;height:auto;background:none;}
+
+.pnl-table td{border-bottom:1px solid var(--line);color:#C8B9A8;}
+.pnl-table th{color:#8A7663;border-bottom:1.5px solid var(--line);}
+.pnl-table tbody tr:hover{background:rgba(194,128,60,.07);}
+.pnl-table b{color:#fff;font-weight:600;}
+
+.bar-row{display:flex;align-items:center;gap:11px;margin-bottom:11px;font-size:13px;}
+.bar-n{width:118px;flex:0 0 118px;color:#C8B9A8;font-size:12.5px;}
+.bar-t{flex:1;height:9px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;}
+.bar-f{height:100%;background:linear-gradient(90deg,var(--wood),var(--wood-lt));border-radius:99px;}
+.bar-v{width:78px;text-align:right;color:#fff;font-weight:600;font-size:12.5px;}
+
+.stage{display:inline-flex;padding:4px 11px;border-radius:999px;font-size:11px;font-weight:600;}
+.s1{background:rgba(103,212,232,.14);color:#7FD2E4;}
+.s2{background:rgba(194,128,60,.18);color:#E0A76A;}
+.s3{background:rgba(62,155,109,.18);color:#6FD3A2;}
+.s4{background:rgba(255,255,255,.09);color:#B5A492;}
+
+.alert{display:flex;gap:12px;align-items:flex-start;background:rgba(194,128,60,.11);
+  border:1px solid rgba(194,128,60,.30);border-radius:13px;padding:14px 16px;margin-bottom:11px;font-size:13.5px;line-height:1.5;color:#D8CBBA;}
+.alert b{color:#fff;}
+.pane{display:none;}
+.pane.on{display:block;}
+</style>
+</head>
+<body>
+
+<div class="demobar">Demo del <b>panel privado de Erick</b> · construido por FishFlow · datos de ejemplo</div>
+
+<header class="nav">
+  <div class="ff-container nav-in">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M32 12 L54 30 H48 V52 H16 V30 H10 Z" fill="#C2803C"/>
+        <rect x="22" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
+        <rect x="34" y="34" width="8" height="8" rx="1.5" fill="#17110C"/>
+        <rect x="27" y="44" width="10" height="8" rx="1.5" fill="#17110C"/>
+      </svg>
+      <span class="brand-txt">Santa Fe Cabins<small>Panel del dueño</small></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Sitio público</a>
+      <a href="catalogo.html">Modelos</a>
+      <a href="rentas.html">Cabañas en renta</a>
+      <a href="panel.html" class="on">Panel</a>
+    </nav>
+    <button class="burger" id="burger" onclick="toggleMenu()" aria-label="Abrir menú" aria-expanded="false">&#9776;</button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="ff-container">
+      <a href="index.html">Sitio público</a>
+      <a href="catalogo.html">Modelos</a>
+      <a href="rentas.html">Cabañas en renta</a>
+      <a href="panel.html">Panel del dueño</a>
+    </div>
+  </div>
+</header>
+
+<div class="pnl">
+  <div class="ff-container">
+
+    <div class="pnl-head">
+      <div>
+        <h1>Buenos días, Erick</h1>
+        <p>Julio 2026 · Todo lo de la fábrica y las cabañas en una sola pantalla</p>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-sm" onclick="alert('Demo: exporta el corte del mes en Excel o PDF.')">Descargar corte del mes</button>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="alert">
+      <span style="font-size:17px">🔔</span>
+      <div><b>3 llegadas hoy.</b> Ocote (2 pers, 3 pm), Cedro (5 pers, 4 pm) y Mirador (8 pers, 6 pm). Las instrucciones de acceso ya salieron por WhatsApp automáticamente.</div>
+    </div>
+    <div class="alert" style="background:rgba(62,155,109,.11);border-color:rgba(62,155,109,.30)">
+      <span style="font-size:17px">💰</span>
+      <div><b>Anticipo recibido.</b> Marisol Vega apartó un SFC60 acabado Confort — $283,050 acreditados. Falta agendar visita técnica en Amecameca.</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab on" onclick="tab('hosp',this)">🌲 Hospedaje Zacatlán</button>
+      <button class="tab" onclick="tab('vta',this)">🏡 Venta de cabañas</button>
+      <button class="tab" onclick="tab('cruce',this)">🔁 Huésped → Comprador</button>
+    </div>
+
+    <!-- ========== HOSPEDAJE ========== -->
+    <div class="pane on" id="pane-hosp">
+      <div class="ff-grid ff-grid--sm" style="margin-bottom:18px">
+        <div class="kpi"><div class="kpi-l">Ingreso del mes</div><div class="kpi-v">$412,850</div><div class="kpi-d"><span class="up">▲ 18%</span> vs. junio</div></div>
+        <div class="kpi"><div class="kpi-l">Ocupación</div><div class="kpi-v">61%</div><div class="kpi-d"><span class="up">▲ 9 pts</span> vs. junio</div></div>
+        <div class="kpi"><div class="kpi-l">Noches vendidas</div><div class="kpi-v">151</div><div class="kpi-d">de 248 disponibles</div></div>
+        <div class="kpi"><div class="kpi-l">Tarifa promedio</div><div class="kpi-v">$2,734</div><div class="kpi-d">por noche</div></div>
+        <div class="kpi"><div class="kpi-l">Reserva directa</div><div class="kpi-v">100%</div><div class="kpi-d"><span class="up">$63,990</span> no pagados en comisión</div></div>
+      </div>
+
+      <div class="box">
+        <h3>Ocupación por cabaña · julio</h3>
+        <p class="bsub">Cada celda es una noche. Ámbar = ocupada, verde = llegada hoy.</p>
+        <div class="ff-tablewrap" style="--ff-tablemin:640px">
+          <div class="tape" id="tape" style="min-width:640px"></div>
+        </div>
+      </div>
+
+      <div class="ff-grid" style="--ff-min:290px">
+        <div class="box">
+          <h3>Ingreso por cabaña</h3>
+          <p class="bsub">Julio 2026</p>
+          <div id="barras"></div>
+        </div>
+        <div class="box">
+          <h3>Próximas llegadas</h3>
+          <p class="bsub">Siguientes 7 días</p>
+          <div class="ff-tablewrap">
+            <table class="pnl-table">
+              <thead><tr><th>Huésped</th><th>Cabaña</th><th>Llega</th><th>Noches</th><th style="text-align:right">Total</th></tr></thead>
+              <tbody>
+                <tr><td><b>Familia Rentería</b></td><td>Bosque Alto</td><td>Vie 31</td><td>3</td><td style="text-align:right"><b>$21,330</b></td></tr>
+                <tr><td><b>Diana Escalante</b></td><td>Niebla</td><td>Vie 31</td><td>2</td><td style="text-align:right"><b>$8,820</b></td></tr>
+                <tr><td><b>Grupo Ibarra</b></td><td>Mirador</td><td>Sáb 1</td><td>2</td><td style="text-align:right"><b>$12,870</b></td></tr>
+                <tr><td><b>Luis Pantoja</b></td><td>Encino</td><td>Sáb 1</td><td>1</td><td style="text-align:right"><b>$3,555</b></td></tr>
+                <tr><td><b>Mónica Ruvalcaba</b></td><td>Manantial</td><td>Dom 2</td><td>4</td><td style="text-align:right"><b>$11,050</b></td></tr>
+                <tr><td><b>Retiro Sánchez</b></td><td>Abeto</td><td>Mié 5</td><td>3</td><td style="text-align:right"><b>$12,150</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== VENTA ========== -->
+    <div class="pane" id="pane-vta">
+      <div class="ff-grid ff-grid--sm" style="margin-bottom:18px">
+        <div class="kpi"><div class="kpi-l">Cotizaciones del mes</div><div class="kpi-v">47</div><div class="kpi-d">generadas en el configurador</div></div>
+        <div class="kpi"><div class="kpi-l">Prospectos calificados</div><div class="kpi-v">18</div><div class="kpi-d">con terreno confirmado</div></div>
+        <div class="kpi"><div class="kpi-l">Anticipos cobrados</div><div class="kpi-v">4</div><div class="kpi-d"><span class="up">$1.14M</span> en el mes</div></div>
+        <div class="kpi"><div class="kpi-l">Pipeline abierto</div><div class="kpi-v">$8.9M</div><div class="kpi-d">14 oportunidades vivas</div></div>
+        <div class="kpi"><div class="kpi-l">Conversión</div><div class="kpi-v">8.5%</div><div class="kpi-d">cotización → anticipo</div></div>
+      </div>
+
+      <div class="box">
+        <h3>Prospectos del configurador</h3>
+        <p class="bsub">Cada cotización que alguien arma en el sitio cae aquí, con el modelo y los extras que eligió.</p>
+        <div class="ff-tablewrap" style="--ff-tablemin:760px">
+          <table class="pnl-table">
+            <thead><tr><th>Prospecto</th><th>Modelo</th><th>Configuración</th><th>Zona</th><th>Estimado</th><th>Etapa</th></tr></thead>
+            <tbody>
+              <tr><td><b>Marisol Vega</b><br><span style="font-size:11.5px;color:#8A7663">55 1487 ····</span></td><td>SFC60</td><td>Confort + terraza + chimenea</td><td>Amecameca</td><td><b>$943,500</b></td><td><span class="stage s3">Anticipo pagado</span></td></tr>
+              <tr><td><b>Rodrigo Herrera</b><br><span style="font-size:11.5px;color:#8A7663">222 310 ····</span></td><td>SFC120</td><td>Premium + solar + cochera</td><td>Puebla</td><td><b>$1,912,000</b></td><td><span class="stage s2">Visita técnica</span></td></tr>
+              <tr><td><b>Claudia Nieto</b><br><span style="font-size:11.5px;color:#8A7663">55 2290 ····</span></td><td>SFC40</td><td>Esencial + aislamiento</td><td>Valle de Bravo</td><td><b>$550,000</b></td><td><span class="stage s2">Visita técnica</span></td></tr>
+              <tr><td><b>Grupo Tepoztlán</b><br><span style="font-size:11.5px;color:#8A7663">739 118 ····</span></td><td>SFC80 ×3</td><td>Confort + terraza (proyecto hotelero)</td><td>Morelos</td><td><b>$3,240,000</b></td><td><span class="stage s2">Cotización enviada</span></td></tr>
+              <tr><td><b>Enrique Badillo</b><br><span style="font-size:11.5px;color:#8A7663">55 6704 ····</span></td><td>SFC100</td><td>Premium + doble vidrio + solar</td><td>Mazamitla</td><td><b>$1,708,500</b></td><td><span class="stage s1">Nuevo</span></td></tr>
+              <tr><td><b>Paola Guzmán</b><br><span style="font-size:11.5px;color:#8A7663">55 8823 ····</span></td><td>SFC35</td><td>Esencial (oficina de jardín)</td><td>CDMX</td><td><b>$410,000</b></td><td><span class="stage s1">Nuevo</span></td></tr>
+              <tr><td><b>Javier Olmos</b><br><span style="font-size:11.5px;color:#8A7663">998 442 ····</span></td><td>SFC45</td><td>Confort + terraza</td><td>Tulum</td><td><b>$708,500</b></td><td><span class="stage s4">Sin terreno aún</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="ff-grid" style="--ff-min:290px">
+        <div class="box">
+          <h3>Modelos más cotizados</h3>
+          <p class="bsub">Últimos 90 días · qué está buscando el mercado</p>
+          <div id="barrasModelos"></div>
+        </div>
+        <div class="box">
+          <h3>De dónde llegan los prospectos</h3>
+          <p class="bsub">Origen del tráfico que sí cotiza</p>
+          <div id="barrasOrigen"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== CRUCE ========== -->
+    <div class="pane" id="pane-cruce">
+      <div class="box" style="background:linear-gradient(135deg,var(--forest),#1E4232);border-color:rgba(255,255,255,.13)">
+        <h3 style="font-size:21px">El circuito que ninguna plataforma te puede dar</h3>
+        <p style="color:#CFE0D6;font-size:14.5px;line-height:1.65;margin:8px 0 0;max-width:64ch">Cuando alguien se hospeda en Zacatlán ya probó el producto: durmió adentro, sintió el aislamiento, vio los acabados. Es el prospecto mejor calificado que existe para la fábrica. El sistema lo detecta solo y le da seguimiento.</p>
+      </div>
+
+      <div class="ff-grid ff-grid--sm" style="margin-bottom:18px">
+        <div class="kpi"><div class="kpi-l">Huéspedes del año</div><div class="kpi-v">386</div><div class="kpi-d">base de prospectos calificados</div></div>
+        <div class="kpi"><div class="kpi-l">Pidieron catálogo</div><div class="kpi-v">64</div><div class="kpi-d">16.6% de los huéspedes</div></div>
+        <div class="kpi"><div class="kpi-l">Cotizaron</div><div class="kpi-v">21</div><div class="kpi-d">tras hospedarse</div></div>
+        <div class="kpi"><div class="kpi-l">Compraron</div><div class="kpi-v">3</div><div class="kpi-d"><span class="up">$2.4M</span> facturados</div></div>
+      </div>
+
+      <div class="box">
+        <h3>Huéspedes con intención de compra</h3>
+        <p class="bsub">Se hospedaron y después entraron al configurador. El correo de seguimiento sale solo 5 días después del check-out.</p>
+        <div class="ff-tablewrap" style="--ff-tablemin:700px">
+          <table class="pnl-table">
+            <thead><tr><th>Huésped</th><th>Se hospedó en</th><th>Cotizó</th><th>Estancia (a favor)</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr><td><b>Marisol Vega</b></td><td>Niebla · 3 noches (mayo)</td><td>SFC60 Confort</td><td><b>$9,180</b></td><td><span class="stage s3">Compró</span></td></tr>
+              <tr><td><b>Rodrigo Herrera</b></td><td>Mirador · 2 noches (junio)</td><td>SFC120 Premium</td><td><b>$12,420</b></td><td><span class="stage s2">Visita técnica</span></td></tr>
+              <tr><td><b>Enrique Badillo</b></td><td>Cedro · 4 noches (junio)</td><td>SFC100 Premium</td><td><b>$14,040</b></td><td><span class="stage s1">Cotizó ayer</span></td></tr>
+              <tr><td><b>Familia Rentería</b></td><td>Bosque Alto · 3 noches (abril)</td><td>SFC80-2N Confort</td><td><b>$18,900</b></td><td><span class="stage s2">Cotización enviada</span></td></tr>
+              <tr><td><b>Diana Escalante</b></td><td>Ocote · 2 noches (julio)</td><td>SFC35 Esencial</td><td><b>$5,805</b></td><td><span class="stage s1">Nuevo</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="ff-container">
+    <div class="foot-btm" style="margin-top:0;border-top:0;padding-top:0">
+      <span>© 2026 Santa Fe Cabins · Panel privado</span>
+      <span>Demo construido por FishFlow · fishflow.mx</span>
+    </div>
+  </div>
+</footer>
+
+<script src="sfc.js"></script>
+<script>
+function tab(id, btn){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on');});
+  btn.classList.add('on');
+  document.getElementById('pane-'+id).classList.add('on');
+}
+
+/* --- tape chart --- */
+var CABS = ['Ocote','Encino','Manantial','Niebla','Cedro','Abeto','Mirador','Bosque Alto'];
+function ocup(nom, d){
+  var s=0, k=nom+'-jul-'+d;
+  for(var i=0;i<k.length;i++) s=(s*31+k.charCodeAt(i))%100000;
+  var dw = new Date(2026,6,d).getDay();
+  return (s%100) < ((dw===5||dw===6)?72:42);
+}
+(function(){
+  var html = '<div class="tape-row"><div class="tape-name"></div>';
+  for(var d=1; d<=30; d++) html += '<div class="tape-c tape-hd">'+d+'</div>';
+  html += '</div>';
+  CABS.forEach(function(c){
+    html += '<div class="tape-row"><div class="tape-name">'+c+'</div>';
+    for(var d=1; d<=30; d++){
+      var o = ocup(c,d);
+      var hoy = (d===28 && (c==='Ocote'||c==='Cedro'||c==='Mirador'));
+      html += '<div class="tape-c'+(hoy?' w':(o?' b':''))+'"></div>';
+    }
+    html += '</div>';
+  });
+  document.getElementById('tape').innerHTML = html;
+})();
+
+/* --- barras --- */
+function barras(el, datos){
+  var max = Math.max.apply(null, datos.map(function(d){return d[1];}));
+  document.getElementById(el).innerHTML = datos.map(function(d){
+    return '<div class="bar-row"><div class="bar-n">'+d[0]+'</div>'
+      + '<div class="bar-t"><div class="bar-f" style="width:'+Math.round(d[1]/max*100)+'%"></div></div>'
+      + '<div class="bar-v">'+d[2]+'</div></div>';
+  }).join('');
+}
+barras('barras', [
+  ['Bosque Alto', 78400, '$78,400'],
+  ['Mirador',     71250, '$71,250'],
+  ['Abeto',       58600, '$58,600'],
+  ['Cedro',       49900, '$49,900'],
+  ['Niebla',      47300, '$47,300'],
+  ['Manantial',   41200, '$41,200'],
+  ['Encino',      35100, '$35,100'],
+  ['Ocote',       31100, '$31,100']
+]);
+barras('barrasModelos', [
+  ['SFC60',   14, '14 cotiz.'],
+  ['SFC40',   9,  '9 cotiz.'],
+  ['SFC80-2N',7,  '7 cotiz.'],
+  ['SFC100',  6,  '6 cotiz.'],
+  ['SFC35',   6,  '6 cotiz.'],
+  ['SFC120',  5,  '5 cotiz.']
+]);
+barras('barrasOrigen', [
+  ['Búsqueda Google',  21, '21'],
+  ['Huéspedes Zacatlán',11,'11'],
+  ['Facebook / IG',     8, '8'],
+  ['Recomendación',     5, '5'],
+  ['Directo',           2, '2']
+]);
+</script>
+</body>
+</html>
