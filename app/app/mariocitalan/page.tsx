@@ -17,26 +17,37 @@ import { useRouter } from "next/navigation";
 import { supabase, CRITERIO_CLIENT_ID } from "@/lib/supabase";
 import type { CriterioLead } from "@/lib/supabase";
 import {
-  DashboardHeader, TabBar, StatGrid, StatCard, Chip, Empty, Modal, Field, Toast,
+  TabBar, StatGrid, StatCard, Chip, Empty, Modal, Field, Toast,
   Section as DSection,
   cardStyle as mkCard,
   inputStyle as mkInput,
   type DashTheme,
 } from "@/components/dashboard";
 
-// ─── Paleta Mario Citalán (azul editorial + carbón, del sitio público) ─────────
+// ─── Paleta y tipografía de mariocitalan.net (mismas variables del sitio) ──────
 const C = {
-  bg:       "#F4F7FA",
-  white:    "#FFFFFF",
-  blue:     "#3E86CF",
-  blueDark: "#2A6AAE",
+  bg:       "#F4F7FA",  // --paper
+  bg2:      "#E7EEF4",  // --paper-2
+  white:    "#FFFFFF",  // --bone
+  blue:     "#3E86CF",  // --accent
+  blueDark: "#2A6AAE",  // --accent-deep
   blueSoft: "#E8F0F9",
-  ink:      "#0F1A24",
-  muted:    "#7B8794",
-  border:   "#DCE4EC",
+  steel:    "#1F4E79",  // --steel
+  ink:      "#0F1A24",  // --ink
+  ink2:     "#283845",  // --ink-2
+  muted:    "#7B8794",  // --muted
+  border:   "#DCE4EC",  // --rule
   red:      "#D64545",
   gray:     "#9CA3AF",
 } as const;
+
+// Fraunces para títulos, JetBrains Mono para etiquetas, Inter para el cuerpo:
+// exactamente el trío del sitio público, para que el panel se sienta suyo.
+const FONT_SERIF = '"Fraunces", Georgia, serif';
+const FONT_MONO  = '"JetBrains Mono", ui-monospace, monospace';
+const FONT_BODY  = '"Inter", system-ui, sans-serif';
+const FONTS_HREF =
+  "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap";
 
 const T: DashTheme = {
   accent: C.blue, accentDark: C.blueDark, accentSoft: C.blueSoft,
@@ -55,6 +66,22 @@ const selectStyle: React.CSSProperties = {
   padding: "7px 11px", borderRadius: 8, border: `1px solid ${C.border}`,
   fontSize: 13, fontFamily: "inherit", background: C.white, color: C.ink, cursor: "pointer",
 };
+
+// Etiqueta monoespaciada en versalitas, como los "eyebrow" del sitio
+const eyebrowStyle: React.CSSProperties = {
+  fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: ".24em",
+  textTransform: "uppercase", color: C.blueDark,
+};
+
+// Ornamento línea + diamante que usa el sitio bajo cada eyebrow
+function Ornament() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 11, color: C.blueDark, marginTop: 9 }}>
+      <span style={{ width: 46, height: 1, background: C.blueDark }} />
+      <span style={{ width: 6, height: 6, background: C.blueDark, transform: "rotate(45deg)" }} />
+    </div>
+  );
+}
 
 // ─── Embudo de seguimiento ─────────────────────────────────────────────────────
 const LEAD_STATUS: { id: string; label: string; bg: string; fg: string }[] = [
@@ -270,26 +297,68 @@ export default function MarioCitalanPanel() {
   const maxPerfil = stats.porPerfil[0]?.[1] ?? 1;
 
   return (
-    <div style={{ minHeight: "100vh", background: C.bg, color: C.ink,
-      fontFamily: "Inter, system-ui, sans-serif" }}>
-      <DashboardHeader
-        icon="🧠"
-        iconBg={C.ink}
-        title="Arquitectura del Criterio"
-        subtitle="Prospectos de las evaluaciones · mariocitalan.net"
-        theme={T}
-        sticky
-        onLogout={logout}
-        right={
-          <a href="/app/therapyos"
-            style={{ fontSize: 13, color: C.blueDark, textDecoration: "none",
-              border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 14px", whiteSpace: "nowrap" }}>
-            Ir a TherapyOS
-          </a>
-        }
-      />
+    <div style={{ minHeight: "100vh", background: C.bg, color: C.ink, fontFamily: FONT_BODY }}>
+      {/* Tipografía del sitio público de Mario */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="stylesheet" href={FONTS_HREF} />
+      {/* Los componentes compartidos traen Plus Jakarta Sans en estilos inline.
+          Aquí se sustituye por Fraunces para no romper la marca de Mario; el
+          override vive solo en este panel y no toca /components/dashboard. */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        [style*="Plus Jakarta Sans"] { font-family: ${FONT_SERIF} !important; font-weight: 500 !important; }
+      ` }} />
 
-      <main style={{ maxWidth: 1180, margin: "0 auto", padding: "26px 22px 70px" }}>
+      {/* Header con la marca de Mario, no la de FishFlow */}
+      <header style={{ background: C.white, borderBottom: `1px solid ${C.border}`,
+        padding: "15px 26px", display: "flex", alignItems: "center", justifyContent: "space-between",
+        gap: 14, position: "sticky", top: 0, zIndex: 30, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 13, minWidth: 0 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/mariocitalan/dr-mente-logo.png" alt="Mario Citalán"
+            style={{ height: 38, width: "auto", display: "block", flexShrink: 0 }} />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 20, letterSpacing: "-.01em",
+              color: C.ink, lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              Mario Citalán
+            </div>
+            <div style={{ ...eyebrowStyle, fontSize: 9.5, marginTop: 3 }}>
+              Arquitectura del Criterio
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
+          <a href="https://mariocitalan.net" target="_blank" rel="noopener noreferrer"
+            style={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase",
+              color: C.muted, textDecoration: "none", border: `1px solid ${C.border}`,
+              padding: "8px 13px", whiteSpace: "nowrap" }}>
+            Mi sitio
+          </a>
+          <a href="/app/therapyos"
+            style={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase",
+              color: C.blueDark, textDecoration: "none", border: `1px solid ${C.blueDark}`,
+              padding: "8px 13px", whiteSpace: "nowrap" }}>
+            TherapyOS
+          </a>
+          <button onClick={logout}
+            style={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase",
+              color: C.muted, background: "none", border: `1px solid ${C.border}`,
+              padding: "8px 13px", cursor: "pointer" }}>
+            Salir
+          </button>
+        </div>
+      </header>
+
+      <main style={{ maxWidth: 1180, margin: "0 auto", padding: "30px 22px 70px" }}>
+        {/* Encabezado editorial, como las secciones del sitio */}
+        <div style={{ marginBottom: 26 }}>
+          <span style={eyebrowStyle}>Tus prospectos</span>
+          <Ornament />
+          <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: "clamp(26px,3.4vw,38px)",
+            lineHeight: 1.12, letterSpacing: "-.015em", color: C.ink, marginTop: 16, maxWidth: "22ch" }}>
+            Quiénes llegaron a <span style={{ fontStyle: "italic", color: C.blueDark }}>tus evaluaciones</span>.
+          </h1>
+        </div>
+
         <TabBar
           theme={T}
           active={tab}
