@@ -27,7 +27,6 @@ export default function ReviewsTab() {
       theme={T}
       personLabel="paciente"
       personLabelPlural="pacientes"
-      emptyHint="o usa ⭐ desde una cita"
       smartReplies
     />
   );

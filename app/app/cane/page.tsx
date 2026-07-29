@@ -112,6 +112,12 @@ function useIsMobile(breakpoint = 640) {
   return isMobile;
 }
 
+// ─── Módulo de Citas: OCULTO ──────────────────────────────────────────────────
+// Fue un piloto (confirmación de citas por voz IA). Karlita hoy solo usa Reseñas.
+// El código se conserva completo: poner esta bandera en true lo devuelve tal cual,
+// con su pestaña, su alta de citas y el botón ⭐ que manda un paciente a la cola.
+const SHOW_CITAS: boolean = false;
+
 // ─── Componente principal ─────────────────────────────────────────────────────
 export default function CANEAppointmentsPage() {
   const router = useRouter();
@@ -125,7 +131,7 @@ export default function CANEAppointmentsPage() {
   const [form, setForm]                 = useState(EMPTY_FORM);
   const [saving, setSaving]             = useState(false);
   const [error, setError]               = useState<string | null>(null);
-  const [tab, setTab]                   = useState<"citas" | "resenas">("citas");
+  const [tab, setTab]                   = useState<"citas" | "resenas">(SHOW_CITAS ? "citas" : "resenas");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -146,7 +152,8 @@ export default function CANEAppointmentsPage() {
     setLoading(false);
   }
 
-  useEffect(() => { fetchAppointments(); }, []);
+  // Con el módulo oculto no vale la pena pegarle a Supabase por citas que nadie ve.
+  useEffect(() => { if (SHOW_CITAS) fetchAppointments(); }, []);
 
   // ── Expandir fila y cargar historial de llamadas ────────────────────────────
   async function toggleExpand(apptId: string) {
@@ -331,26 +338,28 @@ export default function CANEAppointmentsPage() {
       <DashboardHeader
         icon={<span style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>CN</span>}
         title="CANE Neurofeedback"
-        subtitle="Confirmación de Citas"
+        subtitle={SHOW_CITAS ? "Confirmación de Citas" : "Reseñas de Google"}
         theme={T}
         onLogout={logout}
       />
 
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px" }}>
 
-        <TabBar
-          theme={T}
-          tabs={[
-            { id: "citas",   label: "Citas",   icon: "📅" },
-            { id: "resenas", label: "Reseñas", icon: "⭐" },
-          ]}
-          active={tab}
-          onChange={setTab}
-        />
+        {SHOW_CITAS && (
+          <TabBar
+            theme={T}
+            tabs={[
+              { id: "citas",   label: "Citas",   icon: "📅" },
+              { id: "resenas", label: "Reseñas", icon: "⭐" },
+            ]}
+            active={tab}
+            onChange={setTab}
+          />
+        )}
 
         {tab === "resenas" && <ReviewsTab />}
 
-        {tab === "citas" && (
+        {SHOW_CITAS && tab === "citas" && (
         <Section
           title={<>
             Citas
