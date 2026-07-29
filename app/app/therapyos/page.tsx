@@ -922,11 +922,20 @@ export default function TherapyOSPage() {
             + Nueva sesión
           </button>
 
+          {/* Salto al panel de prospectos (Arquitectura del Criterio) */}
+          <a href="/app/mariocitalan" style={{
+            marginTop: "auto", padding: "8px 12px", borderRadius: 8, textAlign: "center",
+            background: "transparent", border: "1px solid rgba(255,255,255,.12)",
+            color: C.sageLight, fontSize: 12, textDecoration: "none", letterSpacing: ".04em",
+          }}>
+            🧠 Prospectos · Criterio
+          </a>
+
           {/* Cerrar sesión */}
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push("/login?next=/app/therapyos"); }}
             style={{
-              marginTop: "auto", padding: "8px 12px", borderRadius: 8,
+              padding: "8px 12px", borderRadius: 8,
               background: "transparent", border: "1px solid rgba(255,255,255,.12)",
               color: C.muted, fontSize: 12, cursor: "pointer", letterSpacing: ".04em",
             }}>

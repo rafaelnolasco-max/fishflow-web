@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
 export const runtime = 'nodejs'
+
+// client_id de "Mario Citalán — Arquitectura del Criterio" en la tabla `clients`.
+// Panel propio en /app/mariocitalan, separado de TherapyOS (que es su consultorio).
+const MARIO_CLIENT_ID = 'ea5266d5-cabb-44e2-a96a-0a0f40da07e7'
 
 // CORS: el sitio público de Mario vive en su propio dominio (Hostinger) y hace
 // POST a este endpoint. Sin credenciales, por eso '*' es aceptable.
@@ -15,11 +20,10 @@ export async function OPTIONS() {
   return new Response(null, { status: 204, headers: CORS_HEADERS })
 }
 
-// Notificación de demo: al completar la Evaluación de Arquitectura Mental y del
-// Criterio se envían DOS correos:
-//   1) Interno → Mario + Rafa (admin): aviso con los datos del prospecto.
-//   2) Al prospecto → su resultado (perfil + ruta recomendada).
-// NO guarda en Supabase (es demo).
+// Al completar la Evaluación de Actitud o de Arquitectura Mental y del Criterio:
+//   1) Se guarda el prospecto en Supabase (tabla `leads`) → panel /app/mariocitalan.
+//   2) Aviso interno → Mario + Rafa con los datos del prospecto.
+//   3) Al prospecto → su resultado (perfil + ruta recomendada).
 const ADMIN_TO = ['mariocitalan@gmail.com', 'raf@fishflow.mx']
 
 function esc(s: string) {
@@ -100,9 +104,40 @@ export async function POST(req: Request) {
     const pdf = (body.pdf ?? '').toString().trim()
     const pdfNombre = (body.pdfNombre ?? 'Tu PDF').toString().trim()
     const testLabel = test === 'actitud' ? 'Actitud' : 'Criterio'
+    // Suscripción voluntaria al newsletter (casilla en el cuestionario)
+    const optIn = body.optIn === true || body.optIn === 'true' || body.optIn === 1
+    // Respuestas completas del cuestionario (para segmentar comunicaciones)
+    const answers = body.answers && typeof body.answers === 'object' ? body.answers : null
 
     if (!nombre || !/.+@.+\..+/.test(email)) {
       return NextResponse.json({ error: 'Datos incompletos.' }, { status: 400, headers: CORS_HEADERS })
+    }
+
+    // 1) Guardar el prospecto (best-effort: si falla, el usuario igual recibe su resultado)
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+      if (supabaseUrl && serviceKey) {
+        const supabase = createClient(supabaseUrl, serviceKey)
+        const { error: dbErr } = await supabase.from('leads').insert({
+          name: nombre,
+          email: email.toLowerCase(),
+          phone: tel || null,
+          problem: `[Evaluación de ${testLabel}] Perfil: ${perfil || '—'}`,
+          ai_response: desc || null,
+          profile: perfil || null,
+          route: ruta || null,
+          answers,
+          opt_in: optIn,
+          source: test === 'actitud' ? 'actitud' : 'criterio',
+          client_id: MARIO_CLIENT_ID,
+        })
+        if (dbErr) console.error('[demo/mario-criterio] Supabase insert error:', dbErr)
+      } else {
+        console.error('[demo/mario-criterio] Falta SUPABASE_URL o SERVICE_ROLE_KEY')
+      }
+    } catch (e) {
+      console.error('[demo/mario-criterio] Supabase error:', e)
     }
 
     const resendKey = process.env.RESEND_API_KEY
@@ -125,7 +160,7 @@ export async function POST(req: Request) {
 
     const resend = new Resend(resendKey)
 
-    // 1) Aviso interno → Mario + Rafa
+    // 2) Aviso interno → Mario + Rafa
     const { error: adminErr } = await resend.emails.send({
       from: 'FishFlow <recibos@fishflow.mx>',
       to: ADMIN_TO,
@@ -135,7 +170,7 @@ export async function POST(req: Request) {
     })
     if (adminErr) console.error('[demo/mario-criterio] admin email error:', adminErr)
 
-    // 2) Resultado → prospecto
+    // 3) Resultado → prospecto
     const { error: leadErr } = await resend.emails.send({
       from: 'Mario Citalán <recibos@fishflow.mx>',
       to: [email],

@@ -525,6 +525,30 @@ export interface HiringInterview {
   updated_at: string;
 }
 
+// ─── Mario Citalán — Arquitectura del Criterio ─────────────────────────────────
+// Panel de prospectos de las evaluaciones (mariocitalan.net), SEPARADO de
+// TherapyOS (su consultorio, MARIO_CLIENT_ID más arriba).
+
+export const CRITERIO_CLIENT_ID = "ea5266d5-cabb-44e2-a96a-0a0f40da07e7";
+
+/** Prospecto de las evaluaciones de Actitud / Criterio (tabla genérica `leads`). */
+export interface CriterioLead {
+  id:          string;
+  name:        string;
+  email:       string;
+  phone:       string | null;
+  problem:     string;
+  ai_response: string | null;
+  profile:     string | null;
+  route:       string | null;
+  answers:     Record<string, unknown> | null;
+  notes:       string | null;
+  opt_in:      boolean;
+  source:      string | null;
+  status:      string | null;
+  created_at:  string;
+}
+
 // ─── Enlace Integral Seguros ───────────────────────────────────────────────────
 
 export const ENLACE_CLIENT_ID = "e8094119-0414-4d46-8506-6ee1a52e852c";

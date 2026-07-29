@@ -15,7 +15,9 @@ function LoginForm() {
     "andres@telecomba.com":        "/app/tba",
     "carlosnolascocas@gmail.com":  "/app/tba",
     "belangestudio@gmail.com":     "/app/belange",
-    "mariocitalan@gmail.com":      "/app/therapyos",
+    // Mario tiene dos apps: prospectos (Arquitectura del Criterio) y su consultorio
+    // (TherapyOS). Entra al panel de prospectos, que trae un botón hacia TherapyOS.
+    "mariocitalan@gmail.com":      "/app/mariocitalan",
     "aalmarazmo@lukon.com.mx":     "/app/lukon",
     "alonsoalonso68@hotmail.com":  "/app/autolavado",
     "karlaalonsoruiz@gmail.com":   "/app/cane",
@@ -26,6 +28,7 @@ function LoginForm() {
   // ── Contexto visual por ruta de destino ──────────────────────────────────────
   const APP_CONTEXT: Record<string, { label: string; color: string }> = {
     "/app/therapyos":  { label: "TherapyOS",           color: "#1a6b4a" },
+    "/app/mariocitalan": { label: "Arquitectura del Criterio", color: "#2A6AAE" },
     "/app/tba":        { label: "TBA Telecom CRM",      color: "#1a4a6b" },
     "/app/belange":    { label: "Belange Studio",        color: "#6b1a4a" },
     "/app/lukon":      { label: "Lukon Telemática",      color: "#4a6b1a" },

@@ -72,6 +72,8 @@
   .field input:focus{outline:none;border-color:var(--accent);background:#fff}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .note{margin-top:16px;font-size:12px;color:var(--muted);line-height:1.5}
+  .optin{display:flex;gap:11px;align-items:flex-start;margin-top:18px;font-size:13.5px;line-height:1.55;color:var(--ink-2);cursor:pointer}
+  .optin input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--accent-deep);flex-shrink:0}
 
   /* RESULTADO */
   .result{display:none;text-align:center}
@@ -181,7 +183,11 @@
             <div class="field"><label for="c-email">Correo</label><input type="email" id="c-email" placeholder="tu@correo.com"></div>
             <div class="field"><label for="c-tel">Teléfono</label><input type="tel" id="c-tel" placeholder="55 0000 0000"></div>
           </div>
-          <p class="note">Recibes tu perfil de Arquitectura de la Actitud. Confidencial.</p>
+          <label class="optin" for="c-optin">
+            <input type="checkbox" id="c-optin">
+            <span>Quiero recibir las publicaciones y recursos que Mario comparte por correo. Puedo darme de baja cuando quiera.</span>
+          </label>
+          <p class="note">Recibes tu perfil de Arquitectura de la Actitud. Confidencial: tus datos los trata Mario Citalán únicamente para enviarte tu resultado y darte seguimiento; no se comparten con terceros.</p>
         </div>
 
         <div class="nav-row">
@@ -372,15 +378,30 @@
     elResult.classList.add('show');
     document.getElementById('intro').scrollIntoView({behavior:'smooth'});
 
-    // Aviso por correo a Mario + Rafa + resultado al prospecto (demo). No bloquea la UI.
+    // Guarda el prospecto en el panel de Mario + correos (interno y al prospecto). No bloquea la UI.
     const nombre = (document.getElementById('c-nombre')||{}).value || '';
     const email  = (document.getElementById('c-email') ||{}).value || '';
     const tel    = (document.getElementById('c-tel')   ||{}).value || '';
+    const optIn  = !!(document.getElementById('c-optin')||{}).checked;
+    // Respuestas completas: cada pregunta con la opción elegida + puntaje por categoría
+    const respuestas = {};
+    try {
+      const porCat = {};
+      questions.forEach((q, i) => {
+        const idx = answers[i];
+        if (idx === null || idx === undefined) return;
+        const opt = q.opts[idx];
+        if (!opt) return;
+        porCat[q.cat] = (porCat[q.cat] || 0) + opt.v;
+        respuestas[(i+1) + '. ' + q.t] = opt.t + ' (' + opt.v + ')';
+      });
+      Object.keys(porCat).forEach(c => { respuestas['_cat · ' + c] = porCat[c]; });
+    } catch(_) {}
     try {
       fetch('https://www.fishflow.mx/api/demo/mario-criterio/', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ test:'actitud', nombre, email, tel, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:p.cta, pdf:'assets/pdf/arquitectura-de-la-actitud-2026.pdf', pdfNombre:'La Arquitectura de la Actitud' })
+        body: JSON.stringify({ test:'actitud', nombre, email, tel, optIn, answers:respuestas, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:p.cta, pdf:'assets/pdf/arquitectura-de-la-actitud-2026.pdf', pdfNombre:'La Arquitectura de la Actitud' })
       }).catch(()=>{});
     } catch(_) {}
   }
