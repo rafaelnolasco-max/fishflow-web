@@ -62,6 +62,31 @@
 .anticipo .a-l{font-size:12px;color:var(--wood-lt);font-weight:600;}
 .anticipo .a-v{font-family:'Fraunces',serif;font-size:24px;color:#fff;margin-top:3px;}
 
+/* selector de tipo de proyecto */
+.tipos{display:grid;gap:12px;margin-bottom:22px;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));}
+.tipo{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:16px 18px;
+  border:1.5px solid #C7D5CB;border-radius:15px;background:#fff;cursor:pointer;
+  font-family:inherit;text-align:left;transition:.16s;}
+.tipo:hover{border-color:var(--forest-lt);transform:translateY(-2px);}
+.tipo.sel{border-color:var(--forest);background:rgba(46,94,72,.07);
+  box-shadow:0 0 0 3px rgba(46,94,72,.14);}
+.tipo .ti{font-size:22px;margin-bottom:5px;}
+.tipo .tt{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--ink);}
+.tipo .ts{font-size:12.5px;color:#6E8578;}
+.tipo.sel .ts{color:var(--forest);font-weight:600;}
+
+/* medidas de deck / pérgola */
+.m2box{background:var(--ink);color:var(--cream);border-radius:12px;padding:13px 16px;
+  display:flex;flex-direction:column;justify-content:center;}
+.m2-l{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);font-weight:700;}
+.m2-v{font-family:'Fraunces',serif;font-size:26px;color:#fff;margin-top:4px;line-height:1;}
+.m2-help{font-size:12.5px;color:#48594E;line-height:1.55;margin:13px 0 0;
+  background:rgba(46,94,72,.07);border-left:3px solid var(--forest);padding:11px 14px;border-radius:0 8px 8px 0;}
+.m2-fig{width:100%;border-radius:13px;overflow:hidden;border:1px solid #C7D5CB;margin-bottom:16px;}
+.m2-fig img{width:100%;display:block;}
+.m2-fig figcaption{font-size:11.5px;color:#6E8578;padding:9px 13px;background:#fff;}
+
 /* modal */
 .modal{position:fixed;inset:0;background:rgba(14,33,26,.72);backdrop-filter:blur(5px);
   display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
@@ -141,29 +166,72 @@
 <section class="sec sec-cream" id="configurador">
   <div class="ff-container">
     <span class="eyebrow">Cotizador en línea</span>
-    <h2 class="ff-h2 mt0" style="margin-bottom:12px">Arma tu cabaña y mira el precio en vivo</h2>
-    <p class="lede" style="margin-bottom:32px">Cada cambio actualiza el estimado al instante. Cuando estés listo, apartas con el 30% y bloqueamos tu lugar en la línea de producción.</p>
+    <h2 class="ff-h2 mt0" style="margin-bottom:12px">Arma tu proyecto y mira el precio en vivo</h2>
+    <p class="lede" style="margin-bottom:26px">Cabaña, deck o pérgola. Cada cambio actualiza el estimado al instante. Cuando estés listo, apartas con el 30% y bloqueamos tu lugar en la línea de producción.</p>
+
+    <!-- selector de tipo de proyecto -->
+    <div class="tipos" id="cfgTipos">
+      <button class="tipo sel" onclick="setTipo('cabana',this)">
+        <span class="ti">🏡</span><span class="tt">Cabaña</span><span class="ts">Casa de madera maciza</span>
+      </button>
+      <button class="tipo" onclick="setTipo('deck',this)">
+        <span class="ti">🪵</span><span class="tt">Deck</span><span class="ts">$2,700 por m²</span>
+      </button>
+      <button class="tipo" onclick="setTipo('pergola',this)">
+        <span class="ti">⛱️</span><span class="tt">Pérgola</span><span class="ts">$2,700 por m²</span>
+      </button>
+    </div>
 
     <div class="cfg">
       <div class="cfg-form">
-        <!-- paso 1 -->
-        <div class="cfg-step">
-          <div class="cfg-step-h"><span class="cfg-step-n">1</span><h3>Elige tu modelo</h3></div>
-          <div class="mgrid" id="cfgModelos"></div>
+
+        <!-- ===== FLUJO CABAÑA ===== -->
+        <div id="flujoCabana">
+          <div class="cfg-step">
+            <div class="cfg-step-h"><span class="cfg-step-n">1</span><h3>Elige tu modelo</h3></div>
+            <div class="mgrid" id="cfgModelos"></div>
+          </div>
+          <div class="cfg-step">
+            <div class="cfg-step-h"><span class="cfg-step-n">2</span><h3>Nivel de acabados</h3></div>
+            <div class="ff-grid ff-grid--sm" style="--ff-gap:10px" id="cfgAcabados"></div>
+          </div>
+          <div class="cfg-step">
+            <div class="cfg-step-h"><span class="cfg-step-n">3</span><h3>Extras</h3></div>
+            <div class="ff-grid" style="--ff-min:230px;--ff-gap:10px" id="cfgExtras"></div>
+          </div>
         </div>
-        <!-- paso 2 -->
-        <div class="cfg-step">
-          <div class="cfg-step-h"><span class="cfg-step-n">2</span><h3>Nivel de acabados</h3></div>
-          <div class="ff-grid ff-grid--sm" style="--ff-gap:10px" id="cfgAcabados"></div>
+
+        <!-- ===== FLUJO DECK / PÉRGOLA ===== -->
+        <div id="flujoMetros" style="display:none">
+          <figure class="m2-fig" style="margin:0 0 16px">
+            <img src="img/deck.svg" alt="Deck de madera" id="figMetros">
+            <figcaption id="figCap">Deck de madera tratada, con barandal y escalón de acceso.</figcaption>
+          </figure>
+          <div class="cfg-step">
+            <div class="cfg-step-h"><span class="cfg-step-n">1</span><h3 id="tituloMedidas">Dime las medidas</h3></div>
+            <div class="ff-grid ff-grid--sm" style="--ff-gap:12px">
+              <label class="fld" style="margin-bottom:0"><span>Largo (metros)</span>
+                <input class="inp" type="number" id="mLargo" value="6" min="1" max="30" step="0.5" oninput="calcular()">
+              </label>
+              <label class="fld" style="margin-bottom:0"><span>Ancho (metros)</span>
+                <input class="inp" type="number" id="mAncho" value="4" min="1" max="30" step="0.5" oninput="calcular()">
+              </label>
+              <div class="m2box">
+                <div class="m2-l">Superficie</div>
+                <div class="m2-v" id="m2Valor">24 m²</div>
+              </div>
+            </div>
+            <p class="m2-help" id="m2Help">El precio de fabricación e instalación es de <b>$2,700 por metro cuadrado</b>, en madera tratada para intemperie.</p>
+          </div>
+          <div class="cfg-step">
+            <div class="cfg-step-h"><span class="cfg-step-n">2</span><h3>Extras</h3></div>
+            <div class="ff-grid" style="--ff-min:230px;--ff-gap:10px" id="cfgExtrasM"></div>
+          </div>
         </div>
-        <!-- paso 3 -->
-        <div class="cfg-step">
-          <div class="cfg-step-h"><span class="cfg-step-n">3</span><h3>Extras</h3></div>
-          <div class="ff-grid" style="--ff-min:230px;--ff-gap:10px" id="cfgExtras"></div>
-        </div>
-        <!-- paso 4 -->
+
+        <!-- paso final, común a los tres -->
         <div class="cfg-step" style="margin-bottom:0">
-          <div class="cfg-step-h"><span class="cfg-step-n">4</span><h3>¿Dónde la instalamos?</h3></div>
+          <div class="cfg-step-h"><span class="cfg-step-n" id="pasoZonaN">4</span><h3 id="tituloZona">¿Dónde la instalamos?</h3></div>
           <label class="fld"><span>Zona de entrega</span>
             <select class="inp" id="cfgZona" onchange="calcular()"></select>
           </label>
@@ -183,7 +251,7 @@
           <div class="a-l">Apartas hoy con el 30%</div>
           <div class="a-v" id="sumAnticipo">$0</div>
         </div>
-        <button class="btn btn-primary btn-block" style="margin-top:18px" onclick="abrirApartado()">Apartar mi cabaña &rarr;</button>
+        <button class="btn btn-primary btn-block" style="margin-top:18px" id="btnApartar" onclick="abrirApartado()">Apartar mi cabaña &rarr;</button>
         <button class="btn btn-ghost btn-block" style="margin-top:9px" onclick="alert('En el sitio real: se genera el PDF de la cotización y se envía por correo y WhatsApp, y el prospecto entra al panel de Erick.')">Enviarme esta cotización</button>
       </aside>
     </div>
@@ -273,6 +341,41 @@ var EXTRAS = [
   {id:'cochera',  t:'Cochera techada',        s:'Para un auto',                  p:58000}
 ];
 
+/* --- Decks y pérgolas: $2,700 por m² --- */
+var PRECIO_M2 = 2700;
+
+var TIPOS = {
+  cabana:  {n:'Cabaña',  boton:'Apartar mi cabaña'},
+  deck:    {n:'Deck',    boton:'Apartar mi deck',
+            img:'img/deck.svg',
+            cap:'Deck de madera tratada, con barandal y escalón de acceso.',
+            titulo:'¿De qué tamaño lo quieres?',
+            zona:'¿Dónde lo instalamos?',
+            help:'El precio de fabricación e instalación es de <b>$2,700 por metro cuadrado</b>, en madera tratada para intemperie, incluyendo estructura, entablado y sellador.'},
+  pergola: {n:'Pérgola', boton:'Apartar mi pérgola',
+            img:'img/pergola.svg',
+            cap:'Pérgola de madera maciza con travesaños y postes tratados.',
+            titulo:'¿De qué tamaño la quieres?',
+            zona:'¿Dónde la instalamos?',
+            help:'El precio de fabricación e instalación es de <b>$2,700 por metro cuadrado</b> de sombra, en madera tratada para intemperie, incluyendo postes, vigas y travesaños.'}
+};
+
+var EXTRAS_DECK = [
+  {id:'barandal',  t:'Barandal de troncos',   s:'Perimetral, altura 90 cm', p:1150, u:'ml'},
+  {id:'escalon',   t:'Escalones de acceso',   s:'Juego de 3 huellas',       p:6800, u:'pza'},
+  {id:'sellador',  t:'Sellador premium',      s:'Protección UV, 5 años',    p:280,  u:'m2'},
+  {id:'luz',       t:'Iluminación empotrada', s:'LED cálido en el piso',    p:390,  u:'m2'},
+  {id:'jardinera', t:'Jardineras integradas', s:'Dos módulos de esquina',   p:9400, u:'pza'}
+];
+
+var EXTRAS_PERGOLA = [
+  {id:'policarb',  t:'Cubierta de policarbonato', s:'Traslúcida, contra lluvia', p:620, u:'m2'},
+  {id:'cortinas',  t:'Cortinas enrollables',      s:'Lona impermeable, 2 lados', p:8900, u:'pza'},
+  {id:'sellador',  t:'Sellador premium',          s:'Protección UV, 5 años',     p:240,  u:'m2'},
+  {id:'luz',       t:'Iluminación en travesaños', s:'LED cálido',                p:340,  u:'m2'},
+  {id:'ventilador',t:'Ventilador de techo',       s:'Para exterior',             p:7600, u:'pza'}
+];
+
 var ZONAS = [
   {id:'cdmx',   t:'CDMX y Estado de México (flete incluido)', p:0},
   {id:'centro', t:'Puebla, Morelos, Hidalgo, Tlaxcala, Querétaro', p:28000},
@@ -281,7 +384,8 @@ var ZONAS = [
 ];
 
 /* ---------- ESTADO ---------- */
-var sel = {modelo:'SFC60', acabado:'confort', extras:['terraza'], zona:'cdmx'};
+var sel = {tipo:'cabana', modelo:'SFC60', acabado:'confort', extras:['terraza'],
+           extrasM:['sellador'], zona:'cdmx'};
 
 /* ---------- CATÁLOGO ---------- */
 function pintarCatalogo(filtro){
@@ -344,6 +448,50 @@ function pintarConfig(){
   }
   z.value = sel.zona;
 }
+/* ---------- TIPO DE PROYECTO ---------- */
+function setTipo(t, btn){
+  sel.tipo = t;
+  document.querySelectorAll('.tipo').forEach(function(b){b.classList.remove('sel');});
+  if (btn) btn.classList.add('sel');
+
+  var esCabana = (t === 'cabana');
+  document.getElementById('flujoCabana').style.display = esCabana ? 'block' : 'none';
+  document.getElementById('flujoMetros').style.display = esCabana ? 'none'  : 'block';
+  document.getElementById('pasoZonaN').textContent = esCabana ? '4' : '3';
+
+  var cfg = TIPOS[t];
+  document.getElementById('tituloZona').textContent = esCabana ? '¿Dónde la instalamos?' : cfg.zona;
+  if (!esCabana) {
+    document.getElementById('figMetros').src = cfg.img;
+    document.getElementById('figMetros').alt = cfg.n;
+    document.getElementById('figCap').textContent = cfg.cap;
+    document.getElementById('tituloMedidas').textContent = cfg.titulo;
+    document.getElementById('m2Help').innerHTML = cfg.help;
+    sel.extrasM = ['sellador'];
+    pintarExtrasM();
+  }
+  calcular();
+}
+
+function pintarExtrasM(){
+  var lista = (sel.tipo === 'pergola') ? EXTRAS_PERGOLA : EXTRAS_DECK;
+  document.getElementById('cfgExtrasM').innerHTML = lista.map(function(e){
+    var on = sel.extrasM.indexOf(e.id) > -1;
+    var precio = (e.u === 'm2') ? mxn(e.p) + ' / m²'
+               : (e.u === 'ml') ? mxn(e.p) + ' / metro lineal'
+               : mxn(e.p);
+    return '<label class="opt'+(on?' sel':'')+'">'
+      + '<input type="checkbox" '+(on?'checked':'')+' onchange="toggleExtraM(\''+e.id+'\')">'
+      + '<span style="flex:1"><span class="opt-t">'+e.t+'</span>'
+      + '<span class="opt-s">'+e.s+' · '+precio+'</span></span></label>';
+  }).join('');
+}
+function toggleExtraM(id){
+  var i = sel.extrasM.indexOf(id);
+  if(i>-1) sel.extrasM.splice(i,1); else sel.extrasM.push(id);
+  pintarExtrasM(); calcular();
+}
+
 function setModelo(id){ sel.modelo=id; pintarConfig(); calcular(); }
 function setAcabado(id){ sel.acabado=id; pintarConfig(); calcular(); }
 function toggleExtra(id){
@@ -354,6 +502,7 @@ function toggleExtra(id){
 
 function calcular(){
   sel.zona = document.getElementById('cfgZona').value || sel.zona;
+  if (sel.tipo !== 'cabana') { return calcularMetros(); }
   var m = MODELOS.find(function(x){return x.id===sel.modelo;});
   var a = ACABADOS.find(function(x){return x.id===sel.acabado;});
   var z = ZONAS.find(function(x){return x.id===sel.zona;});
@@ -377,11 +526,49 @@ function calcular(){
   document.getElementById('sumTotal').textContent = mxn(total);
   document.getElementById('sumAnticipo').textContent = mxn(total*0.30);
   window._total = total;
+  document.getElementById('btnApartar').textContent = TIPOS.cabana.boton + ' →';
+}
+
+/* --- deck y pérgola: superficie × $2,700 --- */
+function calcularMetros(){
+  var largo = parseFloat(document.getElementById('mLargo').value) || 0;
+  var ancho = parseFloat(document.getElementById('mAncho').value) || 0;
+  var m2 = Math.round(largo * ancho * 100) / 100;
+  var perimetro = 2 * (largo + ancho);
+  var cfg = TIPOS[sel.tipo];
+  var lista = (sel.tipo === 'pergola') ? EXTRAS_PERGOLA : EXTRAS_DECK;
+  var z = ZONAS.find(function(x){return x.id===sel.zona;});
+
+  document.getElementById('m2Valor').textContent = m2.toLocaleString('es-MX') + ' m²';
+
+  var base = m2 * PRECIO_M2;
+  var sumExtras = 0, filas = '';
+  sel.extrasM.forEach(function(id){
+    var e = lista.find(function(x){return x.id===id;});
+    if(!e) return;
+    var imp = (e.u === 'm2') ? e.p * m2 : (e.u === 'ml') ? e.p * perimetro : e.p;
+    sumExtras += imp;
+    filas += '<div class="sum-row"><span>'+e.t+'</span><b>+'+mxn(imp)+'</b></div>';
+  });
+  var total = base + sumExtras + z.p;
+
+  document.getElementById('sumTitulo').textContent = cfg.n + ' de ' + m2.toLocaleString('es-MX') + ' m²';
+  document.getElementById('sumDetalle').innerHTML =
+      '<div class="sum-row"><span>'+largo+' m × '+ancho+' m · '+m2.toLocaleString('es-MX')+' m²</span><b>'+mxn(base)+'</b></div>'
+    + '<div class="sum-row" style="font-size:12.5px;opacity:.72"><span>Precio por m²</span><b>'+mxn(PRECIO_M2)+'</b></div>'
+    + filas
+    + '<div class="sum-row"><span>Transporte e instalación</span><b>'+(z.p>0?'+'+mxn(z.p):'incluido')+'</b></div>';
+  document.getElementById('sumTotal').textContent = mxn(total);
+  document.getElementById('sumAnticipo').textContent = mxn(total*0.30);
+  window._total = total;
+  document.getElementById('btnApartar').textContent = cfg.boton + ' →';
 }
 
 /* ---------- MODAL ---------- */
 function abrirApartado(){
-  document.getElementById('pagoModelo').textContent = 'modelo '+sel.modelo;
+  document.getElementById('pagoModelo').textContent = (sel.tipo==='cabana')
+    ? 'modelo '+sel.modelo
+    : document.getElementById('sumTitulo').textContent.toLowerCase();
   document.getElementById('pagoTotal').textContent = mxn(window._total);
   document.getElementById('pagoAnticipo').textContent = mxn(window._total*0.30);
   document.getElementById('pagoPaso1').style.display='block';
@@ -404,6 +591,7 @@ document.getElementById('modalPago').addEventListener('click', function(e){
 /* ---------- INIT ---------- */
 pintarCatalogo('todos');
 pintarConfig();
+pintarExtrasM();
 calcular();
 </script>
 </body>

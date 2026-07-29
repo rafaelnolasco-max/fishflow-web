@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Deck de madera">
+  <defs>
+    <linearGradient id="dsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1D3A2D"/><stop offset="100%" stop-color="#2E5E48"/>
+    </linearGradient>
+    <linearGradient id="dwood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E0B061"/><stop offset="100%" stop-color="#C08F3C"/>
+    </linearGradient>
+    <linearGradient id="dwood2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#B4823A"/><stop offset="100%" stop-color="#96692C"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#dsky)"/>
+  <!-- árboles de fondo -->
+  <g opacity=".30" fill="#0E211A">
+    <path d="M60 250 L92 150 L124 250 Z"/><rect x="86" y="248" width="12" height="26"/>
+    <path d="M150 258 L176 178 L202 258 Z"/><rect x="171" y="256" width="10" height="22"/>
+    <path d="M470 252 L502 158 L534 252 Z"/><rect x="496" y="250" width="12" height="26"/>
+    <path d="M556 260 L582 186 L608 260 Z"/><rect x="577" y="258" width="10" height="22"/>
+  </g>
+  <!-- piso del deck en perspectiva -->
+  <g>
+    <path d="M120 268 L520 268 L610 372 L30 372 Z" fill="url(#dwood)"/>
+    <g stroke="#0E211A" stroke-opacity=".22" stroke-width="2">
+      <path d="M156 268 L86 372"/><path d="M192 268 L142 372"/><path d="M228 268 L198 372"/>
+      <path d="M264 268 L254 372"/><path d="M300 268 L310 372"/><path d="M336 268 L366 372"/>
+      <path d="M372 268 L422 372"/><path d="M408 268 L478 372"/><path d="M444 268 L534 372"/>
+      <path d="M480 268 L590 372"/>
+    </g>
+    <path d="M120 268 L520 268 L520 276 L120 276 Z" fill="#8A6228" opacity=".5"/>
+  </g>
+  <!-- barandal -->
+  <g>
+    <rect x="122" y="196" width="9" height="76" fill="url(#dwood2)"/>
+    <rect x="508" y="196" width="9" height="76" fill="url(#dwood2)"/>
+    <rect x="118" y="190" width="404" height="9" rx="3" fill="url(#dwood)"/>
+    <rect x="118" y="228" width="404" height="6" rx="2" fill="url(#dwood2)" opacity=".85"/>
+    <g fill="url(#dwood2)" opacity=".9">
+      <rect x="160" y="198" width="6" height="72"/><rect x="200" y="198" width="6" height="72"/>
+      <rect x="240" y="198" width="6" height="72"/><rect x="280" y="198" width="6" height="72"/>
+      <rect x="320" y="198" width="6" height="72"/><rect x="360" y="198" width="6" height="72"/>
+      <rect x="400" y="198" width="6" height="72"/><rect x="440" y="198" width="6" height="72"/>
+      <rect x="478" y="198" width="6" height="72"/>
+    </g>
+  </g>
+  <!-- escalón lateral -->
+  <path d="M30 372 L120 372 L120 386 L14 386 Z" fill="#A67A33"/>
+  <!-- mobiliario simple -->
+  <g opacity=".9">
+    <rect x="238" y="236" width="82" height="8" rx="3" fill="#7C5A26"/>
+    <rect x="246" y="244" width="7" height="24" fill="#6B4E20"/>
+    <rect x="306" y="244" width="7" height="24" fill="#6B4E20"/>
+    <circle cx="392" cy="242" r="15" fill="#3A7458"/>
+    <rect x="386" y="252" width="12" height="16" rx="3" fill="#7C5A26"/>
+  </g>
+</svg>
