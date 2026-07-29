@@ -216,16 +216,47 @@ export default function EnlaceDashboardPage() {
     fetchRows();
   }, []);
 
-  const vendorGroups: VendorGroup[] = useMemo(() => {
-    const map = new Map<string, InsuranceVendorTopClient[]>();
+  // ─── Duplicados en toda la base de Enlace ────────────────────────────────────
+  // Un contacto está duplicado si su correo o su teléfono ya aparece en otro
+  // registro. Casi siempre es la misma vendedora capturando dos veces; cuando son
+  // dos vendedoras distintas hay que decidir a quién le toca el cliente.
+  const dupInfo = useMemo(() => {
+    const byEmail = new Map<string, InsuranceVendorTopClient[]>();
+    const byPhone = new Map<string, InsuranceVendorTopClient[]>();
     for (const r of rows) {
-      const key = r.vendor_name.trim();
+      const em = (r.email || "").trim().toLowerCase();
+      const ph = (r.phone || "").replace(/\D/g, "");
+      if (em) { if (!byEmail.has(em)) byEmail.set(em, []); byEmail.get(em)!.push(r); }
+      if (ph) { if (!byPhone.has(ph)) byPhone.set(ph, []); byPhone.get(ph)!.push(r); }
+    }
+    const ids = new Set<string>();
+    const crossVendor = new Set<string>();
+    for (const group of [...byEmail.values(), ...byPhone.values()]) {
+      if (group.length < 2) continue;
+      const vendors = new Set(group.map((g) => (g.vendor_name || "").trim().toLowerCase()));
+      for (const g of group) {
+        ids.add(g.id);
+        if (vendors.size > 1) crossVendor.add(g.id);
+      }
+    }
+    return { ids, crossVendor };
+  }, [rows]);
+
+  const vendorGroups: VendorGroup[] = useMemo(() => {
+    // Agrupamos sin distinguir mayúsculas: "edna cruz" y "Edna Cruz" son la misma
+    // persona. El endpoint ya guarda el nombre canónico, esto es defensa en profundidad.
+    const map = new Map<string, InsuranceVendorTopClient[]>();
+    const labels = new Map<string, string>();
+    for (const r of rows) {
+      const name = r.vendor_name.trim().replace(/\s+/g, " ");
+      const key = name.toLowerCase();
+      if (!labels.has(key)) labels.set(key, name);
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(r);
     }
     return Array.from(map.entries())
-      .map(([vendorName, clients]) => ({
-        vendorName,
+      .map(([key, clients]) => ({
+        vendorName: labels.get(key) ?? key,
         clients,
         lastSubmission: clients.reduce((max, c) => (c.created_at > max ? c.created_at : max), clients[0]?.created_at ?? ""),
         avatar: avatarPct(clients),
@@ -392,6 +423,13 @@ export default function EnlaceDashboardPage() {
           <StatCard theme={T} label="Vendedores que enviaron" value={`${totalVendedores} / ${META_VENDEDORES}`} />
           <StatCard theme={T} label="Vendedores completos (20/20)" value={vendedoresCompletos} accent={C.greenDark} />
           <StatCard theme={T} label="Avance total" value={`${metaRegistros ? Math.round((totalRegistros / metaRegistros) * 100) : 0}%`} />
+          <StatCard
+            theme={T}
+            label="Contactos repetidos"
+            value={dupInfo.ids.size}
+            accent={dupInfo.ids.size > 0 ? "#B96A1E" : undefined}
+            sub={dupInfo.crossVendor.size > 0 ? `${dupInfo.crossVendor.size} entre vendedoras distintas` : "mismo correo o teléfono"}
+          />
         </StatGrid>
 
         <div style={{ ...cardStyle, display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -523,8 +561,17 @@ export default function EnlaceDashboardPage() {
                         {isMobile ? (
                           <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 14 }}>
                             {g.clients.map((c) => (
-                              <div key={c.id} style={{ ...cardStyle, padding: 12 }}>
-                                <div style={{ fontSize: 13.5, fontWeight: 700, color: C.carbon }}>{c.client_name}</div>
+                              <div key={c.id} style={{ ...cardStyle, padding: 12,
+                                ...(dupInfo.ids.has(c.id) ? { borderColor: "#EBC99A", background: "#FFFBF4" } : {}) }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                                  <div style={{ fontSize: 13.5, fontWeight: 700, color: C.carbon }}>{c.client_name}</div>
+                                  {dupInfo.ids.has(c.id) && (
+                                    <Chip
+                                      label={dupInfo.crossVendor.has(c.id) ? "Repetido · otra vendedora" : "Repetido"}
+                                      bg="#FFF4E5" fg="#B96A1E"
+                                    />
+                                  )}
+                                </div>
                                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{c.phone} · {c.email}</div>
                                 {viewMode === "meta" ? (
                                   <>
@@ -580,8 +627,16 @@ export default function EnlaceDashboardPage() {
                               </thead>
                               <tbody>
                                 {g.clients.map((c) => (
-                                  <tr key={c.id}>
-                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon, fontWeight: 600 }}>{c.client_name}</td>
+                                  <tr key={c.id} style={dupInfo.ids.has(c.id) ? { background: "#FFFBF4" } : undefined}>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon, fontWeight: 600 }}>
+                                      {c.client_name}
+                                      {dupInfo.ids.has(c.id) && (
+                                        <span title={dupInfo.crossVendor.has(c.id)
+                                          ? "Este contacto también lo cargó otra vendedora"
+                                          : "Contacto repetido en la base"}
+                                          style={{ marginLeft: 6, color: "#B96A1E" }}>⚠</span>
+                                      )}
+                                    </td>
                                     <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>{c.birth_date_or_age || "—"}</td>
                                     <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon }}>{c.phone}</td>
                                     <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon }}>{c.email}</td>
@@ -613,8 +668,16 @@ export default function EnlaceDashboardPage() {
                               </thead>
                               <tbody>
                                 {g.clients.map((c) => (
-                                  <tr key={c.id}>
-                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon, fontWeight: 600 }}>{c.client_name}</td>
+                                  <tr key={c.id} style={dupInfo.ids.has(c.id) ? { background: "#FFFBF4" } : undefined}>
+                                    <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon, fontWeight: 600 }}>
+                                      {c.client_name}
+                                      {dupInfo.ids.has(c.id) && (
+                                        <span title={dupInfo.crossVendor.has(c.id)
+                                          ? "Este contacto también lo cargó otra vendedora"
+                                          : "Contacto repetido en la base"}
+                                          style={{ marginLeft: 6, color: "#B96A1E" }}>⚠</span>
+                                      )}
+                                    </td>
                                     <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon }}>{c.phone}</td>
                                     <td style={{ padding: "8px 10px", fontSize: 13, color: C.carbon }}>{c.email}</td>
                                     <td style={{ padding: "8px 10px", fontSize: 13, color: C.muted }}>

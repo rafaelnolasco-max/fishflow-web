@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { Resend } from 'resend'
 import { ENLACE_CLIENT_ID } from '@/lib/supabase'
 
 export const runtime = 'nodejs'
@@ -8,8 +7,7 @@ export const runtime = 'nodejs'
 // Captura del Top 20 clientes por vendedor de Enlace Integral Seguros
 // (/demos/enlaceintegral/top-clientes). Guarda cada cliente en
 // insurance_vendor_top_clients con service role — nunca toca git, nunca es público.
-
-const ADMIN_TO = ['raf@fishflow.mx']
+// El aviso por correo NO va aquí: se manda agrupado en /api/cron/enlace-digest.
 // Techo de seguridad por envío (no es una meta — un vendedor puede mandar más de 20
 // en varios envíos). Solo evita que un bug o reintento infle miles de filas de golpe.
 const MAX_CLIENTS_PER_REQUEST = 50
@@ -37,10 +35,20 @@ function clean(v: unknown) {
   return String(v ?? '').trim()
 }
 
+// El nombre del vendedor llega tecleado por él en el portal, así que varía en
+// capitalización y espacios ("edna cruz" vs "Edna Cruz"). Antes eso rompía el
+// dedupe: cada variante contaba como una vendedora distinta y el mismo cliente
+// entraba dos veces. Ahora se compara sin distinguir mayúsculas y se guarda
+// siempre el nombre canónico de `insurance_vendors`.
+function cleanName(v: unknown) {
+  return clean(v).replace(/\s+/g, ' ')
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}))
-    const vendorName = clean(body.vendedor)
+    const vendorInput = cleanName(body.vendedor)
+    let vendorName = vendorInput
     const pin = clean(body.pin)
     const clientesRaw: ClienteInput[] = Array.isArray(body.clientes) ? body.clientes : []
 
@@ -48,12 +56,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Falta el nombre del vendedor.' }, { status: 400 })
     }
 
-    // Solo filas con los 3 campos obligatorios completos
+    // Solo filas con los 3 campos obligatorios completos.
+    // `vendor_name` se rellena más abajo con el nombre canónico del vendedor.
     let rows = clientesRaw
       .slice(0, MAX_CLIENTS_PER_REQUEST)
       .map((c) => ({
         client_id: ENLACE_CLIENT_ID,
-        vendor_name: vendorName,
+        vendor_name: '',
         client_name: clean(c.nombre),
         phone: clean(c.telefono),
         email: clean(c.email).toLowerCase(),
@@ -96,11 +105,12 @@ export async function POST(req: Request) {
 
     // Verificación de NIP — el portal registra al vendedor al entrar, así que
     // aquí el registro ya debe existir y el NIP debe coincidir.
+    // `ilike` sin comodines = igualdad sin distinguir mayúsculas.
     const { data: vendor, error: vendorErr } = await supabase
       .from('insurance_vendors')
-      .select('pin')
+      .select('name, pin')
       .eq('client_id', ENLACE_CLIENT_ID)
-      .eq('name', vendorName)
+      .ilike('name', vendorInput)
       .maybeSingle()
     if (vendorErr) {
       console.error('[demo/enlace-top-clientes] vendor fetch error:', vendorErr)
@@ -113,12 +123,16 @@ export async function POST(req: Request) {
       )
     }
 
+    // Nombre canónico: así "edna cruz" y "Edna Cruz" quedan como una sola vendedora
+    vendorName = cleanName(vendor.name) || vendorInput
+    rows = rows.map((r) => ({ ...r, vendor_name: vendorName }))
+
     // Dedupe contra lo ya guardado de este vendedor (mismo teléfono o email ya registrado)
     const { data: existing, error: fetchErr } = await supabase
       .from('insurance_vendor_top_clients')
       .select('phone, email')
       .eq('client_id', ENLACE_CLIENT_ID)
-      .eq('vendor_name', vendorName)
+      .ilike('vendor_name', vendorName)
     if (fetchErr) {
       console.error('[demo/enlace-top-clientes] Supabase fetch error:', fetchErr)
       return NextResponse.json({ error: 'Error al guardar. Intenta de nuevo.' }, { status: 500 })
@@ -142,21 +156,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Error al guardar. Intenta de nuevo.' }, { status: 500 })
     }
 
-    // Aviso best-effort a Rafa — no bloquea la respuesta si falla
-    const resendKey = process.env.RESEND_API_KEY
-    if (resendKey) {
-      try {
-        const resend = new Resend(resendKey)
-        await resend.emails.send({
-          from: 'Enlace Integral <recibos@fishflow.mx>',
-          to: ADMIN_TO,
-          subject: `Top clientes recibido — ${vendorName} (${newRows.length})`,
-          html: `<p>El vendedor <strong>${vendorName}</strong> envió <strong>${newRows.length}</strong> clientes nuevos desde el formulario en línea.${duplicates > 0 ? ` (${duplicates} ya estaban guardados y se ignoraron)` : ''}</p>`,
-        })
-      } catch (e) {
-        console.error('[demo/enlace-top-clientes] email error:', e)
-      }
-    }
+    // Sin aviso por captura: las vendedoras capturan cliente por cliente y eso
+    // generaba cientos de correos al día (89 el 16-jul, 81 el 17-jul).
+    // El resumen del día lo manda /api/cron/enlace-digest.
 
     return NextResponse.json({ ok: true, saved: newRows.length, duplicates })
   } catch (err: unknown) {
