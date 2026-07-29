@@ -27,6 +27,43 @@ const L = {
   fMono:  "'JetBrains Mono', ui-monospace, monospace",
 };
 
+// ─── Capa responsiva ──────────────────────────────────────────────────────────
+// Breakpoints estándar FishFlow: ≤600 móvil · 601–900 iPad · >900 PC
+// El diseño (ink/lima, mono) no se toca: esto solo reacomoda el layout.
+const RESPONSIVE_CSS = `
+.lk-toast{ position:fixed; top:20px; right:20px; left:auto; z-index:999; }
+.lk-header{ padding:16px 32px; }
+.lk-tabs{ padding:20px 32px 0; }
+.lk-main{ padding:40px 32px; }
+.lk-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.lk-grid-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.lk-tablewrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+/* ── iPad / tablet ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px){
+  .lk-header{ padding:14px 20px; }
+  .lk-tabs{ padding:16px 20px 0; }
+  .lk-main{ padding:28px 20px; }
+  .lk-grid-3{ grid-template-columns:1fr 1fr; }
+  /* Safari iOS hace zoom automático si el input mide menos de 16px */
+  .lk-main input, .lk-main select, .lk-main textarea{ font-size:16px !important; }
+}
+
+/* ── Móvil ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 600px){
+  .lk-toast{ top:12px; left:12px; right:12px; }
+  .lk-header{ padding:12px 16px; gap:10px; }
+  .lk-header-sub{ display:none; }
+  .lk-header-email{ max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lk-tabs{ padding:12px 16px 0; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .lk-tabs::-webkit-scrollbar{ display:none; }
+  .lk-tab{ flex:0 0 auto; white-space:nowrap; padding:10px 14px !important; font-size:13px !important; }
+  .lk-main{ padding:24px 16px; }
+  .lk-grid-2, .lk-grid-3{ grid-template-columns:1fr; }
+  .lk-btn-primary{ width:100%; align-self:stretch !important; }
+}
+`;
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmt(n: number) {
   return new Intl.NumberFormat("es-MX", {
@@ -269,11 +306,11 @@ function LukonDashboard() {
       fontFamily: L.fBody,
       WebkitFontSmoothing: "antialiased",
     }}>
+      <style dangerouslySetInnerHTML={{ __html: RESPONSIVE_CSS }} />
 
       {/* ── Toast ─────────────────────────────────────────────────────────────── */}
       {toast && (
-        <div style={{
-          position: "fixed", top: 20, right: 20, zIndex: 999,
+        <div className="lk-toast" style={{
           background: toast.ok ? L.ink3 : "#3d1010",
           color: toast.ok ? L.signal : "#ffaaaa",
           border: `1px solid ${toast.ok ? L.signal : L.crimson}`,
@@ -287,9 +324,8 @@ function LukonDashboard() {
       )}
 
       {/* ── Header ────────────────────────────────────────────────────────────── */}
-      <header style={{
+      <header className="lk-header" style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "16px 32px",
         background: L.ink,
         borderBottom: `1px solid ${L.line}`,
       }}>
@@ -306,7 +342,7 @@ function LukonDashboard() {
               color: "#F2EEE6", letterSpacing: "0.12em",
             }}>LUKON</span>
           </div>
-          <span style={{
+          <span className="lk-header-sub" style={{
             fontFamily: L.fMono, fontSize: 10, letterSpacing: "0.2em",
             color: L.muted, textTransform: "uppercase", paddingLeft: 12,
             borderLeft: `1px solid ${L.line}`,
@@ -315,8 +351,8 @@ function LukonDashboard() {
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <span style={{ fontFamily: L.fMono, fontSize: 11, color: L.muted }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span className="lk-header-email" style={{ fontFamily: L.fMono, fontSize: 11, color: L.muted }}>
             {userEmail}
           </span>
           <button onClick={handleSignOut} style={{
@@ -337,8 +373,8 @@ function LukonDashboard() {
       </header>
 
       {/* ── Tabs nav ──────────────────────────────────────────────────────────── */}
-      <div style={{
-        display: "flex", gap: 4, padding: "20px 32px 0",
+      <div className="lk-tabs" style={{
+        display: "flex", gap: 4,
         borderBottom: `1px solid ${L.lineL}`,
       }}>
         {(["cobrar", "facturar", "historial", "resenas"] as Tab[]).map(t => {
@@ -350,7 +386,7 @@ function LukonDashboard() {
           };
           const active = tab === t;
           return (
-            <button key={t} onClick={() => setTab(t)} style={{
+            <button key={t} className="lk-tab" onClick={() => setTab(t)} style={{
               background: active ? L.ink : "transparent",
               color:      active ? L.signal : L.mutedL,
               border:     "none",
@@ -368,7 +404,7 @@ function LukonDashboard() {
       </div>
 
       {/* ── Contenido ─────────────────────────────────────────────────────────── */}
-      <main style={{ maxWidth: 800, margin: "0 auto", padding: "40px 32px" }}>
+      <main className="lk-main" style={{ maxWidth: 800, margin: "0 auto" }}>
 
         {/* ════ TAB: COBRAR ════════════════════════════════════════════════════ */}
         {tab === "cobrar" && (
@@ -415,7 +451,7 @@ function LukonDashboard() {
                 />
               </Field>
 
-              <button type="submit" disabled={loading} style={btnPrimaryStyle(loading)}>
+              <button type="submit" className="lk-btn-primary" disabled={loading} style={btnPrimaryStyle(loading)}>
                 {loading ? "Generando…" : "Generar link de pago →"}
               </button>
             </form>
@@ -486,7 +522,7 @@ function LukonDashboard() {
             </p>
 
             <form onSubmit={handleInvoice} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="lk-grid-2">
                 <Field label="RFC del receptor" required>
                   <input
                     value={invRFC}
@@ -519,7 +555,7 @@ function LukonDashboard() {
                 />
               </Field>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="lk-grid-2">
                 <Field label="Email (para enviar la factura)">
                   <input
                     type="email"
@@ -553,7 +589,7 @@ function LukonDashboard() {
                 />
               </Field>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+              <div className="lk-grid-3">
                 <Field label="Monto sin IVA (MXN)" required>
                   <div style={{ position: "relative" }}>
                     <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontFamily: L.fMono, fontSize: 13, color: L.mutedL }}>$</span>
@@ -598,7 +634,7 @@ function LukonDashboard() {
                 </div>
               )}
 
-              <button type="submit" disabled={loading} style={btnPrimaryStyle(loading)}>
+              <button type="submit" className="lk-btn-primary" disabled={loading} style={btnPrimaryStyle(loading)}>
                 {loading ? "Timbrando…" : "Timbrar CFDI →"}
               </button>
             </form>
@@ -649,7 +685,7 @@ function LukonDashboard() {
         {/* ════ TAB: HISTORIAL ═════════════════════════════════════════════════ */}
         {tab === "historial" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 28 }}>
               <h2 style={{ fontFamily: L.fMono, fontSize: 13, fontWeight: 500, color: L.mutedL, letterSpacing: "0.2em", textTransform: "uppercase", margin: 0 }}>
                 — Historial de operaciones
               </h2>
@@ -663,7 +699,7 @@ function LukonDashboard() {
             {transactions.length === 0 ? (
               <EmptyState text="Aún no hay transacciones registradas" />
             ) : (
-              <div style={{ overflowX: "auto", marginBottom: 40 }}>
+              <div className="lk-tablewrap" style={{ marginBottom: 40 }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: L.fBody, fontSize: 13 }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${L.lineL}` }}>
@@ -701,7 +737,7 @@ function LukonDashboard() {
             {invoices.length === 0 ? (
               <EmptyState text="Aún no hay facturas timbradas" />
             ) : (
-              <div style={{ overflowX: "auto" }}>
+              <div className="lk-tablewrap">
                 <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: L.fBody, fontSize: 13 }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${L.lineL}` }}>
