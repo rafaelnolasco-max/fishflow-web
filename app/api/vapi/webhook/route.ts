@@ -8,7 +8,11 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
-const resend     = new Resend(process.env.RESEND_API_KEY!)
+// Lazy: el SDK de Resend truena al construirse sin API key. A nivel de módulo
+// eso rompe `next build` en cualquier máquina que no tenga el secreto.
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY!)
+}
 
 // ─── Tipos Vapi ───────────────────────────────────────────────────────────────
 
@@ -173,7 +177,7 @@ export async function POST(req: NextRequest) {
         const emoji       = isConfirmed ? '✅' : appointmentStatus === 'cancelled' ? '❌' : '🔄'
         const accion      = isConfirmed ? 'confirmó' : appointmentStatus === 'cancelled' ? 'canceló' : 'quiere reagendar'
 
-        await resend.emails.send({
+        await getResend().emails.send({
           from:    'CANE Neurofeedback <raf@fishflow.mx>',
           to:      ['raf@fishflow.mx'],
           subject: `${emoji} ${appt.patient_name} ${accion} su cita del ${dateStr}`,

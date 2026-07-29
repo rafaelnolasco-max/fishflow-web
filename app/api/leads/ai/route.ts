@@ -14,7 +14,11 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 })
 
-const resend = new Resend(process.env.RESEND_API_KEY!)
+// Lazy: el SDK de Resend truena al construirse sin API key. A nivel de módulo
+// eso rompe `next build` en cualquier máquina que no tenga el secreto.
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY!)
+}
 
 // ─── System prompt de FishFlow ───────────────────────────────────────────────
 
@@ -135,7 +139,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ── 3. Email de seguimiento con Resend ────────────────────────────────────
-    const { error: emailError } = await resend.emails.send({
+    const { error: emailError } = await getResend().emails.send({
       from:     'FishFlow <recibos@fishflow.mx>',
       to:       [email.trim().toLowerCase()],
       replyTo:  'raf@fishflow.mx',

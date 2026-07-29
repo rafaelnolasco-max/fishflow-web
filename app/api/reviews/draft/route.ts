@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     // ── 1. Configuración del cliente (voz, negocio, plantilla base, link) ──────
     const { data: settings, error: sErr } = await supabaseAdmin
       .from('review_settings')
-      .select('business_display_name, review_link, msg_template_2, msg_template_3, ai_persona')
+      .select('business_display_name, review_link, msg_template_2, msg_template_3, ai_persona, ai_sensitive')
       .eq('client_id', clientId)
       .maybeSingle()
 
@@ -66,6 +66,9 @@ export async function POST(req: NextRequest) {
     const reviewLink = settings?.review_link ?? ''
     const baseTpl = stg === 1 ? settings?.msg_template_2 : settings?.msg_template_3
     const name = firstName(contactName ?? 'el cliente')
+    // Verticales sensibles (salud, terapia): el borrador NO puede reproducir
+    // contenido clínico de la respuesta del paciente. Ver review_settings.ai_sensitive.
+    const sensitive = settings?.ai_sensitive === true
 
     // ── 2. System prompt: persona + tarea ─────────────────────────────────────
     const system = `${persona}
@@ -87,7 +90,17 @@ Reglas:
 1. Redacta tomando en cuenta LO QUE EL CLIENTE ACABA DE RESPONDER. Reconócelo antes de pedir.
 2. Si la respuesta menciona algo del servicio (una duda, una falla, soporte, algo técnico): atiéndelo primero como el dueño, ofrece resolverlo, y NO fuerces la reseña — sugiere pedirla después.
 3. Si el cliente suena molesto o insatisfecho: nada de link de reseña; ofrece una llamada para resolverlo.
-4. Devuelve SOLO el texto del mensaje listo para enviar, sin comillas ni explicaciones.`
+4. Devuelve SOLO el texto del mensaje listo para enviar, sin comillas ni explicaciones.${
+      sensitive
+        ? `
+
+CONFIDENCIALIDAD (obligatorio, este es un servicio de salud):
+5. NUNCA repitas, parafrasees ni aludas al contenido de salud que la persona haya mencionado: síntomas, diagnósticos, medicamentos, emociones, sueño, ansiedad, avances o retrocesos del tratamiento. Ese mensaje puede ser leído por alguien más en su teléfono.
+6. Agradece en términos neutros y generales ("me da mucho gusto saber de ti", "gracias por contarme"). Sin adjetivos que revelen cómo va su proceso.
+7. No menciones el tipo de tratamiento ni el motivo de consulta.
+8. Si la persona expresa malestar emocional o algo delicado: NO pidas reseña ni mandes link. Responde con calidez y ofrécele agendar un espacio para platicarlo.`
+        : ''
+    }`
 
     const userMsg = `Cliente: ${name}
 Respuesta del cliente por WhatsApp: "${reply.trim()}"`

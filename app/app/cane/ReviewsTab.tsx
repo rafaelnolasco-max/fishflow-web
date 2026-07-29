@@ -28,6 +28,7 @@ export default function ReviewsTab() {
       personLabel="paciente"
       personLabelPlural="pacientes"
       emptyHint="o usa ⭐ desde una cita"
+      smartReplies
     />
   );
 }
