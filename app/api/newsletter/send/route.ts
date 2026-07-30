@@ -88,9 +88,11 @@ function emailHtml(subject: string, body: string, aviso: string) {
           <td style="background:${INK};padding:28px 32px">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td width="42" style="vertical-align:middle;padding-right:13px">
-                  <img src="${LOGO}" width="42" height="42" alt=""
-                       style="display:block;width:42px;height:42px;border:0">
+                <td width="46" style="vertical-align:middle;padding-right:14px">
+                  <!-- alt visible: si el cliente bloquea imágenes (Gmail lo hace por
+                       defecto en remitentes nuevos), en su lugar se lee "Dr. Mente" -->
+                  <img src="${LOGO}" width="46" height="46" alt="Dr. Mente"
+                       style="display:block;width:46px;height:46px;border:0;font-family:${SANS};font-size:11px;color:#67D4E8">
                 </td>
                 <td style="vertical-align:middle">
                   <div style="font-family:${SERIF};font-size:19px;font-weight:500;color:#FFFFFF;line-height:1.2">Mario Citalán</div>
