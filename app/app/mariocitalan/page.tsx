@@ -649,100 +649,6 @@ export default function MarioCitalanPanel() {
                 sub={`${leads.length} evaluaciones`} />
             </StatGrid>
 
-            <div style={{ ...cardStyle, marginBottom: 20, borderLeft: `3px solid ${C.blue}` }}>
-              <p style={{ fontSize: 14, lineHeight: 1.7, color: C.ink2, margin: 0 }}>
-                Quien llenó una evaluación pidió <strong>su resultado</strong>, no un boletín. Antes de
-                incluir a alguien aquí, pregúntale — por WhatsApp o en tu correo de seguimiento — y marca
-                su respuesta. Una lista de 20 personas que sí quieren leerte vale más que una de 200 que
-                te reportan como spam.
-              </p>
-            </div>
-
-            <Section title="A quién preguntarle">
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14, alignItems: "center" }}>
-                <select value={fGrupo} onChange={(e) => setFGrupo(e.target.value as "todo" | Grupo)} style={selectStyle}>
-                  <option value="todo">Todos los perfiles</option>
-                  <option value="atencion">Atención prioritaria</option>
-                  <option value="seguimiento">Seguimiento</option>
-                  <option value="potencial">Alto potencial</option>
-                </select>
-                <select value={orden} onChange={(e) => setOrden(e.target.value as typeof orden)} style={selectStyle}>
-                  <option value="reciente">Más recientes primero</option>
-                  <option value="necesidad">Mayor necesidad primero</option>
-                  <option value="potencial">Mayor potencial primero</option>
-                </select>
-                <span style={{ fontSize: 12.5, color: C.muted }}>
-                  {fGrupo !== "todo" ? GRUPO_META[fGrupo as Grupo].ayuda : "Una fila por persona, no por evaluación."}
-                </span>
-              </div>
-
-              {(() => {
-                const lista = personas
-                  .filter((p) => fGrupo === "todo" || p.grupo === fGrupo)
-                  .filter((p) => p.newsletter !== "fuera")
-                  .sort((a, b) => {
-                    if (orden === "necesidad") return a.nivel - b.nivel || (a.ultima < b.ultima ? 1 : -1);
-                    if (orden === "potencial") return b.nivel - a.nivel || (a.ultima < b.ultima ? 1 : -1);
-                    return a.ultima < b.ultima ? 1 : -1;
-                  });
-                if (lista.length === 0) return <Empty msg="No hay personas con ese filtro" theme={T} />;
-                return (
-                  <div style={{ display: "grid", gap: 10 }}>
-                    {lista.map((p) => {
-                      const gm = GRUPO_META[p.grupo];
-                      const nm = newsletterMeta(p.newsletter);
-                      const primer = p.name.split(" ")[0] || p.name;
-                      const msg = encodeURIComponent(
-                        `Hola ${primer}, soy Mario Citalán. Gracias por hacer mi evaluación. ` +
-                        `Cada quincena comparto material sobre arquitectura mental y toma de decisiones. ` +
-                        `¿Te gustaría que te lo mande por correo?`
-                      );
-                      return (
-                        <div key={p.email} style={{ ...cardStyle, display: "flex", gap: 12,
-                          alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
-                          <div style={{ minWidth: 210, flex: 1 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                              <span style={{ fontWeight: 600 }}>{p.name}</span>
-                              <Chip label={gm.corto} bg={gm.bg} fg={gm.fg} />
-                              <Chip label={nm.label} bg={nm.bg} fg={nm.fg} />
-                            </div>
-                            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>
-                              {p.profile || "—"}
-                              {p.evaluaciones > 1 && ` · ${p.evaluaciones} evaluaciones`}
-                            </div>
-                            <div style={{ fontSize: 12.5, color: C.muted }}>{p.email}</div>
-                          </div>
-                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                            {p.phone && (
-                              <a href={`${waLink(p.phone)}?text=${msg}`} target="_blank" rel="noopener noreferrer"
-                                style={{ fontSize: 12.5, textDecoration: "none", color: "#fff",
-                                  background: "#25D366", borderRadius: 8, padding: "8px 14px", fontWeight: 600 }}>
-                                Preguntar por WhatsApp
-                              </a>
-                            )}
-                            {p.newsletter !== "suscrito" && (
-                              <button onClick={() => setNewsletter(p.email, "suscrito")}
-                                style={{ fontSize: 12.5, background: C.blue, color: "#fff", border: "none",
-                                  borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontWeight: 600 }}>
-                                Dijo que sí
-                              </button>
-                            )}
-                            {p.newsletter !== "baja" && (
-                              <button onClick={() => setNewsletter(p.email, "baja")}
-                                style={{ fontSize: 12.5, background: "none", color: C.muted,
-                                  border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 14px", cursor: "pointer" }}>
-                                No quiere
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-            </Section>
-
             {/* ── Envío quincenal ─────────────────────────────────────────── */}
             <div style={{ marginTop: 34 }}>
               <Section title="Tu envío quincenal">
@@ -850,6 +756,101 @@ export default function MarioCitalanPanel() {
                 </div>
               </Section>
             </div>
+
+            <div style={{ ...cardStyle, marginBottom: 20, borderLeft: `3px solid ${C.blue}` }}>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: C.ink2, margin: 0 }}>
+                Quien llenó una evaluación pidió <strong>su resultado</strong>, no un boletín. Antes de
+                incluir a alguien aquí, pregúntale — por WhatsApp o en tu correo de seguimiento — y marca
+                su respuesta. Una lista de 20 personas que sí quieren leerte vale más que una de 200 que
+                te reportan como spam.
+              </p>
+            </div>
+
+            <Section title="A quién preguntarle">
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14, alignItems: "center" }}>
+                <select value={fGrupo} onChange={(e) => setFGrupo(e.target.value as "todo" | Grupo)} style={selectStyle}>
+                  <option value="todo">Todos los perfiles</option>
+                  <option value="atencion">Atención prioritaria</option>
+                  <option value="seguimiento">Seguimiento</option>
+                  <option value="potencial">Alto potencial</option>
+                </select>
+                <select value={orden} onChange={(e) => setOrden(e.target.value as typeof orden)} style={selectStyle}>
+                  <option value="reciente">Más recientes primero</option>
+                  <option value="necesidad">Mayor necesidad primero</option>
+                  <option value="potencial">Mayor potencial primero</option>
+                </select>
+                <span style={{ fontSize: 12.5, color: C.muted }}>
+                  {fGrupo !== "todo" ? GRUPO_META[fGrupo as Grupo].ayuda : "Una fila por persona, no por evaluación."}
+                </span>
+              </div>
+
+              {(() => {
+                const lista = personas
+                  .filter((p) => fGrupo === "todo" || p.grupo === fGrupo)
+                  .filter((p) => p.newsletter !== "fuera")
+                  .sort((a, b) => {
+                    if (orden === "necesidad") return a.nivel - b.nivel || (a.ultima < b.ultima ? 1 : -1);
+                    if (orden === "potencial") return b.nivel - a.nivel || (a.ultima < b.ultima ? 1 : -1);
+                    return a.ultima < b.ultima ? 1 : -1;
+                  });
+                if (lista.length === 0) return <Empty msg="No hay personas con ese filtro" theme={T} />;
+                return (
+                  <div style={{ display: "grid", gap: 10 }}>
+                    {lista.map((p) => {
+                      const gm = GRUPO_META[p.grupo];
+                      const nm = newsletterMeta(p.newsletter);
+                      const primer = p.name.split(" ")[0] || p.name;
+                      const msg = encodeURIComponent(
+                        `Hola ${primer}, soy Mario Citalán. Gracias por hacer mi evaluación. ` +
+                        `Cada quincena comparto material sobre arquitectura mental y toma de decisiones. ` +
+                        `¿Te gustaría que te lo mande por correo?`
+                      );
+                      return (
+                        <div key={p.email} style={{ ...cardStyle, display: "flex", gap: 12,
+                          alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
+                          <div style={{ minWidth: 210, flex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                              <span style={{ fontWeight: 600 }}>{p.name}</span>
+                              <Chip label={gm.corto} bg={gm.bg} fg={gm.fg} />
+                              <Chip label={nm.label} bg={nm.bg} fg={nm.fg} />
+                            </div>
+                            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>
+                              {p.profile || "—"}
+                              {p.evaluaciones > 1 && ` · ${p.evaluaciones} evaluaciones`}
+                            </div>
+                            <div style={{ fontSize: 12.5, color: C.muted }}>{p.email}</div>
+                          </div>
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            {p.phone && (
+                              <a href={`${waLink(p.phone)}?text=${msg}`} target="_blank" rel="noopener noreferrer"
+                                style={{ fontSize: 12.5, textDecoration: "none", color: "#fff",
+                                  background: "#25D366", borderRadius: 8, padding: "8px 14px", fontWeight: 600 }}>
+                                Preguntar por WhatsApp
+                              </a>
+                            )}
+                            {p.newsletter !== "suscrito" && (
+                              <button onClick={() => setNewsletter(p.email, "suscrito")}
+                                style={{ fontSize: 12.5, background: C.blue, color: "#fff", border: "none",
+                                  borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontWeight: 600 }}>
+                                Dijo que sí
+                              </button>
+                            )}
+                            {p.newsletter !== "baja" && (
+                              <button onClick={() => setNewsletter(p.email, "baja")}
+                                style={{ fontSize: 12.5, background: "none", color: C.muted,
+                                  border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 14px", cursor: "pointer" }}>
+                                No quiere
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </Section>
+
           </>
         ) : (
           <Section title={`${filtered.length} de ${leads.length} prospectos`}
