@@ -210,6 +210,15 @@ export default function MarioCitalanPanel() {
   // Periodo de la pestaña Resumen
   const [periodo, setPeriodo] = useState<Periodo>("30");
 
+  // Redactor del envío quincenal
+  const [nlTema, setNlTema] = useState("");
+  const [nlNotas, setNlNotas] = useState("");
+  const [nlAudiencia, setNlAudiencia] = useState<"todos" | Grupo>("todos");
+  const [nlSubject, setNlSubject] = useState("");
+  const [nlBody, setNlBody] = useState("");
+  const [nlLoading, setNlLoading] = useState(false);
+  const [nlSending, setNlSending] = useState(false);
+
   // Detalle del prospecto
   const [detail, setDetail] = useState<CriterioLead | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
@@ -275,6 +284,46 @@ export default function MarioCitalanPanel() {
     setLeads((prev) => prev.map((l) => (l.email === email ? { ...l, newsletter: estado } : l)));
     setDetail((d) => (d && d.email === email ? { ...d, newsletter: estado } : d));
     flash(estado === "suscrito" ? "Suscrito al newsletter" : "Actualizado");
+  }
+
+  async function generarBorrador() {
+    if (!nlTema.trim()) { flash("Escribe de qué quieres hablar"); return; }
+    setNlLoading(true);
+    try {
+      const r = await fetch("/api/newsletter/draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tema: nlTema, notas: nlNotas, audiencia: nlAudiencia }),
+      });
+      const d = await r.json();
+      if (!r.ok) { flash(d.error || "No se pudo generar"); return; }
+      setNlSubject(d.subject || "");
+      setNlBody(d.body || "");
+      flash("Borrador listo — revísalo y edítalo");
+    } catch {
+      flash("No se pudo generar el borrador");
+    } finally {
+      setNlLoading(false);
+    }
+  }
+
+  async function enviarPrueba() {
+    if (!nlSubject.trim() || !nlBody.trim()) { flash("Falta asunto o contenido"); return; }
+    setNlSending(true);
+    try {
+      const r = await fetch("/api/newsletter/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject: nlSubject, body: nlBody, audience: nlAudiencia }),
+      });
+      const d = await r.json();
+      if (!r.ok) { flash(d.error || "No se pudo enviar"); return; }
+      flash(`Prueba enviada a ${(d.sentTo || []).length} buzones`);
+    } catch {
+      flash("No se pudo enviar");
+    } finally {
+      setNlSending(false);
+    }
   }
 
   async function saveNote(id: string) {
@@ -694,14 +743,112 @@ export default function MarioCitalanPanel() {
               })()}
             </Section>
 
-            <div style={{ ...cardStyle, marginTop: 22, background: C.bg2, borderStyle: "dashed" }}>
-              <div style={eyebrowStyle}>Siguiente paso</div>
-              <p style={{ fontSize: 14, lineHeight: 1.7, color: C.ink2, marginTop: 10 }}>
-                Cuando el correo <strong>mail.mariocitalan.net</strong> esté verificado, aquí mismo vas a poder
-                escribir el envío quincenal: eliges a quién (todos los suscritos o solo un perfil), la IA
-                te propone un borrador con tu voz, lo editas y lo mandas. Por ahora, esta pantalla sirve
-                para construir la lista.
-              </p>
+            {/* ── Envío quincenal ─────────────────────────────────────────── */}
+            <div style={{ marginTop: 34 }}>
+              <Section title="Tu envío quincenal">
+                <div style={{ ...cardStyle, background: "#FFF9E9", borderColor: "#EBC99A", marginBottom: 18 }}>
+                  <div style={{ ...eyebrowStyle, color: "#B96A1E" }}>Modo prueba</div>
+                  <p style={{ fontSize: 14, lineHeight: 1.7, color: C.ink2, marginTop: 9, margin: "9px 0 0" }}>
+                    Por ahora el correo <strong>solo llega a Mario y a FishFlow</strong>, aunque digas
+                    &quot;enviar&quot;. Los suscriptores no lo reciben. Sirve para afinar el formato y la
+                    voz antes de soltarlo. Se abre a la lista real cuando esté verificado el correo propio
+                    de Mario.
+                  </p>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 18 }}>
+                  {/* Redactor */}
+                  <div style={cardStyle}>
+                    <Field label="¿De qué quieres hablar esta quincena?" theme={T}>
+                      <input
+                        value={nlTema}
+                        onChange={(e) => setNlTema(e.target.value)}
+                        placeholder="Ej. por qué repetimos decisiones que ya sabemos que no funcionan"
+                        style={{ ...inputStyle, fontSize: 16 }}
+                      />
+                    </Field>
+                    <Field label="Notas tuyas (opcional)" theme={T}>
+                      <textarea
+                        value={nlNotas}
+                        onChange={(e) => setNlNotas(e.target.value)}
+                        rows={3}
+                        placeholder="Un caso que quieras contar, una idea, algo que dijiste en radio…"
+                        style={{ ...inputStyle, fontSize: 16, resize: "vertical", lineHeight: 1.6 }}
+                      />
+                    </Field>
+                    <Field label="¿A quién le escribes?" theme={T}>
+                      <select
+                        value={nlAudiencia}
+                        onChange={(e) => setNlAudiencia(e.target.value as "todos" | Grupo)}
+                        style={{ ...selectStyle, width: "100%", padding: "10px 12px", fontSize: 14 }}
+                      >
+                        <option value="todos">Todos mis suscritos</option>
+                        <option value="atencion">Solo atención prioritaria</option>
+                        <option value="seguimiento">Solo seguimiento</option>
+                        <option value="potencial">Solo alto potencial</option>
+                      </select>
+                    </Field>
+                    <button
+                      onClick={generarBorrador}
+                      disabled={nlLoading}
+                      style={{ width: "100%", background: nlLoading ? C.gray : C.ink, color: "#fff",
+                        border: "none", padding: "13px", fontFamily: FONT_MONO, fontSize: 11.5,
+                        letterSpacing: ".14em", textTransform: "uppercase",
+                        cursor: nlLoading ? "default" : "pointer", marginTop: 4 }}
+                    >
+                      {nlLoading ? "Escribiendo…" : "Proponme un borrador"}
+                    </button>
+                    <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, marginTop: 10 }}>
+                      El borrador está escrito con tu voz, pero es tuyo: léelo completo y cámbialo. Nada
+                      sale sin que tú lo edites.
+                    </p>
+                  </div>
+
+                  {/* Vista previa editable */}
+                  <div style={cardStyle}>
+                    <Field label="Asunto" theme={T}>
+                      <input
+                        value={nlSubject}
+                        onChange={(e) => setNlSubject(e.target.value)}
+                        placeholder="Aparecerá aquí el asunto propuesto"
+                        style={{ ...inputStyle, fontSize: 16 }}
+                      />
+                    </Field>
+                    <Field label="Contenido del correo" theme={T}>
+                      <textarea
+                        value={nlBody}
+                        onChange={(e) => setNlBody(e.target.value)}
+                        rows={14}
+                        placeholder="Aquí aparece el borrador. Edítalo hasta que suene a ti."
+                        style={{ ...inputStyle, fontSize: 15.5, resize: "vertical", lineHeight: 1.75,
+                          fontFamily: FONT_BODY }}
+                      />
+                    </Field>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                      <button
+                        onClick={enviarPrueba}
+                        disabled={nlSending || !nlSubject.trim() || !nlBody.trim()}
+                        style={{ flex: 1, minWidth: 180,
+                          background: nlSending || !nlSubject.trim() || !nlBody.trim() ? C.gray : C.blue,
+                          color: "#fff", border: "none", padding: "13px",
+                          fontFamily: FONT_MONO, fontSize: 11.5, letterSpacing: ".14em",
+                          textTransform: "uppercase", cursor: nlSending ? "default" : "pointer" }}
+                      >
+                        {nlSending ? "Enviando…" : "Enviar prueba"}
+                      </button>
+                      {nlBody.trim() && (
+                        <span style={{ fontSize: 12.5, color: C.muted }}>
+                          {nlBody.trim().split(/\s+/).length} palabras
+                        </span>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, marginTop: 10 }}>
+                      Llega a <strong>mariocitalan@gmail.com</strong> y <strong>raf@fishflow.mx</strong>,
+                      con la marca y el formato reales del envío.
+                    </p>
+                  </div>
+                </div>
+              </Section>
             </div>
           </>
         ) : (
