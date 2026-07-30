@@ -544,6 +544,10 @@ export interface CriterioLead {
   answers:     Record<string, unknown> | null;
   notes:       string | null;
   opt_in:      boolean;
+  /** Estado en el embudo de suscripción: pendiente | suscrito | baja | fuera */
+  newsletter:  string | null;
+  newsletter_at:   string | null;
+  newsletter_note: string | null;
   source:      string | null;
   status:      string | null;
   created_at:  string;

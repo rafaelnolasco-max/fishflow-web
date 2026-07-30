@@ -95,10 +95,58 @@ function statusMeta(id: string | null) {
   return LEAD_STATUS.find((s) => s.id === (id || "nuevo")) ?? LEAD_STATUS[0];
 }
 
+// ─── Prioridad por perfil ──────────────────────────────────────────────────────
+// Los perfiles ya vienen ordenados por severidad en las dos evaluaciones:
+// Actitud    (0-60):  Reconstrucción → Vulnerable → Funcional → Sólida
+// Criterio (30-150):  Emergente → En Desarrollo → En Consolidación → Funcional → Alto Desempeño
+//
+// `nivel` 1 = más necesidad de acompañamiento; 5 = estructura ya sólida.
+// Dos lecturas legítimas y opuestas de "prioridad":
+//   · por NECESIDAD  → primero quien peor está (nivel 1)
+//   · por POTENCIAL  → primero quien tiene estructura para programas ejecutivos (nivel 5)
+// El panel deja elegir el orden en vez de imponer uno.
+type Grupo = "atencion" | "seguimiento" | "potencial";
+
+const PROFILE_PRIORITY: Record<string, { nivel: number; grupo: Grupo }> = {
+  "Arquitectura de Actitud en Reconstrucción": { nivel: 1, grupo: "atencion" },
+  "Arquitectura Emergente":                    { nivel: 1, grupo: "atencion" },
+  "Arquitectura de Actitud Vulnerable":        { nivel: 2, grupo: "atencion" },
+  "Arquitectura en Desarrollo":                { nivel: 2, grupo: "atencion" },
+  "Arquitectura de Actitud Funcional":         { nivel: 3, grupo: "seguimiento" },
+  "Arquitectura en Consolidación":             { nivel: 3, grupo: "seguimiento" },
+  "Arquitectura de Actitud Sólida":            { nivel: 4, grupo: "potencial" },
+  "Arquitectura Funcional":                    { nivel: 4, grupo: "potencial" },
+  "Arquitectura de Alto Desempeño":            { nivel: 5, grupo: "potencial" },
+};
+
+const GRUPO_META: Record<Grupo, { label: string; corto: string; bg: string; fg: string; ayuda: string }> = {
+  atencion:    { label: "Atención prioritaria", corto: "Atención", bg: "#FDECEC", fg: "#C0392B",
+                 ayuda: "Estructura frágil: son quienes más necesitan acompañamiento." },
+  seguimiento: { label: "Seguimiento",          corto: "Seguimiento", bg: "#FFF4E5", fg: "#B96A1E",
+                 ayuda: "Tienen recursos pero áreas claras por fortalecer." },
+  potencial:   { label: "Alto potencial",       corto: "Potencial", bg: "#E8F0F9", fg: "#2A6AAE",
+                 ayuda: "Base sólida: perfil de programas ejecutivos y alto desempeño." },
+};
+
+function priorityOf(profile: string | null) {
+  return PROFILE_PRIORITY[profile || ""] ?? { nivel: 3, grupo: "seguimiento" as Grupo };
+}
+
 const SOURCE_LABEL: Record<string, string> = {
   actitud:  "Evaluación de Actitud",
   criterio: "Evaluación de Criterio",
 };
+
+// ─── Suscripción al newsletter ─────────────────────────────────────────────────
+const NEWSLETTER_STATE: { id: string; label: string; bg: string; fg: string }[] = [
+  { id: "pendiente", label: "Por preguntar", bg: "#EEF2F6", fg: "#5D7080" },
+  { id: "suscrito",  label: "Suscrito",      bg: "#EAF7EE", fg: "#4B9A62" },
+  { id: "baja",      label: "No quiere",     bg: "#F6F7F8", fg: "#9CA3AF" },
+  { id: "fuera",     label: "Correo inválido", bg: "#FDECEC", fg: "#C0392B" },
+];
+function newsletterMeta(id: string | null) {
+  return NEWSLETTER_STATE.find((s) => s.id === (id || "pendiente")) ?? NEWSLETTER_STATE[0];
+}
 function sourceLabel(s: string | null) {
   return SOURCE_LABEL[s || ""] || s || "—";
 }
@@ -146,7 +194,7 @@ const PERIODOS: { id: Periodo; label: string }[] = [
 
 export default function MarioCitalanPanel() {
   const router = useRouter();
-  const [tab, setTab] = useState<"resumen" | "prospectos">("resumen");
+  const [tab, setTab] = useState<"resumen" | "prospectos" | "newsletter">("resumen");
   const [leads, setLeads] = useState<CriterioLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
@@ -156,6 +204,8 @@ export default function MarioCitalanPanel() {
   const [fSource, setFSource] = useState<string>("todo");
   const [fStatus, setFStatus] = useState<string>("todo");
   const [fOptIn, setFOptIn] = useState(false);
+  const [fGrupo, setFGrupo] = useState<"todo" | Grupo>("todo");
+  const [orden, setOrden] = useState<"reciente" | "necesidad" | "potencial">("reciente");
 
   // Periodo de la pestaña Resumen
   const [periodo, setPeriodo] = useState<Periodo>("30");
@@ -180,7 +230,7 @@ export default function MarioCitalanPanel() {
       for (let from = 0; ; from += PAGE) {
         const { data, error } = await supabase
           .from("leads")
-          .select("id,name,email,phone,problem,ai_response,profile,route,answers,notes,opt_in,source,status,created_at")
+          .select("id,name,email,phone,problem,ai_response,profile,route,answers,notes,opt_in,newsletter,newsletter_at,newsletter_note,source,status,created_at")
           .eq("client_id", CRITERIO_CLIENT_ID)
           .order("created_at", { ascending: false })
           .range(from, from + PAGE - 1);
@@ -212,6 +262,21 @@ export default function MarioCitalanPanel() {
     setDetail((d) => (d && d.id === id ? { ...d, status } : d));
   }
 
+  // Suscripción al newsletter: la marca Mario después de preguntarle a la persona.
+  // Se guarda por correo (no por evaluación) porque quien hizo las dos pruebas
+  // aparece dos veces y la decisión es de la persona, no del cuestionario.
+  async function setNewsletter(email: string, estado: string) {
+    const { error } = await supabase
+      .from("leads")
+      .update({ newsletter: estado, newsletter_at: new Date().toISOString() })
+      .eq("client_id", CRITERIO_CLIENT_ID)
+      .eq("email", email);
+    if (error) { console.error(error); flash("No se pudo actualizar: " + error.message); return; }
+    setLeads((prev) => prev.map((l) => (l.email === email ? { ...l, newsletter: estado } : l)));
+    setDetail((d) => (d && d.email === email ? { ...d, newsletter: estado } : d));
+    flash(estado === "suscrito" ? "Suscrito al newsletter" : "Actualizado");
+  }
+
   async function saveNote(id: string) {
     setSaving(true);
     const { error } = await supabase.from("leads").update({ notes: noteDraft }).eq("id", id);
@@ -230,14 +295,59 @@ export default function MarioCitalanPanel() {
   // ─── Derivados ───────────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return leads.filter((l) => {
+    const out = leads.filter((l) => {
       if (fSource !== "todo" && (l.source || "") !== fSource) return false;
       if (fStatus !== "todo" && (l.status || "nuevo") !== fStatus) return false;
-      if (fOptIn && !l.opt_in) return false;
+      if (fOptIn && (l.newsletter || "pendiente") !== "suscrito") return false;
+      if (fGrupo !== "todo" && priorityOf(l.profile).grupo !== fGrupo) return false;
       if (!q) return true;
       return [l.name, l.email, l.phone, l.profile].some((v) => (v || "").toLowerCase().includes(q));
     });
-  }, [leads, search, fSource, fStatus, fOptIn]);
+    if (orden === "necesidad") {
+      // nivel 1 primero: quien peor está, arriba
+      return [...out].sort((a, b) =>
+        priorityOf(a.profile).nivel - priorityOf(b.profile).nivel ||
+        (a.created_at < b.created_at ? 1 : -1));
+    }
+    if (orden === "potencial") {
+      // nivel 5 primero: perfil de programas ejecutivos
+      return [...out].sort((a, b) =>
+        priorityOf(b.profile).nivel - priorityOf(a.profile).nivel ||
+        (a.created_at < b.created_at ? 1 : -1));
+    }
+    return out; // ya viene ordenado por fecha desde la consulta
+  }, [leads, search, fSource, fStatus, fOptIn, fGrupo, orden]);
+
+  // ─── Personas (no evaluaciones) para el trabajo de newsletter ────────────────
+  // Quien hizo Actitud y Criterio aparece dos veces en `leads`; aquí se colapsa
+  // por correo y se conserva su perfil más severo, que es el que manda para priorizar.
+  type Persona = {
+    email: string; name: string; phone: string | null;
+    profile: string | null; nivel: number; grupo: Grupo;
+    newsletter: string; evaluaciones: number; ultima: string;
+  };
+  const personas = useMemo<Persona[]>(() => {
+    const map = new Map<string, Persona>();
+    for (const l of leads) {
+      const key = l.email.toLowerCase();
+      const p = priorityOf(l.profile);
+      const prev = map.get(key);
+      if (!prev) {
+        map.set(key, {
+          email: l.email, name: l.name, phone: l.phone,
+          profile: l.profile, nivel: p.nivel, grupo: p.grupo,
+          newsletter: l.newsletter || "pendiente", evaluaciones: 1, ultima: l.created_at,
+        });
+      } else {
+        prev.evaluaciones += 1;
+        if (l.created_at > prev.ultima) { prev.ultima = l.created_at; prev.name = l.name; }
+        if (!prev.phone && l.phone) prev.phone = l.phone;
+        if (p.nivel < prev.nivel) { prev.nivel = p.nivel; prev.grupo = p.grupo; prev.profile = l.profile; }
+        if (l.newsletter && l.newsletter !== "pendiente") prev.newsletter = l.newsletter;
+      }
+    }
+    return [...map.values()];
+  }, [leads]);
 
   const stats = useMemo(() => {
     const desde = periodo === "todo" ? null : daysAgo(Number(periodo));
@@ -366,6 +476,7 @@ export default function MarioCitalanPanel() {
           tabs={[
             { id: "resumen", label: "Resumen", icon: "📊" },
             { id: "prospectos", label: `Prospectos${leads.length ? ` (${leads.length})` : ""}`, icon: "👥" },
+            { id: "newsletter", label: "Newsletter", icon: "✉️" },
           ]}
         />
 
@@ -412,6 +523,42 @@ export default function MarioCitalanPanel() {
               </div>
 
               <div style={cardStyle}>
+                <Section title="A quién atender primero">
+                  {(() => {
+                    const porGrupo = (["atencion", "seguimiento", "potencial"] as Grupo[]).map((g) => ({
+                      g,
+                      n: personas.filter((p) => p.grupo === g).length,
+                      sinTocar: personas.filter((p) => p.grupo === g && p.newsletter === "pendiente").length,
+                    }));
+                    return (
+                      <div style={{ display: "grid", gap: 12 }}>
+                        {porGrupo.map(({ g, n, sinTocar }) => {
+                          const gm = GRUPO_META[g];
+                          return (
+                            <div key={g} style={{ borderLeft: `3px solid ${gm.fg}`, paddingLeft: 14 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+                                <span style={{ fontWeight: 600, fontSize: 14.5 }}>{gm.label}</span>
+                                <span style={{ fontFamily: FONT_SERIF, fontSize: 22, color: gm.fg }}>{n}</span>
+                              </div>
+                              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.55, marginTop: 2 }}>
+                                {gm.ayuda}
+                                {sinTocar > 0 && ` · ${sinTocar} sin contactar`}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.6, marginTop: 2 }}>
+                          Ordena la lista de prospectos por <strong>mayor necesidad</strong> para atender
+                          primero a quien peor está, o por <strong>mayor potencial</strong> para buscar
+                          perfiles de programas ejecutivos.
+                        </p>
+                      </div>
+                    );
+                  })()}
+                </Section>
+              </div>
+
+              <div style={cardStyle}>
                 <Section title="De dónde vienen">
                   {stats.porFuente.length === 0 ? (
                     <Empty msg="Sin datos en este periodo" theme={T} />
@@ -438,6 +585,125 @@ export default function MarioCitalanPanel() {
               </div>
             </div>
           </>
+        ) : tab === "newsletter" ? (
+          <>
+            <StatGrid>
+              <StatCard theme={T} label="Suscritos" icon="✉️" accent={C.blueDark}
+                value={personas.filter((p) => p.newsletter === "suscrito").length}
+                sub="reciben tus publicaciones" />
+              <StatCard theme={T} label="Por preguntar" icon="🕓"
+                value={personas.filter((p) => p.newsletter === "pendiente").length}
+                sub="aún no les preguntas" />
+              <StatCard theme={T} label="No quieren" icon="—"
+                value={personas.filter((p) => p.newsletter === "baja").length} />
+              <StatCard theme={T} label="Personas en total" icon="👥" value={personas.length}
+                sub={`${leads.length} evaluaciones`} />
+            </StatGrid>
+
+            <div style={{ ...cardStyle, marginBottom: 20, borderLeft: `3px solid ${C.blue}` }}>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: C.ink2, margin: 0 }}>
+                Quien llenó una evaluación pidió <strong>su resultado</strong>, no un boletín. Antes de
+                incluir a alguien aquí, pregúntale — por WhatsApp o en tu correo de seguimiento — y marca
+                su respuesta. Una lista de 20 personas que sí quieren leerte vale más que una de 200 que
+                te reportan como spam.
+              </p>
+            </div>
+
+            <Section title="A quién preguntarle">
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14, alignItems: "center" }}>
+                <select value={fGrupo} onChange={(e) => setFGrupo(e.target.value as "todo" | Grupo)} style={selectStyle}>
+                  <option value="todo">Todos los perfiles</option>
+                  <option value="atencion">Atención prioritaria</option>
+                  <option value="seguimiento">Seguimiento</option>
+                  <option value="potencial">Alto potencial</option>
+                </select>
+                <select value={orden} onChange={(e) => setOrden(e.target.value as typeof orden)} style={selectStyle}>
+                  <option value="reciente">Más recientes primero</option>
+                  <option value="necesidad">Mayor necesidad primero</option>
+                  <option value="potencial">Mayor potencial primero</option>
+                </select>
+                <span style={{ fontSize: 12.5, color: C.muted }}>
+                  {fGrupo !== "todo" ? GRUPO_META[fGrupo as Grupo].ayuda : "Una fila por persona, no por evaluación."}
+                </span>
+              </div>
+
+              {(() => {
+                const lista = personas
+                  .filter((p) => fGrupo === "todo" || p.grupo === fGrupo)
+                  .filter((p) => p.newsletter !== "fuera")
+                  .sort((a, b) => {
+                    if (orden === "necesidad") return a.nivel - b.nivel || (a.ultima < b.ultima ? 1 : -1);
+                    if (orden === "potencial") return b.nivel - a.nivel || (a.ultima < b.ultima ? 1 : -1);
+                    return a.ultima < b.ultima ? 1 : -1;
+                  });
+                if (lista.length === 0) return <Empty msg="No hay personas con ese filtro" theme={T} />;
+                return (
+                  <div style={{ display: "grid", gap: 10 }}>
+                    {lista.map((p) => {
+                      const gm = GRUPO_META[p.grupo];
+                      const nm = newsletterMeta(p.newsletter);
+                      const primer = p.name.split(" ")[0] || p.name;
+                      const msg = encodeURIComponent(
+                        `Hola ${primer}, soy Mario Citalán. Gracias por hacer mi evaluación. ` +
+                        `Cada quincena comparto material sobre arquitectura mental y toma de decisiones. ` +
+                        `¿Te gustaría que te lo mande por correo?`
+                      );
+                      return (
+                        <div key={p.email} style={{ ...cardStyle, display: "flex", gap: 12,
+                          alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
+                          <div style={{ minWidth: 210, flex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                              <span style={{ fontWeight: 600 }}>{p.name}</span>
+                              <Chip label={gm.corto} bg={gm.bg} fg={gm.fg} />
+                              <Chip label={nm.label} bg={nm.bg} fg={nm.fg} />
+                            </div>
+                            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>
+                              {p.profile || "—"}
+                              {p.evaluaciones > 1 && ` · ${p.evaluaciones} evaluaciones`}
+                            </div>
+                            <div style={{ fontSize: 12.5, color: C.muted }}>{p.email}</div>
+                          </div>
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            {p.phone && (
+                              <a href={`${waLink(p.phone)}?text=${msg}`} target="_blank" rel="noopener noreferrer"
+                                style={{ fontSize: 12.5, textDecoration: "none", color: "#fff",
+                                  background: "#25D366", borderRadius: 8, padding: "8px 14px", fontWeight: 600 }}>
+                                Preguntar por WhatsApp
+                              </a>
+                            )}
+                            {p.newsletter !== "suscrito" && (
+                              <button onClick={() => setNewsletter(p.email, "suscrito")}
+                                style={{ fontSize: 12.5, background: C.blue, color: "#fff", border: "none",
+                                  borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontWeight: 600 }}>
+                                Dijo que sí
+                              </button>
+                            )}
+                            {p.newsletter !== "baja" && (
+                              <button onClick={() => setNewsletter(p.email, "baja")}
+                                style={{ fontSize: 12.5, background: "none", color: C.muted,
+                                  border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 14px", cursor: "pointer" }}>
+                                No quiere
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </Section>
+
+            <div style={{ ...cardStyle, marginTop: 22, background: C.bg2, borderStyle: "dashed" }}>
+              <div style={eyebrowStyle}>Siguiente paso</div>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: C.ink2, marginTop: 10 }}>
+                Cuando el correo <strong>mail.mariocitalan.net</strong> esté verificado, aquí mismo vas a poder
+                escribir el envío quincenal: eliges a quién (todos los suscritos o solo un perfil), la IA
+                te propone un borrador con tu voz, lo editas y lo mandas. Por ahora, esta pantalla sirve
+                para construir la lista.
+              </p>
+            </div>
+          </>
         ) : (
           <Section title={`${filtered.length} de ${leads.length} prospectos`}
             action={{ label: "Exportar CSV", onClick: exportCSV }}>
@@ -456,6 +722,17 @@ export default function MarioCitalanPanel() {
               <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} style={selectStyle}>
                 <option value="todo">Todos los estatus</option>
                 {LEAD_STATUS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+              </select>
+              <select value={fGrupo} onChange={(e) => setFGrupo(e.target.value as "todo" | Grupo)} style={selectStyle}>
+                <option value="todo">Todos los perfiles</option>
+                <option value="atencion">Atención prioritaria</option>
+                <option value="seguimiento">Seguimiento</option>
+                <option value="potencial">Alto potencial</option>
+              </select>
+              <select value={orden} onChange={(e) => setOrden(e.target.value as typeof orden)} style={selectStyle}>
+                <option value="reciente">Más recientes primero</option>
+                <option value="necesidad">Mayor necesidad primero</option>
+                <option value="potencial">Mayor potencial primero</option>
               </select>
               <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, color: C.muted, cursor: "pointer" }}>
                 <input type="checkbox" checked={fOptIn} onChange={(e) => setFOptIn(e.target.checked)} />
@@ -496,7 +773,16 @@ export default function MarioCitalanPanel() {
                               </a>
                             )}
                           </td>
-                          <td style={{ padding: "12px" }}>{l.profile || "—"}</td>
+                          <td style={{ padding: "12px" }}>
+                            <div>{l.profile || "—"}</div>
+                            <div style={{ marginTop: 4 }}>
+                              <Chip
+                                label={GRUPO_META[priorityOf(l.profile).grupo].corto}
+                                bg={GRUPO_META[priorityOf(l.profile).grupo].bg}
+                                fg={GRUPO_META[priorityOf(l.profile).grupo].fg}
+                              />
+                            </div>
+                          </td>
                           <td style={{ padding: "12px", color: C.muted, fontSize: 13 }}>{sourceLabel(l.source)}</td>
                           <td style={{ padding: "12px", color: C.muted, fontSize: 13, whiteSpace: "nowrap" }}>
                             {fmtDate(l.created_at)}
@@ -534,9 +820,14 @@ export default function MarioCitalanPanel() {
             <Chip label={sourceLabel(detail.source)} bg={C.blueSoft} fg={C.blueDark} />
             <Chip label={statusMeta(detail.status).label} bg={statusMeta(detail.status).bg} fg={statusMeta(detail.status).fg} />
             <Chip
-              label={detail.opt_in ? "Quiere tus publicaciones" : "Sin suscripción"}
-              bg={detail.opt_in ? "#EAF7EE" : "#F6F7F8"}
-              fg={detail.opt_in ? "#4B9A62" : C.gray}
+              label={GRUPO_META[priorityOf(detail.profile).grupo].label}
+              bg={GRUPO_META[priorityOf(detail.profile).grupo].bg}
+              fg={GRUPO_META[priorityOf(detail.profile).grupo].fg}
+            />
+            <Chip
+              label={newsletterMeta(detail.newsletter).label}
+              bg={newsletterMeta(detail.newsletter).bg}
+              fg={newsletterMeta(detail.newsletter).fg}
             />
           </div>
 
