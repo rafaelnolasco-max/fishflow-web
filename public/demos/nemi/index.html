@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NEMI · Motos eléctricas para trabajar / Electric motorcycles built to work</title>
+<meta name="description" content="Motos y motonetas eléctricas para flotillas en México. Catálogo con precios, cotizador por volumen, escenarios arancelarios y plataforma de gestión de flotilla." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A0F14'/%3E%3Cpath d='M8 23V9l8 9V9h3v14l-8-9v9z' fill='%23D7FF3E'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A0F14'/%3E%3Cpath d='M8 23V9l8 9V9h3v14l-8-9v9z' fill='%23D7FF3E'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   1) RESPONSIVE BASE  ·  no tocar
+   ============================================================ */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1280px);margin-inline:auto;padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-tablewrap > table{min-width:var(--ff-tablemin,520px);}
+.ff-shell{display:grid;gap:var(--ff-gap,24px);align-items:start;grid-template-columns:var(--ff-side,260px) minmax(0,1fr);}
+.ff-shell--3{grid-template-columns:var(--ff-side,260px) minmax(0,1fr) var(--ff-right,300px);}
+.ff-h1{font-size:clamp(32px,5vw,64px);line-height:1.02;letter-spacing:-.02em;}
+.ff-h2{font-size:clamp(26px,3.6vw,46px);line-height:1.06;letter-spacing:-.02em;}
+.ff-lede{font-size:clamp(15px,1.4vw,19px);line-height:1.55;}
+@media(max-width:900px){ .ff-shell,.ff-shell--3{grid-template-columns:1fr;} }
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}
+
+/* ============================================================
+   2) TOKENS DE MARCA — NEMI (marca blanca, placeholder)
+   ============================================================ */
+:root{
+  --ink:#0A0F14; --ink-2:#121A22; --volt:#D7FF3E; --aqua:#6EE7D2; --warn:#FFB84D;
+  --paper:#FFFFFF; --paper-2:#F5F7F6; --line:#E2E7E4; --muted:#6A7B84;
+  --f-display:"Plus Jakarta Sans",system-ui,sans-serif;
+  --f-body:"Inter",system-ui,sans-serif;
+  --ff-max:1240px;
+}
+body{font-family:var(--f-body);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;}
+a{color:inherit;text-decoration:none;cursor:pointer;}
+h1,h2,h3,h4{font-family:var(--f-display);margin:0;}
+.btn{font-family:var(--f-body);font-weight:600;font-size:15px;padding:13px 22px;border-radius:10px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:transform .15s,background .15s,opacity .15s;}
+.btn:hover{transform:translateY(-1px);}
+.btn--primary{background:var(--volt);color:var(--ink);}
+.btn--dark{background:var(--ink);color:#fff;}
+.btn--ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+.btn--ghost-lt{background:transparent;color:#fff;border-color:rgba(255,255,255,.28);}
+.sec{padding-block:clamp(52px,7vw,96px);}
+.eyebrow{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.sec-head{max-width:64ch;margin-bottom:clamp(26px,3.5vw,44px);}
+.sec-head p{color:var(--muted);margin:12px 0 0;}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;background:rgba(10,15,20,.94);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);color:#fff;}
+.nav__in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:13px;}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:19px;letter-spacing:.06em;}
+.brand svg{width:30px;height:30px;flex:none;}
+.nav__links{display:flex;gap:22px;font-size:14.5px;font-weight:500;}
+.nav__links a{color:#B9C6CD;}
+.nav__links a:hover{color:var(--volt);}
+.nav__cta{display:flex;gap:10px;align-items:center;}
+.langsw{display:inline-flex;border:1px solid rgba(255,255,255,.22);border-radius:9px;overflow:hidden;flex:none;}
+.langsw button{border:0;background:transparent;color:#9DAEB7;font-family:var(--f-body);font-size:12.5px;font-weight:700;letter-spacing:.04em;padding:9px 12px;cursor:pointer;}
+.langsw button.on{background:var(--volt);color:var(--ink);}
+.burger{display:none;background:none;border:1px solid rgba(255,255,255,.25);border-radius:9px;color:#fff;width:42px;height:40px;font-size:19px;cursor:pointer;align-items:center;justify-content:center;}
+.mobmenu{display:none;border-top:1px solid rgba(255,255,255,.1);background:var(--ink);}
+.mobmenu.open{display:block;}
+.mobmenu a{display:block;padding:14px 0;color:#D5E0E6;font-weight:500;border-bottom:1px solid rgba(255,255,255,.07);}
+.mobmenu .btn{width:100%;margin:16px 0;}
+@media(max-width:1040px){ .nav__links{display:none;} }
+@media(max-width:1040px){ .nav__cta .btn{display:none;} }
+@media(max-width:900px){ .burger{display:flex;} }
+
+/* HERO */
+.hero{background:var(--ink);color:#fff;position:relative;overflow:hidden;}
+.hero::after{content:"";position:absolute;right:-14%;top:-30%;width:60%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(215,255,62,.16),transparent 62%);}
+.hero__in{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,4vw,56px);align-items:center;padding-block:clamp(52px,7vw,104px);position:relative;z-index:1;}
+@media(max-width:900px){ .hero__in{grid-template-columns:1fr;} }
+.hero h1{margin:16px 0 18px;color:#fff;}
+.hero h1 em{color:var(--volt);font-style:normal;}
+.hero p{color:#A9BAC3;max-width:50ch;margin:0 0 28px;}
+.hero .eyebrow{color:var(--volt);}
+.hero__btns{display:flex;gap:12px;flex-wrap:wrap;}
+.hero__stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:14px;margin-top:38px;border-top:1px solid rgba(255,255,255,.12);padding-top:24px;}
+.hero__stats b{display:block;font-family:var(--f-display);font-size:clamp(20px,2.4vw,28px);color:var(--volt);}
+.hero__stats span{font-size:12.5px;color:#8FA3AD;}
+.heroviz{background:linear-gradient(160deg,#16212B,#0C1319);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:26px;}
+.heroviz h4{font-size:14px;color:#fff;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.heroviz h4 small{font-weight:500;font-size:11px;color:var(--aqua);background:rgba(110,231,210,.12);padding:4px 9px;border-radius:99px;white-space:nowrap;}
+.hvrow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:13.5px;color:#9FB2BC;gap:12px;}
+.hvrow:last-of-type{border:0;}
+.hvrow b{color:#fff;font-weight:600;white-space:nowrap;}
+.hvbar{height:7px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:5px;}
+.hvbar i{display:block;height:100%;border-radius:99px;background:var(--volt);}
+
+/* CONTROL DE ARANCEL */
+.tariffbar{background:var(--ink-2);color:#fff;border-bottom:1px solid rgba(255,255,255,.09);}
+.tariffbar__in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px;flex-wrap:wrap;}
+.tariffbar .lbl{font-size:13px;color:#9FB2BC;display:flex;align-items:center;gap:9px;}
+.tariffbar .lbl b{color:#fff;font-weight:600;}
+.tsw{display:inline-flex;border:1px solid rgba(255,255,255,.2);border-radius:10px;overflow:hidden;}
+.tsw button{border:0;background:transparent;color:#9DAEB7;font-family:var(--f-body);font-size:13px;font-weight:600;padding:10px 16px;cursor:pointer;white-space:nowrap;}
+.tsw button.on{background:var(--volt);color:var(--ink);}
+.tsw button.on.warn{background:var(--warn);}
+.tflag{font-size:12px;color:var(--warn);background:rgba(255,184,77,.12);border:1px solid rgba(255,184,77,.3);padding:7px 12px;border-radius:8px;display:none;}
+.tflag.show{display:block;}
+
+/* CARDS */
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}
+.card__top{background:var(--paper-2);padding:22px;border-bottom:1px solid var(--line);}
+.tagline{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:5px 10px;border-radius:6px;background:var(--ink);color:var(--volt);}
+.tagline--lo{background:#E8EFE3;color:#3D5323;}
+.card h3{font-size:21px;margin:12px 0 4px;}
+.card__sub{font-size:13px;color:var(--muted);}
+.card__body{padding:22px;display:flex;flex-direction:column;gap:16px;flex:1;}
+.specs{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;font-size:13px;}
+.specs div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-bottom:6px;}
+.specs span{color:var(--muted);}
+.specs b{font-weight:600;white-space:nowrap;}
+.prices{background:var(--paper-2);border-radius:11px;padding:14px;}
+.prow{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;font-size:13.5px;gap:10px;}
+.prow--main{border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:4px;}
+.prow--main b{font-family:var(--f-display);font-size:25px;}
+.prow span{color:var(--muted);}
+.prow b{font-weight:700;white-space:nowrap;}
+.usd{font-size:11.5px;color:var(--muted);text-align:right;margin-top:-4px;}
+.mini{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.45;}
+.bump{display:inline-block;font-size:11px;font-weight:700;color:#8A5200;background:#FFF2E0;border-radius:5px;padding:3px 7px;margin-top:8px;}
+
+/* TABS */
+.tabs{display:inline-flex;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:5px;gap:4px;margin-bottom:26px;flex-wrap:wrap;}
+.tab{border:0;background:transparent;font-family:var(--f-body);font-size:14px;font-weight:600;color:var(--muted);padding:9px 16px;border-radius:8px;cursor:pointer;}
+.tab.on{background:var(--ink);color:#fff;}
+
+/* TABLA */
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th{text-align:left;font-family:var(--f-display);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:12px 14px;border-bottom:2px solid var(--line);white-space:nowrap;}
+td{padding:13px 14px;border-bottom:1px solid var(--line);}
+tr.hi td{background:#FAFFEB;font-weight:600;}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;background:var(--paper-2);color:var(--muted);}
+.pill--good{background:#E6F9EE;color:#12703F;}
+.pill--warn{background:#FFF2E0;color:#8A5200;}
+.pill--bad{background:#FCE9E4;color:#9A3311;}
+
+/* COTIZADOR */
+.quote{background:var(--ink);color:#fff;border-radius:22px;padding:clamp(22px,3.2vw,40px);}
+.quote h3{color:#fff;font-size:clamp(21px,2.4vw,28px);}
+.qgrid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(18px,2.6vw,32px);align-items:start;}
+@media(max-width:900px){ .qgrid{grid-template-columns:1fr;} }
+.qrow{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.1);}
+.qrow__i{flex:1;min-width:0;}
+.qrow__i b{display:block;font-size:14.5px;font-weight:600;}
+.qrow__i span{font-size:12px;color:#8FA3AD;}
+.stepper{display:flex;align-items:center;border:1px solid rgba(255,255,255,.2);border-radius:9px;overflow:hidden;flex:none;}
+.stepper button{width:36px;height:38px;border:0;background:rgba(255,255,255,.06);color:#fff;font-size:17px;cursor:pointer;}
+.stepper button:hover{background:rgba(215,255,62,.2);}
+.stepper input{width:52px;height:38px;border:0;background:transparent;color:#fff;text-align:center;font-family:var(--f-body);font-size:15px;font-weight:600;-moz-appearance:textfield;}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.summary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:22px;position:sticky;top:82px;}
+.srow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:14px;color:#B4C4CC;}
+.srow b{color:#fff;font-weight:600;white-space:nowrap;}
+.srow--tot{border-top:1px solid rgba(255,255,255,.18);margin-top:10px;padding-top:16px;font-size:15px;}
+.srow--tot b{font-family:var(--f-display);font-size:26px;color:var(--volt);}
+.tierbadge{display:inline-flex;align-items:center;gap:7px;background:rgba(215,255,62,.13);color:var(--volt);font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;margin-bottom:16px;}
+.saveblock{background:rgba(110,231,210,.09);border:1px solid rgba(110,231,210,.25);border-radius:12px;padding:14px;margin-top:16px;font-size:13px;color:#BFE9E0;}
+.saveblock b{display:block;font-family:var(--f-display);font-size:22px;color:var(--aqua);margin-bottom:2px;}
+.addon{display:flex;gap:11px;align-items:flex-start;padding:12px;border:1px solid rgba(255,255,255,.14);border-radius:11px;margin-top:14px;cursor:pointer;}
+.addon input{margin-top:3px;accent-color:var(--volt);width:17px;height:17px;flex:none;}
+.addon b{font-size:14px;display:block;}
+.addon span{font-size:12.5px;color:#8FA3AD;}
+
+/* SOFTWARE */
+.soft{background:var(--paper-2);}
+.feat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;}
+.feat .ic{width:38px;height:38px;border-radius:10px;background:var(--ink);color:var(--volt);display:grid;place-items:center;font-size:17px;margin-bottom:14px;}
+.feat h4{font-size:16px;margin-bottom:7px;}
+.feat p{font-size:13.5px;color:var(--muted);margin:0;}
+
+/* NOTA */
+.note{border:1px dashed var(--line);border-left:3px solid var(--volt);border-radius:10px;background:var(--paper-2);padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.6;}
+.note b{color:var(--ink);}
+.note--warn{border-left-color:var(--warn);background:#FFF9F0;}
+
+@media(max-width:600px){
+  .specs{grid-template-columns:1fr;}
+  .prow--main b{font-size:22px;}
+  .quote{border-radius:16px;}
+  .summary{position:static;}
+}
+
+/* CTA / FOOTER */
+.cta{background:var(--ink);color:#fff;text-align:center;}
+.cta h2{color:#fff;}
+.cta p{color:#9FB2BC;max-width:52ch;margin:14px auto 26px;}
+.foot{background:var(--ink);color:#6E828C;font-size:12.5px;border-top:1px solid rgba(255,255,255,.09);padding-block:26px;}
+.foot__in{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header class="nav">
+  <div class="ff-container nav__in">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#D7FF3E"/><path d="M8 23V9l8 9V9h3v14l-8-9v9z" fill="#0A0F14"/></svg>
+      NEMI
+    </a>
+    <nav class="nav__links">
+      <a href="#catalogo" data-i="nav.cat">Catálogo</a>
+      <a href="#comparativa" data-i="nav.cmp">Comparativa</a>
+      <a href="#arancel" data-i="nav.tar">Arancel</a>
+      <a href="#cotizador" data-i="nav.quo">Cotizador</a>
+      <a href="#plataforma" data-i="nav.plt">Plataforma</a>
+    </nav>
+    <div class="nav__cta">
+      <div class="langsw">
+        <button id="btES" class="on" type="button">ES</button>
+        <button id="btEN" type="button">EN</button>
+      </div>
+      <a class="btn btn--primary" href="#cotizador" data-i="nav.cta">Cotizar flotilla</a>
+    </div>
+    <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false">☰</button>
+  </div>
+  <div class="mobmenu" id="mobmenu">
+    <div class="ff-container">
+      <a href="#catalogo" data-i="nav.cat">Catálogo</a>
+      <a href="#comparativa" data-i="nav.cmp">Comparativa</a>
+      <a href="#arancel" data-i="nav.tar">Arancel</a>
+      <a href="#cotizador" data-i="nav.quo">Cotizador</a>
+      <a href="#plataforma" data-i="nav.plt">Plataforma</a>
+      <a class="btn btn--primary" href="#cotizador" data-i="nav.cta">Cotizar flotilla</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="ff-container hero__in">
+    <div>
+      <div class="eyebrow" data-i="hero.eyebrow">Movilidad eléctrica para trabajar</div>
+      <h1 class="ff-h1"><span data-i="hero.h1a">La moto</span> <em data-i="hero.h1b">no es el producto</em>.<br><span data-i="hero.h1c">La operación sí.</span></h1>
+      <p class="ff-lede" data-i="hero.p">Motos y motonetas eléctricas de alta y baja velocidad, con refacciones en México, garantía real y una plataforma de gestión de flotilla incluida. Para repartidores, paqueterías, farmacias y distribuidores.</p>
+      <div class="hero__btns">
+        <a class="btn btn--primary" href="#cotizador" data-i="hero.cta1">Cotizar mi flotilla</a>
+        <a class="btn btn--ghost-lt" href="#catalogo" data-i="hero.cta2">Ver catálogo y precios</a>
+      </div>
+      <div class="hero__stats">
+        <div><b>5</b><span data-i="hero.s1">modelos disponibles</span></div>
+        <div><b>240 km</b><span data-i="hero.s2">autonomía máxima</span></div>
+        <div><b>$0.06</b><span data-i="hero.s3">por km recorrido</span></div>
+      </div>
+    </div>
+    <div class="heroviz ff-hide-mobile">
+      <h4><span data-i="hv.title">Costo por 100 km</span> <small data-i="hv.badge">flotilla de reparto</small></h4>
+      <div class="hvrow"><div style="flex:1"><b data-i="hv.gas">Moto gasolina 150cc</b><div class="hvbar"><i style="width:100%;background:#FF7A5A"></i></div></div><b>$70</b></div>
+      <div class="hvrow"><div style="flex:1"><b data-i="hv.ev">NEMI XPro (eléctrica)</b><div class="hvbar"><i style="width:8%"></i></div></div><b>$5.30</b></div>
+      <div class="hvrow" style="padding-top:16px"><span data-i="hv.r1">Ahorro mensual por unidad*</span><b style="color:#D7FF3E">$1,617</b></div>
+      <div class="hvrow"><span data-i="hv.r2">Ahorro anual por unidad</span><b>$19,400</b></div>
+      <div class="hvrow"><span data-i="hv.r3">Recuperas la diferencia en**</span><b>15–20 <span data-i="hv.mo">meses</span></b></div>
+      <p style="font-size:11px;color:#69808B;margin:14px 0 0" data-i="hv.note">*Base 2,500 km/mes, gasolina $24.50/L a 35 km/L, electricidad $2.20/kWh.<br>**Sobre la inversión adicional contra comprar una moto de gasolina de 150cc (~$28,000 MXN).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BARRA DE ARANCEL ================= -->
+<div class="tariffbar">
+  <div class="ff-container tariffbar__in">
+    <div class="lbl"><b data-i="tb.lbl">Escenario arancelario:</b> <span data-i="tb.sub">afecta solo a los modelos de alta velocidad</span></div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <div class="tsw">
+        <button id="t25" class="on" type="button" data-i="tb.b25">25% · Motocicleta</button>
+        <button id="t50" type="button" data-i="tb.b50">50% · Vehículo</button>
+      </div>
+      <div class="tflag" id="tflag" data-i="tb.flag">⚠ Escenario conservador activo — precios de alta velocidad ajustados</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CATÁLOGO ================= -->
+<section class="sec" id="catalogo">
+  <div class="ff-container">
+    <div class="sec-head">
+      <div class="eyebrow" data-i="cat.eyebrow">Catálogo 2026</div>
+      <h2 class="ff-h2" data-i="cat.h2">Precios en pesos, puestos en CDMX</h2>
+      <p data-i="cat.p">Precio público con IVA incluido. El precio baja automáticamente por volumen: flotilla desde 10 unidades, distribuidor desde 50. Todos los modelos incluyen GPS, Bluetooth y opción de batería intercambiable.</p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-f="all" data-i="cat.tAll">Todos</button>
+      <button class="tab" data-f="alta" data-i="cat.tHi">Alta velocidad · 75–80 km/h</button>
+      <button class="tab" data-f="baja" data-i="cat.tLo">Baja velocidad · 25 km/h</button>
+    </div>
+
+    <div class="ff-grid ff-grid--lg" id="cards"></div>
+
+    <div class="note" style="margin-top:26px" data-i="cat.note"><b>Baja velocidad (25 km/h):</b> no requiere placas, licencia ni tenencia en la mayoría de los estados. Entrega inmediata y sin trámite. <b>Alta velocidad (75–80 km/h):</b> requiere factura, NOM aplicable, alta en el Registro Público Vehicular, placas y seguro.</div>
+  </div>
+</section>
+
+<!-- ================= COMPARATIVA ================= -->
+<section class="sec soft" id="comparativa">
+  <div class="ff-container">
+    <div class="sec-head">
+      <div class="eyebrow" data-i="cmp.eyebrow">Contra el mercado</div>
+      <h2 class="ff-h2" data-i="cmp.h2">Qué se vende hoy en México y a cuánto</h2>
+      <p data-i="cmp.p">Precios de lista públicos consultados en julio 2026. La comparación se hace contra el modelo más cercano en potencia y uso, no contra el más barato del anaquel.</p>
+    </div>
+    <div class="card" style="padding:0">
+      <div class="ff-tablewrap" style="--ff-tablemin:880px">
+        <table>
+          <thead><tr>
+            <th data-i="cmp.cModel">Modelo</th><th data-i="cmp.cBrand">Marca</th><th data-i="cmp.cPow">Potencia</th>
+            <th data-i="cmp.cSpd">Vel. máx</th><th data-i="cmp.cRng">Autonomía</th>
+            <th data-i="cmp.cPrice">Precio lista</th><th data-i="cmp.cRead">Lectura</th>
+          </tr></thead>
+          <tbody id="cmpbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="ff-grid ff-grid--md" style="margin-top:22px">
+      <div class="feat"><div class="ic">↑</div><h4 data-i="cmp.f1h">Donde ganamos</h4><p data-i="cmp.f1p">Alta velocidad. El XPro entrega 3,000 W y 120 km por debajo del precio de una Voltium City de 1,180 W. El Rocker V2 duplica la autonomía de todo lo que hay en el rango de $80–110 mil.</p></div>
+      <div class="feat"><div class="ic">↓</div><h4 data-i="cmp.f2h">Donde no peleamos por precio</h4><p data-i="cmp.f2p">Baja velocidad contra el anaquel de Coppel. Ahí se vende producto de $10–12 mil de 1 plaza y 40 km. Nuestro argumento es 2 plazas, 80 km, garantía y refacciones — no el precio.</p></div>
+      <div class="feat"><div class="ic">→</div><h4 data-i="cmp.f3h">Lo que nadie ofrece</h4><p data-i="cmp.f3p">Ninguna de estas marcas vende gestión de flotilla, telemetría ni portal de rentas. Ese es el producto que hace que un operador de reparto nos elija y se quede.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ARANCEL ================= -->
+<section class="sec" id="arancel">
+  <div class="ff-container">
+    <div class="sec-head">
+      <div class="eyebrow" data-i="tar.eyebrow">Riesgo de clasificación</div>
+      <h2 class="ff-h2" data-i="tar.h2">El arancel decide el negocio</h2>
+      <p data-i="tar.p">Desde el 1 de enero de 2026 México aplica aranceles a países sin tratado de libre comercio, e India está en la lista. Las motocicletas quedaron en 25%; los vehículos, en 50%. Los modelos de 3,000 W tienen riesgo real de clasificarse como vehículo y no como motocicleta.</p>
+    </div>
+
+    <div class="card" style="padding:0;margin-bottom:22px">
+      <div class="ff-tablewrap" style="--ff-tablemin:820px">
+        <table>
+          <thead><tr>
+            <th data-i="tar.cModel">Modelo</th><th data-i="tar.cFob">FOB USD</th><th data-i="tar.cCif">CIF USD</th>
+            <th data-i="tar.c25">Puesto en piso · 25%</th><th data-i="tar.c50">Puesto en piso · 50%</th>
+            <th data-i="tar.cDelta">Sobrecosto</th><th data-i="tar.cAsk">Descuento FOB necesario</th>
+          </tr></thead>
+          <tbody>
+            <tr class="hi"><td>NEMI XPro SUV</td><td>$1,100</td><td>$1,310</td><td>$31,045 MXN</td><td>$36,776 MXN</td><td><span class="pill pill--bad">+$5,731</span></td><td><b>−19%</b> → $887</td></tr>
+            <tr class="hi"><td>NEMI Rocker V2</td><td>$1,500</td><td>$1,720</td><td>$40,281 MXN</td><td>$47,806 MXN</td><td><span class="pill pill--bad">+$7,525</span></td><td><b>−19%</b> → $1,220</td></tr>
+            <tr><td data-i="tar.lowrow">Electra / ElectraX / Voltiva (250 W)</td><td>$550–690</td><td>$730–875</td><td>$17,987–21,253 MXN</td><td colspan="3"><span class="pill pill--good" data-i="tar.lowtag">Sin cambio — clasifican como motocicleta</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="ff-grid ff-grid--md">
+      <div class="feat"><div class="ic">⚑</div><h4 data-i="tar.f1h">Qué pasa con los márgenes</h4><p data-i="tar.f1p">Con los precios actuales y arancel de 50%, el XPro cae de 46% a 36% de margen a precio público, y a 19% en precio de distribuidor. El nivel de distribuidor deja de ser viable si no se ajusta la lista.</p></div>
+      <div class="feat"><div class="ic">⇅</div><h4 data-i="tar.f2h">Cómo se corrige</h4><p data-i="tar.f2p">Subiendo la lista de alta velocidad: XPro a $63,900 y Rocker a $89,900. Eso restaura 42% y 47% de margen público, y mantiene el nivel de distribuidor arriba de 26%.</p></div>
+      <div class="feat"><div class="ic">≠</div><h4 data-i="tar.f3h">La palanca con fábrica</h4><p data-i="tar.f3p">En un contenedor de 80 unidades, el salto a 50% cuesta $16,275 USD adicionales. Compensarlo sin tocar el precio de venta exige un descuento de 19% sobre el FOB de los modelos de alta velocidad.</p></div>
+    </div>
+
+    <div class="note note--warn" style="margin-top:22px" data-i="tar.note"><b>Pendiente crítico:</b> obtener dictamen de clasificación arancelaria con agente aduanal mexicano, con la ficha técnica de fábrica (potencia nominal, peso y velocidad homologada) antes de firmar cualquier proforma. Toda la estructura de precios depende de ese número.</div>
+  </div>
+</section>
+
+<!-- ================= COTIZADOR ================= -->
+<section class="sec soft" id="cotizador">
+  <div class="ff-container">
+    <div class="sec-head">
+      <div class="eyebrow" data-i="quo.eyebrow">Cotizador B2B</div>
+      <h2 class="ff-h2" data-i="quo.h2">Arma tu pedido y ve el precio al instante</h2>
+      <p data-i="quo.p">El descuento se aplica solo, según el total de unidades del pedido. Puedes mezclar modelos. El escenario arancelario de arriba se refleja aquí.</p>
+    </div>
+
+    <div class="quote">
+      <div class="qgrid">
+        <div>
+          <div class="tierbadge" id="tierbadge">● Precio público — 1 a 9 unidades</div>
+          <div id="qrows"></div>
+          <label class="addon">
+            <input type="checkbox" id="addSoft" checked>
+            <div><b data-i="quo.a1h">Plataforma NEMI Flota — $249 / unidad / mes</b><span data-i="quo.a1p">GPS en vivo, salud de batería, historial de viajes, bloqueo remoto y reporte por conductor. Primeros 3 meses sin costo en pedidos de 40+ unidades.</span></div>
+          </label>
+          <label class="addon">
+            <input type="checkbox" id="addKit" checked>
+            <div><b data-i="quo.a2h">Kit de refacciones y servicio — 9% del pedido</b><span data-i="quo.a2p">Stock de partes de alta rotación para 3 meses, capacitación de tu técnico y soporte remoto. Recomendado arriba de 20 unidades.</span></div>
+          </label>
+        </div>
+
+        <aside class="summary">
+          <div class="srow"><span data-i="quo.sUnits">Unidades</span><b id="sUnits">0</b></div>
+          <div class="srow"><span data-i="quo.sVeh">Subtotal vehículos</span><b id="sVeh">$0</b></div>
+          <div class="srow"><span data-i="quo.sKit">Kit de refacciones</span><b id="sKit">$0</b></div>
+          <div class="srow"><span data-i="quo.sSave">Ahorro por volumen</span><b id="sSave" style="color:#6EE7D2">$0</b></div>
+          <div class="srow srow--tot"><span data-i="quo.sTot">Total del pedido</span><b id="sTot">$0</b></div>
+          <div class="srow" style="font-size:12.5px"><span data-i="quo.sUsd">Equivalente USD</span><b id="sUsd">$0</b></div>
+          <div class="srow" style="font-size:12.5px"><span data-i="quo.sSoft">Plataforma (mensual)</span><b id="sSoft">$0</b></div>
+
+          <div class="saveblock">
+            <b id="sAhorro">$0</b>
+            <span data-i="quo.saveTxt">Ahorro anual en combustible de tu flotilla. Base: 2,500–3,000 km al mes en alta velocidad, 800 km en baja.</span>
+            <div style="margin-top:9px;font-size:12px;opacity:.8"><span data-i="quo.roiTxt">Recuperas la inversión adicional en</span> <b style="display:inline;font-size:12px" id="sRoi">—</b><span data-i="quo.roiTxt2">, contra comprar motos de gasolina equivalentes.</span></div>
+          </div>
+
+          <a class="btn btn--primary" style="width:100%;margin-top:18px" href="#contacto" data-i="quo.send">Enviar esta cotización</a>
+          <p style="font-size:11.5px;color:#7C919B;margin:12px 0 0;text-align:center" data-i="quo.terms">Precios en MXN con IVA · TC $17.50 · Vigencia 7 días · Anticipo 70%, saldo contra embarque</p>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATAFORMA ================= -->
+<section class="sec" id="plataforma">
+  <div class="ff-container">
+    <div class="sec-head">
+      <div class="eyebrow">NEMI Flota</div>
+      <h2 class="ff-h2" data-i="plt.h2">La parte que ninguna marca de motos te da</h2>
+      <p data-i="plt.p">Cada unidad sale de fábrica con telemetría. Tú ves tu operación completa desde una pantalla, sin instalar nada.</p>
+    </div>
+    <div class="ff-grid ff-grid--md">
+      <div class="feat"><div class="ic">◉</div><h4 data-i="plt.1h">Ubicación en vivo</h4><p data-i="plt.1p">Dónde está cada moto, quién la trae y qué ruta hizo. Geocercas con alerta cuando una unidad sale de zona.</p></div>
+      <div class="feat"><div class="ic">▮</div><h4 data-i="plt.2h">Salud de batería</h4><p data-i="plt.2p">Carga, ciclos y degradación por unidad. Sabes qué batería vas a tener que reemplazar antes de que te deje tirado un pedido.</p></div>
+      <div class="feat"><div class="ic">✕</div><h4 data-i="plt.3h">Bloqueo remoto</h4><p data-i="plt.3p">Si no regresa una unidad o hay un robo, se apaga desde la plataforma. Recuperación asistida con el histórico de ubicación.</p></div>
+      <div class="feat"><div class="ic">⇄</div><h4 data-i="plt.4h">Portal de rentas</h4><p data-i="plt.4p">Si rentas tus motos, la plataforma cobra, controla el acceso por vigencia de pago y libera la unidad sola al renovar.</p></div>
+      <div class="feat"><div class="ic">≡</div><h4 data-i="plt.5h">Reporte por conductor</h4><p data-i="plt.5p">Kilómetros, entregas, consumo y comportamiento. Para pagar por resultado y detectar el uso indebido de la unidad.</p></div>
+      <div class="feat"><div class="ic">$</div><h4 data-i="plt.6h">Costo real por km</h4><p data-i="plt.6p">Gasto de energía, mantenimiento y refacciones por unidad. El número que necesitas para cotizarle bien a tu cliente.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="sec cta" id="contacto">
+  <div class="ff-container">
+    <h2 class="ff-h2" data-i="cta.h2">¿Cuántas motos trae tu operación?</h2>
+    <p data-i="cta.p">Mándanos el tamaño de tu flotilla y los kilómetros que recorren al día. Te regresamos una cotización con números tuyos, no genéricos.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn--primary" href="mailto:raf@fishflow.mx?subject=NEMI" data-i="cta.b1">Solicitar cotización</a>
+      <a class="btn btn--ghost-lt" href="#catalogo" data-i="cta.b2">Volver al catálogo</a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="ff-container foot__in">
+    <span data-i="foot.a">NEMI · Movilidad eléctrica · Demo comercial construido por FishFlow</span>
+    <span data-i="foot.b">Precios de referencia julio 2026 · Sujetos a tipo de cambio y arancel vigente</span>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   i18n
+   ============================================================ */
+var I18N = {
+es:{
+ "nav.cat":"Catálogo","nav.cmp":"Comparativa","nav.tar":"Arancel","nav.quo":"Cotizador","nav.plt":"Plataforma","nav.cta":"Cotizar flotilla",
+ "hero.eyebrow":"Movilidad eléctrica para trabajar","hero.h1a":"La moto","hero.h1b":"no es el producto","hero.h1c":"La operación sí.",
+ "hero.p":"Motos y motonetas eléctricas de alta y baja velocidad, con refacciones en México, garantía real y una plataforma de gestión de flotilla incluida. Para repartidores, paqueterías, farmacias y distribuidores.",
+ "hero.cta1":"Cotizar mi flotilla","hero.cta2":"Ver catálogo y precios",
+ "hero.s1":"modelos disponibles","hero.s2":"autonomía máxima","hero.s3":"por km recorrido",
+ "hv.title":"Costo por 100 km","hv.badge":"flotilla de reparto","hv.gas":"Moto gasolina 150cc","hv.ev":"NEMI XPro (eléctrica)",
+ "hv.r1":"Ahorro mensual por unidad*","hv.r2":"Ahorro anual por unidad","hv.r3":"Recuperas la diferencia en**","hv.mo":"meses",
+ "hv.note":"*Base 2,500 km/mes, gasolina $24.50/L a 35 km/L, electricidad $2.20/kWh.<br>**Sobre la inversión adicional contra comprar una moto de gasolina de 150cc (~$28,000 MXN).",
+ "tb.lbl":"Escenario arancelario:","tb.sub":"afecta solo a los modelos de alta velocidad",
+ "tb.b25":"25% · Motocicleta","tb.b50":"50% · Vehículo","tb.flag":"⚠ Escenario conservador activo — precios de alta velocidad ajustados",
+ "cat.eyebrow":"Catálogo 2026","cat.h2":"Precios en pesos, puestos en CDMX",
+ "cat.p":"Precio público con IVA incluido. El precio baja automáticamente por volumen: flotilla desde 10 unidades, distribuidor desde 50. Todos los modelos incluyen GPS, Bluetooth y opción de batería intercambiable.",
+ "cat.tAll":"Todos","cat.tHi":"Alta velocidad · 75–80 km/h","cat.tLo":"Baja velocidad · 25 km/h",
+ "cat.note":"<b>Baja velocidad (25 km/h):</b> no requiere placas, licencia ni tenencia en la mayoría de los estados. Entrega inmediata y sin trámite. <b>Alta velocidad (75–80 km/h):</b> requiere factura, NOM aplicable, alta en el Registro Público Vehicular, placas y seguro.",
+ "cmp.eyebrow":"Contra el mercado","cmp.h2":"Qué se vende hoy en México y a cuánto",
+ "cmp.p":"Precios de lista públicos consultados en julio 2026. La comparación se hace contra el modelo más cercano en potencia y uso, no contra el más barato del anaquel.",
+ "cmp.cModel":"Modelo","cmp.cBrand":"Marca","cmp.cPow":"Potencia","cmp.cSpd":"Vel. máx","cmp.cRng":"Autonomía","cmp.cPrice":"Precio lista","cmp.cRead":"Lectura",
+ "cmp.f1h":"Donde ganamos","cmp.f1p":"Alta velocidad. El XPro entrega 3,000 W y 120 km por debajo del precio de una Voltium City de 1,180 W. El Rocker V2 duplica la autonomía de todo lo que hay en el rango de $80–110 mil.",
+ "cmp.f2h":"Donde no peleamos por precio","cmp.f2p":"Baja velocidad contra el anaquel de Coppel. Ahí se vende producto de $10–12 mil de 1 plaza y 40 km. Nuestro argumento es 2 plazas, 80 km, garantía y refacciones — no el precio.",
+ "cmp.f3h":"Lo que nadie ofrece","cmp.f3p":"Ninguna de estas marcas vende gestión de flotilla, telemetría ni portal de rentas. Ese es el producto que hace que un operador de reparto nos elija y se quede.",
+ "tar.eyebrow":"Riesgo de clasificación","tar.h2":"El arancel decide el negocio",
+ "tar.p":"Desde el 1 de enero de 2026 México aplica aranceles a países sin tratado de libre comercio, e India está en la lista. Las motocicletas quedaron en 25%; los vehículos, en 50%. Los modelos de 3,000 W tienen riesgo real de clasificarse como vehículo y no como motocicleta.",
+ "tar.cModel":"Modelo","tar.cFob":"FOB USD","tar.cCif":"CIF USD","tar.c25":"Puesto en piso · 25%","tar.c50":"Puesto en piso · 50%","tar.cDelta":"Sobrecosto","tar.cAsk":"Descuento FOB necesario",
+ "tar.lowrow":"Electra / ElectraX / Voltiva (250 W)","tar.lowtag":"Sin cambio — clasifican como motocicleta",
+ "tar.f1h":"Qué pasa con los márgenes","tar.f1p":"Con los precios actuales y arancel de 50%, el XPro cae de 46% a 36% de margen a precio público, y a 19% en precio de distribuidor. El nivel de distribuidor deja de ser viable si no se ajusta la lista.",
+ "tar.f2h":"Cómo se corrige","tar.f2p":"Subiendo la lista de alta velocidad: XPro a $63,900 y Rocker a $89,900. Eso restaura 42% y 47% de margen público, y mantiene el nivel de distribuidor arriba de 26%.",
+ "tar.f3h":"La palanca con fábrica","tar.f3p":"En un contenedor de 80 unidades, el salto a 50% cuesta $16,275 USD adicionales. Compensarlo sin tocar el precio de venta exige un descuento de 19% sobre el FOB de los modelos de alta velocidad.",
+ "tar.note":"<b>Pendiente crítico:</b> obtener dictamen de clasificación arancelaria con agente aduanal mexicano, con la ficha técnica de fábrica (potencia nominal, peso y velocidad homologada) antes de firmar cualquier proforma. Toda la estructura de precios depende de ese número.",
+ "quo.eyebrow":"Cotizador B2B","quo.h2":"Arma tu pedido y ve el precio al instante",
+ "quo.p":"El descuento se aplica solo, según el total de unidades del pedido. Puedes mezclar modelos. El escenario arancelario de arriba se refleja aquí.",
+ "quo.a1h":"Plataforma NEMI Flota — $249 / unidad / mes","quo.a1p":"GPS en vivo, salud de batería, historial de viajes, bloqueo remoto y reporte por conductor. Primeros 3 meses sin costo en pedidos de 40+ unidades.",
+ "quo.a2h":"Kit de refacciones y servicio — 9% del pedido","quo.a2p":"Stock de partes de alta rotación para 3 meses, capacitación de tu técnico y soporte remoto. Recomendado arriba de 20 unidades.",
+ "quo.sUnits":"Unidades","quo.sVeh":"Subtotal vehículos","quo.sKit":"Kit de refacciones","quo.sSave":"Ahorro por volumen","quo.sTot":"Total del pedido","quo.sUsd":"Equivalente USD","quo.sSoft":"Plataforma (mensual)",
+ "quo.saveTxt":"Ahorro anual en combustible de tu flotilla. Base: 2,500–3,000 km al mes en alta velocidad, 800 km en baja.",
+ "quo.roiTxt":"Recuperas la inversión adicional en","quo.roiTxt2":", contra comprar motos de gasolina equivalentes.",
+ "quo.send":"Enviar esta cotización","quo.terms":"Precios en MXN con IVA · TC $17.50 · Vigencia 7 días · Anticipo 70%, saldo contra embarque",
+ "plt.h2":"La parte que ninguna marca de motos te da","plt.p":"Cada unidad sale de fábrica con telemetría. Tú ves tu operación completa desde una pantalla, sin instalar nada.",
+ "plt.1h":"Ubicación en vivo","plt.1p":"Dónde está cada moto, quién la trae y qué ruta hizo. Geocercas con alerta cuando una unidad sale de zona.",
+ "plt.2h":"Salud de batería","plt.2p":"Carga, ciclos y degradación por unidad. Sabes qué batería vas a tener que reemplazar antes de que te deje tirado un pedido.",
+ "plt.3h":"Bloqueo remoto","plt.3p":"Si no regresa una unidad o hay un robo, se apaga desde la plataforma. Recuperación asistida con el histórico de ubicación.",
+ "plt.4h":"Portal de rentas","plt.4p":"Si rentas tus motos, la plataforma cobra, controla el acceso por vigencia de pago y libera la unidad sola al renovar.",
+ "plt.5h":"Reporte por conductor","plt.5p":"Kilómetros, entregas, consumo y comportamiento. Para pagar por resultado y detectar el uso indebido de la unidad.",
+ "plt.6h":"Costo real por km","plt.6p":"Gasto de energía, mantenimiento y refacciones por unidad. El número que necesitas para cotizarle bien a tu cliente.",
+ "cta.h2":"¿Cuántas motos trae tu operación?","cta.p":"Mándanos el tamaño de tu flotilla y los kilómetros que recorren al día. Te regresamos una cotización con números tuyos, no genéricos.",
+ "cta.b1":"Solicitar cotización","cta.b2":"Volver al catálogo",
+ "foot.a":"NEMI · Movilidad eléctrica · Demo comercial construido por FishFlow","foot.b":"Precios de referencia julio 2026 · Sujetos a tipo de cambio y arancel vigente",
+ /* dinámicos */
+ "d.hi":"Alta velocidad","d.lo":"Baja velocidad",
+ "d.motor":"Motor","d.batt":"Batería","d.range":"Autonomía","d.speed":"Vel. máx","d.charge":"Carga","d.seats":"Plazas",
+ "d.pub":"Público","d.flo":"Flotilla · 10+ un.","d.dist":"Distribuidor · 50+ un.",
+ "d.incl":"Incluye GPS y Bluetooth. Batería intercambiable opcional.",
+ "d.noPlate":"No requiere placas ni licencia.","d.plate":"Se entrega con documentación para alta y placas.",
+ "d.add":"Agregar al cotizador","d.bump":"Ajustado por arancel de 50%",
+ "d.t1":"● Precio público — 1 a 9 unidades","d.t2":"● Precio flotilla — 10 a 49 unidades","d.t3":"● Precio distribuidor — 50 unidades o más",
+ "d.months":"meses","d.perMonth":"/ mes",
+ "d.sub1":"Motoneta urbana · 2 plazas","d.sub2":"Motoneta urbana · versión equipada","d.sub3":"Scooter clásico · acabados premium",
+ "d.sub4":"El caballo de batalla del reparto","d.sub5":"Motocicleta de largo alcance",
+ "r.rocker":"Doble autonomía, −27%","r.premium":"Referencia premium","r.cpx":"Motoneta rueda alta","r.gravity":"Red nacional de servicio",
+ "r.xpro":"Mejor ficha del rango","r.city":"Volumen y crédito Elektra","r.cux":"Urbana ligera","r.naked":"Naked urbana",
+ "r.hard":"Difícil de defender","r.b2b":"Solo con argumento B2B","r.problem":"El problema","r.other":"Otro segmento"
+},
+en:{
+ "nav.cat":"Catalog","nav.cmp":"Benchmark","nav.tar":"Tariff","nav.quo":"Quote builder","nav.plt":"Platform","nav.cta":"Get a fleet quote",
+ "hero.eyebrow":"Electric mobility built to work","hero.h1a":"The bike","hero.h1b":"isn't the product","hero.h1c":"The operation is.",
+ "hero.p":"High- and low-speed electric motorcycles and scooters, with spare parts held in Mexico, real warranty coverage and a fleet management platform included. Built for delivery riders, courier companies, pharmacies and distributors.",
+ "hero.cta1":"Quote my fleet","hero.cta2":"See catalog and pricing",
+ "hero.s1":"models available","hero.s2":"maximum range","hero.s3":"per kilometer",
+ "hv.title":"Cost per 100 km","hv.badge":"delivery fleet","hv.gas":"150cc petrol motorcycle","hv.ev":"NEMI XPro (electric)",
+ "hv.r1":"Monthly saving per unit*","hv.r2":"Annual saving per unit","hv.r3":"Payback on the difference**","hv.mo":"months",
+ "hv.note":"*Based on 2,500 km/month, petrol at $24.50 MXN/L and 35 km/L, electricity at $2.20 MXN/kWh.<br>**On the incremental investment versus buying a 150cc petrol motorcycle (~$28,000 MXN).",
+ "tb.lbl":"Tariff scenario:","tb.sub":"affects high-speed models only",
+ "tb.b25":"25% · Motorcycle","tb.b50":"50% · Vehicle","tb.flag":"⚠ Conservative scenario active — high-speed pricing adjusted",
+ "cat.eyebrow":"2026 Catalog","cat.h2":"Pricing in Mexican pesos, landed in Mexico City",
+ "cat.p":"Retail price includes VAT. Pricing steps down automatically by volume: fleet from 10 units, distributor from 50. Every model ships with GPS, Bluetooth and an optional swappable battery.",
+ "cat.tAll":"All","cat.tHi":"High speed · 75–80 km/h","cat.tLo":"Low speed · 25 km/h",
+ "cat.note":"<b>Low speed (25 km/h):</b> no plates, licence or vehicle tax required in most Mexican states. Immediate delivery, no paperwork. <b>High speed (75–80 km/h):</b> requires an invoice, applicable NOM certification, registration in the national vehicle registry, plates and insurance.",
+ "cmp.eyebrow":"Against the market","cmp.h2":"What sells in Mexico today, and at what price",
+ "cmp.p":"Public list prices as of July 2026. Each unit is benchmarked against the closest model in power and use case, not against the cheapest product on the shelf.",
+ "cmp.cModel":"Model","cmp.cBrand":"Brand","cmp.cPow":"Power","cmp.cSpd":"Top speed","cmp.cRng":"Range","cmp.cPrice":"List price","cmp.cRead":"Read",
+ "cmp.f1h":"Where we win","cmp.f1p":"High speed. The XPro delivers 3,000 W and 120 km below the price of a 1,180 W Voltium City. The Rocker V2 doubles the range of anything in the $80–110k MXN bracket.",
+ "cmp.f2h":"Where we don't fight on price","cmp.f2p":"Low speed against the Coppel shelf, where single-seat 40 km products sell at $10–12k MXN. Our argument is two seats, 80 km, warranty and spare parts — not price.",
+ "cmp.f3h":"What nobody else offers","cmp.f3p":"None of these brands sells fleet management, telematics or a rental portal. That is the product that makes a delivery operator choose us and stay.",
+ "tar.eyebrow":"Classification risk","tar.h2":"The tariff decides the business",
+ "tar.p":"Since 1 January 2026 Mexico applies tariffs to countries without a free trade agreement, and India is on that list. Motorcycles were set at 25%; vehicles at 50%. The 3,000 W models carry a real risk of being classified as vehicles rather than motorcycles.",
+ "tar.cModel":"Model","tar.cFob":"FOB USD","tar.cCif":"CIF USD","tar.c25":"Landed cost · 25%","tar.c50":"Landed cost · 50%","tar.cDelta":"Added cost","tar.cAsk":"Required FOB discount",
+ "tar.lowrow":"Electra / ElectraX / Voltiva (250 W)","tar.lowtag":"Unchanged — classify as motorcycles",
+ "tar.f1h":"What happens to margins","tar.f1p":"At current list prices with a 50% tariff, the XPro drops from 46% to 36% gross margin at retail, and to 19% at distributor pricing. The distributor tier stops being viable unless the list is adjusted.",
+ "tar.f2h":"How it gets fixed","tar.f2p":"By raising the high-speed list: XPro to $63,900 and Rocker to $89,900 MXN. That restores 42% and 47% retail margin and keeps the distributor tier above 26%.",
+ "tar.f3h":"The leverage with the factory","tar.f3p":"On an 80-unit container, the jump to 50% costs an additional $16,275 USD. Absorbing it without touching the sale price requires a 19% discount on the FOB of the high-speed models.",
+ "tar.note":"<b>Critical open item:</b> obtain a binding tariff classification ruling from a Mexican customs broker, supported by the factory technical sheet (rated power, weight and homologated speed), before signing any proforma invoice. The entire pricing structure depends on that single number.",
+ "quo.eyebrow":"B2B quote builder","quo.h2":"Build your order and see pricing instantly",
+ "quo.p":"The discount applies automatically based on total units in the order. You can mix models. The tariff scenario selected above is reflected here.",
+ "quo.a1h":"NEMI Fleet platform — $249 MXN / unit / month","quo.a1p":"Live GPS, battery health, trip history, remote lock and per-rider reporting. First 3 months free on orders of 40+ units.",
+ "quo.a2h":"Spare parts and service kit — 9% of the order","quo.a2p":"Three months of fast-moving parts stock, training for your technician and remote support. Recommended above 20 units.",
+ "quo.sUnits":"Units","quo.sVeh":"Vehicles subtotal","quo.sKit":"Spare parts kit","quo.sSave":"Volume saving","quo.sTot":"Order total","quo.sUsd":"USD equivalent","quo.sSoft":"Platform (monthly)",
+ "quo.saveTxt":"Annual fuel saving across your fleet. Based on 2,500–3,000 km per month for high speed and 800 km for low speed.",
+ "quo.roiTxt":"You recover the incremental investment in","quo.roiTxt2":", versus buying equivalent petrol motorcycles.",
+ "quo.send":"Send this quote","quo.terms":"Prices in MXN incl. VAT · FX $17.50 · Valid 7 days · 70% advance, balance before shipment",
+ "plt.h2":"The part no motorcycle brand gives you","plt.p":"Every unit ships with telematics from the factory. You see your whole operation on one screen, with nothing to install.",
+ "plt.1h":"Live location","plt.1p":"Where each bike is, who is riding it and what route it took. Geofences with alerts when a unit leaves its zone.",
+ "plt.2h":"Battery health","plt.2p":"Charge, cycles and degradation per unit. You know which battery needs replacing before it strands a delivery.",
+ "plt.3h":"Remote lock","plt.3p":"If a unit doesn't come back or is stolen, you shut it down from the platform. Assisted recovery using location history.",
+ "plt.4h":"Rental portal","plt.4p":"If you rent your bikes out, the platform collects payment, gates access by payment status and releases the unit on renewal.",
+ "plt.5h":"Per-rider reporting","plt.5p":"Kilometers, deliveries, consumption and riding behaviour. For performance-based pay and detecting misuse.",
+ "plt.6h":"True cost per km","plt.6p":"Energy, maintenance and parts spend per unit. The number you need to quote your own customer properly.",
+ "cta.h2":"How many bikes does your operation run?","cta.p":"Send us your fleet size and the daily kilometers they cover. We'll come back with a quote built on your numbers, not generic ones.",
+ "cta.b1":"Request a quote","cta.b2":"Back to catalog",
+ "foot.a":"NEMI · Electric mobility · Commercial demo built by FishFlow","foot.b":"Reference pricing July 2026 · Subject to exchange rate and tariff in force",
+ "d.hi":"High speed","d.lo":"Low speed",
+ "d.motor":"Motor","d.batt":"Battery","d.range":"Range","d.speed":"Top speed","d.charge":"Charge","d.seats":"Seats",
+ "d.pub":"Retail","d.flo":"Fleet · 10+ units","d.dist":"Distributor · 50+ units",
+ "d.incl":"Includes GPS and Bluetooth. Swappable battery optional.",
+ "d.noPlate":"No plates or licence required.","d.plate":"Delivered with documentation for registration and plates.",
+ "d.add":"Add to quote builder","d.bump":"Adjusted for 50% tariff",
+ "d.t1":"● Retail price — 1 to 9 units","d.t2":"● Fleet price — 10 to 49 units","d.t3":"● Distributor price — 50 units or more",
+ "d.months":"months","d.perMonth":"/ month",
+ "d.sub1":"Urban scooter · 2 seats","d.sub2":"Urban scooter · fully equipped","d.sub3":"Classic scooter · premium finish",
+ "d.sub4":"The delivery workhorse","d.sub5":"Long-range motorcycle",
+ "r.rocker":"Double the range, −27%","r.premium":"Premium benchmark","r.cpx":"High-wheel scooter","r.gravity":"National service network",
+ "r.xpro":"Best spec in its bracket","r.city":"Volume, Elektra credit","r.cux":"Light urban","r.naked":"Urban naked",
+ "r.hard":"Hard to defend","r.b2b":"B2B argument only","r.problem":"The problem","r.other":"Different segment"
+}};
+
+var LANG = "es";
+function t(k){ return (I18N[LANG] && I18N[LANG][k]) || (I18N.es[k] || k); }
+
+function applyLang(){
+  document.documentElement.lang = LANG;
+  Array.prototype.forEach.call(document.querySelectorAll("[data-i]"), function(el){
+    el.innerHTML = t(el.dataset.i);
+  });
+  document.getElementById("btES").classList.toggle("on", LANG === "es");
+  document.getElementById("btEN").classList.toggle("on", LANG === "en");
+  document.getElementById("burger").setAttribute("aria-label", LANG === "es" ? "Abrir menú" : "Open menu");
+  renderCards(CURFILTER);
+  renderCompare();
+  buildRows();
+  calc();
+}
+
+/* ============================================================
+   Datos — precios por escenario arancelario
+   ============================================================ */
+var FX = 17.50;
+var MODELOS = [
+  {id:"electra", n:"Electra", t:"baja", sub:"d.sub1", km:800, gas:0,
+   p25:{pub:29900,flo:26300,dist:23300,land:17987}, p50:{pub:29900,flo:26300,dist:23300,land:17987},
+   s:[["d.motor","250 W"],["d.batt","48 / 60 V"],["d.range","80 km"],["d.speed","25 km/h"],["d.charge","3–4 h"],["d.seats","2"]]},
+  {id:"electrax", n:"ElectraX", t:"baja", sub:"d.sub2", km:800, gas:0,
+   p25:{pub:31900,flo:28100,dist:24900,land:18438}, p50:{pub:31900,flo:28100,dist:24900,land:18438},
+   s:[["d.motor","250 W"],["d.batt","48 / 60 V"],["d.range","80 km"],["d.speed","25 km/h"],["d.charge","3–4 h"],["d.seats","2"]]},
+  {id:"voltiva", n:"Voltiva", t:"baja", sub:"d.sub3", km:800, gas:0,
+   p25:{pub:36900,flo:32500,dist:28800,land:21253}, p50:{pub:36900,flo:32500,dist:28800,land:21253},
+   s:[["d.motor","250 W"],["d.batt","48 / 60 V"],["d.range","80 km"],["d.speed","25 km/h"],["d.charge","3–4 h"],["d.seats","2"]]},
+  {id:"xpro", n:"XPro SUV", t:"alta", sub:"d.sub4", km:2500, gas:28000,
+   p25:{pub:57900,flo:51000,dist:45200,land:31045}, p50:{pub:63900,flo:56200,dist:49800,land:36776},
+   s:[["d.motor","3,000 W"],["d.batt","72 V Li-ion"],["d.range","100–120 km"],["d.speed","75–80 km/h"],["d.charge","3–4 h"],["d.seats","2"]]},
+  {id:"rocker", n:"Rocker V2", t:"alta", sub:"d.sub5", km:3000, gas:38000,
+   p25:{pub:82900,flo:73000,dist:64700,land:40281}, p50:{pub:89900,flo:79100,dist:70100,land:47806},
+   s:[["d.motor","3,000 W"],["d.batt","72 V Li-ion"],["d.range","220–240 km"],["d.speed","75–80 km/h"],["d.charge","4–6 h"],["d.seats","2"]]}
+];
+var TARIFF = 25;
+function P(m){ return TARIFF === 50 ? m.p50 : m.p25; }
+
+var mx  = function(v){ return "$" + Math.round(v).toLocaleString("es-MX"); };
+var usd = function(v){ return "US$" + Math.round(v / FX).toLocaleString("en-US"); };
+
+/* ============================================================
+   Catálogo
+   ============================================================ */
+var CURFILTER = "all";
+function renderCards(filtro){
+  CURFILTER = filtro;
+  var c = document.getElementById("cards");
+  c.innerHTML = "";
+  MODELOS.filter(function(m){ return filtro === "all" || m.t === filtro; }).forEach(function(m){
+    var p = P(m);
+    var specs = m.s.map(function(kv){ return '<div><span>' + t(kv[0]) + '</span><b>' + kv[1] + '</b></div>'; }).join("");
+    var bump = (TARIFF === 50 && m.t === "alta") ? '<div class="bump">▲ ' + t("d.bump") + '</div>' : '';
+    var el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML =
+      '<div class="card__top">' +
+        '<span class="tagline ' + (m.t === "baja" ? "tagline--lo" : "") + '">' + t(m.t === "baja" ? "d.lo" : "d.hi") + '</span>' +
+        '<h3>NEMI ' + m.n + '</h3><div class="card__sub">' + t(m.sub) + '</div>' +
+      '</div>' +
+      '<div class="card__body">' +
+        '<div class="specs">' + specs + '</div>' +
+        '<div class="prices">' +
+          '<div class="prow prow--main"><span>' + t("d.pub") + '</span><b>' + mx(p.pub) + '</b></div>' +
+          '<div class="usd">' + usd(p.pub) + '</div>' +
+          '<div class="prow"><span>' + t("d.flo") + '</span><b>' + mx(p.flo) + '</b></div>' +
+          '<div class="prow"><span>' + t("d.dist") + '</span><b>' + mx(p.dist) + '</b></div>' +
+          bump +
+          '<p class="mini">' + t("d.incl") + ' ' + t(m.t === "baja" ? "d.noPlate" : "d.plate") + '</p>' +
+        '</div>' +
+        '<a class="btn btn--dark" style="margin-top:auto" href="#cotizador">' + t("d.add") + '</a>' +
+      '</div>';
+    c.appendChild(el);
+  });
+}
+
+Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(b){
+  b.addEventListener("click", function(){
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(x){ x.classList.remove("on"); });
+    b.classList.add("on");
+    renderCards(b.dataset.f);
+  });
+});
+
+/* ============================================================
+   Comparativa
+   ============================================================ */
+var COMPARE = [
+  {m:"Yadea Kemper",b:"Yadea",pw:"22.8 kW",sp:"—",rg:"—",pr:82900*0,price:"$499,999",r:"r.other",cls:""},
+  {m:"Super Soco TC Max",b:"Super Soco",pw:"~2.2 kW",sp:"95 km/h",rg:"110 km",price:"$113,120",r:"r.premium",cls:""},
+  {m:"Super Soco CPx",b:"Super Soco",pw:"~3.6 kW",sp:"90 km/h",rg:"140 km",price:"$103,058",r:"r.cpx",cls:""},
+  {m:"NEMI Rocker V2",b:"NEMI",pw:"3.0 kW",sp:"80 km/h",rg:"220–240 km",own:"rocker",r:"r.rocker",cls:"hi",pill:"good"},
+  {m:"Super Soco TC / TS",b:"Super Soco",pw:"~2.2 kW",sp:"75 km/h",rg:"75 km",price:"$75,405",r:"r.naked",cls:""},
+  {m:"Italika Voltium Gravity",b:"Italika",pw:"~2.4 kW",sp:"80 km/h",rg:"75 km",price:"$74,499",r:"r.gravity",cls:""},
+  {m:"NEMI XPro SUV",b:"NEMI",pw:"3.0 kW",sp:"80 km/h",rg:"100–120 km",own:"xpro",r:"r.xpro",cls:"hi",pill:"good"},
+  {m:"Italika Voltium City",b:"Italika",pw:"~1.2 kW",sp:"60 km/h",rg:"70 km",price:"$54,999",r:"r.city",cls:""},
+  {m:"Super Soco CuX",b:"Super Soco",pw:"~1.2 kW",sp:"45 km/h",rg:"75 km",price:"$42,990",r:"r.cux",cls:""},
+  {m:"NEMI Voltiva",b:"NEMI",pw:"250 W",sp:"25 km/h",rg:"80 km",own:"voltiva",r:"r.hard",cls:"hi",pill:"warn"},
+  {m:"NEMI ElectraX",b:"NEMI",pw:"250 W",sp:"25 km/h",rg:"80 km",own:"electrax",r:"r.b2b",cls:"hi",pill:"warn"},
+  {m:"NEMI Electra",b:"NEMI",pw:"250 W",sp:"25 km/h",rg:"80 km",own:"electra",r:"r.b2b",cls:"hi",pill:"warn"},
+  {m:"Yadea Teena",b:"Yadea (Coppel)",pw:"350 W",sp:"25 km/h",rg:"35–55 km",price:"$11,499",r:"r.problem",cls:"",pill:"bad"},
+  {m:"Voltair Sway Max",b:"Voltair (Coppel)",pw:"~500 W",sp:"38 km/h",rg:"40 km",price:"$9,999",r:"r.problem",cls:"",pill:"bad"}
+];
+function renderCompare(){
+  document.getElementById("cmpbody").innerHTML = COMPARE.map(function(c){
+    var price = c.price;
+    if (c.own){ var m = MODELOS.filter(function(x){ return x.id === c.own; })[0]; price = mx(P(m).pub); }
+    var pc = c.pill ? "pill pill--" + c.pill : "pill";
+    return '<tr class="' + c.cls + '"><td>' + c.m + '</td><td>' + c.b + '</td><td>' + c.pw + '</td><td>' + c.sp + '</td><td>' + c.rg + '</td><td>' + price + '</td><td><span class="' + pc + '">' + t(c.r) + '</span></td></tr>';
+  }).join("");
+}
+
+/* ============================================================
+   Cotizador
+   ============================================================ */
+var qty = {};
+MODELOS.forEach(function(m){ qty[m.id] = 0; });
+qty.xpro = 12; qty.electrax = 4;
+
+function buildRows(){
+  var w = document.getElementById("qrows");
+  w.innerHTML = MODELOS.map(function(m){
+    return '<div class="qrow">' +
+      '<div class="qrow__i"><b>NEMI ' + m.n + '</b><span>' + m.s[0][1] + ' · ' + m.s[2][1] + ' · ' + m.s[3][1] + '</span></div>' +
+      '<div class="stepper">' +
+        '<button type="button" data-a="-" data-id="' + m.id + '" aria-label="−">−</button>' +
+        '<input type="number" min="0" value="' + qty[m.id] + '" id="q_' + m.id + '" aria-label="' + m.n + '">' +
+        '<button type="button" data-a="+" data-id="' + m.id + '" aria-label="+">+</button>' +
+      '</div></div>';
+  }).join("");
+}
+
+document.getElementById("qrows").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-a]");
+  if (!b) return;
+  var id = b.dataset.id;
+  qty[id] = Math.max(0, qty[id] + (b.dataset.a === "+" ? 1 : -1));
+  document.getElementById("q_" + id).value = qty[id];
+  calc();
+});
+document.getElementById("qrows").addEventListener("input", function(e){
+  if (e.target.tagName !== "INPUT") return;
+  var id = e.target.id.replace("q_", "");
+  qty[id] = Math.max(0, parseInt(e.target.value || "0", 10));
+  calc();
+});
+document.getElementById("addSoft").addEventListener("change", calc);
+document.getElementById("addKit").addEventListener("change", calc);
+
+function calc(){
+  /* Gasolina $24.50/L a 35 km/L = $0.70/km. Eléctrico 2.4 kWh/100 km
+     a $2.20/kWh = $0.053/km. Ahorro = $0.647 por km. */
+  var AHORRO_KM = 0.647;
+
+  var units = 0;
+  MODELOS.forEach(function(m){ units += qty[m.id]; });
+  var tier = units >= 50 ? "dist" : (units >= 10 ? "flo" : "pub");
+  document.getElementById("tierbadge").textContent = t(tier === "dist" ? "d.t3" : (tier === "flo" ? "d.t2" : "d.t1"));
+
+  var veh = 0, lista = 0, ahorroAnual = 0, incremental = 0;
+  MODELOS.forEach(function(m){
+    var q = qty[m.id], p = P(m);
+    veh   += p[tier] * q;
+    lista += p.pub   * q;
+    ahorroAnual += q * m.km * 12 * AHORRO_KM;
+    incremental += q * Math.max(p[tier] - m.gas, 0);
+  });
+
+  var kit   = document.getElementById("addKit").checked  ? veh * 0.09 : 0;
+  var soft  = document.getElementById("addSoft").checked ? units * 249 : 0;
+  var total = veh + kit;
+  var incT  = incremental * (kit > 0 ? 1.09 : 1);
+  var roi   = (incT > 0 && ahorroAnual > 0) ? (incT / ahorroAnual * 12) : 0;
+
+  document.getElementById("sUnits").textContent  = units;
+  document.getElementById("sVeh").textContent    = mx(veh);
+  document.getElementById("sKit").textContent    = mx(kit);
+  document.getElementById("sSave").textContent   = mx(lista - veh);
+  document.getElementById("sTot").textContent    = mx(total);
+  document.getElementById("sUsd").textContent    = usd(total);
+  document.getElementById("sSoft").textContent   = mx(soft) + " " + t("d.perMonth");
+  document.getElementById("sAhorro").textContent = mx(ahorroAnual);
+  document.getElementById("sRoi").textContent    = roi > 0 ? (Math.round(roi) + " " + t("d.months")) : "—";
+}
+
+/* ============================================================
+   Switches
+   ============================================================ */
+function setTariff(v){
+  TARIFF = v;
+  document.getElementById("t25").classList.toggle("on", v === 25);
+  document.getElementById("t50").classList.toggle("on", v === 50);
+  document.getElementById("t50").classList.toggle("warn", v === 50);
+  document.getElementById("tflag").classList.toggle("show", v === 50);
+  renderCards(CURFILTER); renderCompare(); calc();
+}
+document.getElementById("t25").addEventListener("click", function(){ setTariff(25); });
+document.getElementById("t50").addEventListener("click", function(){ setTariff(50); });
+
+function setLang(l){ LANG = l; applyLang(); }
+document.getElementById("btES").addEventListener("click", function(){ setLang("es"); });
+document.getElementById("btEN").addEventListener("click", function(){ setLang("en"); });
+
+/* Menú móvil */
+var burger = document.getElementById("burger"), mob = document.getElementById("mobmenu");
+burger.addEventListener("click", function(){
+  var open = mob.classList.toggle("open");
+  burger.setAttribute("aria-expanded", open ? "true" : "false");
+  burger.textContent = open ? "✕" : "☰";
+});
+Array.prototype.forEach.call(mob.querySelectorAll("a"), function(a){
+  a.addEventListener("click", function(){
+    mob.classList.remove("open");
+    burger.setAttribute("aria-expanded", "false");
+    burger.textContent = "☰";
+  });
+});
+
+/* Arranque: idioma del navegador si es inglés */
+if ((navigator.language || "es").toLowerCase().indexOf("en") === 0) LANG = "en";
+applyLang();
+</script>
+</body>
+</html>
