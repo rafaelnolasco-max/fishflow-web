@@ -121,6 +121,11 @@ h1,h2,h3,h4{font-family:var(--f-display);margin:0;}
 
 /* CARDS */
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}
+.shot{position:relative;background:#fff;border-bottom:1px solid var(--line);}
+.shot img{width:100%;aspect-ratio:760/520;object-fit:contain;background:#fff;}
+.swatches{position:absolute;left:14px;bottom:12px;display:flex;gap:7px;}
+.swatch{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line),0 2px 6px rgba(0,0,0,.16);cursor:pointer;padding:0;}
+.swatch.on{box-shadow:0 0 0 2px var(--ink),0 2px 6px rgba(0,0,0,.16);}
 .card__top{background:var(--paper-2);padding:22px;border-bottom:1px solid var(--line);}
 .tagline{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:5px 10px;border-radius:6px;background:var(--ink);color:var(--volt);}
 .tagline--lo{background:#E8EFE3;color:#3D5323;}
@@ -155,6 +160,11 @@ tr.hi td{background:#FAFFEB;font-weight:600;}
 .pill--good{background:#E6F9EE;color:#12703F;}
 .pill--warn{background:#FFF2E0;color:#8A5200;}
 .pill--bad{background:#FCE9E4;color:#9A3311;}
+.sil{width:62px;height:34px;color:#8B9AA3;flex:none;}
+tr.hi .sil{color:var(--ink);}
+td.silcell{padding:8px 10px;width:70px;}
+.silnote{font-size:12px;color:var(--muted);margin-top:12px;display:flex;gap:8px;align-items:flex-start;}
+.silnote b{color:var(--ink);}
 
 /* COTIZADOR */
 .quote{background:var(--ink);color:#fff;border-radius:22px;padding:clamp(22px,3.2vw,40px);}
@@ -320,9 +330,10 @@ tr.hi td{background:#FAFFEB;font-weight:600;}
       <p data-i="cmp.p">Precios de lista públicos consultados en julio 2026. La comparación se hace contra el modelo más cercano en potencia y uso, no contra el más barato del anaquel.</p>
     </div>
     <div class="card" style="padding:0">
-      <div class="ff-tablewrap" style="--ff-tablemin:880px">
+      <div class="ff-tablewrap" style="--ff-tablemin:960px">
         <table>
           <thead><tr>
+            <th></th>
             <th data-i="cmp.cModel">Modelo</th><th data-i="cmp.cBrand">Marca</th><th data-i="cmp.cPow">Potencia</th>
             <th data-i="cmp.cSpd">Vel. máx</th><th data-i="cmp.cRng">Autonomía</th>
             <th data-i="cmp.cPrice">Precio lista</th><th data-i="cmp.cRead">Lectura</th>
@@ -331,6 +342,7 @@ tr.hi td{background:#FAFFEB;font-weight:600;}
         </table>
       </div>
     </div>
+    <p class="silnote"><span>✎</span><span data-i="cmp.silnote"><b>Sobre las ilustraciones:</b> son dibujos propios por tipo de carrocería. No usamos fotografía de producto de otras marcas — es material con derechos de autor. Los datos técnicos y los nombres sí se citan: la comparación es pública, verificable y de uso legítimo.</span></p>
     <div class="ff-grid ff-grid--md" style="margin-top:22px">
       <div class="feat"><div class="ic">↑</div><h4 data-i="cmp.f1h">Donde ganamos</h4><p data-i="cmp.f1p">Alta velocidad. El XPro entrega 3,000 W y 120 km por debajo del precio de una Voltium City de 1,180 W. El Rocker V2 duplica la autonomía de todo lo que hay en el rango de $80–110 mil.</p></div>
       <div class="feat"><div class="ic">↓</div><h4 data-i="cmp.f2h">Donde no peleamos por precio</h4><p data-i="cmp.f2p">Baja velocidad contra el anaquel de Coppel. Ahí se vende producto de $10–12 mil de 1 plaza y 40 km. Nuestro argumento es 2 plazas, 80 km, garantía y refacciones — no el precio.</p></div>
@@ -485,6 +497,7 @@ es:{
  "cmp.cModel":"Modelo","cmp.cBrand":"Marca","cmp.cPow":"Potencia","cmp.cSpd":"Vel. máx","cmp.cRng":"Autonomía","cmp.cPrice":"Precio lista","cmp.cRead":"Lectura",
  "cmp.f1h":"Donde ganamos","cmp.f1p":"Alta velocidad. El XPro entrega 3,000 W y 120 km por debajo del precio de una Voltium City de 1,180 W. El Rocker V2 duplica la autonomía de todo lo que hay en el rango de $80–110 mil.",
  "cmp.f2h":"Donde no peleamos por precio","cmp.f2p":"Baja velocidad contra el anaquel de Coppel. Ahí se vende producto de $10–12 mil de 1 plaza y 40 km. Nuestro argumento es 2 plazas, 80 km, garantía y refacciones — no el precio.",
+ "cmp.silnote":"<b>Sobre las ilustraciones:</b> son dibujos propios por tipo de carrocería. No usamos fotografía de producto de otras marcas — es material con derechos de autor. Los datos técnicos y los nombres sí se citan: la comparación es pública, verificable y de uso legítimo.",
  "cmp.f3h":"Lo que nadie ofrece","cmp.f3p":"Ninguna de estas marcas vende gestión de flotilla, telemetría ni portal de rentas. Ese es el producto que hace que un operador de reparto nos elija y se quede.",
  "tar.eyebrow":"Riesgo de clasificación","tar.h2":"El arancel decide el negocio",
  "tar.p":"Desde el 1 de enero de 2026 México aplica aranceles a países sin tratado de libre comercio, e India está en la lista. Las motocicletas quedaron en 25%; los vehículos, en 50%. Los modelos de 3,000 W tienen riesgo real de clasificarse como vehículo y no como motocicleta.",
@@ -547,6 +560,7 @@ en:{
  "cmp.cModel":"Model","cmp.cBrand":"Brand","cmp.cPow":"Power","cmp.cSpd":"Top speed","cmp.cRng":"Range","cmp.cPrice":"List price","cmp.cRead":"Read",
  "cmp.f1h":"Where we win","cmp.f1p":"High speed. The XPro delivers 3,000 W and 120 km below the price of a 1,180 W Voltium City. The Rocker V2 doubles the range of anything in the $80–110k MXN bracket.",
  "cmp.f2h":"Where we don't fight on price","cmp.f2p":"Low speed against the Coppel shelf, where single-seat 40 km products sell at $10–12k MXN. Our argument is two seats, 80 km, warranty and spare parts — not price.",
+ "cmp.silnote":"<b>On the illustrations:</b> these are our own drawings by body type. We do not use other brands\u2019 product photography — that material is copyrighted. Technical data and model names are cited: the comparison is public, verifiable and legitimate.",
  "cmp.f3h":"What nobody else offers","cmp.f3p":"None of these brands sells fleet management, telematics or a rental portal. That is the product that makes a delivery operator choose us and stay.",
  "tar.eyebrow":"Classification risk","tar.h2":"The tariff decides the business",
  "tar.p":"Since 1 January 2026 Mexico applies tariffs to countries without a free trade agreement, and India is on that list. Motorcycles were set at 25%; vehicles at 50%. The 3,000 W models carry a real risk of being classified as vehicles rather than motorcycles.",
@@ -612,18 +626,23 @@ function applyLang(){
 var FX = 17.50;
 var MODELOS = [
   {id:"electra", n:"Electra", t:"baja", sub:"d.sub1", km:800, gas:0,
+   img:[["img/electra.jpg","#B8BCC0"]],
    p25:{pub:29900,flo:26300,dist:23300,land:17987}, p50:{pub:29900,flo:26300,dist:23300,land:17987},
    s:[["d.motor","250 W"],["d.batt","48 / 60 V"],["d.range","80 km"],["d.speed","25 km/h"],["d.charge","3–4 h"],["d.seats","2"]]},
   {id:"electrax", n:"ElectraX", t:"baja", sub:"d.sub2", km:800, gas:0,
+   img:[["img/electrax.jpg","#7C2237"]],
    p25:{pub:31900,flo:28100,dist:24900,land:18438}, p50:{pub:31900,flo:28100,dist:24900,land:18438},
    s:[["d.motor","250 W"],["d.batt","48 / 60 V"],["d.range","80 km"],["d.speed","25 km/h"],["d.charge","3–4 h"],["d.seats","2"]]},
   {id:"voltiva", n:"Voltiva", t:"baja", sub:"d.sub3", km:800, gas:0,
+   img:[["img/voltiva.jpg","#B4121C"]],
    p25:{pub:36900,flo:32500,dist:28800,land:21253}, p50:{pub:36900,flo:32500,dist:28800,land:21253},
    s:[["d.motor","250 W"],["d.batt","48 / 60 V"],["d.range","80 km"],["d.speed","25 km/h"],["d.charge","3–4 h"],["d.seats","2"]]},
   {id:"xpro", n:"XPro SUV", t:"alta", sub:"d.sub4", km:2500, gas:28000,
+   img:[["img/xpro.jpg","#1E3A78"],["img/xpro_amarillo.jpg","#F5C518"]],
    p25:{pub:57900,flo:51000,dist:45200,land:31045}, p50:{pub:63900,flo:56200,dist:49800,land:36776},
    s:[["d.motor","3,000 W"],["d.batt","72 V Li-ion"],["d.range","100–120 km"],["d.speed","75–80 km/h"],["d.charge","3–4 h"],["d.seats","2"]]},
   {id:"rocker", n:"Rocker V2", t:"alta", sub:"d.sub5", km:3000, gas:38000,
+   img:[["img/rocker.jpg","#D42A21"],["img/rocker_azul.jpg","#1D4F76"]],
    p25:{pub:82900,flo:73000,dist:64700,land:40281}, p50:{pub:89900,flo:79100,dist:70100,land:47806},
    s:[["d.motor","3,000 W"],["d.batt","72 V Li-ion"],["d.range","220–240 km"],["d.speed","75–80 km/h"],["d.charge","4–6 h"],["d.seats","2"]]}
 ];
@@ -645,9 +664,16 @@ function renderCards(filtro){
     var p = P(m);
     var specs = m.s.map(function(kv){ return '<div><span>' + t(kv[0]) + '</span><b>' + kv[1] + '</b></div>'; }).join("");
     var bump = (TARIFF === 50 && m.t === "alta") ? '<div class="bump">▲ ' + t("d.bump") + '</div>' : '';
+    var sw = m.img.length > 1
+      ? '<div class="swatches">' + m.img.map(function(v, i){
+          return '<button class="swatch' + (i === 0 ? ' on' : '') + '" style="background:' + v[1] + '"' +
+                 ' data-img="' + v[0] + '" type="button" aria-label="' + m.n + ' ' + (i + 1) + '"></button>';
+        }).join("") + '</div>'
+      : '';
     var el = document.createElement("div");
     el.className = "card";
     el.innerHTML =
+      '<div class="shot"><img src="' + m.img[0][0] + '" alt="NEMI ' + m.n + '" loading="lazy" width="760" height="520">' + sw + '</div>' +
       '<div class="card__top">' +
         '<span class="tagline ' + (m.t === "baja" ? "tagline--lo" : "") + '">' + t(m.t === "baja" ? "d.lo" : "d.hi") + '</span>' +
         '<h3>NEMI ' + m.n + '</h3><div class="card__sub">' + t(m.sub) + '</div>' +
@@ -668,6 +694,16 @@ function renderCards(filtro){
   });
 }
 
+/* Cambio de color por swatch */
+document.getElementById("cards").addEventListener("click", function(e){
+  var b = e.target.closest(".swatch");
+  if (!b) return;
+  var shot = b.closest(".shot");
+  shot.querySelector("img").src = b.dataset.img;
+  Array.prototype.forEach.call(shot.querySelectorAll(".swatch"), function(x){ x.classList.remove("on"); });
+  b.classList.add("on");
+});
+
 Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(b){
   b.addEventListener("click", function(){
     Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(x){ x.classList.remove("on"); });
@@ -679,28 +715,40 @@ Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(b){
 /* ============================================================
    Comparativa
    ============================================================ */
+/* Ilustraciones propias por tipo de carrocería. Dibujadas para este
+   catálogo: no se usa fotografía de producto de terceros. */
+var SIL = {
+naked:'<svg class="sil" viewBox="0 0 132 72" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="26" cy="50" r="15"/><circle cx="26" cy="50" r="4.5" stroke-width="1.5"/><circle cx="106" cy="50" r="15"/><circle cx="106" cy="50" r="4.5" stroke-width="1.5"/><path d="M44 22 L31 36"/><path d="M37 16 L52 15"/><path d="M46 20 Q56 24 58 34"/><path d="M52 34 Q66 26 84 28 L98 30"/><path d="M84 28 L100 29 Q106 30 106 36"/><path d="M54 34 L56 46 Q58 50 66 50 L82 50 Q88 50 90 44"/><path d="M70 48 L102 50"/><path d="M14 34 Q26 28 40 34" stroke-width="2.2"/></svg>',
+scooter:'<svg class="sil" viewBox="0 0 132 72" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="26" cy="54" r="12"/><circle cx="26" cy="54" r="4" stroke-width="1.5"/><circle cx="106" cy="54" r="12"/><circle cx="106" cy="54" r="4" stroke-width="1.5"/><path d="M30 20 L34 44 Q35 56 44 58 L78 58"/><path d="M25 18 L44 17"/><path d="M78 58 Q86 58 88 48"/><path d="M70 44 Q80 38 96 38 L108 40 Q114 42 113 50"/><path d="M88 48 L106 46"/><path d="M14 40 Q26 34 38 40" stroke-width="2.2"/></svg>',
+maxi:'<svg class="sil" viewBox="0 0 132 72" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="26" cy="50" r="15"/><circle cx="26" cy="50" r="4.5" stroke-width="1.5"/><circle cx="106" cy="50" r="15"/><circle cx="106" cy="50" r="4.5" stroke-width="1.5"/><path d="M31 18 L35 40 Q36 54 46 56 L76 56"/><path d="M26 16 L45 15"/><path d="M33 14 Q30 4 40 2" stroke-width="2.2"/><path d="M40 2 L44 14" stroke-width="2.2"/><path d="M76 56 Q86 56 88 46"/><path d="M68 42 Q78 34 96 34 L110 36 Q116 39 114 48"/><path d="M88 46 L108 44"/><path d="M14 36 Q26 30 38 36" stroke-width="2.2"/></svg>'
+};
+
 var COMPARE = [
-  {m:"Yadea Kemper",b:"Yadea",pw:"22.8 kW",sp:"—",rg:"—",pr:82900*0,price:"$499,999",r:"r.other",cls:""},
-  {m:"Super Soco TC Max",b:"Super Soco",pw:"~2.2 kW",sp:"95 km/h",rg:"110 km",price:"$113,120",r:"r.premium",cls:""},
-  {m:"Super Soco CPx",b:"Super Soco",pw:"~3.6 kW",sp:"90 km/h",rg:"140 km",price:"$103,058",r:"r.cpx",cls:""},
-  {m:"NEMI Rocker V2",b:"NEMI",pw:"3.0 kW",sp:"80 km/h",rg:"220–240 km",own:"rocker",r:"r.rocker",cls:"hi",pill:"good"},
-  {m:"Super Soco TC / TS",b:"Super Soco",pw:"~2.2 kW",sp:"75 km/h",rg:"75 km",price:"$75,405",r:"r.naked",cls:""},
-  {m:"Italika Voltium Gravity",b:"Italika",pw:"~2.4 kW",sp:"80 km/h",rg:"75 km",price:"$74,499",r:"r.gravity",cls:""},
-  {m:"NEMI XPro SUV",b:"NEMI",pw:"3.0 kW",sp:"80 km/h",rg:"100–120 km",own:"xpro",r:"r.xpro",cls:"hi",pill:"good"},
-  {m:"Italika Voltium City",b:"Italika",pw:"~1.2 kW",sp:"60 km/h",rg:"70 km",price:"$54,999",r:"r.city",cls:""},
-  {m:"Super Soco CuX",b:"Super Soco",pw:"~1.2 kW",sp:"45 km/h",rg:"75 km",price:"$42,990",r:"r.cux",cls:""},
-  {m:"NEMI Voltiva",b:"NEMI",pw:"250 W",sp:"25 km/h",rg:"80 km",own:"voltiva",r:"r.hard",cls:"hi",pill:"warn"},
-  {m:"NEMI ElectraX",b:"NEMI",pw:"250 W",sp:"25 km/h",rg:"80 km",own:"electrax",r:"r.b2b",cls:"hi",pill:"warn"},
-  {m:"NEMI Electra",b:"NEMI",pw:"250 W",sp:"25 km/h",rg:"80 km",own:"electra",r:"r.b2b",cls:"hi",pill:"warn"},
-  {m:"Yadea Teena",b:"Yadea (Coppel)",pw:"350 W",sp:"25 km/h",rg:"35–55 km",price:"$11,499",r:"r.problem",cls:"",pill:"bad"},
-  {m:"Voltair Sway Max",b:"Voltair (Coppel)",pw:"~500 W",sp:"38 km/h",rg:"40 km",price:"$9,999",r:"r.problem",cls:"",pill:"bad"}
+  {m:"Yadea Kemper",b:"Yadea",pw:"22.8 kW",sp:"—",rg:"—",price:"$499,999",r:"r.other",cls:"",sil:"naked"},
+  {m:"Super Soco TC Max",b:"Super Soco",pw:"~2.2 kW",sp:"95 km/h",rg:"110 km",price:"$113,120",r:"r.premium",cls:"",sil:"naked"},
+  {m:"Super Soco CPx",b:"Super Soco",pw:"~3.6 kW",sp:"90 km/h",rg:"140 km",price:"$103,058",r:"r.cpx",cls:"",sil:"maxi"},
+  {m:"NEMI Rocker V2",b:"NEMI",pw:"3.0 kW",sp:"80 km/h",rg:"220–240 km",own:"rocker",r:"r.rocker",cls:"hi",pill:"good",sil:"naked"},
+  {m:"Super Soco TC / TS",b:"Super Soco",pw:"~2.2 kW",sp:"75 km/h",rg:"75 km",price:"$75,405",r:"r.naked",cls:"",sil:"naked"},
+  {m:"Italika Voltium Gravity",b:"Italika",pw:"~2.4 kW",sp:"80 km/h",rg:"75 km",price:"$74,499",r:"r.gravity",cls:"",sil:"naked"},
+  {m:"NEMI XPro SUV",b:"NEMI",pw:"3.0 kW",sp:"80 km/h",rg:"100–120 km",own:"xpro",r:"r.xpro",cls:"hi",pill:"good",sil:"maxi"},
+  {m:"Italika Voltium City",b:"Italika",pw:"~1.2 kW",sp:"60 km/h",rg:"70 km",price:"$54,999",r:"r.city",cls:"",sil:"scooter"},
+  {m:"Super Soco CuX",b:"Super Soco",pw:"~1.2 kW",sp:"45 km/h",rg:"75 km",price:"$42,990",r:"r.cux",cls:"",sil:"scooter"},
+  {m:"NEMI Voltiva",b:"NEMI",pw:"250 W",sp:"25 km/h",rg:"80 km",own:"voltiva",r:"r.hard",cls:"hi",pill:"warn",sil:"scooter"},
+  {m:"NEMI ElectraX",b:"NEMI",pw:"250 W",sp:"25 km/h",rg:"80 km",own:"electrax",r:"r.b2b",cls:"hi",pill:"warn",sil:"scooter"},
+  {m:"NEMI Electra",b:"NEMI",pw:"250 W",sp:"25 km/h",rg:"80 km",own:"electra",r:"r.b2b",cls:"hi",pill:"warn",sil:"scooter"},
+  {m:"Yadea Teena",b:"Yadea (Coppel)",pw:"350 W",sp:"25 km/h",rg:"35–55 km",price:"$11,499",r:"r.problem",cls:"",pill:"bad",sil:"scooter"},
+  {m:"Voltair Sway Max",b:"Voltair (Coppel)",pw:"~500 W",sp:"38 km/h",rg:"40 km",price:"$9,999",r:"r.problem",cls:"",pill:"bad",sil:"scooter"}
 ];
 function renderCompare(){
   document.getElementById("cmpbody").innerHTML = COMPARE.map(function(c){
-    var price = c.price;
-    if (c.own){ var m = MODELOS.filter(function(x){ return x.id === c.own; })[0]; price = mx(P(m).pub); }
+    var price = c.price, thumb = SIL[c.sil];
+    if (c.own){
+      var m = MODELOS.filter(function(x){ return x.id === c.own; })[0];
+      price = mx(P(m).pub);
+      thumb = '<img src="' + m.img[0][0] + '" alt="NEMI ' + m.n + '" loading="lazy" width="62" height="42" style="width:62px;height:42px;object-fit:contain">';
+    }
     var pc = c.pill ? "pill pill--" + c.pill : "pill";
-    return '<tr class="' + c.cls + '"><td>' + c.m + '</td><td>' + c.b + '</td><td>' + c.pw + '</td><td>' + c.sp + '</td><td>' + c.rg + '</td><td>' + price + '</td><td><span class="' + pc + '">' + t(c.r) + '</span></td></tr>';
+    return '<tr class="' + c.cls + '"><td class="silcell">' + thumb + '</td><td>' + c.m + '</td><td>' + c.b + '</td><td>' + c.pw + '</td><td>' + c.sp + '</td><td>' + c.rg + '</td><td>' + price + '</td><td><span class="' + pc + '">' + t(c.r) + '</span></td></tr>';
   }).join("");
 }
 
