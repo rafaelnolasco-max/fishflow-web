@@ -11,10 +11,13 @@ export const runtime = 'nodejs'
 // buzones de abajo. La lista blanca vive en el servidor, no en el navegador, así
 // que aunque alguien manipule la petición no puede alcanzar a los suscriptores.
 //
+// Cada persona recibe SU PROPIO correo: nadie ve la dirección de nadie más.
+//
 // Para abrirlo a la lista real hacen falta dos cosas:
 //   1. Verificar mail.mariocitalan.net en Resend (hoy saldría desde fishflow.mx,
 //      que es el dominio transaccional y no debe cargar envíos masivos).
-//   2. Cambiar TEST_MODE a false y resolver el enlace de baja por destinatario.
+//   2. Cambiar TEST_MODE a false y sustituir el List-Unsubscribe por un enlace
+//      con token por destinatario, para que la baja sea automática.
 const TEST_MODE = true
 const TEST_RECIPIENTS = ['raf@fishflow.mx', 'mariocitalan@gmail.com']
 
@@ -211,17 +214,33 @@ export async function POST(req: Request) {
       ? 'ENVÍO DE PRUEBA · Este correo solo llegó a Mario y a FishFlow. Los suscriptores no lo recibieron.'
       : 'Recibes este correo porque aceptaste las publicaciones de Mario Citalán. Puedes darte de baja respondiendo "baja".'
 
+    // UN CORREO POR PERSONA. Nunca varios destinatarios en el mismo `to`: eso
+    // deja a la vista el correo de todos los demás, que además de verse mal es
+    // divulgar datos personales de terceros (LFPDPPP). Resend permite mandar
+    // hasta 100 correos individuales por llamada con batch.send.
     const resend = new Resend(resendKey)
-    const { error: mailErr } = await resend.emails.send({
-      from: FROM,
-      to: destinatarios,
-      replyTo: 'mariocitalan@gmail.com',
-      subject: TEST_MODE ? `[PRUEBA] ${subject}` : subject,
-      html: emailHtml(subject, texto, aviso),
-    })
-    if (mailErr) {
-      console.error('[newsletter/send] email error:', mailErr)
-      return NextResponse.json({ error: 'No se pudo enviar.' }, { status: 500 })
+    const html = emailHtml(subject, texto, aviso)
+    const asunto = TEST_MODE ? `[PRUEBA] ${subject}` : subject
+
+    const LOTE = 100
+    for (let i = 0; i < destinatarios.length; i += LOTE) {
+      const lote = destinatarios.slice(i, i + LOTE).map((correo) => ({
+        from: FROM,
+        to: [correo], // un solo destinatario por mensaje
+        replyTo: 'mariocitalan@gmail.com',
+        subject: asunto,
+        html,
+        headers: {
+          // Botón nativo de "Cancelar suscripción" en Gmail y Apple Mail
+          'List-Unsubscribe': '<mailto:mariocitalan@gmail.com?subject=Baja%20del%20boletin>',
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+      }))
+      const { error: mailErr } = await resend.batch.send(lote)
+      if (mailErr) {
+        console.error('[newsletter/send] email error:', mailErr)
+        return NextResponse.json({ error: 'No se pudo enviar.' }, { status: 500 })
+      }
     }
 
     // Historial: queda registro de cada envío, también de las pruebas
