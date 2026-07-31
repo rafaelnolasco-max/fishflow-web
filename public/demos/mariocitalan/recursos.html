@@ -193,24 +193,45 @@
         <button type="submit">Suscribirme</button>
       </form>
       <p class="cap-note" id="capNote">Cada correo es un miembro del ecosistema.</p>
+      <p class="cap-note" style="margin-top:8px">Tus datos los trata el Dr. Mario Citalán para enviarte la newsletter. <a href="aviso-de-privacidad.html" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Aviso de privacidad</a>.</p>
     </div>
   </div>
 </section>
 
 <footer>
-  <div class="container">© MMXXVI — Mario Citalán · <a href="index.html">Inicio</a> · Creado por <a href="https://www.fishflow.mx" target="_blank" rel="noopener">FishFlow</a></div>
+  <div class="container">© MMXXVI — Mario Citalán · <a href="index.html">Inicio</a> · <a href="aviso-de-privacidad.html">Aviso de privacidad</a> · Creado por <a href="https://www.fishflow.mx" target="_blank" rel="noopener">FishFlow</a></div>
 </footer>
 
 <script>
-  // Boletín — placeholder (en producción: POST /api/leads origen "recursos")
+  // Boletín de recursos — alta real al newsletter de Mario.
+  // Antes era un placeholder que descartaba el correo. Ahora entra a la misma
+  // tabla `leads` que el resto de las altas y aparece en el panel.
   const form = document.getElementById('capForm');
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('capEmail').value.trim();
     const note = document.getElementById('capNote');
     if(!/.+@.+\..+/.test(email)){ note.textContent = 'Escribe un correo válido.'; note.style.color = '#E8A9A9'; return; }
-    form.innerHTML = '<p style="color:var(--paper);font-family:\'Fraunces\',serif;font-size:19px;margin:0">Listo &mdash; estás suscrito. ✓</p>';
-    note.textContent = 'Te aviso de cada nuevo recurso.';
+    const btn = form.querySelector('button');
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    // Diagonal final obligatoria: fishflow-web usa trailingSlash y sin ella
+    // Next redirige, lo que tumba el POST cross-origin.
+    fetch('https://www.fishflow.mx/api/newsletter/subscribe/', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: email, consent: true, origen: 'newsletter' })
+    })
+    .then((r) => { if(!r.ok) throw new Error('error'); return r.json(); })
+    .then((d) => {
+      form.innerHTML = '<p style="color:var(--paper);font-family:\'Fraunces\',serif;font-size:19px;margin:0">' +
+        (d && d.yaEstaba ? 'Ya estabas suscrito. \u2713' : 'Listo &mdash; est\u00e1s suscrito. \u2713') + '</p>';
+      note.textContent = d && d.yaEstaba ? 'Sigues recibiendo cada nuevo recurso.' : 'Te aviso de cada nuevo recurso.';
+    })
+    .catch(() => {
+      btn.disabled = false; btn.textContent = 'Suscribirme';
+      note.textContent = 'No se pudo completar el alta. Inténtalo de nuevo en un momento.';
+      note.style.color = '#E8A9A9';
+    });
   });
 </script>
 

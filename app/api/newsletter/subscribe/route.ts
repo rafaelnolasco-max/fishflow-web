@@ -92,6 +92,7 @@ function bienvenidaHtml(nombreDado: string, esLibro: boolean) {
       <p style="font-size:14px;color:#283845;margin:0">Un abrazo,<br><strong>Mario Citalán</strong></p>
       <p style="font-size:11px;color:#7B8794;line-height:1.5;margin-top:24px;border-top:1px solid #DCE4EC;padding-top:16px">
         Recibes este correo porque te suscribiste en mariocitalan.net. Si no fuiste tú o ya no quieres recibirlo, responde "baja" a este mensaje y te saco de la lista.
+        Consulta el <a href="https://mariocitalan.net/aviso-de-privacidad.html" style="color:#7B8794;text-decoration:underline">Aviso de privacidad</a>.
       </p>
     </div>
   </div>`

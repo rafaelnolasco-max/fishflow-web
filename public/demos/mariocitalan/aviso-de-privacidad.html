@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aviso de Privacidad — Mario Citalán</title>
+<meta name="description" content="Aviso de Privacidad Integral del Dr. Mario Citalán conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.">
+<meta name="robots" content="index,follow">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1A24;--ink-2:#283845;--ink-3:#4C5C6A;--paper:#F4F7FA;--paper-2:#E7EEF4;
+    --bone:#FFFFFF;--muted:#7B8794;--accent:#3E86CF;--accent-deep:#2A6AAE;--steel:#1F4E79;
+    --rule:#DCE4EC;--rule-dark:rgba(255,255,255,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter",system-ui,sans-serif;font-size:16px;line-height:1.65;letter-spacing:.01em}
+  a{color:inherit;text-decoration:none}
+  .display{font-family:"Fraunces",Georgia,serif;font-weight:500;letter-spacing:-.01em;line-height:1.06}
+  .italic{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:400;color:var(--accent-deep)}
+  .eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-deep)}
+  .container{max-width:1180px;margin:0 auto;padding:0 56px}
+
+  /* Barra superior: el mismo patrón de las páginas de evaluación. */
+  .topbar{padding:22px 0;border-bottom:1px solid var(--rule);background:rgba(255,255,255,.8);backdrop-filter:blur(12px);position:sticky;top:0;z-index:20}
+  .topbar .container{display:flex;align-items:center;justify-content:space-between;max-width:1100px}
+  .backlink{display:inline-flex;align-items:center;gap:9px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+  .backlink:hover{color:var(--accent-deep)}
+  .backlink svg{width:14px;height:14px}
+  .topbar .mark{display:flex;align-items:center;gap:10px;font-family:"Fraunces",serif;font-size:18px}
+  .topbar .mark img{height:30px}
+
+  .head{padding:64px 0 34px}
+  .head .container{max-width:820px}
+  .head h1{font-size:clamp(30px,4.4vw,46px);margin:16px 0 14px}
+  .head .fecha{font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  .doc{padding:0 0 80px}
+  .doc .container{max-width:820px}
+  .doc .card{background:var(--bone);border:1px solid var(--rule);padding:clamp(26px,4vw,52px)}
+  .doc p{color:var(--ink-2);margin:0 0 16px}
+  .doc h2{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:21px;line-height:1.25;color:var(--ink);margin:38px 0 14px;padding-top:26px;border-top:1px solid var(--rule)}
+  .doc h2:first-of-type{margin-top:0;padding-top:0;border-top:none}
+  .doc h3{font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--ink);margin:22px 0 10px}
+  .doc ul{margin:0 0 18px;padding-left:20px;color:var(--ink-2)}
+  .doc li{margin-bottom:7px}
+  .doc a.link{color:var(--accent-deep);border-bottom:1px solid var(--accent-deep)}
+  .doc strong{color:var(--ink);font-weight:600}
+
+  /* Bloque de datos del responsable */
+  .datos{background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);padding:20px 22px;margin:0 0 22px}
+  .datos dl{display:grid;grid-template-columns:150px 1fr;gap:9px 16px;font-size:14.5px}
+  .datos dt{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+  .datos dd{color:var(--ink-2)}
+
+  /* Marcador de dato faltante. Es imposible no verlo: si esta página se publica
+     con el recuadro rojo visible, es que alguien lo pasó por alto a propósito. */
+  .falta{display:inline-block;background:#FDECEC;border:1px dashed #C0392B;color:#C0392B;
+         font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.06em;padding:3px 8px}
+
+  .nota{font-size:13.5px;color:var(--muted);margin-top:26px;padding-top:18px;border-top:1px solid var(--rule)}
+
+  footer{background:var(--ink);color:rgba(247,244,237,.55);padding:40px 0;text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-top:1px solid var(--rule-dark)}
+  footer a{color:rgba(247,244,237,.8)}
+
+  @media (max-width:900px){ .container{padding:0 30px} }
+  @media (max-width:600px){
+    .container{padding:0 20px}
+    .topbar .mark span{display:none}
+    .head{padding:40px 0 24px}
+    .datos dl{grid-template-columns:1fr;gap:3px 0}
+    .datos dt{padding-top:11px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    <a href="index.html" class="backlink"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M13 7H1M6 2L1 7l5 5"/></svg> Volver</a>
+    <a href="index.html" class="mark"><img src="assets/img/dr-mente-logo.png" alt="Dr. Mente"> <span>Mario Citalán</span></a>
+  </div>
+</div>
+
+<section class="head">
+  <div class="container">
+    <span class="eyebrow">Protección de datos personales</span>
+    <h1 class="display">Aviso de <span class="italic">Privacidad</span> Integral</h1>
+    <div class="fecha">Última actualización: julio de 2026</div>
+  </div>
+</section>
+
+<section class="doc">
+  <div class="container">
+    <div class="card">
+
+      <p>En cumplimiento de lo dispuesto por la Ley Federal de Protección de Datos Personales en Posesión de los Particulares, su Reglamento y demás disposiciones aplicables en los Estados Unidos Mexicanos, el presente Aviso de Privacidad tiene por objeto informar la forma en que se recaban, utilizan, almacenan, protegen y, en su caso, comparten los datos personales de los usuarios que visitan este sitio web.</p>
+
+      <h2>I. Responsable del tratamiento de los datos personales</h2>
+      <p>El responsable del tratamiento de los datos personales es el <strong>Dr. Mario Citalán</strong> y los proyectos vinculados a su ecosistema profesional, entre ellos:</p>
+      <ul>
+        <li>Arquitectura Mental y del Criterio</li>
+        <li>Smartabs</li>
+        <li>Off Stage</li>
+        <li>LineUp 360</li>
+        <li>Ciencia en Escena</li>
+        <li>Demás proyectos desarrollados bajo su dirección.</li>
+      </ul>
+
+      <div class="datos">
+        <dl>
+          <dt>Domicilio</dt>
+          <dd><span class="falta">PENDIENTE — domicilio del responsable</span></dd>
+          <dt>Correo de contacto</dt>
+          <dd><span class="falta">PENDIENTE — correo para solicitudes</span></dd>
+        </dl>
+      </div>
+
+      <h2>II. Datos personales que podremos recabar</h2>
+      <p>Dependiendo del servicio solicitado, podremos solicitar alguno o varios de los siguientes datos:</p>
+      <ul>
+        <li>Nombre completo.</li>
+        <li>Dirección de correo electrónico.</li>
+        <li>Número telefónico.</li>
+        <li>Empresa u organización.</li>
+        <li>Cargo.</li>
+        <li>Ciudad y país.</li>
+        <li>Información relacionada con su interés en nuestros servicios.</li>
+        <li>Información que voluntariamente nos proporcione mediante formularios, correos electrónicos o mensajes.</li>
+      </ul>
+      <p>Asimismo, este sitio puede recopilar automáticamente información técnica como:</p>
+      <ul>
+        <li>Dirección IP.</li>
+        <li>Tipo de navegador.</li>
+        <li>Sistema operativo.</li>
+        <li>Fecha y hora de acceso.</li>
+        <li>Páginas visitadas.</li>
+        <li>Tiempo de navegación.</li>
+        <li>Cookies y tecnologías similares.</li>
+      </ul>
+
+      <h2>III. Datos personales sensibles</h2>
+      <p>En términos generales este sitio web no solicita datos personales sensibles.</p>
+      <p>En caso de que, mediante algún formulario especializado, evaluación, investigación o proceso de asesoría, el usuario decida proporcionar información considerada sensible, ésta será tratada con un nivel reforzado de confidencialidad y únicamente para las finalidades expresamente informadas al momento de su recopilación.</p>
+
+      <h2>IV. Finalidades del tratamiento</h2>
+      <p>Los datos personales podrán utilizarse para las siguientes <strong>finalidades primarias</strong>:</p>
+      <ul>
+        <li>Atender solicitudes de información.</li>
+        <li>Dar respuesta a mensajes enviados desde el sitio web.</li>
+        <li>Enviar la newsletter.</li>
+        <li>Compartir artículos, investigaciones y contenido educativo.</li>
+        <li>Informar sobre conferencias, cursos, talleres y eventos.</li>
+        <li>Gestionar asesorías profesionales.</li>
+        <li>Emitir cotizaciones.</li>
+        <li>Dar seguimiento a clientes.</li>
+        <li>Realizar procesos administrativos derivados de la contratación de servicios.</li>
+        <li>Mejorar la atención al usuario.</li>
+      </ul>
+      <p>Asimismo, con su consentimiento, los datos podrán utilizarse para <strong>finalidades secundarias</strong> tales como:</p>
+      <ul>
+        <li>Estudios estadísticos.</li>
+        <li>Investigación de mercados.</li>
+        <li>Desarrollo de nuevos servicios.</li>
+        <li>Encuestas de satisfacción.</li>
+        <li>Invitaciones a actividades académicas.</li>
+        <li>Información sobre nuevos productos, libros o programas.</li>
+        <li>Campañas de comunicación y marketing.</li>
+      </ul>
+      <p>El usuario podrá oponerse al tratamiento para estas finalidades secundarias en cualquier momento.</p>
+
+      <h2>V. Newsletter y lista de espera</h2>
+      <p>Cuando un usuario se suscriba a la newsletter:</p>
+      <ul>
+        <li>Únicamente recibirá información relacionada con los temas desarrollados por el Dr. Mario Citalán y sus proyectos profesionales;</li>
+        <li>Podrá cancelar su suscripción en cualquier momento mediante el enlace incluido en cada envío o solicitándolo por correo electrónico;</li>
+        <li>No se enviará publicidad de terceros ajena a nuestros proyectos.</li>
+      </ul>
+      <p>La <strong>lista de espera del libro</strong> es independiente de la newsletter. Quien deja su correo únicamente para recibir el aviso de lanzamiento no queda suscrito al boletín, y viceversa: son dos consentimientos distintos y cada uno puede cancelarse por separado.</p>
+
+      <h2>VI. Uso de cookies</h2>
+      <p>Este sitio puede utilizar cookies, píxeles y tecnologías similares para:</p>
+      <ul>
+        <li>mejorar la experiencia del usuario;</li>
+        <li>conocer estadísticas de navegación;</li>
+        <li>analizar el comportamiento del sitio;</li>
+        <li>optimizar contenidos;</li>
+        <li>recordar preferencias del usuario.</li>
+      </ul>
+      <p>El usuario puede deshabilitar el uso de cookies desde la configuración de su navegador; sin embargo, algunas funcionalidades podrían verse limitadas.</p>
+
+      <h2>VII. Transferencia de datos y proveedores tecnológicos</h2>
+      <p>Los datos personales <strong>no serán vendidos, rentados ni comercializados</strong>.</p>
+      <p>Únicamente podrán compartirse cuando:</p>
+      <ul>
+        <li>exista autorización expresa del titular;</li>
+        <li>sea necesario para prestar un servicio solicitado;</li>
+        <li>exista obligación legal o requerimiento de autoridad competente.</li>
+      </ul>
+      <h3>Encargados del tratamiento</h3>
+      <p>Para operar este sitio y sus formularios intervienen proveedores tecnológicos que actúan como <strong>encargados</strong> del tratamiento: procesan los datos exclusivamente por cuenta y bajo instrucciones del responsable, sin utilizarlos para fines propios y bajo obligaciones de confidencialidad.</p>
+      <ul>
+        <li><strong>FishFlow</strong> — desarrollo y operación de la plataforma que recibe los formularios, resguarda la información y realiza los envíos de correo.</li>
+        <li>Servicios de hospedaje web, almacenamiento en la nube, envío de correo electrónico y herramientas de análisis contratados para el funcionamiento del sitio.</li>
+      </ul>
+
+      <h2>VIII. Conservación de la información</h2>
+      <p>Los datos personales serán conservados únicamente durante el tiempo necesario para cumplir con las finalidades descritas en este Aviso de Privacidad y con las obligaciones legales correspondientes.</p>
+
+      <h2>IX. Derechos ARCO</h2>
+      <p>El titular podrá ejercer en cualquier momento sus derechos de <strong>Acceso, Rectificación, Cancelación y Oposición</strong>. Asimismo, podrá solicitar la limitación del uso o divulgación de sus datos o revocar el consentimiento otorgado.</p>
+      <p>Para ello deberá enviar una solicitud al correo de contacto señalado en la sección I de este Aviso, indicando:</p>
+      <ul>
+        <li>nombre completo;</li>
+        <li>medio de contacto;</li>
+        <li>derecho que desea ejercer;</li>
+        <li>descripción clara de la solicitud.</li>
+      </ul>
+      <p>La respuesta será emitida dentro de los plazos establecidos por la legislación aplicable.</p>
+
+      <h2>X. Medidas de seguridad</h2>
+      <p>Implementamos medidas administrativas, técnicas y organizacionales razonables para proteger los datos personales contra daño, pérdida, alteración, destrucción, acceso o tratamiento no autorizado.</p>
+      <p>No obstante, ningún sistema de transmisión o almacenamiento electrónico puede garantizar seguridad absoluta.</p>
+
+      <h2>XI. Enlaces externos</h2>
+      <p>Este sitio puede contener enlaces hacia sitios de terceros. El responsable no asume responsabilidad respecto de las políticas de privacidad o contenido de dichos sitios. Se recomienda revisar sus respectivos avisos de privacidad.</p>
+
+      <h2>XII. Menores de edad</h2>
+      <p>Los servicios ofrecidos en este sitio están dirigidos principalmente a personas mayores de edad. En caso de que un menor de edad proporcione información personal, se entenderá que cuenta con la autorización de quien ejerza la patria potestad o tutela.</p>
+
+      <h2>XIII. Cambios al Aviso de Privacidad</h2>
+      <p>El presente Aviso de Privacidad podrá modificarse para adecuarse a cambios legislativos, tecnológicos o derivados de nuevos servicios. Las modificaciones serán publicadas oportunamente en esta misma página indicando la fecha de actualización.</p>
+
+      <h2>XIV. Consentimiento</h2>
+      <p>Al enviar información mediante cualquiera de los formularios de este sitio o al suscribirse a la newsletter, el usuario manifiesta haber leído y comprendido el presente Aviso de Privacidad y acepta el tratamiento de sus datos personales en los términos aquí establecidos.</p>
+
+      <p class="nota">¿Dudas sobre el tratamiento de tus datos? Escribe al correo de contacto de la sección I indicando el asunto y te respondemos.</p>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">© MMXXVI — Mario Citalán · <a href="index.html">Inicio</a> · Creado por <a href="https://www.fishflow.mx" target="_blank" rel="noopener">FishFlow</a></div>
+</footer>
+
+</body>
+</html>
