@@ -4,6 +4,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { SENDERS } from './email'
 
 export const RMZ_CLIENT_ID = '80a067ff-fce7-4642-97c1-ac7f56ff4ba1'
 
@@ -26,7 +27,7 @@ export const RMZ_BRAND = {
 const NOTIFY_TO = (process.env.RMZ_ORDER_TO ?? 'raf@fishflow.mx,antoniorp8501@hotmail.com')
   .split(',').map((s) => s.trim()).filter(Boolean)
 
-const FROM = 'Cocinas y Closets RMZ <recibos@fishflow.mx>'
+const FROM = SENDERS.rmz
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { SENDERS } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -112,7 +113,7 @@ export async function POST(req: Request) {
     if (resendKey) {
       const resend = new Resend(resendKey)
       const { error: mailErr } = await resend.emails.send({
-        from: 'Enlace Integral <recibos@fishflow.mx>',
+        from: SENDERS.enlace,
         to: NOTIFY_TO,
         replyTo: email || undefined,
         subject: `Nuevo lead — ${nombre} · ${plan}`,

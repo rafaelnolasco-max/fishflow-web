@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import * as XLSX from 'xlsx'
 import { ENLACE_CLIENT_ID } from '@/lib/supabase'
+import { SENDERS } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -182,7 +183,7 @@ export async function POST(req: Request) {
       try {
         const resend = new Resend(resendKey)
         await resend.emails.send({
-          from: 'Enlace Integral <recibos@fishflow.mx>',
+          from: SENDERS.enlace,
           to: ADMIN_TO,
           subject: `Top clientes recibido (Excel) — ${vendorName} (${newRows.length})`,
           html: `<p>El vendedor <strong>${vendorName}</strong> subió un Excel con <strong>${newRows.length}</strong> clientes nuevos.${duplicates > 0 ? ` (${duplicates} ya estaban guardados y se ignoraron)` : ''}</p>`,

@@ -548,6 +548,12 @@ export interface CriterioLead {
   newsletter:  string | null;
   newsletter_at:   string | null;
   newsletter_note: string | null;
+  /**
+   * Alta en la lista de espera del libro "Ciencia en escena".
+   * Permiso INDEPENDIENTE de `newsletter`: autoriza el aviso de lanzamiento,
+   * no el boletín recurrente. NULL = no está en la lista.
+   */
+  libro_at:    string | null;
   source:      string | null;
   status:      string | null;
   created_at:  string;

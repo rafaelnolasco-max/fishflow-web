@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { SENDERS } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -162,7 +163,7 @@ export async function POST(req: Request) {
 
     // 2) Aviso interno → Mario + Rafa
     const { error: adminErr } = await resend.emails.send({
-      from: 'FishFlow <recibos@fishflow.mx>',
+      from: SENDERS.fishflow,
       to: ADMIN_TO,
       replyTo: email,
       subject: `Nueva evaluación de ${testLabel} — ${nombre} (${perfil})`,
@@ -172,7 +173,7 @@ export async function POST(req: Request) {
 
     // 3) Resultado → prospecto
     const { error: leadErr } = await resend.emails.send({
-      from: 'Mario Citalán <recibos@fishflow.mx>',
+      from: SENDERS.marioCitalan,
       to: [email],
       replyTo: 'raf@fishflow.mx',
       subject: `${nombre.split(' ')[0] || nombre}, tu resultado: ${perfil}`,

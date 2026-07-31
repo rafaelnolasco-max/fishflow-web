@@ -133,9 +133,16 @@ function priorityOf(profile: string | null) {
 }
 
 const SOURCE_LABEL: Record<string, string> = {
-  actitud:  "Evaluación de Actitud",
-  criterio: "Evaluación de Criterio",
+  actitud:    "Evaluación de Actitud",
+  criterio:   "Evaluación de Criterio",
+  newsletter: "Suscripción directa",
+  libro:      "Lista de espera del libro",
 };
+
+// Fuentes que SÍ son una evaluación. Quien llegó solo por el newsletter o por la
+// lista del libro no tiene perfil ni respuestas: no debe contar como evaluación
+// ni caer en un grupo de prioridad, porque no hay nada que priorizar todavía.
+const FUENTES_EVALUACION = new Set(["actitud", "criterio"]);
 
 // ─── Suscripción al newsletter ─────────────────────────────────────────────────
 const NEWSLETTER_STATE: { id: string; label: string; bg: string; fg: string }[] = [
@@ -239,7 +246,7 @@ export default function MarioCitalanPanel() {
       for (let from = 0; ; from += PAGE) {
         const { data, error } = await supabase
           .from("leads")
-          .select("id,name,email,phone,problem,ai_response,profile,route,answers,notes,opt_in,newsletter,newsletter_at,newsletter_note,source,status,created_at")
+          .select("id,name,email,phone,problem,ai_response,profile,route,answers,notes,opt_in,newsletter,newsletter_at,newsletter_note,libro_at,source,status,created_at")
           .eq("client_id", CRITERIO_CLIENT_ID)
           .order("created_at", { ascending: false })
           .range(from, from + PAGE - 1);
@@ -348,7 +355,9 @@ export default function MarioCitalanPanel() {
       if (fSource !== "todo" && (l.source || "") !== fSource) return false;
       if (fStatus !== "todo" && (l.status || "nuevo") !== fStatus) return false;
       if (fOptIn && (l.newsletter || "pendiente") !== "suscrito") return false;
-      if (fGrupo !== "todo" && priorityOf(l.profile).grupo !== fGrupo) return false;
+      // Sin perfil no hay grupo: quien solo se suscribió no debe colarse en el
+      // filtro por grupo (priorityOf lo mandaría a "seguimiento" por defecto).
+      if (fGrupo !== "todo" && (!l.profile || priorityOf(l.profile).grupo !== fGrupo)) return false;
       if (!q) return true;
       return [l.name, l.email, l.phone, l.profile].some((v) => (v || "").toLowerCase().includes(q));
     });
@@ -374,25 +383,32 @@ export default function MarioCitalanPanel() {
     email: string; name: string; phone: string | null;
     profile: string | null; nivel: number; grupo: Grupo;
     newsletter: string; evaluaciones: number; ultima: string;
+    /** Está en la lista de espera del libro (permiso aparte del boletín). */
+    libro: boolean;
   };
   const personas = useMemo<Persona[]>(() => {
     const map = new Map<string, Persona>();
     for (const l of leads) {
       const key = l.email.toLowerCase();
       const p = priorityOf(l.profile);
+      const esEvaluacion = FUENTES_EVALUACION.has(l.source || "");
       const prev = map.get(key);
       if (!prev) {
         map.set(key, {
           email: l.email, name: l.name, phone: l.phone,
           profile: l.profile, nivel: p.nivel, grupo: p.grupo,
-          newsletter: l.newsletter || "pendiente", evaluaciones: 1, ultima: l.created_at,
+          newsletter: l.newsletter || "pendiente",
+          evaluaciones: esEvaluacion ? 1 : 0,
+          ultima: l.created_at,
+          libro: l.libro_at != null,
         });
       } else {
-        prev.evaluaciones += 1;
+        if (esEvaluacion) prev.evaluaciones += 1;
         if (l.created_at > prev.ultima) { prev.ultima = l.created_at; prev.name = l.name; }
         if (!prev.phone && l.phone) prev.phone = l.phone;
         if (p.nivel < prev.nivel) { prev.nivel = p.nivel; prev.grupo = p.grupo; prev.profile = l.profile; }
         if (l.newsletter && l.newsletter !== "pendiente") prev.newsletter = l.newsletter;
+        if (l.libro_at != null) prev.libro = true;
       }
     }
     return [...map.values()];
@@ -645,8 +661,12 @@ export default function MarioCitalanPanel() {
                 sub="aún no les preguntas" />
               <StatCard theme={T} label="No quieren" icon="—"
                 value={personas.filter((p) => p.newsletter === "baja").length} />
+              {/* Lista aparte: pidieron aviso del libro, no el boletín. */}
+              <StatCard theme={T} label="Espera el libro" icon="📕"
+                value={personas.filter((p) => p.libro).length}
+                sub="solo aviso de lanzamiento" />
               <StatCard theme={T} label="Personas en total" icon="👥" value={personas.length}
-                sub={`${leads.length} evaluaciones`} />
+                sub={`${leads.filter((l) => FUENTES_EVALUACION.has(l.source || "")).length} evaluaciones`} />
             </StatGrid>
 
             {/* ── Envío quincenal ─────────────────────────────────────────── */}
@@ -786,7 +806,9 @@ export default function MarioCitalanPanel() {
 
               {(() => {
                 const lista = personas
-                  .filter((p) => fGrupo === "todo" || p.grupo === fGrupo)
+                  // Sin evaluación no hay grupo real: `priorityOf(null)` los pondría
+                  // en "Seguimiento" por defecto y ensuciaría el filtro.
+                  .filter((p) => fGrupo === "todo" || (p.evaluaciones > 0 && p.grupo === fGrupo))
                   .filter((p) => p.newsletter !== "fuera")
                   .sort((a, b) => {
                     if (orden === "necesidad") return a.nivel - b.nivel || (a.ultima < b.ultima ? 1 : -1);
@@ -799,11 +821,17 @@ export default function MarioCitalanPanel() {
                     {lista.map((p) => {
                       const gm = GRUPO_META[p.grupo];
                       const nm = newsletterMeta(p.newsletter);
+                      const soloBoletin = p.evaluaciones === 0;
                       const primer = p.name.split(" ")[0] || p.name;
                       const msg = encodeURIComponent(
-                        `Hola ${primer}, soy Mario Citalán. Gracias por hacer mi evaluación. ` +
-                        `Cada quincena comparto material sobre arquitectura mental y toma de decisiones. ` +
-                        `¿Te gustaría que te lo mande por correo?`
+                        soloBoletin
+                          // No hizo evaluación: agradecerle una que no hizo se nota falso.
+                          ? `Hola ${primer}, soy Mario Citalán. Gracias por suscribirte. ` +
+                            `Si en algún momento quieres una lectura de tu perfil, tengo dos ` +
+                            `evaluaciones cortas en mariocitalan.net. Sin compromiso.`
+                          : `Hola ${primer}, soy Mario Citalán. Gracias por hacer mi evaluación. ` +
+                            `Cada quincena comparto material sobre arquitectura mental y toma de decisiones. ` +
+                            `¿Te gustaría que te lo mande por correo?`
                       );
                       return (
                         <div key={p.email} style={{ ...cardStyle, display: "flex", gap: 12,
@@ -811,11 +839,17 @@ export default function MarioCitalanPanel() {
                           <div style={{ minWidth: 210, flex: 1 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                               <span style={{ fontWeight: 600 }}>{p.name}</span>
-                              <Chip label={gm.corto} bg={gm.bg} fg={gm.fg} />
+                              {soloBoletin
+                                ? <Chip label="Sin evaluación" bg="#EEF2F6" fg="#5D7080" />
+                                : <Chip label={gm.corto} bg={gm.bg} fg={gm.fg} />}
                               <Chip label={nm.label} bg={nm.bg} fg={nm.fg} />
+                              {/* Permiso aparte: solo autoriza el aviso de lanzamiento. */}
+                              {p.libro && <Chip label="Espera el libro" bg="#F3EEF9" fg="#6B4E9B" />}
                             </div>
                             <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>
-                              {p.profile || "—"}
+                              {soloBoletin
+                                ? "Se suscribió sin hacer evaluación"
+                                : p.profile || "—"}
                               {p.evaluaciones > 1 && ` · ${p.evaluaciones} evaluaciones`}
                             </div>
                             <div style={{ fontSize: 12.5, color: C.muted }}>{p.email}</div>
@@ -863,9 +897,11 @@ export default function MarioCitalanPanel() {
                 style={{ ...inputStyle, maxWidth: 320, fontSize: 16 }}
               />
               <select value={fSource} onChange={(e) => setFSource(e.target.value)} style={selectStyle}>
-                <option value="todo">Todas las evaluaciones</option>
+                <option value="todo">Todas las fuentes</option>
                 <option value="actitud">Actitud</option>
                 <option value="criterio">Criterio</option>
+                <option value="newsletter">Suscripción directa</option>
+                <option value="libro">Lista de espera del libro</option>
               </select>
               <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} style={selectStyle}>
                 <option value="todo">Todos los estatus</option>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { ENLACE_CLIENT_ID } from '@/lib/supabase'
+import { SENDERS } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -129,7 +130,7 @@ export async function GET(req: Request) {
 
   const resend = new Resend(resendKey)
   const { error: mailErr } = await resend.emails.send({
-    from: 'Enlace Integral <recibos@fishflow.mx>',
+    from: SENDERS.enlace,
     to: ADMIN_TO,
     subject: `Enlace — ${rows.length} contactos capturados hoy`,
     html,

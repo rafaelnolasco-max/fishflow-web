@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { CRITERIO_CLIENT_ID } from '@/lib/supabase'
+import { SENDERS } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -13,15 +14,19 @@ export const runtime = 'nodejs'
 //
 // Cada persona recibe SU PROPIO correo: nadie ve la dirección de nadie más.
 //
-// Para abrirlo a la lista real hacen falta dos cosas:
-//   1. Verificar mail.mariocitalan.net en Resend (hoy saldría desde fishflow.mx,
-//      que es el dominio transaccional y no debe cargar envíos masivos).
-//   2. Cambiar TEST_MODE a false y sustituir el List-Unsubscribe por un enlace
-//      con token por destinatario, para que la baja sea automática.
+// Para abrirlo a la lista real falta cambiar TEST_MODE a false y sustituir el
+// List-Unsubscribe por un enlace con token por destinatario, para que la baja
+// sea automática.
+//
+// Decisión 2026-07-31 (Rafa): el envío sale desde fishflow.mx. Montar
+// mail.mariocitalan.net tomaría más tiempo del que justifica el volumen actual.
+// Cuando la lista crezca, migrar estos envíos a un subdominio de marketing
+// (news.fishflow.mx) para que las quejas de spam del boletín no degraden la
+// entrega de los recibos transaccionales de los demás clientes.
 const TEST_MODE = true
 const TEST_RECIPIENTS = ['raf@fishflow.mx', 'mariocitalan@gmail.com']
 
-const FROM = 'Mario Citalán <recibos@fishflow.mx>'
+const FROM = SENDERS.marioCitalan
 
 function esc(s: unknown) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')

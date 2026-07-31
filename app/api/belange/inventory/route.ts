@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { SENDERS } from "@/lib/email";
 
 const BELANGE_CLIENT_ID = "33933663-79d2-4caa-86fe-7ea046082b7f";
 
@@ -36,7 +37,7 @@ async function sendStockAlert(productName: string, brand: string | null, newQty:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "FishFlow <noreply@fishflow.mx>",
+        from: SENDERS.fishflowNoreply,
         to: STOCK_ALERT_EMAILS,
         subject: `⚠️ Stock bajo: ${productName} — Belange Studio`,
         html: `

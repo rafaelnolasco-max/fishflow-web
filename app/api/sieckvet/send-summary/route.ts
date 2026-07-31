@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import { SENDERS } from "@/lib/email";
 
 // ════════════════════════════════════════════════════════════════════════════
 // SieckVet — send-summary  (Fase 4: entrega al dueño)
@@ -85,7 +86,7 @@ SieckVet`.trim();
           ? `<p style="background:#FFF3CD;padding:8px 12px;border-radius:6px;font-size:12px;color:#7A5B00">Nota interna: el dueño no tiene email registrado; este resumen se envió a Rafa para revisión.</p>`
           : "";
         const { error: rErr } = await resend.emails.send({
-          from: "SieckVet <noreply@fishflow.mx>",
+          from: SENDERS.sieckvet,
           to: [recipient],
           ...(bcc ? { bcc: [bcc] } : {}),
           subject,

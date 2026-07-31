@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 import { Resend } from 'resend'
+import { SENDERS } from '@/lib/email'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -178,7 +179,7 @@ export async function POST(req: NextRequest) {
         const accion      = isConfirmed ? 'confirmó' : appointmentStatus === 'cancelled' ? 'canceló' : 'quiere reagendar'
 
         await getResend().emails.send({
-          from:    'CANE Neurofeedback <raf@fishflow.mx>',
+          from:    SENDERS.cane,
           to:      ['raf@fishflow.mx'],
           subject: `${emoji} ${appt.patient_name} ${accion} su cita del ${dateStr}`,
           html: `

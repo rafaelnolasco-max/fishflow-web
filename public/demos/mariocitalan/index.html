@@ -395,6 +395,35 @@
   /* MOBILE HARDENING (estandar FishFlow) */
   html,body{overflow-x:hidden;max-width:100%}
   img,svg,video{max-width:100%;height:auto}
+
+  /* ── Opt-in de newsletter — salida secundaria, sin cuestionario ────────────── */
+  /* Jerarquía deliberada: caja discreta, botón en outline y tipografía menor que
+     la del CTA de la evaluación. Es una puerta de salida, no la puerta principal;
+     si compite visualmente con el cuestionario, canibaliza el lead bueno. */
+  .nl-optin{max-width:520px;margin:40px auto 0;border:1px solid var(--rule);background:var(--bone);padding:26px 28px;text-align:left}
+  .nl-optin .nl-eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:10px}
+  .nl-optin .nl-lead{font-size:14.5px;line-height:1.6;color:var(--ink-2);margin:0 0 20px}
+  .nl-optin .nl-field{margin-bottom:14px}
+  .nl-optin .nl-field label{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .nl-optin .nl-field label span{text-transform:none;letter-spacing:0;font-size:11.5px}
+  /* 16px reales en móvil: menos de eso hace que Safari iOS haga zoom al enfocar. */
+  .nl-optin input[type=email],.nl-optin input[type=text],.nl-optin input[type=tel]{width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid var(--rule);background:var(--paper);font-family:inherit;font-size:16px;color:var(--ink)}
+  .nl-optin input:focus{outline:none;border-color:var(--accent)}
+  .nl-optin .nl-row{display:flex;gap:12px}
+  .nl-optin .nl-row .nl-field{flex:1;min-width:0}
+  .nl-optin .nl-check{display:flex;gap:10px;align-items:flex-start;margin:4px 0 18px;cursor:pointer}
+  .nl-optin .nl-check input{margin-top:3px;flex:none;width:15px;height:15px;accent-color:var(--accent-deep)}
+  .nl-optin .nl-check span{font-size:12.5px;line-height:1.55;color:var(--ink-3)}
+  .nl-optin button{width:100%;padding:13px 20px;border:1px solid var(--ink);background:transparent;color:var(--ink);font-family:inherit;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .18s,color .18s}
+  .nl-optin button:hover{background:var(--ink);color:var(--bone)}
+  .nl-optin button[disabled]{opacity:.5;cursor:default}
+  .nl-optin .nl-note{font-size:12px;color:var(--muted);margin:12px 0 0;line-height:1.5}
+  .nl-optin .nl-note.err{color:#C0392B}
+  .nl-optin .nl-done{font-family:"Fraunces",serif;font-size:19px;color:var(--ink);margin:0}
+  @media (max-width:600px){
+    .nl-optin{padding:22px 20px;margin-top:30px}
+    .nl-optin .nl-row{display:block}
+  }
 </style>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
@@ -536,6 +565,34 @@
     <a href="cuestionario.html" class="btn-primary">Iniciar la evaluación
       <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
     </a>
+<!-- Opt-in de newsletter: alta sin completar la evaluación -->
+<div class="nl-optin" id="nlOptin">
+  <div class="nl-eyebrow">¿Aún no quieres contestar?</div>
+  <p class="nl-lead">Suscríbete y recibe lo que escribo sobre criterio, decisiones y estructura mental. La evaluación va a seguir aquí cuando tengas ganas.</p>
+  <form id="nlForm" novalidate>
+    <div class="nl-field">
+      <label for="nlEmail">Correo</label>
+      <input type="email" id="nlEmail" placeholder="tu@correo.com" autocomplete="email" required>
+    </div>
+    <div class="nl-row">
+      <div class="nl-field">
+        <label for="nlNombre">Nombre <span>(opcional)</span></label>
+        <input type="text" id="nlNombre" placeholder="Tu nombre" autocomplete="name">
+      </div>
+      <div class="nl-field">
+        <label for="nlTel">Teléfono <span>(opcional)</span></label>
+        <input type="tel" id="nlTel" placeholder="55 0000 0000" autocomplete="tel">
+      </div>
+    </div>
+    <label class="nl-check">
+      <input type="checkbox" id="nlConsent">
+      <span>Acepto recibir correos de Mario Citalán y que se guarden mis datos para ese fin. Puedo darme de baja cuando quiera.</span>
+    </label>
+    <button type="submit" id="nlBtn">Suscribirme al newsletter</button>
+    <p class="nl-note" id="nlNote">Solo el boletín. Esto no es la evaluación ni sustituye su resultado.</p>
+  </form>
+</div>
+
   </div>
 </section>
 
@@ -783,17 +840,33 @@
   window.addEventListener('scroll', onScroll, {passive:true});
   onScroll();
 
-  // ---- Libro: captura de correo (lista de espera) — placeholder ----
+  // ---- Libro: lista de espera de "Ciencia en escena" ----
+  // Antes era un placeholder que descartaba el correo. Ahora entra a la misma
+  // tabla `leads` con source 'libro', así que aparece en el panel de Mario.
   const libroForm = document.getElementById('libroForm');
   libroForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('libroEmail').value.trim();
     const note = document.getElementById('libroNote');
     if(!/.+@.+\..+/.test(email)){ note.textContent = 'Escribe un correo válido para sumarte a la lista.'; note.style.color = '#E8A9A9'; return; }
-    // En producción: POST a /api/leads con origen "libro"
-    libroForm.innerHTML = '<p style="color:var(--paper);font-family:\'Fraunces\',serif;font-size:19px;margin:0">Listo &mdash; estás en la lista de espera. ✓</p>';
-    note.textContent = 'Te aviso en cuanto el libro esté disponible.';
-    note.style.color = 'rgba(247,244,237,.5)';
+    const btn = libroForm.querySelector('button');
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    fetch('https://www.fishflow.mx/api/newsletter/subscribe/', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: email, consent: true, origen: 'libro' })
+    })
+    .then((r) => { if(!r.ok) throw new Error('error'); return r.json(); })
+    .then(() => {
+      libroForm.innerHTML = '<p style="color:var(--paper);font-family:\'Fraunces\',serif;font-size:19px;margin:0">Listo &mdash; estás en la lista de espera. \u2713</p>';
+      note.textContent = 'Te aviso en cuanto el libro esté disponible.';
+      note.style.color = 'rgba(247,244,237,.5)';
+    })
+    .catch(() => {
+      btn.disabled = false; btn.textContent = 'Quiero enterarme';
+      note.textContent = 'No se pudo guardar. Inténtalo de nuevo en un momento.';
+      note.style.color = '#E8A9A9';
+    });
   });
 </script>
 
@@ -839,5 +912,56 @@
   <span class="wa-label">Escríbeme por WhatsApp</span>
 </a>
 
+
+<script>
+/* Alta al newsletter sin cuestionario → /api/newsletter/subscribe en fishflow.mx.
+   La diagonal final es obligatoria: fishflow-web corre con trailingSlash:true y
+   sin ella Next redirige, lo que en un POST cross-origin tira la petición. */
+(function(){
+  var form = document.getElementById('nlForm');
+  if (!form) return;
+  var box  = document.getElementById('nlOptin');
+  var note = document.getElementById('nlNote');
+  var btn  = document.getElementById('nlBtn');
+
+  function fail(msg){ note.textContent = msg; note.className = 'nl-note err'; }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var email   = document.getElementById('nlEmail').value.trim();
+    var nombre  = document.getElementById('nlNombre').value.trim();
+    var tel     = document.getElementById('nlTel').value.trim();
+    var consent = document.getElementById('nlConsent').checked;
+
+    if (!/.+@.+\..+/.test(email)) { fail('Escribe un correo válido.'); return; }
+    if (!consent) { fail('Marca la casilla para poder enviarte los correos.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Enviando…';
+    note.className = 'nl-note';
+    note.textContent = '';
+
+    fetch('https://www.fishflow.mx/api/newsletter/subscribe/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, nombre: nombre, tel: tel, consent: true, origen: 'newsletter' })
+    })
+    .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+    .then(function(res){
+      if (!res.ok) throw new Error((res.d && res.d.error) || 'error');
+      var ya = res.d && res.d.yaEstaba;
+      box.innerHTML =
+        '<div class="nl-eyebrow">' + (ya ? 'Ya estabas en la lista' : 'Listo') + '</div>' +
+        '<p class="nl-done">' + (ya ? 'Tu correo ya estaba suscrito. ✓' : 'Estás suscrito. ✓') + '</p>' +
+        '<p class="nl-note">' + (ya ? 'No hicimos nada nuevo, sigues recibiendo el boletín.' : 'Te llegó un correo de confirmación. Si no aparece, revisa spam.') + '</p>';
+    })
+    .catch(function(){
+      btn.disabled = false;
+      btn.textContent = 'Suscribirme al newsletter';
+      fail('No se pudo completar el alta. Inténtalo de nuevo en un momento.');
+    });
+  });
+})();
+</script>
 </body>
 </html>

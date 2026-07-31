@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 import { Resend } from 'resend'
+import { SENDERS } from '@/lib/email'
 
 // ─── Clientes ────────────────────────────────────────────────────────────────
 
@@ -140,7 +141,7 @@ export async function POST(req: NextRequest) {
 
     // ── 3. Email de seguimiento con Resend ────────────────────────────────────
     const { error: emailError } = await getResend().emails.send({
-      from:     'FishFlow <recibos@fishflow.mx>',
+      from:     SENDERS.fishflow,
       to:       [email.trim().toLowerCase()],
       replyTo:  'raf@fishflow.mx',
       subject:  `${name.trim()}, aquí está tu diagnóstico de FishFlow`,
