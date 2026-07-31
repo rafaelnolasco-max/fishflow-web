@@ -48,8 +48,21 @@ function nombreDesdeEmail(email: string) {
   return local.replace(/\b\w/g, (c) => c.toUpperCase()).slice(0, 60)
 }
 
-function bienvenidaHtml(nombre: string, esLibro: boolean) {
-  const primer = nombre.split(' ')[0] || nombre
+/**
+ * Saludo del correo.
+ *
+ * Solo se usa el nombre que la persona ESCRIBIÓ. El derivado del correo sirve
+ * para llenar `leads.name` (que es NOT NULL) y para que Mario reconozca a quién
+ * tiene enfrente en el panel, pero como saludo queda ridículo: el formulario del
+ * libro no pide nombre, así que salía "Hola Rafaelnolasco,". Sin nombre real,
+ * "Hola," a secas se lee natural.
+ */
+function saludo(nombreDado: string) {
+  const primer = nombreDado.trim().split(/\s+/)[0]
+  return primer ? `Hola ${esc(primer)},` : 'Hola,'
+}
+
+function bienvenidaHtml(nombreDado: string, esLibro: boolean) {
   const cuerpo = esLibro
     ? 'Quedaste en la lista de espera de <strong>Ciencia en escena</strong>. Te aviso en cuanto el libro esté disponible.'
     : 'Quedaste suscrito a mis publicaciones. De vez en cuando te escribo con algo que valga tu tiempo: cómo se construye un criterio, cómo se sostiene una decisión, y qué hacer cuando la estructura se tambalea.'
@@ -61,7 +74,7 @@ function bienvenidaHtml(nombre: string, esLibro: boolean) {
       <div style="font-family:Georgia,serif;font-size:24px;margin-top:8px">${esLibro ? 'Estás en la lista' : 'Listo, estás dentro'}</div>
     </div>
     <div style="padding:26px;border:1px solid #DCE4EC;border-top:none">
-      <p style="font-size:16px;margin:0 0 16px">Hola ${esc(primer)},</p>
+      <p style="font-size:16px;margin:0 0 16px">${saludo(nombreDado)}</p>
       <p style="font-size:15px;line-height:1.65;margin:0 0 22px">${cuerpo}</p>
 
       <div style="background:#F4F7FA;border:1px solid #DCE4EC;border-left:3px solid #3E86CF;padding:18px 20px;margin:0 0 24px">
@@ -198,7 +211,15 @@ export async function POST(req: Request) {
           subject: esLibro
             ? 'Estás en la lista de "Ciencia en escena"'
             : 'Listo, estás suscrito',
-          html: bienvenidaHtml(nombre, esLibro),
+          headers: {
+            // Gmail y Apple Mail pintan un botón nativo de "Cancelar suscripción"
+            // cuando existe esta cabecera, y ambos lo toman como señal de correo
+            // legítimo. Sin ella, un remitente nuevo como mariocitalan@fishflow.mx
+            // tiene muchas más probabilidades de caer en Promociones o en spam.
+            'List-Unsubscribe': `<mailto:${REPLY_TO}?subject=Baja%20de%20la%20lista>`,
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          },
+          html: bienvenidaHtml(nombreDado, esLibro),
         })
         if (mailErr) console.error('[newsletter/subscribe] email error:', mailErr)
       } else {
