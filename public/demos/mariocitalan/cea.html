@@ -210,12 +210,31 @@
 </footer>
 
 <script>
-  // Lead — placeholder (en producción: POST /api/leads origen "cea")
+  // Solicitud de servicio → /api/mario/solicitud
+  // Antes era un placeholder: mostraba "gracias" y tiraba el dato. Ahora se
+  // guarda y le llega aviso inmediato a Mario, que puede responder el correo
+  // para escribirle directo al prospecto.
+  // La diagonal final es obligatoria (trailingSlash en fishflow-web).
   const form=document.getElementById('leadForm');
   form.addEventListener('submit',(e)=>{e.preventDefault();
-    const n=document.getElementById('l-nombre').value.trim();const em=document.getElementById('l-email').value.trim();
-    if(n.length<2||!/.+@.+\..+/.test(em)){document.querySelector('.fnote').textContent='Completa tu nombre y un correo válido.';document.querySelector('.fnote').style.color='#E8A9A9';return;}
-    form.style.display='none';document.getElementById('ok').classList.add('show');
+    const n=document.getElementById('l-nombre').value.trim();
+    const em=document.getElementById('l-email').value.trim();
+    const nota=document.querySelector('.fnote');
+    if(n.length<2||!/.+@.+\..+/.test(em)){nota.textContent='Completa tu nombre y un correo válido.';nota.style.color='#E8A9A9';return;}
+    const tel=(document.getElementById('l-tel')||{value:''}).value.trim();
+    const campo=(document.getElementById('l-mod')||{value:''}).value.trim();
+    const extras={}; if(campo) extras['¿Para ti o para tu equipo?']=campo;
+    const btn=form.querySelector('.submit');
+    const txt=btn.textContent; btn.disabled=true; btn.textContent='Enviando…';
+    fetch('https://www.fishflow.mx/api/mario/solicitud/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ origen:'cea', nombre:n, email:em, tel:tel, extras:extras })
+    })
+    .then((r)=>{ if(!r.ok) throw new Error('error'); return r.json(); })
+    .then(()=>{ form.style.display='none'; document.getElementById('ok').classList.add('show'); })
+    .catch(()=>{ btn.disabled=false; btn.textContent=txt;
+      nota.textContent='No se pudo enviar. Inténtalo de nuevo en un momento.'; nota.style.color='#E8A9A9'; });
   });
 </script>
 

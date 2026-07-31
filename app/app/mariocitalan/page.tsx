@@ -133,16 +133,32 @@ function priorityOf(profile: string | null) {
 }
 
 const SOURCE_LABEL: Record<string, string> = {
-  actitud:    "Evaluación de Actitud",
-  criterio:   "Evaluación de Criterio",
-  newsletter: "Suscripción directa",
-  libro:      "Lista de espera del libro",
+  actitud:              "Evaluación de Actitud",
+  criterio:             "Evaluación de Criterio",
+  newsletter:           "Suscripción directa",
+  libro:                "Lista de espera del libro",
+  asesoria:             "Asesoría personal",
+  cea:                  "CEA",
+  evoluciona:           "Evoluciona",
+  "ciencia-en-escena":  "Ciencia en Escena",
 };
 
 // Fuentes que SÍ son una evaluación. Quien llegó solo por el newsletter o por la
 // lista del libro no tiene perfil ni respuestas: no debe contar como evaluación
 // ni caer en un grupo de prioridad, porque no hay nada que priorizar todavía.
 const FUENTES_EVALUACION = new Set(["actitud", "criterio"]);
+
+// Solicitudes de servicio: alguien pidiendo contratar. Tienen su propia pestaña
+// porque el trabajo es distinto —hay que responderlas, no nutrirlas— y mezcladas
+// entre decenas de evaluaciones se pierden.
+const FUENTES_SOLICITUD = new Set(["asesoria", "cea", "evoluciona", "ciencia-en-escena"]);
+
+const SOLICITUD_META: Record<string, { corto: string; bg: string; fg: string }> = {
+  asesoria:             { corto: "Asesoría",  bg: "#E8F0F9", fg: "#2A6AAE" },
+  cea:                  { corto: "CEA",       bg: "#EAF7EE", fg: "#4B9A62" },
+  evoluciona:           { corto: "Evoluciona", bg: "#FFF4E5", fg: "#B96A1E" },
+  "ciencia-en-escena":  { corto: "Ciencia",   bg: "#F3EEF9", fg: "#6B4E9B" },
+};
 
 // ─── Suscripción al newsletter ─────────────────────────────────────────────────
 const NEWSLETTER_STATE: { id: string; label: string; bg: string; fg: string }[] = [
@@ -201,7 +217,7 @@ const PERIODOS: { id: Periodo; label: string }[] = [
 
 export default function MarioCitalanPanel() {
   const router = useRouter();
-  const [tab, setTab] = useState<"resumen" | "prospectos" | "newsletter">("resumen");
+  const [tab, setTab] = useState<"resumen" | "solicitudes" | "prospectos" | "newsletter">("resumen");
   const [leads, setLeads] = useState<CriterioLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
@@ -352,6 +368,8 @@ export default function MarioCitalanPanel() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const out = leads.filter((l) => {
+      // Las solicitudes de servicio viven en su propia pestaña.
+      if (FUENTES_SOLICITUD.has(l.source || "")) return false;
       if (fSource !== "todo" && (l.source || "") !== fSource) return false;
       if (fStatus !== "todo" && (l.status || "nuevo") !== fStatus) return false;
       if (fOptIn && (l.newsletter || "pendiente") !== "suscrito") return false;
@@ -413,6 +431,18 @@ export default function MarioCitalanPanel() {
     }
     return [...map.values()];
   }, [leads]);
+
+  // ─── Solicitudes de servicio ─────────────────────────────────────────────────
+  // Sin agrupar por persona: dos solicitudes del mismo correo en momentos
+  // distintos son dos asuntos que atender, no un duplicado.
+  const solicitudes = useMemo(
+    () => leads.filter((l) => FUENTES_SOLICITUD.has(l.source || "")),
+    [leads]
+  );
+  const solicitudesAbiertas = useMemo(
+    () => solicitudes.filter((l) => (l.status || "nuevo") === "nuevo").length,
+    [solicitudes]
+  );
 
   const stats = useMemo(() => {
     const desde = periodo === "todo" ? null : daysAgo(Number(periodo));
@@ -540,7 +570,10 @@ export default function MarioCitalanPanel() {
           onChange={setTab}
           tabs={[
             { id: "resumen", label: "Resumen", icon: "📊" },
-            { id: "prospectos", label: `Prospectos${leads.length ? ` (${leads.length})` : ""}`, icon: "👥" },
+            // El contador muestra las SIN atender, no el total: es lo único
+            // que exige acción hoy.
+            { id: "solicitudes", label: `Solicitudes${solicitudesAbiertas ? ` (${solicitudesAbiertas})` : ""}`, icon: "🔔" },
+            { id: "prospectos", label: `Prospectos${filtered.length ? ` (${filtered.length})` : ""}`, icon: "👥" },
             { id: "newsletter", label: "Newsletter", icon: "✉️" },
           ]}
         />
@@ -649,6 +682,94 @@ export default function MarioCitalanPanel() {
                 </Section>
               </div>
             </div>
+          </>
+        ) : tab === "solicitudes" ? (
+          <>
+            <StatGrid>
+              <StatCard theme={T} label="Sin atender" icon="🔔" accent={C.blueDark}
+                value={solicitudesAbiertas}
+                sub={solicitudesAbiertas ? "esperan tu respuesta" : "todo respondido"} />
+              <StatCard theme={T} label="Solicitudes en total" icon="📥" value={solicitudes.length} />
+              <StatCard theme={T} label="Agendadas" icon="📅"
+                value={solicitudes.filter((l) => l.status === "agendado").length} />
+            </StatGrid>
+
+            <Section title={`${solicitudes.length} solicitudes de servicio`}>
+              <p style={{ fontSize: 13.5, color: C.muted, marginBottom: 16 }}>
+                Personas que pidieron un servicio desde el sitio. Cada una te llegó
+                también por correo; responder ese correo les escribe directamente.
+              </p>
+
+              {solicitudes.length === 0 ? (
+                <Empty msg="Todavía no hay solicitudes" theme={T} />
+              ) : (
+                <div style={{ display: "grid", gap: 10 }}>
+                  {solicitudes.map((l) => {
+                    const sm = statusMeta(l.status);
+                    const meta = SOLICITUD_META[l.source || ""] ??
+                      { corto: sourceLabel(l.source), bg: C.blueSoft, fg: C.blueDark };
+                    const primer = l.name.split(" ")[0] || l.name;
+                    const detalles = answerEntries(l.answers);
+                    return (
+                      <div key={l.id} style={{ ...cardStyle,
+                        // Lo nuevo se distingue de un vistazo sin tener que leer el chip.
+                        borderLeft: (l.status || "nuevo") === "nuevo"
+                          ? `3px solid ${C.blueDark}` : `3px solid transparent` }}>
+                        <div style={{ display: "flex", gap: 12, alignItems: "flex-start",
+                          justifyContent: "space-between", flexWrap: "wrap" }}>
+                          <div style={{ minWidth: 220, flex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                              <span style={{ fontWeight: 600 }}>{l.name}</span>
+                              <Chip label={meta.corto} bg={meta.bg} fg={meta.fg} />
+                              <Chip label={sm.label} bg={sm.bg} fg={sm.fg} />
+                            </div>
+                            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4 }}>
+                              {l.email}{l.phone ? ` · ${l.phone}` : ""} · {fmtDateTime(l.created_at)}
+                            </div>
+                            {detalles.length > 0 && (
+                              <div style={{ marginTop: 10, background: C.blueSoft, borderRadius: 8, padding: "10px 12px" }}>
+                                {detalles.map((d) => (
+                                  <div key={d.k} style={{ fontSize: 13.5, color: C.ink, marginBottom: 3 }}>
+                                    <span style={{ color: C.muted }}>{d.k}: </span>{d.v}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                            <a href={`mailto:${l.email}?subject=${encodeURIComponent("Sobre tu solicitud")}&body=${encodeURIComponent(`Hola ${primer},\n\n`)}`}
+                              style={{ fontSize: 12.5, textDecoration: "none", color: "#fff",
+                                background: C.blueDark, borderRadius: 8, padding: "8px 14px", fontWeight: 600 }}>
+                              Responder
+                            </a>
+                            {l.phone && (
+                              <a href={waLink(l.phone)} target="_blank" rel="noopener noreferrer"
+                                style={{ fontSize: 12.5, textDecoration: "none", color: "#fff",
+                                  background: "#25D366", borderRadius: 8, padding: "8px 14px", fontWeight: 600 }}>
+                                WhatsApp
+                              </a>
+                            )}
+                            <select
+                              value={l.status || "nuevo"}
+                              onChange={(e) => changeStatus(l.id, e.target.value)}
+                              style={{ ...selectStyle, color: sm.fg, background: sm.bg, border: "none", fontWeight: 600 }}
+                            >
+                              {LEAD_STATUS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                            </select>
+                            <button onClick={() => openDetail(l)}
+                              style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 8,
+                                padding: "8px 12px", fontSize: 12.5, cursor: "pointer", color: C.blueDark }}>
+                              Detalle
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </Section>
           </>
         ) : tab === "newsletter" ? (
           <>
@@ -848,7 +969,7 @@ export default function MarioCitalanPanel() {
                             </div>
                             <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>
                               {soloBoletin
-                                ? "Se suscribió sin hacer evaluación"
+                                ? "Aún no hace evaluación"
                                 : p.profile || "—"}
                               {p.evaluaciones > 1 && ` · ${p.evaluaciones} evaluaciones`}
                             </div>

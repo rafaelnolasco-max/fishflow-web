@@ -408,19 +408,36 @@
   window.addEventListener('scroll', onScroll, {passive:true});
   onScroll();
 
-  // Formulario de propuesta — placeholder (en producción: POST /api/leads origen "ciencia-en-escena")
+  // Propuesta de evento → /api/mario/solicitud
+  // Antes era un placeholder que descartaba la propuesta completa.
   const form = document.getElementById('propForm');
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const n = document.getElementById('p-nombre').value.trim();
     const em = document.getElementById('p-email').value.trim();
+    const nota = document.querySelector('#propForm .form-note');
     if(n.length < 2 || !/.+@.+\..+/.test(em)){
-      document.querySelector('#propForm .form-note').textContent = 'Completa tu nombre y un correo válido para enviar.';
-      document.querySelector('#propForm .form-note').style.color = '#C75D5D';
+      nota.textContent = 'Completa tu nombre y un correo válido para enviar.';
+      nota.style.color = '#C75D5D';
       return;
     }
-    form.style.display = 'none';
-    document.getElementById('propOk').classList.add('show');
+    const val = (id) => (document.getElementById(id) || {value:''}).value.trim();
+    const extras = {};
+    if(val('p-org'))   extras['Empresa o institución'] = val('p-org');
+    if(val('p-cargo')) extras['Cargo'] = val('p-cargo');
+    if(val('p-show'))  extras['Le interesa'] = val('p-show');
+    if(val('p-msg'))   extras['Contexto del evento'] = val('p-msg');
+    const btn = form.querySelector('button[type=submit]') || form.querySelector('button');
+    const txt = btn.textContent; btn.disabled = true; btn.textContent = 'Enviando…';
+    fetch('https://www.fishflow.mx/api/mario/solicitud/', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ origen:'ciencia-en-escena', nombre:n, email:em, tel:val('p-tel'), extras:extras })
+    })
+    .then((r) => { if(!r.ok) throw new Error('error'); return r.json(); })
+    .then(() => { form.style.display = 'none'; document.getElementById('propOk').classList.add('show'); })
+    .catch(() => { btn.disabled = false; btn.textContent = txt;
+      nota.textContent = 'No se pudo enviar. Inténtalo de nuevo en un momento.'; nota.style.color = '#C75D5D'; });
   });
 </script>
 
