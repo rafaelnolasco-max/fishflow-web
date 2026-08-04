@@ -10,6 +10,7 @@ import {
   cardStyle as mkCard,
   type DashTheme,
 } from "@/components/dashboard";
+import ReviewsTab from "./ReviewsTab";
 
 // ─── Paleta Enlace Integral (verde + carbón) ──────────────────────────────────
 const C = {
@@ -174,7 +175,7 @@ export default function EnlaceDashboardPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"meta" | "avatar">("meta");
-  const [mainTab, setMainTab] = useState<"captura" | "prospectos">("captura");
+  const [mainTab, setMainTab] = useState<"captura" | "prospectos" | "resenas">("captura");
   const [leads, setLeads] = useState<Lead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
 
@@ -408,10 +409,13 @@ export default function EnlaceDashboardPage() {
           <TabBar
             theme={T}
             active={mainTab}
-            onChange={(id) => setMainTab(id === "prospectos" ? "prospectos" : "captura")}
+            onChange={(id) =>
+              setMainTab(id === "prospectos" ? "prospectos" : id === "resenas" ? "resenas" : "captura")
+            }
             tabs={[
               { id: "captura", label: "Captura Top 20", icon: "📋" },
               { id: "prospectos", label: `Prospectos${leads.length ? ` (${leads.length})` : ""}`, icon: "🎯" },
+              { id: "resenas", label: "Reseñas", icon: "⭐" },
             ]}
           />
         </div>
@@ -808,6 +812,8 @@ export default function EnlaceDashboardPage() {
         </Section>
       </>
       )}
+
+      {mainTab === "resenas" && <ReviewsTab />}
       </main>
     </div>
   );
