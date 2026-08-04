@@ -9,6 +9,19 @@ const ADMIN_EMAIL = "rafaelnolasco@gmail.com";
 // (SECURITY DEFINER, consulta user_client_access + clients.slug).
 // Onboarding de cliente nuevo = 2 inserts en Supabase, sin tocar este archivo.
 
+/**
+ * Destino cuando hay sesión pero esa cuenta no puede ver la ruta.
+ * `motivo=sin-acceso` lo lee /login para explicarlo y ofrecer cambiar de cuenta.
+ */
+function denegado(request: NextRequest, pathname: string) {
+  const url = request.nextUrl.clone();
+  url.pathname = "/login";
+  url.search = "";
+  url.searchParams.set("next", pathname);
+  url.searchParams.set("motivo", "sin-acceso");
+  return url;
+}
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -49,8 +62,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
     if (user.email !== ADMIN_EMAIL) {
-      // Usuario autenticado pero no es Rafa → a la landing
-      return NextResponse.redirect(new URL("/", request.url));
+      // Autenticado con otra cuenta → al login con aviso, NO a la landing.
+      // Mandarlo a "/" lo deja en la página de ventas sin explicación y parece
+      // que el sitio truena; en realidad solo trae la sesión equivocada.
+      return NextResponse.redirect(denegado(request, pathname));
     }
   }
 
@@ -71,8 +86,9 @@ export async function middleware(request: NextRequest) {
         { p_slug: slug }
       );
       if (error || !hasAccess) {
-        // Sin acceso (o error en la verificación → fail closed) → landing
-        return NextResponse.redirect(new URL("/", request.url));
+        // Sin acceso, o error en la verificación → fail closed.
+        // Va al login con aviso para que pueda cambiar de cuenta.
+        return NextResponse.redirect(denegado(request, pathname));
       }
     }
   }

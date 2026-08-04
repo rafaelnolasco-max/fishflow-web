@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
@@ -53,6 +53,27 @@ function LoginForm() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
+
+  // ── Rebote por cuenta sin acceso ────────────────────────────────────────────
+  // El middleware manda aquí con ?motivo=sin-acceso cuando SÍ hay sesión pero
+  // esa cuenta no puede ver la ruta. Es el caso más confuso de soportar: el
+  // usuario jura que el sitio truena y en realidad trae la sesión equivocada
+  // (pasa seguido si probaste el panel de otro cliente en el mismo navegador).
+  const sinAcceso = searchParams.get("motivo") === "sin-acceso";
+  const [cuentaActual, setCuentaActual] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!sinAcceso) return;
+    supabase.auth.getUser().then(({ data }) => {
+      setCuentaActual(data.user?.email ?? null);
+    });
+  }, [sinAcceso, supabase]);
+
+  async function cerrarSesionActual() {
+    await supabase.auth.signOut();
+    setCuentaActual(null);
+    setError("");
+  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -131,6 +152,48 @@ function LoginForm() {
             </p>
           )}
         </div>
+
+        {/* Aviso de cuenta sin acceso */}
+        {sinAcceso && (
+          <div style={{
+            background: "#FFF8E8",
+            border: "0.5px solid #E8C97A",
+            borderRadius: 10,
+            padding: "12px 14px",
+            marginBottom: 18,
+            fontSize: 13,
+            color: "#7A5A12",
+            lineHeight: 1.5,
+          }}>
+            <strong style={{ display: "block", marginBottom: 4, color: "#5C4308" }}>
+              Esta cuenta no tiene acceso a ese panel
+            </strong>
+            {cuentaActual
+              ? <>Estás dentro como <strong>{cuentaActual}</strong>. Inicia sesión con la cuenta correcta.</>
+              : <>Inicia sesión con la cuenta que tiene acceso.</>}
+            {cuentaActual && (
+              <button
+                type="button"
+                onClick={cerrarSesionActual}
+                style={{
+                  display: "block",
+                  marginTop: 10,
+                  background: "transparent",
+                  border: "0.5px solid #C9A34E",
+                  borderRadius: 7,
+                  padding: "6px 12px",
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  color: "#7A5A12",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                Cerrar la sesión de {cuentaActual}
+              </button>
+            )}
+          </div>
+        )}
 
         <form onSubmit={handleLogin}>
           {/* Email */}
