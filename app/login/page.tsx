@@ -22,6 +22,7 @@ function LoginForm() {
     "alonsoalonso68@hotmail.com":  "/app/autolavado",
     "karlaalonsoruiz@gmail.com":   "/app/cane",
     "antoniorp8501@hotmail.com":   "/app/rmz",
+    "enlaceintegralseguros@gmail.com": "/app/enlace",
     "rafaelnolasco@gmail.com":     "/admin",
   };
 
@@ -35,6 +36,7 @@ function LoginForm() {
     "/app/autolavado": { label: "Autolavado",            color: "#0052CC" },
     "/app/cane":       { label: "CANE Neurofeedback",    color: "#2A9D8F" },
     "/app/rmz":        { label: "Cocinas y Closets RMZ", color: "#8B4513" },
+    "/app/enlace":     { label: "Enlace Integral Seguros", color: "#65BC7B" },
     "/admin":          { label: "FishFlow Admin",        color: "#333"    },
   };
 
