@@ -615,6 +615,11 @@ export interface RegIntelSource {
   storage_path: string | null;
   detectado_en: string;
   revisado_en: string | null;
+  origen: "automatico" | "manual";
+  estado_proceso: "pendiente" | "procesado" | "error";
+  nombre_archivo: string | null;
+  subido_por: string | null;
+  nota: string | null;
 }
 
 export interface RegIntelWatchlist {
@@ -665,5 +670,7 @@ export interface RegIntelConsulta {
   estado: "pendiente" | "resuelta" | "sin_resultado";
   resultado: string | null;
   consultado_en: string | null;
+  storage_path: string | null;
+  nombre_archivo: string | null;
   created_at: string;
 }
