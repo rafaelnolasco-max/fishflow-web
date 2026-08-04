@@ -11,6 +11,7 @@ import {
   type DashTheme,
 } from "@/components/dashboard";
 import ReviewsTab from "./ReviewsTab";
+import CandidatasTab from "./CandidatasTab";
 
 // ─── Paleta Enlace Integral (verde + carbón) ──────────────────────────────────
 const C = {
@@ -175,7 +176,7 @@ export default function EnlaceDashboardPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"meta" | "avatar">("meta");
-  const [mainTab, setMainTab] = useState<"captura" | "prospectos" | "resenas">("captura");
+  const [mainTab, setMainTab] = useState<"captura" | "prospectos" | "resenas" | "candidatas">("captura");
   const [leads, setLeads] = useState<Lead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
 
@@ -410,11 +411,17 @@ export default function EnlaceDashboardPage() {
             theme={T}
             active={mainTab}
             onChange={(id) =>
-              setMainTab(id === "prospectos" ? "prospectos" : id === "resenas" ? "resenas" : "captura")
+              setMainTab(
+                id === "prospectos" ? "prospectos"
+                : id === "resenas" ? "resenas"
+                : id === "candidatas" ? "candidatas"
+                : "captura"
+              )
             }
             tabs={[
               { id: "captura", label: "Captura Top 20", icon: "📋" },
               { id: "prospectos", label: `Prospectos${leads.length ? ` (${leads.length})` : ""}`, icon: "🎯" },
+              { id: "candidatas", label: "Candidatas", icon: "👥" },
               { id: "resenas", label: "Reseñas", icon: "⭐" },
             ]}
           />
@@ -812,6 +819,8 @@ export default function EnlaceDashboardPage() {
         </Section>
       </>
       )}
+
+      {mainTab === "candidatas" && <CandidatasTab />}
 
       {mainTab === "resenas" && <ReviewsTab />}
       </main>
