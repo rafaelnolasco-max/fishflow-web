@@ -586,3 +586,84 @@ export interface InsuranceVendorTopClient {
   source:             "web_form" | "excel_upload";
   created_at:         string;
 }
+
+// ─── regintel — Inteligencia Regulatoria (vertical regulatorio_farma) ─────────
+// Slug neutro a propósito: la vertical es reutilizable con otras farmacéuticas.
+export const REGINTEL_CLIENT_ID = "c2b2a692-7f39-42a1-841a-5ae31e21e851";
+
+export type RegIntelTipo = "autorizado" | "revocado" | "cancelado" | "solicitud";
+export type RegIntelEstado = "pendiente" | "aprobado" | "descartado";
+export type RegIntelClasificacion =
+  | "ya_en_base" | "fuera_de_base_curada" | "producto_propio" | "discrepancia";
+
+export interface RegIntelSource {
+  id: string;
+  client_id: string;
+  canal: string;
+  anio: number | null;
+  nombre: string;
+  url: string;
+  attachment_id: string | null;
+  last_modified: string | null;
+  etag: string | null;
+  sha256: string | null;
+  bytes: number | null;
+  registros_declarados: number | null;
+  registros_parseados: number | null;
+  declarado_es_incremento: boolean;
+  cuadra: boolean | null;
+  storage_path: string | null;
+  detectado_en: string;
+  revisado_en: string | null;
+}
+
+export interface RegIntelWatchlist {
+  id: string;
+  client_id: string;
+  molecula: string;
+  sinonimos: string[];
+  portafolio: string | null;
+  producto_propio: string | null;
+  interes_comercial: boolean;
+  activo: boolean;
+}
+
+export interface RegIntelRegistro {
+  id: string;
+  client_id: string;
+  source_id: string | null;
+  folio: string;
+  tipo: RegIntelTipo;
+  titular: string | null;
+  denominacion_distintiva: string | null;
+  denominacion_generica: string | null;
+  clasificacion: string | null;
+  forma_farmaceutica: string | null;
+  vigencia: string | null;
+  motivo: string | null;
+}
+
+export interface RegIntelHallazgo {
+  id: string;
+  client_id: string;
+  registro_id: string;
+  watchlist_id: string | null;
+  molecula_match: string;
+  estado: RegIntelEstado;
+  clasificacion: RegIntelClasificacion | null;
+  nota: string | null;
+  referencia_base: string | null;
+  revisado_en: string | null;
+  created_at: string;
+}
+
+export interface RegIntelConsulta {
+  id: string;
+  client_id: string;
+  molecula: string;
+  motivo: string | null;
+  estado: "pendiente" | "resuelta" | "sin_resultado";
+  resultado: string | null;
+  consultado_en: string | null;
+  created_at: string;
+}
