@@ -376,7 +376,7 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
       <a href="#planes">Planes</a>
       <a href="#nosotros">Quiénes somos</a>
       <a href="#porque">Por qué</a>
-      <a href="#agentes">Ser agente</a>
+      <a href="unete/" class="js-unete">Ser agente</a>
       <a href="#cuestionario" class="nav-cta">Encuentra tu plan</a>
     </nav>
   </div>
@@ -754,7 +754,7 @@ h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.
       <h2>Construye tu carrera con nosotros</h2>
       <p>¿Te apasiona ayudar a las personas a proteger su futuro? Únete a nuestro equipo de asesores, con respaldo de Allianz®, capacitación continua e ingresos sin límite.</p>
     </div>
-    <a id="waAgente" target="_blank" class="btn btn--gold" style="white-space:nowrap">Quiero unirme →</a>
+    <a href="unete/" id="waAgente" class="btn btn--gold js-unete" style="white-space:nowrap">Quiero unirme →</a>
   </div>
 </section>
 
@@ -827,8 +827,14 @@ function waLink(extra){ return "https://wa.me/"+WA_NUMBER+"?text="+encodeURIComp
   var e=document.getElementById(id);
   if(e){ e.href=waLink(); e.addEventListener("click",function(){ metaTrack("Contact",{content_name:"WhatsApp"}); }); }
 });
-var waAg=document.getElementById("waAgente");
-if(waAg){ waAg.href=waLink("Hola, me interesa unirme a Enlace Integral como agente de seguros."); waAg.addEventListener("click",function(){ metaTrack("Contact",{content_name:"Quiero ser agente"}); }); }
+/* CTA de reclutamiento → página /unete (formulario + CV).
+   Evento PERSONALIZADO distinto al de clientes: si ambos mandaran "Contact",
+   Meta no podría distinguir las dos campañas y optimizaría hacia la equivocada. */
+document.querySelectorAll(".js-unete").forEach(function(a){
+  a.addEventListener("click",function(){
+    metaTrack("ClicUnete",{content_name:"Quiero ser agente",content_category:"candidata"});
+  });
+});
 document.getElementById("yr").textContent=new Date().getFullYear();
 
 /* ====== MENÚ MÓVIL ====== */
@@ -859,8 +865,15 @@ function pixelLog(name,params){
   row.innerHTML='<span class="ck">✓</span><span><span class="nm">'+name+'</span>'+(pr?'<br><span class="pr">'+pr+'</span>':'')+'</span><span class="tm">'+t+'</span>';
   log.appendChild(row); log.scrollTop=log.scrollHeight;
 }
+/* Eventos ESTÁNDAR de Meta (Lead, Contact, ViewContent...). Todo lo demás
+   se envía como evento PERSONALIZADO (trackCustom) — Meta rechaza nombres
+   propios en fbq("track"). */
+var META_STD = ["PageView","ViewContent","Lead","Contact","CompleteRegistration",
+  "Search","AddToCart","InitiateCheckout","Purchase","Subscribe","Schedule","SubmitApplication"];
 function metaTrack(name,params){
-  try{ if(window.fbq) fbq("track",name,params||{}); }catch(e){}
+  try{
+    if(window.fbq) fbq(META_STD.indexOf(name)>=0 ? "track" : "trackCustom", name, params||{});
+  }catch(e){}
   pixelLog(name,params);
 }
 window.addEventListener("load",function(){ pixelLog("PageView"); });
@@ -997,7 +1010,9 @@ function submitLead(){
     fecha:new Date().toISOString()
   });
   console.log("LEAD CAPTURADO:",lead);
-  metaTrack("Lead",{content_name:lead.plan_recomendado||"Plan",currency:"MXN"});
+  /* content_category separa esta conversión de la de reclutamiento (/unete).
+     En Meta: conversión personalizada "LeadCliente" = evento Lead + content_category = cliente. */
+  metaTrack("Lead",{content_name:lead.plan_recomendado||"Plan",content_category:"cliente",currency:"MXN"});
   try{
     fetch("/api/demo/enlace-lead",{
       method:"POST",headers:{"Content-Type":"application/json"},

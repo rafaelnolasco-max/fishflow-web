@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Únete al equipo · Enlace Integral Seguros</title>
+<meta name="description" content="Construye tu carrera como asesor de seguros con respaldo de Allianz®. Capacitación, certificación e ingresos sin límite. Postúlate en 2 minutos." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Construye tu carrera como asesor de seguros · Enlace Integral" />
+<meta property="og:description" content="Capacitación, certificación AMIS e ingresos sin límite. Respaldados por Allianz® México." />
+<meta property="og:locale" content="es_MX" />
+<link rel="icon" href="../Logo.png" />
+<link rel="apple-touch-icon" href="../Logo.png" />
+
+<!-- ===== PÍXEL DE META =====
+     MISMO píxel que la landing de clientes (1044829214588673). No se abre uno
+     nuevo a propósito: dos píxeles en el mismo dominio parten el aprendizaje y
+     ninguno junta suficientes eventos. Lo que separa las campañas son los
+     EVENTOS, no el píxel:
+       clientes     → Lead        + content_category = cliente   (landing)
+       reclutamiento→ LeadCandidata (personalizado)              (esta página)
+     En Meta se crea una conversión personalizada por cada uno. -->
+<script>
+  window.META_PIXEL_ID = "1044829214588673"; // Pixel Enlace Integral · portfolio "Enlace Integral Ads"
+  (function(){
+    if(!window.META_PIXEL_ID) return;
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', window.META_PIXEL_ID);
+    fbq('track','PageView');
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&family=Newsreader:ital,wght@1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   1) RESPONSIVE BASE  (plantilla FishFlow — ≤600 móvil / 601-900 iPad / >900 PC)
+   ============================================================ */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;scroll-behavior:smooth;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:1180px;margin-inline:auto;padding-inline:clamp(18px,4vw,28px);}
+.ff-grid{display:grid;gap:clamp(16px,2.4vw,26px);grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));}
+.ff-hide-mobile{}
+@media(max-width:600px){ .ff-hide-mobile{display:none !important;} }
+
+/* ============================================================
+   2) TOKENS DE MARCA — Enlace Integral v2 (idénticos a la landing)
+   ============================================================ */
+:root{
+  --navy:#064A4F; --navy-2:#0A6A6F; --navy-3:#03363A;
+  --blue:#008C8C; --gold:#0FB8B8; --gold-lt:#7FE3E3;
+  --paper:#F6FBFB; --white:#fff; --ink:#13282B;
+  --muted:#5B6B6E; --line:#DCE9E9; --soft:#E3F4F4;
+  --f-sans:'Libre Franklin',system-ui,sans-serif;
+  --f-serif:'Newsreader',Georgia,serif;
+}
+body{font-family:var(--f-sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.55;}
+::selection{background:var(--gold);color:#fff;}
+a{color:inherit;text-decoration:none;cursor:pointer;}
+h1,h2,h3{font-family:var(--f-sans);margin:0;letter-spacing:-.02em;line-height:1.1;}
+@keyframes eiUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.btn{font-family:var(--f-sans);font-weight:700;font-size:16px;padding:16px 28px;border-radius:12px;border:none;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:transform .15s,box-shadow .15s;text-decoration:none;}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn--gold{background:var(--gold);color:#fff;box-shadow:0 10px 28px rgba(15,184,184,.30)}
+.btn--navy{background:var(--navy);color:#fff;box-shadow:0 10px 28px rgba(6,74,79,.22)}
+.eyebrow{font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--blue)}
+.eyebrow--gold{color:var(--gold-lt)}
+
+/* ===== NAV ===== */
+.nav{position:sticky;top:0;z-index:50;background:rgba(6,74,79,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav .inner{max-width:1180px;margin:0 auto;padding:0 clamp(18px,4vw,28px);height:74px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;gap:12px;color:#fff}
+.brand-logo{height:34px;width:auto;display:block}
+@media(max-width:600px){.brand-logo{height:28px}}
+.nav-links{display:flex;align-items:center;gap:30px}
+.nav-links a{color:#BCE2E3;font-size:14.5px;font-weight:500;transition:color .15s}
+.nav-links a:hover{color:#fff}
+.nav-cta{background:var(--gold);color:#fff;font-size:14.5px;font-weight:700;padding:11px 20px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.nav-toggle{display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:10px;width:44px;height:42px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:4px;flex-shrink:0}
+.nav-toggle span{display:block;width:20px;height:2px;background:#fff;border-radius:2px}
+@media(max-width:820px){
+  .nav-toggle{display:inline-flex}
+  .nav-links{position:absolute;top:74px;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;background:rgba(6,74,79,.98);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.1);padding:8px 18px 16px;display:none}
+  .nav-links.open{display:flex}
+  .nav-links a{padding:13px 6px;font-size:16px;border-top:1px solid rgba(255,255,255,.08)}
+  .nav-links a:first-child{border-top:none}
+  .nav-links .nav-cta{margin-top:12px;text-align:center;border-top:none}
+}
+
+/* ===== HERO ===== */
+.hero{background:linear-gradient(150deg,var(--navy-3),var(--navy) 55%,var(--navy-2));color:#fff;padding:clamp(52px,8vw,90px) 0 clamp(60px,9vw,100px);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-140px;top:-90px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(15,184,184,.28),transparent 68%)}
+.hero .ff-container{position:relative;z-index:1}
+.hero h1{font-size:clamp(32px,5.2vw,52px);font-weight:900;margin:16px 0 0;max-width:16ch}
+.hero p.lead{font-size:clamp(16px,2vw,19px);color:#CFE9EA;max-width:56ch;margin:18px 0 0}
+.hero-cta{margin-top:32px;display:flex;flex-wrap:wrap;gap:14px}
+.hero-stats{margin-top:44px;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));border-top:1px solid rgba(255,255,255,.16);padding-top:26px}
+.hero-stats b{display:block;font-size:clamp(22px,3vw,30px);font-weight:900;color:var(--gold-lt)}
+.hero-stats span{font-size:13.5px;color:#AFD8DA}
+
+/* ===== BENEFICIOS ===== */
+.sec{padding:clamp(52px,7vw,84px) 0}
+.sec h2{font-size:clamp(26px,3.6vw,38px);font-weight:900;margin-top:12px}
+.sec .sub{color:var(--muted);max-width:60ch;margin:14px 0 0;font-size:16.5px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:0 2px 12px rgba(6,74,79,.05)}
+.card .ic{font-size:26px}
+.card h3{font-size:18px;font-weight:800;margin:12px 0 8px}
+.card p{margin:0;color:var(--muted);font-size:15px}
+
+/* ===== FORMULARIO ===== */
+.form-sec{background:linear-gradient(170deg,var(--soft),var(--paper));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.form-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:clamp(24px,4vw,42px);box-shadow:0 18px 50px rgba(6,74,79,.09);max-width:760px;margin:32px auto 0}
+.fld{margin-bottom:20px}
+.fld label{display:block;font-weight:700;font-size:14px;margin-bottom:7px}
+.fld .hint{font-weight:400;color:var(--muted);font-size:13px}
+.fld input[type=text],.fld input[type=email],.fld input[type=tel],.fld select,.fld textarea{
+  width:100%;font-family:var(--f-sans);font-size:16px;padding:14px 15px;border:1.5px solid var(--line);
+  border-radius:11px;background:#fff;color:var(--ink);transition:border-color .15s,box-shadow .15s;}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(15,184,184,.16)}
+.fld textarea{min-height:96px;resize:vertical}
+.two{display:grid;gap:0 18px;grid-template-columns:1fr 1fr}
+@media(max-width:600px){.two{grid-template-columns:1fr}}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:26px 20px;text-align:center;background:var(--paper);cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--gold);background:#EAFAFA}
+.drop .ic{font-size:30px}
+.drop b{display:block;margin-top:8px;font-size:15px}
+.drop span{display:block;color:var(--muted);font-size:13.5px;margin-top:4px}
+.drop input[type=file]{display:none}
+.filepick{display:none;align-items:center;gap:12px;margin-top:12px;background:#EAFAFA;border:1px solid var(--gold-lt);border-radius:11px;padding:12px 15px;font-size:14.5px}
+.filepick.on{display:flex}
+.filepick .rm{margin-left:auto;color:var(--muted);font-weight:700;cursor:pointer;font-size:18px;line-height:1}
+.chk{display:flex;gap:11px;align-items:flex-start;font-size:14px;color:var(--muted);line-height:1.5}
+.chk input{margin-top:3px;width:18px;height:18px;accent-color:var(--gold);flex-shrink:0}
+.chk a{color:var(--blue);text-decoration:underline}
+.msg{display:none;margin-top:16px;padding:13px 16px;border-radius:11px;font-size:14.5px;font-weight:600}
+.msg.err{display:block;background:#FDECEC;color:#8C2F2F;border:1px solid #F3C9C9}
+.gracias{display:none;text-align:center;padding:14px 0}
+.gracias.on{display:block;animation:eiUp .4s ease both}
+.gracias .big{font-size:46px}
+.gracias h3{font-size:clamp(22px,3vw,30px);font-weight:900;margin:14px 0 10px}
+.gracias p{color:var(--muted);max-width:46ch;margin:0 auto;font-size:16px}
+
+/* ===== AVISO DE PRIVACIDAD (modal) ===== */
+.modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(3,54,58,.6);padding:20px;overflow-y:auto}
+.modal.on{display:flex;align-items:flex-start;justify-content:center}
+.modal .box{background:#fff;border-radius:18px;max-width:640px;width:100%;margin:auto;padding:clamp(22px,4vw,34px);box-shadow:0 24px 70px rgba(0,0,0,.3)}
+.modal h3{font-size:22px;font-weight:900;margin-bottom:14px}
+.modal p{font-size:14.5px;color:var(--muted);margin:0 0 12px}
+.modal ul{font-size:14.5px;color:var(--muted);padding-left:20px;margin:0 0 12px}
+
+/* ===== PANEL META (demostración) ===== */
+.mpx{position:fixed;right:16px;bottom:16px;z-index:80;width:min(320px,calc(100vw - 32px));background:#03363A;color:#fff;border-radius:14px;box-shadow:0 16px 44px rgba(0,0,0,.32);font-size:13px;overflow:hidden}
+.mpx .mh{display:flex;align-items:center;gap:9px;padding:12px 15px;cursor:pointer;background:rgba(255,255,255,.05)}
+.mpx .dot{width:8px;height:8px;border-radius:50%;background:#0FB8B8;box-shadow:0 0 0 4px rgba(15,184,184,.22)}
+.mpx .tg{margin-left:auto;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#7FE3E3}
+.mpx .mb{padding:12px 15px 15px;border-top:1px solid rgba(255,255,255,.09)}
+.mpx.min .mb{display:none}
+.mpx .note{color:#AFD8DA;font-size:12px;margin-bottom:9px;line-height:1.45}
+.mpx .ev{display:flex;gap:8px;padding:7px 0;border-top:1px dashed rgba(255,255,255,.12)}
+.mpx .nm{font-weight:700;color:#7FE3E3}
+.mpx .pr{color:#AFD8DA;font-size:11.5px}
+.mpx .tm{margin-left:auto;color:#6E9C9E;font-size:11px}
+.mpx .empty{color:#6E9C9E;padding:6px 0}
+#mpxLog{max-height:180px;overflow-y:auto}
+
+/* ===== FOOTER ===== */
+.foot{background:var(--navy-3);color:#BCE2E3;padding:44px 0 0}
+.foot-main{max-width:1180px;margin:0 auto;padding:0 clamp(18px,4vw,28px) 34px;display:grid;gap:30px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.foot-logo{height:40px;width:auto;margin-bottom:10px}
+.foot p{font-size:14px;color:#8FBDBF;margin:0;max-width:38ch}
+.foot-col-label{font-weight:800;color:#fff;font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px}
+.foot-links{display:flex;flex-direction:column;gap:9px;font-size:14.5px}
+.foot-links a:hover{color:#fff}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.1);padding:18px 0}
+.foot-bottom .inner-b{max-width:1180px;margin:0 auto;padding:0 clamp(18px,4vw,28px);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:13px;color:#7FA9AB}
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<header class="nav">
+  <div class="inner">
+    <a href="../" class="brand">
+      <img src="../Logo.png" alt="Enlace Integral Seguros · Distribuidor Autorizado Allianz" class="brand-logo">
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navLinks">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="navLinks">
+      <a href="../">Inicio</a>
+      <a href="#beneficios">Beneficios</a>
+      <a href="#perfil">Perfil</a>
+      <a href="#postular" class="nav-cta">Postularme</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="top">
+  <div class="ff-container">
+    <span class="eyebrow eyebrow--gold">Únete a nuestro equipo</span>
+    <h1>Construye una carrera sin techo de ingresos</h1>
+    <p class="lead">Buscamos asesoras y asesores de seguros para nuestro equipo en CDMX. Te damos capacitación, certificación y el respaldo de Allianz® México. Tú pones la disciplina y las ganas de ayudar a las familias a proteger su futuro.</p>
+    <div class="hero-cta">
+      <a href="#postular" class="btn btn--gold">Postularme ahora →</a>
+      <a href="#perfil" class="btn" style="background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);color:#fff">¿Es para mí?</a>
+    </div>
+    <div class="hero-stats">
+      <div><b>Sin límite</b><span>Tus ingresos dependen de ti, no de un tabulador</span></div>
+      <div><b>Certificación</b><span>Te preparamos para tu cédula ante la AMIS</span></div>
+      <div><b>Allianz®</b><span>Respaldo de una aseguradora global</span></div>
+      <div><b>Horario propio</b><span>Tú administras tu agenda y tu cartera</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BENEFICIOS ===== -->
+<section class="sec" id="beneficios">
+  <div class="ff-container">
+    <span class="eyebrow">Lo que te damos</span>
+    <h2>No te dejamos solo en el camino</h2>
+    <p class="sub">Muchos entran al ramo asegurador y se van a los tres meses porque nadie los acompañó. Aquí el acompañamiento es parte del trato.</p>
+    <div class="ff-grid" style="margin-top:34px">
+      <div class="card"><div class="ic">🎓</div><h3>Capacitación desde cero</h3><p>No necesitas saber de seguros. Te formamos en producto, técnica de venta y manejo de objeciones.</p></div>
+      <div class="card"><div class="ic">📄</div><h3>Certificación AMIS</h3><p>Te acompañamos en el trámite y la preparación para obtener tu cédula de agente.</p></div>
+      <div class="card"><div class="ic">🤝</div><h3>Acompañamiento en cita</h3><p>Tus primeras entrevistas con clientes las haces acompañada de un asesor con experiencia.</p></div>
+      <div class="card"><div class="ic">📊</div><h3>Herramientas digitales</h3><p>Cotizadores, material de apoyo y seguimiento de tus prospectos en un solo lugar.</p></div>
+      <div class="card"><div class="ic">🛡️</div><h3>Portafolio completo</h3><p>Vida, gastos médicos, ahorro para el retiro, educación y empresariales. Más para ofrecer, más para cerrar.</p></div>
+      <div class="card"><div class="ic">📈</div><h3>Ingresos recurrentes</h3><p>Además de la comisión de venta, construyes renovaciones año con año.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PERFIL ===== -->
+<section class="sec" id="perfil" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="ff-container">
+    <span class="eyebrow">Seamos claros</span>
+    <h2>Esto no es para todo el mundo</h2>
+    <p class="sub">Preferimos decírtelo antes de que inviertas tu tiempo. Así funciona el puesto:</p>
+    <div class="ff-grid" style="margin-top:34px">
+      <div class="card" style="border-color:var(--gold-lt);background:#F6FBFB">
+        <div class="ic">✅</div><h3>Encajas si…</h3>
+        <p>Has vendido o atendido clientes antes (de cualquier giro), te organizas sola, no te frena tocar puertas y buscas un ingreso que crezca con tu esfuerzo. Radicas en CDMX o zona metropolitana.</p>
+      </div>
+      <div class="card">
+        <div class="ic">⚠️</div><h3>No encajas si…</h3>
+        <p>Necesitas un sueldo base fijo desde el primer mes, esperas que te entreguen la cartera de clientes hecha, o buscas un horario de oficina de 9 a 6 sin trato con gente.</p>
+      </div>
+      <div class="card">
+        <div class="ic">💬</div><h3>Cómo es el esquema</h3>
+        <p>Trabajas por comisiones sobre lo que colocas, más renovaciones. Los primeros meses son de formación y construcción de cartera: quien aguanta ese arranque, construye un ingreso que no depende de un jefe.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FORMULARIO ===== -->
+<section class="sec form-sec" id="postular">
+  <div class="ff-container">
+    <div style="text-align:center">
+      <span class="eyebrow">Postúlate</span>
+      <h2>Cuéntanos de ti</h2>
+      <p class="sub" style="margin-inline:auto">Toma dos minutos. Revisamos cada postulación y te contactamos por WhatsApp si tu perfil embona.</p>
+    </div>
+
+    <div class="form-card">
+      <form id="fUnete" novalidate>
+        <div class="two">
+          <div class="fld">
+            <label for="c_nombre">Nombre completo *</label>
+            <input type="text" id="c_nombre" name="nombre" autocomplete="name" required>
+          </div>
+          <div class="fld">
+            <label for="c_wa">WhatsApp *</label>
+            <input type="tel" id="c_wa" name="whatsapp" placeholder="55 1234 5678" autocomplete="tel" required>
+          </div>
+        </div>
+
+        <div class="two">
+          <div class="fld">
+            <label for="c_email">Correo electrónico *</label>
+            <input type="email" id="c_email" name="email" autocomplete="email" required>
+          </div>
+          <div class="fld">
+            <label for="c_ciudad">¿Dónde radicas? *</label>
+            <input type="text" id="c_ciudad" name="ciudad" placeholder="Alcaldía o municipio" required>
+          </div>
+        </div>
+
+        <div class="two">
+          <div class="fld">
+            <label for="c_exp">Experiencia en ventas o atención a clientes *</label>
+            <select id="c_exp" name="experiencia" required>
+              <option value="">Selecciona…</option>
+              <option>Sin experiencia previa</option>
+              <option>Menos de 1 año</option>
+              <option>Entre 1 y 3 años</option>
+              <option>Entre 3 y 6 años</option>
+              <option>Más de 6 años</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label for="c_seg">¿Has trabajado en seguros o servicios financieros?</label>
+            <select id="c_seg" name="seguros">
+              <option value="">Selecciona…</option>
+              <option>No, nunca</option>
+              <option>Sí, pero sin cédula</option>
+              <option>Sí, tengo cédula AMIS vigente</option>
+              <option>Tuve cédula, ya no está vigente</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="two">
+          <div class="fld">
+            <label for="c_disp">Disponibilidad</label>
+            <select id="c_disp" name="disponibilidad">
+              <option value="">Selecciona…</option>
+              <option>Tiempo completo</option>
+              <option>Medio tiempo</option>
+              <option>Por ahora complemento otro trabajo</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label for="c_in">LinkedIn <span class="hint">(opcional)</span></label>
+            <input type="text" id="c_in" name="linkedin" placeholder="linkedin.com/in/…">
+          </div>
+        </div>
+
+        <div class="fld">
+          <label for="c_mot">¿Por qué te interesa el puesto? <span class="hint">(2 o 3 líneas)</span></label>
+          <textarea id="c_mot" name="motivacion" placeholder="Cuéntanos qué buscas y qué te motiva…"></textarea>
+        </div>
+
+        <div class="fld">
+          <label>Tu CV *</label>
+          <label class="drop" id="drop" for="c_cv">
+            <div class="ic">📎</div>
+            <b>Arrastra tu CV aquí o toca para elegirlo</b>
+            <span>PDF o Word · máximo 8 MB</span>
+            <input type="file" id="c_cv" name="cv" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
+          </label>
+          <div class="filepick" id="filepick">
+            <span>📄</span><span id="fileName"></span><span class="rm" id="fileRm" title="Quitar">×</span>
+          </div>
+        </div>
+
+        <div class="fld chk">
+          <input type="checkbox" id="c_ok" required>
+          <label for="c_ok" style="font-weight:400;margin:0">
+            Acepto que Enlace Integral Seguros trate mis datos y mi CV con fines de reclutamiento, conforme al
+            <a href="#" id="openAviso">aviso de privacidad</a>. *
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn--gold" id="btnSend" style="width:100%;margin-top:8px;font-size:17px;padding:17px">
+          Enviar mi postulación →
+        </button>
+        <div class="msg" id="formMsg"></div>
+      </form>
+
+      <div class="gracias" id="gracias">
+        <div class="big">🎉</div>
+        <h3 id="thxName">¡Listo!</h3>
+        <p>Recibimos tu postulación y tu CV. Si tu perfil embona con lo que buscamos, te escribimos por WhatsApp en los próximos días hábiles. Gracias por tu interés en Enlace Integral.</p>
+        <a href="../" class="btn btn--navy" style="margin-top:26px">Volver al inicio</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== AVISO DE PRIVACIDAD ===== -->
+<div class="modal" id="aviso">
+  <div class="box">
+    <h3>Aviso de privacidad — Reclutamiento</h3>
+    <p><strong>Enlace Integral Seguros</strong>, con domicilio en Campestre Churubusco, CDMX, es responsable del tratamiento de los datos personales que nos proporcionas a través de este formulario.</p>
+    <p><strong>¿Para qué los usamos?</strong> Únicamente para evaluar tu candidatura a una posición de asesor de seguros:</p>
+    <ul>
+      <li>Revisar tu experiencia y contactarte sobre el proceso de selección.</li>
+      <li>Integrar tu expediente si eres seleccionada o seleccionado.</li>
+      <li>Considerarte para vacantes futuras similares, salvo que nos pidas lo contrario.</li>
+    </ul>
+    <p>Para agilizar la revisión, tu CV se analiza con apoyo de una herramienta automatizada que resume tu experiencia frente al perfil del puesto. <strong>La decisión de contratación siempre la toma una persona</strong>, nunca el sistema.</p>
+    <p><strong>¿Con quién los compartimos?</strong> Con nuestro proveedor tecnológico (FishFlow), que opera la plataforma bajo contrato de confidencialidad. No vendemos ni cedemos tus datos a terceros con fines comerciales.</p>
+    <p><strong>Tus derechos ARCO.</strong> Puedes solicitar el acceso, rectificación, cancelación u oposición al tratamiento de tus datos, así como la eliminación de tu CV, escribiendo a <a href="mailto:contacto@enlaceintegralseguros.com.mx">contacto@enlaceintegralseguros.com.mx</a>. Atendemos tu solicitud en un máximo de 20 días hábiles.</p>
+    <p style="font-size:13px">Este aviso se emite conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.</p>
+    <button class="btn btn--navy" id="closeAviso" style="width:100%;margin-top:8px">Entendido</button>
+  </div>
+</div>
+
+<!-- ===== PANEL META (demostración) ===== -->
+<div class="mpx" id="mpx">
+  <div class="mh" onclick="document.getElementById('mpx').classList.toggle('min')">
+    <span class="dot"></span><b>Integración Meta</b><span class="tg" id="mpxMode">demostración</span>
+  </div>
+  <div class="mb">
+    <div class="note">Esta página envía eventos SEPARADOS de la landing de clientes, para que cada campaña optimice hacia su propia conversión.</div>
+    <div id="mpxLog"><div class="empty">Esperando actividad…</div></div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="foot">
+  <div class="foot-main">
+    <div>
+      <img src="../Logo.png" alt="Enlace Integral Seguros" class="foot-logo">
+      <span class="foot-col-label" style="display:block">Seguros</span>
+      <p>Asesoría en ahorro para el retiro, vida, gastos médicos y educación. Respaldados por Allianz® México.</p>
+    </div>
+    <div>
+      <div class="foot-col-label">Contacto</div>
+      <div class="foot-links">
+        <a href="mailto:contacto@enlaceintegralseguros.com.mx">contacto@enlaceintegralseguros.com.mx</a>
+        <span style="color:#86C2C5">Campestre Churubusco, CDMX</span>
+        <a href="https://www.facebook.com/EnlaceIntegralSeguros" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/enlaceintegralseguros/" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>
+    <div>
+      <div class="foot-col-label">Enlace Integral</div>
+      <div class="foot-links">
+        <a href="../">Inicio</a>
+        <a href="../#planes">Planes</a>
+        <a href="../#nosotros">Quiénes somos</a>
+        <a href="../#cuestionario">Encuentra tu plan</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div class="inner-b">
+      <span>© <span id="yr"></span> Enlace Integral Seguros. Distribuidor autorizado Allianz® México.</span>
+      <a href="#" id="openAviso2">Aviso de privacidad</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ====== INTEGRACIÓN META ======
+   Eventos ESTÁNDAR van con fbq("track"); los propios con "trackCustom"
+   (Meta rechaza nombres inventados en track). */
+var META_STD = ["PageView","ViewContent","Lead","Contact","CompleteRegistration",
+  "Search","AddToCart","InitiateCheckout","Purchase","Subscribe","Schedule","SubmitApplication"];
+var PIXEL_ON = !!window.META_PIXEL_ID;
+document.getElementById("mpxMode").textContent = PIXEL_ON ? "activo" : "demostración";
+var SHOW_PANEL = !PIXEL_ON || /[?&]panel=1/.test(location.search);
+if(!SHOW_PANEL){ var _p=document.getElementById("mpx"); if(_p) _p.style.display="none"; }
+
+function pixelLog(name,params){
+  var log=document.getElementById("mpxLog");
+  var empty=log.querySelector(".empty"); if(empty) empty.remove();
+  var t=new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  var pr=params?Object.keys(params).map(function(k){return k+": "+params[k];}).join(" · "):"";
+  var row=document.createElement("div"); row.className="ev";
+  row.innerHTML='<span class="nm">'+name+'</span>'+(pr?'<br><span class="pr">'+pr+'</span>':'')+'<span class="tm">'+t+'</span>';
+  log.appendChild(row); log.scrollTop=log.scrollHeight;
+}
+function metaTrack(name,params){
+  try{
+    if(window.fbq) fbq(META_STD.indexOf(name)>=0 ? "track" : "trackCustom", name, params||{});
+  }catch(e){}
+  pixelLog(name,params);
+}
+window.addEventListener("load",function(){ pixelLog("PageView"); });
+
+document.getElementById("yr").textContent=new Date().getFullYear();
+
+/* ====== MENÚ MÓVIL ====== */
+(function(){
+  var t=document.getElementById("navToggle"), m=document.getElementById("navLinks");
+  if(!t||!m) return;
+  t.addEventListener("click",function(){
+    var open=m.classList.toggle("open");
+    t.setAttribute("aria-expanded",open?"true":"false");
+  });
+  m.querySelectorAll("a").forEach(function(a){
+    a.addEventListener("click",function(){ m.classList.remove("open"); t.setAttribute("aria-expanded","false"); });
+  });
+})();
+
+/* ====== AVISO DE PRIVACIDAD ====== */
+(function(){
+  var mod=document.getElementById("aviso");
+  function open(e){ if(e) e.preventDefault(); mod.classList.add("on"); }
+  function close(){ mod.classList.remove("on"); }
+  ["openAviso","openAviso2"].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.addEventListener("click",open);
+  });
+  document.getElementById("closeAviso").addEventListener("click",close);
+  mod.addEventListener("click",function(e){ if(e.target===mod) close(); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") close(); });
+})();
+
+/* ====== ARCHIVO (drag & drop + selección) ====== */
+var MAX_BYTES = 8*1024*1024;
+var input=document.getElementById("c_cv"), drop=document.getElementById("drop"),
+    pick=document.getElementById("filepick"), fname=document.getElementById("fileName");
+
+function showFile(){
+  var f=input.files && input.files[0];
+  if(f){ fname.textContent=f.name+" · "+(f.size/1024/1024).toFixed(1)+" MB"; pick.classList.add("on"); }
+  else { pick.classList.remove("on"); }
+}
+input.addEventListener("change",showFile);
+document.getElementById("fileRm").addEventListener("click",function(e){
+  e.preventDefault(); input.value=""; showFile();
+});
+["dragenter","dragover"].forEach(function(ev){
+  drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.add("over"); });
+});
+["dragleave","drop"].forEach(function(ev){
+  drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.remove("over"); });
+});
+drop.addEventListener("drop",function(e){
+  if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length){
+    input.files=e.dataTransfer.files; showFile();
+  }
+});
+
+/* ====== ENVÍO ====== */
+var started=false;
+["c_nombre","c_wa","c_email"].forEach(function(id){
+  document.getElementById(id).addEventListener("focus",function(){
+    if(started) return; started=true;
+    metaTrack("InicioPostulacion",{content_name:"Formulario únete",content_category:"candidata"});
+  });
+});
+
+var form=document.getElementById("fUnete"),
+    btn=document.getElementById("btnSend"),
+    msgEl=document.getElementById("formMsg");
+
+function fail(text){
+  msgEl.textContent=text; msgEl.className="msg err";
+  msgEl.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+form.addEventListener("submit",function(e){
+  e.preventDefault();
+  msgEl.className="msg";
+
+  var nombre=document.getElementById("c_nombre").value.trim();
+  var wa=document.getElementById("c_wa").value.trim();
+  var mail=document.getElementById("c_email").value.trim();
+  var ciudad=document.getElementById("c_ciudad").value.trim();
+  var exp=document.getElementById("c_exp").value;
+  var ok=document.getElementById("c_ok").checked;
+  var file=input.files && input.files[0];
+
+  if(!nombre||!wa||!mail||!ciudad||!exp) return fail("Completa los campos marcados con *.");
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return fail("Revisa tu correo electrónico.");
+  if(wa.replace(/\D/g,"").length<10) return fail("Tu WhatsApp debe tener 10 dígitos.");
+  if(!file) return fail("Adjunta tu CV en PDF o Word.");
+  if(file.size>MAX_BYTES) return fail("Tu CV pesa más de 8 MB. Comprímelo e inténtalo de nuevo.");
+  if(!ok) return fail("Necesitamos que aceptes el aviso de privacidad.");
+
+  btn.disabled=true; btn.textContent="Enviando tu CV…";
+
+  var fd=new FormData();
+  fd.append("nombre",nombre);
+  fd.append("whatsapp",wa);
+  fd.append("email",mail);
+  fd.append("ciudad",ciudad);
+  fd.append("experiencia",exp);
+  fd.append("seguros",document.getElementById("c_seg").value);
+  fd.append("disponibilidad",document.getElementById("c_disp").value);
+  fd.append("linkedin",document.getElementById("c_in").value.trim());
+  fd.append("motivacion",document.getElementById("c_mot").value.trim());
+  fd.append("aviso","si");
+  fd.append("cv",file);
+
+  fetch("/api/demo/enlace-candidata",{method:"POST",body:fd})
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,body:j}; }); })
+    .then(function(res){
+      if(!res.ok) throw new Error(res.body && res.body.error ? res.body.error : "Error al enviar.");
+      /* Conversión de RECLUTAMIENTO — evento distinto al Lead de clientes. */
+      metaTrack("LeadCandidata",{content_name:"Asesor de seguros",content_category:"candidata"});
+      form.style.display="none";
+      document.getElementById("thxName").textContent="¡Gracias, "+nombre.split(" ")[0]+"!";
+      document.getElementById("gracias").classList.add("on");
+      document.getElementById("gracias").scrollIntoView({behavior:"smooth",block:"center"});
+    })
+    .catch(function(err){
+      btn.disabled=false; btn.textContent="Enviar mi postulación →";
+      fail(err.message||"No pudimos enviar tu postulación. Inténtalo de nuevo o escríbenos por correo.");
+    });
+});
+</script>
+</body>
+</html>

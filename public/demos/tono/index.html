@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- ============================================================
+     DEMO B2C — Tienda de muebles prefabricados (prospecto Toño)
+     Marca y fotos son PLACEHOLDERS. Para personalizar:
+       1) Edita el objeto BRAND (abajo en el <script>).
+       2) Suelta las fotos en /img con el nombre del campo photo
+          de cada producto (ej. img/alacena-mia.jpg) — aparecen solas.
+     Sin CRM ni CFDI: catálogo + colores + carrito + link de pago.
+     ============================================================ -->
+<title>RMZ — Muebles listos, cocinas y closets a la medida</title>
+<meta name="description" content="RMZ: muebles prefabricados de fábrica (alacenas, burós, zapateras, coffee stations) entregados armados a domicilio. También cocinas y closets a la medida." />
+<!-- Open Graph / redes (listo para Facebook) -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="RMZ — Muebles listos para tu hogar" />
+<meta property="og:description" content="Muebles prefabricados armados y entregados a domicilio. De los creadores de cocinas y closets a la medida RMZ." />
+<meta property="og:image" content="img/og-cover.jpg" />
+<link rel="icon" href="img/favicon.png" />
+<link rel="apple-touch-icon" href="img/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ===================== RESPONSIVE BASE (FishFlow) ===================== */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1200px);margin-inline:auto;padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+.ff-grid{display:grid;gap:var(--ff-gap,20px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:180px;}
+.ff-grid--lg{--ff-min:280px;}
+.ff-hide-mobile{}
+@media(max-width:600px){:root{--ff-pad:18px;}.ff-hide-mobile{display:none !important;}.ff-grid{--ff-gap:14px;}}
+/* ===================================================================== */
+
+:root{
+  --accent:#C0923A;        /* dorado del logo RMZ */
+  --accent-dark:#9E7328;
+  --ink:#241C16;
+  --muted:#6E645C;
+  --cream:#FAF7F2;
+  --card:#FFFFFF;
+  --line:#EAE0D5;
+  --ok:#2E7D5B;
+  --shadow:0 10px 30px rgba(60,40,25,.10);
+}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--cream);line-height:1.55;}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;letter-spacing:-.01em;margin:0;}
+a{color:inherit;text-decoration:none;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;
+  padding:13px 20px;font-weight:600;font-size:15px;cursor:pointer;font-family:Inter,sans-serif;transition:.15s;}
+.btn--primary{background:var(--accent);color:#fff;}
+.btn--primary:hover{background:var(--accent-dark);}
+.btn--ghost{background:#fff;color:var(--ink);border:1px solid var(--line);}
+.btn--ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn--block{width:100%;}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:#F1E7DA;color:var(--accent-dark);}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:40;background:rgba(250,246,240,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px;}
+.brand{display:flex;align-items:center;gap:10px;font-family:Fraunces,serif;font-weight:700;font-size:21px;}
+.brand .logo{width:40px;height:40px;border-radius:9px;background:var(--ink);display:grid;place-items:center;}
+.brand .logo svg{width:22px;height:22px;}
+.brand .wm{display:flex;flex-direction:column;line-height:1;}
+.brand .wm small{font-family:Inter,sans-serif;font-size:10px;font-weight:700;letter-spacing:.22em;color:var(--accent);margin-top:3px;}
+.navlinks{display:flex;align-items:center;gap:26px;}
+.navlinks a{font-weight:500;font-size:15px;color:var(--muted);}
+.navlinks a:hover{color:var(--ink);}
+.nav-cta{display:flex;align-items:center;gap:12px;}
+.cartbtn{position:relative;background:#fff;border:1px solid var(--line);border-radius:12px;width:46px;height:46px;display:grid;place-items:center;cursor:pointer;font-size:20px;}
+.cartbtn .count{position:absolute;top:-7px;right:-7px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:999px;display:grid;place-items:center;padding:0 5px;}
+.hamburger{display:none;background:#fff;border:1px solid var(--line);border-radius:12px;width:46px;height:46px;place-items:center;cursor:pointer;font-size:22px;}
+.mobile-menu{display:none;flex-direction:column;gap:4px;padding:8px 0 16px;border-top:1px solid var(--line);}
+.mobile-menu a{padding:12px 4px;font-weight:500;color:var(--ink);border-bottom:1px solid var(--line);}
+
+/* HERO */
+.hero{padding:clamp(40px,7vw,84px) 0;}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(24px,4vw,56px);align-items:center;}
+.hero h1{font-size:clamp(34px,5.4vw,60px);line-height:1.02;font-weight:700;}
+.hero p{font-size:clamp(16px,1.5vw,19px);color:var(--muted);margin:18px 0 26px;max-width:44ch;}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
+.hero-visual{aspect-ratio:4/3;border-radius:22px;background:
+  radial-gradient(120% 120% at 70% 20%, #E7CDb4 0%, #C89B78 45%, var(--accent) 100%);
+  box-shadow:var(--shadow);position:relative;overflow:hidden;display:grid;place-items:center;}
+.hero-visual .tag{position:absolute;left:18px;bottom:18px;background:rgba(255,255,255,.92);border-radius:12px;padding:10px 14px;font-size:13px;font-weight:600;}
+.trust{display:flex;gap:26px;flex-wrap:wrap;margin-top:26px;color:var(--muted);font-size:14px;}
+.trust b{color:var(--ink);}
+
+/* SECCIÓN */
+section{padding:clamp(36px,5vw,64px) 0;}
+.sec-head{text-align:center;max-width:640px;margin:0 auto 34px;}
+.sec-head h2{font-size:clamp(26px,3.6vw,40px);font-weight:600;}
+.sec-head p{color:var(--muted);margin-top:10px;}
+
+/* PASOS */
+.steps{--ff-min:220px;}
+.step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;}
+.step .n{width:38px;height:38px;border-radius:11px;background:#F1E7DA;color:var(--accent-dark);font-weight:700;display:grid;place-items:center;margin-bottom:14px;}
+.step h3{font-size:19px;font-weight:600;margin-bottom:6px;}
+.step p{color:var(--muted);font-size:15px;margin:0;}
+
+/* FILTROS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:26px;}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted);}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+/* PRODUCTOS */
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 14px rgba(60,40,25,.05);}
+.pmedia{aspect-ratio:1/1;position:relative;display:grid;place-items:center;overflow:hidden;}
+.pmedia img{width:100%;height:100%;object-fit:cover;}
+.pmedia .ph{width:100%;height:100%;display:grid;place-items:center;position:relative;}
+.pmedia .ph svg{width:52%;height:52%;opacity:.9;filter:drop-shadow(0 6px 10px rgba(0,0,0,.12));}
+.pmedia .soon{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.9);font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;color:var(--muted);}
+.pbody{padding:16px 16px 18px;display:flex;flex-direction:column;gap:10px;flex:1;}
+.pbody .cat{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;}
+.pbody h3{font-size:18px;font-weight:600;}
+.pdim{font-size:13px;color:var(--muted);}
+.price{font-size:22px;font-weight:700;font-family:Fraunces,serif;}
+.swatches{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.swatch{width:26px;height:26px;border-radius:8px;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);position:relative;}
+.swatch.sel{box-shadow:0 0 0 2px var(--accent);}
+.swatch-name{font-size:12px;color:var(--muted);margin-left:2px;}
+.pbody .btn{margin-top:auto;}
+
+/* DRAWER CARRITO */
+.overlay{position:fixed;inset:0;background:rgba(30,20,12,.45);opacity:0;pointer-events:none;transition:.2s;z-index:50;}
+.overlay.open{opacity:1;pointer-events:auto;}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(420px,100%);background:var(--cream);z-index:60;
+  transform:translateX(100%);transition:.25s;display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.2);}
+.drawer.open{transform:none;}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:20px;border-bottom:1px solid var(--line);}
+.drawer-head h3{font-size:20px;font-weight:600;}
+.drawer-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
+.citem{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;}
+.citem .thumb{width:58px;height:58px;border-radius:10px;flex:none;display:grid;place-items:center;}
+.citem .info{flex:1;font-size:14px;}
+.citem .info b{font-weight:600;}
+.citem .colr{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:2px;}
+.citem .dot{width:12px;height:12px;border-radius:4px;box-shadow:0 0 0 1px var(--line);}
+.qty{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.qty button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:15px;}
+.citem .rm{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;align-self:flex-start;}
+.drawer-foot{padding:18px 20px;border-top:1px solid var(--line);background:#fff;}
+.rowline{display:flex;justify-content:space-between;font-size:15px;margin-bottom:6px;}
+.rowline.total{font-size:19px;font-weight:700;font-family:Fraunces,serif;margin:8px 0 14px;}
+.empty{color:var(--muted);text-align:center;padding:40px 0;}
+
+/* MODAL CHECKOUT */
+.modal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(30,20,12,.5);}
+.modal.open{display:flex;}
+.sheet{background:var(--cream);border-radius:20px;width:min(520px,100%);max-height:92vh;overflow-y:auto;box-shadow:var(--shadow);}
+.sheet-head{padding:22px 24px 8px;}
+.sheet-head h3{font-size:23px;font-weight:600;}
+.sheet-head p{color:var(--muted);font-size:14px;margin:6px 0 0;}
+.sheet-body{padding:14px 24px 24px;display:flex;flex-direction:column;gap:14px;}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:15px;font-family:inherit;background:#fff;}
+.field input:focus,.field textarea:focus{outline:2px solid var(--accent);border-color:transparent;}
+.pay{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;}
+.pay .mp{background:#00A6E1;color:#fff;font-weight:700;border-radius:7px;padding:4px 8px;font-size:12px;}
+.confirm{text-align:center;padding:30px 24px 34px;}
+.confirm .check{width:66px;height:66px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;margin:0 auto 16px;font-size:34px;}
+.confirm h3{font-size:24px;font-weight:600;}
+.confirm p{color:var(--muted);margin:8px 0 0;}
+.owner-note{margin:18px 0 0;background:#EAF6F0;border:1px solid #BFE6D4;border-radius:12px;padding:14px;text-align:left;font-size:13px;color:#1E5E44;}
+.owner-note b{display:block;margin-bottom:2px;}
+
+/* FOOTER */
+footer{background:var(--ink);color:#EADFD3;padding:44px 0 30px;margin-top:20px;}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:28px;}
+footer h4{font-family:Inter;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#B6A695;margin:0 0 12px;}
+footer a{display:block;color:#EADFD3;opacity:.85;padding:4px 0;font-size:14px;}
+footer a:hover{opacity:1;}
+.foot-brand{font-family:Fraunces,serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:10px;}
+.foot-social{display:flex;gap:10px;margin-top:6px;}
+.foot-social a{width:38px;height:38px;border:1px solid #4A3D33;border-radius:10px;display:grid;place-items:center;padding:0;}
+.foot-legal{border-top:1px solid #3A2F27;margin-top:26px;padding-top:16px;font-size:12px;color:#9A8B7C;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+/* BREAKPOINTS */
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr;}
+  .hero-visual{order:-1;max-height:320px;}
+  .foot-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:600px){
+  .navlinks,.nav-cta .btn{display:none;}
+  .hamburger{display:grid;}
+  .foot-grid{grid-template-columns:1fr;}
+  .hero-actions .btn{flex:1;}
+}
+/* toast */
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;
+  padding:12px 18px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:.25s;z-index:90;box-shadow:var(--shadow);}
+.toast.show{opacity:1;transform:translateX(-50%);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="ff-container nav">
+    <a class="brand" href="#top">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8">
+          <rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/>
+          <rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/>
+        </svg>
+      </span>
+      <span class="wm"><span id="brandName">Cocinas &amp; Closets</span><small>RMZ</small></span>
+    </a>
+    <nav class="navlinks">
+      <a href="#catalogo">Catálogo</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#calidad">Calidad</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#catalogo" class="btn btn--primary">Ver muebles</a>
+      <button class="cartbtn" onclick="openCart()" aria-label="Carrito">🛒<span class="count" id="cartCount">0</span></button>
+      <button class="hamburger" id="hamb" aria-label="Menú" aria-expanded="false" onclick="toggleMenu()">☰</button>
+    </div>
+  </div>
+  <div class="ff-container"><div class="mobile-menu" id="mobileMenu">
+    <a href="#catalogo" onclick="toggleMenu()">Catálogo</a>
+    <a href="#como" onclick="toggleMenu()">Cómo funciona</a>
+    <a href="#calidad" onclick="toggleMenu()">Calidad</a>
+    <a href="#contacto" onclick="toggleMenu()">Contacto</a>
+    <a href="#catalogo" onclick="toggleMenu()" style="color:var(--accent);font-weight:600;">Ver muebles →</a>
+  </div></div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="ff-container hero-grid">
+      <div>
+        <span class="pill">RMZ · Diseño 100% personalizado</span>
+        <h1 style="margin-top:14px;">Muebles listos, entregados <span style="color:var(--accent);">armados</span> en tu casa.</h1>
+        <p>La nueva línea prefabricada de <b>Cocinas &amp; Closets RMZ</b>: alacenas, burós, zapateras y coffee stations, fabricadas en nuestro taller con CNC. Elige modelo y color, paga en línea y te lo llevamos montado. La misma calidad de nuestras cocinas y closets a la medida.</p>
+        <div class="hero-actions">
+          <a href="#catalogo" class="btn btn--primary">Ver catálogo</a>
+          <a href="#como" class="btn btn--ghost">Cómo funciona</a>
+        </div>
+        <div class="trust">
+          <span><b>Entrega armado</b><br>a domicilio</span>
+          <span><b>Fabricado con CNC</b><br>en nuestro taller</span>
+          <span><b>CDMX y Edo. Méx.</b><br>cobertura de entrega</span>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="tag">📷 Foto de tu mueble estrella aquí</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CÓMO FUNCIONA -->
+  <section id="como">
+    <div class="ff-container">
+      <div class="sec-head"><h2>Comprar es de tres pasos</h2><p>Tú eliges, nosotros fabricamos y te lo entregamos armado. Así de simple.</p></div>
+      <div class="ff-grid steps">
+        <div class="step"><div class="n">1</div><h3>Elige modelo y color</h3><p>Cada mueble tiene varios acabados. Escoge el que combine con tu espacio.</p></div>
+        <div class="step"><div class="n">2</div><h3>Paga en línea</h3><p>Checkout seguro con link de pago de Mercado Pago: tarjeta, transferencia u OXXO.</p></div>
+        <div class="step"><div class="n">3</div><h3>Recíbelo armado</h3><p>Lo fabricamos y el chofer te lo lleva montado a domicilio. Sin que armes nada.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATÁLOGO -->
+  <section id="catalogo" style="background:#fff;border-block:1px solid var(--line);">
+    <div class="ff-container">
+      <div class="sec-head"><h2>Nuestra línea</h2><p>Modelos prefabricados listos para pedir. Toca los colores para ver los acabados.</p></div>
+      <div class="filters" id="filters"></div>
+      <div class="ff-grid ff-grid--lg" id="grid"></div>
+    </div>
+  </section>
+
+  <!-- CTA A LA MEDIDA (negocio principal RMZ) -->
+  <section style="padding-block:0;">
+    <div class="ff-container">
+      <div style="background:var(--ink);color:#F3E9DD;border-radius:22px;padding:clamp(24px,4vw,40px);display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+        <div style="max-width:54ch;">
+          <span class="pill" style="background:#3A2F27;color:#E8C9A8;">¿Buscas algo a la medida?</span>
+          <h2 style="font-size:clamp(22px,3vw,32px);font-weight:600;color:#fff;margin:12px 0 6px;">Cocinas, closets, tocadores y comedores para tu espacio.</h2>
+          <p style="opacity:.85;margin:0;font-size:15px;">Este es el negocio de siempre de RMZ: diseño 100% personalizado, fabricado con CNC en CDMX e instalado en CDMX y Edo. de México. Cuéntanos tu proyecto y te cotizamos.</p>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="#" id="waCta" class="btn btn--primary">Cotizar por WhatsApp</a>
+          <a href="#" id="igCta" class="btn btn--ghost" style="background:transparent;color:#F3E9DD;border-color:#4A3D33;">Ver proyectos en Instagram</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALIDAD -->
+  <section id="calidad">
+    <div class="ff-container hero-grid">
+      <div class="hero-visual" style="background:radial-gradient(120% 120% at 30% 20%,#EAD9C6,#B98F6B 60%,var(--accent-dark));">
+        <div class="tag">📷 Foto de detalle: herrajes / armado</div>
+      </div>
+      <div>
+        <span class="pill">Por qué duran</span>
+        <h2 style="font-size:clamp(26px,3.6vw,40px);font-weight:600;margin:14px 0 12px;">No son las alacenas que se deshacen en tres días.</h2>
+        <p style="color:var(--muted);max-width:46ch;">Las nuestras se cortan en CNC con el mismo grosor de tablero de punta a punta y se ensamblan con tornillería real, no con tarugos que se aflojan. Llegan armadas y listas para usar.</p>
+        <div class="trust" style="margin-top:22px;">
+          <span><b>CNC</b><br>corte de precisión</span>
+          <span><b>Tornillería</b><br>no tarugos</span>
+          <span><b>Armado</b><br>de fábrica</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- CONTACTO / FOOTER -->
+<footer id="contacto">
+  <div class="ff-container">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand" id="footBrand">Casa Nogal</div>
+        <p style="opacity:.8;font-size:14px;max-width:34ch;margin:0;">Línea de muebles prefabricados entregados armados a domicilio. También fabricamos cocinas y closets a la medida. CDMX y área metropolitana.</p>
+        <div class="foot-social">
+          <a href="#" aria-label="Facebook" title="Facebook">f</a>
+          <a href="#" aria-label="Instagram" title="Instagram">◎</a>
+          <a href="#" aria-label="WhatsApp" title="WhatsApp">✆</a>
+        </div>
+      </div>
+      <div>
+        <h4>Tienda</h4>
+        <a href="#catalogo">Catálogo</a>
+        <a href="#como">Cómo funciona</a>
+        <a href="#calidad">Calidad</a>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <a href="#" id="footWa">WhatsApp</a>
+        <a href="#" id="footTel">+52 55 0000 0000</a>
+        <a href="#" id="footMail">hola@casanogal.mx</a>
+        <a href="#">San Nicolás Totolapan, Magdalena Contreras, CDMX</a>
+      </div>
+    </div>
+    <div class="foot-legal">
+      <span>© <span id="yr"></span> <span class="fbn">Casa Nogal</span>. Todos los derechos reservados.</span>
+      <span>Hecho con FishFlow</span>
+    </div>
+  </div>
+</footer>
+
+<!-- CARRITO -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<aside class="drawer" id="drawer" aria-label="Carrito">
+  <div class="drawer-head"><h3>Tu carrito</h3><button class="btn btn--ghost" style="padding:8px 12px;" onclick="closeCart()">✕</button></div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot">
+    <div class="rowline"><span>Subtotal</span><span id="subtotal">$0</span></div>
+    <div class="rowline" style="color:var(--muted);font-size:13px;"><span>Envío a domicilio</span><span>Se calcula al confirmar</span></div>
+    <div class="rowline total"><span>Total</span><span id="total">$0</span></div>
+    <button class="btn btn--primary btn--block" id="coBtn" onclick="openCheckout()">Continuar al pago</button>
+  </div>
+</aside>
+
+<!-- CHECKOUT -->
+<div class="modal" id="checkoutModal">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= CONFIG DE MARCA (editar aquí) ================= */
+const BRAND = {
+  name: "Cocinas & Closets RMZ",   // marca completa (footer, meta, aviso de pedido)
+  short: "Cocinas & Closets",       // texto junto al monograma en el nav
+  initial: "RMZ",                   // (ya no se usa: el logo es una retícula SVG)
+  accent: "#C0923A",                // dorado del logo real de RMZ
+  tel: "55 1144 2279",              // teléfono real (RMZ)
+  tel2: "55 3777 0823",             // segundo teléfono
+  mail: "contacto@cocinasrmz.mx",   // ← correo real (confirmar con Toño)
+  whatsapp: "https://wa.me/message/PFRTV2CU6ZUDF1", // WhatsApp real de su Instagram
+  instagram: "https://www.instagram.com/cocinas_y_closets_rmz/",
+  zona: "CDMX y Edo. de México",
+  deliveryDays: "5 a 7 días hábiles"
+};
+
+/* ================= PRODUCTOS (placeholders) =====================
+   photo: "" → muestra placeholder con etiqueta "Foto próximamente".
+   Cuando llegue la foto, pon el archivo en /img y escribe su nombre,
+   ej. photo:"img/alacena-nordica.jpg". Aparece sola.
+   colors: cada modelo con sus acabados disponibles.                */
+const WOOD = {
+  nogal:  "#7A4B2B", roble: "#C79A6B", blanco: "#F3EEE7",
+  gris:   "#8E8B86", negro: "#2C2A28", miel:  "#D8A24A", arena: "#E3D3BC"
+};
+const PRODUCTS = [
+  {id:"al1", cat:"Alacenas", name:"Alacena Nórdica 2 puertas", dim:"80 × 35 × 90 cm", price:1890,
+   photo:"", colors:[["Nogal",WOOD.nogal],["Roble",WOOD.roble],["Blanco",WOOD.blanco]]},
+  {id:"al2", cat:"Alacenas", name:"Alacena Alta 4 puertas", dim:"90 × 40 × 180 cm", price:3450,
+   photo:"", colors:[["Nogal",WOOD.nogal],["Blanco",WOOD.blanco],["Gris",WOOD.gris]]},
+  {id:"bu1", cat:"Burós", name:"Buró Minimal 1 cajón", dim:"45 × 40 × 50 cm", price:790,
+   photo:"", colors:[["Roble",WOOD.roble],["Blanco",WOOD.blanco],["Negro",WOOD.negro]]},
+  {id:"bu2", cat:"Burós", name:"Buró Flotante 2 cajones", dim:"50 × 38 × 45 cm", price:1090,
+   photo:"", colors:[["Nogal",WOOD.nogal],["Miel",WOOD.miel],["Blanco",WOOD.blanco]]},
+  {id:"za1", cat:"Zapateras", name:"Zapatera Slim 3 niveles", dim:"70 × 24 × 100 cm", price:1290,
+   photo:"", colors:[["Blanco",WOOD.blanco],["Roble",WOOD.roble],["Gris",WOOD.gris]]},
+  {id:"za2", cat:"Zapateras", name:"Zapatera Banca con asiento", dim:"90 × 35 × 50 cm", price:1650,
+   photo:"", colors:[["Nogal",WOOD.nogal],["Arena",WOOD.arena],["Negro",WOOD.negro]]},
+  {id:"cs1", cat:"Coffee stations", name:"Coffee Station Compacta", dim:"60 × 40 × 120 cm", price:2290,
+   photo:"", colors:[["Nogal",WOOD.nogal],["Blanco",WOOD.blanco],["Negro",WOOD.negro]]},
+  {id:"cs2", cat:"Coffee stations", name:"Coffee Station con Vitrina", dim:"80 × 42 × 160 cm", price:3690,
+   photo:"", colors:[["Roble",WOOD.roble],["Nogal",WOOD.nogal],["Blanco",WOOD.blanco]]},
+  {id:"re1", cat:"Repisas", name:"Set de 3 Repisas Flotantes", dim:"60 / 45 / 30 cm", price:640,
+   photo:"", colors:[["Roble",WOOD.roble],["Blanco",WOOD.blanco],["Negro",WOOD.negro]]},
+  {id:"me1", cat:"Mesas", name:"Mesa de Centro Nórdica", dim:"100 × 50 × 42 cm", price:1990,
+   photo:"", colors:[["Nogal",WOOD.nogal],["Roble",WOOD.roble],["Blanco",WOOD.blanco]]}
+];
+
+/* iconos SVG por categoría (para el placeholder) */
+const ICONS = {
+  "Alacenas":'<svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="2.4"><rect x="12" y="8" width="40" height="48" rx="2"/><line x1="32" y1="8" x2="32" y2="56"/><circle cx="27" cy="32" r="1.6" fill="#fff"/><circle cx="37" cy="32" r="1.6" fill="#fff"/></svg>',
+  "Burós":'<svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="2.4"><rect x="12" y="18" width="40" height="30" rx="2"/><line x1="12" y1="32" x2="52" y2="32"/><line x1="16" y1="48" x2="16" y2="56"/><line x1="48" y1="48" x2="48" y2="56"/><circle cx="32" cy="25" r="1.6" fill="#fff"/><circle cx="32" cy="40" r="1.6" fill="#fff"/></svg>',
+  "Zapateras":'<svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="2.4"><rect x="14" y="10" width="36" height="44" rx="2"/><line x1="14" y1="25" x2="50" y2="25"/><line x1="14" y1="40" x2="50" y2="40"/></svg>',
+  "Coffee stations":'<svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="2.4"><rect x="14" y="10" width="36" height="44" rx="2"/><rect x="20" y="16" width="24" height="12" rx="1"/><path d="M22 40h20"/><path d="M22 46h14"/></svg>',
+  "Repisas":'<svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="2.4"><line x1="12" y1="20" x2="44" y2="20"/><line x1="20" y1="34" x2="52" y2="34"/><line x1="12" y1="48" x2="40" y2="48"/></svg>',
+  "Mesas":'<svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="2.4"><rect x="12" y="24" width="40" height="6" rx="1"/><line x1="16" y1="30" x2="16" y2="46"/><line x1="48" y1="30" x2="48" y2="46"/></svg>'
+};
+
+const money = n => "$" + n.toLocaleString("es-MX");
+const cart = {}; // id__color -> {p, color, qty}
+let activeCat = "Todos";
+const sel = {}; // producto -> índice de color elegido
+
+/* ---- aplicar marca ---- */
+document.getElementById("brandName").textContent = BRAND.short || BRAND.name;
+document.getElementById("footBrand").textContent = BRAND.name;
+document.querySelectorAll(".fbn").forEach(e=>e.textContent=BRAND.name);
+document.getElementById("footTel").textContent = "Tel. "+BRAND.tel+(BRAND.tel2?" · "+BRAND.tel2:"");
+document.getElementById("footTel").href = "tel:+52"+BRAND.tel.replace(/\D/g,"");
+document.getElementById("footMail").textContent = BRAND.mail;
+document.getElementById("footMail").href = "mailto:"+BRAND.mail;
+if(BRAND.instagram){
+  document.querySelectorAll('[aria-label="Instagram"]').forEach(a=>a.href=BRAND.instagram);
+  const ig=document.getElementById("igCta"); if(ig)ig.href=BRAND.instagram;
+}
+if(BRAND.whatsapp){
+  document.querySelectorAll('[aria-label="WhatsApp"]').forEach(a=>a.href=BRAND.whatsapp);
+  const wa=document.getElementById("waCta"); if(wa)wa.href=BRAND.whatsapp;
+  const fw=document.getElementById("footWa"); if(fw){fw.href=BRAND.whatsapp; fw.textContent="WhatsApp";}
+}
+document.getElementById("yr").textContent = new Date().getFullYear();
+document.documentElement.style.setProperty("--accent", BRAND.accent);
+
+/* ---- filtros ---- */
+function renderFilters(){
+  const cats = ["Todos", ...new Set(PRODUCTS.map(p=>p.cat))];
+  document.getElementById("filters").innerHTML = cats.map(c=>
+    `<button class="chip ${c===activeCat?'active':''}" onclick="setCat('${c}')">${c}</button>`).join("");
+}
+function setCat(c){ activeCat=c; renderFilters(); renderGrid(); }
+
+/* ---- placeholder o foto ---- */
+function phHTML(cat,color,soon){
+  return `<div class="ph" style="background:linear-gradient(160deg, ${shade(color,18)}, ${color});">
+    ${soon?'<span class="soon">Foto próximamente</span>':''}${ICONS[cat]||ICONS["Mesas"]}</div>`;
+}
+function media(p){
+  const color = p.colors[sel[p.id]||0][1];
+  if(p.photo){
+    // si la foto no existe/carga, cae al placeholder sin romperse
+    return `<img src="${p.photo}" alt="${p.name}" loading="lazy"
+      onerror="this.parentNode.innerHTML=phHTML(${JSON.stringify(p.cat)},'${color}',false)">`;
+  }
+  return phHTML(p.cat,color,true);
+}
+function shade(hex,pct){ // aclara un hex
+  const n=parseInt(hex.slice(1),16); let r=(n>>16)+pct, g=((n>>8)&255)+pct, b=(n&255)+pct;
+  r=Math.min(255,r);g=Math.min(255,g);b=Math.min(255,b);
+  return "#"+(r<<16|g<<8|b).toString(16).padStart(6,"0");
+}
+
+/* ---- grid ---- */
+function renderGrid(){
+  const list = PRODUCTS.filter(p=>activeCat==="Todos"||p.cat===activeCat);
+  document.getElementById("grid").innerHTML = list.map(p=>{
+    const ci = sel[p.id]||0;
+    const sw = p.colors.map((c,i)=>
+      `<span class="swatch ${i===ci?'sel':''}" style="background:${c[1]}" title="${c[0]}" onclick="pickColor('${p.id}',${i})"></span>`).join("");
+    return `<article class="pcard">
+      <div class="pmedia" id="media-${p.id}">${media(p)}</div>
+      <div class="pbody">
+        <span class="cat">${p.cat}</span>
+        <h3>${p.name}</h3>
+        <div class="pdim">${p.dim}</div>
+        <div class="swatches">${sw}<span class="swatch-name" id="cn-${p.id}">${p.colors[ci][0]}</span></div>
+        <div class="price">${money(p.price)}</div>
+        <button class="btn btn--primary btn--block" onclick="addToCart('${p.id}')">Agregar al carrito</button>
+      </div>
+    </article>`;
+  }).join("");
+}
+function pickColor(id,i){
+  sel[id]=i;
+  const p=PRODUCTS.find(x=>x.id===id);
+  document.getElementById("media-"+id).innerHTML=media(p);
+  document.getElementById("cn-"+id).textContent=p.colors[i][0];
+  document.querySelectorAll(`#media-${id}`); // repinta media
+  // actualiza selección de swatches sin reconstruir todo el grid
+  const card=document.getElementById("media-"+id).closest(".pcard");
+  card.querySelectorAll(".swatch").forEach((s,idx)=>s.classList.toggle("sel",idx===i));
+}
+
+/* ---- carrito ---- */
+function addToCart(id){
+  const p=PRODUCTS.find(x=>x.id===id); const ci=sel[id]||0; const color=p.colors[ci];
+  const key=id+"__"+color[0];
+  if(cart[key]) cart[key].qty++; else cart[key]={p,color,qty:1};
+  updateCart(); toast(`${p.name} (${color[0]}) agregado`);
+  openCart();
+}
+function changeQty(key,d){
+  if(!cart[key])return; cart[key].qty+=d;
+  if(cart[key].qty<=0) delete cart[key];
+  updateCart();
+}
+function removeItem(key){ delete cart[key]; updateCart(); }
+function cartCount(){ return Object.values(cart).reduce((s,i)=>s+i.qty,0); }
+function cartTotal(){ return Object.values(cart).reduce((s,i)=>s+i.qty*i.p.price,0); }
+function updateCart(){
+  document.getElementById("cartCount").textContent=cartCount();
+  const body=document.getElementById("cartBody");
+  const items=Object.entries(cart);
+  if(!items.length){ body.innerHTML=`<div class="empty">Tu carrito está vacío.<br>Explora la línea y agrega tu primer mueble.</div>`; }
+  else{
+    body.innerHTML=items.map(([key,it])=>`
+      <div class="citem">
+        <div class="thumb" style="background:linear-gradient(160deg,${shade(it.color[1],18)},${it.color[1]})"></div>
+        <div class="info">
+          <b>${it.p.name}</b>
+          <div class="colr"><span class="dot" style="background:${it.color[1]}"></span>${it.color[0]}</div>
+          <div class="qty">
+            <button onclick="changeQty('${key}',-1)">−</button><span>${it.qty}</span><button onclick="changeQty('${key}',1)">+</button>
+            <span style="margin-left:auto;font-weight:600;">${money(it.qty*it.p.price)}</span>
+          </div>
+        </div>
+        <button class="rm" onclick="removeItem('${key}')" aria-label="Quitar">✕</button>
+      </div>`).join("");
+  }
+  document.getElementById("subtotal").textContent=money(cartTotal());
+  document.getElementById("total").textContent=money(cartTotal());
+  document.getElementById("coBtn").disabled=!items.length;
+  document.getElementById("coBtn").style.opacity=items.length?1:.5;
+}
+function openCart(){ document.getElementById("drawer").classList.add("open"); document.getElementById("overlay").classList.add("open"); }
+function closeCart(){ document.getElementById("drawer").classList.remove("open"); document.getElementById("overlay").classList.remove("open"); }
+
+/* ---- checkout ---- */
+function openCheckout(){
+  if(!cartCount())return;
+  const sheet=document.getElementById("sheet");
+  sheet.innerHTML=`
+    <div class="sheet-head"><h3>Datos de entrega</h3><p>Te contactamos para confirmar el envío. Entrega estimada: ${BRAND.deliveryDays}.</p></div>
+    <div class="sheet-body">
+      <div class="field"><label>Nombre completo</label><input id="ckName" placeholder="Ej. Juan Pérez"></div>
+      <div class="field"><label>WhatsApp / teléfono</label><input id="ckTel" placeholder="55 1234 5678"></div>
+      <div class="field"><label>Dirección de entrega</label><textarea id="ckDir" rows="2" placeholder="Calle, número, colonia, CP, referencias"></textarea></div>
+      <div class="pay"><span class="mp">Mercado Pago</span><span>Al confirmar generamos tu <b>link de pago</b>: tarjeta, transferencia u OXXO.</span></div>
+      <div class="rowline total" style="margin:4px 0 0;"><span>Total a pagar</span><span>${money(cartTotal())}</span></div>
+      <button class="btn btn--primary btn--block" onclick="pay()">Generar link de pago</button>
+      <button class="btn btn--ghost btn--block" onclick="closeCheckout()">Volver</button>
+    </div>`;
+  document.getElementById("checkoutModal").classList.add("open");
+}
+function closeCheckout(){ document.getElementById("checkoutModal").classList.remove("open"); }
+function pay(){
+  const name=(document.getElementById("ckName").value||"cliente").split(" ")[0];
+  const order="#"+Math.floor(1000+Math.random()*9000);
+  const sheet=document.getElementById("sheet");
+  sheet.innerHTML=`
+    <div class="confirm">
+      <div class="check">✓</div>
+      <h3>¡Pago confirmado!</h3>
+      <p>Gracias, ${name}. Tu pedido ${order} está en fabricación. Te llega armado en ${BRAND.deliveryDays}.</p>
+      <div class="owner-note">
+        <b>🔔 Aviso automático al dueño (demo)</b>
+        Nuevo pedido ${order} · ${cartCount()} pieza(s) · ${money(cartTotal())}. Se envía por WhatsApp/email a ${BRAND.name} para programar la entrega con el chofer.
+      </div>
+      <button class="btn btn--primary btn--block" style="margin-top:18px;" onclick="resetAll()">Seguir comprando</button>
+    </div>`;
+}
+function resetAll(){ for(const k in cart)delete cart[k]; updateCart(); closeCheckout(); closeCart(); toast("¡Listo! Gracias por tu compra"); }
+
+/* ---- menú móvil ---- */
+function toggleMenu(){
+  const m=document.getElementById("mobileMenu"), h=document.getElementById("hamb");
+  const open=m.style.display==="flex";
+  m.style.display=open?"none":"flex";
+  h.setAttribute("aria-expanded",String(!open));
+}
+/* ---- toast ---- */
+let tt;
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("show"),2200); }
+
+/* init */
+renderFilters(); renderGrid(); updateCart();
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){closeCart();closeCheckout();} });
+</script>
+</body>
+</html>
