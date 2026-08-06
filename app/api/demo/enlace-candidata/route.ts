@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
-import { sendEmail, REPLY_TO } from '@/lib/email'
+import { sendEmail, REPLY_TO, enlaceNotifyTo } from '@/lib/email'
 
 export const runtime = 'nodejs'
 // El parseo del PDF + la llamada a Claude pueden pasar de los 10 s por defecto.
@@ -27,10 +27,6 @@ export const maxDuration = 60
 const ENLACE_CLIENT_ID = 'e8094119-0414-4d46-8506-6ee1a52e852c'
 const CV_BUCKET = 'hiring-cv'
 const MAX_CV_BYTES = 8 * 1024 * 1024 // 8 MB — igual que el límite del bucket
-
-const ENLACE_TO = (process.env.ENLACE_LEAD_TO ?? 'contacto@enlaceintegralseguros.com.mx')
-  .split(',').map((s) => s.trim()).filter(Boolean)
-const NOTIFY_TO = ['raf@fishflow.mx', ...ENLACE_TO]
 
 const ALLOWED_MIME = new Set([
   'application/pdf',
@@ -298,7 +294,7 @@ export async function POST(req: Request) {
 
     await sendEmail({
       from: 'enlace',
-      to: NOTIFY_TO,
+      to: enlaceNotifyTo(),
       replyTo: email || REPLY_TO,
       subject: `Candidata/o — ${nombre}${scoring ? ` · ${scoring.score}/100 (${scoring.veredicto})` : ''}`,
       html: adminHtml(

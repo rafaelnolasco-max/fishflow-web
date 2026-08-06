@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
-import { SENDERS } from '@/lib/email'
+import { SENDERS, enlaceNotifyTo } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -15,11 +15,8 @@ export const runtime = 'nodejs'
 // en /app/enlace, separados de los leads generales de FishFlow en /admin.
 const ENLACE_CLIENT_ID = 'e8094119-0414-4d46-8506-6ee1a52e852c'
 
-// Destinatarios del aviso. Rafa siempre. A Enlace se le avisa también, salvo que
-// se apague/ajuste con la variable de entorno ENLACE_LEAD_TO (coma-separada; "" = no enviar a Enlace).
-const ENLACE_TO = (process.env.ENLACE_LEAD_TO ?? 'contacto@enlaceintegralseguros.com.mx')
-  .split(',').map((s) => s.trim()).filter(Boolean)
-const NOTIFY_TO = ['raf@fishflow.mx', ...ENLACE_TO]
+// Destinatarios del aviso (Rafa + Enlace). Centralizado en lib/email.ts —
+// ver la nota ahí sobre por qué `contacto@...com.mx` no sirve.
 
 const PLAN_LABEL: Record<string, string> = {
   ahorro: 'Ahorro para el retiro (OptiMaxx Plus)',
@@ -114,7 +111,7 @@ export async function POST(req: Request) {
       const resend = new Resend(resendKey)
       const { error: mailErr } = await resend.emails.send({
         from: SENDERS.enlace,
-        to: NOTIFY_TO,
+        to: enlaceNotifyTo(),
         replyTo: email || undefined,
         subject: `Nuevo lead — ${nombre} · ${plan}`,
         html: adminHtml({ nombre, whatsapp, email, plan, objetivo, edad, dependientes, capacidad, ocupacion }),
