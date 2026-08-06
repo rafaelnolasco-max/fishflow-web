@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 import { sendEmail, REPLY_TO, enlaceNotifyTo } from '@/lib/email'
+import { corsHeaders, preflight } from '@/lib/cors'
 
 export const runtime = 'nodejs'
 // El parseo del PDF + la llamada a Claude pueden pasar de los 10 s por defecto.
@@ -172,7 +173,13 @@ function adminHtml(d: Record<string, string>, s: Scoring | null, cvUrl: string |
   </div>`
 }
 
+// La página /unete vive en enlaceintegralseguros.com. Ver lib/cors.ts.
+export async function OPTIONS(req: Request) {
+  return preflight(req)
+}
+
 export async function POST(req: Request) {
+  const cors = corsHeaders(req.headers.get('origin'))
   try {
     const form = await req.formData()
     const get = (k: string) => (form.get(k) ?? '').toString().trim()
@@ -189,20 +196,20 @@ export async function POST(req: Request) {
     const aviso = get('aviso')
 
     if (!nombre || !whatsapp || !email) {
-      return NextResponse.json({ error: 'Falta nombre, WhatsApp o correo.' }, { status: 400 })
+      return NextResponse.json({ error: 'Falta nombre, WhatsApp o correo.' }, { status: 400, headers: cors })
     }
     if (aviso !== 'si') {
-      return NextResponse.json({ error: 'Falta aceptar el aviso de privacidad.' }, { status: 400 })
+      return NextResponse.json({ error: 'Falta aceptar el aviso de privacidad.' }, { status: 400, headers: cors })
     }
 
     const cv = form.get('cv')
     const file = cv instanceof File && cv.size > 0 ? cv : null
     if (file) {
       if (file.size > MAX_CV_BYTES) {
-        return NextResponse.json({ error: 'El CV no debe pesar más de 8 MB.' }, { status: 400 })
+        return NextResponse.json({ error: 'El CV no debe pesar más de 8 MB.' }, { status: 400, headers: cors })
       }
       if (!ALLOWED_MIME.has(file.type)) {
-        return NextResponse.json({ error: 'El CV debe ser PDF o Word.' }, { status: 400 })
+        return NextResponse.json({ error: 'El CV debe ser PDF o Word.' }, { status: 400, headers: cors })
       }
     }
 
@@ -245,7 +252,7 @@ export async function POST(req: Request) {
 
     if (candErr || !candidate) {
       console.error('[enlace-candidata] insert candidato:', candErr)
-      return NextResponse.json({ error: 'No pudimos guardar tu postulación.' }, { status: 500 })
+      return NextResponse.json({ error: 'No pudimos guardar tu postulación.' }, { status: 500, headers: cors })
     }
 
     const { data: position } = await supabase
@@ -305,9 +312,9 @@ export async function POST(req: Request) {
       tag: 'demo/enlace-candidata',
     })
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true }, { headers: cors })
   } catch (err: any) {
     console.error('[enlace-candidata] Error:', err?.message ?? err)
-    return NextResponse.json({ error: 'Error al procesar tu postulación.' }, { status: 500 })
+    return NextResponse.json({ error: 'Error al procesar tu postulación.' }, { status: 500, headers: cors })
   }
 }

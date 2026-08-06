@@ -2,8 +2,15 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { SENDERS, enlaceNotifyTo } from '@/lib/email'
+import { corsHeaders, preflight } from '@/lib/cors'
 
 export const runtime = 'nodejs'
+
+// La landing productiva vive en enlaceintegralseguros.com (otro proyecto de
+// Vercel), así que esta ruta se llama cross-origin. Ver lib/cors.ts.
+export async function OPTIONS(req: Request) {
+  return preflight(req)
+}
 
 // Captura de leads de la landing de Enlace Integral Seguros (/demos/enlaceintegral).
 // 1) Guarda el lead en Supabase (tabla `leads`, visible en /admin → Leads).
@@ -58,6 +65,7 @@ function adminHtml(d: Record<string, string>) {
 }
 
 export async function POST(req: Request) {
+  const cors = corsHeaders(req.headers.get('origin'))
   try {
     const b = await req.json().catch(() => ({}))
     const nombre = (b.nombre ?? '').toString().trim()
@@ -72,7 +80,7 @@ export async function POST(req: Request) {
     const ocupacion = (b.ocupacion ?? '').toString().trim()
 
     if (!nombre || !whatsapp) {
-      return NextResponse.json({ error: 'Falta nombre o WhatsApp.' }, { status: 400 })
+      return NextResponse.json({ error: 'Falta nombre o WhatsApp.' }, { status: 400, headers: cors })
     }
 
     const resumen = [
@@ -121,9 +129,9 @@ export async function POST(req: Request) {
       console.error('[demo/enlace-lead] RESEND_API_KEY no configurada')
     }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true }, { headers: cors })
   } catch (err: any) {
     console.error('[demo/enlace-lead] Error:', err?.message ?? err)
-    return NextResponse.json({ error: 'Error al procesar.' }, { status: 500 })
+    return NextResponse.json({ error: 'Error al procesar.' }, { status: 500, headers: cors })
   }
 }
