@@ -11,6 +11,7 @@ import {
   type DashTheme,
 } from "@/components/dashboard";
 import ReviewsTab, { normalizePhone } from "./ReviewsTab";
+import ContentTab from "./ContentTab";
 
 // ─── Paleta CANE ──────────────────────────────────────────────────────────────
 const C = {
@@ -131,7 +132,7 @@ export default function CANEAppointmentsPage() {
   const [form, setForm]                 = useState(EMPTY_FORM);
   const [saving, setSaving]             = useState(false);
   const [error, setError]               = useState<string | null>(null);
-  const [tab, setTab]                   = useState<"citas" | "resenas">(SHOW_CITAS ? "citas" : "resenas");
+  const [tab, setTab]                   = useState<"citas" | "resenas" | "contenido">(SHOW_CITAS ? "citas" : "resenas");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -338,26 +339,27 @@ export default function CANEAppointmentsPage() {
       <DashboardHeader
         icon={<span style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>CN</span>}
         title="CANE Neurofeedback"
-        subtitle={SHOW_CITAS ? "Confirmación de Citas" : "Reseñas de Google"}
+        subtitle={SHOW_CITAS ? "Confirmación de Citas" : "Reseñas y Contenido"}
         theme={T}
         onLogout={logout}
       />
 
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "24px 16px" }}>
 
-        {SHOW_CITAS && (
-          <TabBar
-            theme={T}
-            tabs={[
-              { id: "citas",   label: "Citas",   icon: "📅" },
-              { id: "resenas", label: "Reseñas", icon: "⭐" },
-            ]}
-            active={tab}
-            onChange={setTab}
-          />
-        )}
+        <TabBar
+          theme={T}
+          tabs={[
+            ...(SHOW_CITAS ? [{ id: "citas" as const, label: "Citas", icon: "📅" }] : []),
+            { id: "resenas" as const,    label: "Reseñas",   icon: "⭐" },
+            { id: "contenido" as const,  label: "Contenido", icon: "✨" },
+          ]}
+          active={tab}
+          onChange={setTab}
+        />
 
         {tab === "resenas" && <ReviewsTab />}
+
+        {tab === "contenido" && <ContentTab />}
 
         {SHOW_CITAS && tab === "citas" && (
         <Section

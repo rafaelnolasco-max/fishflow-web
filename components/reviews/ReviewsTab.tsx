@@ -34,9 +34,18 @@ export type ReviewSettings = {
   baseline_count: number | null;
 };
 
+export type ReviewVendor = {
+  id: string;
+  client_id: string;
+  name: string;
+  token: string;
+  active: boolean;
+};
+
 export type ReviewRequest = {
   id: string;
   client_id: string;
+  vendor_id: string | null;
   contact_name: string;
   contact_phone: string;
   source: "csv" | "appointment" | "manual";
@@ -92,20 +101,35 @@ const NEGATIVE_TPL =
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 export default function ReviewsTab({
-  clientId,
+  clientId = "",
   theme: T,
   personLabel = "cliente",
   personLabelPlural = "clientes",
   emptyHint,
   smartReplies = false,
+  vendorToken,
+  showVendors = false,
 }: {
-  clientId: string;
+  clientId?: string;           // requerido salvo en modo vendedora (se resuelve del token)
   theme: DashTheme;
   personLabel?: string;        // "paciente" / "clienta" — para el copy
   personLabelPlural?: string;  // "pacientes" / "clientas"
   emptyHint?: string;          // texto extra en el estado vacío (ej. "o usa ⭐ desde una cita")
   smartReplies?: boolean;      // opt-in: mensajes 2 y 3 redactados por IA con la respuesta del cliente
+  /**
+   * Modo vendedora: la página pública /resenas/[token] monta este mismo módulo
+   * sin login. Todo va por /api/reviews/vendor/[token] (service role) y se
+   * ocultan configuración, importador y alta manual — ella solo envía su cola.
+   */
+  vendorToken?: string;
+  /**
+   * Vista de coordinación (Ivonne Cruz en /app/enlace): progreso por vendedora,
+   * filtro de la cola y botón para copiar el link personal de cada una.
+   */
+  showVendors?: boolean;
 }) {
+  const isVendor = !!vendorToken;
+  const apiBase = `/api/reviews/vendor/${vendorToken}`;
   // ⚠️ No definir componentes aquí dentro (se recrean en cada render y React
   // desmonta los inputs → el teclado móvil se cierra a cada tecla). Usar
   // DSection/DField/DModal directo con theme={T}.
@@ -115,6 +139,13 @@ export default function ReviewsTab({
   const [settings, setSettings] = useState<ReviewSettings | null>(null);
   const [requests, setRequests] = useState<ReviewRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  // En modo vendedora el clientId llega del endpoint (lo necesita /api/reviews/draft)
+  const [resolvedClientId, setResolvedClientId] = useState(clientId);
+  const [vendorName, setVendorName] = useState<string | null>(null);
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [vendors, setVendors] = useState<ReviewVendor[]>([]);
+  const [vendorFilter, setVendorFilter] = useState<string>("todas");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -145,17 +176,91 @@ export default function ReviewsTab({
     setTimeout(() => setToast(null), 3000);
   }
 
-  async function fetchAll() {
+  /**
+   * Guarda cambios de un request. En el dashboard va por Supabase (RLS);
+   * en modo vendedora por el endpoint con token (service role + validación de
+   * pertenencia). Devuelve true si guardó.
+   */
+  async function patchRequest(id: string, patch: Record<string, unknown>): Promise<boolean> {
+    if (isVendor) {
+      try {
+        const res = await fetch(apiBase, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ requestId: id, patch }),
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => null);
+          notify(d?.error ?? "No se pudo guardar el cambio");
+          return false;
+        }
+        return true;
+      } catch (e) {
+        console.error(e);
+        notify("Sin conexión. Revisa tus datos e intenta de nuevo.");
+        return false;
+      }
+    }
+    const { error } = await supabase.from("review_requests").update(patch).eq("id", id);
+    if (error) { console.error(error); notify(`Error: ${error.message}`); return false; }
+    return true;
+  }
+
+  async function fetchVendor() {
     setLoading(true);
-    const [{ data: st, error: e1 }, { data: rq, error: e2 }] = await Promise.all([
+    try {
+      const res = await fetch(apiBase, { cache: "no-store" });
+      const data = await res.json();
+      if (!res.ok) { setLinkError(data?.error ?? "Enlace no válido"); setLoading(false); return; }
+      setVendorName(data.vendor?.name ?? null);
+      setResolvedClientId(data.clientId ?? "");
+      setSettings((data.settings as ReviewSettings) ?? null);
+      setRequests((data.requests as ReviewRequest[]) ?? []);
+    } catch (e) {
+      console.error(e);
+      setLinkError("No se pudo cargar tu lista. Revisa tu conexión.");
+    }
+    setLoading(false);
+  }
+
+  // Supabase trunca en 1000 filas sin avisar — con 400+ contactos por cliente
+  // esto se alcanza pronto, así que se pagina siempre.
+  async function fetchRequestsPaged(): Promise<ReviewRequest[]> {
+    const PAGE = 1000;
+    const acc: ReviewRequest[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from("review_requests").select("*").eq("client_id", clientId)
+        .order("stage", { ascending: false }).order("created_at", { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error) { console.error("review_requests:", error); break; }
+      const page = (data as ReviewRequest[]) ?? [];
+      acc.push(...page);
+      if (page.length < PAGE) break;
+    }
+    return acc;
+  }
+
+  async function fetchVendors(): Promise<ReviewVendor[]> {
+    if (!showVendors) return [];
+    const { data, error } = await supabase
+      .from("review_vendors").select("*").eq("client_id", clientId).order("name");
+    if (error) { console.error("review_vendors:", error); return []; }
+    return (data as ReviewVendor[]) ?? [];
+  }
+
+  async function fetchAll() {
+    if (isVendor) return fetchVendor();
+    setLoading(true);
+    const [{ data: st, error: e1 }, rq, vd] = await Promise.all([
       supabase.from("review_settings").select("*").eq("client_id", clientId).maybeSingle(),
-      supabase.from("review_requests").select("*").eq("client_id", clientId)
-        .order("stage", { ascending: false }).order("created_at", { ascending: true }),
+      fetchRequestsPaged(),
+      fetchVendors(),
     ]);
     if (e1) console.error("review_settings:", e1);
-    if (e2) console.error("review_requests:", e2);
     setSettings((st as ReviewSettings) ?? null);
-    setRequests((rq as ReviewRequest[]) ?? []);
+    setRequests(rq);
+    setVendors(vd);
     if (st) {
       const s = st as ReviewSettings;
       setSettingsForm({
@@ -167,15 +272,66 @@ export default function ReviewsTab({
     setLoading(false);
   }
 
-  useEffect(() => { fetchAll(); }, [clientId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchAll(); }, [clientId, vendorToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const active = useMemo(() => requests.filter(r => r.status === "active"), [requests]);
+  // El filtro por vendedora solo aplica a la cola visible; las métricas de
+  // arriba siguen siendo del cliente completo.
+  const visibles = useMemo(
+    () => vendorFilter === "todas" ? requests
+      : vendorFilter === "sin" ? requests.filter(r => !r.vendor_id)
+      : requests.filter(r => r.vendor_id === vendorFilter),
+    [requests, vendorFilter]
+  );
+  const active = useMemo(() => visibles.filter(r => r.status === "active"), [visibles]);
+  const activeAll = useMemo(() => requests.filter(r => r.status === "active"), [requests]);
   const completed = useMemo(() => requests.filter(r => r.status === "completed"), [requests]);
-  const finished = useMemo(() => requests.filter(r => r.status !== "active"), [requests]);
+  const finished = useMemo(() => visibles.filter(r => r.status !== "active"), [visibles]);
   const sentToday = useMemo(
     () => requests.filter(r => isToday(r.stage1_sent_at) || isToday(r.stage2_sent_at) || isToday(r.stage3_sent_at)).length,
     [requests]
   );
+
+  const nombreDeVendedora = useMemo(() => {
+    const m = new Map(vendors.map(v => [v.id, v.name]));
+    return (id: string | null) => (id ? m.get(id) ?? null : null);
+  }, [vendors]);
+
+  /** Progreso por vendedora, ordenado por lo que le falta (más urgente arriba). */
+  const vendorStats = useMemo(() => {
+    if (!showVendors) return [];
+    const base = vendors.map(v => {
+      const mine = requests.filter(r => r.vendor_id === v.id);
+      const pend = mine.filter(r => r.status === "active");
+      return {
+        vendor: v,
+        total: mine.length,
+        pendientes: pend.length,
+        sinContactar: pend.filter(r => r.stage === 0).length,
+        enProceso: pend.filter(r => r.stage > 0).length,
+        resenas: mine.filter(r => r.status === "completed").length,
+        descartados: mine.filter(r => r.status === "no_response" || r.status === "declined" || r.status === "negative_feedback").length,
+      };
+    });
+    return base.sort((a, b) => b.pendientes - a.pendientes);
+  }, [vendors, requests, showVendors]);
+
+  const sinAsignar = useMemo(() => requests.filter(r => !r.vendor_id).length, [requests]);
+
+  function vendorUrl(v: ReviewVendor) {
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://www.fishflow.mx";
+    return `${origin}/resenas/${v.token}`;
+  }
+
+  async function copyVendorLink(v: ReviewVendor) {
+    const msg = `Hola ${firstName(v.name)}, aquí está tu tablero de reseñas de Google:\n${vendorUrl(v)}\n\nÁbrelo en tu celular y da clic en el botón verde de cada cliente. El mensaje se manda desde TU WhatsApp, ya escrito — solo lo revisas y lo envías. Guarda el enlace, es tuyo.`;
+    try {
+      await navigator.clipboard.writeText(msg);
+      setCopiedId(v.id);
+      setTimeout(() => setCopiedId(null), 2500);
+    } catch {
+      notify("No se pudo copiar. Copia el link a mano.");
+    }
+  }
 
   // ── Avanzar etapa (abre WhatsApp + registra) ────────────────────────────────
   // opts.message: texto ya listo (ej. borrador IA) — si falta, usa la plantilla.
@@ -187,8 +343,8 @@ export default function ReviewsTab({
     const tpl = r.stage === 0 ? settings?.msg_template_1 : r.stage === 1 ? settings?.msg_template_2 : settings?.msg_template_3;
     if (!opts?.message?.trim() && !tpl) { notify("Configura las plantillas primero"); return; }
     if (r.stage === 2 && !settings?.review_link) {
-      notify("Falta el Place ID de Google en Configuración");
-      setShowSettings(true);
+      notify(isVendor ? "Falta configurar el link de reseña. Avísale a Ivonne." : "Falta el Place ID de Google en Configuración");
+      if (!isVendor) setShowSettings(true);
       return;
     }
     const msg = opts?.message?.trim() || fillTemplate(tpl ?? "", r.contact_name, settings?.review_link ?? null);
@@ -197,8 +353,7 @@ export default function ReviewsTab({
     const nextStage = (r.stage + 1) as ReviewRequest["stage"];
     const patch: Record<string, unknown> = { stage: nextStage, updated_at: new Date().toISOString(), ...(opts?.extraPatch ?? {}) };
     patch[`stage${nextStage}_sent_at`] = new Date().toISOString();
-    const { error } = await supabase.from("review_requests").update(patch).eq("id", r.id);
-    if (error) { console.error(error); notify(`Error: ${error.message}`); return; }
+    if (!(await patchRequest(r.id, patch))) return;
     setRequests(prev => prev.map(x => x.id === r.id ? { ...x, ...patch } as ReviewRequest : x));
   }
 
@@ -207,8 +362,8 @@ export default function ReviewsTab({
     const reply = pasteVal(r).trim();
     if (!reply) { notify("Pega primero la respuesta del cliente"); return; }
     if (r.stage === 2 && !settings?.review_link) {
-      notify("Falta el Place ID de Google en Configuración");
-      setShowSettings(true);
+      notify(isVendor ? "Falta configurar el link de reseña. Avísale a Ivonne." : "Falta el Place ID de Google en Configuración");
+      if (!isVendor) setShowSettings(true);
       return;
     }
     setBusyRow(prev => ({ ...prev, [r.id]: true }));
@@ -216,7 +371,7 @@ export default function ReviewsTab({
       const res = await fetch("/api/reviews/draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ clientId, stage: r.stage, reply, contactName: r.contact_name }),
+        body: JSON.stringify({ clientId: resolvedClientId, stage: r.stage, reply, contactName: r.contact_name }),
       });
       const data = await res.json();
       if (!res.ok || !data?.draft) { notify(data?.error ?? "No se pudo generar el mensaje"); return; }
@@ -225,8 +380,7 @@ export default function ReviewsTab({
       const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
       patch[replyCol(r.stage)] = reply;
       patch[draftCol(r.stage)] = data.draft;
-      const { error } = await supabase.from("review_requests").update(patch).eq("id", r.id);
-      if (error) console.error(error);
+      await patchRequest(r.id, patch);
       setRequests(prev => prev.map(x => x.id === r.id ? { ...x, ...patch } as ReviewRequest : x));
     } catch (e: any) {
       console.error(e); notify("Error de red al generar el mensaje");
@@ -253,9 +407,7 @@ export default function ReviewsTab({
   }
 
   async function setStatus(r: ReviewRequest, status: ReviewRequest["status"]) {
-    const { error } = await supabase.from("review_requests")
-      .update({ status, updated_at: new Date().toISOString() }).eq("id", r.id);
-    if (error) { console.error(error); notify(`Error: ${error.message}`); return; }
+    if (!(await patchRequest(r.id, { status, updated_at: new Date().toISOString() }))) return;
     setRequests(prev => prev.map(x => x.id === r.id ? { ...x, status } : x));
     if (status === "completed") notify("⭐ ¡Reseña registrada!");
     if (status === "negative_feedback") openNegativeChat(r);
@@ -361,7 +513,12 @@ export default function ReviewsTab({
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
           <div style={{ minWidth: 140, flex: "1 1 160px" }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>{r.contact_name}</div>
-            <div style={{ fontSize: 12, color: T.muted }}>{r.contact_phone} · {SOURCE_LABEL[r.source]}</div>
+            <div style={{ fontSize: 12, color: T.muted }}>
+              {r.contact_phone} · {SOURCE_LABEL[r.source]}
+              {showVendors && (
+                <> · {nombreDeVendedora(r.vendor_id) ?? <span style={{ color: U.yellow }}>sin vendedora</span>}</>
+              )}
+            </div>
           </div>
           <span style={{ display: "inline-block", padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 600,
             whiteSpace: "nowrap",
@@ -461,42 +618,145 @@ export default function ReviewsTab({
   // ── Render ──────────────────────────────────────────────────────────────────
   if (loading) return <div style={{ textAlign: "center", padding: 60, color: T.muted }}>Cargando reseñas...</div>;
 
+  if (linkError) {
+    return (
+      <div style={{ textAlign: "center", padding: "48px 20px", color: T.muted }}>
+        <div style={{ fontSize: 40, marginBottom: 10 }}>🔗</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: T.text, marginBottom: 6 }}>Enlace no disponible</div>
+        <div style={{ fontSize: 14 }}>{linkError}</div>
+      </div>
+    );
+  }
+
   return (
     <>
+      {isVendor && vendorName && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: T.text }}>
+            Hola {firstName(vendorName)}
+          </div>
+          <div style={{ fontSize: 13.5, color: T.muted, marginTop: 2 }}>
+            Estos son tus clientes. Al dar clic se abre WhatsApp <b>desde tu número</b> con el mensaje ya escrito — tú lo revisas y lo envías.
+          </div>
+        </div>
+      )}
+
       {!settings?.review_link && (
         <div style={{
           background: U.warnBg, border: `1px solid ${U.warnBorder}`, borderRadius: 10,
           padding: "10px 14px", fontSize: 13, color: U.warnText, marginBottom: 16,
         }}>
-          ⚠️ Falta el Place ID de Google para generar el link de reseña.{" "}
-          <button onClick={() => setShowSettings(true)} style={{
-            background: "none", border: "none", color: U.warnText, fontWeight: 700,
-            textDecoration: "underline", cursor: "pointer", fontSize: 13, padding: 0,
-          }}>Configurar</button>
+          {isVendor ? (
+            <>⚠️ Todavía no está configurado el link de reseña. Puedes mandar los primeros dos mensajes; avísale a Ivonne para completar el tercero.</>
+          ) : (
+            <>
+              ⚠️ Falta el Place ID de Google para generar el link de reseña.{" "}
+              <button onClick={() => setShowSettings(true)} style={{
+                background: "none", border: "none", color: U.warnText, fontWeight: 700,
+                textDecoration: "underline", cursor: "pointer", fontSize: 13, padding: 0,
+              }}>Configurar</button>
+            </>
+          )}
         </div>
       )}
 
       <StatGrid>
-        <StatCard theme={T} icon="⭐" label={`Reseñas logradas (meta ${settings?.review_goal ?? 25})`} value={completed.length} accent={U.green} />
-        <StatCard theme={T} icon="📤" label="En cola" value={active.length} />
+        <StatCard theme={T} icon="⭐" label={isVendor ? "Reseñas logradas" : `Reseñas logradas (meta ${settings?.review_goal ?? 25})`} value={completed.length} accent={U.green} />
+        <StatCard theme={T} icon="📤" label={isVendor ? "Te faltan" : "En cola"} value={activeAll.length} />
         <StatCard theme={T} icon="📅" label="Mensajes hoy" value={sentToday} sub="Sugerido: máx 15–20 por día" />
-        <StatCard theme={T} icon="🔗" label="Link de reseña" value={settings?.review_link ? "Listo ✓" : "Pendiente"} accent={settings?.review_link ? U.green : U.yellow} />
+        {!isVendor && (
+          <StatCard theme={T} icon="🔗" label="Link de reseña" value={settings?.review_link ? "Listo ✓" : "Pendiente"} accent={settings?.review_link ? U.green : U.yellow} />
+        )}
       </StatGrid>
+
+      {showVendors && vendors.length > 0 && (
+        <DSection theme={T} title={`Vendedoras (${vendors.length})`}>
+          <p style={{ fontSize: 12.5, color: T.muted, marginTop: 0, marginBottom: 14, lineHeight: 1.55 }}>
+            Cada vendedora tiene su propio tablero. Copia su enlace y mándaselo por WhatsApp:
+            al abrirlo desde su celular, los mensajes salen de <b>su</b> número, no del tuyo.
+            {sinAsignar > 0 && (
+              <> <b style={{ color: U.warnText }}>{sinAsignar} contacto{sinAsignar !== 1 ? "s" : ""} sin vendedora asignada.</b></>
+            )}
+          </p>
+
+          <div className="rv-grid">
+            {vendorStats.map(s => {
+              const avance = s.total > 0 ? Math.round(((s.total - s.pendientes) / s.total) * 100) : 0;
+              return (
+                <div key={s.vendor.id} style={{ ...cardStyle, padding: 14 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: T.text, flex: 1, minWidth: 0, overflowWrap: "anywhere" }}>
+                      {s.vendor.name}
+                    </div>
+                    <div style={{ fontSize: 12, color: T.muted, whiteSpace: "nowrap" }}>{avance}%</div>
+                  </div>
+
+                  <div style={{ height: 7, borderRadius: 999, background: T.border, overflow: "hidden", marginBottom: 10 }}>
+                    <div style={{ width: `${avance}%`, height: "100%", background: T.accent, transition: "width .3s" }} />
+                  </div>
+
+                  <div style={{ fontSize: 12, color: T.muted, lineHeight: 1.7, marginBottom: 10 }}>
+                    <div>⭐ <b style={{ color: U.green }}>{s.resenas}</b> reseñas · 📤 {s.pendientes} pendientes</div>
+                    <div>Sin contactar {s.sinContactar} · En proceso {s.enProceso} · Cerrados sin reseña {s.descartados}</div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button onClick={() => copyVendorLink(s.vendor)} style={{
+                      background: copiedId === s.vendor.id ? U.green : T.accent, color: "#fff", border: "none",
+                      borderRadius: 8, padding: "7px 12px", fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+                    }}>
+                      {copiedId === s.vendor.id ? "✓ Copiado" : "🔗 Copiar link"}
+                    </button>
+                    <button onClick={() => { setVendorFilter(s.vendor.id); }} style={{
+                      background: "none", border: `1px solid ${T.border}`, borderRadius: 8,
+                      padding: "7px 12px", fontSize: 12.5, color: T.text, cursor: "pointer", fontWeight: 600,
+                    }}>
+                      Ver cola
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <style>{`
+            .rv-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+            @media (max-width: 600px) { .rv-grid { grid-template-columns: 1fr; } }
+          `}</style>
+        </DSection>
+      )}
 
       <DSection
         theme={T}
-        title="Cola de reseñas"
-        action={{ label: `+ Agregar ${personLabel}`, onClick: () => setShowAdd(true) }}
+        title={isVendor ? "Tus clientes" : "Cola de reseñas"}
+        action={isVendor ? undefined : { label: `+ Agregar ${personLabel}`, onClick: () => setShowAdd(true) }}
       >
         <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-          <button onClick={() => setShowCsv(true)} style={{
-            background: "none", border: `1px solid ${T.border}`, borderRadius: 8,
-            padding: "7px 14px", fontSize: 13, color: T.text, cursor: "pointer", fontWeight: 600,
-          }}>📄 Importar CSV</button>
-          <button onClick={() => setShowSettings(true)} style={{
-            background: "none", border: `1px solid ${T.border}`, borderRadius: 8,
-            padding: "7px 14px", fontSize: 13, color: T.text, cursor: "pointer", fontWeight: 600,
-          }}>⚙️ Configuración</button>
+          {!isVendor && (
+            <>
+              <button onClick={() => setShowCsv(true)} style={{
+                background: "none", border: `1px solid ${T.border}`, borderRadius: 8,
+                padding: "7px 14px", fontSize: 13, color: T.text, cursor: "pointer", fontWeight: 600,
+              }}>📄 Importar CSV</button>
+              <button onClick={() => setShowSettings(true)} style={{
+                background: "none", border: `1px solid ${T.border}`, borderRadius: 8,
+                padding: "7px 14px", fontSize: 13, color: T.text, cursor: "pointer", fontWeight: 600,
+              }}>⚙️ Configuración</button>
+            </>
+          )}
+          {showVendors && vendors.length > 0 && (
+            <select
+              value={vendorFilter}
+              onChange={e => setVendorFilter(e.target.value)}
+              style={{ ...inputStyle, width: "auto", minWidth: 180, padding: "7px 10px", fontSize: 13, cursor: "pointer" }}
+            >
+              <option value="todas">Todas las vendedoras ({activeAll.length} en cola)</option>
+              {vendorStats.map(s => (
+                <option key={s.vendor.id} value={s.vendor.id}>{s.vendor.name} ({s.pendientes})</option>
+              ))}
+              {sinAsignar > 0 && <option value="sin">Sin asignar ({sinAsignar})</option>}
+            </select>
+          )}
           {finished.length > 0 && (
             <button onClick={() => setShowDone(v => !v)} style={{
               background: "none", border: "none", padding: "7px 4px",
@@ -506,7 +766,9 @@ export default function ReviewsTab({
         </div>
 
         {active.length === 0 ? (
-          <Empty theme={T} msg={`Sin ${personLabelPlural} en la cola. Agrega ${personLabel === "clienta" ? "una" : "uno"}, importa un CSV${emptyHint ? ` ${emptyHint}` : ""}.`} />
+          <Empty theme={T} msg={isVendor
+            ? "Ya no tienes clientes pendientes. ¡Terminaste tu lista!"
+            : `Sin ${personLabelPlural} en la cola. Agrega ${personLabel === "clienta" ? "una" : "uno"}, importa un CSV${emptyHint ? ` ${emptyHint}` : ""}.`} />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {active.map(renderRow)}

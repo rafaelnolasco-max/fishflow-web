@@ -13,7 +13,7 @@ import SharedReviewsTab, { normalizePhone } from "@/components/reviews/ReviewsTa
 import type { DashTheme } from "@/components/dashboard";
 
 export { normalizePhone };
-export type { ReviewSettings, ReviewRequest } from "@/components/reviews/ReviewsTab";
+export type { ReviewSettings, ReviewRequest, ReviewVendor } from "@/components/reviews/ReviewsTab";
 
 // Paleta Enlace Integral (misma que page.tsx)
 const T: DashTheme = {
@@ -30,6 +30,7 @@ export default function ReviewsTab() {
       personLabel="cliente"
       personLabelPlural="clientes"
       smartReplies
+      showVendors
     />
   );
 }
