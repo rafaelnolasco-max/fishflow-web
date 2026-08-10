@@ -3,6 +3,10 @@ import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 
 export const runtime = 'nodejs'
+// Tope explícito. Sin esto la función se queda con el default de la cuenta y el
+// tablero puede pasar minutos en "Escribiendo…" si el modelo va lento o si el
+// SDK entra a reintentar. 60 s es de sobra: Haiku responde en 6–10 s.
+export const maxDuration = 60
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Borrador de post para redes sociales, con la voz del cliente.
@@ -100,19 +104,37 @@ type Draft = {
   visual_note: string
 }
 
+/**
+ * Corta la respuesta del modelo en sus cuatro campos.
+ *
+ * ⚠️ No volver al lookahead `(?=\n(?:GANCHO|...):|$)` con la bandera /m: en
+ * multilínea el `$` cierra en el PRIMER salto de línea, así que el pie se
+ * truncaba a su primera línea. Pasó desapercibido meses en CANE y salió a la
+ * luz con el formato de invitación de Tinto Sentido, que es todo estructura.
+ *
+ * En vez de eso ubicamos cada etiqueta y cortamos entre marcas: determinista y
+ * a prueba de pies de varios párrafos. Tolera los asteriscos que Haiku a veces
+ * agrega (`**PIE:**`) y el preámbulo tipo "Claro, aquí va:". Si una etiqueta
+ * viene repetida, gana la primera.
+ */
 function parseDraft(texto: string, fallbackHashtags: string): Draft {
-  const grab = (etiqueta: string) => {
-    const re = new RegExp(
-      `^${etiqueta}:\\s*([\\s\\S]*?)(?=\\n(?:GANCHO|PIE|HASHTAGS|ARTE):|$)`,
-      'm'
-    )
-    return texto.match(re)?.[1]?.trim() ?? ''
-  }
+  const MARCA = /^[ \t]*\*{0,2}(GANCHO|PIE|HASHTAGS|ARTE)\*{0,2}[ \t]*:[ \t]*\*{0,2}[ \t]*/gm
+  const hits = [...texto.matchAll(MARCA)]
+  const campos: Record<string, string> = {}
+
+  hits.forEach((h, i) => {
+    const etiqueta = h[1]
+    if (campos[etiqueta] !== undefined) return
+    const ini = (h.index ?? 0) + h[0].length
+    const fin = i + 1 < hits.length ? (hits[i + 1].index ?? texto.length) : texto.length
+    campos[etiqueta] = texto.slice(ini, fin).trim()
+  })
+
   return {
-    hook: grab('GANCHO'),
-    caption: grab('PIE'),
-    hashtags: grab('HASHTAGS') || fallbackHashtags,
-    visual_note: grab('ARTE'),
+    hook: campos.GANCHO ?? '',
+    caption: campos.PIE ?? '',
+    hashtags: campos.HASHTAGS || fallbackHashtags,
+    visual_note: campos.ARTE ?? '',
   }
 }
 
@@ -180,10 +202,15 @@ HASHTAGS: exactamente 5, en una sola línea, separados por espacio, con acentos 
 ARTE: una indicación breve para quien arma el diseño en Canva — qué imagen o fondo va, y cualquier aviso.`
 
     // ── 3. Haiku ──────────────────────────────────────────────────────────────
-    const anthropic = new Anthropic({ apiKey })
+    // timeout/maxRetries explícitos: el default del SDK es 10 minutos con 2
+    // reintentos, que es lo que convierte un mal rato del modelo en una página
+    // colgada. Preferimos fallar en 35 s con un mensaje claro.
+    const anthropic = new Anthropic({ apiKey, timeout: 35_000, maxRetries: 1 })
     const msg = await anthropic.messages.create({
+      // 2000 y no 1200: el formato de invitación es todo estructura (qué
+      // incluye, fecha, precios, cupo, reserva) y se cortaba a la mitad.
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1200,
+      max_tokens: 2000,
       system,
       messages: [
         {

@@ -182,6 +182,11 @@ export default function ContentTab({
     if (!genTopic.trim()) { setError("Escribe de qué quieres hablar."); return; }
     setGenerating(true);
     setError(null);
+    // Tope de espera del lado del cliente. Sin esto, si la petición se queda
+    // colgada el botón se queda en "Escribiendo…" para siempre y el usuario no
+    // tiene forma de saber si sigue trabajando o ya se murió.
+    const ctrl = new AbortController();
+    const corte = setTimeout(() => ctrl.abort(), 50_000);
     try {
       const res = await fetch("/api/content/draft", {
         method: "POST",
@@ -189,8 +194,21 @@ export default function ContentTab({
         body: JSON.stringify({
           clientId, format: genFormat, topic: genTopic.trim(), notes: genNotes.trim(),
         }),
+        signal: ctrl.signal,
       });
-      const json = await res.json();
+      // Si la plataforma devuelve una página de error, res.json() truena: leemos
+      // texto y damos un mensaje entendible en lugar de un error de parseo.
+      const cuerpo = await res.text();
+      let json: { error?: string; hook?: string; caption?: string; hashtags?: string; visual_note?: string };
+      try {
+        json = JSON.parse(cuerpo);
+      } catch {
+        throw new Error(
+          res.ok
+            ? "La respuesta llegó incompleta. Intenta de nuevo."
+            : `El servidor respondió con un error (${res.status}). Intenta de nuevo en un momento.`
+        );
+      }
       if (!res.ok) throw new Error(json?.error ?? "No se pudo generar.");
 
       setEditingId(null);
@@ -206,8 +224,14 @@ export default function ContentTab({
       setGenTopic("");
       setGenNotes("");
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "No se pudo generar.");
+      const abortada = e instanceof DOMException && e.name === "AbortError";
+      setError(
+        abortada
+          ? "Se tardó demasiado y cancelamos la espera. Vuelve a intentar; si sigue igual, avísanos."
+          : e instanceof Error ? e.message : "No se pudo generar."
+      );
     } finally {
+      clearTimeout(corte);
       setGenerating(false);
     }
   }
