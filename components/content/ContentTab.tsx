@@ -104,11 +104,16 @@ function downloadCsv(content: string, filename: string) {
 // ─── Componente ───────────────────────────────────────────────────────────────
 export default function ContentTab({
   clientId, theme: t, formats, network = "Instagram y Facebook",
+  topicPlaceholder = "Por qué cuesta poner límites con la familia",
+  notesPlaceholder = "Algo que quieras incluir sí o sí, un enfoque, una frase tuya…",
 }: {
   clientId: string;
   theme: DashTheme;
   formats: ContentFormat[];
   network?: string;
+  /** Ejemplos del propio negocio: el placeholder de CANE confunde a otros clientes. */
+  topicPlaceholder?: string;
+  notesPlaceholder?: string;
 }) {
   const input = useMemo(() => mkInput(t), [t]);
 
@@ -479,7 +484,7 @@ export default function ContentTab({
             <input
               value={genTopic}
               onChange={(e) => setGenTopic(e.target.value)}
-              placeholder="Por qué cuesta poner límites con la familia"
+              placeholder={topicPlaceholder}
               style={input}
             />
           </Field>
@@ -488,7 +493,7 @@ export default function ContentTab({
             <textarea
               value={genNotes}
               onChange={(e) => setGenNotes(e.target.value)}
-              placeholder="Algo que quieras incluir sí o sí, un enfoque, una frase tuya…"
+              placeholder={notesPlaceholder}
               rows={3}
               style={{ ...input, resize: "vertical" }}
             />

@@ -64,6 +64,8 @@ export default function ContentTab() {
       theme={theme}
       formats={FORMATOS}
       network="Instagram, Facebook y TikTok"
+      topicPlaceholder="Cata de mezcal con maridaje de chocolate, viernes 22"
+      notesPlaceholder="Fecha, hora, locación, precio por pax, qué incluye, marca invitada…"
     />
   );
 }

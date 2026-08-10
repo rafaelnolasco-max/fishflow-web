@@ -23,8 +23,7 @@ function LoginForm() {
     "karlaalonsoruiz@gmail.com":   "/app/cane",
     "antoniorp8501@hotmail.com":   "/app/rmz",
     "enlaceintegralseguros@gmail.com": "/app/enlace",
-    // TODO Tinto Sentido: falta el correo de Marissa. En cuanto lo tengamos:
-    // "<correo de marissa>":      "/app/tintosentido",
+    "marissa.almaraz.m@gmail.com": "/app/tintosentido",
     "rafaelnolasco@gmail.com":     "/admin",
   };
 
