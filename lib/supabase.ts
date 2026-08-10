@@ -587,6 +587,11 @@ export interface InsuranceVendorTopClient {
   created_at:         string;
 }
 
+// ─── Tinto Sentido — experiencias sensoriales (vertical experiencias) ─────────
+// Marissa. Usa dos módulos compartidos: Contenido (voz de marca + CSV a Canva
+// Bulk Create, ella tiene Canva Pro) y Reseñas. Sin tablas propias.
+export const TINTOSENTIDO_CLIENT_ID = "f1e2d3c4-b5a6-4798-8a9b-0c1d2e3f4a5b";
+
 // ─── regintel — Inteligencia Regulatoria (vertical regulatorio_farma) ─────────
 // Slug neutro a propósito: la vertical es reutilizable con otras farmacéuticas.
 export const REGINTEL_CLIENT_ID = "c2b2a692-7f39-42a1-841a-5ae31e21e851";

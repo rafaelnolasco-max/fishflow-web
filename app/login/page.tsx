@@ -23,6 +23,8 @@ function LoginForm() {
     "karlaalonsoruiz@gmail.com":   "/app/cane",
     "antoniorp8501@hotmail.com":   "/app/rmz",
     "enlaceintegralseguros@gmail.com": "/app/enlace",
+    // TODO Tinto Sentido: falta el correo de Marissa. En cuanto lo tengamos:
+    // "<correo de marissa>":      "/app/tintosentido",
     "rafaelnolasco@gmail.com":     "/admin",
   };
 
@@ -37,6 +39,7 @@ function LoginForm() {
     "/app/cane":       { label: "CANE Neurofeedback",    color: "#2A9D8F" },
     "/app/rmz":        { label: "Cocinas y Closets RMZ", color: "#8B4513" },
     "/app/enlace":     { label: "Enlace Integral Seguros", color: "#65BC7B" },
+    "/app/tintosentido": { label: "Tinto Sentido",          color: "#6B3E63" },
     "/admin":          { label: "FishFlow Admin",        color: "#333"    },
   };
 

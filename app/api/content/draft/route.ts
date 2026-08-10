@@ -33,6 +33,47 @@ El pie es breve, de 30 a 60 palabras.`,
 Ella se muestra fuera del rol clínico: lo que escucha, lee o hace, su consultorio, su rutina. Conecta con su
 trabajo sin forzarlo. Primera persona, tono de sobremesa. Pie de 60 a 100 palabras.`,
 
+  // ── Tinto Sentido (vertical experiencias) ─────────────────────────────────
+  // Salen de su propio feed. El orden refleja lo que le funciona: la invitación
+  // a evento es su post de mayor alcance (43 likes) y el brindis tipográfico el
+  // de menor (2 likes), aunque se conserva porque es barato de producir.
+  invitacion_experiencia: `FORMATO: Invitación a experiencia.
+Es su publicación de mayor alcance y tiene estructura fija; respétala al pie de la letra.
+El GANCHO es el título del evento en mayúsculas, entre emojis (ej. "🥃✨ ALMARAZ WHISKY EXPERIENCE ✨🥃").
+El PIE va así, en este orden y con línea en blanco entre bloques:
+una o dos líneas de promesa de lo que van a vivir; luego "La experiencia incluye:" con 3 a 5 líneas abiertas
+con emoji; luego "📍 fecha | hora" y la locación; luego "💲 Inversión:" con los precios en formato
+"1 pax → $1,200" y, si hay preventa, "🔥 Early Access hasta el [fecha]"; luego "⚠️ Cupo limitado";
+y cierra con "Reserva aquí:" y "📲 wa.me/5658204023".
+Usa ÚNICAMENTE los datos que vengan en el tema o las notas. Cualquier dato que falte lo dejas fuera y lo
+pides en ARTE: nunca inventes precio, fecha, hora, cupo ni locación.`,
+
+  asi_se_vivio: `FORMATO: Así se vivió (recap de la experiencia).
+Va sobre foto o video real de los invitados, y es su segundo formato de mayor alcance.
+El gancho abre con "Así se vivió" o "Así fue" y el nombre de la experiencia, o con una imagen sonora del momento
+("Shakers sonando, entre risas y creatividad"). El pie agradece a quien vino, en plural y con 💜, y remata con
+su movimiento firma ("confirmamos que no es solo tomar… es vivir la experiencia"). Cierra con pregunta corta que
+invita a la siguiente: "¿Vienes al siguiente? 👀". De 50 a 90 palabras. Si hubo marca aliada, etiquétala.`,
+
+  colaboracion: `FORMATO: Colaboración con marca aliada.
+El protagonista es el destilado o la marca invitada (@ginebradoblecara, @whisky_almaraz, @reaparecemezcal),
+y Tinto Sentido es quien la pone en escena. Gancho corto y con actitud, se vale el guiño en inglés de dos a
+cuatro palabras ("Classic drink. Cool vibe. Great gin."). El pie da una línea de carácter de la marca y una de
+por qué encaja con la experiencia. Es el formato más breve: de 25 a 50 palabras. Etiqueta siempre a la marca.
+No inventes notas de cata, procesos ni premios: si el tema no te los da, habla de la sensación y del momento.`,
+
+  detras_barra: `FORMATO: Detrás de la barra.
+El proyecto y su gente, no el producto: quién arma las experiencias, cómo nació, la comunidad que se formó.
+Primera persona del plural, tono de agradecimiento genuino sin cursilería, 💜 al cierre. El gancho arranca con
+"Detrás de Tinto Sentido…" o equivalente. De 50 a 90 palabras. Sin llamado a vender: aquí solo se construye
+cercanía. Es el formato para cuando no hay evento próximo que anunciar.`,
+
+  viernes_brindis: `FORMATO: Brindis del viernes (tipográfico).
+El gancho es lo único que se lee en la imagen y debe sostenerse solo: una frase corta sobre el placer de brindar
+o de cerrar la semana. El pie es muy breve, de 20 a 40 palabras, y termina en una pregunta de dos o tres opciones
+que se contesta en comentarios ("¿Tinto, rosado o blanco?"). Este formato rinde poco alcance: úsalo para mantener
+presencia, no para vender.`,
+
   psicoeducacion: `FORMATO: Psicoeducación (carrusel).
 Divulgación clara sobre un tema concreto (señales, mitos, qué sí y qué no). El gancho es el título de portada.
 En el pie desarrolla de 3 a 5 puntos, uno por línea, cada uno como una lámina del carrusel. Sin numerar con
@@ -150,7 +191,7 @@ ARTE: una indicación breve para quien arma el diseño en Canva — qué imagen 
           content:
             `Escribe la publicación.\n\n` +
             `Tema: ${tema}\n` +
-            (notas ? `Notas de la psicóloga: ${notas}\n` : ''),
+            (notas ? `Notas del cliente: ${notas}\n` : ''),
         },
       ],
     })
