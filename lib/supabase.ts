@@ -592,6 +592,15 @@ export interface InsuranceVendorTopClient {
 // Bulk Create, ella tiene Canva Pro) y Reseñas. Sin tablas propias.
 export const TINTOSENTIDO_CLIENT_ID = "f1e2d3c4-b5a6-4798-8a9b-0c1d2e3f4a5b";
 
+// ─── JJ Laboral Asociados — despacho laboral (vertical legal_laboral) ─────────
+// Despacho de derecho laboral en CDMX que defiende al trabajador. Hoy solo usa
+// el módulo de Contenido: sin tablas propias, todo vive en content_posts y
+// content_settings filtrado por client_id.
+// Su content_settings lleva guardrails = 'legal': la ruta de IA le inyecta las
+// reglas de cuidado jurídico (no inventar cifras ni artículos, no prometer
+// resultados de juicio) en lugar de las de salud que usa CANE.
+export const JJLABORAL_CLIENT_ID = "9b4f2a17-6d3c-4e58-8f21-c0a75e3b91d4";
+
 // ─── regintel — Inteligencia Regulatoria (vertical regulatorio_farma) ─────────
 // Slug neutro a propósito: la vertical es reutilizable con otras farmacéuticas.
 export const REGINTEL_CLIENT_ID = "c2b2a692-7f39-42a1-841a-5ae31e21e851";

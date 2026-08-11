@@ -78,6 +78,55 @@ o de cerrar la semana. El pie es muy breve, de 20 a 40 palabras, y termina en un
 que se contesta en comentarios ("¿Tinto, rosado o blanco?"). Este formato rinde poco alcance: úsalo para mantener
 presencia, no para vender.`,
 
+  // ── JJ Laboral (vertical legal_laboral) ───────────────────────────────────
+  // Salen de su propio feed: @jjlaboral publica infografías de derecho laboral
+  // dirigidas al trabajador, con fundamento en la Ley Federal del Trabajo.
+  derecho_explicado: `FORMATO: Tu derecho explicado.
+Es su formato de mayor volumen (caja de ahorro, constancia laboral, vacaciones, prima de antigüedad).
+El GANCHO afirma el derecho de frente, con un emoji temático al inicio y la palabra clave en mayúscula
+(ej. "💰 ¡LA CAJA DE AHORRO ES TUYA!").
+El PIE abre con uno o dos párrafos que explican cuándo aplica y qué suele pasar en la práctica; sigue con
+3 a 5 renglones de "por qué importa" o "qué incluye", cada uno con viñeta 🔹 o ✅; remata con "⚖️ Recuerda:"
+y una sola idea; cierra con el bloque del despacho, el contacto y la firma. De 130 a 200 palabras.`,
+
+  mito_vs_realidad: `FORMATO: No te dejes engañar (comparativo).
+Dos conceptos que el trabajador confunde y esa confusión le cuesta dinero (finiquito vs. liquidación,
+renuncia vs. despido, incapacidad vs. permiso).
+El GANCHO nombra los dos conceptos y advierte: "🔴 NO te dejes engañar: FINIQUITO y LIQUIDACIÓN no son lo mismo".
+El PIE trata primero uno y luego el otro, cada bloque con su encabezado en su propio renglón y sus viñetas;
+después va un renglón que empieza con "En resumen:" y separa los dos en una frase. Cierra con el bloque del
+despacho, el contacto y la firma. En ARTE pide una imagen partida en dos columnas, una por concepto.
+De 150 a 220 palabras.`,
+
+  que_hacer_si: `FORMATO: Qué hacer si… (pasos).
+Situación concreta que ya le está pasando al lector: le levantaron un acta administrativa, llegó el inspector,
+lo despidieron, le quieren descontar algo.
+El GANCHO plantea la situación en segunda persona: "📋 ¿Te entregaron un acta administrativa? Esto es lo que sigue".
+El PIE da de 3 a 5 pasos, uno por renglón, numerados con 🔹 y redactados como acción ("Léela completa antes de
+firmar", "Pide copia"). Incluye siempre un renglón de qué NO hacer con ❌. Advierte que los plazos legales
+corren y que conviene asesorarse pronto, sin decir cuántos días si el dato no viene en el tema o las notas.
+De 130 a 190 palabras.`,
+
+  alerta_patron: `FORMATO: Lo que tu patrón no puede hacer.
+Prácticas que se normalizaron en el centro de trabajo y no proceden (descuentos no autorizados, retener
+documentos, condicionar el finiquito a firmar la renuncia, negar el equipo de protección).
+El GANCHO abre con ⚠️ y nombra la práctica. El PIE explica en un párrafo por qué no procede, lista con ❌ de 3 a 4
+prácticas del mismo tipo y con ✅ qué sí puede exigir el trabajador. Tono firme pero sin denigrar a las empresas:
+el punto es la ley, no el enfrentamiento. De 120 a 180 palabras.`,
+
+  fecha_clave: `FORMATO: Fecha clave del calendario laboral.
+Aguinaldo, PTU, vacaciones, prima vacacional, salario mínimo, días de descanso obligatorio.
+El GANCHO lleva 📅 y nombra la prestación con el periodo. El PIE explica a quién le toca, cómo se calcula en
+palabras (sin inventar cifras ni fórmulas que no vengan en el tema o las notas) y qué hacer si no se la pagan.
+IMPORTANTE: si el tema no trae montos, porcentajes ni fechas límite, no los inventes — descríbelo en general y
+pide el dato en ARTE. De 120 a 180 palabras.`,
+
+  pov_despacho: `FORMATO: Al frente de la cámara (video corto).
+El abogado explica un punto en 30 a 45 segundos. El GANCHO es el rótulo que aparece sobre el video: una
+pregunta corta que el trabajador se hace ("¿Me pueden despedir por un acta administrativa?").
+En ARTE describe qué dice y qué muestra en cámara, en dos o tres beats. El PIE es breve, de 40 a 80 palabras:
+la respuesta en corto, el bloque del despacho y el contacto. Sin lista de viñetas: aquí manda el video.`,
+
   psicoeducacion: `FORMATO: Psicoeducación (carrusel).
 Divulgación clara sobre un tema concreto (señales, mitos, qué sí y qué no). El gancho es el título de portada.
 En el pie desarrolla de 3 a 5 puntos, uno por línea, cada uno como una lámina del carrusel. Sin numerar con
@@ -87,7 +136,9 @@ markdown: una idea por renglón. Aclara siempre que es información general, no 
 const FORMATO_GENERICO = `FORMATO: Publicación de feed.
 Un gancho que se sostenga solo en la imagen y un pie que lo desarrolle en 60 a 120 palabras.`
 
-// Reglas extra para verticales de salud (content_settings.sensitive = true).
+// Reglas extra por vertical. Se eligen con content_settings.guardrails
+// ('salud' | 'legal' | NULL). Compatibilidad hacia atrás: si guardrails viene
+// NULL y sensitive = true, se aplican las de salud, que es lo que hacía antes.
 const REGLAS_SALUD = `
 CUIDADO CLÍNICO (obligatorio, esta cuenta es de un servicio de salud):
 - No diagnostiques ni sugieras que el lector "tiene" un trastorno. Habla de señales y de experiencias comunes.
@@ -96,6 +147,26 @@ CUIDADO CLÍNICO (obligatorio, esta cuenta es de un servicio de salud):
 - No des instrucciones que sustituyan tratamiento, ni recomiendes suspender medicación.
 - Si el tema toca ideación suicida, autolesión o crisis, no lo trates como contenido de feed: devuelve un pie
   que invite a buscar atención profesional inmediata y avisa en ARTE que este tema requiere revisión humana.`
+
+// Vertical legal. El riesgo aquí no es clínico sino de exactitud y de promesa:
+// una cifra inventada (salario mínimo, días de vacaciones, monto de
+// indemnización) o un número de artículo que no existe se publica como si fuera
+// la ley y el despacho la firma.
+const REGLAS_LEGAL = `
+CUIDADO JURÍDICO (obligatorio, esta cuenta es de un despacho de abogados):
+- Publicas información general, no asesoría sobre un caso. Nunca le digas al lector qué debe hacer en SU caso
+  concreto: explica cómo funciona el derecho e invítalo a una asesoría, porque el resultado depende de sus
+  pruebas y de su contrato.
+- NO inventes cifras, plazos, porcentajes ni números de artículo. Salario mínimo, UMA, días de vacaciones,
+  días de aguinaldo, montos de indemnización y fechas de reforma solo se mencionan si vienen en el tema o en
+  las notas. Si no vienen, describe el derecho sin la cifra y pide el dato en ARTE.
+- No prometas resultados, montos ni tiempos de un juicio. Nada de "te van a pagar", "lo ganas seguro",
+  "se resuelve en tres meses".
+- No cuentes casos, clientes, empresas ni contrapartes reales, ni siquiera anonimizados.
+- No sugieras simular hechos, ocultar o retener documentos, ni ninguna vía para cobrar algo que no corresponde.
+- No denigres a los patrones ni a las empresas como grupo. El enfoque es la ley, no el enfrentamiento.
+- Si el tema toca acoso sexual, violencia o riesgo a la integridad, trátalo con sobriedad, sin detalle morboso,
+  y remite a asesoría y a la autoridad competente.`
 
 type Draft = {
   hook: string
@@ -167,7 +238,7 @@ export async function POST(req: Request) {
 
     const { data: settings, error: sErr } = await supabaseAdmin
       .from('content_settings')
-      .select('brand_display_name, voice_profile, signature, default_hashtags, sensitive')
+      .select('brand_display_name, voice_profile, signature, default_hashtags, sensitive, guardrails')
       .eq('client_id', clientId)
       .maybeSingle()
 
@@ -185,13 +256,19 @@ export async function POST(req: Request) {
     }
 
     const hashtagsBase = settings?.default_hashtags?.trim() ?? ''
-    const sensible = settings?.sensitive === true
+
+    // Qué reglas de cuidado inyectar. La columna `guardrails` manda; si viene
+    // vacía caemos al comportamiento histórico (sensitive = true ⇒ salud).
+    const guardrails: string | null =
+      settings?.guardrails ?? (settings?.sensitive === true ? 'salud' : null)
+    const reglas =
+      guardrails === 'legal' ? REGLAS_LEGAL : guardrails === 'salud' ? REGLAS_SALUD : ''
 
     // ── 2. System prompt ──────────────────────────────────────────────────────
     const system = `${voz}
 
 ${FORMATOS[formato] ?? FORMATO_GENERICO}
-${sensible ? REGLAS_SALUD : ''}
+${reglas}
 
 SALIDA (exactamente estas cuatro etiquetas, en este orden, sin markdown ni asteriscos):
 GANCHO: el texto que va DENTRO de la imagen. Corto, se lee de un vistazo, sin hashtags.
