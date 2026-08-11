@@ -39,6 +39,7 @@ function LoginForm() {
     "/app/rmz":        { label: "Cocinas y Closets RMZ", color: "#8B4513" },
     "/app/enlace":     { label: "Enlace Integral Seguros", color: "#65BC7B" },
     "/app/tintosentido": { label: "Tinto Sentido",          color: "#6B3E63" },
+    "/app/jjlaboral":  { label: "JJ Laboral Asociados",  color: "#1B3A63" },
     "/admin":          { label: "FishFlow Admin",        color: "#333"    },
   };
 

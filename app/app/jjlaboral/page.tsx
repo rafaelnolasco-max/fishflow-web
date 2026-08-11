@@ -45,6 +45,18 @@ export default function JJLaboralPage() {
         icon={<span style={{ color: BRAND.gold, fontWeight: 800, fontSize: 14 }}>JJ</span>}
         title="JJ Laboral Asociados"
         subtitle="Contenido para redes · @jjlaboral"
+        right={
+          // Regreso al otro panel de la misma cuenta. Ver el header de
+          // /app/belange, que trae el salto en sentido contrario.
+          <a href="/app/belange"
+            style={{
+              display: "flex", alignItems: "center", gap: 6, textDecoration: "none",
+              border: `1px solid ${BRAND.border}`, borderRadius: 8, padding: "6px 12px",
+              fontSize: 12, fontWeight: 600, color: BRAND.muted, whiteSpace: "nowrap",
+            }}>
+            💈 Belange
+          </a>
+        }
       />
 
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "24px clamp(14px, 3vw, 28px) 60px" }}>

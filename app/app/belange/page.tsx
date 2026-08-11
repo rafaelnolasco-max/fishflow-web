@@ -670,11 +670,24 @@ export default function BelangePage() {
         subtitle="Panel de ingresos"
         theme={T}
         right={
-          <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
-            style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.45 }}>
-            <FishFlowMark size={22} />
-            <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
-          </a>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            {/* Cambio de app. La misma cuenta administra Belange y el despacho
+                JJ Laboral, así que el salto vive en el header en vez de obligar
+                a teclear la URL. Mismo patrón que el panel de Mario. */}
+            <a href="/app/jjlaboral"
+              style={{
+                display: "flex", alignItems: "center", gap: 6, textDecoration: "none",
+                border: "1px solid #d8dfe9", borderRadius: 8, padding: "6px 12px",
+                fontSize: 12, fontWeight: 600, color: "#1B3A63", whiteSpace: "nowrap",
+              }}>
+              ⚖️ JJ Laboral
+            </a>
+            <a href="https://fishflow.mx" target="_blank" rel="noopener noreferrer"
+              style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", opacity: 0.45 }}>
+              <FishFlowMark size={22} />
+              <span style={{ fontSize: 11, color: "#666", fontWeight: 500 }}>FishFlow</span>
+            </a>
+          </div>
         }
         onLogout={async () => { await supabase.auth.signOut(); router.push("/login?next=/app/belange"); }}
         logoutLabel="⎋ Salir"
