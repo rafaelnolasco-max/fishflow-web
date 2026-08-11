@@ -25,6 +25,40 @@ import {
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 export type ContentFormat = { id: string; label: string; icon?: string; hint?: string };
 
+/**
+ * Plantilla de Canva del cliente.
+ *
+ * Bulk Create llena UNA plantilla por corrida: si el CSV mezcla formatos, Canva
+ * estampa todos los textos en el mismo diseño. Por eso cada plantilla declara
+ * qué formatos llena y el tablero descarga el CSV ya filtrado.
+ *
+ * `formats` vacío o ausente = la plantilla sirve para cualquier formato.
+ */
+export type CanvaTemplate = { label: string; url: string; formats?: string[] | null };
+
+/** Normaliza lo que viene de content_settings.canva_templates (jsonb, sin garantías). */
+function parseTemplates(raw: unknown, legacyUrl: string): CanvaTemplate[] {
+  const list = Array.isArray(raw)
+    ? raw.flatMap((item) => {
+        const t = item as Partial<CanvaTemplate> | null;
+        if (!t || typeof t.url !== "string" || !t.url) return [];
+        return [{
+          label: typeof t.label === "string" && t.label ? t.label : "Plantilla",
+          url: t.url,
+          formats: Array.isArray(t.formats) ? t.formats.filter((f) => typeof f === "string") : null,
+        }];
+      })
+    : [];
+  if (list.length > 0) return list;
+  // Campo legado: clientes que todavía tienen una sola plantilla.
+  return legacyUrl ? [{ label: "Plantilla", url: legacyUrl, formats: null }] : [];
+}
+
+/** Una plantilla sin formatos declarados acepta cualquier publicación. */
+function templateTakes(tpl: CanvaTemplate, format: string) {
+  return !tpl.formats || tpl.formats.length === 0 || tpl.formats.includes(format);
+}
+
 export type ContentPost = {
   id: string;
   client_id: string;
@@ -119,7 +153,7 @@ export default function ContentTab({
 
   const [posts, setPosts]       = useState<ContentPost[]>([]);
   const [signature, setSignature] = useState("");
-  const [canvaUrl, setCanvaUrl]   = useState("");
+  const [templates, setTemplates] = useState<CanvaTemplate[]>([]);
   const [loading, setLoading]   = useState(true);
   const [toast, setToast]       = useState<string | null>(null);
   const [error, setError]       = useState<string | null>(null);
@@ -158,7 +192,7 @@ export default function ContentTab({
         .limit(200),
       supabase
         .from("content_settings")
-        .select("signature, canva_template_url")
+        .select("signature, canva_template_url, canva_templates")
         .eq("client_id", clientId)
         .maybeSingle(),
     ]);
@@ -171,7 +205,7 @@ export default function ContentTab({
       setError(null);
     }
     setSignature(cfg?.signature ?? "");
-    setCanvaUrl(cfg?.canva_template_url ?? "");
+    setTemplates(parseTemplates(cfg?.canva_templates, cfg?.canva_template_url ?? ""));
     setLoading(false);
   }, [clientId]);
 
@@ -306,14 +340,35 @@ export default function ContentTab({
   // ── Export a Canva ──────────────────────────────────────────────────────────
   const approved = useMemo(() => posts.filter((p) => p.status === "approved"), [posts]);
 
-  function exportCanva() {
-    if (approved.length === 0) {
+  /** Aprobadas que le tocan a cada plantilla, en el orden en que se muestran. */
+  const byTemplate = useMemo(
+    () => templates.map((tpl) => ({
+      tpl,
+      posts: approved.filter((p) => templateTakes(tpl, p.format)),
+    })),
+    [templates, approved]
+  );
+
+  /** Aprobadas que ninguna plantilla reclama: se avisan para que no se queden atoradas. */
+  const orphans = useMemo(
+    () => approved.filter((p) => !templates.some((tpl) => templateTakes(tpl, p.format))),
+    [templates, approved]
+  );
+
+  function exportCanva(subset: ContentPost[], slug: string) {
+    if (subset.length === 0) {
       setError("Aprueba al menos una publicación antes de exportar.");
       return;
     }
     const stamp = new Date().toISOString().slice(0, 10);
-    downloadCsv(buildCanvaCsv(approved, signature, labelOf), `canva-${stamp}.csv`);
-    flash(`${approved.length} publicación${approved.length !== 1 ? "es" : ""} en el CSV`);
+    downloadCsv(buildCanvaCsv(subset, signature, labelOf), `canva-${slug}-${stamp}.csv`);
+    flash(`${subset.length} publicación${subset.length !== 1 ? "es" : ""} en el CSV`);
+  }
+
+  /** "Reflexión — crema" → "reflexion-crema", para el nombre del archivo. */
+  function slugify(text: string) {
+    return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "plantilla";
   }
 
   // ── Contadores ──────────────────────────────────────────────────────────────
@@ -348,36 +403,103 @@ export default function ContentTab({
         theme={t}
         action={{ label: "✨ Nueva publicación", onClick: () => { setShowGen(true); setError(null); } }}
       >
-        {/* Barra de Canva */}
+        {/* Barra de Canva: una fila por plantilla, con su propio CSV ya filtrado. */}
         <div style={{
-          display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center",
           background: t.accentSoft, borderRadius: 12, padding: "12px 16px", marginBottom: 18,
         }}>
-          <div style={{ fontSize: 13, color: t.text, flex: "1 1 260px", minWidth: 0 }}>
-            <strong>Diseño en Canva:</strong> exporta las aprobadas y súbelas con{" "}
-            <em>Bulk Create</em> a tu plantilla. Salen todos los diseños de una vez.
+          <div style={{ fontSize: 13, color: t.text, marginBottom: templates.length > 0 ? 10 : 0 }}>
+            <strong>Diseño en Canva:</strong> escoge con qué plantilla quieres salir, baja su
+            archivo y súbelo con <em>Bulk Create</em>. Cada archivo trae solo las publicaciones
+            que le tocan a esa plantilla.
           </div>
-          <button
-            onClick={exportCanva}
-            style={{
-              background: t.accent, color: "#fff", border: "none", borderRadius: 9,
-              padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer",
-              whiteSpace: "nowrap",
-            }}
-          >
-            ⬇ CSV para Canva ({counts.approved})
-          </button>
-          {canvaUrl && (
-            <a
-              href={canvaUrl} target="_blank" rel="noopener noreferrer"
-              style={{
-                fontSize: 13, fontWeight: 600, color: t.accentDark, textDecoration: "none",
-                border: `1px solid ${t.accent}`, borderRadius: 9, padding: "9px 16px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Abrir plantilla ↗
-            </a>
+
+          {templates.length === 0 ? (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginTop: 10 }}>
+              <button
+                onClick={() => exportCanva(approved, "todas")}
+                style={{
+                  background: t.accent, color: "#fff", border: "none", borderRadius: 9,
+                  padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                ⬇ CSV para Canva ({counts.approved})
+              </button>
+              <span style={{ fontSize: 12.5, color: t.muted }}>
+                Mándanos el vínculo de tu plantilla y aparece aquí como botón.
+              </span>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: 8 }}>
+              {byTemplate.map(({ tpl, posts: subset }) => (
+                <div
+                  key={tpl.url + tpl.label}
+                  style={{
+                    display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center",
+                    background: t.surface, border: `1px solid ${t.border}`,
+                    borderRadius: 10, padding: "9px 12px",
+                  }}
+                >
+                  <div style={{
+                    fontSize: 13.5, fontWeight: 600, color: t.text,
+                    flex: "1 1 180px", minWidth: 0,
+                  }}>
+                    {tpl.label}
+                    <span style={{ fontWeight: 400, color: t.muted, marginLeft: 8, fontSize: 12.5 }}>
+                      {subset.length === 0
+                        ? "sin aprobadas"
+                        : `${subset.length} aprobada${subset.length !== 1 ? "s" : ""}`}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => exportCanva(subset, slugify(tpl.label))}
+                    disabled={subset.length === 0}
+                    style={{
+                      background: subset.length === 0 ? t.disabled : t.accent,
+                      color: "#fff", border: "none", borderRadius: 9,
+                      padding: "8px 14px", fontSize: 13, fontWeight: 600,
+                      cursor: subset.length === 0 ? "not-allowed" : "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    ⬇ CSV ({subset.length})
+                  </button>
+                  <a
+                    href={tpl.url} target="_blank" rel="noopener noreferrer"
+                    style={{
+                      fontSize: 13, fontWeight: 600, color: t.accentDark, textDecoration: "none",
+                      border: `1px solid ${t.accent}`, borderRadius: 9, padding: "8px 14px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Abrir ↗
+                  </a>
+                </div>
+              ))}
+
+              {orphans.length > 0 && (
+                <div style={{
+                  display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center",
+                  fontSize: 12.5, color: t.muted, paddingTop: 2,
+                }}>
+                  <span style={{ flex: "1 1 200px", minWidth: 0 }}>
+                    {orphans.length} aprobada{orphans.length !== 1 ? "s" : ""} de otros formatos
+                    todavía sin plantilla asignada.
+                  </span>
+                  <button
+                    onClick={() => exportCanva(orphans, "sin-plantilla")}
+                    style={{
+                      background: "transparent", color: t.accentDark,
+                      border: `1px solid ${t.border}`, borderRadius: 9,
+                      padding: "7px 12px", fontSize: 12.5, fontWeight: 600, cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    ⬇ CSV de esas
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
