@@ -108,6 +108,108 @@ function probeMedia(file: File, kind: "image" | "video"): Promise<Probe> {
   });
 }
 
+/** Resultado de subir un archivo y colgarlo de su publicación. */
+export type UploadOutcome =
+  | { ok: true; kind: "image" | "video"; warnings: string[] }
+  | { ok: false; error: string };
+
+/**
+ * Sube un archivo al bucket y lo escribe en la publicación.
+ *
+ * Vive fuera del componente porque la carga en lote (BulkUpload) hace
+ * exactamente lo mismo quince veces seguidas: una sola verdad sobre la ruta,
+ * el sondeo, los avisos y la limpieza si la escritura falla.
+ */
+export async function uploadMediaToPost({
+  file, clientId, postId, previousPath = null, onPhase,
+}: {
+  file: File;
+  clientId: string;
+  postId: string;
+  previousPath?: string | null;
+  onPhase?: (phase: "probing" | "uploading") => void;
+}): Promise<UploadOutcome> {
+  if (file.size > MAX_BYTES) {
+    return {
+      ok: false,
+      error:
+        `"${file.name}" pesa ${fmtMB(file.size)} y el máximo son 50 MB. ` +
+        `En Canva baja la calidad de exportación o recorta el video.`,
+    };
+  }
+
+  const kind: "image" | "video" = file.type.startsWith("video/") ? "video" : "image";
+
+  onPhase?.("probing");
+  const probe = await probeMedia(file, kind);
+
+  // Avisos, no bloqueos: quien manda es el cliente.
+  const warnings: string[] = [];
+  if (kind === "video" && probe.width && probe.height) {
+    const ratio = probe.width / probe.height;
+    if (Math.abs(ratio - VERTICAL_RATIO) > RATIO_TOLERANCE) {
+      warnings.push(
+        `El video no es vertical 9:16 (${probe.width}x${probe.height}). ` +
+        `Instagram y TikTok le van a poner barras. En Canva usa "Redimensionar" a Video de TikTok.`
+      );
+    }
+  }
+  if (kind === "video" && file.type === "video/quicktime") {
+    warnings.push(
+      "Es un .mov del iPhone. Se guarda bien, pero al publicar conviene MP4: expórtalo desde Canva."
+    );
+  }
+  if (kind === "video" && probe.duration && probe.duration > 90) {
+    warnings.push(`Dura ${fmtSecs(probe.duration)}. Los reels que mejor rinden andan entre 15 y 30 segundos.`);
+  }
+
+  onPhase?.("uploading");
+  const path = `${clientId}/${postId}/${Date.now()}-${safeName(file.name)}`;
+
+  const { error: upErr } = await supabase.storage
+    .from(CONTENT_MEDIA_BUCKET)
+    .upload(path, file, { contentType: file.type, upsert: false });
+
+  if (upErr) {
+    console.error("[MediaUploader] upload error:", upErr);
+    return { ok: false, error: `No se pudo subir el archivo: ${upErr.message}` };
+  }
+
+  const { data: pub } = supabase.storage.from(CONTENT_MEDIA_BUCKET).getPublicUrl(path);
+
+  const { error: dbErr } = await supabase
+    .from("content_posts")
+    .update({
+      media_type: kind,
+      media_path: path,
+      media_url: pub.publicUrl,
+      media_size_bytes: file.size,
+      media_duration_s: probe.duration,
+      media_width: probe.width,
+      media_height: probe.height,
+      media_uploaded_at: new Date().toISOString(),
+      media_deleted_at: null,
+    })
+    .eq("id", postId);
+
+  if (dbErr) {
+    // El archivo ya está arriba pero la publicación no lo sabe: se limpia para
+    // no dejar basura huérfana en el bucket.
+    console.error("[MediaUploader] db error:", dbErr);
+    await supabase.storage.from(CONTENT_MEDIA_BUCKET).remove([path]);
+    return { ok: false, error: "El archivo subió pero no se pudo guardar en la publicación. Intenta de nuevo." };
+  }
+
+  // Reemplazo: el archivo anterior ya no le sirve a nadie. Best-effort, si falla
+  // no se le dice nada al cliente porque su publicación quedó correcta.
+  if (previousPath && previousPath !== path) {
+    const { error: rmErr } = await supabase.storage.from(CONTENT_MEDIA_BUCKET).remove([previousPath]);
+    if (rmErr) console.warn("[MediaUploader] no se pudo borrar el archivo anterior:", rmErr);
+  }
+
+  return { ok: true, kind, warnings };
+}
+
 export default function MediaUploader({
   postId, clientId, media, theme: t, onSaved, onError,
 }: {
@@ -133,92 +235,21 @@ export default function MediaUploader({
     if (!file) return;
 
     setWarning(null);
-
-    if (file.size > MAX_BYTES) {
-      onError(
-        `El archivo pesa ${fmtMB(file.size)} y el máximo son 50 MB. ` +
-        `En Canva baja la calidad de exportación o recorta el video.`
-      );
-      return;
-    }
-
-    const kind: "image" | "video" = file.type.startsWith("video/") ? "video" : "image";
-
-    setBusy("probing");
-    const probe = await probeMedia(file, kind);
-
-    // Avisos, no bloqueos: quien manda es el cliente.
-    const avisos: string[] = [];
-    if (kind === "video" && probe.width && probe.height) {
-      const ratio = probe.width / probe.height;
-      if (Math.abs(ratio - VERTICAL_RATIO) > RATIO_TOLERANCE) {
-        avisos.push(
-          `El video no es vertical 9:16 (${probe.width}x${probe.height}). ` +
-          `Instagram y TikTok le van a poner barras. En Canva usa "Redimensionar" a Video de TikTok.`
-        );
-      }
-    }
-    if (kind === "video" && file.type === "video/quicktime") {
-      avisos.push(
-        "Es un .mov del iPhone. Se guarda bien, pero al publicar conviene MP4: expórtalo desde Canva."
-      );
-    }
-    if (kind === "video" && probe.duration && probe.duration > 90) {
-      avisos.push(`Dura ${fmtSecs(probe.duration)}. Los reels que mejor rinden andan entre 15 y 30 segundos.`);
-    }
-    setWarning(avisos.length > 0 ? avisos.join(" ") : null);
-
-    setBusy("uploading");
-    const path = `${clientId}/${postId}/${Date.now()}-${safeName(file.name)}`;
-    const previo = media.media_path;
-
-    const { error: upErr } = await supabase.storage
-      .from(CONTENT_MEDIA_BUCKET)
-      .upload(path, file, { contentType: file.type, upsert: false });
-
-    if (upErr) {
-      console.error("[MediaUploader] upload error:", upErr);
-      setBusy(null);
-      onError(`No se pudo subir el archivo: ${upErr.message}`);
-      return;
-    }
-
-    const { data: pub } = supabase.storage.from(CONTENT_MEDIA_BUCKET).getPublicUrl(path);
-
-    const { error: dbErr } = await supabase
-      .from("content_posts")
-      .update({
-        media_type: kind,
-        media_path: path,
-        media_url: pub.publicUrl,
-        media_size_bytes: file.size,
-        media_duration_s: probe.duration,
-        media_width: probe.width,
-        media_height: probe.height,
-        media_uploaded_at: new Date().toISOString(),
-        media_deleted_at: null,
-      })
-      .eq("id", postId);
-
-    if (dbErr) {
-      // El archivo ya está arriba pero la publicación no lo sabe: se limpia para
-      // no dejar basura huérfana en el bucket.
-      console.error("[MediaUploader] db error:", dbErr);
-      await supabase.storage.from(CONTENT_MEDIA_BUCKET).remove([path]);
-      setBusy(null);
-      onError("El archivo subió pero no se pudo guardar en la publicación. Intenta de nuevo.");
-      return;
-    }
-
-    // Reemplazo: el archivo anterior ya no le sirve a nadie. Best-effort, si
-    // falla no se le dice nada al cliente porque su publicación quedó correcta.
-    if (previo && previo !== path) {
-      const { error: rmErr } = await supabase.storage.from(CONTENT_MEDIA_BUCKET).remove([previo]);
-      if (rmErr) console.warn("[MediaUploader] no se pudo borrar el archivo anterior:", rmErr);
-    }
-
+    const res = await uploadMediaToPost({
+      file,
+      clientId,
+      postId,
+      previousPath: media.media_path,
+      onPhase: setBusy,
+    });
     setBusy(null);
-    onSaved(kind === "video" ? "Reel subido" : "Arte subido");
+
+    if (!res.ok) {
+      onError(res.error);
+      return;
+    }
+    setWarning(res.warnings.length > 0 ? res.warnings.join(" ") : null);
+    onSaved(res.kind === "video" ? "Reel subido" : "Arte subido");
   }
 
   async function handleRemove() {

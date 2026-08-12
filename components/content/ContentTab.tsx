@@ -22,6 +22,8 @@ import {
   type DashTheme,
 } from "@/components/dashboard";
 import MediaUploader, { type PostMedia } from "@/components/content/MediaUploader";
+import BulkUpload from "@/components/content/BulkUpload";
+import { nextCadenceSlots, formatSlotShort } from "@/lib/contentSchedule";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 export type ContentFormat = { id: string; label: string; icon?: string; hint?: string };
@@ -191,6 +193,9 @@ export default function ContentTab({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving]     = useState(false);
 
+  // Repartidor de calendario
+  const [assigning, setAssigning] = useState(false);
+
   const labelOf = useCallback(
     (id: string) => formats.find((f) => f.id === id)?.label ?? id,
     [formats]
@@ -336,6 +341,73 @@ export default function ContentTab({
     load();
   }
 
+  /**
+   * Reparte el calendario: toma las aprobadas que todavía no tienen día y las
+   * acomoda en los siguientes huecos de la cadencia, saltando los ya ocupados.
+   *
+   * Solo toca `scheduled_for`. Pasar a 'scheduled' es entregarle la publicación
+   * a Blotato, y eso exige además destino y arte: la base de datos lo obliga
+   * (content_posts_schedule_requires_approval) y aquí no lo simulamos.
+   */
+  async function assignDates() {
+    const pendientes = posts
+      .filter((p) => p.status === "approved" && !p.scheduled_for)
+      .sort((a, b) => a.created_at.localeCompare(b.created_at));
+
+    if (pendientes.length === 0) {
+      setError("No hay publicaciones aprobadas esperando día.");
+      return;
+    }
+
+    const slots = nextCadenceSlots({
+      count: pendientes.length,
+      taken: posts.map((p) => p.scheduled_for),
+    });
+
+    if (slots.length < pendientes.length) {
+      setError("No alcanzaron los días libres del próximo año. Avísanos.");
+      return;
+    }
+
+    setAssigning(true);
+    setError(null);
+
+    // Uno por uno: son pocas y así una que falle no tumba a las demás.
+    let ok = 0;
+    for (let i = 0; i < pendientes.length; i++) {
+      const { error: uErr } = await supabase
+        .from("content_posts")
+        .update({ scheduled_for: slots[i] })
+        .eq("id", pendientes[i].id);
+      if (uErr) console.error("[ContentTab] assign error:", uErr);
+      else ok++;
+    }
+
+    setAssigning(false);
+    if (ok === 0) {
+      setError("No se pudieron asignar las fechas. Intenta de nuevo.");
+      return;
+    }
+    flash(
+      ok === 1
+        ? `Programada para el ${formatSlotShort(slots[0])}`
+        : `${ok} publicaciones: del ${formatSlotShort(slots[0])} al ${formatSlotShort(slots[ok - 1])}`
+    );
+    load();
+  }
+
+  async function clearDate(post: ContentPost) {
+    const { error: uErr } = await supabase
+      .from("content_posts").update({ scheduled_for: null }).eq("id", post.id);
+    if (uErr) {
+      console.error("[ContentTab] clear date error:", uErr);
+      setError("No se pudo quitar la fecha.");
+      return;
+    }
+    flash("Fecha liberada");
+    load();
+  }
+
   async function remove(post: ContentPost) {
     if (!confirm("¿Eliminar esta publicación?")) return;
     const { error: dErr } = await supabase.from("content_posts").delete().eq("id", post.id);
@@ -399,7 +471,14 @@ export default function ContentTab({
     published: posts.filter((p) => p.status === "published").length,
     // Aprobadas que YA tienen archivo: son las que podrían salir hoy mismo.
     lista:     approved.filter((p) => Boolean(p.media_url)).length,
+    conDia:    approved.filter((p) => Boolean(p.scheduled_for)).length,
   }), [posts, approved]);
+
+  /** Aprobadas esperando día: es lo que el repartidor va a acomodar. */
+  const sinFecha = useMemo(
+    () => approved.filter((p) => !p.scheduled_for),
+    [approved]
+  );
 
   // ── Render ──────────────────────────────────────────────────────────────────
   if (loading) return <Empty msg="Cargando publicaciones…" theme={t} />;
@@ -410,6 +489,7 @@ export default function ContentTab({
         <StatCard theme={t} label="Borradores"  value={counts.draft}     icon="✏️" />
         <StatCard theme={t} label="Aprobadas"   value={counts.approved}  icon="✅" accent={t.accent} />
         <StatCard theme={t} label="Con arte"    value={counts.lista}     icon="🎬" />
+        <StatCard theme={t} label="Con día"     value={counts.conDia}    icon="🗓️" />
         <StatCard theme={t} label="Publicadas"  value={counts.published} icon="📣" />
       </StatGrid>
 
@@ -427,6 +507,51 @@ export default function ContentTab({
         theme={t}
         action={{ label: "✨ Nueva publicación", onClick: () => { setShowGen(true); setError(null); } }}
       >
+        {/*
+          Producción en lote. El cliente exporta su tanda completa de Canva y la
+          sube de un jalón; después reparte el calendario sin elegir fecha por
+          fecha. Es el flujo de quien trabaja por tandas, no publicación por
+          publicación.
+        */}
+        <div style={{ display: "grid", gap: 10, marginBottom: 18 }}>
+          <BulkUpload
+            clientId={clientId}
+            defaultFormat={formats[0]?.id ?? "reflexion"}
+            theme={t}
+            onDone={(msg) => { setError(null); flash(msg); load(); }}
+            onError={setError}
+          />
+
+          <div style={{
+            display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center",
+            background: t.surface, border: `1px solid ${t.border}`,
+            borderRadius: 10, padding: "10px 12px",
+          }}>
+            <div style={{ fontSize: 12.5, color: t.muted, flex: "1 1 220px", minWidth: 0, lineHeight: 1.5 }}>
+              <strong style={{ color: t.text }}>Calendario:</strong>{" "}
+              {counts.approved === 0
+                ? "en cuanto apruebes publicaciones, les reparto día."
+                : sinFecha.length === 0
+                  ? "todas las aprobadas ya tienen día."
+                  : `${sinFecha.length} aprobada${sinFecha.length !== 1 ? "s" : ""} sin día. ` +
+                    "Las acomodo lunes, miércoles y viernes a la 1 de la tarde."}
+            </div>
+            <button
+              onClick={assignDates}
+              disabled={sinFecha.length === 0 || assigning}
+              style={{
+                background: sinFecha.length === 0 || assigning ? t.disabled : t.accent,
+                color: "#fff", border: "none", borderRadius: 9,
+                padding: "9px 16px", fontSize: 13, fontWeight: 600,
+                cursor: sinFecha.length === 0 || assigning ? "not-allowed" : "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {assigning ? "Acomodando…" : `🗓 Asignar fechas (${sinFecha.length})`}
+            </button>
+          </div>
+        </div>
+
         {/* Barra de Canva: una fila por plantilla, con su propio CSV ya filtrado. */}
         <div style={{
           background: t.accentSoft, borderRadius: 12, padding: "12px 16px", marginBottom: 18,
@@ -556,6 +681,9 @@ export default function ContentTab({
                       fg={t.accentDark}
                     />
                   )}
+                  {post.scheduled_for && (
+                    <Chip label={`🗓 ${formatSlotShort(post.scheduled_for)}`} bg="#FEF3C7" fg="#92400E" />
+                  )}
                   <span style={{ fontSize: 12, color: t.muted, marginLeft: "auto" }}>
                     {fmtDate(post.created_at)}
                   </span>
@@ -636,6 +764,11 @@ export default function ContentTab({
                       <ActionBtn theme={t} primary onClick={() => setStatus(post, "published")}>
                         Marcar publicada
                       </ActionBtn>
+                      {post.scheduled_for && (
+                        <ActionBtn theme={t} onClick={() => clearDate(post)}>
+                          Quitar fecha
+                        </ActionBtn>
+                      )}
                       <ActionBtn theme={t} onClick={() => setStatus(post, "draft")}>
                         Regresar a borrador
                       </ActionBtn>
