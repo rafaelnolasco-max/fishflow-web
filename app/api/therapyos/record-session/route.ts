@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { transcribeLongAudio } from "@/lib/whisper-chunked";
+import { requireClientAccess } from "@/lib/apiAuth";
 
 export const runtime = "nodejs"; // ffmpeg requiere runtime Node, no edge
 
@@ -15,7 +16,10 @@ export const runtime = "nodejs"; // ffmpeg requiere runtime Node, no edge
 // NO envía nada al paciente. El envío (email/WhatsApp) es un paso manual aparte
 // ("aprobar antes de enviar").
 
-export const maxDuration = 300; // transcripción + IA pueden tardar
+// FishFlow está en Vercel Pro: el tope de 300 s era herencia de Hobby y era
+// lo que cortaba la respuesta en sesiones de ~50 min (11-ago-2026), aunque la
+// transcripción y el borrador sí se completaran.
+export const maxDuration = 800; // transcripción + IA pueden tardar
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -78,6 +82,13 @@ export async function POST(req: NextRequest) {
     if (pErr || !patient) {
       return NextResponse.json({ error: "Paciente no encontrado" }, { status: 404 });
     }
+
+    // ── 1b. Candado: sesión válida + acceso al cliente del paciente ────────────
+    // Esta ruta gasta créditos de Whisper y escribe notas clínicas: no puede
+    // quedar abierta. La llamada interna desde `reprocess-audio` reenvía la
+    // cookie de sesión del navegador que la disparó.
+    const auth = await requireClientAccess(patient.client_id);
+    if (!auth.ok) return auth.response;
 
     // ── 2. Transcribir con re-codificación + troceo (robusto para sesiones largas) ─
     // El Edge Function `transcribe-audio` sigue sirviendo notas de voz cortas

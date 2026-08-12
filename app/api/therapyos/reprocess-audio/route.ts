@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { forwardCookies, requireClientAccess } from "@/lib/apiAuth";
 
 export const runtime = "nodejs";
-export const maxDuration = 300;
+export const maxDuration = 800;
 
 // ════════════════════════════════════════════════════════════════════════════
 // TherapyOS — reprocess-audio
@@ -42,6 +43,10 @@ export async function GET(req: NextRequest) {
   if (pErr || !patient) {
     return NextResponse.json({ error: "Paciente no encontrado" }, { status: 404 });
   }
+
+  // Candado: esta ruta expone el nombre del paciente y el inventario de audios.
+  const auth = await requireClientAccess(patient.client_id);
+  if (!auth.ok) return auth.response;
 
   const prefix = `${patient.client_id}/therapy_session/${patient_id}`;
   const { data: files, error: lsErr } = await supabaseAdmin.storage
@@ -91,13 +96,26 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Candado antes de gastar Whisper: sesión válida + acceso al cliente.
+  const { data: patient, error: pErr } = await supabaseAdmin
+    .from("patients")
+    .select("id, client_id")
+    .eq("id", patient_id)
+    .single();
+  if (pErr || !patient) {
+    return NextResponse.json({ error: "Paciente no encontrado" }, { status: 404 });
+  }
+  const auth = await requireClientAccess(patient.client_id);
+  if (!auth.ok) return auth.response;
+
   // Fecha de sesión: la provista, o la del nombre del archivo, o hoy.
   const fromName = storage_path.match(/(\d{4}-\d{2}-\d{2})T/)?.[1];
   const date = session_date ?? fromName ?? new Date().toISOString().slice(0, 10);
 
+  // `record-session` también exige sesión: reenviamos la cookie del navegador.
   const res = await fetch(`${APP_URL}/api/therapyos/record-session`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...forwardCookies(req) },
     body: JSON.stringify({ patient_id, storage_path, session_date: date }),
   });
   const data = await res.json();
