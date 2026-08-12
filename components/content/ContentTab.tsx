@@ -21,6 +21,7 @@ import {
   StatGrid, StatCard, inputStyle as mkInput,
   type DashTheme,
 } from "@/components/dashboard";
+import MediaUploader, { type PostMedia } from "@/components/content/MediaUploader";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 export type ContentFormat = { id: string; label: string; icon?: string; hint?: string };
@@ -59,7 +60,14 @@ function templateTakes(tpl: CanvaTemplate, format: string) {
   return !tpl.formats || tpl.formats.length === 0 || tpl.formats.includes(format);
 }
 
-export type ContentPost = {
+/**
+ * Estados. 'scheduled' y 'failed' pertenecen a la fase de publicación automática
+ * (Blotato) y todavía no se producen desde este tablero, pero se contemplan para
+ * que una publicación entregada por otra vía no rompa el render.
+ */
+export type ContentStatus = "draft" | "approved" | "scheduled" | "published" | "failed";
+
+export type ContentPost = PostMedia & {
   id: string;
   client_id: string;
   format: string;
@@ -68,9 +76,11 @@ export type ContentPost = {
   caption: string | null;
   hashtags: string | null;
   visual_note: string | null;
-  status: "draft" | "approved" | "published";
+  status: ContentStatus;
   scheduled_for: string | null;
   published_at: string | null;
+  publish_targets: string[] | null;
+  publish_error: string | null;
   source: "ai" | "manual";
   created_at: string;
 };
@@ -88,10 +98,21 @@ const EMPTY_DRAFT: DraftForm = {
   format: "", topic: "", hook: "", caption: "", hashtags: "", visual_note: "",
 };
 
-const STATUS_LABEL: Record<ContentPost["status"], string> = {
+const STATUS_LABEL: Record<ContentStatus, string> = {
   draft: "Borrador",
   approved: "Aprobado",
+  scheduled: "Programado",
   published: "Publicado",
+  failed: "Falló al publicar",
+};
+
+/** Colores del chip de estado, para no cargar de ternarios el render. */
+const STATUS_COLOR: Record<ContentStatus, { bg: string; fg: string }> = {
+  draft:     { bg: "#F3F4F6", fg: "#6B7280" },
+  approved:  { bg: "",        fg: "" },       // usa el acento del cliente
+  scheduled: { bg: "#FEF3C7", fg: "#92400E" },
+  published: { bg: "#EEF2FF", fg: "#4338CA" },
+  failed:    { bg: "#FEF2F2", fg: "#B91C1C" },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -376,6 +397,8 @@ export default function ContentTab({
     draft:     posts.filter((p) => p.status === "draft").length,
     approved:  approved.length,
     published: posts.filter((p) => p.status === "published").length,
+    // Aprobadas que YA tienen archivo: son las que podrían salir hoy mismo.
+    lista:     approved.filter((p) => Boolean(p.media_url)).length,
   }), [posts, approved]);
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -386,6 +409,7 @@ export default function ContentTab({
       <StatGrid>
         <StatCard theme={t} label="Borradores"  value={counts.draft}     icon="✏️" />
         <StatCard theme={t} label="Aprobadas"   value={counts.approved}  icon="✅" accent={t.accent} />
+        <StatCard theme={t} label="Con arte"    value={counts.lista}     icon="🎬" />
         <StatCard theme={t} label="Publicadas"  value={counts.published} icon="📣" />
       </StatGrid>
 
@@ -520,11 +544,18 @@ export default function ContentTab({
                   alignItems: "center", marginBottom: 10,
                 }}>
                   <Chip
-                    label={STATUS_LABEL[post.status]}
-                    bg={post.status === "approved" ? t.accentSoft : post.status === "published" ? "#EEF2FF" : "#F3F4F6"}
-                    fg={post.status === "approved" ? t.accentDark : post.status === "published" ? "#4338CA" : t.muted}
+                    label={STATUS_LABEL[post.status] ?? post.status}
+                    bg={post.status === "approved" ? t.accentSoft : (STATUS_COLOR[post.status]?.bg || "#F3F4F6")}
+                    fg={post.status === "approved" ? t.accentDark : (STATUS_COLOR[post.status]?.fg || t.muted)}
                   />
                   <Chip label={labelOf(post.format)} bg="#F9FAFB" fg={t.muted} />
+                  {post.media_url && (
+                    <Chip
+                      label={post.media_type === "video" ? "🎬 Reel" : "🖼️ Arte"}
+                      bg={t.accentSoft}
+                      fg={t.accentDark}
+                    />
+                  )}
                   <span style={{ fontSize: 12, color: t.muted, marginLeft: "auto" }}>
                     {fmtDate(post.created_at)}
                   </span>
@@ -562,6 +593,20 @@ export default function ContentTab({
                     🎨 {post.visual_note}
                   </div>
                 )}
+
+                {/*
+                  El arte vive pegado a su publicación, no en el carrete del
+                  celular. Además de resolver el extravío de archivos, deja la
+                  URL pública que Blotato necesitará para programar.
+                */}
+                <MediaUploader
+                  postId={post.id}
+                  clientId={clientId}
+                  media={post}
+                  theme={t}
+                  onSaved={(msg) => { setError(null); flash(msg); load(); }}
+                  onError={setError}
+                />
 
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   <ActionBtn theme={t} onClick={() => copyCaption(post)}>Copiar pie</ActionBtn>
