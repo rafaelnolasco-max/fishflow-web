@@ -236,11 +236,27 @@ export async function listSchedules(maxPages = 10): Promise<BlotatoSchedule[]> {
   return todas;
 }
 
-/** Mueve una publicación programada a otra hora (ISO 8601 UTC). */
-export async function rescheduleSchedule(id: string, scheduledTime: string): Promise<void> {
+/** Borrador de una publicación programada, tal como lo espera Blotato. */
+export type ScheduleDraft = {
+  accountId: string;
+  content: { text: string; mediaUrls: string[]; platform: string };
+  target: { targetType: string; pageId?: string };
+};
+
+/**
+ * Reescribe una publicación programada: la hora, el borrador, o los dos.
+ *
+ * `draft` es un REEMPLAZO completo, no un merge: hay que mandar el texto, las
+ * imágenes y el destino aunque solo cambie una palabra. Mandar medio borrador
+ * es publicar medio post.
+ */
+export async function updateSchedule(
+  id: string,
+  patch: { scheduledTime?: string; draft?: ScheduleDraft },
+): Promise<void> {
   await call<void>(`/schedules/${encodeURIComponent(id)}`, {
     method: "PATCH",
-    body: JSON.stringify({ patch: { scheduledTime } }),
+    body: JSON.stringify({ patch }),
   });
 }
 

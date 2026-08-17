@@ -34,8 +34,13 @@ const MAX_BYTES = 52_428_800;
 const ACCEPT = "image/jpeg,image/png,image/webp";
 
 export type CarouselItem = {
-  path: string;
+  /** URL pública que se le entrega a Blotato. Nuestra, o ya de Blotato al editar. */
   url: string;
+  /**
+   * Ruta en NUESTRO bucket. `null` = la imagen ya vivía en Blotato (una
+   * publicación creada fuera del tablero) y no nos toca ni borrarla ni resubirla.
+   */
+  path: string | null;
   name: string;
   width: number | null;
   height: number | null;
@@ -170,8 +175,8 @@ export default function CarouselUploader({
       } else {
         const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
         nuevos.push({
-          path,
           url: pub.publicUrl,
+          path,
           name: file.name,
           width: dims.width,
           height: dims.height,
@@ -207,8 +212,11 @@ export default function CarouselUploader({
   function remove(index: number) {
     const item = items[index];
     onChange(items.filter((_, i) => i !== index));
-    // Limpieza del bucket, sin avisar si falla: la publicación del cliente ya
-    // quedó bien y un archivo huérfano no es su problema.
+    // Solo se limpia lo NUESTRO. Una imagen sin `path` vive en Blotato: quitarla
+    // del carrusel es sacarla de esta publicación, no borrarle el archivo a nadie.
+    if (!item.path) return;
+    // Sin avisar si falla: la publicación del cliente ya quedó bien y un archivo
+    // huérfano no es su problema.
     supabase.storage.from(BUCKET).remove([item.path]).then(({ error }) => {
       if (error) console.warn("[CarouselUploader] no se pudo borrar:", error);
     });
@@ -237,7 +245,7 @@ export default function CarouselUploader({
         <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
           {items.map((item, i) => (
             <div
-              key={item.path}
+              key={`${item.url}-${i}`}
               style={{
                 display: "flex", gap: 10, alignItems: "center",
                 background: t.panel ?? "#F9FAFB", border: `1px solid ${t.border}`,

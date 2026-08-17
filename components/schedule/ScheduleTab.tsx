@@ -19,10 +19,11 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Section, Empty, Chip, StatGrid, StatCard, Toast,
-  inputStyle as mkInput, type DashTheme,
+  Section, Empty, Chip, StatGrid, StatCard, Toast, type DashTheme,
 } from "@/components/dashboard";
-import ScheduleComposer, { type TakenSlots } from "@/components/schedule/ScheduleComposer";
+import ScheduleComposer, {
+  type ComposerInitial, type TakenSlots,
+} from "@/components/schedule/ScheduleComposer";
 import {
   cdmxDayKey, formatCdmxDay, formatCdmxTime, utcIsoToCdmxFields,
   type SocialTarget,
@@ -39,7 +40,8 @@ type ScheduledPost = {
 };
 
 /**
- * Separa el bloque de hashtags del final del texto para poder pintarlos aparte.
+ * Separa el bloque de hashtags del final del texto, para pintarlos aparte en la
+ * tarjeta y para devolverlos a su propio campo al editar.
  *
  * Trabaja desde el final hacia atrás y solo se lleva las líneas que son
  * únicamente hashtags: así un "#ansiedad" suelto en medio de un párrafo se
@@ -63,6 +65,33 @@ function preview(body: string, max = 220): string {
   return limpio.length > max ? `${limpio.slice(0, max).trimEnd()}…` : limpio;
 }
 
+/**
+ * Convierte una publicación del calendario en los valores iniciales del editor.
+ *
+ * Las imágenes entran con `path: null` porque viven en Blotato y no en nuestro
+ * bucket: la mayoría se cargaron allá antes de que existiera este tablero. El
+ * editor las respeta tal cual y solo sube al bucket las que se agreguen ahora.
+ */
+function toInitial(post: ScheduledPost): ComposerInitial {
+  const { body, tags } = splitTextAndTags(post.text);
+  const cuando = utcIsoToCdmxFields(post.scheduledAt);
+  return {
+    scheduleId: post.id,
+    targetKey: post.targetKey,
+    caption: body,
+    hashtags: tags,
+    items: post.mediaUrls.map((url, i) => ({
+      url,
+      path: null,
+      name: `Imagen ${i + 1}`,
+      width: null,
+      height: null,
+    })),
+    date: cuando.date,
+    time: cuando.time,
+  };
+}
+
 export default function ScheduleTab({
   clientId, theme: t, suggestFormat,
 }: {
@@ -71,8 +100,6 @@ export default function ScheduleTab({
   /** Formato con el que la IA redacta al usar "Sugerir texto". */
   suggestFormat?: string;
 }) {
-  const input = useMemo(() => mkInput(t), [t]);
-
   const [targets, setTargets] = useState<SocialTarget[]>([]);
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [configured, setConfigured] = useState(true);
@@ -82,8 +109,8 @@ export default function ScheduleTab({
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  const [showComposer, setShowComposer] = useState(false);
-  const [editing, setEditing] = useState<{ id: string; date: string; time: string } | null>(null);
+  /** null = cerrado · "nueva" = alta · ComposerInitial = edición. */
+  const [composer, setComposer] = useState<null | "nueva" | ComposerInitial>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
   const flash = useCallback((msg: string) => {
@@ -113,29 +140,7 @@ export default function ScheduleTab({
 
   useEffect(() => { load(); }, [load]);
 
-  // ── Acciones sobre lo ya programado ─────────────────────────────────────────
-  async function guardarHora() {
-    if (!editing) return;
-    setBusy(editing.id);
-    setError(null);
-    try {
-      const res = await fetch(`/api/content/schedule/${encodeURIComponent(editing.id)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ clientId, date: editing.date, time: editing.time }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json?.error ?? "No se pudo mover la publicación.");
-      setEditing(null);
-      flash("Cambiada de hora");
-      load();
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "No se pudo mover la publicación.");
-    } finally {
-      setBusy(null);
-    }
-  }
-
+  // ── Cancelar una programada ─────────────────────────────────────────────────
   async function cancelar(post: ScheduledPost) {
     if (!confirm("¿Cancelar esta publicación? Ya no va a salir y no se puede deshacer.")) return;
     setBusy(post.id);
@@ -194,6 +199,12 @@ export default function ScheduleTab({
 
   const puedeProgramar = configured && targets.length > 0;
 
+  const accionBtn: React.CSSProperties = {
+    background: "none", color: t.muted, border: `1px solid ${t.border}`,
+    borderRadius: 8, padding: "7px 13px", fontSize: 12.5,
+    cursor: "pointer", whiteSpace: "nowrap",
+  };
+
   return (
     <>
       <StatGrid>
@@ -237,7 +248,7 @@ export default function ScheduleTab({
         theme={t}
         action={
           puedeProgramar
-            ? { label: "🗓 Nueva publicación programada", onClick: () => { setShowComposer(true); setError(null); } }
+            ? { label: "🗓 Nueva publicación programada", onClick: () => { setComposer("nueva"); setError(null); } }
             : undefined
         }
       >
@@ -265,7 +276,6 @@ export default function ScheduleTab({
                 <div style={{ display: "grid", gap: 10 }}>
                   {delDia.map((post) => {
                     const { body, tags } = splitTextAndTags(post.text);
-                    const editando = editing?.id === post.id;
                     const ocupado = busy === post.id;
 
                     return (
@@ -339,74 +349,27 @@ export default function ScheduleTab({
                             </div>
                           )}
 
-                          {editando ? (
-                            <div style={{
-                              display: "flex", gap: 8, flexWrap: "wrap",
-                              alignItems: "center", marginTop: 10,
-                            }}>
-                              <input
-                                type="date"
-                                value={editing.date}
-                                onChange={(e) => setEditing({ ...editing, date: e.target.value })}
-                                style={{ ...input, width: "auto", flex: "1 1 145px" }}
-                              />
-                              <input
-                                type="time"
-                                value={editing.time}
-                                onChange={(e) => setEditing({ ...editing, time: e.target.value })}
-                                style={{ ...input, width: "auto", flex: "0 1 110px" }}
-                              />
-                              <button
-                                onClick={guardarHora}
-                                disabled={ocupado}
-                                style={{
-                                  background: ocupado ? t.disabled : t.accent, color: "#fff",
-                                  border: "none", borderRadius: 8, padding: "8px 14px",
-                                  fontSize: 12.5, fontWeight: 600, cursor: ocupado ? "wait" : "pointer",
-                                }}
-                              >
-                                {ocupado ? "Moviendo…" : "Guardar"}
-                              </button>
-                              <button
-                                onClick={() => setEditing(null)}
-                                style={{
-                                  background: "none", color: t.muted, border: `1px solid ${t.border}`,
-                                  borderRadius: 8, padding: "8px 14px", fontSize: 12.5, cursor: "pointer",
-                                }}
-                              >
-                                Dejar así
-                              </button>
-                            </div>
-                          ) : (
-                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
-                              <button
-                                onClick={() => {
-                                  const f = utcIsoToCdmxFields(post.scheduledAt);
-                                  setEditing({ id: post.id, date: f.date, time: f.time });
-                                  setError(null);
-                                }}
-                                disabled={ocupado}
-                                style={{
-                                  background: "none", color: t.muted, border: `1px solid ${t.border}`,
-                                  borderRadius: 8, padding: "7px 13px", fontSize: 12.5,
-                                  cursor: "pointer", whiteSpace: "nowrap",
-                                }}
-                              >
-                                Cambiar hora
-                              </button>
-                              <button
-                                onClick={() => cancelar(post)}
-                                disabled={ocupado}
-                                style={{
-                                  background: "none", color: t.danger, border: `1px solid ${t.danger}`,
-                                  borderRadius: 8, padding: "7px 13px", fontSize: 12.5,
-                                  cursor: ocupado ? "wait" : "pointer", whiteSpace: "nowrap",
-                                }}
-                              >
-                                {ocupado ? "…" : "Cancelar"}
-                              </button>
-                            </div>
-                          )}
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                            <button
+                              onClick={() => { setComposer(toInitial(post)); setError(null); }}
+                              disabled={ocupado}
+                              style={accionBtn}
+                            >
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => cancelar(post)}
+                              disabled={ocupado}
+                              style={{
+                                ...accionBtn,
+                                color: t.danger,
+                                borderColor: t.danger,
+                                cursor: ocupado ? "wait" : "pointer",
+                              }}
+                            >
+                              {ocupado ? "…" : "Cancelar"}
+                            </button>
+                          </div>
                         </div>
                       </article>
                     );
@@ -418,15 +381,16 @@ export default function ScheduleTab({
         )}
       </Section>
 
-      {showComposer && (
+      {composer && (
         <ScheduleComposer
           clientId={clientId}
           targets={targets}
           taken={taken}
           theme={t}
           suggestFormat={suggestFormat}
-          onDone={(msg) => { setShowComposer(false); flash(msg); load(); }}
-          onClose={() => setShowComposer(false)}
+          initial={composer === "nueva" ? undefined : composer}
+          onDone={(msg) => { setComposer(null); flash(msg); load(); }}
+          onClose={() => setComposer(null)}
         />
       )}
 

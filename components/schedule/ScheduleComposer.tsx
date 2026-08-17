@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Alta de una publicación programada. Un solo paso: imagen, texto, destino,
- * hora, y ya quedó.
+ * Alta y edición de una publicación programada. Un solo paso: imagen, texto,
+ * destino, hora, y ya quedó.
  *
  * Es a propósito lo contrario de la pestaña de Contenido. Allá la IA propone y
  * hay un vaivén de borrador → aprobado porque el texto no lo escribió una
@@ -11,6 +11,11 @@
  *
  * La IA queda de ayudante opcional, detrás de dos botones que nadie está
  * obligado a tocar.
+ *
+ * El mismo formulario sirve para crear y para editar. Se comparte a propósito:
+ * si el editor fuera otra pantalla, cada regla —el tope del carrusel, el aviso
+ * de los hashtags, el mínimo de dos minutos— tendría que existir dos veces, y
+ * a la segunda ya se habrían separado.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -29,8 +34,19 @@ import {
 /** Instantes ya ocupados por destino, para que la sugerencia no repita hueco. */
 export type TakenSlots = Record<string, string[]>;
 
+/** Lo que se está editando. Ausente = publicación nueva. */
+export type ComposerInitial = {
+  scheduleId: string;
+  targetKey: string;
+  caption: string;
+  hashtags: string;
+  items: CarouselItem[];
+  date: string;
+  time: string;
+};
+
 export default function ScheduleComposer({
-  clientId, targets, taken, theme: t, suggestFormat = "reflexion", onDone, onClose,
+  clientId, targets, taken, theme: t, suggestFormat = "reflexion", initial, onDone, onClose,
 }: {
   clientId: string;
   targets: SocialTarget[];
@@ -38,10 +54,13 @@ export default function ScheduleComposer({
   theme: DashTheme;
   /** Formato con el que se le pide el borrador a la IA. Ver /api/content/draft. */
   suggestFormat?: string;
+  /** Publicación existente a editar. Sin esto, el formulario crea una nueva. */
+  initial?: ComposerInitial;
   onDone: (msg: string) => void;
   onClose: () => void;
 }) {
   const input = useMemo(() => mkInput(t), [t]);
+  const editando = Boolean(initial);
 
   // Agrupa en el bucket las imágenes de ESTA publicación. Se fija una vez: si se
   // recalculara en cada render, cada imagen caería en una carpeta distinta.
@@ -51,26 +70,34 @@ export default function ScheduleComposer({
       : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
   ).current;
 
-  const [targetKey, setTargetKey] = useState(targets[0]?.key ?? "");
-  const [items, setItems] = useState<CarouselItem[]>([]);
-  const [caption, setCaption] = useState("");
-  const [hashtags, setHashtags] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  /**
+   * Las imágenes con las que se abrió el formulario. Sirve para saber, al
+   * cancelar, cuáles subió el usuario en ESTA sesión: esas se limpian del
+   * bucket, las que ya estaban no se tocan.
+   */
+  const originales = useRef(new Set((initial?.items ?? []).map((i) => i.path).filter(Boolean))).current;
+
+  const [targetKey, setTargetKey] = useState(initial?.targetKey ?? targets[0]?.key ?? "");
+  const [items, setItems] = useState<CarouselItem[]>(initial?.items ?? []);
+  const [caption, setCaption] = useState(initial?.caption ?? "");
+  const [hashtags, setHashtags] = useState(initial?.hashtags ?? "");
+  const [date, setDate] = useState(initial?.date ?? "");
+  const [time, setTime] = useState(initial?.time ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [suggesting, setSuggesting] = useState<null | "texto" | "hashtags">(null);
 
   // Cuando la clienta escribe su propia fecha, dejamos de sugerirle: cambiar de
-  // destino no debe borrarle lo que ya decidió.
-  const [fechaTocada, setFechaTocada] = useState(false);
+  // destino no debe borrarle lo que ya decidió. Al editar nunca se sugiere —
+  // la fecha que ya tiene es la buena hasta que ella diga otra cosa.
+  const [fechaTocada, setFechaTocada] = useState(editando);
 
   const target = useMemo(
     () => targets.find((x) => x.key === targetKey) ?? targets[0],
     [targets, targetKey],
   );
 
-  // ── Fecha sugerida ──────────────────────────────────────────────────────────
+  // ── Fecha sugerida (solo al crear) ──────────────────────────────────────────
   useEffect(() => {
     if (!target || fechaTocada) return;
     const slot = suggestSlot(target, new Date(), taken[target.key] ?? []);
@@ -137,15 +164,17 @@ export default function ScheduleComposer({
     }
   }, [caption, hashtags, clientId, suggestFormat]);
 
-  // ── Programar ───────────────────────────────────────────────────────────────
-  async function programar() {
+  // ── Guardar ─────────────────────────────────────────────────────────────────
+  async function guardar() {
     if (!target) return;
     if (items.length === 0) {
-      setError("Sube al menos una imagen.");
+      setError("Deja al menos una imagen.");
       return;
     }
+    // Sin pie está bien: hay publicaciones que son puro arte tipográfico y los
+    // hashtags van solos. Solo se exige que haya ALGO que decir.
     if (!caption.trim() && !hashtags.trim()) {
-      setError("Escribe el texto de la publicación.");
+      setError("Escribe el texto o al menos unos hashtags.");
       return;
     }
     if (!date || !time) {
@@ -155,47 +184,78 @@ export default function ScheduleComposer({
 
     setSaving(true);
     setError(null);
+
+    const media = items.map((i) => ({ url: i.url, path: i.path }));
+
     try {
-      const res = await fetch("/api/content/schedule", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientId,
-          targetKey: target.key,
-          caption: caption.trim(),
-          hashtags: hashtags.trim(),
-          mediaPaths: items.map((i) => i.path),
-          mediaUrls: items.map((i) => i.url),
-          date,
-          time,
-        }),
-      });
+      const res = initial
+        ? await fetch(`/api/content/schedule/${encodeURIComponent(initial.scheduleId)}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              clientId,
+              caption: caption.trim(),
+              hashtags: hashtags.trim(),
+              media,
+              date,
+              time,
+            }),
+          })
+        : await fetch("/api/content/schedule", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              clientId,
+              targetKey: target.key,
+              caption: caption.trim(),
+              hashtags: hashtags.trim(),
+              mediaPaths: items.map((i) => i.path).filter((p): p is string => Boolean(p)),
+              mediaUrls: items.map((i) => i.url),
+              date,
+              time,
+            }),
+          });
+
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json?.error ?? "No se pudo programar.");
+      if (!res.ok) throw new Error(json?.error ?? "No se pudo guardar.");
 
       onDone(
         json.warning
           ? String(json.warning)
-          : `Programada para el ${formatCdmx(json.scheduledTime)} en ${target.label}`,
+          : editando
+            ? `Actualizada — sale el ${formatCdmx(json.scheduledTime)}`
+            : `Programada para el ${formatCdmx(json.scheduledTime)} en ${target.label}`,
       );
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "No se pudo programar.");
+      setError(e instanceof Error ? e.message : "No se pudo guardar.");
       setSaving(false);
     }
   }
 
-  /** Cerrar sin programar: se limpian del bucket las imágenes que ya subió. */
+  /**
+   * Cerrar sin guardar. Se limpian del bucket SOLO las imágenes que se subieron
+   * en esta sesión: las que ya tenía la publicación siguen siendo suyas y
+   * borrarlas aquí rompería la publicación que sigue programada.
+   */
   function cancelar() {
-    if (items.length > 0 && !confirm("¿Descartar esta publicación? Se pierden las imágenes que subiste.")) {
-      return;
-    }
-    if (items.length > 0) {
-      supabase.storage
-        .from("content-media")
-        .remove(items.map((i) => i.path))
-        .then(({ error: rmErr }) => {
-          if (rmErr) console.warn("[ScheduleComposer] no se pudo limpiar:", rmErr);
-        });
+    const nuevas = items
+      .map((i) => i.path)
+      .filter((p): p is string => Boolean(p) && !originales.has(p!));
+
+    const aviso = editando
+      ? nuevas.length > 0
+        ? "¿Descartar los cambios? Se pierden las imágenes que acabas de subir."
+        : "¿Descartar los cambios?"
+      : items.length > 0
+        ? "¿Descartar esta publicación? Se pierden las imágenes que subiste."
+        : null;
+
+    if (aviso && !confirm(aviso)) return;
+
+    if (nuevas.length > 0) {
+      supabase.storage.from("content-media").remove(nuevas).then(({ error: rmErr }) => {
+        if (rmErr) console.warn("[ScheduleComposer] no se pudo limpiar:", rmErr);
+      });
     }
     onClose();
   }
@@ -219,7 +279,12 @@ export default function ScheduleComposer({
   };
 
   return (
-    <Modal title="Nueva publicación programada" onClose={cancelar} theme={t} wide>
+    <Modal
+      title={editando ? "Editar publicación programada" : "Nueva publicación programada"}
+      onClose={cancelar}
+      theme={t}
+      wide
+    >
       {error && (
         <div style={{
           background: "#FEF2F2", border: `1px solid ${t.danger}`, color: t.danger,
@@ -296,21 +361,40 @@ export default function ScheduleComposer({
       </Field>
 
       <Field label="¿A dónde se publica?" theme={t}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {targets.map((x) => (
-            <button
-              key={x.key}
-              type="button"
-              onClick={() => { setTargetKey(x.key); setError(null); }}
-              style={chipBtn(x.key === target?.key)}
-            >
-              <div style={{ fontSize: 13.5, fontWeight: 700 }}>{x.label}</div>
-              <div style={{ fontSize: 11.5, color: t.muted, marginTop: 2 }}>
-                {x.platform === "instagram" ? "Instagram" : "Facebook"}
-              </div>
-            </button>
-          ))}
-        </div>
+        {editando ? (
+          /*
+            El destino no se cambia al editar. Mover una publicación de una
+            cuenta a otra cambia lo que la red social exige (Facebook pide
+            pageId, Instagram no) y nadie lo ha pedido: para eso está cancelar
+            y volver a crearla. Se muestra para que quede claro a dónde va.
+          */
+          <div style={{
+            background: t.panel ?? "#F9FAFB", border: `1px solid ${t.border}`,
+            borderRadius: 10, padding: "10px 12px",
+          }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: t.text }}>{target?.label}</div>
+            <div style={{ fontSize: 11.5, color: t.muted, marginTop: 2, lineHeight: 1.5 }}>
+              {target?.platform === "instagram" ? "Instagram" : "Facebook"} — el destino no se
+              puede cambiar al editar. Si te equivocaste de cuenta, cancélala y créala de nuevo.
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {targets.map((x) => (
+              <button
+                key={x.key}
+                type="button"
+                onClick={() => { setTargetKey(x.key); setError(null); }}
+                style={chipBtn(x.key === target?.key)}
+              >
+                <div style={{ fontSize: 13.5, fontWeight: 700 }}>{x.label}</div>
+                <div style={{ fontSize: 11.5, color: t.muted, marginTop: 2 }}>
+                  {x.platform === "instagram" ? "Instagram" : "Facebook"}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </Field>
 
       <Field label="¿Cuándo?" theme={t}>
@@ -336,13 +420,18 @@ export default function ScheduleComposer({
 
       <SaveBtn
         theme={t}
-        onClick={programar}
+        onClick={guardar}
         disabled={saving || items.length === 0}
-        label={saving ? "Programando…" : "🗓 Programar publicación"}
+        label={
+          saving
+            ? editando ? "Guardando…" : "Programando…"
+            : editando ? "Guardar cambios" : "🗓 Programar publicación"
+        }
       />
       <div style={{ fontSize: 11.5, color: t.muted, marginTop: 10, lineHeight: 1.5 }}>
-        Se publica sola a la hora que escojas. Hasta entonces la puedes mover o cancelar
-        desde el calendario.
+        {editando
+          ? "Los cambios se aplican de inmediato sobre la publicación programada."
+          : "Se publica sola a la hora que escojas. Hasta entonces la puedes editar o cancelar desde el calendario."}
       </div>
     </Modal>
   );
