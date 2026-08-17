@@ -12,6 +12,7 @@ import {
 } from "@/components/dashboard";
 import ReviewsTab, { normalizePhone } from "./ReviewsTab";
 import ContentTab from "./ContentTab";
+import ScheduleTab from "./ScheduleTab";
 
 // ─── Paleta CANE ──────────────────────────────────────────────────────────────
 const C = {
@@ -132,7 +133,7 @@ export default function CANEAppointmentsPage() {
   const [form, setForm]                 = useState(EMPTY_FORM);
   const [saving, setSaving]             = useState(false);
   const [error, setError]               = useState<string | null>(null);
-  const [tab, setTab]                   = useState<"citas" | "resenas" | "contenido">(SHOW_CITAS ? "citas" : "resenas");
+  const [tab, setTab]                   = useState<"citas" | "resenas" | "contenido" | "programar">(SHOW_CITAS ? "citas" : "resenas");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -352,6 +353,7 @@ export default function CANEAppointmentsPage() {
             ...(SHOW_CITAS ? [{ id: "citas" as const, label: "Citas", icon: "📅" }] : []),
             { id: "resenas" as const,    label: "Reseñas",   icon: "⭐" },
             { id: "contenido" as const,  label: "Contenido", icon: "✨" },
+            { id: "programar" as const,  label: "Programar", icon: "🗓️" },
           ]}
           active={tab}
           onChange={setTab}
@@ -360,6 +362,10 @@ export default function CANEAppointmentsPage() {
         {tab === "resenas" && <ReviewsTab />}
 
         {tab === "contenido" && <ContentTab />}
+
+        {/* Ventana aparte de Contenido: aquí Karlita sube SU imagen y SU texto
+            y se programa directo, sin el vaivén de borrador → aprobado. */}
+        {tab === "programar" && <ScheduleTab />}
 
         {SHOW_CITAS && tab === "citas" && (
         <Section

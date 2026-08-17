@@ -1,5 +1,19 @@
 # Blotato — fase 2 del módulo de Contenido
 
+> **Actualización 2026-08-17.** Parcialmente implementado, pero por otra vía.
+> En lugar de meterle publicación automática a la pestaña de Contenido, se
+> construyó una ventana **aparte** ("Programar") para la clienta que trae su
+> imagen y su texto ya hechos y no quiere el flujo con IA — el caso de Karlita
+> (CANE). Contenido quedó intacto.
+>
+> Ya existe: `lib/blotato.ts` (cliente REST), `lib/socialTargets.ts` (destinos y
+> horarios), `/api/content/schedule` (+ `[id]` para mover y cancelar),
+> `components/schedule/*`, tabla `content_schedules` y la columna
+> `content_settings.blotato_accounts` (migración `20260817000001`).
+>
+> Sigue pendiente de este plan: publicar desde la pestaña de Contenido, TikTok,
+> `firstComment` para los hashtags, y reels.
+
 Estado al 2026-08-11: **no implementado**. Este documento es el plan, no un
 registro de algo que ya exista en el código.
 
