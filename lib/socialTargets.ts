@@ -128,14 +128,21 @@ export function formatCdmx(value: string | Date): string {
   }).format(d);
 }
 
-/** "martes 18 de agosto" — encabezado de cada grupo del calendario. */
+/**
+ * "Martes, 18 de agosto" — encabezado de cada grupo del calendario.
+ *
+ * Solo se pone mayúscula la PRIMERA letra, a mano. Un `textTransform: capitalize`
+ * en CSS capitaliza cada palabra y en español escribe "Martes, 18 De Agosto":
+ * ni el mes ni la preposición llevan mayúscula.
+ */
 export function formatCdmxDay(value: string | Date): string {
   const d = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(d.getTime())) return "";
-  return new Intl.DateTimeFormat("es-MX", {
+  const texto = new Intl.DateTimeFormat("es-MX", {
     timeZone: "America/Mexico_City",
     weekday: "long", day: "numeric", month: "long",
   }).format(d);
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 /** "8:30 p.m." — la hora sola, para la fila de la publicación. */

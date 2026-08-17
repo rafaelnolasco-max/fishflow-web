@@ -143,8 +143,14 @@ create policy content_schedules_client_access on public.content_schedules
 -- Instagram personal; lunes 12:00 para el Facebook institucional de CANE.
 -- Las horas son de CDMX. México no tiene horario de verano desde 2022, así que
 -- CDMX es UTC-6 todo el año y la conversión es una resta fija (ver lib/socialTargets.ts).
-update public.content_settings
-   set blotato_accounts = '[
+--
+-- Va por UUID y como UPSERT, no por `where slug = 'cane'`: un UPDATE contra una
+-- fila que no existe no falla, simplemente no hace nada, y el tablero termina
+-- diciendo "no hay cuentas conectadas" sin que nadie sepa por qué.
+insert into public.content_settings (client_id, blotato_accounts)
+values (
+  'a9b8c7d6-e5f4-3210-9876-fedcba543210',
+  '[
          {
            "key": "cane_fb",
            "label": "CANE",
@@ -164,8 +170,10 @@ update public.content_settings
              {"dow": 4, "hour": 21, "minute": 0}
            ]
          }
-       ]'::jsonb
- where client_id = (select id from public.clients where slug = 'cane');
+   ]'::jsonb
+)
+on conflict (client_id) do update
+  set blotato_accounts = excluded.blotato_accounts;
 
 
 -- ─── 5. Refrescar el cache del esquema tras el DDL ───────────────────────────

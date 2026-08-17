@@ -45,17 +45,41 @@ function admin() {
   );
 }
 
-async function loadTargets(clientId: string): Promise<SocialTarget[]> {
+/**
+ * Destinos del cliente.
+ *
+ * Devuelve `dbError` aparte de la lista y NO los confunde: "la consulta falló"
+ * y "el cliente no tiene destinos" se ven igual desde el front —los dos dan
+ * cero cuentas— pero se arreglan de forma distinta. La primera vez que pasó, el
+ * tablero decía "no hay cuentas conectadas" cuando lo que faltaba era correr la
+ * migración, y perseguimos el síntoma equivocado.
+ */
+async function loadTargets(
+  clientId: string,
+): Promise<{ targets: SocialTarget[]; dbError: string | null }> {
   const { data, error } = await admin()
     .from("content_settings")
     .select("blotato_accounts")
     .eq("client_id", clientId)
     .maybeSingle();
+
   if (error) {
     console.error("[content/schedule] settings error:", error);
-    return [];
+    // 42703 = columna inexistente, PGRST204 = el cache del esquema no la ve.
+    // Las dos significan lo mismo: falta correr la migración (o el `notify pgrst`).
+    const faltaMigracion =
+      error.code === "42703" ||
+      error.code === "PGRST204" ||
+      /blotato_accounts/i.test(error.message ?? "");
+    return {
+      targets: [],
+      dbError: faltaMigracion
+        ? "La base de datos todavía no tiene la configuración de publicación (falta aplicar la migración). Avísale a FishFlow."
+        : "No se pudo leer la configuración de tus cuentas. Avísale a FishFlow.",
+    };
   }
-  return parseTargets(data?.blotato_accounts);
+
+  return { targets: parseTargets(data?.blotato_accounts), dbError: null };
 }
 
 function fallo(e: unknown) {
@@ -75,7 +99,7 @@ export async function GET(req: NextRequest) {
   if (!auth.ok) return auth.response;
 
   try {
-    const targets = await loadTargets(clientId);
+    const { targets, dbError } = await loadTargets(clientId);
 
     if (!blotatoConfigured() || targets.length === 0) {
       return NextResponse.json({
@@ -83,6 +107,7 @@ export async function GET(req: NextRequest) {
         configured: blotatoConfigured(),
         targets,
         schedules: [],
+        setupError: dbError,
       });
     }
 
@@ -106,7 +131,7 @@ export async function GET(req: NextRequest) {
       })
       .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
 
-    return NextResponse.json({ ok: true, configured: true, targets, schedules });
+    return NextResponse.json({ ok: true, configured: true, targets, schedules, setupError: null });
   } catch (e) {
     return fallo(e);
   }
@@ -131,7 +156,7 @@ export async function POST(req: NextRequest) {
     if (!auth.ok) return auth.response;
 
     // ── Validación ────────────────────────────────────────────────────────────
-    const targets = await loadTargets(clientId);
+    const { targets } = await loadTargets(clientId);
     const target = targets.find((t) => t.key === targetKey);
     if (!target) {
       return NextResponse.json({ error: "Ese destino no está configurado." }, { status: 400 });

@@ -76,6 +76,8 @@ export default function ScheduleTab({
   const [targets, setTargets] = useState<SocialTarget[]>([]);
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [configured, setConfigured] = useState(true);
+  // Mensaje del servidor cuando la falla es de configuración y no del cliente.
+  const [setupError, setSetupError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -99,6 +101,7 @@ export default function ScheduleTab({
       setTargets(json.targets ?? []);
       setPosts(json.schedules ?? []);
       setConfigured(Boolean(json.configured));
+      setSetupError(json.setupError ?? null);
       setError(null);
     } catch (e: unknown) {
       console.error("[ScheduleTab] load error:", e);
@@ -222,7 +225,10 @@ export default function ScheduleTab({
           background: "#FFFBEB", border: "1px solid #FDE68A", color: "#92400E",
           borderRadius: 10, padding: "10px 14px", fontSize: 13, marginBottom: 16, lineHeight: 1.55,
         }}>
-          ⚠️ Todavía no hay cuentas de redes conectadas a este tablero. Avísale a FishFlow.
+          {/* Si el servidor supo POR QUÉ no hay destinos, se dice eso y no la
+              suposición: "no hay cuentas conectadas" cuando en realidad falta
+              la migración manda a buscar el problema al lugar equivocado. */}
+          ⚠️ {setupError ?? "Todavía no hay cuentas de redes conectadas a este tablero. Avísale a FishFlow."}
         </div>
       )}
 
@@ -248,9 +254,10 @@ export default function ScheduleTab({
           <div style={{ display: "grid", gap: 22 }}>
             {porDia.map(([dia, delDia]) => (
               <div key={dia}>
+                {/* Sin textTransform: la mayúscula inicial la pone formatCdmxDay.
+                    "capitalize" en CSS escribiría "Martes, 18 De Agosto". */}
                 <div style={{
-                  fontSize: 13, fontWeight: 700, color: t.accentDark,
-                  textTransform: "capitalize", marginBottom: 10,
+                  fontSize: 13, fontWeight: 700, color: t.accentDark, marginBottom: 10,
                 }}>
                   {formatCdmxDay(delDia[0].scheduledAt)}
                 </div>

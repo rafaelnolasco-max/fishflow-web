@@ -80,6 +80,33 @@ function byName(a: File, b: File) {
   return a.name.localeCompare(b.name, "es", { numeric: true, sensitivity: "base" });
 }
 
+/**
+ * Traduce el error de Supabase Storage a algo accionable.
+ *
+ * Los tres que importan salen idénticos en pantalla si no se distinguen, y cada
+ * uno se arregla en un lugar distinto: el bucket lo crea una migración, el
+ * permiso es una fila de user_client_access, y el formato lo arregla el usuario.
+ */
+function explicaError(mensaje: string): string {
+  const m = (mensaje ?? "").toLowerCase();
+  if (m.includes("bucket") && m.includes("not found")) {
+    return "el almacenamiento no está configurado en el servidor (avísale a FishFlow)";
+  }
+  if (m.includes("mime") || m.includes("content type")) {
+    return "ese formato no se acepta; usa JPG, PNG o WebP";
+  }
+  if (m.includes("policy") || m.includes("unauthorized") || m.includes("row-level")) {
+    return "tu cuenta no tiene permiso para subir aquí (avísale a FishFlow)";
+  }
+  if (m.includes("exceeded") || m.includes("too large") || m.includes("payload")) {
+    return "el archivo excede el máximo de 50 MB";
+  }
+  if (m.includes("duplicate") || m.includes("already exists")) {
+    return "ya existe un archivo con ese nombre; vuelve a intentar";
+  }
+  return mensaje || "error desconocido al subir";
+}
+
 export default function CarouselUploader({
   clientId, batchId, items, onChange, theme: t, onError,
 }: {
@@ -114,7 +141,10 @@ export default function CarouselUploader({
 
     const files = picked.sort(byName);
     const nuevos: CarouselItem[] = [];
-    const fallidos: string[] = [];
+    // El MOTIVO viaja con el nombre, no se asume. La primera versión decía
+    // siempre "revisa que pesen menos de 50 MB" pasara lo que pasara, y cuando
+    // el bucket no existía mandó a buscar el problema al archivo equivocado.
+    const fallidos: { name: string; motivo: string }[] = [];
 
     setProgress({ done: 0, total: files.length });
 
@@ -122,7 +152,7 @@ export default function CarouselUploader({
       const file = files[i];
 
       if (file.size > MAX_BYTES) {
-        fallidos.push(`${file.name} (${fmtMB(file.size)})`);
+        fallidos.push({ name: file.name, motivo: `pesa ${fmtMB(file.size)}, el máximo son 50 MB` });
         setProgress({ done: i + 1, total: files.length });
         continue;
       }
@@ -136,7 +166,7 @@ export default function CarouselUploader({
 
       if (upErr) {
         console.error("[CarouselUploader] upload error:", upErr);
-        fallidos.push(file.name);
+        fallidos.push({ name: file.name, motivo: explicaError(upErr.message) });
       } else {
         const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
         nuevos.push({
@@ -155,9 +185,13 @@ export default function CarouselUploader({
 
     if (nuevos.length > 0) onChange([...items, ...nuevos]);
     if (fallidos.length > 0) {
+      const detalle = fallidos
+        .slice(0, 3)
+        .map((f) => `${f.name} — ${f.motivo}`)
+        .join("; ");
       onError(
-        `No se pudo subir: ${fallidos.slice(0, 3).join(", ")}${fallidos.length > 3 ? "…" : ""}. ` +
-        `Revisa que sean imágenes de menos de 50 MB.`,
+        `No se pudo subir ${fallidos.length} archivo${fallidos.length !== 1 ? "s" : ""}: ` +
+        `${detalle}${fallidos.length > 3 ? "…" : ""}`,
       );
     }
   }
