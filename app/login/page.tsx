@@ -24,6 +24,7 @@ function LoginForm() {
     "antoniorp8501@hotmail.com":   "/app/rmz",
     "enlaceintegralseguros@gmail.com": "/app/enlace",
     "marissa.almaraz.m@gmail.com": "/app/tintosentido",
+    "albertodejesus@gmail.com":    "/app/therapyos",
     "rafaelnolasco@gmail.com":     "/admin",
   };
 
