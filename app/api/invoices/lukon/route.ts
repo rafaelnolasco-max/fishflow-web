@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
+import { descargarCfdi, rutasDescarga, nombreArchivoCfdi } from '@/lib/facturapi'
+import { sendEmail, REPLY_TO, type Adjunto } from '@/lib/email'
+import { plantillaCfdi, asuntoCfdi, MARCA_LUKON, type DatosCfdi } from '@/lib/cfdiEmail'
 
 // ─── Constantes de Lukon ──────────────────────────────────────────────────────
 const LUKON_CLIENT_ID = '1aa4a82b-e524-40f4-808e-c02e87e82427'
@@ -10,6 +13,9 @@ const ALLOWED_EMAILS  = ['rafaelnolasco@gmail.com', 'aalmarazmo@lukon.com.mx']
 // Clave SAT para servicios de localización GPS/telemática
 const SAT_PRODUCT_KEY = '81161500' // Servicios de rastreo satelital de vehículos
 const SAT_UNIT_KEY    = 'E48'      // Unidad de servicio
+
+// Timbrar + bajar PDF y XML + enviar correo con adjuntos no cabe en el default.
+export const maxDuration = 60
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,6 +57,7 @@ export async function POST(req: NextRequest) {
       transaction_id,
       payment_form = '03', // Transferencia electrónica de fondos
       cfdi_use     = 'G03', // Gastos en general
+      enviar_correo = true,
     } = await req.json()
 
     if (!rfc || !razon_social || !concepto || !amount || Number(amount) <= 0) {
@@ -102,6 +109,8 @@ export async function POST(req: NextRequest) {
     }
 
     // ── 5. Guardar en tabla invoices ───────────────────────────────────────────
+    // ⚠️ Facturapi NO devuelve pdf_url ni xml_url al crear la factura. Se
+    // guardan las rutas del proxy interno, que sí saben bajar los archivos.
     const { data: invoice, error: invError } = await supabaseAdmin
       .from('invoices')
       .insert({
@@ -113,24 +122,104 @@ export async function POST(req: NextRequest) {
         cfdi_type:    'I',
         amount:       Number(amount),
         currency:     'MXN',
-        pdf_url:      facturData.pdf_url  ?? null,
-        xml_url:      facturData.xml_url  ?? null,
+        receptor_rfc:     rfc.toUpperCase(),
+        receptor_razon:   razon_social,
+        receptor_regimen: regimen_fiscal,
+        receptor_cp:      cp || null,
+        receptor_email:   email || null,
+        cfdi_use,
+        payment_form,
       })
       .select()
       .single()
 
     if (invError) {
       console.error('[lukon/invoice] insert:', invError)
-      // No es fatal — el CFDI ya se timbró
+      // No es fatal — el CFDI ya se timbró ante el SAT.
+    }
+
+    const rutas = invoice?.id
+      ? rutasDescarga(invoice.id)
+      : { pdf_url: null, xml_url: null }
+
+    if (invoice?.id) {
+      await supabaseAdmin.from('invoices').update(rutas).eq('id', invoice.id)
+    }
+
+    // ── 6. Enviar el CFDI por correo (PDF + XML adjuntos) ──────────────────────
+    // Nada de aquí para abajo puede tumbar la respuesta: la factura ya existe
+    // ante el SAT aunque el correo falle. El resultado se reporta en `email`.
+    let emailResultado: { enviado: boolean; motivo?: string } = {
+      enviado: false,
+      motivo:  'omitido',
+    }
+
+    if (enviar_correo && email) {
+      const { pdf, xml } = await descargarCfdi(facturData.id, facturApiKey)
+
+      if (!pdf && !xml) {
+        emailResultado = { enviado: false, motivo: 'no_se_pudo_descargar_el_cfdi' }
+      } else {
+        const folio = facturData.folio_number?.toString() ?? null
+        const adjuntos: Adjunto[] = []
+        if (pdf) adjuntos.push({ filename: nombreArchivoCfdi(folio, facturData.uuid, 'pdf'), content: pdf })
+        if (xml) adjuntos.push({ filename: nombreArchivoCfdi(folio, facturData.uuid, 'xml'), content: xml })
+
+        // Remitente parametrizado en base de datos (clients.email_from), no
+        // hardcodeado: cualquier cliente con dominio propio hereda este flujo.
+        const { data: cliente } = await supabaseAdmin
+          .from('clients')
+          .select('email_from, email_reply_to')
+          .eq('id', LUKON_CLIENT_ID)
+          .single()
+
+        const datos: DatosCfdi = {
+          razonSocial: razon_social,
+          rfc:         rfc.toUpperCase(),
+          concepto,
+          total:       Number(amount) * 1.16,
+          uuid:        facturData.uuid ?? '',
+          fecha:       new Date().toLocaleDateString('es-MX', {
+            day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Mexico_City',
+          }),
+          adjuntos:    adjuntos.map((a) => a.filename),
+        }
+
+        const envio = await sendEmail({
+          from:        'lukonFacturacion',
+          fromAddress: cliente?.email_from,
+          to:          email,
+          bcc:         REPLY_TO,
+          replyTo:     cliente?.email_reply_to ?? REPLY_TO,
+          subject:     asuntoCfdi(MARCA_LUKON, datos),
+          html:        plantillaCfdi(MARCA_LUKON, datos),
+          attachments: adjuntos,
+          tag:         'lukon/cfdi',
+        })
+
+        emailResultado = envio.ok
+          ? { enviado: true }
+          : { enviado: false, motivo: 'resend_error' }
+
+        if (envio.ok && invoice?.id) {
+          await supabaseAdmin
+            .from('invoices')
+            .update({ email_sent_at: new Date().toISOString(), email_to: email })
+            .eq('id', invoice.id)
+        }
+      }
+    } else if (enviar_correo && !email) {
+      emailResultado = { enviado: false, motivo: 'sin_correo_del_receptor' }
     }
 
     return NextResponse.json({
       invoice_id:   invoice?.id,
       facturapi_id: facturData.id,
       uuid_sat:     facturData.uuid,
-      pdf_url:      facturData.pdf_url,
-      xml_url:      facturData.xml_url,
+      pdf_url:      rutas.pdf_url,
+      xml_url:      rutas.xml_url,
       status:       'valid',
+      email:        emailResultado,
     })
 
   } catch (err) {

@@ -10,7 +10,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Image from "next/image";
+import Link from "next/link";
 import LeadForm from "@/components/LeadForm";
+import { CASOS_PUBLICOS } from "@/lib/casos";
 import BookingCal from "@/components/BookingCal";
 import {
   Mail,
@@ -30,20 +32,11 @@ import {
   Cog,
   Activity,
   ShoppingBag,
-  Shirt,
-  ExternalLink,
   MapPin,
-  Car,
-  Coffee,
   Scissors,
-  Store,
-  Building2,
-  Trophy,
-  Utensils,
   Brain,
   Navigation,
   LayoutDashboard,
-  Eye,
   Clock,
   Globe,
   CreditCard,
@@ -64,7 +57,7 @@ const NAV_ITEMS = [
   { label: "Cómo funciona", id: "how" },
   { label: "Capacidades",   id: "capacidades" },
   { label: "Servicios",     id: "services" },
-  { label: "Apps",          id: "apps" },
+  { label: "Casos de éxito", id: "cases" },
   { label: "Tu panel",      id: "panel" },
   { label: "Por qué FishFlow", id: "why" },
   { label: "FAQ",           id: "faq" },
@@ -511,94 +504,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Web apps por industria ──────────────────────────────────────── */}
-      <section id="apps" className="py-20 px-4 md:px-0 bg-gradient-to-b from-secondary/30 to-white">
-        <div className="container max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <Badge variant="outline" className="mb-3 border-accent/40 text-accent">Demos en vivo</Badge>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-foreground">Web apps a la medida</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              No son imágenes — son apps reales que puedes explorar ahora mismo. Mira exactamente
-              cómo se vería FishFlow en tu industria.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Shirt, color: "primary", title: "Tintorería", slug: "tintoreria",
-                features: ["Seguimiento de prendas con folio","Aviso por WhatsApp cuando esté lista","Historial y control de clientes"],
-              },
-              {
-                icon: Car, color: "accent", title: "Autolavado", slug: "autolavado",
-                features: ["SMS/WhatsApp automático al entrar y salir","Control de turnos y tiempos","Tablero de tickets diarios"],
-              },
-              {
-                icon: Coffee, color: "primary", title: "Cafetería", slug: "cafeteria",
-                features: ["Pedidos por WhatsApp o QR","Programa de lealtad digital","Reportes de ventas por turno"],
-              },
-              {
-                icon: Scissors, color: "accent", title: "Estética / Barbería", slug: "barberia",
-                features: ["Agenda en línea 24/7 para clientes","Recordatorio automático de cita","Control de clientes con historial de servicios"],
-              },
-              {
-                icon: Utensils, color: "primary", title: "Pozolería", slug: "pozoleria",
-                features: ["Menú digital accesible desde el celular","Pedidos y reservaciones en línea","Control de platillos y ventas del día"],
-              },
-              {
-                icon: Trophy, color: "accent", title: "MMChampions", slug: "mmchampions",
-                features: ["Gestión de torneos y equipos","Registro de resultados en tiempo real","Tablero de estadísticas del campeonato"],
-              },
-              {
-                icon: Brain, color: "primary", title: "Centro de Terapias", slug: "terapias",
-                features: ["Agenda de citas por especialidad","Expediente básico del paciente","Avisos automáticos de cita"],
-              },
-              {
-                icon: Building2, color: "accent", title: "CondOS · Condominios", slug: "condos",
-                features: ["Portal de residentes y pagos de mantenimiento","Reportes de incidencias y seguimiento","Tablero de administración para el comité"],
-              },
-            ].map((v) => (
-              <Card key={v.title} className="overflow-hidden hover:shadow-xl transition-all group">
-                <div className={`relative h-40 bg-gradient-to-br ${v.color === "primary" ? "from-primary/30 via-primary/15 to-primary/5" : "from-accent/30 via-accent/15 to-accent/5"} flex items-center justify-center`}>
-                  <v.icon className={`h-16 w-16 ${v.color === "primary" ? "text-primary/70" : "text-accent/80"} group-hover:scale-110 transition-transform`} />
-                  <Badge className="absolute top-3 right-3 bg-white/90 text-foreground border-0 text-xs">Demo en vivo</Badge>
-                </div>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">{v.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="text-sm space-y-1.5 text-muted-foreground mb-4">
-                    {v.features.map((f) => (
-                      <li key={f} className="flex gap-2">
-                        <CheckCircle2 className={`h-4 w-4 ${v.color === "primary" ? "text-primary" : "text-accent"} flex-shrink-0 mt-0.5`} />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    onClick={() => window.open(`/demos/${v.slug}`, "_blank")}
-                    variant="outline"
-                    size="sm"
-                    className={`w-full ${v.color === "primary" ? "border-primary text-primary hover:bg-primary hover:text-white" : "border-accent text-accent hover:bg-accent hover:text-white"}`}
-                  >
-                    Ver demo <ExternalLink className="ml-2 h-3 w-3" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center">
-            <Button
-              onClick={() => window.open(`mailto:${EMAIL}?subject=Mi%20industria%20no%20est%C3%A1%20listada`)}
-              variant="outline" size="lg"
-            >
-              ¿Tu industria no está listada? Hablemos <ExternalLink className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* ── Tu panel / back-office ──────────────────────────────────────── */}
       <section id="panel" className="py-20 px-4 md:px-0" style={{ backgroundColor: "#0D1B2A" }}>
         <div className="container max-w-6xl mx-auto">
@@ -694,131 +599,73 @@ export default function Home() {
             <Badge variant="outline" className="mb-3 border-primary/30 text-primary">Casos de éxito</Badge>
             <h2 className="text-3xl md:text-5xl font-bold mb-4 text-foreground">Resultados reales en negocios reales</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Estos son los problemas que estamos resolviendo hoy. Tu negocio puede ser el siguiente.
+              Tres clientes, tres problemas distintos. Cómo estaban antes, qué construimos y
+              qué cambió — con los números que sí podemos comprobar.
             </p>
           </div>
 
-          {/* Featured — RiskFlow · Hospital */}
-          <Card className="border-2 border-accent/30 mb-8 overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-3">
-              <div className="bg-gradient-to-br from-accent/15 to-primary/10 p-8 flex flex-col justify-center md:col-span-1">
-                <Badge className="w-fit mb-3 bg-accent text-white hover:bg-accent">En desarrollo</Badge>
-                <h3 className="text-xl font-bold mb-2 text-foreground">RiskFlow · Hospital</h3>
-                <p className="text-sm text-muted-foreground mb-4">Flow IA — Gestión de Riesgos y Controles · Auditoría interna digital</p>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Eye className="h-4 w-4 text-accent" /> CDMX · Sector salud
-                </div>
-              </div>
-              <div className="md:col-span-2 p-8">
-                <CardTitle className="text-lg mb-3">Del Excel al ciclo de auditoría 100% digital, colaborativo y trazable</CardTitle>
-                <p className="text-sm text-muted-foreground mb-4">
-                  El equipo de Auditoría Interna de un hospital de referencia en CDMX gestionaba
-                  riesgos y controles en Excel — sin flujo de trabajo separado, sin historial, sin trazabilidad.
-                  Preparar el reporte para la certificadora tomaba días de consolidación manual. Con FishFlow
-                  construimos una app en tres fases: un cuestionario guiado que el Dueño del Proceso completa
-                  solo (sin capacitación previa), generación automática de la Matriz de Riesgos y Controles,
-                  y un Mapa de Calor en tiempo real por nivel inherente y residual. Sin Excel, desde cualquier dispositivo.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-                  {[
-                    { label: "Antes",        text: "Excel compartido manualmente, sin historial ni trazabilidad" },
-                    { label: "Con FishFlow", text: "Cuestionario guiado → Matriz automática → Mapa de calor" },
-                    { label: "Resultado",    text: "Ciclo de auditoría colaborativo, trazable y auditable desde cualquier dispositivo" },
-                  ].map((r) => (
-                    <div key={r.label} className="bg-accent/5 p-3 rounded-lg">
-                      <p className="text-xs font-semibold text-accent uppercase mb-1">{r.label}</p>
-                      <p className="text-sm text-foreground">{r.text}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {CASOS_PUBLICOS.map((caso) => (
+              <Link key={caso.slug} href={`/casos/${caso.slug}`} className="group">
+                <Card className="flex h-full flex-col transition-all hover:border-primary/40 hover:shadow-xl">
+                  <CardHeader>
+                    <Badge variant="outline" className="w-fit mb-2 border-accent/40 text-accent">{caso.angulo}</Badge>
+                    <CardTitle className="text-base leading-snug">{caso.cliente}</CardTitle>
+                    <CardDescription className="text-xs">{caso.sector} · {caso.ciudad}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-1 flex-col">
+                    <p className="flex-1 text-sm text-muted-foreground mb-5">{caso.resumen}</p>
+                    <div className="grid grid-cols-3 gap-2 mb-5">
+                      {caso.resultados.map((r) => (
+                        <div key={r.label} className="text-center">
+                          <p className="text-xl font-extrabold text-accent leading-none">{r.valor}</p>
+                          <p className="text-[10px] text-muted-foreground leading-tight mt-1.5">{r.label}</p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Grid — 6 clientes activos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: LayoutDashboard, color: "accent",
-                title: "Panel central FishFlow",
-                tag: "Gestión",
-                desc: "Panel central para gestionar clientes, ingresos y operaciones de todos los negocios desde un solo lugar — en tiempo real, desde cualquier dispositivo.",
-                ai: false,
-              },
-              {
-                icon: ShoppingBag, color: "primary",
-                title: "App Belange · Estética CDMX",
-                tag: "Operación",
-                desc: "Tablero de contabilidad de productos vendidos por día, semana y mes. Conectado con MercadoPago para control de ingresos sin hojas de cálculo.",
-                ai: false,
-              },
-              {
-                icon: Navigation, color: "accent",
-                title: "App Lukon · Telemática GPS",
-                tag: "Tecnología",
-                desc: "Plataforma de rastreo GPS con tablero en tiempo real, gestión de contratos, facturación conectada y cobro en línea con MercadoPago.",
-                ai: false,
-              },
-              {
-                icon: TrendingUp, color: "primary",
-                title: "App TBA · Ventas Telecom",
-                tag: "Ventas + IA",
-                desc: "Sistema de seguimiento de ventas para equipos comerciales de telecomunicaciones — con inteligencia artificial que prioriza las ventas y acelera el cierre.",
-                ai: true,
-              },
-              {
-                icon: Brain, color: "accent",
-                title: "App TherapyOS",
-                tag: "Clínico + IA",
-                desc: "Expediente clínico digital con IA que resume sesiones automáticamente, organiza notas clínicas y lleva el historial del paciente sesión a sesión.",
-                ai: true,
-              },
-              {
-                icon: Activity, color: "primary",
-                title: "CANE Neurofeedback",
-                tag: "Presencia digital",
-                desc: "Página web clínica profesional con actualizaciones continuas. Pacientes nuevos llegan con información clara y confianza — sin que el dueño tenga que tocar nada.",
-                ai: false,
-              },
-              {
-                icon: Sparkles, color: "accent",
-                title: "Studio Jomay · Micropigmentación",
-                tag: "Presencia digital",
-                desc: "Sitio web profesional con su propia marca y dominio (studiojomay.com.mx), administrado por FishFlow. Sus clientas la encuentran en línea y la contactan directo.",
-                ai: false,
-              },
-              {
-                icon: PenTool, color: "primary",
-                title: "Mario Citalán · Ecosistema digital",
-                tag: "Próximamente",
-                desc: "Plataforma de contenidos y diagnóstico para su método de criterio y actitud: sitio, cuestionarios guiados y panel — en construcción para lanzamiento.",
-                ai: true,
-              },
-            ].map((c, i) => (
-              <Card key={i} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="outline" className={`w-fit ${c.color === "primary" ? "border-primary/30 text-primary" : "border-accent/40 text-accent"}`}>
-                      {c.tag}
-                    </Badge>
-                    {c.ai && (
-                      <Badge className="bg-accent/10 text-accent border border-accent/20 text-xs">
-                        <Bot className="w-3 h-3 mr-1" /> IA
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className={`rounded-lg p-2 shrink-0 ${c.color === "primary" ? "bg-primary/10" : "bg-accent/10"}`}>
-                      <c.icon className={`h-5 w-5 ${c.color === "primary" ? "text-primary" : "text-accent"}`} />
-                    </div>
-                    <CardTitle className="text-base leading-snug">{c.title}</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{c.desc}</p>
-                </CardContent>
-              </Card>
+                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                      Ver el caso completo
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <Link href="/casos">
+              <Button variant="outline" size="lg" className="border-primary text-primary hover:bg-primary hover:text-white">
+                Ver todos los casos <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+
+          {/* Proyectos en marcha — prueba social secundaria, sin robarle foco a los casos */}
+          <div className="mt-14 border-t border-primary/10 pt-10">
+            <p className="text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-6">
+              También en marcha
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {[
+                { icon: ShieldCheck, name: "RiskFlow · Hospital", note: "Auditoría interna digital" },
+                { icon: Brain,       name: "TherapyOS",           note: "Expediente clínico con IA" },
+                // ⚠️ Al publicar el caso de Lukon (publicado: true en lib/casos.ts),
+                // quitar este chip para que no aparezca duplicado arriba y aquí.
+                { icon: Navigation,  name: "Lukon",               note: "Telemática GPS" },
+                { icon: ShoppingBag, name: "Belange",             note: "Estética CDMX" },
+                { icon: Sparkles,    name: "Studio Jomay",        note: "Micropigmentación" },
+              ].map((p) => (
+                <div
+                  key={p.name}
+                  className="inline-flex items-center gap-2.5 rounded-full border border-primary/15 bg-secondary/40 px-4 py-2.5"
+                >
+                  <p.icon className="h-4 w-4 flex-shrink-0 text-primary" />
+                  <span className="text-sm font-semibold text-foreground leading-none">{p.name}</span>
+                  <span className="text-[11px] leading-none text-muted-foreground">· {p.note}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -1020,10 +867,10 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-white mb-3">Navegación</h4>
               <ul className="space-y-2 text-sm text-white/70">
-                {["how","services","apps","cases","faq"].map((id) => (
+                {["how","services","cases","faq"].map((id) => (
                   <li key={id}>
                     <button onClick={() => scrollToSection(id)} className="hover:text-white transition-colors capitalize">
-                      {id === "how" ? "Cómo funciona" : id === "services" ? "Servicios" : id === "apps" ? "Apps" : id === "cases" ? "Casos" : "FAQ"}
+                      {id === "how" ? "Cómo funciona" : id === "services" ? "Servicios" : id === "cases" ? "Casos de éxito" : "FAQ"}
                     </button>
                   </li>
                 ))}

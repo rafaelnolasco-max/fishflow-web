@@ -281,7 +281,17 @@ function LukonDashboard() {
         return;
       }
       setInvResult(data);
-      showToast("✅ CFDI timbrado exitosamente", true);
+      // El timbrado y el envío son independientes: la factura puede existir
+      // ante el SAT aunque el correo haya fallado. Hay que distinguirlos.
+      if (data.email?.enviado) {
+        showToast("✅ CFDI timbrado y enviado por correo", true);
+      } else if (data.email?.motivo === "sin_correo_del_receptor") {
+        showToast("✅ CFDI timbrado — sin correo del receptor, no se envió", true);
+      } else if (data.email?.motivo && data.email.motivo !== "omitido") {
+        showToast("✅ CFDI timbrado — falló el envío por correo", false);
+      } else {
+        showToast("✅ CFDI timbrado exitosamente", true);
+      }
     } catch {
       showToast("Error de conexión", false);
     } finally {

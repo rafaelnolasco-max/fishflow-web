@@ -34,6 +34,15 @@ export const SENDERS = {
   sieckvet: 'SieckVet <noreply@fishflow.mx>',
   enlace: 'Enlace Integral <recibos@fishflow.mx>',
   rmz: 'Cocinas y Closets RMZ <recibos@fishflow.mx>',
+
+  /**
+   * Lukon — único cliente con dominio propio verificado en Resend
+   * (`gpslukon.com`, 14-ago-2026). Son el fallback: lo que manda de verdad es
+   * `clients.email_from`, para que el flujo sirva a cualquier cliente que
+   * traiga su propio dominio sin tocar este archivo.
+   */
+  lukonFacturacion: 'Lukon <facturacion@gpslukon.com>',
+  lukonRecibos:     'Lukon <recibos@gpslukon.com>',
 } as const
 
 export type SenderKey = keyof typeof SENDERS
@@ -77,12 +86,28 @@ export function getResend(): Resend | null {
   return new Resend(key)
 }
 
+export type Adjunto = {
+  filename: string
+  content: Buffer
+}
+
 type SendArgs = {
+  /** Remitente del catálogo. Se usa salvo que venga `fromAddress`. */
   from: SenderKey
+  /**
+   * Remitente literal que gana sobre `from`.
+   *
+   * ÚNICO uso permitido: remitentes que vienen de `clients.email_from`, es
+   * decir configuración en base de datos, no una cadena escrita en la ruta.
+   * La regla de no poner un `from` literal en una ruta sigue vigente.
+   */
+  fromAddress?: string | null
   to: string | string[]
   subject: string
   html: string
-  replyTo?: string
+  replyTo?: string | null
+  bcc?: string | string[]
+  attachments?: Adjunto[]
   /** Etiqueta para los logs, ej. 'demo/mario-criterio'. */
   tag?: string
 }
@@ -96,10 +121,13 @@ type SendArgs = {
  */
 export async function sendEmail({
   from,
+  fromAddress,
   to,
   subject,
   html,
   replyTo,
+  bcc,
+  attachments,
   tag = 'email',
 }: SendArgs): Promise<{ ok: boolean; error?: unknown }> {
   const resend = getResend()
@@ -109,11 +137,20 @@ export async function sendEmail({
   }
 
   const { error } = await resend.emails.send({
-    from: SENDERS[from],
+    from: fromAddress || SENDERS[from],
     to: Array.isArray(to) ? to : [to],
     subject,
     html,
     ...(replyTo ? { replyTo } : {}),
+    ...(bcc ? { bcc: Array.isArray(bcc) ? bcc : [bcc] } : {}),
+    ...(attachments?.length
+      ? {
+          attachments: attachments.map((a) => ({
+            filename: a.filename,
+            content: a.content.toString('base64'),
+          })),
+        }
+      : {}),
   })
 
   if (error) {
