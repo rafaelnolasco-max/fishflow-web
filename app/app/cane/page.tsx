@@ -353,7 +353,7 @@ export default function CANEAppointmentsPage() {
             ...(SHOW_CITAS ? [{ id: "citas" as const, label: "Citas", icon: "📅" }] : []),
             { id: "resenas" as const,    label: "Reseñas",   icon: "⭐" },
             { id: "contenido" as const,  label: "Contenido", icon: "✨" },
-            { id: "programar" as const,  label: "Programar", icon: "🗓️" },
+            { id: "programar" as const,  label: "Publicaciones", icon: "🗓️" },
           ]}
           active={tab}
           onChange={setTab}

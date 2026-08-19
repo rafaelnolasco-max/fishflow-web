@@ -264,3 +264,95 @@ export async function updateSchedule(
 export async function deleteSchedule(id: string): Promise<void> {
   await call<void>(`/schedules/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
+
+// ─── Publicadas ───────────────────────────────────────────────────────────────
+
+/**
+ * Una publicación ya publicada, tal como la devuelve GET /v2/posts.
+ *
+ * ⚠️ NO trae accountId. Ninguno de los endpoints de publicadas lo trae, y por
+ * eso la atribución por cliente se hace de nuestro lado (ver lib/publishedSync).
+ */
+export type BlotatoPublishedPost = {
+  id: string;
+  platform: string;
+  text: string;
+  mediaUrls: string[];
+  postTime: string;
+  state?: { type: string; postUrl?: string; errorMessage?: string };
+};
+
+/**
+ * Publicaciones ya publicadas dentro de una ventana de tiempo.
+ *
+ * Aquí sí se usa GET /posts —y no /schedules— porque lo que se busca es el
+ * pasado, que es justo lo que /schedules no devuelve. La advertencia de
+ * `listSchedules` sobre este endpoint sigue siendo cierta pero no aplica: se
+ * truncaba por no mandar `limit` ni paginar con `cursor`. Con las dos cosas
+ * puestas devuelve la lista completa.
+ */
+export async function listPublishedPosts(opts: {
+  since: string;
+  until?: string;
+  maxPages?: number;
+}): Promise<BlotatoPublishedPost[]> {
+  const todas: BlotatoPublishedPost[] = [];
+  let cursor: string | undefined;
+  const maxPages = opts.maxPages ?? 10;
+
+  for (let page = 0; page < maxPages; page++) {
+    const qs = new URLSearchParams({ limit: "100", status: "published", since: opts.since });
+    if (opts.until) qs.set("until", opts.until);
+    if (cursor) qs.set("cursor", cursor);
+
+    const out = await call<{ items?: BlotatoPublishedPost[]; cursor?: string }>(`/posts?${qs}`);
+    const items = out?.items ?? [];
+    todas.push(...items);
+    // Mismo seguro que en listSchedules: un cursor que no avanza es un ciclo
+    // infinito dentro de una función de Vercel.
+    if (!out?.cursor || items.length === 0 || out.cursor === cursor) break;
+    cursor = out.cursor;
+  }
+
+  return todas;
+}
+
+// ─── Analíticas ───────────────────────────────────────────────────────────────
+
+/**
+ * Última foto de las métricas de una publicación.
+ *
+ * ⚠️ NO dispara una consulta a la red social: devuelve el último snapshot que
+ * Blotato ya había recolectado. Blotato mide en checkpoints fijos contados
+ * desde que el post sale, y en el plan Starter esos checkpoints son solo dos —
+ * al día 1 y al día 7. Después de la segunda medición el número queda congelado
+ * para siempre. Por eso `fetchedAt` se guarda y se pinta: sin la fecha, un "32
+ * vistas" de hace tres semanas se lee como si fuera de hoy.
+ *
+ * `metrics` viene en null mientras no haya habido ningún checkpoint (las
+ * primeras 24 h de vida del post). Eso NO es un error.
+ *
+ * Los valores llegan como STRING, a propósito: los contadores de las redes
+ * pueden pasarse de la precisión de un número de JavaScript.
+ */
+export type BlotatoMetrics = Record<string, string>;
+
+export type BlotatoPostAnalytics = {
+  publishedPostId: string;
+  platform: string;
+  lastFetchedAt: string | null;
+  lastError: string | null;
+  metrics: BlotatoMetrics | null;
+  history?: { fetchedAt: string; metrics: BlotatoMetrics }[];
+};
+
+export async function getPostAnalytics(id: string): Promise<BlotatoPostAnalytics | null> {
+  try {
+    return await call<BlotatoPostAnalytics>(`/posts/${encodeURIComponent(id)}/analytics`);
+  } catch (e) {
+    // Un post sin analíticas no puede tumbar el historial completo: se devuelve
+    // null y la pantalla enseña la publicación sin números.
+    if (e instanceof BlotatoError && e.status === 404) return null;
+    throw e;
+  }
+}

@@ -22,6 +22,7 @@ import {
   importCarousel,
   listSchedules,
 } from "@/lib/blotato";
+import { recordSchedulesSeen } from "@/lib/publishedSync";
 import {
   cdmxToUtcIso,
   composePostText,
@@ -115,8 +116,20 @@ export async function GET(req: NextRequest) {
     // content_settings simplemente no es de este cliente.
     const porCuenta = new Map(targets.map((t) => [t.accountId, t]));
 
-    const schedules = (await listSchedules())
-      .filter((s) => porCuenta.has(s.draft?.accountId ?? ""))
+    const mias = (await listSchedules()).filter((s) =>
+      porCuenta.has(s.draft?.accountId ?? ""),
+    );
+
+    // Deja constancia de lo programado ANTES de que se publique.
+    //
+    // Este es el único momento en que Blotato nos dice a qué cuenta pertenece
+    // una publicación: GET /v2/schedules trae accountId y los endpoints de
+    // publicadas no. En cuanto sale al aire, el dato desaparece. Guardarlo aquí
+    // es lo que después permite armar el historial de ESTE cliente sin
+    // enseñarle el de los demás. No bloquea el calendario si falla.
+    await recordSchedulesSeen(clientId, mias, porCuenta);
+
+    const schedules = mias
       .map((s) => {
         const target = porCuenta.get(s.draft.accountId)!;
         return {

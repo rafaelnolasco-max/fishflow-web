@@ -13,14 +13,21 @@
  * Las dos ventanas conviven sin tocarse: distinta tabla, distintos componentes,
  * distinto flujo.
  *
+ * Dentro de esta ventana hay dos vistas: "Programadas" (lo que va a salir, que
+ * se puede editar o cancelar) y "Publicadas" (lo que ya salió, con sus números).
+ * Son cosas distintas y por eso no se mezclan en una sola lista: en lo
+ * programado la pregunta es "¿está bien y a qué hora sale?", y en lo publicado
+ * es "¿cómo le fue?". Ninguna de las dos se contesta bien en una lista mixta.
+ *
  * Uso:
  *   <ScheduleTab clientId={CANE_CLIENT_ID} theme={T} suggestFormat="psicoeducacion" />
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Section, Empty, Chip, StatGrid, StatCard, Toast, type DashTheme,
+  Section, Empty, Chip, StatGrid, StatCard, TabBar, Toast, type DashTheme,
 } from "@/components/dashboard";
+import PublishedList from "@/components/schedule/PublishedList";
 import ScheduleComposer, {
   type ComposerInitial, type TakenSlots,
 } from "@/components/schedule/ScheduleComposer";
@@ -100,6 +107,9 @@ export default function ScheduleTab({
   /** Formato con el que la IA redacta al usar "Sugerir texto". */
   suggestFormat?: string;
 }) {
+  /** Cuál de las dos vistas se está mirando. */
+  const [vista, setVista] = useState<"programadas" | "publicadas">("programadas");
+
   const [targets, setTargets] = useState<SocialTarget[]>([]);
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [configured, setConfigured] = useState(true);
@@ -195,7 +205,37 @@ export default function ScheduleTab({
   }, [posts]);
 
   // ── Render ──────────────────────────────────────────────────────────────────
-  if (loading) return <Empty msg="Cargando tu calendario…" theme={t} />;
+  const barra = (
+    <TabBar
+      tabs={[
+        { id: "programadas", label: "Programadas", icon: "🗓️" },
+        { id: "publicadas", label: "Publicadas", icon: "✅" },
+      ]}
+      active={vista}
+      onChange={setVista}
+      theme={t}
+    />
+  );
+
+  // El historial se pinta solo. No espera a que cargue el calendario ni comparte
+  // su estado: son dos fuentes distintas y una lenta no debe tapar a la otra.
+  if (vista === "publicadas") {
+    return (
+      <>
+        {barra}
+        <PublishedList clientId={clientId} theme={t} />
+      </>
+    );
+  }
+
+  if (loading) {
+    return (
+      <>
+        {barra}
+        <Empty msg="Cargando tu calendario…" theme={t} />
+      </>
+    );
+  }
 
   const puedeProgramar = configured && targets.length > 0;
 
@@ -207,6 +247,8 @@ export default function ScheduleTab({
 
   return (
     <>
+      {barra}
+
       <StatGrid>
         <StatCard theme={t} label="Programadas"   value={counts.total}      icon="🗓️" accent={t.accent} />
         <StatCard theme={t} label="Esta semana"   value={counts.semana}     icon="📆" />
