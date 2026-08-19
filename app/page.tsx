@@ -31,9 +31,7 @@ import {
   PenTool,
   Cog,
   Activity,
-  ShoppingBag,
   MapPin,
-  Scissors,
   Brain,
   Navigation,
   LayoutDashboard,
@@ -43,6 +41,7 @@ import {
   FileText,
   Phone,
   Package,
+  Megaphone,
   Menu,
   X,
 } from "lucide-react";
@@ -246,12 +245,12 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
             {[
-              { icon: Scissors,   name: "Estética Belange", note: "CDMX", soon: false },
-              { icon: Activity,   name: "CANE Neurofeedback", note: "Salud", soon: false },
-              { icon: Sparkles,   name: "Studio Jomay", note: "Micropigmentación", soon: false },
-              { icon: Navigation, name: "Lukon", note: "Telemática GPS", soon: false },
-              { icon: Brain,      name: "TherapyOS", note: "Terapia", soon: false },
-              { icon: PenTool,    name: "Mario Citalán", note: "Próximamente", soon: true },
+              { icon: Activity,    name: "CANE Neurofeedback", note: "Salud", soon: false },
+              { icon: Sparkles,    name: "Studio Jomay", note: "Micropigmentación", soon: false },
+              { icon: Navigation,  name: "Lukon", note: "Telemática GPS", soon: false },
+              { icon: Brain,       name: "TherapyOS", note: "Terapia", soon: false },
+              { icon: PenTool,     name: "Mario Citalán", note: "Formación y terapia", soon: false },
+              { icon: ShieldCheck, name: "Enlace Integral", note: "Seguros", soon: false },
             ].map((c) => (
               <div
                 key={c.name}
@@ -270,7 +269,7 @@ export default function Home() {
             ))}
           </div>
           <p className="text-center text-xs text-muted-foreground mt-7">
-            Estéticas, consultorios, telemática y más — cada negocio con su propia app y panel.
+            Consultorios, seguros, telemática y más — cada negocio con su propia app y panel.
           </p>
         </div>
       </section>
@@ -331,11 +330,11 @@ export default function Home() {
               { icon: CreditCard,      accent: false, title: "Cobros en línea",              desc: "Stripe, MercadoPago y OXXO conectados, con recibo automático al cliente." },
               { icon: FileText,        accent: false, title: "Facturación automática",       desc: "Timbrado de facturas (CFDI) conectado a tus cobros, sin hojas de cálculo." },
               { icon: Calendar,        accent: false, title: "Agenda y reservas en línea",   desc: "Tus clientes agendan solos las 24 horas y reciben confirmación al instante." },
-              { icon: MessageSquare,   accent: false, title: "WhatsApp y avisos",            desc: "Avisos y recordatorios automáticos sin que levantes un dedo." },
+              { icon: MessageSquare,   accent: false, title: "WhatsApp, correo y avisos",     desc: "Avisos, recordatorios y correos automáticos sin que levantes un dedo." },
               { icon: Phone,           accent: true,  title: "Llamada con voz IA",           desc: "Una llamada con voz natural confirma o reagenda las citas por ti." },
               { icon: Package,         accent: false, title: "Inventario y punto de venta",  desc: "Control de productos, ventas del día y existencias en tiempo real." },
               { icon: Brain,           accent: true,  title: "Expediente con resúmenes IA",  desc: "Notas y sesiones que la IA resume y organiza solas, listas para consultar." },
-              { icon: Navigation,      accent: false, title: "Rastreo GPS de flotillas",     desc: "Monitoreo de vehículos, contratos y facturación en un solo tablero." },
+              { icon: Megaphone,       accent: true,  title: "Posteos programados a redes",  desc: "Publicaciones para Facebook e Instagram, programadas y publicadas en automático desde tu panel." },
               { icon: LayoutDashboard, accent: false, title: "Tablero en tiempo real",       desc: "Tus números clave y alertas de tu negocio, desde cualquier dispositivo." },
             ].map((b) => (
               <Card
@@ -438,8 +437,7 @@ export default function Home() {
                     { t: "Página web + para aparecer en Google", d: "Hasta 8 actualizaciones al año incluidas" },
                     { t: "Tablero de tu negocio",       d: "Ventas, reportes y números clave de tu negocio" },
                     { t: "Control de clientes",         d: "Seguimiento de ventas y clientes · hasta 3 usuarios" },
-                    { t: "Pagos conectados",            d: "MercadoPago o Stripe conectados a tu sistema" },
-                    { t: "Avisos automáticos",          d: "WhatsApp o correo sin que levantes un dedo" },
+                    { t: "Avisos automáticos",          d: "WhatsApp y correos automatizados sin que levantes un dedo" },
                     { t: "Soporte mensual dedicado",    d: "Sesión mensual de revisión y mejora" },
                   ].map((b) => (
                     <div key={b.t} className="flex gap-3">
@@ -474,6 +472,8 @@ export default function Home() {
                     { t: "Tablero en tiempo real",     d: "Alertas, tus números clave y reportes para dirección" },
                     { t: "Control de clientes avanzado + automatización", d: "Seguimiento y clasificación automáticos, sin trabajo manual" },
                     { t: "IA aplicada a tu negocio",   d: "Resúmenes automáticos, prioriza tus ventas y respuestas inteligentes" },
+                    { t: "Pagos conectados",           d: "MercadoPago, Stripe y OXXO conectados a tu sistema, con recibo automático" },
+                    { t: "Posteos programados a redes", d: "Facebook e Instagram publicados en automático desde tu panel" },
                     { t: "Conexiones a la medida",     d: "Facturación, inventario, GPS, auditoría y más" },
                     { t: "Usuarios ilimitados",        d: "Todo tu equipo en la misma plataforma" },
                     { t: "Revisión trimestral",        d: "Sesión estratégica con reporte para dirección" },
@@ -641,32 +641,6 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Proyectos en marcha — prueba social secundaria, sin robarle foco a los casos */}
-          <div className="mt-14 border-t border-primary/10 pt-10">
-            <p className="text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-6">
-              También en marcha
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              {[
-                { icon: ShieldCheck, name: "RiskFlow · Hospital", note: "Auditoría interna digital" },
-                { icon: Brain,       name: "TherapyOS",           note: "Expediente clínico con IA" },
-                // ⚠️ Al publicar el caso de Lukon (publicado: true en lib/casos.ts),
-                // quitar este chip para que no aparezca duplicado arriba y aquí.
-                { icon: Navigation,  name: "Lukon",               note: "Telemática GPS" },
-                { icon: ShoppingBag, name: "Belange",             note: "Estética CDMX" },
-                { icon: Sparkles,    name: "Studio Jomay",        note: "Micropigmentación" },
-              ].map((p) => (
-                <div
-                  key={p.name}
-                  className="inline-flex items-center gap-2.5 rounded-full border border-primary/15 bg-secondary/40 px-4 py-2.5"
-                >
-                  <p.icon className="h-4 w-4 flex-shrink-0 text-primary" />
-                  <span className="text-sm font-semibold text-foreground leading-none">{p.name}</span>
-                  <span className="text-[11px] leading-none text-muted-foreground">· {p.note}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
