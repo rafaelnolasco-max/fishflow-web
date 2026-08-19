@@ -23,7 +23,7 @@
 // en dos; el tope ahora es el del bucket, 200 MB.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { uploadAudioToPath, MAX_AUDIO_BYTES } from "@/lib/uploadAudio";
+import { uploadAudioToPath, buildModuleAudioPath, MAX_AUDIO_BYTES } from "@/lib/uploadAudio";
 import { backupChunk, clearBackup, markStart, readBackup, type PendingRecording } from "@/lib/recordingBackup";
 
 type RecState = "idle" | "recording" | "uploading" | "done" | "error";
@@ -121,9 +121,7 @@ export default function SessionRecorder({
         throw new Error(`La grabación pesa ${mb} MB y el máximo son 200 MB.`);
       }
 
-      const ts = new Date().toISOString().replace(/[:.]/g, "-");
-      const filename = `${ts}.${ext}`;
-      const path = `${clientId}/${module}/${refId ?? "na"}/${filename}`;
+      const { storagePath: path, filename } = buildModuleAudioPath(clientId, module, refId, ext);
 
       await uploadAudioToPath({
         blob,

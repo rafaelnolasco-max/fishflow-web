@@ -19,6 +19,27 @@ export function buildAudioPath(clientId: string, patientId: string, ext: string)
   return `${clientId}/therapy_self/${patientId}/${stamp}.${safeExt}`;
 }
 
+/**
+ * Convención de ruta de los módulos que graban o suben una sesión completa
+ * (TherapyOS, SieckVet): `audio/{clientId}/{module}/{refId}/{timestamp}.{ext}`.
+ *
+ * Vive aquí y no en el componente porque la comparten DOS caminos que deben
+ * caer en la misma carpeta: `SessionRecorder` (graba en la app) y
+ * `SessionAudioUpload` (sube un archivo ya grabado). Si divergen, el audio de
+ * una sesión aparece en dos lugares distintos.
+ */
+export function buildModuleAudioPath(
+  clientId: string,
+  module: string,
+  refId: string | null | undefined,
+  ext: string,
+): { storagePath: string; filename: string } {
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const safeExt = (ext || "webm").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5) || "webm";
+  const filename = `${stamp}.${safeExt}`;
+  return { storagePath: `${clientId}/${module}/${refId ?? "na"}/${filename}`, filename };
+}
+
 function putWithProgress(
   url: string, token: string, body: Blob, contentType: string, onProgress: (pct: number) => void,
 ): Promise<void> {

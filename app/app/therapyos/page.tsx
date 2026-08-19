@@ -13,6 +13,7 @@ import type {
   SessionConnection,
 } from "@/lib/supabase";
 import SessionRecorder from "@/components/SessionRecorder";
+import SessionAudioUpload from "@/components/SessionAudioUpload";
 import type { RecorderResult } from "@/components/SessionRecorder";
 import {
   TabBar, Toast, StatGrid,
@@ -324,7 +325,7 @@ function NewSessionModal({
   const [processing, setProcessing] = useState(false);
   const [preview, setPreview]       = useState<TherapySession | null>(null);
   const [error, setError]           = useState<string | null>(null);
-  const [importMode, setImportMode] = useState<"manual" | "fireflies" | "recorder">("manual");
+  const [importMode, setImportMode] = useState<"manual" | "fireflies" | "recorder" | "upload">("manual");
   const [firefliesInput, setFirefliesInput] = useState("");
 
   async function handleProcess() {
@@ -358,7 +359,10 @@ function NewSessionModal({
     }
   }
 
-  async function handleRecorded(r: RecorderResult) {
+  // `source` distingue el audio grabado en la app del que se sube ya grabado
+  // (Notas de Voz). Queda en sessions.source_type para saber, cuando algo
+  // falle, por cuál de los dos caminos entró.
+  async function handleRecorded(r: RecorderResult, source: "recorder" | "upload" = "recorder") {
     if (!patientId) { setError("Selecciona un paciente antes de grabar."); return; }
     setError(null);
     setProcessing(true);
@@ -372,6 +376,7 @@ function NewSessionModal({
           filename: r.filename,
           session_date: sessionDate,
           duration_seconds: r.durationSeconds,
+          source,
         }),
       });
       if (!res.ok) {
@@ -426,7 +431,7 @@ function NewSessionModal({
           {/* Modo de importación */}
           <Field label="Fuente de transcripción">
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {(["manual", "fireflies", "recorder"] as const).map(mode => (
+              {(["manual", "fireflies", "recorder", "upload"] as const).map(mode => (
                 <button key={mode} onClick={() => { setImportMode(mode); setPreview(null); }} style={{
                   padding: "8px 16px", borderRadius: 8, fontSize: 13,
                   border: `1px solid ${importMode === mode ? C.sage : C.border}`,
@@ -434,7 +439,10 @@ function NewSessionModal({
                   color: importMode === mode ? C.sageDark : C.muted,
                   cursor: "pointer", fontWeight: importMode === mode ? 500 : 400,
                 }}>
-                  {mode === "manual" ? "✏️ Pegar texto" : mode === "fireflies" ? "🔥 Importar de Fireflies" : "🎙️ Grabar sesión"}
+                  {mode === "manual" ? "✏️ Pegar texto"
+                    : mode === "fireflies" ? "🔥 Importar de Fireflies"
+                    : mode === "recorder" ? "🎙️ Grabar sesión"
+                    : "📁 Subir audio"}
                 </button>
               ))}
             </div>
@@ -463,7 +471,7 @@ function NewSessionModal({
                 Copia el link desde Fireflies o solo el ID. La transcripción debe estar lista (3-5 min después de la llamada).
               </p>
             </Field>
-          ) : (
+          ) : importMode === "recorder" ? (
             <Field label="Grabar la sesión">
               <div style={{
                 border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 14px",
@@ -483,6 +491,30 @@ function NewSessionModal({
                 <p style={{ fontSize: 11, color: C.muted, textAlign: "center", lineHeight: 1.5 }}>
                   Al detener, el audio se transcribe y la IA genera el borrador. Nada se envía al paciente hasta que tú apruebes.
                 </p>
+              </div>
+            </Field>
+          ) : (
+            <Field label="Subir un audio que ya grabaste">
+              <div style={{
+                border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 14px",
+              }}>
+                <SessionAudioUpload
+                  clientId={MARIO_CLIENT_ID}
+                  module="therapy_session"
+                  refId={patientId || null}
+                  disabled={!patientId || processing}
+                  onUploaded={(r) => handleRecorded(r, "upload")}
+                  accent={C.sage}
+                  border={C.border}
+                  muted={C.muted}
+                  text={C.charcoal}
+                  danger={C.alert}
+                />
+                {!patientId && (
+                  <p style={{ fontSize: 11, color: C.muted, marginTop: 10 }}>
+                    Selecciona un paciente para habilitar la subida.
+                  </p>
+                )}
               </div>
             </Field>
           )}

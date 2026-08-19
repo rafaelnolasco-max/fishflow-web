@@ -33,13 +33,20 @@ const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
 export async function POST(req: NextRequest) {
   try {
-    const { patient_id, storage_path, session_date, duration_seconds } = (await req.json()) as {
+    const { patient_id, storage_path, session_date, duration_seconds, source } = (await req.json()) as {
       patient_id: string;
       storage_path: string;
       filename?: string;
       session_date: string;
       duration_seconds?: number;
+      /** "recorder" = grabado en la app; "upload" = archivo ya grabado (Notas de Voz). */
+      source?: "recorder" | "upload";
     };
+
+    // El audio subido ya existe y es lo único que hay: no lo rechazamos por
+    // corto. El del grabador sí, porque ahí un archivo de 2 s siempre es un
+    // toque accidental al botón.
+    const sourceType: "recorder" | "upload" = source === "upload" ? "upload" : "recorder";
 
     if (!patient_id || !storage_path || !session_date) {
       return NextResponse.json(
@@ -48,7 +55,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (typeof duration_seconds === "number" && duration_seconds < 3) {
+    if (sourceType === "recorder" && typeof duration_seconds === "number" && duration_seconds < 3) {
       return NextResponse.json(
         { error: "La grabación fue demasiado corta. Graba al menos unos segundos hablando." },
         { status: 422 },
@@ -78,7 +85,7 @@ export async function POST(req: NextRequest) {
       module: "therapy_session",
       refId: patient_id,
       storagePath: storage_path,
-      sourceType: "recorder",
+      sourceType,
       language: "es",
     });
 
@@ -86,7 +93,9 @@ export async function POST(req: NextRequest) {
       if (tx.reason === "empty") {
         return NextResponse.json(
           {
-            error: "No se detectó voz en la grabación. Suele ser que el micrófono no captó audio. Revisa el permiso del micrófono e intenta de nuevo, hablando cerca del teléfono.",
+            error: sourceType === "upload"
+              ? "No se detectó voz en el archivo. Revisa que sea la grabación correcta de la sesión y no un audio en blanco."
+              : "No se detectó voz en la grabación. Suele ser que el micrófono no captó audio. Si grabaste en paralelo con Notas de Voz, el navegador se queda sin micrófono: usa \"Subir audio\" con ese archivo.",
             empty: true,
           },
           { status: 422 },
@@ -116,7 +125,7 @@ export async function POST(req: NextRequest) {
     const { data: updated } = await supabaseAdmin
       .from("sessions")
       .update({
-        source_type: "recorder",
+        source_type: sourceType,
         audio_path: storage_path,
         transcription_id: tx.transcriptionId ?? null,
       })
