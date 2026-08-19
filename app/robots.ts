@@ -19,6 +19,7 @@ export default function robots(): MetadataRoute.Robots {
           "/cita/",
           "/resumen/",
           "/resenas/",
+          "/o/",
         ],
       },
     ],
