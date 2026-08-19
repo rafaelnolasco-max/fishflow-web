@@ -45,6 +45,7 @@ type Respuesta = {
   csat: number | null;
   comment: string | null;
   attribution: string | null;
+  product_ref: string | null;
   contact_phone: string | null;
   consent: boolean;
   google_cta_shown: boolean;
@@ -95,6 +96,9 @@ export default function TouchpointsPanel({
   const [respuestas, setRespuestas] = useState<Respuesta[]>([]);
   const [cargando, setCargando] = useState(true);
   const [filtro, setFiltro] = useState<"todas" | "criticas" | "sin_atender">("todas");
+  // Los comentarios del mostrador y los de la bolsa de café hablan de cosas
+  // distintas: mezclarlos en una sola lista no le sirve al dueño.
+  const [punto, setPunto] = useState<string>("todos");
   const [copiado, setCopiado] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
@@ -109,7 +113,7 @@ export default function TouchpointsPanel({
       supabase
         .from("review_responses")
         .select(
-          "id, touchpoint_id, csat, comment, attribution, contact_phone, consent, google_cta_shown, google_cta_clicked, outcome, handled, started_at, completed_at",
+          "id, touchpoint_id, csat, comment, attribution, product_ref, contact_phone, consent, google_cta_shown, google_cta_clicked, outcome, handled, started_at, completed_at",
         )
         .eq("client_id", clientId)
         .gte("started_at", desde)
@@ -172,12 +176,42 @@ export default function TouchpointsPanel({
 
   const totalAtrib = porAtribucion.reduce((s, [, n]) => s + n, 0);
 
+  /** Qué mezclas se llevaron. Solo lo contesta quien escanea el QR de la bolsa. */
+  const porMezcla = useMemo(() => {
+    const m = new Map<string, { n: number; suma: number; con: number }>();
+    completadas.filter((r) => r.product_ref).forEach((r) => {
+      const k = r.product_ref!;
+      const a = m.get(k) ?? { n: 0, suma: 0, con: 0 };
+      a.n++;
+      if (r.csat != null) { a.suma += r.csat; a.con++; }
+      m.set(k, a);
+    });
+    return [...m.entries()]
+      .map(([nombre, a]) => ({ nombre, n: a.n, csat: a.con ? (a.suma / a.con).toFixed(1) : null }))
+      .sort((x, y) => y.n - x.n);
+  }, [completadas]);
+
   const bandeja = useMemo(() => {
-    const conTexto = completadas.filter((r) => r.comment?.trim());
+    let conTexto = completadas.filter((r) => r.comment?.trim());
+    if (punto !== "todos") conTexto = conTexto.filter((r) => r.touchpoint_id === punto);
     if (filtro === "criticas") return conTexto.filter((r) => (r.csat ?? 5) <= 2);
     if (filtro === "sin_atender") return conTexto.filter((r) => (r.csat ?? 5) <= 2 && !r.handled);
     return conTexto;
-  }, [completadas, filtro]);
+  }, [completadas, filtro, punto]);
+
+  /** Cuántos comentarios tiene cada punto, para rotular las pestañas. */
+  const comentariosPorPunto = useMemo(() => {
+    const m = new Map<string, number>();
+    completadas.filter((r) => r.comment?.trim()).forEach((r) => {
+      if (r.touchpoint_id) m.set(r.touchpoint_id, (m.get(r.touchpoint_id) ?? 0) + 1);
+    });
+    return m;
+  }, [completadas]);
+
+  const nombrePunto = useMemo(() => {
+    const m = new Map(touchpoints.map((t) => [t.id, t.label]));
+    return (id: string | null) => (id ? m.get(id) ?? null : null);
+  }, [touchpoints]);
 
   async function marcarAtendido(id: string, valor: boolean) {
     setRespuestas((rs) =>
@@ -415,8 +449,59 @@ export default function TouchpointsPanel({
         )}
       </DSection>
 
+      {/* ── Mezclas ────────────────────────────────────────────────────────── */}
+      {porMezcla.length > 0 && (
+        <DSection theme={T} title="Mezclas que se llevaron">
+          <p style={{ fontSize: 12.5, color: T.muted, marginTop: 0, marginBottom: 14, lineHeight: 1.55 }}>
+            Viene del QR de la bolsa. Dice qué café seguir trayendo y, más adelante,
+            a quién escribirle cuando se le esté acabando.
+          </p>
+          <div style={{ display: "grid", gap: 9 }}>
+            {porMezcla.map((m) => (
+              <div key={m.nombre} style={{
+                display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center",
+                padding: "11px 13px", background: T.panel ?? T.bg, borderRadius: 10,
+              }}>
+                <span style={{ fontSize: 13.5, fontWeight: 700, color: T.text }}>{m.nombre}</span>
+                <span style={{ fontSize: 12.5, color: T.muted, whiteSpace: "nowrap" }}>
+                  {m.n} · <b style={{ color: colorCsat(m.csat ? Math.round(Number(m.csat)) : null) }}>
+                    {m.csat ?? "—"}
+                  </b>
+                </span>
+              </div>
+            ))}
+          </div>
+        </DSection>
+      )}
+
       {/* ── Bandeja de comentarios ─────────────────────────────────────────── */}
       <DSection theme={T} title={`Comentarios (${bandeja.length})`}>
+        {touchpoints.length > 1 && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+            {[{ id: "todos", label: "Todos los puntos" }, ...touchpoints].map((t) => {
+              const n = t.id === "todos"
+                ? [...comentariosPorPunto.values()].reduce((a, b) => a + b, 0)
+                : comentariosPorPunto.get(t.id) ?? 0;
+              const activo = punto === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setPunto(t.id)}
+                  style={{
+                    padding: "8px 14px", borderRadius: 9,
+                    border: `1px solid ${activo ? T.accent : T.border}`,
+                    background: activo ? T.accentSoft : "#fff",
+                    color: activo ? T.accentDark : T.muted,
+                    fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
+                  }}
+                >
+                  {t.label} ({n})
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
           {(
             [
@@ -473,6 +558,12 @@ export default function TouchpointsPanel({
                     <span style={{ fontSize: 20 }}>{CARITAS[r.csat ?? 0] ?? ""}</span>
                     <b style={{ color: colorCsat(r.csat), fontSize: 14 }}>{r.csat ?? "—"}/5</b>
                     <span style={{ fontSize: 12, color: T.muted }}>{fechaCorta(r.started_at)}</span>
+                    {punto === "todos" && nombrePunto(r.touchpoint_id) && (
+                      <Chip label={nombrePunto(r.touchpoint_id)!} bg={T.border} fg={T.text} />
+                    )}
+                    {r.product_ref && (
+                      <Chip label={`Mezcla: ${r.product_ref}`} bg="#FBEEE0" fg="#8A4E13" />
+                    )}
                     {r.attribution && (
                       <Chip label={r.attribution} bg={T.accentSoft} fg={T.accentDark} />
                     )}

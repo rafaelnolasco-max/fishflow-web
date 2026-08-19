@@ -123,11 +123,15 @@ export async function GET(
       )
       .eq("client_id", tp.client_id)
       .maybeSingle(),
+    // Las preguntas se filtran por el tipo de punto: el QR del mostrador y el de
+    // la bolsa de café se escanean en momentos distintos y no preguntan lo mismo.
+    // touchpoint_kind NULL = la pregunta aplica a todos los puntos.
     admin()
       .from("review_questions")
-      .select("id, position, kind, label_high, label_low, options, required")
+      .select("id, position, kind, role, label_high, label_low, options, required, touchpoint_kind")
       .eq("client_id", tp.client_id)
       .eq("active", true)
+      .or(`touchpoint_kind.is.null,touchpoint_kind.eq.${tp.kind}`)
       .order("position", { ascending: true }),
   ]);
 
@@ -171,6 +175,7 @@ type Body = {
   csat?: number;
   comment?: string;
   attribution?: string;
+  productRef?: string;
   phone?: string;
   consent?: boolean;
   outcome?: string;
@@ -265,6 +270,8 @@ export async function POST(
     const patch: Record<string, unknown> = {};
     if (typeof body.comment === "string") patch.comment = body.comment.slice(0, 2000);
     if (typeof body.attribution === "string") patch.attribution = body.attribution.slice(0, 120);
+    // Qué mezcla se llevó. Es el dato que habilita la recompra a 21 días.
+    if (typeof body.productRef === "string") patch.product_ref = body.productRef.slice(0, 120);
     if (Object.keys(patch).length) {
       const { error } = await db.from("review_responses").update(patch).eq("id", responseId);
       if (error) {
@@ -351,7 +358,7 @@ async function alertarSiAplica(tp: Touchpoint, responseId: string) {
   const [{ data: r }, { data: s }] = await Promise.all([
     db
       .from("review_responses")
-      .select("csat, comment, attribution, contact_phone, started_at")
+      .select("csat, comment, attribution, product_ref, contact_phone, started_at")
       .eq("id", responseId)
       .maybeSingle(),
     db
@@ -368,6 +375,7 @@ async function alertarSiAplica(tp: Touchpoint, responseId: string) {
   const cuerpo = [
     `CSAT ${r.csat}/5 · ${tp.label} · ${new Date(r.started_at as string).toLocaleString("es-MX")}`,
     r.attribution ? `Llegó por: ${r.attribution}` : null,
+    r.product_ref ? `Mezcla: ${r.product_ref}` : null,
     r.comment ? `"${r.comment}"` : "(sin comentario)",
     r.contact_phone ? `Contacto: ${r.contact_phone}` : "(sin contacto)",
   ]

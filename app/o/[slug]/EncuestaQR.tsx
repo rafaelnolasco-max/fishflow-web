@@ -1,17 +1,18 @@
 "use client";
 
 // app/o/[slug]/EncuestaQR.tsx
-// Encuesta del canal QR. Seis pantallas, una sola pregunta obligatoria.
+// Encuesta del canal QR. Una sola pregunta obligatoria (la calificación) y el
+// resto saltable.
 //
-// Orden: P0 CSAT → P1 chips → P2 atribución → P3 comentario → P4 contacto →
-//        P5 salida dual → P6 gracias
+// El cuestionario NO está escrito aquí: se arma con las filas de review_questions
+// que devuelve la API, ya filtradas por el tipo de punto de contacto. Por eso el
+// QR del mostrador y el de la bolsa de café preguntan cosas distintas sin tocar
+// código — el del mostrador se escanea en el local minutos después de consumir,
+// el de la bolsa se escanea en casa días después.
 //
-// La pregunta de atribución (P2) salió de analizar el cuestionario de Don Frank:
-// es la única con ROI de marketing directo. Ver copy-canal-qr-moran.md.
-//
-// Regla dura: en P5 los dos botones se muestran SIEMPRE, con el mismo tamaño y
-// en la misma pantalla, sin importar el CSAT. Condicionar el CTA de Google al
-// sentimiento es review gating y viola la política de Google Maps.
+// Regla dura: en la salida los dos botones se muestran SIEMPRE, con el mismo
+// tamaño y en la misma pantalla, sin importar la calificación. Condicionar el CTA
+// de Google al sentimiento es review gating y viola la política de Google Maps.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -19,10 +20,13 @@ type Question = {
   id: string;
   position: number;
   kind: "rating" | "choice" | "multichoice" | "text";
+  /** Destino especial de la respuesta: atribución o mezcla comprada. */
+  role: "attribution" | "product" | null;
   label_high: string | null;
   label_low: string | null;
   options: string[] | null;
   required: boolean;
+  touchpoint_kind: string | null;
 };
 
 type Config = {
@@ -38,18 +42,37 @@ type Config = {
 };
 
 const CARITAS = ["\u{1F620}", "\u{1F615}", "\u{1F610}", "\u{1F642}", "\u{1F929}"];
-const PASOS = ["csat", "chips", "atribucion", "comentario", "contacto", "salida", "gracias"] as const;
-type Paso = (typeof PASOS)[number];
+
+/** Copy de la primera pantalla según dónde se escaneó el código. */
+const APERTURA: Record<string, { titulo: string; bajada: string; anclas: [string, string] }> = {
+  empaque: {
+    titulo: "¿Qué tal quedó esta mezcla?",
+    bajada: "Nos dice qué café seguir trayendo.",
+    anclas: ["No me gustó", "Excelente"],
+  },
+  otro: {
+    titulo: "¿Cómo estuvo tu visita?",
+    bajada: "Nos ayuda a cuidar lo que hacemos bien y arreglar lo que no.",
+    anclas: ["Mal", "Excelente"],
+  },
+};
+
+/** Copy de la pantalla de contacto, también según el punto. */
+const CONTACTO: Record<string, string> = {
+  empaque: "¿Te avisamos cuando salga la nueva?",
+  otro: "¿Te avisamos de lo nuevo?",
+};
+
+type Paso = { t: "csat" } | { t: "q"; i: number } | { t: "contacto" } | { t: "salida" } | { t: "gracias" };
 
 export default function EncuestaQR({ slug }: { slug: string }) {
   const [cfg, setCfg] = useState<Config | null>(null);
   const [fallo, setFallo] = useState<string | null>(null);
-  const [paso, setPaso] = useState<Paso>("csat");
+  const [paso, setPaso] = useState<Paso>({ t: "csat" });
   const [csat, setCsat] = useState<number | null>(null);
   const [responseId, setResponseId] = useState<string | null>(null);
   const [seleccion, setSeleccion] = useState<string[]>([]);
-  const [atribucion, setAtribucion] = useState<string | null>(null);
-  const [comentario, setComentario] = useState("");
+  const [texto, setTexto] = useState("");
   const [telefono, setTelefono] = useState("");
   const [consiente, setConsiente] = useState(false);
   const [ocupado, setOcupado] = useState(false);
@@ -70,19 +93,9 @@ export default function EncuestaQR({ slug }: { slug: string }) {
   }, [slug]);
 
   const alto = (csat ?? 5) >= 4;
-
-  const preguntaChips = useMemo(
-    () => cfg?.questions.find((q) => q.kind === "multichoice") ?? null,
-    [cfg],
-  );
-  const preguntaAtrib = useMemo(
-    () => cfg?.questions.find((q) => q.kind === "choice") ?? null,
-    [cfg],
-  );
-  const preguntaTexto = useMemo(
-    () => cfg?.questions.find((q) => q.kind === "text") ?? null,
-    [cfg],
-  );
+  const preguntas = useMemo(() => cfg?.questions ?? [], [cfg]);
+  const kind = cfg?.touchpoint.kind ?? "otro";
+  const apertura = APERTURA[kind] ?? APERTURA.otro;
 
   const post = useCallback(
     async (payload: Record<string, unknown>) => {
@@ -96,6 +109,14 @@ export default function EncuestaQR({ slug }: { slug: string }) {
     [slug],
   );
 
+  /** Avanza a la siguiente pregunta, o a contacto/salida si ya no hay. */
+  function siguiente(desde: number) {
+    setSeleccion([]);
+    setTexto("");
+    if (desde + 1 < preguntas.length) setPaso({ t: "q", i: desde + 1 });
+    else setPaso(cfg?.collectContact ? { t: "contacto" } : { t: "salida" });
+  }
+
   async function elegirCsat(n: number) {
     if (ocupado) return;
     setOcupado(true);
@@ -103,55 +124,44 @@ export default function EncuestaQR({ slug }: { slug: string }) {
     const j = await post({ action: "start", csat: n });
     if (j?.responseId) setResponseId(String(j.responseId));
     setOcupado(false);
-    setPaso("chips");
+    if (preguntas.length) setPaso({ t: "q", i: 0 });
+    else setPaso(cfg?.collectContact ? { t: "contacto" } : { t: "salida" });
   }
 
-  async function guardarChips(saltar = false) {
-    if (!saltar && seleccion.length && preguntaChips && responseId) {
-      await post({
-        action: "answers",
-        responseId,
-        answers: [{ questionId: preguntaChips.id, choice: seleccion }],
-      });
+  /** Guarda la respuesta de una pregunta y avanza. valor null = la saltó. */
+  async function responder(i: number, valor: string[] | string | null) {
+    const q = preguntas[i];
+    if (!q || !responseId || valor == null || (Array.isArray(valor) && !valor.length)) {
+      siguiente(i);
+      return;
     }
-    setPaso("atribucion");
-  }
+    const esLista = Array.isArray(valor);
+    const plano = esLista ? valor.join(", ") : valor;
 
-  async function guardarAtribucion(valor: string | null) {
-    setAtribucion(valor);
-    if (valor && responseId) {
-      await post({ action: "detail", responseId, attribution: valor });
-      if (preguntaAtrib) {
-        await post({
-          action: "answers",
-          responseId,
-          answers: [{ questionId: preguntaAtrib.id, text: valor }],
-        });
-      }
-    }
-    setPaso("comentario");
-  }
+    await post({
+      action: "answers",
+      responseId,
+      answers: [
+        esLista
+          ? { questionId: q.id, choice: valor }
+          : { questionId: q.id, text: valor },
+      ],
+    });
 
-  async function guardarComentario(saltar = false) {
-    const texto = comentario.trim();
-    if (!saltar && texto && responseId) {
-      await post({ action: "detail", responseId, comment: texto });
-      if (preguntaTexto) {
-        await post({
-          action: "answers",
-          responseId,
-          answers: [{ questionId: preguntaTexto.id, text: texto }],
-        });
-      }
-    }
-    setPaso(cfg?.collectContact ? "contacto" : "salida");
+    // Algunas preguntas además alimentan una columna propia de review_responses:
+    // la atribución (de dónde vino) y la mezcla comprada (para la recompra).
+    if (q.role === "attribution") await post({ action: "detail", responseId, attribution: plano });
+    else if (q.role === "product") await post({ action: "detail", responseId, productRef: plano });
+    else if (q.kind === "text") await post({ action: "detail", responseId, comment: plano });
+
+    siguiente(i);
   }
 
   async function guardarContacto(saltar = false) {
     if (!saltar && consiente && telefono.trim() && responseId) {
       await post({ action: "contact", responseId, phone: telefono, consent: true });
     }
-    setPaso("salida");
+    setPaso({ t: "salida" });
   }
 
   async function terminar(outcome: "google" | "private") {
@@ -159,7 +169,7 @@ export default function EncuestaQR({ slug }: { slug: string }) {
     if (outcome === "google" && cfg?.reviewLink) {
       window.open(cfg.reviewLink, "_blank", "noopener,noreferrer");
     }
-    setPaso("gracias");
+    setPaso({ t: "gracias" });
   }
 
   if (fallo) {
@@ -177,23 +187,27 @@ export default function EncuestaQR({ slug }: { slug: string }) {
     );
   }
 
-  const color = cfg.brandColor ?? "#C9741F";
-  const idx = PASOS.indexOf(paso);
-  const progreso = (idx / (PASOS.length - 1)) * 100;
+  const totalPasos = 1 + preguntas.length + (cfg.collectContact ? 1 : 0) + 2;
+  const indice =
+    paso.t === "csat" ? 0
+    : paso.t === "q" ? 1 + paso.i
+    : paso.t === "contacto" ? 1 + preguntas.length
+    : paso.t === "salida" ? totalPasos - 2
+    : totalPasos - 1;
 
   return (
     <Marco
       titulo={cfg.business}
       sub={cfg.touchpoint.label}
-      color={color}
+      color={cfg.brandColor ?? "#C9741F"}
       logo={cfg.logoUrl}
-      progreso={progreso}
+      progreso={(indice / (totalPasos - 1)) * 100}
     >
-      {paso === "csat" && (
+      {paso.t === "csat" && (
         <>
           <div className="eyebrow">Un toque</div>
-          <h2>¿Cómo estuvo tu visita?</h2>
-          <p className="q">Nos ayuda a cuidar lo que hacemos bien y arreglar lo que no.</p>
+          <h2>{apertura.titulo}</h2>
+          <p className="q">{apertura.bajada}</p>
           <div className="csat">
             {CARITAS.map((cara, i) => (
               <button
@@ -209,94 +223,31 @@ export default function EncuestaQR({ slug }: { slug: string }) {
             ))}
           </div>
           <div className="anchors">
-            <span>Mal</span>
-            <span>Excelente</span>
+            <span>{apertura.anclas[0]}</span>
+            <span>{apertura.anclas[1]}</span>
           </div>
           <div className="foot">Toma menos de un minuto</div>
         </>
       )}
 
-      {paso === "chips" && preguntaChips && (
-        <>
-          <div className="eyebrow">Calificaste {csat} de 5</div>
-          <h2>{(alto ? preguntaChips.label_high : preguntaChips.label_low) ?? "¿Qué tal todo?"}</h2>
-          <p className="q">Puedes elegir más de una. Opcional.</p>
-          <div className="chips">
-            {(preguntaChips.options ?? []).map((o) => (
-              <button
-                key={o}
-                type="button"
-                className={seleccion.includes(o) ? "chip sel" : "chip"}
-                onClick={() =>
-                  setSeleccion((s) => (s.includes(o) ? s.filter((x) => x !== o) : [...s, o]))
-                }
-              >
-                {o}
-              </button>
-            ))}
-          </div>
-          <button className="btn btn--dark" onClick={() => void guardarChips()}>
-            Continuar
-          </button>
-          <button className="skip" onClick={() => void guardarChips(true)}>
-            Saltar
-          </button>
-        </>
+      {paso.t === "q" && preguntas[paso.i] && (
+        <Pregunta
+          q={preguntas[paso.i]}
+          i={paso.i}
+          alto={alto}
+          csat={csat}
+          seleccion={seleccion}
+          setSeleccion={setSeleccion}
+          texto={texto}
+          setTexto={setTexto}
+          onResponder={responder}
+        />
       )}
 
-      {paso === "atribucion" && preguntaAtrib && (
+      {paso.t === "contacto" && (
         <>
           <div className="eyebrow">Opcional</div>
-          <h2>{preguntaAtrib.label_high ?? "¿Cómo llegaste hoy?"}</h2>
-          <p className="q">Nos dice dónde vale la pena poner esfuerzo.</p>
-          <div className="opciones">
-            {(preguntaAtrib.options ?? []).map((o) => (
-              <button
-                key={o}
-                type="button"
-                className={atribucion === o ? "opcion sel" : "opcion"}
-                onClick={() => void guardarAtribucion(o)}
-              >
-                {o}
-              </button>
-            ))}
-          </div>
-          <button className="skip" onClick={() => void guardarAtribucion(null)}>
-            Saltar
-          </button>
-        </>
-      )}
-
-      {paso === "comentario" && (
-        <>
-          <div className="eyebrow">Opcional</div>
-          <h2>{(alto ? preguntaTexto?.label_high : preguntaTexto?.label_low) ?? "¿Nos cuentas más?"}</h2>
-          <p className="q">
-            {alto
-              ? "Lo que escribas lo lee el equipo, no un robot."
-              : "Entre más claro nos lo digas, mejor lo arreglamos."}
-          </p>
-          <textarea
-            className="field"
-            rows={3}
-            maxLength={2000}
-            placeholder="Escríbelo en pocas palabras"
-            value={comentario}
-            onChange={(e) => setComentario(e.target.value)}
-          />
-          <button className="btn btn--dark" onClick={() => void guardarComentario()}>
-            Continuar
-          </button>
-          <button className="skip" onClick={() => void guardarComentario(true)}>
-            Saltar
-          </button>
-        </>
-      )}
-
-      {paso === "contacto" && (
-        <>
-          <div className="eyebrow">Opcional</div>
-          <h2>¿Te avisamos de lo nuevo?</h2>
+          <h2>{CONTACTO[kind] ?? CONTACTO.otro}</h2>
           {cfg.incentiveText && (
             <div className="perk">
               <b>{cfg.incentiveText}</b>
@@ -337,13 +288,13 @@ export default function EncuestaQR({ slug }: { slug: string }) {
         </>
       )}
 
-      {paso === "salida" && (
+      {paso.t === "salida" && (
         <>
           <div className="eyebrow">Último paso</div>
           <h2>{alto ? "Gracias por contarnos" : "Perdón, así no debió ser"}</h2>
           <p className="q">¿Dónde quieres dejar tu opinión?</p>
           {/* Los dos botones van siempre juntos y del mismo tamaño. No condicionar
-              por CSAT: eso sería review gating. */}
+              por calificación: eso sería review gating. */}
           <div className="dual">
             {cfg.reviewLink && (
               <button className="btn btn--google" onClick={() => void terminar("google")}>
@@ -358,7 +309,7 @@ export default function EncuestaQR({ slug }: { slug: string }) {
         </>
       )}
 
-      {paso === "gracias" && (
+      {paso.t === "gracias" && (
         <>
           <div className="ok">&#10003;</div>
           <h2 style={{ textAlign: "center" }}>Listo, gracias</h2>
@@ -380,8 +331,111 @@ export default function EncuestaQR({ slug }: { slug: string }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Una pregunta = una pantalla. Componente aparte y no una función dentro del
+// render: definirlo adentro lo recrea en cada tecla y el teclado móvil se cierra.
+// ─────────────────────────────────────────────────────────────────────────────
+function Pregunta({
+  q,
+  i,
+  alto,
+  csat,
+  seleccion,
+  setSeleccion,
+  texto,
+  setTexto,
+  onResponder,
+}: {
+  q: Question;
+  i: number;
+  alto: boolean;
+  csat: number | null;
+  seleccion: string[];
+  setSeleccion: (f: (s: string[]) => string[]) => void;
+  texto: string;
+  setTexto: (v: string) => void;
+  onResponder: (i: number, valor: string[] | string | null) => void;
+}) {
+  const titulo = (alto ? q.label_high : q.label_low) ?? q.label_high ?? "¿Nos cuentas?";
+  const opciones = q.options ?? [];
+
+  return (
+    <>
+      <div className="eyebrow">
+        {i === 0 && csat ? `Calificaste ${csat} de 5` : "Opcional"}
+      </div>
+      <h2>{titulo}</h2>
+
+      {q.kind === "multichoice" && (
+        <>
+          <p className="q">Puedes elegir más de una. Opcional.</p>
+          <div className="chips">
+            {opciones.map((o) => (
+              <button
+                key={o}
+                type="button"
+                className={seleccion.includes(o) ? "chip sel" : "chip"}
+                onClick={() =>
+                  setSeleccion((s) => (s.includes(o) ? s.filter((x) => x !== o) : [...s, o]))
+                }
+              >
+                {o}
+              </button>
+            ))}
+          </div>
+          <button className="btn btn--dark" onClick={() => onResponder(i, seleccion)}>
+            Continuar
+          </button>
+        </>
+      )}
+
+      {q.kind === "choice" && (
+        <>
+          <p className="q">
+            {q.role === "product"
+              ? "Así sabemos cuál seguir trayendo."
+              : "Nos dice dónde vale la pena poner esfuerzo."}
+          </p>
+          <div className="opciones">
+            {opciones.map((o) => (
+              <button key={o} type="button" className="opcion" onClick={() => onResponder(i, o)}>
+                {o}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {q.kind === "text" && (
+        <>
+          <p className="q">
+            {alto
+              ? "Lo que escribas lo lee el equipo, no un robot."
+              : "Entre más claro nos lo digas, mejor lo arreglamos."}
+          </p>
+          <textarea
+            className="field"
+            rows={3}
+            maxLength={2000}
+            placeholder="Escríbelo en pocas palabras"
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+          />
+          <button className="btn btn--dark" onClick={() => onResponder(i, texto.trim() || null)}>
+            Continuar
+          </button>
+        </>
+      )}
+
+      <button className="skip" onClick={() => onResponder(i, null)}>
+        Saltar
+      </button>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Marco visual. Estilos inline en el componente para que la ruta pública no
-// dependa del sistema de la app (esto lo abre gente en la calle, con su datos).
+// dependa del sistema de la app (esto lo abre gente en la calle, con sus datos).
 // ─────────────────────────────────────────────────────────────────────────────
 function Marco({
   titulo,
@@ -467,7 +521,6 @@ h2{font-size:21px;line-height:1.2;letter-spacing:-.015em;margin:0 0 6px;font-wei
   padding:14px 16px;font-size:14.5px;font-weight:600;color:#2E1F17;cursor:pointer;
   font-family:inherit;text-align:left;transition:all .14s ease}
 .opcion:hover{border-color:__ACENTO__}
-.opcion.sel{background:#2E1F17;border-color:#2E1F17;color:#F6EFE5}
 .field{width:100%;border:1.5px solid rgba(46,31,23,.14);border-radius:12px;background:#fff;
   padding:13px 14px;font-size:15px;font-family:inherit;color:#2E1F17;margin-bottom:14px;
   resize:vertical}
