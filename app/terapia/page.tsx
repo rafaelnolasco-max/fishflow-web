@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import AudioRecorder from "@/components/AudioRecorder";
 import AudioUpload from "@/components/AudioUpload";
 import {
   DashboardHeader, TabBar, StatGrid, StatCard as DStatCard, Section, Empty as DEmpty,
@@ -227,15 +228,25 @@ export default function TherapyFlowApp() {
         {tab === "sesiones" && (
           <>
             <div style={{ marginBottom: 18 }}>
-              <AudioUpload
+              <AudioRecorder
                 clientId={clientId}
                 patientId={patientId}
                 maxMinutes={config.max_minutes_session}
                 disabled={restantes === 0}
                 disabledReason={`Ya usaste tus ${config.monthly_session_cap} sesiones de este mes. El contador se reinicia el día 1.`}
                 onUploaded={({ storagePath, durationSeconds }) => procesarSesion(storagePath, durationSeconds)}
-                theme={{ accent: T.accent, surface: T.surface, border: T.border, text: T.text, muted: T.muted, danger: T.danger }}
+                theme={{ accent: T.accent, surface: T.surface, border: T.border, text: T.text, muted: T.muted, danger: T.danger, panel: T.panel }}
               />
+              <div style={{ marginTop: 12 }}>
+                <AudioUpload
+                  clientId={clientId}
+                  patientId={patientId}
+                  maxMinutes={config.max_minutes_session}
+                  disabled={restantes === 0}
+                  onUploaded={({ storagePath, durationSeconds }) => procesarSesion(storagePath, durationSeconds)}
+                  theme={{ accent: T.accent, surface: T.surface, border: T.border, text: T.text, muted: T.muted, danger: T.danger }}
+                />
+              </div>
             </div>
 
             <StatGrid>
