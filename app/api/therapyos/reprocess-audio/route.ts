@@ -28,6 +28,8 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
 
 const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
+const AUDIO_EXT = /\.(webm|m4a|mp3|wav|aac|mp4|ogg|caf|opus)$/i;
+
 // ── GET: descubrir audios huérfanos de un paciente ──────────────────────────
 export async function GET(req: NextRequest) {
   const patient_id = req.nextUrl.searchParams.get("patient_id");
@@ -64,8 +66,12 @@ export async function GET(req: NextRequest) {
     .eq("ref_id", patient_id);
   const byPath = new Map((txs ?? []).map((t) => [t.storage_path, t.status]));
 
+  // OJO: no filtrar por .webm. El grabador del navegador produce .webm, pero
+  // "Subir audio" acepta lo que traiga Notas de Voz (.m4a), Android (.mp3) o
+  // WhatsApp (.ogg). Filtrar por webm dejaba fuera justo los audios que más
+  // importa poder reprocesar.
   const result = (files ?? [])
-    .filter((f) => f.name.endsWith(".webm"))
+    .filter((f) => AUDIO_EXT.test(f.name))
     .map((f) => {
       const storage_path = `${prefix}/${f.name}`;
       const tx_status = byPath.get(storage_path) ?? null;
@@ -83,10 +89,11 @@ export async function GET(req: NextRequest) {
 
 // ── POST: re-disparar el pipeline sobre un audio existente ──────────────────
 export async function POST(req: NextRequest) {
-  const { patient_id, storage_path, session_date } = (await req.json()) as {
+  const { patient_id, storage_path, session_date, source } = (await req.json()) as {
     patient_id?: string;
     storage_path?: string;
     session_date?: string;
+    source?: "recorder" | "upload";
   };
 
   if (!patient_id || !storage_path) {
@@ -116,7 +123,7 @@ export async function POST(req: NextRequest) {
   const res = await fetch(`${APP_URL}/api/therapyos/record-session`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...forwardCookies(req) },
-    body: JSON.stringify({ patient_id, storage_path, session_date: date }),
+    body: JSON.stringify({ patient_id, storage_path, session_date: date, source }),
   });
   const data = await res.json();
   return NextResponse.json(data, { status: res.status });

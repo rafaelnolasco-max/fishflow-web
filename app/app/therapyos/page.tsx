@@ -327,6 +327,18 @@ function NewSessionModal({
   const [error, setError]           = useState<string | null>(null);
   const [importMode, setImportMode] = useState<"manual" | "fireflies" | "recorder" | "upload">("manual");
   const [firefliesInput, setFirefliesInput] = useState("");
+  // Audio que YA está en Storage y cuyo procesamiento falló: se puede
+  // reprocesar sin volver a subirlo. Una sesión son ~25 MB; volver a subirla
+  // por datos móviles no es una opción razonable.
+  const [retry, setRetry] = useState<{
+    storagePath: string;
+    source: "recorder" | "upload";
+    /** El paciente de ESTE audio. Nunca leer `patientId` al reintentar: si el
+     *  usuario cambió de paciente tras el fallo, la nota clínica se escribiría
+     *  en el expediente equivocado. */
+    patientId: string;
+    sessionDate: string;
+  } | null>(null);
 
   async function handleProcess() {
     if (!patientId) { setError("Selecciona un paciente."); return; }
@@ -365,7 +377,13 @@ function NewSessionModal({
   async function handleRecorded(r: RecorderResult, source: "recorder" | "upload" = "recorder") {
     if (!patientId) { setError("Selecciona un paciente antes de grabar."); return; }
     setError(null);
+    setRetry(null);
     setProcessing(true);
+    // El audio ya está en Storage. Si lo que falla es el procesamiento —se cayó
+    // la red, se cortó la respuesta, tronó Whisper— se reintenta sin volver a
+    // subir. Lo único que NO tiene caso reintentar es "no se detectó voz":
+    // daría exactamente el mismo resultado.
+    let recuperable = true;
     try {
       const res = await fetch("/api/therapyos/record-session", {
         method: "POST",
@@ -380,11 +398,47 @@ function NewSessionModal({
         }),
       });
       if (!res.ok) {
-        const e = await res.json();
+        const e = await res.json().catch(() => ({}));
+        if (e.empty) recuperable = false;
         throw new Error(e.error ?? "Error al procesar la grabación");
       }
       const data = await res.json();
       setPreview(data.session);
+      recuperable = false;
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error inesperado");
+      if (recuperable) {
+        setRetry({ storagePath: r.storagePath, source, patientId, sessionDate });
+      }
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  /** Re-dispara el pipeline sobre el audio que ya vive en Storage. */
+  async function handleRetry() {
+    if (!retry) return;
+    setError(null);
+    setProcessing(true);
+    try {
+      const res = await fetch("/api/therapyos/reprocess-audio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_id: retry.patientId,
+          storage_path: retry.storagePath,
+          session_date: retry.sessionDate,
+          source: retry.source,
+        }),
+      });
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}));
+        if (e.empty) setRetry(null); // reintentar daría el mismo vacío
+        throw new Error(e.error ?? "No se pudo reprocesar el audio");
+      }
+      const data = await res.json();
+      setPreview(data.session);
+      setRetry(null);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error inesperado");
     } finally {
@@ -432,7 +486,7 @@ function NewSessionModal({
           <Field label="Fuente de transcripción">
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {(["manual", "fireflies", "recorder", "upload"] as const).map(mode => (
-                <button key={mode} onClick={() => { setImportMode(mode); setPreview(null); }} style={{
+                <button key={mode} onClick={() => { setImportMode(mode); setPreview(null); setRetry(null); }} style={{
                   padding: "8px 16px", borderRadius: 8, fontSize: 13,
                   border: `1px solid ${importMode === mode ? C.sage : C.border}`,
                   background: importMode === mode ? `rgba(122,158,126,0.1)` : "white",
@@ -522,6 +576,39 @@ function NewSessionModal({
           {error && (
             <p style={{ color: C.alert, fontSize: 13, padding: "10px 14px",
               background: `rgba(212,114,106,0.08)`, borderRadius: 8 }}>{error}</p>
+          )}
+
+          {retry && !processing && (
+            <div style={{
+              border: `1px solid ${C.border}`, borderRadius: 10, padding: "14px 16px",
+              background: C.cream,
+            }}>
+              <p style={{ fontSize: 13, color: C.charcoal, margin: "0 0 4px", fontWeight: 600 }}>
+                El audio sí se guardó
+              </p>
+              <p style={{ fontSize: 12, color: C.muted, margin: "0 0 12px", lineHeight: 1.55 }}>
+                Lo que falló fue el procesamiento. No hace falta volver a subirlo:
+                puedes reintentar desde aquí.
+                {retry.patientId !== patientId && (
+                  <> El audio pendiente es de{" "}
+                    <strong style={{ color: C.charcoal }}>
+                      {patients.find(p => p.id === retry.patientId)?.full_name ?? "otro paciente"}
+                    </strong>, y ahí se va a guardar.
+                  </>
+                )}
+              </p>
+              <button
+                type="button"
+                onClick={() => void handleRetry()}
+                style={{
+                  width: "100%", padding: "10px 0", borderRadius: 8, border: "none",
+                  background: C.sage, color: "white", fontSize: 13, fontWeight: 600,
+                  fontFamily: "inherit", cursor: "pointer",
+                }}
+              >
+                Reintentar el procesamiento
+              </button>
+            </div>
           )}
 
           {/* Preview */}
