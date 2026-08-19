@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { transcribeLongAudio } from "@/lib/whisper-chunked";
+import { transcribeStoredAudio } from "@/lib/sessionPipeline";
 import { requireClientAccess } from "@/lib/apiAuth";
 
 export const runtime = "nodejs"; // ffmpeg requiere runtime Node, no edge
@@ -8,13 +8,17 @@ export const runtime = "nodejs"; // ffmpeg requiere runtime Node, no edge
 // ════════════════════════════════════════════════════════════════════════════
 // TherapyOS — record-session
 // ════════════════════════════════════════════════════════════════════════════
-// Orquesta el flujo de la grabadora para TherapyOS (primer consumidor del
-// servicio de transcripción compartido):
-//   1. invoca el Edge Function genérico `transcribe-audio` (Whisper)
+// Orquesta el flujo de la grabadora para TherapyOS:
+//   1. transcribe el audio guardado (lib/sessionPipeline)
 //   2. pasa el texto al `process-session` existente (sin tocarlo) → crea BORRADOR
 //   3. marca la sesión con source_type='recorder' + audio_path + transcription_id
 // NO envía nada al paciente. El envío (email/WhatsApp) es un paso manual aparte
 // ("aprobar antes de enviar").
+//
+// 19-ago-2026: la transcripción (registro en `transcriptions`, descarga por
+// streaming, transcode en una pasada y guardia anti-alucinación) se movió a
+// `lib/sessionPipeline.ts`, compartida con Therapy Flow. El comportamiento de
+// esta ruta no cambia.
 
 // FishFlow está en Vercel Pro: el tope de 300 s era herencia de Hobby y era
 // lo que cortaba la respuesta en sesiones de ~50 min (11-ago-2026), aunque la
@@ -27,31 +31,9 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
 
 const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-// Whisper alucina firmas de subtítulos cuando el audio está en silencio o sin voz
-// (ej. "Subtítulos realizados por la comunidad de Amara.org"). Detectamos esa
-// basura para NO generar una sesión clínica fantasma.
-const HALLUCINATION_PATTERNS = [
-  /amara\.org/i,
-  /subt[íi]tulos?\s+(realizados|por|hechos|creados)/i,
-  /gracias por ver/i,
-  /thanks for watching/i,
-  /subscribe/i,
-  /www\.[a-z]/i,
-];
-
-function looksEmpty(t: string): boolean {
-  const clean = (t ?? "").trim();
-  if (clean.length < 20) return true;
-  if (clean.length < 140 && HALLUCINATION_PATTERNS.some((re) => re.test(clean))) return true;
-  let stripped = clean;
-  for (const re of HALLUCINATION_PATTERNS) stripped = stripped.replace(re, "");
-  if (stripped.replace(/[^a-záéíóúñ0-9]/gi, "").length < 15) return true;
-  return false;
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const { patient_id, storage_path, filename, session_date, duration_seconds } = (await req.json()) as {
+    const { patient_id, storage_path, session_date, duration_seconds } = (await req.json()) as {
       patient_id: string;
       storage_path: string;
       filename?: string;
@@ -90,85 +72,29 @@ export async function POST(req: NextRequest) {
     const auth = await requireClientAccess(patient.client_id);
     if (!auth.ok) return auth.response;
 
-    // ── 2. Transcribir con re-codificación + troceo (robusto para sesiones largas) ─
-    // El Edge Function `transcribe-audio` sigue sirviendo notas de voz cortas
-    // (finanzas-chat, /app/rafa). Aquí, para terapia, el audio puede durar 45+ min:
-    // lo bajamos, lo re-codificamos a mp3 con ffmpeg (arregla el webm sin duración
-    // que Whisper rechaza) y lo troceamos. Ver lib/whisper-chunked.ts.
-    const openaiKey = process.env.OPENAI_API_KEY;
-    if (!openaiKey) {
-      return NextResponse.json({ error: "OPENAI_API_KEY no configurada" }, { status: 500 });
-    }
+    // ── 2. Transcribir (descarga por streaming + transcode en una pasada) ──────
+    const tx = await transcribeStoredAudio({
+      clientId: patient.client_id,
+      module: "therapy_session",
+      refId: patient_id,
+      storagePath: storage_path,
+      sourceType: "recorder",
+      language: "es",
+    });
 
-    // Registro en `transcriptions` (bookkeeping multi-tenant)
-    const { data: txRow } = await supabaseAdmin
-      .from("transcriptions")
-      .insert({
-        client_id: patient.client_id,
-        module: "therapy_session",
-        ref_id: patient_id,
-        source_type: "recorder",
-        storage_bucket: "audio",
-        storage_path,
-        status: "processing",
-        language: "es",
-      })
-      .select("id")
-      .single();
-    const transcription_id = txRow?.id ?? null;
-
-    const txData: { transcript?: string; transcription_id?: string; error?: string } = {
-      transcription_id: transcription_id ?? undefined,
-    };
-    try {
-      const { data: file, error: dlErr } = await supabaseAdmin.storage
-        .from("audio")
-        .download(storage_path);
-      if (dlErr || !file) throw new Error(`Storage: ${dlErr?.message ?? "sin datos"}`);
-
-      const { transcript } = await transcribeLongAudio(await file.arrayBuffer(), openaiKey, "es");
-      txData.transcript = transcript;
-
-      if (transcription_id) {
-        await supabaseAdmin
-          .from("transcriptions")
-          .update({ status: "done", transcript, updated_at: new Date().toISOString() })
-          .eq("id", transcription_id);
-      }
-    } catch (e) {
-      if (transcription_id) {
-        await supabaseAdmin
-          .from("transcriptions")
-          .update({ status: "error", error: String(e), updated_at: new Date().toISOString() })
-          .eq("id", transcription_id);
+    if (!tx.ok) {
+      if (tx.reason === "empty") {
+        return NextResponse.json(
+          {
+            error: "No se detectó voz en la grabación. Suele ser que el micrófono no captó audio. Revisa el permiso del micrófono e intenta de nuevo, hablando cerca del teléfono.",
+            empty: true,
+          },
+          { status: 422 },
+        );
       }
       return NextResponse.json(
-        { error: `Error al transcribir: ${String(e)}` },
+        { error: `Error al transcribir: ${tx.message}` },
         { status: 502 },
-      );
-    }
-
-    if (!txData.transcript) {
-      return NextResponse.json(
-        { error: "Error al transcribir: sin transcripción" },
-        { status: 502 },
-      );
-    }
-
-    // ── 2b. Guardia anti-basura: si Whisper alucinó sobre silencio, NO crear sesión ─
-    if (looksEmpty(txData.transcript)) {
-      if (txData.transcription_id) {
-        await supabaseAdmin
-          .from("transcriptions")
-          .update({ status: "empty", error: "Sin voz detectada (probable silencio / micrófono sin captar)" })
-          .eq("id", txData.transcription_id);
-      }
-      return NextResponse.json(
-        {
-          error: "No se detectó voz en la grabación. Suele ser que el micrófono no captó audio. Revisa el permiso del micrófono e intenta de nuevo, hablando cerca del teléfono.",
-          empty: true,
-        },
-        { status: 422 },
       );
     }
 
@@ -176,7 +102,7 @@ export async function POST(req: NextRequest) {
     const psRes = await fetch(`${APP_URL}/api/therapyos/process-session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ patient_id, transcript: txData.transcript, session_date }),
+      body: JSON.stringify({ patient_id, transcript: tx.transcript, session_date }),
     });
     const psData = await psRes.json();
     if (!psRes.ok || !psData.session) {
@@ -192,14 +118,14 @@ export async function POST(req: NextRequest) {
       .update({
         source_type: "recorder",
         audio_path: storage_path,
-        transcription_id: txData.transcription_id ?? null,
+        transcription_id: tx.transcriptionId ?? null,
       })
       .eq("id", psData.session.id)
       .select()
       .single();
 
     return NextResponse.json(
-      { session: updated ?? psData.session, transcription_id: txData.transcription_id },
+      { session: updated ?? psData.session, transcription_id: tx.transcriptionId },
       { status: 201 },
     );
   } catch (err) {

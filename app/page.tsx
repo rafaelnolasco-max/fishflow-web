@@ -604,7 +604,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {CASOS_PUBLICOS.map((caso) => (
               <Link key={caso.slug} href={`/casos/${caso.slug}`} className="group">
                 <Card className="flex h-full flex-col transition-all hover:border-primary/40 hover:shadow-xl">

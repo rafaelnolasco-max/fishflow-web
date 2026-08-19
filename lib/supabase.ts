@@ -592,6 +592,12 @@ export interface InsuranceVendorTopClient {
 // Bulk Create, ella tiene Canva Pro) y Reseñas. Sin tablas propias.
 export const TINTOSENTIDO_CLIENT_ID = "f1e2d3c4-b5a6-4798-8a9b-0c1d2e3f4a5b";
 
+// ─── Café Moran's — cafetería (vertical cafeteria) ───────────────────────────
+// PoC del canal QR del Módulo Reputación: el negocio no tiene lista de contactos,
+// el QR del mostrador y de la bolsa de café la fabrica. Sin tablas propias: todo
+// vive en review_* filtrado por client_id.
+export const CAFEMORAN_CLIENT_ID = "9f3c7b21-4d58-4e0a-9c16-7a5e2b8d0f34";
+
 // ─── JJ Laboral Asociados — despacho laboral (vertical legal_laboral) ─────────
 // Despacho de derecho laboral en CDMX que defiende al trabajador. Hoy solo usa
 // el módulo de Contenido: sin tablas propias, todo vive en content_posts y

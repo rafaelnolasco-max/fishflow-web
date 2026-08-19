@@ -13,6 +13,15 @@
 //      y se comía el presupuesto completo de la función (2026-07-15 y 2026-08-11).
 //      → Ahora corren en paralelo con un tope de concurrencia, y se concatenan
 //      en el orden original. ~5 min bajan a ~1.5 min.
+//   4. (19-ago-2026) El transcode se hacía en DOS pasadas: primero un mp3
+//      completo y luego un troceo con `-c copy`. Ahora es UNA sola pasada
+//      (transcodifica y segmenta a la vez): menos disco temporal y menos
+//      tiempo. Medido: 20 min de audio en 3.3 s, ≈10 s por hora.
+//
+// ⚠️ El audio SIEMPRE se lee de un archivo local. No pasarle a ffmpeg una URL
+// firmada: con el `moov` al final —como suele venir de una grabadora— el seek
+// remoto tardó más de 7 minutos para 20 min de audio, contra 3 segundos
+// leyendo de disco (medido 19-ago-2026).
 //
 // Corre en el runtime Node de Vercel (NO edge) porque usa el binario ffmpeg.
 // Requiere la dependencia `ffmpeg-static`.
@@ -43,6 +52,7 @@ const WHISPER_API_URL = "https://api.openai.com/v1/audio/transcriptions";
 const SEGMENT_SECONDS = 600; // 10 min por trozo
 const MAX_PARALLEL = 4;      // trozos simultáneos contra Whisper
 const MAX_ATTEMPTS = 3;      // reintentos por trozo ante 429 / 5xx
+const AUDIO_BITRATE = "24k"; // 16 kHz mono a 24 kbps ≈ 10 MB por hora
 
 function run(cmd: string, args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -106,15 +116,22 @@ async function mapWithConcurrency<T, R>(
   return out;
 }
 
+export type TranscriptionResult = {
+  transcript: string;
+  chunks: number;
+  durationSec: number;
+};
+
 /**
- * Re-codifica a mp3 mono, trocea y transcribe. Devuelve el texto completo.
- * @param audio Buffer del audio original (webm/opus/m4a/…)
+ * Transcribe un archivo de audio que YA está en disco local.
+ * Transcodifica y trocea en una sola pasada de ffmpeg, y transcribe los
+ * trozos en paralelo.
  */
-export async function transcribeLongAudio(
-  audio: ArrayBuffer,
+export async function transcribeLongAudioFromFile(
+  inputPath: string,
   openaiKey: string,
   language = "es",
-): Promise<{ transcript: string; chunks: number; durationSec: number }> {
+): Promise<TranscriptionResult> {
   const startedAt = Date.now();
   const ffmpeg = resolveFfmpeg();
   // El binario traceado a veces pierde el bit de ejecución → chmod defensivo.
@@ -123,33 +140,22 @@ export async function transcribeLongAudio(
   } catch {
     /* noop */
   }
+
   const dir = await mkdtemp(join(tmpdir(), "ffx-"));
   try {
-    const inPath = join(dir, "in.bin");
-    await writeFile(inPath, Buffer.from(audio));
-
-    // 1) Transcodificar a mp3 16 kHz mono (headers limpios, tamaño chico)
-    const mp3Path = join(dir, "full.mp3");
+    // Una sola pasada: decodifica, baja a 16 kHz mono 24 kbps y segmenta.
     await run(ffmpeg, [
       "-hide_banner", "-loglevel", "error", "-y",
-      "-i", inPath,
-      "-ar", "16000", "-ac", "1", "-c:a", "libmp3lame", "-b:a", "48k",
-      mp3Path,
-    ]);
-
-    // 2) Trocear en segmentos de 10 min
-    await run(ffmpeg, [
-      "-hide_banner", "-loglevel", "error", "-y",
-      "-i", mp3Path,
-      "-f", "segment", "-segment_time", String(SEGMENT_SECONDS), "-c", "copy",
+      "-i", inputPath,
+      "-vn",
+      "-ar", "16000", "-ac", "1", "-c:a", "libmp3lame", "-b:a", AUDIO_BITRATE,
+      "-f", "segment", "-segment_time", String(SEGMENT_SECONDS),
       join(dir, "seg_%03d.mp3"),
     ]);
 
     const segs = (await readdir(dir)).filter((f) => f.startsWith("seg_")).sort();
     if (segs.length === 0) throw new Error("ffmpeg no produjo segmentos");
 
-    // 3) Transcribir los trozos en paralelo (tope MAX_PARALLEL) y concatenar
-    //    en el orden original: mapWithConcurrency respeta el índice.
     const parts = await mapWithConcurrency(segs, MAX_PARALLEL, (seg) =>
       transcribeOne(join(dir, seg), openaiKey, language),
     );
@@ -158,6 +164,29 @@ export async function transcribeLongAudio(
     console.log(`[whisper-chunked] ${segs.length} trozos en ${elapsed}s (paralelo ${MAX_PARALLEL})`);
 
     return { transcript: parts.join(" ").trim(), chunks: segs.length, durationSec: elapsed };
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Igual que `transcribeLongAudioFromFile`, pero recibiendo el audio en memoria.
+ * Se mantiene por compatibilidad; para archivos grandes conviene bajarlos a
+ * disco por streaming (ver `lib/sessionPipeline.ts`) en vez de cargar el
+ * ArrayBuffer completo en RAM.
+ *
+ * @param audio Buffer del audio original (webm/opus/m4a/…)
+ */
+export async function transcribeLongAudio(
+  audio: ArrayBuffer,
+  openaiKey: string,
+  language = "es",
+): Promise<TranscriptionResult> {
+  const dir = await mkdtemp(join(tmpdir(), "ffin-"));
+  const inPath = join(dir, "in.bin");
+  try {
+    await writeFile(inPath, Buffer.from(audio));
+    return await transcribeLongAudioFromFile(inPath, openaiKey, language);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

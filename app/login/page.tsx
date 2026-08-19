@@ -25,11 +25,13 @@ function LoginForm() {
     "enlaceintegralseguros@gmail.com": "/app/enlace",
     "marissa.almaraz.m@gmail.com": "/app/tintosentido",
     "albertodejesus@gmail.com":    "/app/therapyos",
+    // Café Moran's: el correo del dueño se agrega cuando lo tengamos.
     "rafaelnolasco@gmail.com":     "/admin",
   };
 
   // ── Contexto visual por ruta de destino ──────────────────────────────────────
   const APP_CONTEXT: Record<string, { label: string; color: string }> = {
+    "/app/cafemoran":  { label: "Café Moran's",         color: "#C9741F" },
     "/app/therapyos":  { label: "TherapyOS",           color: "#1a6b4a" },
     "/app/mariocitalan": { label: "Arquitectura del Criterio", color: "#2A6AAE" },
     "/app/tba":        { label: "TBA Telecom CRM",      color: "#1a4a6b" },

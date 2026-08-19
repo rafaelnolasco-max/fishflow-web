@@ -179,8 +179,7 @@ export const CASOS: Caso[] = [
     ciudad: "Ecatepec, Estado de México",
     angulo: "Facturación que se manda sola",
     propio: true,
-    // ⚠️ Se publica hasta que el envío del CFDI esté verificado en producción.
-    publicado: false,
+    publicado: true,
     resumen:
       "Timbrar, descargar, adjuntar y redactar el correo era un trámite manual por cada factura. Hoy es un clic.",
     antes: [

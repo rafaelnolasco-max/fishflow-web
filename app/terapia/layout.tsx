@@ -2,16 +2,16 @@ import type { Metadata, Viewport } from "next";
 
 // PWA: instalar desde Safari → Compartir → "Agregar a pantalla de inicio"
 export const metadata: Metadata = {
-  title: "FishFlow Finanzas",
-  description: "Tus gastos del mes, claros y bajo control",
-  manifest: "/finanzas.webmanifest",
+  title: "Therapy Flow",
+  description: "Que tu terapia fluya",
+  manifest: "/terapia.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "FishFlow Finanzas",
+    title: "Therapy Flow",
   },
   icons: {
-    apple: "/icons/icon-finanzas-180.png",
+    apple: "/icons/icon-therapyflow-180.png",
   },
 };
 
@@ -22,6 +22,6 @@ export const viewport: Viewport = {
   themeColor: "#0D1B2A",
 };
 
-export default function FinanzasLayout({ children }: { children: React.ReactNode }) {
+export default function TerapiaLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

@@ -8,6 +8,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import TouchpointsPanel from "./TouchpointsPanel";
 import {
   StatGrid, StatCard, Section as DSection, Field as DField, Modal as DModal,
   Toast, SaveBtn, inputStyle as mkInput, cardStyle as mkCard, Empty,
@@ -109,6 +110,7 @@ export default function ReviewsTab({
   smartReplies = false,
   vendorToken,
   showVendors = false,
+  showTouchpoints = false,
 }: {
   clientId?: string;           // requerido salvo en modo vendedora (se resuelve del token)
   theme: DashTheme;
@@ -127,6 +129,12 @@ export default function ReviewsTab({
    * filtro de la cola y botón para copiar el link personal de cada una.
    */
   showVendors?: boolean;
+  /**
+   * Canal QR (inbound): puntos de contacto, atribución y bandeja de comentarios.
+   * Vive en TouchpointsPanel.tsx para no tocar la lógica outbound que ya opera
+   * en CANE, Belange, Lukon y Enlace.
+   */
+  showTouchpoints?: boolean;
 }) {
   const isVendor = !!vendorToken;
   const apiBase = `/api/reviews/vendor/${vendorToken}`;
@@ -658,6 +666,21 @@ export default function ReviewsTab({
             </>
           )}
         </div>
+      )}
+
+      {/* Canal QR (inbound). Va primero: en un café es la fuente principal de
+          opiniones, y la cola outbound de abajo se alimenta de ella. */}
+      {showTouchpoints && resolvedClientId && (
+        <>
+          <TouchpointsPanel clientId={resolvedClientId} theme={T} />
+          <div style={{
+            fontSize: 12, letterSpacing: ".12em", textTransform: "uppercase",
+            fontWeight: 700, color: T.muted, margin: "28px 0 14px",
+            borderTop: `1px solid ${T.border}`, paddingTop: 18,
+          }}>
+            Seguimiento por WhatsApp
+          </div>
+        </>
       )}
 
       <StatGrid>
