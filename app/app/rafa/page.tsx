@@ -445,6 +445,23 @@ export default function RafaFinanzas() {
     loadAll();
   }
 
+  async function addRecurring(tx_type: TxType, concept: string, amount: number) {
+    const { error } = await supabase.from("finance_recurring").insert({
+      client_id: RAFA_CLIENT_ID, tx_type, concept, amount, active: true,
+      sort_order: recurring.length,
+    });
+    if (error) { console.error(error); showToast("Error al agregar"); return false; }
+    loadAll();
+    return true;
+  }
+
+  async function deleteRecurring(r: Recurring) {
+    if (!window.confirm(`¿Quitar "${r.concept}" de tus recurrentes?`)) return;
+    const { error } = await supabase.from("finance_recurring").delete().eq("id", r.id);
+    if (error) { console.error(error); showToast("Error"); return; }
+    loadAll();
+  }
+
   // ── Render ──────────────────────────────────────────────────────────────────
   if (!authReady) return <div style={{ minHeight: "100vh", background: T.bg }} />;
 
@@ -734,8 +751,14 @@ export default function RafaFinanzas() {
                       fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
                     {r.active ? "Activo" : "Pausado"}
                   </button>
+                  <button onClick={() => deleteRecurring(r)} aria-label="Quitar"
+                    style={{ border: "none", background: "none", color: T.muted, cursor: "pointer", fontSize: 15, padding: 4 }}>
+                    🗑
+                  </button>
                 </div>
               ))}
+              {recurring.length === 0 && <Empty msg="Sin recurrentes — agrega tu renta, nómina o suscripciones abajo" />}
+              <AddRecurringForm onAdd={addRecurring} />
             </Section>
           </>
         )}
@@ -882,6 +905,36 @@ export default function RafaFinanzas() {
           style={{ background: T.accent, color: "#fff", border: "none", borderRadius: 8,
             padding: "8px 13px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
           OK
+        </button>
+      </div>
+    );
+  }
+
+  function AddRecurringForm({ onAdd }: { onAdd: (t: TxType, c: string, a: number) => Promise<boolean> }) {
+    const [tipo, setTipo] = useState<TxType>("fijo");
+    const [concepto, setConcepto] = useState("");
+    const [monto, setMonto] = useState("");
+
+    return (
+      <div style={{ background: T.surface, border: `1px dashed ${T.border}`, borderRadius: 12,
+        padding: 14, marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        <select style={{ ...inp, width: 130 }} value={tipo} onChange={e => setTipo(e.target.value as TxType)}>
+          {(["ingreso", "fijo", "placer", "futuro"] as TxType[]).map(tt => (
+            <option key={tt} value={tt}>{TX_META[tt].icon} {TX_META[tt].label}</option>
+          ))}
+        </select>
+        <input style={{ ...inp, flex: 1, minWidth: 140 }} placeholder="Concepto (ej. Renta)" value={concepto}
+          onChange={e => setConcepto(e.target.value)} />
+        <input style={{ ...inp, width: 110 }} type="number" inputMode="decimal" placeholder="$" value={monto}
+          onChange={e => setMonto(e.target.value)} />
+        <button onClick={async () => {
+          const a = parseFloat(monto);
+          if (!concepto.trim() || !a || a <= 0) return;
+          if (await onAdd(tipo, concepto.trim(), a)) { setConcepto(""); setMonto(""); }
+        }}
+          style={{ background: T.accent, color: "#fff", border: "none", borderRadius: 9,
+            padding: "9px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+          + Agregar
         </button>
       </div>
     );
