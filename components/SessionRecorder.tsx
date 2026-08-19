@@ -7,9 +7,24 @@
 // por props, graba con el micrófono, sube a `audio/{clientId}/{module}/{refId}/`
 // y avisa con onUploaded(). Cualquier cliente futuro (veterinario, coach…) lo
 // monta pasando sus props, sin reescribir nada.
+//
+// ── Actualización 19-ago-2026 ───────────────────────────────────────────────
+// Antes acumulaba TODOS los trozos en memoria y armaba el archivo hasta que le
+// dabas "Detener": si iOS bloqueaba la pantalla a mitad de una sesión de 50
+// minutos, se perdía la grabación COMPLETA. Ahora:
+//   1. Wake Lock — la pantalla no se apaga sola mientras grabas, y se vuelve a
+//      pedir al regresar a la pestaña (iOS lo suelta al ir a segundo plano).
+//   2. Respaldo por trozos en IndexedDB cada 15 s — si algo mata la pestaña, lo
+//      grabado se recupera al volver a abrir el panel.
+//   3. Subida con barra de progreso real.
+// También se retiró el tope de 25 MB: era el límite por archivo de Whisper,
+// pero desde el fix de audios largos el servidor trocea la grabación en
+// segmentos de 10 min (lib/whisper-chunked). Ya no hay que dividir la sesión
+// en dos; el tope ahora es el del bucket, 200 MB.
 
-import { useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { uploadAudioToPath, MAX_AUDIO_BYTES } from "@/lib/uploadAudio";
+import { backupChunk, clearBackup, markStart, readBackup, type PendingRecording } from "@/lib/recordingBackup";
 
 type RecState = "idle" | "recording" | "uploading" | "done" | "error";
 
@@ -23,13 +38,7 @@ export interface RecorderResult {
 // mono internamente, así que grabamos mono a bitrate bajo desde el origen.
 // Esto mantiene archivos chicos: 32 kbps ≈ 9 MB / 40 min, ≈ 21 MB / 90 min.
 const AUDIO_BITRATE = 32000; // bits/seg
-// Tope duro de Whisper (OpenAI) = 25 MB por archivo. Subimos directo a Storage,
-// así que cortamos aquí antes de gastar una subida que de todos modos fallaría.
-const MAX_BYTES = 25 * 1024 * 1024;
-// iPad/Safari corta subidas de un solo intento ante cualquier hipo de red
-// ("Load failed"). Reintentamos con espera creciente antes de rendirnos.
-const UPLOAD_RETRIES = 3;
-const isSizeError = (m: string) => /exceeded the maximum allowed size|maximum allowed size|payload too large/i.test(m);
+const CHUNK_MS = 15_000;     // cada cuánto se respalda un trozo
 
 function pickMime(): { mime: string; ext: string } {
   const candidates = [
@@ -61,32 +70,119 @@ export default function SessionRecorder({
 }) {
   const [state, setState]   = useState<RecState>("idle");
   const [seconds, setSeconds] = useState(0);
+  const [pct, setPct]       = useState(0);
   const [error, setError]   = useState<string | null>(null);
   const [note, setNote]     = useState<string | null>(null);
+  const [pending, setPending] = useState<PendingRecording | null>(null);
 
   const mediaRef   = useRef<MediaRecorder | null>(null);
   const chunksRef  = useRef<Blob[]>([]);
   const timerRef   = useRef<number | null>(null);
   const startedRef = useRef<number>(0);
+  const extRef     = useRef<string>("webm");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const lockRef    = useRef<any>(null);
 
+  // ── ¿Quedó una grabación a medias de la vez pasada? ────────────────────────
+  useEffect(() => { void readBackup(module).then(setPending); }, [module]);
+
+  // ── Wake Lock ─────────────────────────────────────────────────────────────
+  const pedirLock = useCallback(async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const nav = navigator as any;
+      if (nav.wakeLock?.request) lockRef.current = await nav.wakeLock.request("screen");
+    } catch {
+      /* Safari viejo o pestaña en background: seguimos sin lock */
+    }
+  }, []);
+
+  const soltarLock = useCallback(async () => {
+    try { await lockRef.current?.release?.(); } catch { /* noop */ }
+    lockRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    function onVisible() {
+      if (document.visibilityState === "visible" && state === "recording") void pedirLock();
+    }
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [state, pedirLock]);
+
+  // ── Subida ────────────────────────────────────────────────────────────────
+  const subir = useCallback(async (blob: Blob, ext: string, duration: number) => {
+    setState("uploading");
+    setNote(null);
+    setPct(0);
+    try {
+      if (blob.size > MAX_AUDIO_BYTES) {
+        const mb = (blob.size / 1024 / 1024).toFixed(0);
+        throw new Error(`La grabación pesa ${mb} MB y el máximo son 200 MB.`);
+      }
+
+      const ts = new Date().toISOString().replace(/[:.]/g, "-");
+      const filename = `${ts}.${ext}`;
+      const path = `${clientId}/${module}/${refId ?? "na"}/${filename}`;
+
+      await uploadAudioToPath({
+        blob,
+        storagePath: path,
+        onProgress: setPct,
+        onRetry: (a, total) => setNote(`Reintentando subida (${a}/${total})…`),
+      });
+
+      await clearBackup();
+      setPending(null);
+      setNote(null);
+      await onUploaded({ storagePath: path, filename, durationSeconds: duration });
+      setState("done");
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      setError(err?.message ?? String(e));
+      setState("error");
+    }
+  }, [clientId, module, refId, onUploaded]);
+
+  // ── Grabar ────────────────────────────────────────────────────────────────
   async function start() {
     setError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
       });
-      const { mime } = pickMime();
+      const { mime, ext } = pickMime();
+      extRef.current = ext;
       const opts: MediaRecorderOptions = { audioBitsPerSecond: AUDIO_BITRATE };
       if (mime) opts.mimeType = mime;
       const mr = new MediaRecorder(stream, opts);
+
       chunksRef.current = [];
-      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
-      mr.onstop = () => { stream.getTracks().forEach((t) => t.stop()); void upload(); };
+      mr.ondataavailable = (e) => {
+        if (e.data.size === 0) return;
+        chunksRef.current.push(e.data);
+        // Respaldo inmediato: esto es lo que se rescata si muere la pestaña.
+        void backupChunk(e.data);
+      };
+      mr.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        void soltarLock();
+        const duration = Math.max(1, Math.round((Date.now() - startedRef.current) / 1000));
+        const type = chunksRef.current[0]?.type || mime || "audio/webm";
+        void subir(new Blob(chunksRef.current, { type }), ext, duration);
+      };
+
+      // Arrancamos con el respaldo limpio: lo que quede ahí es de ESTA grabación.
+      await clearBackup();
+      await markStart(ext, module);
+
       mediaRef.current = mr;
       startedRef.current = Date.now();
       setSeconds(0);
-      mr.start();
+      mr.start(CHUNK_MS); // trozos, no un solo blob al final
       setState("recording");
+      void pedirLock();
+
       timerRef.current = window.setInterval(() => {
         setSeconds(Math.floor((Date.now() - startedRef.current) / 1000));
       }, 1000);
@@ -106,72 +202,35 @@ export default function SessionRecorder({
     mediaRef.current?.stop();
   }
 
-  // Sube con reintentos. Safari/iPad lanza "Load failed" ante cortes de red;
-  // un reintento con espera suele salvar la subida sin perder la grabación.
-  async function uploadWithRetry(path: string, blob: Blob, type: string): Promise<void> {
-    let lastMsg = "";
-    for (let attempt = 1; attempt <= UPLOAD_RETRIES; attempt++) {
-      if (attempt > 1) setNote(`Reintentando subida (${attempt}/${UPLOAD_RETRIES})…`);
-      const { error: upErr } = await supabase.storage
-        .from("audio")
-        .upload(path, blob, { contentType: type, upsert: true });
-      if (!upErr) { setNote(null); return; }
-      lastMsg = upErr.message ?? "";
-      if (isSizeError(lastMsg)) break;            // inútil reintentar si es por tamaño
-      if (attempt < UPLOAD_RETRIES) await new Promise((r) => setTimeout(r, 1500 * attempt));
-    }
-    setNote(null);
-    const mb = (blob.size / 1024 / 1024).toFixed(1);
-    if (isSizeError(lastMsg)) {
-      throw new Error(
-        `La grabación pesa ${mb} MB y supera el máximo que se puede transcribir. ` +
-        `Para sesiones muy largas, divídela en dos grabaciones.`,
-      );
-    }
-    throw new Error(
-      `No se pudo subir la grabación (${mb} MB) tras varios intentos. ` +
-      `Suele ser la conexión a internet: revisa tu señal y vuelve a intentar — la grabación sigue aquí.`,
+  const mmss = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+
+  // ── Rescate de una grabación interrumpida ─────────────────────────────────
+  if (pending && (state === "idle" || state === "error")) {
+    return (
+      <div style={{ border: `1px solid ${accent}`, borderRadius: 12, padding: 16, width: "100%" }}>
+        <strong style={{ display: "block", marginBottom: 6, fontSize: 14 }}>
+          Quedó una grabación sin terminar
+        </strong>
+        <p style={{ fontSize: 12.5, color: "#7A7A72", lineHeight: 1.5, marginTop: 0 }}>
+          Son unos {Math.max(1, Math.round(pending.seconds / 60))} minutos. Probablemente se bloqueó
+          la pantalla o se cerró la pestaña. Puedes procesarla igual.
+        </p>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button type="button" onClick={() => { void clearBackup().then(() => setPending(null)); }}
+            style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "1px solid #E5E4DF",
+              background: "transparent", color: "#2C2C2C", fontSize: 13, cursor: "pointer" }}>
+            Descartar
+          </button>
+          <button type="button"
+            onClick={() => void subir(pending.blob, pending.ext, pending.seconds)}
+            style={{ flex: 2, padding: "10px 0", borderRadius: 8, border: "none",
+              background: accent, color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            Recuperar y procesar
+          </button>
+        </div>
+      </div>
     );
   }
-
-  async function upload() {
-    setState("uploading");
-    setNote(null);
-    try {
-      const { ext } = pickMime();
-      const type = chunksRef.current[0]?.type || "audio/webm";
-      const blob = new Blob(chunksRef.current, { type });
-      const duration = Math.max(1, Math.round((Date.now() - startedRef.current) / 1000));
-
-      // Guarda antes de gastar la subida: si el archivo se pasa del tope de
-      // Whisper, avisamos con algo accionable en vez del error críptico de Storage.
-      if (blob.size > MAX_BYTES) {
-        const mb = (blob.size / 1024 / 1024).toFixed(0);
-        const mins = Math.round(duration / 60);
-        setError(
-          `La grabación pesa ${mb} MB (${mins} min) y supera el máximo que se puede transcribir. ` +
-          `Para sesiones muy largas, divídela en dos grabaciones más cortas.`,
-        );
-        setState("error");
-        return;
-      }
-
-      const ts = new Date().toISOString().replace(/[:.]/g, "-");
-      const filename = `${ts}.${ext}`;
-      const path = `${clientId}/${module}/${refId ?? "na"}/${filename}`;
-
-      await uploadWithRetry(path, blob, type);
-
-      await onUploaded({ storagePath: path, filename, durationSeconds: duration });
-      setState("done");
-    } catch (e: unknown) {
-      const err = e as { message?: string };
-      setError(err?.message ?? String(e));
-      setState("error");
-    }
-  }
-
-  const mmss = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "10px 0" }}>
@@ -208,14 +267,20 @@ export default function SessionRecorder({
           >
             ■ Detener y procesar
           </button>
-          <p style={{ fontSize: 12, color: "#7A7A72" }}>Pon el teléfono sobre el escritorio. La grabación queda local hasta que detienes.</p>
+          <p style={{ fontSize: 12, color: "#7A7A72", textAlign: "center", lineHeight: 1.5, maxWidth: 300 }}>
+            Deja el equipo desbloqueado y esta pestaña al frente. Si se bloquea, el micrófono se corta —
+            pero lo grabado hasta ese momento se guarda solo y lo recuperas al volver a entrar.
+          </p>
         </>
       )}
 
       {state === "uploading" && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, color: "#7A7A72", fontSize: 14 }}>
-          <span style={{ animation: "spin 1s linear infinite", display: "inline-block", fontSize: 22 }}>⟳</span>
-          {note ?? "Subiendo y transcribiendo… esto puede tardar un poco."}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+          color: "#7A7A72", fontSize: 14, width: "100%", maxWidth: 300 }}>
+          <span>{note ?? (pct < 100 ? `Subiendo… ${pct}%` : "Transcribiendo… esto puede tardar un poco.")}</span>
+          <div style={{ height: 6, background: "#E5E4DF", borderRadius: 4, width: "100%", overflow: "hidden" }}>
+            <div style={{ width: `${pct}%`, height: "100%", background: accent, transition: "width .2s" }} />
+          </div>
         </div>
       )}
 

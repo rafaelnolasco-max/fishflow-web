@@ -35,7 +35,7 @@ function tx<T>(db: IDBDatabase, store: string, mode: IDBTransactionMode,
   });
 }
 
-export type PendingRecording = { blob: Blob; ext: string; seconds: number; startedAt: number };
+export type PendingRecording = { blob: Blob; ext: string; seconds: number; startedAt: number; scope: string };
 
 export async function backupChunk(blob: Blob): Promise<void> {
   const db = await open();
@@ -43,9 +43,9 @@ export async function backupChunk(blob: Blob): Promise<void> {
   db.close();
 }
 
-export async function markStart(ext: string): Promise<void> {
+export async function markStart(ext: string, scope = "terapia"): Promise<void> {
   const db = await open();
-  await tx(db, META, "readwrite", (s) => s.put({ ext, startedAt: Date.now() }, "current"));
+  await tx(db, META, "readwrite", (s) => s.put({ ext, scope, startedAt: Date.now() }, "current"));
   db.close();
 }
 
@@ -56,24 +56,29 @@ export async function clearBackup(): Promise<void> {
   db.close();
 }
 
-/** Devuelve la grabación interrumpida, si hay una que valga la pena rescatar. */
-export async function readBackup(): Promise<PendingRecording | null> {
+/**
+ * Devuelve la grabación interrumpida, si hay una que valga la pena rescatar.
+ * `scope` separa las apps: el respaldo de Therapy Flow no debe aparecerle al
+ * terapeuta en TherapyOS, aunque use el mismo navegador.
+ */
+export async function readBackup(scope = "terapia"): Promise<PendingRecording | null> {
   if (typeof indexedDB === "undefined") return null;
   try {
     const db = await open();
     const chunks = await tx<Blob[]>(db, STORE, "readonly", (s) => s.getAll() as IDBRequest<Blob[]>);
-    const meta = await tx<{ ext?: string; startedAt?: number } | undefined>(
+    const meta = await tx<{ ext?: string; scope?: string; startedAt?: number } | undefined>(
       db, META, "readonly", (s) => s.get("current"),
     );
     db.close();
     if (!chunks?.length) return null;
+    if ((meta?.scope ?? "terapia") !== scope) return null;
     const ext = meta?.ext ?? "webm";
     const blob = new Blob(chunks, { type: chunks[0]?.type || "audio/mp4" });
     const startedAt = meta?.startedAt ?? Date.now();
     // Sin duración real: la estimamos por el tiempo transcurrido desde el inicio.
     const seconds = Math.round((Date.now() - startedAt) / 1000);
     if (blob.size < 30_000) { await clearBackup(); return null; } // ruido, no una sesión
-    return { blob, ext, seconds, startedAt };
+    return { blob, ext, seconds, startedAt, scope: meta?.scope ?? scope };
   } catch (e) {
     console.error("[recordingBackup] no se pudo leer el respaldo:", e);
     return null;

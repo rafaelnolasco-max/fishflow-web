@@ -52,7 +52,7 @@ export default function AudioRecorder({
   const lockRef = useRef<any>(null);
 
   // ── Grabación interrumpida de una vez anterior ────────────────────────────
-  useEffect(() => { void readBackup().then(setPending); }, []);
+  useEffect(() => { void readBackup("terapia").then(setPending); }, []);
 
   // ── Wake Lock ─────────────────────────────────────────────────────────────
   const pedirLock = useCallback(async () => {
@@ -140,7 +140,7 @@ export default function AudioRecorder({
 
       // Arrancamos con el respaldo limpio: lo que quede ahí es de ESTA grabación.
       await clearBackup();
-      await markStart(ext);
+      await markStart(ext, "terapia");
 
       mrRef.current = mr;
       startedRef.current = Date.now();

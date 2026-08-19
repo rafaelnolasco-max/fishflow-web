@@ -42,6 +42,48 @@ function putWithProgress(
 
 export type UploadResult = { storagePath: string };
 
+/**
+ * Sube un blob a una ruta EXACTA del bucket `audio`. Lo usa el grabador
+ * genérico (TherapyOS, SieckVet), que tiene su propia convención de carpetas.
+ */
+export async function uploadAudioToPath(opts: {
+  blob: Blob;
+  storagePath: string;
+  onProgress?: (pct: number) => void;
+  onRetry?: (attempt: number, total: number) => void;
+}): Promise<UploadResult> {
+  const { blob, storagePath, onProgress, onRetry } = opts;
+
+  if (blob.size > MAX_AUDIO_BYTES) {
+    const mb = (blob.size / 1024 / 1024).toFixed(0);
+    throw new Error(`La grabación pesa ${mb} MB y el máximo son 200 MB.`);
+  }
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error("Tu sesión expiró. Vuelve a entrar.");
+
+  const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/audio/${storagePath}`;
+
+  let lastErr: unknown = null;
+  for (let attempt = 1; attempt <= RETRIES; attempt++) {
+    try {
+      await putWithProgress(url, session.access_token, blob, blob.type, onProgress ?? (() => {}));
+      return { storagePath };
+    } catch (e) {
+      lastErr = e;
+      if (attempt < RETRIES) {
+        onRetry?.(attempt, RETRIES);
+        await new Promise((r) => setTimeout(r, 1500 * attempt));
+      }
+    }
+  }
+  console.error("uploadAudioToPath:", lastErr);
+  throw new Error(
+    "No se pudo subir la grabación tras varios intentos. Suele ser la conexión: " +
+    "revisa tu señal y vuelve a intentar — la grabación sigue aquí.",
+  );
+}
+
 /** Sube el audio y devuelve su ruta en Storage. Reintenta hasta 3 veces. */
 export async function uploadAudio(opts: {
   blob: Blob;
