@@ -126,12 +126,18 @@ function waLink(phone: string, message: string) {
   return `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
 }
 
+/** La página pública del cupón. Es el enlace que WhatsApp pinta como flyer. */
+export function linkCupon(code: string, origen: string): string {
+  return `${origen}/promo/${code}`;
+}
+
 /** Rellena el copy de la campaña con los datos de la persona y del código. */
 export function renderMensaje(
   c: PromoCampaign,
   persona: Contact,
   code: PromoCode,
   negocio: string,
+  origen: string,
 ): string {
   return c.body
     .replaceAll("{{nombre}}", primerNombre(persona.name))
@@ -139,7 +145,8 @@ export function renderMensaje(
     .replaceAll("{{vence}}", fechaCorta(code.expires_at))
     .replaceAll("{{negocio}}", negocio)
     .replaceAll("{{oferta}}", c.offer_label)
-    .replaceAll("{{producto}}", persona.last_product ?? "café");
+    .replaceAll("{{producto}}", persona.last_product ?? "café")
+    .replaceAll("{{link}}", linkCupon(code.code, origen));
 }
 
 /** Cumple dentro de los próximos `dias` días, sin importar el año. */
@@ -169,7 +176,8 @@ const STATUS_COLOR: Record<PromoStatus, { bg: string; fg: string }> = {
 };
 
 const PLANTILLA_NUEVA =
-  "Hola {{nombre}}, tenemos algo para ti en {{negocio}}: {{oferta}}. Enseña el código {{codigo}}. Vence {{vence}}.";
+  "Hola {{nombre}}, tenemos algo para ti en {{negocio}}: {{oferta}}. Enseña el código {{codigo}}. " +
+  "Vence {{vence}}. Aquí está tu cupón: {{link}}";
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 export default function PromosTab({
@@ -193,6 +201,10 @@ export default function PromosTab({
   const [canje, setCanje] = useState("");
   const [canjeMsg, setCanjeMsg] = useState<{ ok: boolean; texto: string } | null>(null);
   const [usuario, setUsuario] = useState<string>("");
+
+  // El enlace del cupón sale del mismo origen donde está abierto el tablero, así
+  // no hay que configurar el dominio en ningún lado ni recordar el apex/www.
+  const origen = typeof window === "undefined" ? "https://www.fishflow.mx" : window.location.origin;
 
   const avisar = useCallback((m: string) => {
     setToast(m);
@@ -246,7 +258,9 @@ export default function PromosTab({
     desde.setHours(0, 0, 0, 0);
     return codigos.filter((k) => k.redeemed_at && new Date(k.redeemed_at) >= desde).length;
   }, [codigos]);
-  const enviadosTotal = codigos.filter((k) => k.state === "enviado" || k.state === "canjeado").length;
+  // Se cuenta por sent_at y no por estado: un código que se envió y venció sin
+  // usarse igual se envió, y sacarlo del denominador infla la tasa de canje.
+  const enviadosTotal = codigos.filter((k) => k.sent_at !== null).length;
   const canjeadosTotal = codigos.filter((k) => k.state === "canjeado").length;
   const tasa = enviadosTotal ? Math.round((canjeadosTotal / enviadosTotal) * 1000) / 10 : null;
   const pendientes = codigos.filter((k) => k.state === "pendiente");
@@ -536,7 +550,7 @@ export default function PromosTab({
                       {cola.map((k) => {
                         const persona = porId.get(k.contact_id);
                         if (!persona?.phone) return null;
-                        const msg = renderMensaje(c, persona, k, businessName);
+                        const msg = renderMensaje(c, persona, k, businessName, origen);
                         return (
                           <div key={k.id} style={{ display: "flex", gap: 10, alignItems: "center",
                             padding: "10px 12px", border: `1px solid ${T.border}`, borderRadius: 10 }}>
@@ -547,6 +561,14 @@ export default function PromosTab({
                               <div style={{ fontSize: 11, color: T.muted, fontFamily: "ui-monospace, monospace" }}>
                                 {persona.phone} · código {k.code}
                               </div>
+                              <a
+                                href={linkCupon(k.code, origen)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ fontSize: 11, color: T.accentDark }}
+                              >
+                                Ver el cupón
+                              </a>
                             </div>
                             <a
                               href={waLink(persona.phone, msg)}
@@ -677,7 +699,11 @@ function EditorCampana({
         />
         <p style={{ fontSize: 11, color: T.muted, marginTop: 6, marginBottom: 0 }}>
           Etiquetas disponibles: {"{{nombre}}"} {"{{codigo}}"} {"{{vence}}"} {"{{negocio}}"}{" "}
-          {"{{oferta}}"} {"{{producto}}"}
+          {"{{oferta}}"} {"{{producto}}"} {"{{link}}"}
+        </p>
+        <p style={{ fontSize: 11, color: T.muted, marginTop: 4, marginBottom: 0 }}>
+          Deja {"{{link}}"} al final: es la página del cupón, y es lo que hace que WhatsApp muestre
+          el flyer en vez de puro texto.
         </p>
       </DField>
 

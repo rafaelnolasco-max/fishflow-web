@@ -89,7 +89,11 @@ create table if not exists promo_campaigns (
                 check (kind in ('cumpleanos','recompra','reactivacion','dia_muerto','manual')),
   channel       text not null default 'whatsapp'
                 check (channel in ('whatsapp','email','ambos')),
-  -- Copy con marcadores: {{nombre}} {{codigo}} {{vence}} {{negocio}} {{oferta}} {{producto}}
+  -- Copy con marcadores: {{nombre}} {{codigo}} {{vence}} {{negocio}} {{oferta}}
+  --                       {{producto}} {{link}}
+  -- {{link}} es la página pública del cupón (/promo/[code]). Va al final porque
+  -- es lo que hace que WhatsApp pinte el flyer en vez de puro texto: wa.me no
+  -- puede adjuntar imágenes, pero sí manda un enlace con vista previa.
   body          text not null,
   subject       text,                       -- solo para correo
   offer_label   text not null,              -- "10% en tu café"
@@ -129,6 +133,9 @@ create table if not exists promo_codes (
   expires_at   timestamptz not null,
   sent_at      timestamptz,
   sent_channel text check (sent_channel in ('whatsapp','email')),
+  -- Primera apertura de la página del cupón. Es la única señal de apertura que
+  -- da el envío asistido: wa.me no reporta entregado ni leído.
+  viewed_at    timestamptz,
   redeemed_at  timestamptz,
   redeemed_by  text,                        -- quién lo marcó en el tablero
   created_at   timestamptz not null default now(),
@@ -184,11 +191,13 @@ select
   c.kind,
   c.status,
   count(k.id) as codigos,
-  count(k.id) filter (where k.state in ('enviado','canjeado')) as enviados,
+  -- Se cuenta por sent_at y no por estado: un código que se envió y venció sin
+  -- usarse igual se envió, y sacarlo del denominador infla la tasa de canje.
+  count(k.id) filter (where k.sent_at is not null) as enviados,
   count(k.id) filter (where k.state = 'canjeado') as canjeados,
   round(
     100.0 * count(k.id) filter (where k.state = 'canjeado')
-    / nullif(count(k.id) filter (where k.state in ('enviado','canjeado')), 0)
+    / nullif(count(k.id) filter (where k.sent_at is not null), 0)
   , 1) as tasa_canje,
   max(k.redeemed_at) as ultimo_canje,
   c.created_at
@@ -232,18 +241,18 @@ update review_settings
 insert into promo_campaigns (id, client_id, name, kind, channel, offer_label, valid_hours, segment, body) values
   ('c1000000-0000-4000-8000-000000000001', '9f3c7b21-4d58-4e0a-9c16-7a5e2b8d0f34',
    'Martes de 10%', 'dia_muerto', 'whatsapp', '10% en tu café', 72, '{"csat_min":3}'::jsonb,
-   'Hola {{nombre}}, es martes en Moran''s. Tu 10% de descuento está listo: enseña el código {{codigo}} en el mostrador. Vence {{vence}}.'),
+   'Hola {{nombre}}, es martes en Moran''s. Tu 10% de descuento está listo: enseña el código {{codigo}} en el mostrador. Vence {{vence}}. Aquí está tu cupón: {{link}}'),
   ('c1000000-0000-4000-8000-000000000002', '9f3c7b21-4d58-4e0a-9c16-7a5e2b8d0f34',
    'Cumpleaños', 'cumpleanos', 'whatsapp', 'Café de la casa gratis', 168, '{}'::jsonb,
-   'Feliz cumpleaños, {{nombre}}. Tu café de la casa va por cuenta de Moran''s: enseña el código {{codigo}} cuando vengas. Vence {{vence}}.'),
+   'Feliz cumpleaños, {{nombre}}. Tu café de la casa va por cuenta de Moran''s: enseña el código {{codigo}} cuando vengas. Vence {{vence}}. Aquí está tu cupón: {{link}}'),
   ('c1000000-0000-4000-8000-000000000003', '9f3c7b21-4d58-4e0a-9c16-7a5e2b8d0f34',
    'Recompra de bolsa a 21 días', 'recompra', 'whatsapp', '15% en tu próxima bolsa', 120,
    '{"dias_sin_ver":21,"touchpoint_kind":"empaque"}'::jsonb,
-   'Hola {{nombre}}, ya van tres semanas de tu bolsa de {{producto}}. Si vienes por la siguiente, va con 15% menos: código {{codigo}}, vence {{vence}}.'),
+   'Hola {{nombre}}, ya van tres semanas de tu bolsa de {{producto}}. Si vienes por la siguiente, va con 15% menos: código {{codigo}}, vence {{vence}}. Aquí está tu cupón: {{link}}'),
   ('c1000000-0000-4000-8000-000000000004', '9f3c7b21-4d58-4e0a-9c16-7a5e2b8d0f34',
    'Te extrañamos (45 días)', 'reactivacion', 'whatsapp', 'Café gratis con tu pan', 96,
    '{"dias_sin_ver":45,"csat_min":3}'::jsonb,
-   'Hola {{nombre}}, hace rato que no te vemos por Moran''s. Vuelve esta semana y el café va con tu pan: código {{codigo}}, vence {{vence}}.')
+   'Hola {{nombre}}, hace rato que no te vemos por Moran''s. Vuelve esta semana y el café va con tu pan: código {{codigo}}, vence {{vence}}. Aquí está tu cupón: {{link}}')
 on conflict (id) do update set
   name = excluded.name, kind = excluded.kind, channel = excluded.channel,
   offer_label = excluded.offer_label, valid_hours = excluded.valid_hours,
