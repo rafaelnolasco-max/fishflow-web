@@ -1,17 +1,19 @@
 "use client";
 
 // app/app/cafemoran/page.tsx
-// Tablero de Café Moran's. Un solo módulo: Reputación por canal QR.
+// Tablero de Café Moran's. Dos módulos: Reputación (canal QR) y Promociones.
 //
 // Acceso: el dueño (alta en user_client_access) y Rafa como admin. La RLS de
-// review_responses cuelga de user_has_access_to_client, así que quien no esté
-// dado de alta simplemente no ve filas — no hay que filtrar nada a mano aquí.
+// review_responses y de promo_* cuelga de user_has_access_to_client, así que
+// quien no esté dado de alta simplemente no ve filas — no hay que filtrar nada
+// a mano aquí.
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, CAFEMORAN_CLIENT_ID } from "@/lib/supabase";
-import { DashboardHeader, type DashTheme } from "@/components/dashboard";
+import { DashboardHeader, TabBar, type DashTheme } from "@/components/dashboard";
 import ReviewsTab from "@/components/reviews/ReviewsTab";
+import PromosTab from "@/components/promos/PromosTab";
 
 // Paleta de café. Provisional hasta tener la marca real de Moran's; el color de
 // la encuesta pública ya sale de review_settings.brand_color.
@@ -29,9 +31,12 @@ const T: DashTheme = {
   panel: "#F6EFE5",
 };
 
+type Tab = "resenas" | "promos";
+
 export default function CafeMoranPage() {
   const router = useRouter();
   const [estado, setEstado] = useState<"cargando" | "listo" | "sin-acceso">("cargando");
+  const [tab, setTab] = useState<Tab>("resenas");
 
   const verificar = useCallback(async () => {
     const {
@@ -93,21 +98,36 @@ export default function CafeMoranPage() {
       <DashboardHeader
         icon="☕"
         title="Café Moran's"
-        subtitle="Opiniones y reseñas · Militar Marte"
+        subtitle="Opiniones y promociones · Militar Marte"
         theme={T}
         onLogout={() => void salir()}
         iconBg={T.accentSoft}
         sticky
       />
       <div style={contenido}>
-        <ReviewsTab
-          clientId={CAFEMORAN_CLIENT_ID}
+        <TabBar<Tab>
           theme={T}
-          personLabel="cliente"
-          personLabelPlural="clientes"
-          showTouchpoints
-          emptyHint="Los contactos entran solos cuando alguien escanea el QR y deja su WhatsApp."
+          active={tab}
+          onChange={setTab}
+          tabs={[
+            { id: "resenas", label: "Opiniones", icon: "⭐" },
+            { id: "promos", label: "Promociones", icon: "🎟️" },
+          ]}
         />
+        {/* Las dos pestañas se montan y desmontan: cada una hace sus propias
+            consultas al entrar, y así el tablero no arrastra datos viejos. */}
+        {tab === "resenas" ? (
+          <ReviewsTab
+            clientId={CAFEMORAN_CLIENT_ID}
+            theme={T}
+            personLabel="cliente"
+            personLabelPlural="clientes"
+            showTouchpoints
+            emptyHint="Los contactos entran solos cuando alguien escanea el QR y deja su WhatsApp."
+          />
+        ) : (
+          <PromosTab clientId={CAFEMORAN_CLIENT_ID} theme={T} businessName="Café Moran's" />
+        )}
       </div>
     </main>
   );

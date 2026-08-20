@@ -55,6 +55,9 @@ type Settings = {
   privacy_url: string | null;
   incentive_text: string | null;
   collect_contact: boolean | null;
+  collect_birthday: boolean | null;
+  collect_email: boolean | null;
+  promo_consent_text: string | null;
   alert_threshold: number | null;
   alert_email: string | null;
 };
@@ -73,6 +76,16 @@ function telefonoValido(raw: string): boolean {
 
 // Nunca se guarda la IP cruda. El hash sirve para detectar abuso del mismo
 // dispositivo, no para identificar a nadie.
+function emailValido(raw?: string): boolean {
+  const v = (raw ?? "").trim();
+  return v.length > 4 && v.length <= 160 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+}
+
+function enteroEnRango(v: unknown, min: number, max: number): number | null {
+  const n = Number(v);
+  return Number.isInteger(n) && n >= min && n <= max ? n : null;
+}
+
 function hashIp(req: NextRequest): string | null {
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -119,7 +132,7 @@ export async function GET(
     admin()
       .from("review_settings")
       .select(
-        "business_display_name, review_link, google_place_id, brand_color, logo_url, privacy_url, incentive_text, collect_contact, alert_threshold, alert_email",
+        "business_display_name, review_link, google_place_id, brand_color, logo_url, privacy_url, incentive_text, collect_contact, collect_birthday, collect_email, promo_consent_text, alert_threshold, alert_email",
       )
       .eq("client_id", tp.client_id)
       .maybeSingle(),
@@ -152,6 +165,12 @@ export async function GET(
       privacyUrl: s?.privacy_url ?? null,
       incentiveText: s?.incentive_text ?? null,
       collectContact: s?.collect_contact ?? true,
+      // Motor de promociones: sin cumpleaños no hay campaña de cumpleaños y sin
+      // nombre el mensaje sale sin saludo. Se piden aquí porque es el único
+      // momento en que la persona está dispuesta a teclear algo.
+      collectBirthday: s?.collect_birthday ?? false,
+      collectEmail: s?.collect_email ?? false,
+      promoConsentText: s?.promo_consent_text ?? null,
       reviewLink,
       touchpoint: { label: tp.label, kind: tp.kind },
       questions: questions ?? [],
@@ -176,8 +195,13 @@ type Body = {
   comment?: string;
   attribution?: string;
   productRef?: string;
+  name?: string;
+  email?: string;
+  birthdayMonth?: number;
+  birthdayDay?: number;
   phone?: string;
   consent?: boolean;
+  consentText?: string;
   outcome?: string;
   answers?: Array<{ questionId?: string; text?: string; choice?: string[] }>;
 };
@@ -192,7 +216,7 @@ async function respuestaDelTouchpoint(responseId: string, tp: Touchpoint) {
   if (!responseId || responseId.length < 30) return null;
   const { data } = await admin()
     .from("review_responses")
-    .select("id, client_id, touchpoint_id, csat, comment, contact_phone")
+    .select("id, client_id, touchpoint_id, csat, comment, contact_phone, product_ref")
     .eq("id", responseId)
     .eq("touchpoint_id", tp.id)
     .maybeSingle();
@@ -291,18 +315,82 @@ export async function POST(
     if (!telefonoValido(raw)) return malaPeticion("El teléfono no parece válido.");
     const phone = normalizePhone(raw);
 
+    const nombre = body.name?.trim().slice(0, 80) || null;
+    const email = emailValido(body.email) ? body.email!.trim().toLowerCase() : null;
+    const mes = enteroEnRango(body.birthdayMonth, 1, 12);
+    const dia = enteroEnRango(body.birthdayDay, 1, 31);
+    const ahora = new Date().toISOString();
+
     const { error } = await db
       .from("review_responses")
-      .update({ contact_phone: phone, consent: true, consent_at: new Date().toISOString() })
+      .update({
+        contact_name: nombre,
+        contact_phone: phone,
+        contact_email: email,
+        consent: true,
+        consent_at: ahora,
+      })
       .eq("id", responseId);
     if (error) {
       console.error("[api/o] contact:", error);
       return NextResponse.json({ error: "No se pudo guardar." }, { status: 500, headers: NO_STORE });
     }
 
+    // ── Libreta del negocio (motor de promociones) ───────────────────────────
+    // En Moran's el QR es hoy la única fuente de esta tabla; en otros clientes la
+    // llenarán las citas o el punto de venta. Se resuelve leyendo primero y no
+    // con upsert: el unique de teléfono es un índice PARCIAL (where phone is not
+    // null) y onConflict no lo puede nombrar.
+    const { data: yaEsta } = await db
+      .from("contacts")
+      .select("id")
+      .eq("client_id", tp.client_id)
+      .eq("phone", phone)
+      .maybeSingle();
+
+    // Se guarda el texto exacto que la persona aceptó: es la prueba del
+    // consentimiento, y ese texto cambia cuando el dueño edita su encuesta.
+    const consentText = body.consentText?.trim().slice(0, 300) || null;
+
+    // Los `undefined` no viajan en el JSON del PATCH, así que un dato que esta
+    // captura no trae nunca pisa con nulo lo que ya se sabía de la persona.
+    const comun = {
+      name: nombre ?? undefined,
+      email: email ?? undefined,
+      birthday_month: mes ?? undefined,
+      birthday_day: dia ?? undefined,
+      consent_marketing: true,
+      consent_marketing_at: ahora,
+      consent_text: consentText ?? undefined,
+      last_seen_at: ahora,
+      // Denormalizado a propósito: con esto el segmento de una campaña se
+      // resuelve con una sola consulta a contacts, sin cruzar respuestas.
+      last_csat: actual.csat ?? undefined,
+      last_touchpoint_kind: tp.kind,
+      last_product: (actual as { product_ref?: string | null }).product_ref ?? undefined,
+    };
+
+    if (yaEsta) {
+      const { error: errC } = await db
+        .from("contacts")
+        .update({
+          ...comun,
+          // Quien vuelve a dar de alta su teléfono está reactivando el permiso.
+          opt_out_at: null,
+          updated_at: ahora,
+        })
+        .eq("id", yaEsta.id);
+      if (errC) console.error("[api/o] contacts update:", errC);
+    } else {
+      const { error: errC } = await db
+        .from("contacts")
+        .insert({ ...comun, client_id: tp.client_id, phone, source: "qr" });
+      if (errC) console.error("[api/o] contacts insert:", errC);
+    }
+
     // Con consentimiento, el contacto entra a la cola outbound que ya opera el
-    // resto del módulo. contact_name es NOT NULL en review_requests y el flujo
-    // del QR no pide nombre: se guarda un genérico y el dueño lo edita si quiere.
+    // resto del módulo. contact_name es NOT NULL en review_requests; si la
+    // persona no dio nombre se guarda un genérico y el dueño lo edita si quiere.
     const { data: existente } = await db
       .from("review_requests")
       .select("id")
@@ -313,7 +401,7 @@ export async function POST(
     if (!existente) {
       const { error: errReq } = await db.from("review_requests").insert({
         client_id: tp.client_id,
-        contact_name: "Cliente del QR",
+        contact_name: nombre ?? "Cliente del QR",
         contact_phone: phone,
         source: "qr",
         stage: 0,

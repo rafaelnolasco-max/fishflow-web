@@ -36,6 +36,9 @@ type Config = {
   privacyUrl: string | null;
   incentiveText: string | null;
   collectContact: boolean;
+  collectBirthday: boolean;
+  collectEmail: boolean;
+  promoConsentText: string | null;
   reviewLink: string | null;
   touchpoint: { label: string; kind: string };
   questions: Question[];
@@ -63,6 +66,12 @@ const CONTACTO: Record<string, string> = {
   otro: "¿Te avisamos de lo nuevo?",
 };
 
+const MESES = [
+  "enero", "febrero", "marzo", "abril", "mayo", "junio",
+  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+];
+const DIAS = Array.from({ length: 31 }, (_, i) => i + 1);
+
 type Paso = { t: "csat" } | { t: "q"; i: number } | { t: "contacto" } | { t: "salida" } | { t: "gracias" };
 
 export default function EncuestaQR({ slug }: { slug: string }) {
@@ -74,6 +83,10 @@ export default function EncuestaQR({ slug }: { slug: string }) {
   const [seleccion, setSeleccion] = useState<string[]>([]);
   const [texto, setTexto] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [mes, setMes] = useState("");
+  const [dia, setDia] = useState("");
   const [consiente, setConsiente] = useState(false);
   const [ocupado, setOcupado] = useState(false);
 
@@ -96,6 +109,9 @@ export default function EncuestaQR({ slug }: { slug: string }) {
   const preguntas = useMemo(() => cfg?.questions ?? [], [cfg]);
   const kind = cfg?.touchpoint.kind ?? "otro";
   const apertura = APERTURA[kind] ?? APERTURA.otro;
+  const consentText =
+    cfg?.promoConsentText ??
+    `Acepto que ${cfg?.business ?? "el negocio"} me escriba sobre novedades y promociones.`;
 
   const post = useCallback(
     async (payload: Record<string, unknown>) => {
@@ -159,7 +175,19 @@ export default function EncuestaQR({ slug }: { slug: string }) {
 
   async function guardarContacto(saltar = false) {
     if (!saltar && consiente && telefono.trim() && responseId) {
-      await post({ action: "contact", responseId, phone: telefono, consent: true });
+      await post({
+        action: "contact",
+        responseId,
+        phone: telefono,
+        name: nombre,
+        email: correo,
+        birthdayMonth: mes ? Number(mes) : undefined,
+        birthdayDay: dia ? Number(dia) : undefined,
+        consent: true,
+        // Se manda el texto que la persona tuvo enfrente, no una constante del
+        // servidor: si el dueño edita su casilla, la prueba sigue siendo fiel.
+        consentText,
+      });
     }
     setPaso({ t: "salida" });
   }
@@ -255,6 +283,17 @@ export default function EncuestaQR({ slug }: { slug: string }) {
               Ya es tuyo, hayas calificado como hayas calificado.
             </div>
           )}
+          {/* El nombre va primero y es corto: sin él la promoción sale sin saludo
+              y se lee como publicidad de lista comprada. */}
+          <div className="label">¿Cómo te llamas?</div>
+          <input
+            className="field"
+            maxLength={80}
+            autoComplete="given-name"
+            placeholder="Tu nombre"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
           <div className="label">WhatsApp</div>
           <input
             className="field"
@@ -264,6 +303,47 @@ export default function EncuestaQR({ slug }: { slug: string }) {
             value={telefono}
             onChange={(e) => setTelefono(e.target.value)}
           />
+          {cfg.collectEmail && (
+            <>
+              <div className="label">Correo (opcional)</div>
+              <input
+                className="field"
+                type="email"
+                inputMode="email"
+                maxLength={160}
+                autoComplete="email"
+                placeholder="tucorreo@ejemplo.com"
+                value={correo}
+                onChange={(e) => setCorreo(e.target.value)}
+              />
+            </>
+          )}
+          {cfg.collectBirthday && (
+            <>
+              {/* Día y mes, nunca el año: para felicitar no hace falta la edad.
+                  Van en selects porque teclear una fecha en el celular, de pie y
+                  con la fila detrás, es justo donde se abandona la encuesta. */}
+              <div className="label">Tu cumpleaños (para consentirte ese día)</div>
+              <div className="dob">
+                <select className="field" value={dia} onChange={(e) => setDia(e.target.value)}>
+                  <option value="">Día</option>
+                  {DIAS.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+                <select className="field" value={mes} onChange={(e) => setMes(e.target.value)}>
+                  <option value="">Mes</option>
+                  {MESES.map((m, i) => (
+                    <option key={m} value={i + 1}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
           <label className="consent">
             <input
               type="checkbox"
@@ -271,7 +351,7 @@ export default function EncuestaQR({ slug }: { slug: string }) {
               onChange={(e) => setConsiente(e.target.checked)}
             />
             <span>
-              Acepto que {cfg.business} me escriba sobre novedades y promociones.{" "}
+              {consentText}{" "}
               {cfg.privacyUrl && (
                 <a href={cfg.privacyUrl} target="_blank" rel="noopener noreferrer">
                   Aviso de privacidad
@@ -526,6 +606,12 @@ h2{font-size:21px;line-height:1.2;letter-spacing:-.015em;margin:0 0 6px;font-wei
   resize:vertical}
 .field:focus{outline:none;border-color:__ACENTO__}
 .label{font-size:13.5px;font-weight:700;margin-bottom:8px}
+.dob{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-bottom:14px}
+.dob .field{margin-bottom:0;appearance:none;-webkit-appearance:none;height:48px;
+  background-image:linear-gradient(45deg,transparent 50%,rgba(46,31,23,.5) 50%),
+    linear-gradient(135deg,rgba(46,31,23,.5) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 21px,calc(100% - 13px) 21px;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat}
 .consent{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.45;
   color:rgba(46,31,23,.72);margin-bottom:16px}
 .consent input{margin-top:2px;width:17px;height:17px;accent-color:__ACENTO__;flex:none}
