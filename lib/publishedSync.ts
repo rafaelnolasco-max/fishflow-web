@@ -110,7 +110,7 @@ export async function recordSchedulesSeen(
 
 // ─── Atribución ───────────────────────────────────────────────────────────────
 
-type Dueno = {
+export type Dueno = {
   clientId: string;
   targetKey: string | null;
   targetLabel: string | null;
@@ -134,13 +134,13 @@ export function pageIdDeUrlFacebook(url: string | null | undefined): string | nu
 }
 
 /** ¿Comparten al menos una imagen? Las URLs de Blotato son únicas por archivo. */
-function compartenMedia(a: string[], b: string[]): boolean {
+export function compartenMedia(a: string[], b: string[]): boolean {
   if (a.length === 0 || b.length === 0) return false;
   const set = new Set(a);
   return b.some((url) => set.has(url));
 }
 
-type Candidato = {
+export type Candidato = {
   client_id: string;
   target_key: string | null;
   target_label: string | null;
@@ -155,7 +155,7 @@ function normaliza(texto: string): string {
   return texto.replace(/\s+/g, " ").trim().slice(0, 300);
 }
 
-function buscarEnCandidatos(
+export function buscarEnCandidatos(
   post: BlotatoPublishedPost,
   candidatos: Candidato[],
 ): Omit<Dueno, "attribution"> | null {

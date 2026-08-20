@@ -317,6 +317,74 @@ export async function listPublishedPosts(opts: {
   return todas;
 }
 
+// ─── Fallidas ─────────────────────────────────────────────────────────────────
+
+/**
+ * Una publicación fallida, tal como la devuelve GET /v2/posts?status=failed.
+ *
+ * ⚠️ Mismo hueco que BlotatoPublishedPost: NO trae accountId ni pageId. Una
+ * publicación fallida además nunca tuvo URL (no llegó a salir), así que la vía
+ * de atribución por URL de Facebook tampoco aplica aquí — ver lib/failedPostsSync.
+ */
+export type BlotatoFailedPost = {
+  id: string;
+  platform: string;
+  text: string;
+  mediaUrls: string[];
+  postTime: string;
+  state?: { type: string; errorMessage?: string };
+};
+
+/**
+ * Publicaciones fallidas dentro de una ventana de tiempo.
+ *
+ * Mismo patrón de paginación que listPublishedPosts: `limit` + `cursor`
+ * explícitos, con el mismo seguro contra un cursor que no avanza.
+ */
+export async function listFailedPosts(opts: {
+  since: string;
+  until?: string;
+  maxPages?: number;
+}): Promise<BlotatoFailedPost[]> {
+  const todas: BlotatoFailedPost[] = [];
+  let cursor: string | undefined;
+  const maxPages = opts.maxPages ?? 10;
+
+  for (let page = 0; page < maxPages; page++) {
+    const qs = new URLSearchParams({ limit: "100", status: "failed", since: opts.since });
+    if (opts.until) qs.set("until", opts.until);
+    if (cursor) qs.set("cursor", cursor);
+
+    const out = await call<{ items?: BlotatoFailedPost[]; cursor?: string }>(`/posts?${qs}`);
+    const items = out?.items ?? [];
+    todas.push(...items);
+    if (!out?.cursor || items.length === 0 || out.cursor === cursor) break;
+    cursor = out.cursor;
+  }
+
+  return todas;
+}
+
+/**
+ * Estado de una publicación ya enviada a Blotato (creada o reenviada), tal como
+ * lo devuelve GET /v2/posts/{postSubmissionId}.
+ *
+ * Se usa para dar seguimiento a los reintentos automáticos SIN volver a barrer
+ * la lista de fallidas: así un reintento que también falla no se confunde con
+ * una publicación nueva y no dispara un segundo reintento en cadena.
+ */
+export type PostStatus = {
+  postSubmissionId: string;
+  status: "in-progress" | "scheduled" | "published" | "failed";
+  scheduledTime?: string;
+  publicUrl?: string;
+  errorMessage?: string;
+};
+
+export async function getPostStatus(postSubmissionId: string): Promise<PostStatus> {
+  return call<PostStatus>(`/posts/${encodeURIComponent(postSubmissionId)}`);
+}
+
 // ─── Analíticas ───────────────────────────────────────────────────────────────
 
 /**
