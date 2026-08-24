@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
+import { requireClientAccess } from '@/lib/apiAuth'
 
 export const runtime = 'nodejs'
 // Tope explícito. Sin esto la función se queda con el default de la cuenta y el
@@ -257,6 +258,12 @@ export async function POST(req: Request) {
     if (!tema) {
       return NextResponse.json({ error: 'Escribe de qué quieres hablar.' }, { status: 400 })
     }
+
+    // Candado. Esta ruta gasta tokens de Anthropic y expone la voz de marca del
+    // cliente: sin sesión, cualquiera con un client_id (que viaja en el HTML del
+    // tablero) podía pedirle borradores. Mismo patrón que /api/content/schedule.
+    const auth = await requireClientAccess(clientId)
+    if (!auth.ok) return auth.response
 
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {
