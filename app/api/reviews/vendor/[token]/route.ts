@@ -15,6 +15,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { vendorPorToken, type ReviewVendor } from "@/lib/reviewVendors";
 
 // Lazy init: instanciar a nivel de módulo con envs faltantes tumba `next build`.
 let _admin: SupabaseClient | null = null;
@@ -48,22 +49,7 @@ const STATUS_VALIDOS = new Set([
   "active", "completed", "declined", "no_response", "negative_feedback",
 ]);
 
-type Vendor = { id: string; client_id: string; name: string };
-
-async function vendorPorToken(token: string): Promise<Vendor | null> {
-  if (!token || token.length < 20) return null;
-  const { data, error } = await admin()
-    .from("review_vendors")
-    .select("id, client_id, name")
-    .eq("token", token)
-    .eq("active", true)
-    .maybeSingle();
-  if (error) {
-    console.error("[reviews/vendor] lookup:", error);
-    return null;
-  }
-  return (data as Vendor | null) ?? null;
-}
+type Vendor = ReviewVendor;
 
 function noEncontrado() {
   return NextResponse.json(

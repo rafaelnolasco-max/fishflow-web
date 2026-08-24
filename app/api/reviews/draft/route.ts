@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 import { requireClientAccess } from '@/lib/apiAuth'
+import { vendorPorToken } from '@/lib/reviewVendors'
 
 // ─── Clientes ────────────────────────────────────────────────────────────────
 
@@ -32,7 +33,7 @@ function genericPersona(business: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { clientId, stage, reply, contactName } = await req.json()
+    const { clientId, stage, reply, contactName, vendorToken } = await req.json()
 
     // stage = etapa ACTUAL del request. 1 = saludo enviado → generar msg 2.
     // 2 = petición enviada → generar msg 3 (con link).
@@ -50,17 +51,35 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Candado. La ruta gasta tokens de Anthropic y devuelve un mensaje escrito
-    // con la voz (ai_persona) del negocio: sin sesión, cualquiera con un
-    // client_id podía sacarla. Mismo patrón que /api/content/schedule.
-    const auth = await requireClientAccess(String(clientId))
-    if (!auth.ok) return auth.response
+    // ── Candado: dos credenciales válidas ────────────────────────────────────
+    // Sin esto, cualquiera con un client_id (que viaja en el HTML del tablero)
+    // podía gastar tokens de Anthropic y sacar la voz —ai_persona— del negocio.
+    //
+    // Pero la página de la vendedora (/resenas/[token]) es pública y sin login,
+    // y desde ahí también se generan estos borradores: ahí la credencial es el
+    // token. Cuando viene, el cliente se resuelve DESDE el token y se ignora el
+    // del body — si no, el token de una vendedora serviría para pedir borradores
+    // con la voz de otro cliente.
+    let clienteAutorizado = String(clientId)
+    if (vendorToken) {
+      const vendor = await vendorPorToken(String(vendorToken))
+      if (!vendor) {
+        return NextResponse.json(
+          { error: 'Este enlace no es válido o fue desactivado.' },
+          { status: 401 }
+        )
+      }
+      clienteAutorizado = vendor.client_id
+    } else {
+      const auth = await requireClientAccess(clienteAutorizado)
+      if (!auth.ok) return auth.response
+    }
 
     // ── 1. Configuración del cliente (voz, negocio, plantilla base, link) ──────
     const { data: settings, error: sErr } = await supabaseAdmin
       .from('review_settings')
       .select('business_display_name, review_link, msg_template_2, msg_template_3, ai_persona, ai_sensitive')
-      .eq('client_id', clientId)
+      .eq('client_id', clienteAutorizado)
       .maybeSingle()
 
     if (sErr) {

@@ -379,7 +379,12 @@ export default function ReviewsTab({
       const res = await fetch("/api/reviews/draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ clientId: resolvedClientId, stage: r.stage, reply, contactName: r.contact_name }),
+        body: JSON.stringify({
+          clientId: resolvedClientId, stage: r.stage, reply, contactName: r.contact_name,
+          // En la página pública de la vendedora no hay sesión: el token ES la
+          // credencial y el servidor resuelve el cliente a partir de él.
+          vendorToken: vendorToken ?? null,
+        }),
       });
       const data = await res.json();
       if (!res.ok || !data?.draft) { notify(data?.error ?? "No se pudo generar el mensaje"); return; }
