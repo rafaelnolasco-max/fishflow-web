@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
+import PublicacionesTab from './PublicacionesTab'
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -136,7 +137,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 
 export default function CRMPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads'>('crm')
+  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads' | 'publicaciones'>('crm')
 
   // ── CRM state ──────────────────────────────────────────────────────────────
   const [deals,   setDeals]   = useState<Deal[]>([])
@@ -439,6 +440,9 @@ export default function CRMPage() {
           </button>
           <button className={`ff-tab ${activeTab === 'leads' ? 'active' : ''}`} onClick={() => setActiveTab('leads')}>
             🎯 Leads {leads.length > 0 && <span className="ff-tab-badge">{leads.length}</span>}
+          </button>
+          <button className={`ff-tab ${activeTab === 'publicaciones' ? 'active' : ''}`} onClick={() => setActiveTab('publicaciones')}>
+            🗓️ Publicaciones
           </button>
         </div>
         {activeTab === 'crm' && (
@@ -828,6 +832,11 @@ export default function CRMPage() {
           )}
         </div>
       )}
+
+      {/* ── Tab Publicaciones ─────────────────────────────────────────────── */}
+      {/* Mismo módulo que el tablero de CANE, apuntado a las cuentas de FishFlow.
+          Vive en su propio archivo porque trae su tema oscuro y nada más. */}
+      {activeTab === 'publicaciones' && <PublicacionesTab />}
 
       {/* ── Modal CRM ─────────────────────────────────────────────────────── */}
       {modal.open && (

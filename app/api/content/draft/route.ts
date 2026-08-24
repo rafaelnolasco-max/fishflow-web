@@ -127,6 +127,21 @@ pregunta corta que el trabajador se hace ("¿Me pueden despedir por un acta admi
 En ARTE describe qué dice y qué muestra en cámara, en dos o tres beats. El PIE es breve, de 40 a 80 palabras:
 la respuesta en corto, el bloque del despacho y el contacto. Sin lista de viñetas: aquí manda el video.`,
 
+  // ── FishFlow (vertical automatizacion) ────────────────────────────────────
+  // La casa publicando a la casa. Sale de docs/instagram-fishflowmx-lanzamiento.md
+  // y de brand/verbal-identity.md: el post que funciona nombra un trabajo manual
+  // que el dueño hace hoy y lo contrasta con el mismo trabajo ya corriendo solo.
+  automatizacion_pyme: `FORMATO: Automatización que ya corre (feed FishFlow).
+El GANCHO es lo único que se lee en la imagen: nombra el trabajo manual que el dueño hace hoy, en su idioma
+y en segunda persona ("¿Cuántas horas pierdes confirmando citas por teléfono?"), o el resultado ya logrado en
+un negocio real ("Belange ya no lleva su inventario en papel").
+El PIE va en tres tiempos, de 70 a 120 palabras: primero cómo se hace hoy a mano y qué cuesta —tiempo, errores,
+clientes que se pierden—; luego qué queda corriendo solo, dicho en lo que el dueño ve, no en cómo funciona por
+dentro ("cada venta se registra sola", no "se implementa un pipeline"); y cierra invitando a la conversación,
+nunca a la compra. Una idea por frase, de tú, sin jerga ni frases de catálogo ("soluciones integrales",
+"transformación digital", "potenciar tu negocio").
+El contacto es siempre y únicamente: 📩 raf@fishflow.mx — sin WhatsApp, sin teléfono, sin "link en bio".`,
+
   psicoeducacion: `FORMATO: Psicoeducación (carrusel).
 Divulgación clara sobre un tema concreto (señales, mitos, qué sí y qué no). El gancho es el título de portada.
 En el pie desarrolla de 3 a 5 puntos, uno por línea, cada uno como una lámina del carrusel. Sin numerar con
@@ -167,6 +182,25 @@ CUIDADO JURÍDICO (obligatorio, esta cuenta es de un despacho de abogados):
 - No denigres a los patrones ni a las empresas como grupo. El enfoque es la ley, no el enfrentamiento.
 - Si el tema toca acoso sexual, violencia o riesgo a la integridad, trátalo con sobriedad, sin detalle morboso,
   y remite a asesoría y a la autoridad competente.`
+
+// Vertical propia. Aquí el riesgo no es clínico ni jurídico sino de marca: la
+// tentación de anunciar un módulo que todavía no corre en ningún cliente. Un
+// post así se convierte en una promesa que Rafa tiene que sostener en la
+// siguiente junta de ventas.
+const REGLAS_FISHFLOW = `
+CUIDADO DE MARCA (obligatorio, esta cuenta es la de FishFlow):
+- Solo se habla de lo que YA está corriendo en un cliente real. Si el tema propone una capacidad que no viene
+  descrita como funcionando hoy, no la anuncies: escribe sobre el problema que resuelve y avisa en ARTE que
+  falta confirmar si ya está en producción.
+- Nunca menciones precios, montos, rangos ni "desde $". Tampoco descuentos ni promociones.
+- No prometas resultados garantizados ni plazos exactos. El único marco de tiempo que se usa es que el valor
+  se nota en las primeras semanas.
+- No nombres clientes que no vengan en el tema o en las notas. Los que sí vienen se nombran tal cual se
+  autorizaron (por ejemplo "Estética Belange CDMX").
+- No inventes cifras de resultado (horas ahorradas, porcentajes, número de clientes) si no vienen en el tema.
+- El único canal de contacto es raf@fishflow.mx. Nada de WhatsApp, teléfono ni "escríbeme por DM".
+- Sin jerga de programador ni nombres de herramientas del stack: el lector es el dueño del negocio, no su
+  proveedor de software.`
 
 type Draft = {
   hook: string
@@ -262,7 +296,10 @@ export async function POST(req: Request) {
     const guardrails: string | null =
       settings?.guardrails ?? (settings?.sensitive === true ? 'salud' : null)
     const reglas =
-      guardrails === 'legal' ? REGLAS_LEGAL : guardrails === 'salud' ? REGLAS_SALUD : ''
+      guardrails === 'legal'    ? REGLAS_LEGAL
+      : guardrails === 'salud'  ? REGLAS_SALUD
+      : guardrails === 'marca'  ? REGLAS_FISHFLOW
+      : ''
 
     // ── 2. System prompt ──────────────────────────────────────────────────────
     const system = `${voz}

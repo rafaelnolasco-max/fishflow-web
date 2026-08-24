@@ -607,6 +607,14 @@ export const CAFEMORAN_CLIENT_ID = "9f3c7b21-4d58-4e0a-9c16-7a5e2b8d0f34";
 // resultados de juicio) en lugar de las de salud que usa CANE.
 export const JJLABORAL_CLIENT_ID = "9b4f2a17-6d3c-4e58-8f21-c0a75e3b91d4";
 
+// ─── fishflow — FishFlow, la casa (vertical automatizacion) ───────────────────
+// FishFlow como cliente de sí misma: existe para que el módulo de publicaciones
+// —que es multi-tenant y filtra TODO por client_id— pueda apuntar a las cuentas
+// propias (@fishflow.mx en Instagram y la página FishFlow en Facebook) desde la
+// pestaña Publicaciones del /admin. No tiene tablero de cliente ni cobros:
+// gateway_primary = 'none'.
+export const FISHFLOW_CLIENT_ID = "b0d1a4f6-3c58-4a7e-9d21-7fe6c0a13b42";
+
 // ─── regintel — Inteligencia Regulatoria (vertical regulatorio_farma) ─────────
 // Slug neutro a propósito: la vertical es reutilizable con otras farmacéuticas.
 export const REGINTEL_CLIENT_ID = "c2b2a692-7f39-42a1-841a-5ae31e21e851";

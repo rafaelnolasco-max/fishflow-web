@@ -26,6 +26,19 @@ export type DashTheme = {
   danger: string;      // errores
   disabled: string;    // botones deshabilitados
   panel?: string;      // fondo neutro suave para cards "soft" (default: surface)
+  // ── Tokens opcionales para temas oscuros ────────────────────────────────────
+  // Nacieron con el tablero de /admin, que vive sobre fondo #0A1820: los avisos
+  // y los chips estaban escritos con la paleta clara metida a mano y sobre
+  // oscuro salían como parches. Todos caen al valor de siempre si no se pasan,
+  // así que ningún tablero de cliente cambia de aspecto.
+  inputBg?: string;    // fondo de inputs (default: #fff)
+  warnBg?: string;     // aviso ámbar: fondo (default: #FFFBEB)
+  warnBorder?: string; // aviso ámbar: borde (default: #FDE68A)
+  warnText?: string;   // aviso ámbar: texto (default: #92400E)
+  dangerBg?: string;   // fondo del bloque de error (default: #FEF2F2)
+  chipBg?: string;     // chip neutro: fondo (default: #F9FAFB)
+  infoBg?: string;     // chip informativo: fondo (default: #EEF2FF)
+  infoText?: string;   // chip informativo: texto (default: #4338CA)
 };
 
 const FONT_HEAD = "'Plus Jakarta Sans', Inter, sans-serif";
@@ -33,7 +46,7 @@ const FONT_HEAD = "'Plus Jakarta Sans', Inter, sans-serif";
 // ─── Estilos base reutilizables ────────────────────────────────────────────────
 export const inputStyle = (t: DashTheme): React.CSSProperties => ({
   width: "100%", padding: "9px 12px", borderRadius: 9, border: `1px solid ${t.border}`,
-  fontSize: 14, fontFamily: "inherit", background: "#fff", color: t.text,
+  fontSize: 14, fontFamily: "inherit", background: t.inputBg ?? "#fff", color: t.text,
 });
 
 export const cardStyle = (t: DashTheme): React.CSSProperties => ({

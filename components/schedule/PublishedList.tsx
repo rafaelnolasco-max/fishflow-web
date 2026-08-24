@@ -144,7 +144,7 @@ export default function PublishedList({
 
       {error && (
         <div style={{
-          background: "#FEF2F2", border: `1px solid ${t.danger}`, color: t.danger,
+          background: t.dangerBg ?? "#FEF2F2", border: `1px solid ${t.danger}`, color: t.danger,
           borderRadius: 10, padding: "10px 14px", fontSize: 13, marginBottom: 16, lineHeight: 1.5,
         }}>
           {error}
@@ -216,7 +216,7 @@ export default function PublishedList({
                       label={[NOMBRE_RED[post.platform] ?? post.platform, post.targetLabel]
                         .filter(Boolean)
                         .join(" · ")}
-                      bg="#F9FAFB"
+                      bg={t.chipBg ?? "#F9FAFB"}
                       fg={t.muted}
                     />
                   </div>

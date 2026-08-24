@@ -257,7 +257,7 @@ export default function ScheduleTab({
 
       {error && (
         <div style={{
-          background: "#FEF2F2", border: `1px solid ${t.danger}`, color: t.danger,
+          background: t.dangerBg ?? "#FEF2F2", border: `1px solid ${t.danger}`, color: t.danger,
           borderRadius: 10, padding: "10px 14px", fontSize: 13, marginBottom: 16, lineHeight: 1.5,
         }}>
           {error}
@@ -266,7 +266,7 @@ export default function ScheduleTab({
 
       {!configured && (
         <div style={{
-          background: "#FFFBEB", border: "1px solid #FDE68A", color: "#92400E",
+          background: t.warnBg ?? "#FFFBEB", border: `1px solid ${t.warnBorder ?? "#FDE68A"}`, color: t.warnText ?? "#92400E",
           borderRadius: 10, padding: "10px 14px", fontSize: 13, marginBottom: 16, lineHeight: 1.55,
         }}>
           ⚠️ La publicación automática todavía no está encendida en esta cuenta. Avísale a FishFlow.
@@ -275,7 +275,7 @@ export default function ScheduleTab({
 
       {configured && targets.length === 0 && (
         <div style={{
-          background: "#FFFBEB", border: "1px solid #FDE68A", color: "#92400E",
+          background: t.warnBg ?? "#FFFBEB", border: `1px solid ${t.warnBorder ?? "#FDE68A"}`, color: t.warnText ?? "#92400E",
           borderRadius: 10, padding: "10px 14px", fontSize: 13, marginBottom: 16, lineHeight: 1.55,
         }}>
           {/* Si el servidor supo POR QUÉ no hay destinos, se dice eso y no la
@@ -368,11 +368,11 @@ export default function ScheduleTab({
                             <Chip label={`🕗 ${formatCdmxTime(post.scheduledAt)}`} bg={t.accentSoft} fg={t.accentDark} />
                             <Chip
                               label={`${post.platform === "instagram" ? "Instagram" : "Facebook"} · ${post.targetLabel}`}
-                              bg="#F9FAFB"
+                              bg={t.chipBg ?? "#F9FAFB"}
                               fg={t.muted}
                             />
                             {post.mediaUrls.length > 1 && (
-                              <Chip label={`Carrusel de ${post.mediaUrls.length}`} bg="#EEF2FF" fg="#4338CA" />
+                              <Chip label={`Carrusel de ${post.mediaUrls.length}`} bg={t.infoBg ?? "#EEF2FF"} fg={t.infoText ?? "#4338CA"} />
                             )}
                           </div>
 

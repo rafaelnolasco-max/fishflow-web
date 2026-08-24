@@ -287,7 +287,7 @@ export default function ScheduleComposer({
     >
       {error && (
         <div style={{
-          background: "#FEF2F2", border: `1px solid ${t.danger}`, color: t.danger,
+          background: t.dangerBg ?? "#FEF2F2", border: `1px solid ${t.danger}`, color: t.danger,
           borderRadius: 10, padding: "10px 14px", fontSize: 13, marginBottom: 14, lineHeight: 1.5,
         }}>
           {error}
@@ -350,8 +350,8 @@ export default function ScheduleComposer({
         </div>
         {exceso && (
           <div style={{
-            fontSize: 12, color: "#92400E", background: "#FFFBEB",
-            border: "1px solid #FDE68A", borderRadius: 8,
+            fontSize: 12, color: t.warnText ?? "#92400E", background: t.warnBg ?? "#FFFBEB",
+            border: `1px solid ${t.warnBorder ?? "#FDE68A"}`, borderRadius: 8,
             padding: "8px 10px", marginTop: 8, lineHeight: 1.55,
           }}>
             ⚠️ Llevas {nTags} hashtags. En Instagram, pasando de {INSTAGRAM_HASHTAG_LIMIT} el
