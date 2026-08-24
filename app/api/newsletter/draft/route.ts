@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { requireClientAccess } from '@/lib/apiAuth'
 
 export const runtime = 'nodejs'
+
+/** Mario Citalán — Arquitectura del Criterio. Mismo UUID que CRITERIO_CLIENT_ID en lib/supabase.ts. */
+const CRITERIO_CLIENT_ID = 'ea5266d5-cabb-44e2-a96a-0a0f40da07e7'
 
 // Borrador del newsletter quincenal de Mario Citalán.
 // La IA no publica nada: propone un texto que Mario edita antes de enviar.
@@ -71,6 +75,13 @@ export async function POST(req: Request) {
     if (!tema) {
       return NextResponse.json({ error: 'Escribe de qué quieres hablar.' }, { status: 400 })
     }
+
+    // Candado. El cliente va fijo y NO se lee del body: esta ruta escribe con
+    // la voz de Mario y nada más, así que el permiso que hay que exigir es el
+    // de su panel. Pasar el id por el body solo abriría la puerta a pedirlo con
+    // el de otro cliente.
+    const auth = await requireClientAccess(CRITERIO_CLIENT_ID)
+    if (!auth.ok) return auth.response
 
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {

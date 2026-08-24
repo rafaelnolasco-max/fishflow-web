@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
+import { requireClientAccess } from '@/lib/apiAuth'
 
 // ─── Clientes ────────────────────────────────────────────────────────────────
 
@@ -48,6 +49,12 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Candado. La ruta gasta tokens de Anthropic y devuelve un mensaje escrito
+    // con la voz (ai_persona) del negocio: sin sesión, cualquiera con un
+    // client_id podía sacarla. Mismo patrón que /api/content/schedule.
+    const auth = await requireClientAccess(String(clientId))
+    if (!auth.ok) return auth.response
 
     // ── 1. Configuración del cliente (voz, negocio, plantilla base, link) ──────
     const { data: settings, error: sErr } = await supabaseAdmin
