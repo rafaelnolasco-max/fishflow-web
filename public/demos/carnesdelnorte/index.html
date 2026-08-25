@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carnes del Norte · Cortes finos en Benito Juárez, CDMX</title>
+<meta name="description" content="Mayorista de cortes finos, pescado, carnes frías y quesos en Benito Juárez, CDMX. Lista de precios al día y pedidos por WhatsApp.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23961F1C'/%3E%3Cpath d='M32 12c-6 0-9 3-12 3s-5-2-5-2 0 8 4 12c-1 3-1 6 0 9 2 6 7 11 13 11s11-5 13-11c1-3 1-6 0-9 4-4 4-12 4-12s-2 2-5 2-6-3-12-3z' fill='%23F7F2E9'/%3E%3Ccircle cx='26' cy='31' r='2.6' fill='%23961F1C'/%3E%3Ccircle cx='38' cy='31' r='2.6' fill='%23961F1C'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23961F1C'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+/* ===================== RESPONSIVE BASE (FishFlow) ===================== */
+/* ============================================================
+   FishFlow · responsive-base.css
+   Base responsiva para TODOS los demos. PC / iPad / móvil.
+   ------------------------------------------------------------
+   Cómo usar:
+   - Opción A (recomendada para single-file): copia este bloque
+     COMPLETO dentro del <style> del demo, al inicio.
+   - Opción B: enlázalo  <link rel="stylesheet"
+     href="../_template/responsive-base.css">  (solo si el demo
+     vive bajo /public/demos/ y no se va a copiar a otro repo).
+
+   Breakpoints fijos del sistema:
+     <= 600px  → móvil
+     601–900px → iPad / tablet
+     > 900px   → escritorio
+   ============================================================ */
+
+/* 1. Reset + box model seguro --------------------------------
+   min-width:0 evita el bug clásico de overflow en grid/flex
+   (un hijo ancho empuja toda la columna fuera de pantalla). */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+
+/* 2. Contenedor fluido --------------------------------------- */
+.ff-container{width:100%;max-width:var(--ff-max,1280px);margin-inline:auto;
+  padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+
+/* 3. Grids que colapsan SOLOS (sin media queries) ------------
+   Usa esto en vez de repeat(4,1fr) fijo. El minmax + auto-fit
+   reacomoda las columnas según el ancho disponible. */
+.ff-grid{display:grid;gap:var(--ff-gap,18px);
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+
+/* 4. Tablas: scroll propio, nunca rompen la página ----------- */
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-tablewrap > table{min-width:var(--ff-tablemin,520px);}
+
+/* 5. Shell de dashboard (sidebar + contenido [+ panel]) ------
+   Se apila automáticamente en iPad y móvil. */
+.ff-shell{display:grid;gap:var(--ff-gap,24px);align-items:start;
+  grid-template-columns:var(--ff-side,260px) minmax(0,1fr);}
+.ff-shell--3{grid-template-columns:var(--ff-side,260px) minmax(0,1fr) var(--ff-right,300px);}
+
+/* 6. Tipografía fluida (helpers opcionales) ------------------ */
+.ff-h1{font-size:clamp(32px,5vw,64px);line-height:1.02;letter-spacing:-.02em;}
+.ff-h2{font-size:clamp(26px,3.6vw,46px);line-height:1.06;letter-spacing:-.02em;}
+.ff-lede{font-size:clamp(15px,1.4vw,19px);line-height:1.55;}
+
+/* 7. Utilidades responsivas --------------------------------- */
+.ff-hide-mobile{}      /* se oculta en <=600 (ver media query)  */
+.ff-stack-mobile{}     /* flex que se apila en <=600            */
+
+/* ====================== BREAKPOINTS ======================== */
+
+/* iPad / tablet y abajo */
+@media(max-width:900px){
+  .ff-shell,.ff-shell--3{grid-template-columns:1fr;}
+}
+
+/* Móvil */
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}
+
+/* ===================== FIN RESPONSIVE BASE ===================== */
+
+:root{
+  --rojo:#961F1C;
+  --rojo-osc:#6E1512;
+  --rojo-cla:#C03A2E;
+  --hueso:#F7F2E9;
+  --hueso-2:#EFE7D8;
+  --tinta:#17130F;
+  --tinta-2:#3B322A;
+  --gris:#7A6E62;
+  --linea:#E0D5C2;
+  --verde:#2C6B4F;
+  --display:'Oswald',Impact,sans-serif;
+  --texto:'Source Sans 3',system-ui,sans-serif;
+  --ff-max:1180px;
+}
+body{background:var(--hueso);color:var(--tinta);font-family:var(--texto);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,.dsp{font-family:var(--display);font-weight:600;letter-spacing:.005em;margin:0;}
+a{color:inherit;}
+.cap{font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.14em;font-size:12px;}
+
+/* ---------- barra superior ---------- */
+.topbar{background:var(--rojo-osc);color:#F2D9D5;font-size:13px;}
+.topbar .in{display:flex;flex-wrap:wrap;gap:6px 22px;justify-content:space-between;align-items:center;padding:8px 0;}
+.topbar b{color:#fff;font-weight:600;}
+
+/* ---------- nav ---------- */
+header.nav{position:sticky;top:0;z-index:60;background:var(--hueso);border-bottom:2px solid var(--tinta);}
+.nav .in{display:flex;align-items:center;gap:20px;padding:12px 0;}
+.marca{display:flex;align-items:center;gap:11px;text-decoration:none;flex:0 0 auto;}
+.escudo{width:40px;height:40px;flex:0 0 auto;}
+.marca .txt{line-height:1;}
+.marca .txt .a{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.03em;text-transform:uppercase;display:block;color:var(--tinta);}
+.marca .txt .b{font-family:var(--display);font-weight:400;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--rojo);display:block;margin-top:3px;}
+.nav nav{margin-left:auto;display:flex;gap:26px;}
+.nav nav a{font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.09em;font-size:13.5px;text-decoration:none;color:var(--tinta-2);padding:4px 0;border-bottom:2px solid transparent;}
+.nav nav a:hover,.nav nav a:focus-visible{color:var(--rojo);border-bottom-color:var(--rojo);}
+.burger{display:none;margin-left:auto;background:none;border:2px solid var(--tinta);color:var(--tinta);font-size:19px;line-height:1;padding:6px 11px;border-radius:4px;cursor:pointer;}
+.mobmenu{display:none;background:var(--tinta);}
+.mobmenu.open{display:block;}
+.mobmenu .in{display:flex;flex-direction:column;align-items:stretch;padding:10px 0 18px;}
+.mobmenu a{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:15px;color:var(--hueso);text-decoration:none;padding:13px 0;border-bottom:1px solid rgba(247,242,233,.16);}
+.mobmenu a.wa{color:#fff;background:var(--verde);text-align:center;border:none;margin-top:14px;border-radius:5px;padding:14px;}
+
+.btn{display:inline-block;font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.1em;font-size:13px;text-decoration:none;padding:11px 20px;border-radius:4px;border:2px solid transparent;cursor:pointer;}
+.btn--wa{background:var(--verde);color:#fff;}
+.btn--wa:hover{background:#235742;}
+.btn--linea{border-color:var(--tinta);color:var(--tinta);}
+.btn--linea:hover{background:var(--tinta);color:var(--hueso);}
+.nav .btn{flex:0 0 auto;}
+
+/* ---------- hero ---------- */
+.hero{background:var(--rojo);color:var(--hueso);position:relative;overflow:hidden;padding:0;}
+.hero::after{content:"";position:absolute;inset:0;background:
+  repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 9px);pointer-events:none;}
+.hero .in{position:relative;z-index:1;display:grid;gap:34px;padding:58px 0 62px;
+  grid-template-columns:minmax(0,1.32fr) minmax(0,.88fr);align-items:center;}
+.hero .cap{color:#F0BDB6;}
+.hero h1{font-size:clamp(33px,5.1vw,58px);line-height:1.0;font-weight:700;text-transform:uppercase;margin:14px 0 0;}
+.hero h1 em{font-style:normal;color:#F5C9A0;}
+.hero p{font-size:clamp(16px,1.5vw,19px);max-width:46ch;margin:18px 0 26px;color:#F6E3E0;}
+.hero .acc{display:flex;flex-wrap:wrap;gap:12px;}
+.hero .btn--linea{border-color:var(--hueso);color:var(--hueso);}
+.hero .btn--linea:hover{background:var(--hueso);color:var(--rojo);}
+
+.pizarra{background:var(--tinta);border:3px solid rgba(247,242,233,.22);border-radius:6px;padding:20px 22px;}
+.pizarra .t{font-family:var(--display);text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:#C9BCA8;border-bottom:1px solid rgba(247,242,233,.2);padding-bottom:10px;}
+.pizarra ul{list-style:none;margin:0;padding:0;}
+.pizarra li{display:flex;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px dashed rgba(247,242,233,.16);}
+.pizarra li:last-child{border-bottom:none;padding-bottom:0;}
+.pizarra .nm{font-family:var(--display);font-weight:400;text-transform:uppercase;letter-spacing:.05em;font-size:15px;color:var(--hueso);}
+.pizarra .pt{flex:1 1 auto;border-bottom:1px dotted rgba(247,242,233,.3);transform:translateY(-4px);}
+.pizarra .pr{font-family:var(--display);font-weight:600;font-size:19px;color:#F5C9A0;font-variant-numeric:tabular-nums;}
+.pizarra .pr small{font-size:11px;color:#C9BCA8;font-weight:400;margin-left:3px;}
+
+/* ---------- tiras ---------- */
+.tira{background:var(--tinta);color:var(--hueso-2);}
+.tira .in{display:grid;gap:2px 28px;padding:22px 0;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));}
+.tira .it{display:flex;gap:12px;align-items:flex-start;padding:10px 0;}
+.tira .it .k{font-family:var(--display);font-weight:600;font-size:22px;color:var(--rojo-cla);line-height:1;flex:0 0 auto;width:30px;}
+.tira .it .v b{display:block;font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.08em;font-size:13px;color:#fff;}
+.tira .it .v span{font-size:14px;color:#B9AC9A;line-height:1.45;display:block;margin-top:2px;}
+
+/* ---------- secciones ---------- */
+section{padding:66px 0;}
+.enc{margin-bottom:30px;}
+.enc .cap{color:var(--rojo);display:block;}
+.enc h2{font-size:clamp(28px,4vw,46px);line-height:1.04;text-transform:uppercase;margin-top:10px;text-wrap:balance;}
+.enc p{color:var(--gris);max-width:62ch;margin:12px 0 0;}
+
+/* ---------- catálogo ---------- */
+#catalogo{background:var(--hueso-2);border-top:2px solid var(--tinta);border-bottom:2px solid var(--tinta);}
+.filtros{position:sticky;top:65px;z-index:40;background:var(--hueso-2);padding:14px 0 12px;margin-bottom:22px;border-bottom:1px solid var(--linea);}
+.busca{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid var(--tinta);border-radius:5px;padding:10px 14px;margin-bottom:14px;}
+.busca input{border:none;outline:none;font-family:var(--texto);font-size:16px;width:100%;background:transparent;color:var(--tinta);}
+.busca svg{flex:0 0 auto;}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+.chip{flex:0 0 auto;font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.09em;font-size:12.5px;
+  background:transparent;border:2px solid var(--linea);color:var(--tinta-2);border-radius:99px;padding:8px 15px;cursor:pointer;white-space:nowrap;}
+.chip:hover{border-color:var(--rojo);color:var(--rojo);}
+.chip.on{background:var(--rojo);border-color:var(--rojo);color:#fff;}
+.chip .k{opacity:.62;margin-left:5px;font-weight:400;}
+
+.grupo{margin-bottom:34px;}
+.grupo > h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--rojo);
+  border-bottom:2px solid var(--tinta);padding-bottom:8px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:baseline;}
+.grupo > h3 span{color:var(--gris);letter-spacing:.06em;font-weight:400;font-size:12px;}
+
+.prod{background:#fff;border:1px solid var(--linea);border-radius:5px;padding:15px 16px 13px;display:flex;flex-direction:column;gap:9px;}
+.prod .nm{font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.045em;font-size:16px;line-height:1.2;color:var(--tinta);}
+.prod .fila{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:auto;}
+.prod .pr{font-family:var(--display);font-weight:700;font-size:29px;line-height:1;color:var(--rojo);font-variant-numeric:tabular-nums;}
+.prod .pr .cur{font-size:15px;font-weight:400;vertical-align:top;margin-right:1px;}
+.prod .un{font-family:var(--texto);font-size:13px;color:var(--gris);white-space:nowrap;padding-bottom:2px;}
+.prod .sc{font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.08em;font-size:14px;color:var(--tinta-2);}
+.prod .wa{display:flex;align-items:center;justify-content:center;gap:7px;background:var(--verde);color:#fff;text-decoration:none;
+  font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.09em;font-size:12px;padding:9px;border-radius:4px;}
+.prod .wa:hover{background:#235742;}
+.prod .tag{align-self:flex-start;font-size:11px;font-family:var(--texto);color:#8A6A12;background:#FBF0D6;border-radius:3px;padding:2px 7px;}
+.vacio{padding:40px 0;text-align:center;color:var(--gris);}
+
+.aviso{background:#fff;border-left:4px solid var(--rojo);padding:14px 18px;margin-bottom:24px;font-size:14.5px;color:var(--tinta-2);border-radius:0 4px 4px 0;}
+.aviso b{color:var(--tinta);}
+
+/* ---------- visita ---------- */
+.visita .in{display:grid;gap:30px;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));}
+.tarjeta{background:#fff;border:1px solid var(--linea);border-radius:6px;padding:24px;}
+.tarjeta h3{font-size:20px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
+.tarjeta p{margin:0 0 8px;color:var(--tinta-2);font-size:15.5px;}
+.tarjeta .lbl{font-family:var(--display);text-transform:uppercase;letter-spacing:.13em;font-size:11px;color:var(--rojo);display:block;margin:16px 0 4px;}
+.tarjeta .lbl:first-of-type{margin-top:0;}
+.horario{list-style:none;margin:0;padding:0;}
+.horario li{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px dashed var(--linea);font-size:15px;}
+.horario li:last-child{border-bottom:none;}
+.horario b{font-family:var(--display);font-weight:500;font-variant-numeric:tabular-nums;}
+
+/* ---------- cierre ---------- */
+.cierre{background:var(--rojo);color:var(--hueso);text-align:center;}
+.cierre h2{font-size:clamp(28px,4.6vw,50px);text-transform:uppercase;line-height:1.02;text-wrap:balance;}
+.cierre p{max-width:52ch;margin:16px auto 26px;color:#F6E3E0;}
+
+footer.pie{background:var(--tinta);color:#9C9085;font-size:14px;}
+footer.pie .in{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;padding:26px 0;}
+footer.pie b{color:var(--hueso);font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.1em;font-size:13px;}
+
+.ffnota{background:#0D1B2A;color:#9FB3C8;font-size:12.5px;}
+.ffnota .in{padding:12px 0;display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;}
+.ffnota b{color:#FF8C35;}
+
+:focus-visible{outline:3px solid var(--rojo-cla);outline-offset:2px;}
+
+@media(max-width:900px){
+  .hero .in{grid-template-columns:1fr;padding:44px 0 48px;}
+  .nav nav{display:none;}
+  .nav .btn{display:none;}
+  .burger{display:block;}
+  .filtros{top:65px;}
+}
+@media(max-width:600px){
+  body{font-size:16px;}
+  section{padding:46px 0;}
+  .topbar .in{justify-content:center;text-align:center;}
+  .prod .pr{font-size:26px;}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="ff-container in">
+  <span>Presidente Plutarco Elías Calles 1417, Col. El Carmen, Benito Juárez, CDMX</span>
+  <span><b>55 5672 7454</b> &nbsp;·&nbsp; Lun a vie 10-18 h &nbsp;·&nbsp; Sáb y dom 10-16 h</span>
+</div></div>
+
+<header class="nav">
+  <div class="ff-container in">
+    <a class="marca" href="#top">
+      <svg class="escudo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="10" fill="#961F1C"/><path d="M32 13c-6 0-9 3-12 3s-5-2-5-2 0 8 4 12c-1 3-1 6 0 9 2 6 7 11 13 11s11-5 13-11c1-3 1-6 0-9 4-4 4-12 4-12s-2 2-5 2-6-3-12-3z" fill="#F7F2E9"/><circle cx="26" cy="32" r="2.6" fill="#961F1C"/><circle cx="38" cy="32" r="2.6" fill="#961F1C"/></svg>
+      <span class="txt"><span class="a">Carnes del Norte</span><span class="b">Cortes finos</span></span>
+    </a>
+    <nav>
+      <a href="#catalogo">Catálogo</a>
+      <a href="#comprar">Cómo comprar</a>
+      <a href="#visita">Visítanos</a>
+    </nav>
+    <a class="btn btn--wa" href="https://wa.me/525556727454?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Pedir por WhatsApp</a>
+    <button class="burger" id="burger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobmenu">☰</button>
+  </div>
+  <div class="mobmenu" id="mobmenu">
+    <div class="ff-container in">
+      <a href="#catalogo">Catálogo y precios</a>
+      <a href="#comprar">Cómo comprar</a>
+      <a href="#visita">Visítanos</a>
+      <a class="wa" href="https://wa.me/525556727454?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Pedir por WhatsApp</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="ff-container in">
+    <div>
+      <span class="cap">Mayorista de carnes · Benito Juárez, CDMX</span>
+      <h1>Hoy el rib eye<br>está en <em>$476</em>.</h1>
+      <p>Y así los otros ciento diez: cortes finos, cerdo, cordero, pescado, carnes frías y quesos, con el precio a la vista igual que en la lona del mostrador. Aparta por WhatsApp y pasa a recoger.</p>
+      <div class="acc">
+        <a class="btn btn--wa" href="https://wa.me/525556727454?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Pedir por WhatsApp</a>
+        <a class="btn btn--linea" href="#catalogo">Ver la lista completa</a>
+      </div>
+    </div>
+    <div class="pizarra">
+      <div class="t">Los que más nos piden</div>
+      <ul id="destacados"></ul>
+    </div>
+  </div>
+</section>
+
+<div class="tira"><div class="ff-container in">
+  <div class="it"><span class="k">01</span><span class="v"><b>Precios a la vista</b><span>La misma lista del mostrador, en tu celular. Sin llamar para preguntar.</span></span></div>
+  <div class="it"><span class="k">02</span><span class="v"><b>Volumen y menudeo</b><span>Le surtimos a restaurantes y fondas, y también al que viene por un kilo.</span></span></div>
+  <div class="it"><span class="k">03</span><span class="v"><b>Apartas y recoges</b><span>Mandas el pedido por WhatsApp, lo dejamos cortado y empacado.</span></span></div>
+  <div class="it"><span class="k">04</span><span class="v"><b>4.9 en Google</b><span>Con 129 reseñas de clientes de la colonia y de fuera.</span></span></div>
+</div></div>
+
+<section id="catalogo">
+  <div class="ff-container">
+    <div class="enc">
+      <span class="cap">Lista de precios</span>
+      <h2>Todo lo que hay, con su precio</h2>
+      <p>Busca el corte o filtra por categoría. Cada producto lleva su botón para pedirlo por WhatsApp con el nombre y el precio ya escritos.</p>
+    </div>
+
+    <div class="aviso" id="aviso">
+      <b>Demo de trabajo.</b> Los precios son los de las lonas del mostrador al <b>25 de agosto de 2026</b> y están por confirmar contigo antes de publicar. Los renglones marcados <i>por confirmar</i> salen de la lona cuya columna de precios está recorrida.
+    </div>
+
+    <div class="filtros">
+      <label class="busca">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7A6E62" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input id="q" type="search" placeholder="Buscar rib eye, chorizo, manchego…" aria-label="Buscar producto">
+      </label>
+      <div class="chips" id="chips" role="group" aria-label="Categorías"></div>
+    </div>
+
+    <div id="lista"></div>
+  </div>
+</section>
+
+<section id="comprar">
+  <div class="ff-container">
+    <div class="enc">
+      <span class="cap">Cómo comprar</span>
+      <h2>Tres pasos, sin filas</h2>
+    </div>
+    <div class="ff-grid ff-grid--lg">
+      <div class="tarjeta"><h3>1 · Escoge</h3><p>Revisa la lista y toca el botón verde del producto que quieres. Se abre WhatsApp con el nombre y el precio ya escritos; tú nada más pones la cantidad.</p></div>
+      <div class="tarjeta"><h3>2 · Confirmamos</h3><p>Te contestamos con el total y la hora a la que lo tienes listo. Si es pedido grande para restaurante, ahí mismo cerramos la cotización.</p></div>
+      <div class="tarjeta"><h3>3 · Recoges</h3><p>Pasas por la tienda y ya está cortado, pesado y empacado al vacío. Se paga en el mostrador con efectivo o tarjeta.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="visita" id="visita" style="background:var(--hueso-2);border-top:2px solid var(--tinta);">
+  <div class="ff-container">
+    <div class="enc">
+      <span class="cap">Visítanos</span>
+      <h2>Dónde estamos</h2>
+    </div>
+    <div class="in">
+      <div class="tarjeta">
+        <span class="lbl">Dirección</span>
+        <p>Presidente Plutarco Elías Calles 1417<br>Col. El Carmen, Benito Juárez<br>03540, Ciudad de México</p>
+        <span class="lbl">Teléfono</span>
+        <p><a href="tel:+525556727454" style="color:var(--rojo);font-weight:600;text-decoration:none">55 5672 7454</a></p>
+        <span class="lbl">Correo</span>
+        <p>carnesdelnortedf@gmail.com</p>
+        <p style="margin-top:18px"><a class="btn btn--linea" href="https://maps.google.com/?q=Carnes+del+Norte+Plutarco+Elias+Calles+1417+CDMX" target="_blank" rel="noopener">Abrir en Google Maps</a></p>
+      </div>
+      <div class="tarjeta">
+        <span class="lbl">Horario</span>
+        <ul class="horario">
+          <li><span>Lunes a viernes</span><b>10:00 – 18:00</b></li>
+          <li><span>Sábado</span><b>10:00 – 16:00</b></li>
+          <li><span>Domingo</span><b>10:00 – 16:00</b></li>
+        </ul>
+        <span class="lbl">Estacionamiento</span>
+        <p>Sobre Plutarco Elías Calles, frente al parque.</p>
+      </div>
+      <div class="tarjeta">
+        <span class="lbl">Para restaurantes y fondas</span>
+        <p>Manejamos precio por volumen y entrega programada. Mándanos tu lista y te cotizamos el pedido completo.</p>
+        <p style="margin-top:18px"><a class="btn btn--wa" href="https://wa.me/525556727454?text=Hola%2C%20soy%20de%20un%20restaurante%20y%20quiero%20cotizar%20un%20pedido%20por%20volumen." target="_blank" rel="noopener">Cotizar por volumen</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cierre">
+  <div class="ff-container">
+    <h2>¿Ya sabes qué te llevas?</h2>
+    <p>Mándanos el pedido y lo dejamos listo. Si no sabes qué corte pedir, pregúntanos: llevamos años detrás de este mostrador.</p>
+    <a class="btn btn--wa" href="https://wa.me/525556727454?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Escribir por WhatsApp</a>
+  </div>
+</section>
+
+<footer class="pie"><div class="ff-container in">
+  <span><b>Carnes del Norte</b> · Cortes finos desde CDMX</span>
+  <span>55 5672 7454 · Lun a vie 10-18 h · Sáb y dom 10-16 h</span>
+</div></footer>
+
+<div class="ffnota"><div class="ff-container in">
+  <span>Demo de trabajo preparado por <b>FishFlow</b> · Rafa Fish</span>
+  <span>Precios del mostrador al 25 de agosto de 2026 · por confirmar</span>
+</div></div>
+
+<script>
+var DATA = {"cats":[{"s":"res","n":"Res","k":27},{"s":"cerdo","n":"Cerdo","k":8},{"s":"cordero","n":"Cordero","k":3},{"s":"mar","n":"Pescado y marisco","k":13},{"s":"embutidos","n":"Embutidos y carnes frías","k":30},{"s":"quesos","n":"Quesos","k":25},{"s":"asador","n":"Para el asador","k":5}],"prods":[{"c":"res","n":"Aguja norteña","u":"kg","p":269,"x":0},{"c":"res","n":"Arrachera importada","u":"kg","p":475,"x":0},{"c":"res","n":"Arrachera nacional","u":"kg","p":352,"x":0},{"c":"res","n":"Asado de tira","u":"kg","p":574,"x":0},{"c":"res","n":"Brisquet","u":"kg","p":325,"x":0},{"c":"res","n":"Costilla","u":"kg","p":331,"x":0},{"c":"res","n":"Costillar","u":"kg","p":194,"x":0},{"c":"res","n":"Cow boy","u":"kg","p":629,"x":0},{"c":"res","n":"Diezmillo","u":"kg","p":306,"x":0},{"c":"res","n":"Filete caña","u":"kg","p":493,"x":0},{"c":"res","n":"Hamburguesa Angus","u":"kg","p":276,"x":0},{"c":"res","n":"Machaca","u":"500 g","p":273,"x":0},{"c":"res","n":"Matambre","u":"kg","p":243,"x":0},{"c":"res","n":"Molida Angus","u":"kg","p":248,"x":0},{"c":"res","n":"Molleja","u":"kg","p":243,"x":0},{"c":"res","n":"New York","u":"kg","p":402,"x":0},{"c":"res","n":"Picaña","u":"kg","p":481,"x":0},{"c":"res","n":"Porter house","u":"kg","p":408,"x":0},{"c":"res","n":"Prime rib","u":"kg","p":394,"x":0},{"c":"res","n":"Rib eye gota","u":"kg","p":476,"x":0},{"c":"res","n":"Rib eye roll","u":"kg","p":476,"x":0},{"c":"res","n":"Roast beef con hueso","u":"kg","p":null,"x":0},{"c":"res","n":"Roast beef sin hueso","u":"kg","p":null,"x":0},{"c":"res","n":"Tomahawk","u":"kg","p":620,"x":0},{"c":"res","n":"Top sirloin","u":"kg","p":306,"x":0},{"c":"res","n":"Tuétano","u":"kg","p":173,"x":0},{"c":"res","n":"Vacío","u":"kg","p":570,"x":0},{"c":"cerdo","n":"Espaldilla","u":"kg","p":133,"x":0},{"c":"cerdo","n":"Chamorro","u":"kg","p":63,"x":0},{"c":"cerdo","n":"Costilla baby back","u":"kg","p":176,"x":0},{"c":"cerdo","n":"Lomo","u":"kg","p":118,"x":0},{"c":"cerdo","n":"Milanesa","u":"2 kg","p":132,"x":0},{"c":"cerdo","n":"Panceta","u":"kg","p":220,"x":0},{"c":"cerdo","n":"Puntas de filete","u":"paquete","p":121,"x":0},{"c":"cerdo","n":"Costillar","u":"kg","p":120,"x":0},{"c":"cordero","n":"Rack francés","u":"kg","p":743,"x":0},{"c":"cordero","n":"T-bone","u":"kg","p":null,"x":0},{"c":"cordero","n":"Lomo","u":"kg","p":473,"x":0},{"c":"mar","n":"Atún ahumado","u":"kg","p":304,"x":0},{"c":"mar","n":"Atún medallón nacional","u":"kg","p":285,"x":0},{"c":"mar","n":"Atún medallón sakura","u":"kg","p":310,"x":0},{"c":"mar","n":"Camarón 16-20","u":"caja","p":744,"x":0},{"c":"mar","n":"Camarón de Chiapas","u":"bolsa","p":385,"x":0},{"c":"mar","n":"Surimi","u":"1 kg","p":156,"x":0},{"c":"mar","n":"Surimi","u":"½ kg","p":78,"x":0},{"c":"mar","n":"Pulpo","u":"kg","p":338,"x":0},{"c":"mar","n":"Salmón","u":"kg","p":370,"x":0},{"c":"mar","n":"Tilapia grande sin agua","u":"kg","p":166,"x":0},{"c":"mar","n":"Bacalao lonja","u":"kg","p":420,"x":0},{"c":"mar","n":"Bacalao langa","u":"1 kg","p":1202,"x":0},{"c":"mar","n":"Bacalao ling","u":"1 kg","p":800,"x":0},{"c":"embutidos","n":"Chistorra casera","u":"kg","p":150,"x":0},{"c":"embutidos","n":"Chistorra Obertal","u":"paquete","p":95,"x":0},{"c":"embutidos","n":"Chorizo a la sidra","u":"paquete","p":148,"x":0},{"c":"embutidos","n":"Chorizo de cerdo ibérico","u":"70 g","p":48,"x":0},{"c":"embutidos","n":"Chorizo argentino","u":"paquete","p":152,"x":0},{"c":"embutidos","n":"Chorizo casero argentino","u":"kg","p":165,"x":0},{"c":"embutidos","n":"Chorizo español","u":"paquete","p":130,"x":0},{"c":"embutidos","n":"Chorizo español Wunsch","u":"kg","p":158,"x":0},{"c":"embutidos","n":"Chorizo italiano","u":"paquete","p":128,"x":1},{"c":"embutidos","n":"Chorizo brasileño","u":"paquete","p":130,"x":1},{"c":"embutidos","n":"Chorizo ranchero","u":"paquete","p":139,"x":0},{"c":"embutidos","n":"Chorizo verde","u":"kg","p":149,"x":1},{"c":"embutidos","n":"Chorizo vela extra","u":"100 g","p":62,"x":0},{"c":"embutidos","n":"Morcilla casera","u":"kg","p":null,"x":1},{"c":"embutidos","n":"Jamón alemán Obertal","u":"kg","p":365,"x":0},{"c":"embutidos","n":"Jamón serrano Obertal","u":"100 g","p":102,"x":0},{"c":"embutidos","n":"Jamón serrano reserva","u":"100 g","p":93,"x":0},{"c":"embutidos","n":"Lomo embuchado","u":"100 g","p":64,"x":0},{"c":"embutidos","n":"Longaniza Obertal","u":"paquete","p":97,"x":0},{"c":"embutidos","n":"Longaniza Wunsch","u":"kg","p":164,"x":0},{"c":"embutidos","n":"Paté a las finas hierbas","u":"pieza","p":55,"x":0},{"c":"embutidos","n":"Paté con ternera","u":"pieza","p":62,"x":0},{"c":"embutidos","n":"Salchicha blanca","u":"paquete","p":120,"x":0},{"c":"embutidos","n":"Salchicha desayuno","u":"paquete","p":90,"x":0},{"c":"embutidos","n":"Salchicha Frankfurt","u":"paquete","p":124,"x":0},{"c":"embutidos","n":"Salchicha Munich","u":"paquete","p":120,"x":1},{"c":"embutidos","n":"Salchicha de pavo","u":"paquete","p":140,"x":0},{"c":"embutidos","n":"Salchichón extra","u":"100 g","p":64,"x":0},{"c":"embutidos","n":"Tocino Obertal","u":"250 g","p":126,"x":0},{"c":"embutidos","n":"Tocino Black Forest","u":"250 g","p":null,"x":0},{"c":"quesos","n":"Adobera","u":"400 g","p":92,"x":0},{"c":"quesos","n":"Muenster","u":"kg","p":271,"x":1},{"c":"quesos","n":"Brie danés","u":"125 g","p":83,"x":0},{"c":"quesos","n":"Cabra","u":"paquete","p":67,"x":0},{"c":"quesos","n":"Cabra Rocinante","u":"paquete","p":160,"x":0},{"c":"quesos","n":"Camembert","u":"125 g","p":92,"x":0},{"c":"quesos","n":"Edam","u":"225 g","p":119,"x":0},{"c":"quesos","n":"Chedar","u":"400 g","p":103,"x":0},{"c":"quesos","n":"Chedar añejo","u":"200 g","p":null,"x":0},{"c":"quesos","n":"Chihuahua super fine","u":"kg","p":205,"x":0},{"c":"quesos","n":"Edam baby","u":"pieza","p":357,"x":1},{"c":"quesos","n":"Gouda Kroon rebanado","u":"400 g","p":142,"x":0},{"c":"quesos","n":"Gouda Kroon","u":"400 g","p":139,"x":0},{"c":"quesos","n":"Ibérico Rocinante","u":"paquete","p":null,"x":0},{"c":"quesos","n":"Maasdam Kroon","u":"kg","p":252,"x":0},{"c":"quesos","n":"Gouda recorte","u":"kg","p":173,"x":0},{"c":"quesos","n":"Manchego","u":"400 g","p":103,"x":0},{"c":"quesos","n":"Manchego Maese Miguel","u":"paquete","p":239,"x":0},{"c":"quesos","n":"Mascarpone italiano","u":"pieza","p":129,"x":0},{"c":"quesos","n":"Provolone","u":"kg","p":265,"x":0},{"c":"quesos","n":"Oaxaca Pilarica","u":"1 kg","p":200,"x":0},{"c":"quesos","n":"Panela Covadonga","u":"1 kg","p":212,"x":0},{"c":"quesos","n":"Parmesano Conaprole","u":"kg","p":282,"x":0},{"c":"quesos","n":"Provoleta","u":"kg","p":301,"x":0},{"c":"quesos","n":"Rondue gourmet","u":"400 g","p":48,"x":1},{"c":"asador","n":"Ravioli de queso","u":"kg","p":246,"x":0},{"c":"asador","n":"Carbón","u":"3 kg","p":88,"x":0},{"c":"asador","n":"Carbón","u":"5 kg","p":121,"x":0},{"c":"asador","n":"Carbón","u":"10 kg","p":270,"x":0},{"c":"asador","n":"Coco Boom","u":"pieza","p":38,"x":0}]};
+var WA = "525556727454";
+var CATNOM = {};
+DATA.cats.forEach(function(c){ CATNOM[c.s] = c.n; });
+
+var filtro = "todo", termino = "";
+
+function money(n){ return n.toLocaleString("es-MX"); }
+
+function normaliza(s){
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+}
+
+function waLink(p){
+  var precio = p.p === null ? "" : " (" + "$" + money(p.p) + " por " + p.u + ")";
+  var txt = "Hola, me interesa " + p.n + precio + ". ¿Me confirman disponibilidad?";
+  return "https://wa.me/" + WA + "?text=" + encodeURIComponent(txt);
+}
+
+function tarjeta(p){
+  var precio = p.p === null
+    ? '<span class="sc">Consultar</span>'
+    : '<span class="pr"><span class="cur">$</span>' + money(p.p) + '</span>';
+  var tag = p.x ? '<span class="tag">Precio por confirmar</span>' : '';
+  return '<article class="prod">'
+    + '<h4 class="nm">' + p.n + '</h4>'
+    + tag
+    + '<div class="fila">' + precio + '<span class="un">por ' + p.u + '</span></div>'
+    + '<a class="wa" href="' + waLink(p) + '" target="_blank" rel="noopener">'
+    + '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20zm4.4-5.8c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 01-3.2-2.8c-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3 0-.5l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.5.1-.7.3-.3.3-.9.9-.9 2.1s.9 2.5 1 2.6c.1.2 1.8 2.8 4.4 3.9 1.7.7 2.3.7 3.1.6.5 0 1.4-.6 1.6-1.2.2-.6.2-1.1.1-1.2 0-.1-.2-.2-.4-.3z"/></svg>'
+    + 'Pedir</a>'
+    + '</article>';
+}
+
+function pinta(){
+  var t = normaliza(termino).trim();
+  var out = "", total = 0;
+  DATA.cats.forEach(function(c){
+    if (filtro !== "todo" && filtro !== c.s) return;
+    var items = DATA.prods.filter(function(p){
+      if (p.c !== c.s) return false;
+      if (!t) return true;
+      return normaliza(p.n).indexOf(t) !== -1 || normaliza(c.n).indexOf(t) !== -1;
+    });
+    if (!items.length) return;
+    total += items.length;
+    out += '<div class="grupo"><h3>' + c.n + '<span>' + items.length + ' productos</span></h3>'
+        +  '<div class="ff-grid ff-grid--sm">' + items.map(tarjeta).join("") + '</div></div>';
+  });
+  document.getElementById("lista").innerHTML = total
+    ? out
+    : '<p class="vacio">No encontramos «' + termino + '». Prueba con otro nombre, o pregúntanos por WhatsApp.</p>';
+}
+
+/* Chips de categoría */
+(function(){
+  var c = document.getElementById("chips");
+  var html = '<button class="chip on" type="button" data-c="todo">Todo<span class="k">' + DATA.prods.length + '</span></button>';
+  DATA.cats.forEach(function(x){
+    html += '<button class="chip" type="button" data-c="' + x.s + '">' + x.n + '<span class="k">' + x.k + '</span></button>';
+  });
+  c.innerHTML = html;
+  c.addEventListener("click", function(e){
+    var b = e.target.closest(".chip");
+    if (!b) return;
+    Array.prototype.forEach.call(c.querySelectorAll(".chip"), function(x){ x.classList.remove("on"); });
+    b.classList.add("on");
+    filtro = b.getAttribute("data-c");
+    pinta();
+  });
+})();
+
+document.getElementById("q").addEventListener("input", function(e){
+  termino = e.target.value;
+  pinta();
+});
+
+/* Pizarra de destacados */
+(function(){
+  var favs = ["Rib eye gota","Arrachera nacional","Tomahawk","Picaña","Costilla baby back","Salmón"];
+  var ul = document.getElementById("destacados"), html = "";
+  favs.forEach(function(nombre){
+    var p = DATA.prods.filter(function(x){ return x.n === nombre; })[0];
+    if (!p) return;
+    html += '<li><span class="nm">' + p.n + '</span><span class="pt"></span>'
+         +  '<span class="pr">$' + money(p.p) + '<small>/' + p.u + '</small></span></li>';
+  });
+  ul.innerHTML = html;
+})();
+
+/* Menú móvil */
+(function(){
+  var b = document.getElementById("burger"), m = document.getElementById("mobmenu");
+  b.addEventListener("click", function(){
+    var open = m.classList.toggle("open");
+    b.setAttribute("aria-expanded", open ? "true" : "false");
+    b.textContent = open ? "✕" : "☰";
+    b.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+  });
+  Array.prototype.forEach.call(m.querySelectorAll("a"), function(a){
+    a.addEventListener("click", function(){
+      m.classList.remove("open");
+      b.setAttribute("aria-expanded","false");
+      b.textContent = "☰";
+      b.setAttribute("aria-label","Abrir menú");
+    });
+  });
+})();
+
+pinta();
+</script>
+</body>
+</html>
