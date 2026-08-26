@@ -48,7 +48,7 @@ export async function processAndInsertSession(input: {
   patientId: string;
   transcript: string;
   sessionDate: string;
-  /** Columnas extra de `sessions` (p. ej. los campos de Fireflies). */
+  /** Columnas extra de `sessions` para casos particulares. */
   extraFields?: Record<string, unknown>;
   /** Acción a registrar en `session_log` cuando la IA sí procesó. */
   logAction?: string;
