@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { transcribeStoredAudio } from "@/lib/sessionPipeline";
+import { runRecordSession } from "@/lib/therapyRecord";
 import { requireClientAccess } from "@/lib/apiAuth";
 
 export const runtime = "nodejs"; // ffmpeg requiere runtime Node, no edge
@@ -8,40 +8,38 @@ export const runtime = "nodejs"; // ffmpeg requiere runtime Node, no edge
 // ════════════════════════════════════════════════════════════════════════════
 // TherapyOS — record-session
 // ════════════════════════════════════════════════════════════════════════════
-// Orquesta el flujo de la grabadora para TherapyOS:
-//   1. transcribe el audio guardado (lib/sessionPipeline)
-//   2. pasa el texto al `process-session` existente (sin tocarlo) → crea BORRADOR
-//   3. marca la sesión con source_type='recorder' + audio_path + transcription_id
-// NO envía nada al paciente. El envío (email/WhatsApp) es un paso manual aparte
+// Punto de entrada de la grabadora y de "Subir audio". Valida acceso y delega
+// el trabajo a `lib/therapyRecord`, compartido con reprocess-audio.
+// NO envía nada al paciente: el envío es un paso manual aparte
 // ("aprobar antes de enviar").
 //
-// 19-ago-2026: la transcripción (registro en `transcriptions`, descarga por
-// streaming, transcode en una pasada y guardia anti-alucinación) se movió a
-// `lib/sessionPipeline.ts`, compartida con Therapy Flow. El comportamiento de
-// esta ruta no cambia.
+// 19-ago-2026: la transcripción se movió a `lib/sessionPipeline.ts`.
+// 26-ago-2026: el resto del pipeline (análisis + guardado) se movió a
+// `lib/therapyRecord.ts` para que el botón de reintentar no dependa de una
+// llamada HTTP con cookies reenviadas.
 
 // FishFlow está en Vercel Pro: el tope de 300 s era herencia de Hobby y era
 // lo que cortaba la respuesta en sesiones de ~50 min (11-ago-2026), aunque la
 // transcripción y el borrador sí se completaran.
 export const maxDuration = 800; // transcripción + IA pueden tardar
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
-
-const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE);
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
 
 export async function POST(req: NextRequest) {
   try {
-    const { patient_id, storage_path, session_date, duration_seconds, source } = (await req.json()) as {
-      patient_id: string;
-      storage_path: string;
-      filename?: string;
-      session_date: string;
-      duration_seconds?: number;
-      /** "recorder" = grabado en la app; "upload" = archivo ya grabado (Notas de Voz). */
-      source?: "recorder" | "upload";
-    };
+    const { patient_id, storage_path, session_date, duration_seconds, source } =
+      (await req.json()) as {
+        patient_id: string;
+        storage_path: string;
+        filename?: string;
+        session_date: string;
+        duration_seconds?: number;
+        /** "recorder" = grabado en la app; "upload" = archivo ya grabado (Notas de Voz). */
+        source?: "recorder" | "upload";
+      };
 
     // El audio subido ya existe y es lo único que hay: no lo rechazamos por
     // corto. El del grabador sí, porque ahí un archivo de 2 s siempre es un
@@ -72,69 +70,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Paciente no encontrado" }, { status: 404 });
     }
 
-    // ── 1b. Candado: sesión válida + acceso al cliente del paciente ────────────
-    // Esta ruta gasta créditos de Whisper y escribe notas clínicas: no puede
-    // quedar abierta. La llamada interna desde `reprocess-audio` reenvía la
-    // cookie de sesión del navegador que la disparó.
+    // ── 2. Candado: sesión válida + acceso al cliente del paciente ─────────────
+    // Esta ruta gasta créditos de Whisper y escribe notas clínicas.
     const auth = await requireClientAccess(patient.client_id);
     if (!auth.ok) return auth.response;
 
-    // ── 2. Transcribir (descarga por streaming + transcode en una pasada) ──────
-    const tx = await transcribeStoredAudio({
+    // ── 3. Transcribir + analizar + guardar ────────────────────────────────────
+    const result = await runRecordSession({
+      patientId: patient_id,
       clientId: patient.client_id,
-      module: "therapy_session",
-      refId: patient_id,
       storagePath: storage_path,
+      sessionDate: session_date,
       sourceType,
-      language: "es",
     });
 
-    if (!tx.ok) {
-      if (tx.reason === "empty") {
-        return NextResponse.json(
-          {
-            error: sourceType === "upload"
-              ? "No se detectó voz en el archivo. Revisa que sea la grabación correcta de la sesión y no un audio en blanco."
-              : "No se detectó voz en la grabación. Suele ser que el micrófono no captó audio. Si grabaste en paralelo con Notas de Voz, el navegador se queda sin micrófono: usa \"Subir audio\" con ese archivo.",
-            empty: true,
-          },
-          { status: 422 },
-        );
-      }
+    if (!result.ok) {
       return NextResponse.json(
-        { error: `Error al transcribir: ${tx.message}` },
-        { status: 502 },
+        { error: result.error, empty: result.empty, detail: result.detail },
+        { status: result.status },
       );
     }
-
-    // ── 3. Procesar con IA (reusa process-session, sin tocarlo) → borrador ──────
-    const psRes = await fetch(`${APP_URL}/api/therapyos/process-session`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ patient_id, transcript: tx.transcript, session_date }),
-    });
-    const psData = await psRes.json();
-    if (!psRes.ok || !psData.session) {
-      return NextResponse.json(
-        { error: `Error al procesar la sesión: ${psData.error ?? "desconocido"}` },
-        { status: 502 },
-      );
-    }
-
-    // ── 4. Marcar la sesión como originada por grabadora ───────────────────────
-    const { data: updated } = await supabaseAdmin
-      .from("sessions")
-      .update({
-        source_type: sourceType,
-        audio_path: storage_path,
-        transcription_id: tx.transcriptionId ?? null,
-      })
-      .eq("id", psData.session.id)
-      .select()
-      .single();
 
     return NextResponse.json(
-      { session: updated ?? psData.session, transcription_id: tx.transcriptionId },
+      {
+        session: result.session,
+        transcription_id: result.transcriptionId,
+        warning: result.warning,
+      },
       { status: 201 },
     );
   } catch (err) {

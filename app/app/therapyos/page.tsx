@@ -214,7 +214,36 @@ function PatternList({ items }: { items: Pattern[] }) {
 }
 
 // ─── Vista de sesión individual ────────────────────────────────────────────────
-function SessionView({ session, label }: { session: TherapySession; label: string }) {
+function SessionView({ session, label, onUpdated }: {
+  session: TherapySession;
+  label: string;
+  /** Se llama con la sesión ya reprocesada, para refrescarla en la lista. */
+  onUpdated?: (s: TherapySession) => void;
+}) {
+  const [reprocessing, setReprocessing] = useState(false);
+  const [reprocessError, setReprocessError] = useState<string | null>(null);
+
+  // La transcripción se guarda siempre, aunque la IA falle. Reprocesar usa ese
+  // texto: no vuelve a subir ni a transcribir el audio.
+  async function handleReprocess() {
+    setReprocessError(null);
+    setReprocessing(true);
+    try {
+      const res = await fetch("/api/therapyos/reprocess-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: session.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "No se pudo reprocesar");
+      onUpdated?.(data.session as TherapySession);
+    } catch (err: unknown) {
+      setReprocessError(err instanceof Error ? err.message : "Error inesperado");
+    } finally {
+      setReprocessing(false);
+    }
+  }
+
   return (
     <div>
       <div style={{ fontSize: 11, color: C.muted, letterSpacing: ".08em",
@@ -223,6 +252,36 @@ function SessionView({ session, label }: { session: TherapySession; label: strin
         {label}
         <span style={{ flex: 1, height: 1, background: C.border }} />
       </div>
+
+      {/* Sesión guardada pero sin análisis de IA — recuperable en un clic */}
+      {!session.ai_processed && (
+        <div style={{
+          background: "rgba(196,149,106,0.08)", border: `1px solid ${C.accent}`,
+          borderRadius: 10, padding: "14px 16px", marginBottom: 20,
+        }}>
+          <p style={{ fontSize: 13, fontWeight: 500, color: C.charcoal, marginBottom: 4 }}>
+            Sesión sin procesar por IA
+          </p>
+          <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginBottom: 12 }}>
+            La transcripción está guardada ({(session.transcript?.length ?? 0).toLocaleString("es-MX")} caracteres).
+            Reprocesar genera los resúmenes sin volver a transcribir el audio.
+          </p>
+          <button
+            onClick={handleReprocess}
+            disabled={reprocessing}
+            style={{
+              padding: "9px 18px", borderRadius: 8, border: "none",
+              background: reprocessing ? C.muted : C.sage, color: "white",
+              fontSize: 13, fontWeight: 500,
+              cursor: reprocessing ? "not-allowed" : "pointer",
+            }}>
+            {reprocessing ? "Procesando… (puede tardar un minuto)" : "Reprocesar con IA"}
+          </button>
+          {reprocessError && (
+            <p style={{ color: C.alert, fontSize: 12, marginTop: 10 }}>{reprocessError}</p>
+          )}
+        </div>
+      )}
 
       {/* Session title */}
       {session.session_title && (
@@ -325,6 +384,9 @@ function NewSessionModal({
   const [processing, setProcessing] = useState(false);
   const [preview, setPreview]       = useState<TherapySession | null>(null);
   const [error, setError]           = useState<string | null>(null);
+  // La sesión se guardó, pero la IA no pudo procesarla. No es un error fatal:
+  // la transcripción está a salvo y se reprocesa desde la sesión.
+  const [warning, setWarning]       = useState<string | null>(null);
   const [importMode, setImportMode] = useState<"manual" | "fireflies" | "recorder" | "upload">("manual");
   const [firefliesInput, setFirefliesInput] = useState("");
   // Audio que YA está en Storage y cuyo procesamiento falló: se puede
@@ -363,6 +425,7 @@ function NewSessionModal({
         throw new Error(e.error ?? "Error al procesar");
       }
       const data = await res.json();
+      setWarning(data.warning ?? null);
       setPreview(data.session);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error inesperado");
@@ -377,6 +440,7 @@ function NewSessionModal({
   async function handleRecorded(r: RecorderResult, source: "recorder" | "upload" = "recorder") {
     if (!patientId) { setError("Selecciona un paciente antes de grabar."); return; }
     setError(null);
+    setWarning(null);
     setRetry(null);
     setProcessing(true);
     // El audio ya está en Storage. Si lo que falla es el procesamiento —se cayó
@@ -403,6 +467,7 @@ function NewSessionModal({
         throw new Error(e.error ?? "Error al procesar la grabación");
       }
       const data = await res.json();
+      setWarning(data.warning ?? null);
       setPreview(data.session);
       recuperable = false;
     } catch (err: unknown) {
@@ -437,6 +502,7 @@ function NewSessionModal({
         throw new Error(e.error ?? "No se pudo reprocesar el audio");
       }
       const data = await res.json();
+      setWarning(data.warning ?? null);
       setPreview(data.session);
       setRetry(null);
     } catch (err: unknown) {
@@ -576,6 +642,12 @@ function NewSessionModal({
           {error && (
             <p style={{ color: C.alert, fontSize: 13, padding: "10px 14px",
               background: `rgba(212,114,106,0.08)`, borderRadius: 8 }}>{error}</p>
+          )}
+
+          {warning && (
+            <p style={{ color: C.charcoal, fontSize: 13, padding: "10px 14px", lineHeight: 1.55,
+              background: "rgba(196,149,106,0.10)", border: `1px solid ${C.accent}`,
+              borderRadius: 8 }}>{warning}</p>
           )}
 
           {retry && !processing && (
@@ -857,6 +929,12 @@ export default function TherapyOSPage() {
     ));
     setEditingNote(false);
     showToast("Nota guardada ✓");
+  }
+
+  // ── Cuando una sesión se reprocesa con IA ────────────────────────────────────
+  function handleSessionUpdated(session: TherapySession) {
+    setSessions(prev => prev.map(s => (s.id === session.id ? session : s)));
+    showToast("Sesión reprocesada ✓");
   }
 
   // ── Cuando se guarda una nueva sesión ─────────────────────────────────────────
@@ -1270,6 +1348,7 @@ export default function TherapyOSPage() {
                           <SessionView
                             session={viewedSession}
                             label={`Sesión #${viewedSession.session_number} · ${fmtDate(viewedSession.session_date)}`}
+                            onUpdated={handleSessionUpdated}
                           />
                           {/* Aprobar y enviar al paciente — al final del resumen */}
                           <div style={{
@@ -1315,6 +1394,7 @@ export default function TherapyOSPage() {
                           <SessionView
                             session={prevSession}
                             label={`Sesión #${prevSession.session_number} · ${fmtDate(prevSession.session_date)}`}
+                            onUpdated={handleSessionUpdated}
                           />
                         ) : (
                           <Empty msg="No hay sesión anterior registrada." />

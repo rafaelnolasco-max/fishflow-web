@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { forwardCookies, requireClientAccess } from "@/lib/apiAuth";
+import { requireClientAccess } from "@/lib/apiAuth";
+import { runRecordSession } from "@/lib/therapyRecord";
 
 export const runtime = "nodejs";
 export const maxDuration = 800;
@@ -16,15 +17,14 @@ export const maxDuration = 800;
 //                           cuáles ya tienen transcripción 'done' y cuáles son
 //                           huérfanos (recuperables).
 //   POST { patient_id, storage_path, session_date }
-//                         → re-dispara el mismo pipeline de record-session
+//                         → re-dispara el mismo pipeline de la grabadora
 //                           (troceo ffmpeg + Whisper + borrador de sesión).
 //
-// No reimplementa la transcripción: reenvía a record-session para garantizar
-// comportamiento idéntico al flujo normal de la grabadora.
+// No reimplementa la transcripción: usa `lib/therapyRecord`, exactamente el
+// mismo camino que el flujo normal de la grabadora.
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
 
 const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
@@ -119,12 +119,30 @@ export async function POST(req: NextRequest) {
   const fromName = storage_path.match(/(\d{4}-\d{2}-\d{2})T/)?.[1];
   const date = session_date ?? fromName ?? new Date().toISOString().slice(0, 10);
 
-  // `record-session` también exige sesión: reenviamos la cookie del navegador.
-  const res = await fetch(`${APP_URL}/api/therapyos/record-session`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...forwardCookies(req) },
-    body: JSON.stringify({ patient_id, storage_path, session_date: date, source }),
+  // 26-ago-2026: antes esto era un fetch a record-session reenviando la cookie
+  // del navegador. Si la sesión no viajaba, el reintento moría en 401 sin
+  // llegar a Whisper. Ahora se llama al pipeline en proceso.
+  const result = await runRecordSession({
+    patientId: patient_id,
+    clientId: patient.client_id,
+    storagePath: storage_path,
+    sessionDate: date,
+    sourceType: source === "upload" ? "upload" : "recorder",
   });
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+
+  if (!result.ok) {
+    return NextResponse.json(
+      { error: result.error, empty: result.empty, detail: result.detail },
+      { status: result.status },
+    );
+  }
+
+  return NextResponse.json(
+    {
+      session: result.session,
+      transcription_id: result.transcriptionId,
+      warning: result.warning,
+    },
+    { status: 201 },
+  );
 }
