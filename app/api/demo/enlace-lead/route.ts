@@ -143,6 +143,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Falta nombre o WhatsApp.' }, { status: 400, headers: cors })
     }
 
+    /* Se calcula UNA sola vez y se usa en dos lugares: el acuse por correo y
+       la respuesta al navegador (la pantalla de gracias). Antes la landing
+       decia "muy pronto" y el correo daba una hora concreta: si el prospecto
+       entraba un viernes 22:00 leia dos promesas distintas. Una sola fuente. */
+    const cuando = siguienteContacto()
+
     const resumen = [
       '[Landing Enlace Integral]',
       `Plan: ${plan}`,
@@ -198,7 +204,7 @@ export async function POST(req: Request) {
           to: email,
           replyTo: ENLACE_DEFAULT_TO,
           subject: 'Recibimos tus datos — Enlace Integral Seguros',
-          html: prospectoHtml({ nombre, plan, cuando: siguienteContacto(), wa }),
+          html: prospectoHtml({ nombre, plan, cuando, wa }),
         })
         if (ackErr) console.error('[demo/enlace-lead] acuse al prospecto error:', ackErr)
       }
@@ -206,7 +212,7 @@ export async function POST(req: Request) {
       console.error('[demo/enlace-lead] RESEND_API_KEY no configurada')
     }
 
-    return NextResponse.json({ ok: true }, { headers: cors })
+    return NextResponse.json({ ok: true, cuando }, { headers: cors })
   } catch (err: any) {
     console.error('[demo/enlace-lead] Error:', err?.message ?? err)
     return NextResponse.json({ error: 'Error al procesar.' }, { status: 500, headers: cors })
