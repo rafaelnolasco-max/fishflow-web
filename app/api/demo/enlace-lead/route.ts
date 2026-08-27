@@ -39,24 +39,26 @@ function esc(s: unknown) {
 
 /**
  * Horario de atención de Enlace, en CDMX (UTC-6 fijo, sin horario de verano —
- * ver lib/socialTargets.ts). Lun-Vie 9:00-19:00, Sáb 9:00-14:00.
+ * ver lib/socialTargets.ts). Confirmado por Edna Cruz el 2026-08-27:
+ * **lunes a viernes de 9:00 a 17:00. No se atiende sábado ni domingo.**
  * Devuelve la frase que se le promete al prospecto en el acuse de recibo.
  * Sin esto, quien llena el cuestionario un viernes a las 22:00 se queda en
  * silencio hasta el lunes y para entonces ya cotizó en otro lado.
  */
 const CDMX_OFFSET_MS = -6 * 60 * 60 * 1000
+const ABRE = 9
+const CIERRA = 17
 function siguienteContacto(nowUtc: Date = new Date()): string {
   const cdmx = new Date(nowUtc.getTime() + CDMX_OFFSET_MS)
-  const dia = cdmx.getUTCDay()          // 0 = domingo
+  const dia = cdmx.getUTCDay()          // 0 = domingo, 6 = sábado
   const hora = cdmx.getUTCHours()
-  const abre = 9
-  const cierra = dia === 6 ? 14 : 19
 
   if (dia === 0) return 'mañana lunes a partir de las 9:00 de la mañana'
-  if (hora < abre) return 'hoy mismo, a partir de las 9:00 de la mañana'
-  if (hora < cierra) return 'dentro de la próxima hora'
-  // Ya cerró
-  if (dia === 5 || dia === 6) return 'el lunes a partir de las 9:00 de la mañana'
+  if (dia === 6) return 'el lunes a partir de las 9:00 de la mañana'
+  if (hora < ABRE) return 'hoy mismo, a partir de las 9:00 de la mañana'
+  if (hora < CIERRA) return 'dentro de la próxima hora'
+  // Ya cerró, entre semana
+  if (dia === 5) return 'el lunes a partir de las 9:00 de la mañana'
   return 'mañana a partir de las 9:00 de la mañana'
 }
 
