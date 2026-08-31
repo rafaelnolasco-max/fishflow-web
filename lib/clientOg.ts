@@ -26,3 +26,29 @@ export function clientMetadata(nombre: string, slug: string): Metadata {
     },
   };
 }
+
+/**
+ * Nombre público por cliente — fuente compartida para el og:image de
+ * /app/[slug] (los layout.tsx) y el de /login (cuando el visitante no
+ * tiene sesión y ?next= apunta a un cliente). Si agregas un cliente nuevo
+ * en app/app/<slug>/layout.tsx, agrégalo aquí también.
+ */
+export const CLIENT_NAMES: Record<string, string> = {
+  belange: "Belange Estética",
+  tba: "TBA Telecom",
+  autolavado: "Autolavado — Carlos Alonso",
+  sparc: "Sparc",
+  cane: "CANE Neurofeedback",
+  sieckvet: "SieckVet",
+  hireflow: "HireFlow",
+  enlace: "Enlace Integral Seguros",
+  bwing: "B-Wing Karaoke Bar",
+  rmz: "RMZ Cocinas y Closets",
+  mariocitalan: "Mario Citalán — Arquitectura del Criterio",
+  regintel: "Inteligencia Regulatoria",
+  jjlaboral: "JJ Laboral Asociados",
+  lukon: "Lukon Telemática",
+  cafemoran: "Café Moran's",
+  therapyos: "TherapyOS — Mario Citalán",
+  tintosentido: "Tinto Sentido",
+};
