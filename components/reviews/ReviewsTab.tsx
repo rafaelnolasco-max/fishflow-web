@@ -95,7 +95,7 @@ const STAGE_BTN: Record<number, string> = {
 const STAGE_LABEL: Record<number, string> = {
   0: "Sin contactar", 1: "Saludo enviado", 2: "Petición enviada", 3: "Link enviado",
 };
-const SOURCE_LABEL: Record<string, string> = { csv: "CSV", appointment: "Cita", manual: "Manual" };
+const SOURCE_LABEL: Record<string, string> = { csv: "CSV", appointment: "Cita", manual: "Manual", top20: "Top-20", qr: "QR" };
 
 const NEGATIVE_TPL =
   "Lamento mucho que tu experiencia no haya sido la mejor 🙏 Me encantaría platicarlo contigo para mejorarlo. ¿Tienes 5 minutos esta semana para una llamada?";
