@@ -117,6 +117,7 @@ function adminHtml(d: Record<string, string>) {
         ${row('Dependientes', d.dependientes)}
         ${row('Capacidad mensual', d.capacidad)}
         ${row('Ocupación', d.ocupacion)}
+        ${row('Origen', d.origen)}
       </table>
       <a href="https://wa.me/52${esc(d.whatsapp).replace(/\D/g, '')}" style="display:inline-block;margin-top:18px;background:#25D366;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:700;font-size:14px">Escribirle por WhatsApp</a>
       <p style="font-size:12px;color:#5d7080;margin-top:20px">Aviso automático de la landing · FishFlow</p>
@@ -138,6 +139,27 @@ export async function POST(req: Request) {
     const dependientes = (b.dependientes ?? '').toString().trim()
     const capacidad = (b.capacidad ?? '').toString().trim()
     const ocupacion = (b.ocupacion ?? '').toString().trim()
+
+    /* Atribucion. Los anuncios de la pauta mandan
+         ?utm_source=facebook&utm_medium=paid&utm_campaign=lal1_sep2026&utm_content=<ppr|sat|tanda|universidad>
+       y la landing los reenvia aqui. Sin esto no hay forma de separar un lead
+       pagado de uno organico, y el costo por prospecto que se le reporta al
+       cliente seria una adivinanza. Se recorta a 200 para que un query string
+       inflado no ensucie la tabla. */
+    const utm = (k: string) => {
+      const v = (b[k] ?? '').toString().trim()
+      return v ? v.slice(0, 200) : null
+    }
+    const utmSource = utm('utm_source')
+    const utmMedium = utm('utm_medium')
+    const utmCampaign = utm('utm_campaign')
+    const utmContent = utm('utm_content')
+    const utmTerm = utm('utm_term')
+    const landingUrl = (b.landing_url ?? '').toString().trim().slice(0, 500) || null
+    const referrer = (b.referrer ?? '').toString().trim().slice(0, 500) || null
+    const origen = utmCampaign
+      ? `${utmSource || 'desconocido'} / ${utmCampaign}${utmContent ? ' / ' + utmContent : ''}`
+      : 'Organico (sin UTM)'
 
     if (!nombre || !whatsapp) {
       return NextResponse.json({ error: 'Falta nombre o WhatsApp.' }, { status: 400, headers: cors })
@@ -169,10 +191,21 @@ export async function POST(req: Request) {
       const { error } = await supabase.from('leads').insert({
         name: nombre,
         email: email || `wa-${whatsapp.replace(/\D/g, '')}@enlace.local`,
+        // El WhatsApp tambien va en su propia columna. Antes solo vivia dentro
+        // del texto de `problem`, asi que toda vista o export que leyera
+        // `leads.phone` mostraba el prospecto sin telefono.
+        phone: whatsapp || null,
         problem: resumen,
         ai_response: `Plan recomendado: ${plan}`,
         source: 'enlace_landing',
         client_id: ENLACE_CLIENT_ID,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+        utm_content: utmContent,
+        utm_term: utmTerm,
+        landing_url: landingUrl,
+        referrer: referrer,
       })
       if (error) console.error('[demo/enlace-lead] Supabase insert error:', error)
     } catch (e) {
@@ -188,7 +221,7 @@ export async function POST(req: Request) {
         to: enlaceNotifyTo(),
         replyTo: email || undefined,
         subject: `Nuevo lead — ${nombre} · ${plan}`,
-        html: adminHtml({ nombre, whatsapp, email, plan, objetivo, edad, dependientes, capacidad, ocupacion }),
+        html: adminHtml({ nombre, whatsapp, email, plan, objetivo, edad, dependientes, capacidad, ocupacion, origen }),
       })
       if (mailErr) console.error('[demo/enlace-lead] email error:', mailErr)
 
