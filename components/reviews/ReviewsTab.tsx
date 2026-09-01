@@ -356,13 +356,22 @@ export default function ReviewsTab({
       return;
     }
     const msg = opts?.message?.trim() || fillTemplate(tpl ?? "", r.contact_name, settings?.review_link ?? null);
-    window.open(waLink(r.contact_phone, msg), "_blank");
+    // Abrir la ventana YA (síncrono, dentro del click) para que el navegador no
+    // la bloquee como popup — pero sin navegar todavía. En celular, wa.me saca
+    // a la app de WhatsApp y congela esta pestaña: si el fetch de abajo no
+    // alcanzó a salir antes de eso, el mensaje se manda pero la etapa nunca se
+    // guarda (bug real detectado 1-sep-2026 con Erika, Enlace). Por eso primero
+    // se confirma el guardado en Supabase y hasta entonces se redirige.
+    const waWindow = window.open("", "_blank");
 
     const nextStage = (r.stage + 1) as ReviewRequest["stage"];
     const patch: Record<string, unknown> = { stage: nextStage, updated_at: new Date().toISOString(), ...(opts?.extraPatch ?? {}) };
     patch[`stage${nextStage}_sent_at`] = new Date().toISOString();
-    if (!(await patchRequest(r.id, patch))) return;
+    if (!(await patchRequest(r.id, patch))) { waWindow?.close(); return; }
     setRequests(prev => prev.map(x => x.id === r.id ? { ...x, ...patch } as ReviewRequest : x));
+
+    const link = waLink(r.contact_phone, msg);
+    if (waWindow) waWindow.location.href = link; else window.open(link, "_blank");
   }
 
   // ── Smart replies: generar borrador IA con la respuesta del cliente ─────────
