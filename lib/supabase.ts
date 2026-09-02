@@ -531,6 +531,52 @@ export interface HiringInterview {
 
 export const CRITERIO_CLIENT_ID = "ea5266d5-cabb-44e2-a96a-0a0f40da07e7";
 
+/** Slug del programa de Mario en `programs`. Ver docs/plan-tecnico-programa-reconstruccion.md */
+export const RECONSTRUCCION_SLUG = "reconstruccion-mental";
+
+/**
+ * Una aplicación de un instrumento de evaluación (tabla genérica `assessments`).
+ * `milestone` es lo que la vuelve longitudinal: la misma evaluación se aplica al
+ * inicio, a la mitad y al cierre del programa para medir el cambio.
+ */
+export interface Assessment {
+  id:            string;
+  client_id:     string;
+  lead_id:       string | null;
+  patient_id:    string | null;
+  enrollment_id: string | null;
+  /** "criterio_v1" | "actitud_v1" | ... */
+  instrument:    string;
+  /** "inicio" | "medio" | "cierre" | "seguimiento" */
+  milestone:     string;
+  taken_at:      string;
+  total_score:   number | null;
+  max_score:     number | null;
+  profile:       string | null;
+  /** { "<dimensión>": { score, max } } */
+  dimensions:    Record<string, { score: number; max: number }> | null;
+  answers:       Record<string, unknown> | null;
+  source:        string | null;
+}
+
+/**
+ * Inscripción a un programa. `patient_id` es NULL mientras la persona sigue en
+ * estado `evaluado`: nadie pasa a paciente sin invitación aceptada.
+ */
+export interface ProgramEnrollment {
+  id:           string;
+  program_id:   string;
+  client_id:    string;
+  lead_id:      string | null;
+  patient_id:   string | null;
+  /** evaluado | invitado | activo | pausado | completado | abandonado */
+  status:       string;
+  current_step: number;
+  invited_at:   string | null;
+  started_at:   string | null;
+  notes:        string | null;
+}
+
 /** Prospecto de las evaluaciones de Actitud / Criterio (tabla genérica `leads`). */
 export interface CriterioLead {
   id:          string;

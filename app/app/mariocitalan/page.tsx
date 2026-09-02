@@ -15,7 +15,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, CRITERIO_CLIENT_ID } from "@/lib/supabase";
-import type { CriterioLead } from "@/lib/supabase";
+import type { CriterioLead, Assessment, ProgramEnrollment } from "@/lib/supabase";
 import {
   TabBar, StatGrid, StatCard, Chip, Empty, Modal, Field, Toast,
   Section as DSection,
@@ -82,6 +82,86 @@ function Ornament() {
     </div>
   );
 }
+
+// ─── Evaluación de Arquitectura Mental y del Criterio ─────────────────────────
+// Los cinco perfiles del cuestionario de mariocitalan.net, en orden de puntaje.
+// La ruta es la que el propio cuestionario ya le recomendó a la persona: aquí
+// solo se repite, no se inventa.
+const PERFILES: { nombre: string; corto: string; min: number; max: number; bg: string; fg: string; ruta: string }[] = [
+  { nombre: "Arquitectura Emergente",         corto: "Emergente",       min: 30,  max: 69,
+    bg: "#FBEAEA", fg: "#C0392B", ruta: "Asesoría en estructuración" },
+  { nombre: "Arquitectura en Desarrollo",     corto: "En Desarrollo",   min: 70,  max: 89,
+    bg: "#FDF0E2", fg: "#B96A1E", ruta: "Fortalecimiento — Etapa 1" },
+  { nombre: "Arquitectura en Consolidación",  corto: "Consolidación",   min: 90,  max: 109,
+    bg: "#FBF7DC", fg: "#8A7B1F", ruta: "Fortalecimiento — Etapa 2" },
+  { nombre: "Arquitectura Funcional",         corto: "Funcional",       min: 110, max: 129,
+    bg: "#E8F0F9", fg: "#2A6AAE", ruta: "Alto Desempeño" },
+  { nombre: "Arquitectura de Alto Desempeño", corto: "Alto Desempeño",  min: 130, max: 150,
+    bg: "#E3EEFA", fg: "#1F4E79", ruta: "Criterio Ejecutivo" },
+];
+
+// Las seis dimensiones vienen con su nombre largo desde el cuestionario. En una
+// tabla no caben, así que aquí viven sus etiquetas cortas.
+const DIM_CORTA: Record<string, string> = {
+  "Capacidad para sostenerte frente a la adversidad": "Adversidad",
+  "Capacidad para aprender, adaptarte y evolucionar": "Adaptación",
+  "Alineación entre lo que piensas, sientes, valoras y haces": "Congruencia",
+  "Capacidad para mantener el equilibrio bajo presión": "Equilibrio",
+  "Calidad de tus procesos de análisis y toma de decisiones": "Decisión",
+  "Claridad respecto al rumbo que deseas construir": "Rumbo",
+};
+
+function dimCorta(nombre: string): string {
+  return DIM_CORTA[nombre] ?? nombre.split(" ").slice(0, 2).join(" ");
+}
+
+/** Evaluación + la persona que la contestó + su estado en el programa. */
+type Evaluado = {
+  ev: Assessment;
+  lead: CriterioLead | null;
+  inscripcion: ProgramEnrollment | null;
+};
+
+/**
+ * El mensaje que Mario copia y manda él mismo. La plataforma NO lo envía: una
+ * invitación a un proceso personal la manda la persona, no un sistema.
+ */
+function mensajeInvitacion(x: Evaluado): string {
+  const nombre = (x.lead?.name ?? "").trim().split(" ")[0] || "";
+  const perfil = x.ev.profile ?? "";
+  return [
+    `Hola ${nombre},`,
+    "",
+    `Contestaste la evaluación de Arquitectura Mental y del Criterio y tu resultado fue ${perfil}.`,
+    "",
+    "Quiero invitarte al Programa Personal de Reconstrucción Mental: un proceso individual de diez pasos para trabajar la estructura desde la que interpretas y decides. Tu evaluación ya cuenta como el primer paso, así que no tendrías que volver a contestarla.",
+    "",
+    "Si te interesa, respóndeme y te explico cómo funciona.",
+    "",
+    "Dr. Mario Citalán",
+  ].join("\n");
+}
+
+function perfilMeta(nombre: string | null) {
+  return PERFILES.find((p) => p.nombre === nombre) ?? null;
+}
+
+// El programa de Reconstrucción trabaja la parte baja de la escala. Arriba de
+// Consolidación el propio cuestionario manda a otro lado, así que marcarlos
+// como "candidato" sería empujar a alguien a un programa que no le toca.
+function esCandidatoReconstruccion(nombre: string | null): boolean {
+  const i = PERFILES.findIndex((p) => p.nombre === nombre);
+  return i >= 0 && i <= 2;
+}
+
+const ESTADO_INSCRIPCION: Record<string, { label: string; bg: string; fg: string }> = {
+  evaluado:   { label: "Evaluado",   bg: "#EEF2F6", fg: "#5D7080" },
+  invitado:   { label: "Invitado",   bg: "#FFF4E5", fg: "#B96A1E" },
+  activo:     { label: "En el programa", bg: "#EAF7EE", fg: "#4B9A62" },
+  pausado:    { label: "Pausado",    bg: "#F6F7F8", fg: "#9CA3AF" },
+  completado: { label: "Completado", bg: "#E8F0F9", fg: "#2A6AAE" },
+  abandonado: { label: "Abandonado", bg: "#F6F7F8", fg: "#9CA3AF" },
+};
 
 // ─── Embudo de seguimiento ─────────────────────────────────────────────────────
 const LEAD_STATUS: { id: string; label: string; bg: string; fg: string }[] = [
@@ -217,8 +297,13 @@ const PERIODOS: { id: Periodo; label: string }[] = [
 
 export default function MarioCitalanPanel() {
   const router = useRouter();
-  const [tab, setTab] = useState<"resumen" | "solicitudes" | "prospectos" | "newsletter">("resumen");
+  const [tab, setTab] = useState<"resumen" | "solicitudes" | "evaluados" | "prospectos" | "newsletter">("resumen");
   const [leads, setLeads] = useState<CriterioLead[]>([]);
+  // Evaluaciones ya aplicadas (tabla `assessments`) y su inscripción, si la hay.
+  const [evals, setEvals] = useState<Assessment[]>([]);
+  const [inscripciones, setInscripciones] = useState<ProgramEnrollment[]>([]);
+  const [invitando, setInvitando] = useState<string | null>(null);
+  const [invitar, setInvitar] = useState<Assessment | null>(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -275,6 +360,27 @@ export default function MarioCitalanPanel() {
       setLoading(false);
     }
     fetchLeads();
+  }, []);
+
+  // Evaluaciones e inscripciones del motor de programas. Van en su propio
+  // efecto para que un fallo aquí no deje al panel de prospectos sin cargar.
+  useEffect(() => {
+    async function fetchPrograma() {
+      const [{ data: ev, error: e1 }, { data: ins, error: e2 }] = await Promise.all([
+        supabase
+          .from("assessments")
+          .select("id,client_id,lead_id,patient_id,enrollment_id,instrument,milestone,taken_at,total_score,max_score,profile,dimensions,answers,source")
+          .eq("client_id", CRITERIO_CLIENT_ID)
+          .order("taken_at", { ascending: false }),
+        supabase
+          .from("program_enrollments")
+          .select("id,program_id,client_id,lead_id,patient_id,status,current_step,invited_at,started_at,notes")
+          .eq("client_id", CRITERIO_CLIENT_ID),
+      ]);
+      if (e1) console.error(e1); else setEvals((ev as Assessment[]) ?? []);
+      if (e2) console.error(e2); else setInscripciones((ins as ProgramEnrollment[]) ?? []);
+    }
+    fetchPrograma();
   }, []);
 
   async function logout() {
@@ -357,6 +463,33 @@ export default function MarioCitalanPanel() {
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, notes: noteDraft } : l)));
     setDetail((d) => (d && d.id === id ? { ...d, notes: noteDraft } : d));
     flash("Nota guardada");
+  }
+
+  // Marca la inscripción como `invitado`. NO crea paciente: eso pasa cuando la
+  // persona acepta. Ver app/api/programa/invitar/route.ts.
+  async function marcarInvitado(ev: Assessment, deshacer = false) {
+    setInvitando(ev.id);
+    try {
+      const r = await fetch("/api/programa/invitar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assessment_id: ev.id, deshacer }),
+      });
+      const j = await r.json();
+      if (!r.ok) { flash(j.error ?? "No se pudo registrar la invitación"); return; }
+
+      const nueva = j.enrollment as ProgramEnrollment | null;
+      setInscripciones((prev) => {
+        const otras = prev.filter((i) => i.lead_id !== ev.lead_id);
+        return nueva ? [...otras, { ...nueva, lead_id: ev.lead_id }] : otras;
+      });
+      flash(deshacer ? "Regresado a evaluado." : "Marcado como invitado.");
+    } catch (err) {
+      console.error(err);
+      flash("No se pudo registrar la invitación");
+    } finally {
+      setInvitando(null);
+    }
   }
 
   function openDetail(l: CriterioLead) {
@@ -501,6 +634,34 @@ export default function MarioCitalanPanel() {
 
   const maxPerfil = stats.porPerfil[0]?.[1] ?? 1;
 
+  // Une evaluación + prospecto + inscripción. La persona vive en `leads`; la
+  // evaluación en `assessments`; su estado en el programa en `program_enrollments`.
+  const evaluados = useMemo<Evaluado[]>(() => {
+    const porId = new Map(leads.map((l) => [l.id, l]));
+    const porLead = new Map(
+      inscripciones.filter((i) => i.lead_id).map((i) => [i.lead_id as string, i]),
+    );
+    return evals
+      .filter((e) => e.instrument === "criterio_v1")
+      .map((e) => ({
+        ev: e,
+        lead: e.lead_id ? porId.get(e.lead_id) ?? null : null,
+        inscripcion: e.lead_id ? porLead.get(e.lead_id) ?? null : null,
+      }))
+      .sort((a, b) => (a.ev.total_score ?? 0) - (b.ev.total_score ?? 0));
+  }, [evals, leads, inscripciones]);
+
+  const evalStats = useMemo(() => {
+    const candidatos = evaluados.filter((x) => esCandidatoReconstruccion(x.ev.profile)).length;
+    const invitados = evaluados.filter((x) => x.inscripcion?.status === "invitado").length;
+    const activos = evaluados.filter((x) => x.inscripcion?.status === "activo").length;
+    const puntajes = evaluados.map((x) => x.ev.total_score).filter((n): n is number => n != null);
+    const promedio = puntajes.length
+      ? Math.round((puntajes.reduce((a, b) => a + b, 0) / puntajes.length) * 10) / 10
+      : 0;
+    return { total: evaluados.length, candidatos, invitados, activos, promedio };
+  }, [evaluados]);
+
   return (
     <div style={{ minHeight: "100vh", background: C.bg, color: C.ink, fontFamily: FONT_BODY }}>
       {/* Tipografía del sitio público de Mario */}
@@ -573,6 +734,8 @@ export default function MarioCitalanPanel() {
             // El contador muestra las SIN atender, no el total: es lo único
             // que exige acción hoy.
             { id: "solicitudes", label: `Solicitudes${solicitudesAbiertas ? ` (${solicitudesAbiertas})` : ""}`, icon: "🔔" },
+            // Evaluados NO son pacientes: contestaron la evaluación y nada más.
+            { id: "evaluados", label: `Evaluados${evaluados.length ? ` (${evaluados.length})` : ""}`, icon: "🧭" },
             { id: "prospectos", label: `Prospectos${filtered.length ? ` (${filtered.length})` : ""}`, icon: "👥" },
             { id: "newsletter", label: "Newsletter", icon: "✉️" },
           ]}
@@ -1007,6 +1170,128 @@ export default function MarioCitalanPanel() {
             </Section>
 
           </>
+        ) : tab === "evaluados" ? (
+          <>
+            <div style={{ ...cardStyle, padding: "14px 18px", marginBottom: 18,
+              background: C.blueSoft, borderColor: C.blue, display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <span style={{ fontSize: 18, lineHeight: 1.2 }} aria-hidden>🧭</span>
+              <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6, color: C.ink2 }}>
+                Estas personas <strong>contestaron tu evaluación</strong>, no son pacientes.
+                Nadie entra al programa hasta que tú lo invitas y esa persona acepta.
+                Su evaluación ya cuenta como el paso 1: no la vuelve a contestar.
+              </p>
+            </div>
+
+            <StatGrid>
+              <StatCard theme={T} label="Evaluaciones completas" value={evalStats.total} icon="🧭" accent={C.blueDark} />
+              <StatCard theme={T} label="Perfil para Reconstrucción" value={evalStats.candidatos}
+                icon="🎯" sub={evalStats.total ? `de ${evalStats.total} evaluados` : undefined} />
+              <StatCard theme={T} label="Invitados" value={evalStats.invitados} icon="✉️" />
+              <StatCard theme={T} label="Puntaje promedio" value={evalStats.promedio} icon="📐" sub="de 150" />
+            </StatGrid>
+
+            <Section title={`${evaluados.length} personas evaluadas`}>
+              {evaluados.length === 0 ? (
+                <Empty msg="Todavía no hay evaluaciones cargadas." theme={T} />
+              ) : (
+                <div style={{ display: "grid", gap: 14 }}>
+                  {evaluados.map((x) => {
+                    const meta = perfilMeta(x.ev.profile);
+                    const estado = ESTADO_INSCRIPCION[x.inscripcion?.status ?? "evaluado"];
+                    const candidato = esCandidatoReconstruccion(x.ev.profile);
+                    const dims = Object.entries(x.ev.dimensions ?? {});
+                    const yaInvitado = x.inscripcion?.status === "invitado";
+                    const bloqueado = !!x.inscripcion && x.inscripcion.status !== "evaluado" && !yaInvitado;
+                    return (
+                      <div key={x.ev.id} style={{ ...cardStyle, padding: 18 }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 12,
+                          alignItems: "flex-start", justifyContent: "space-between" }}>
+                          <div style={{ minWidth: 190, flex: "1 1 220px" }}>
+                            <div style={{ fontFamily: FONT_SERIF, fontSize: 18, color: C.ink, lineHeight: 1.25 }}>
+                              {x.lead?.name || "Sin nombre"}
+                            </div>
+                            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3, wordBreak: "break-word" }}>
+                              {x.lead?.email || "—"}
+                            </div>
+                            <div style={{ fontFamily: FONT_MONO, fontSize: 10.5, color: C.muted, marginTop: 5 }}>
+                              {new Date(x.ev.taken_at).toLocaleDateString("es-MX",
+                                { day: "2-digit", month: "short", year: "numeric" })}
+                            </div>
+                          </div>
+
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                            {meta && <Chip label={meta.corto} bg={meta.bg} fg={meta.fg} />}
+                            <span style={{ fontFamily: FONT_MONO, fontSize: 13, color: C.ink2 }}>
+                              {x.ev.total_score ?? "—"}<span style={{ color: C.muted }}> / {x.ev.max_score ?? 150}</span>
+                            </span>
+                            <Chip label={estado.label} bg={estado.bg} fg={estado.fg} />
+                          </div>
+
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            <button
+                              onClick={() => setInvitar(x.ev)}
+                              disabled={bloqueado}
+                              style={{ background: bloqueado ? C.gray : yaInvitado ? C.white : C.blue,
+                                color: bloqueado ? "#fff" : yaInvitado ? C.blueDark : "#fff",
+                                border: yaInvitado ? `1px solid ${C.blue}` : "none",
+                                borderRadius: 9, padding: "9px 16px", fontSize: 13, fontWeight: 600,
+                                cursor: bloqueado ? "default" : "pointer", fontFamily: "inherit" }}
+                            >
+                              {yaInvitado ? "Ver mensaje" : "Invitar"}
+                            </button>
+                            {yaInvitado && (
+                              <button
+                                onClick={() => marcarInvitado(x.ev, true)}
+                                disabled={invitando === x.ev.id}
+                                style={{ background: "transparent", color: C.muted,
+                                  border: `1px solid ${C.border}`, borderRadius: 9, padding: "9px 14px",
+                                  fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
+                              >
+                                Deshacer
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {dims.length > 0 && (
+                          <div style={{ display: "grid",
+                            gridTemplateColumns: "repeat(auto-fit, minmax(128px, 1fr))",
+                            gap: 10, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+                            {dims.map(([nombre, d]) => {
+                              const pct = d.max ? Math.round((d.score / d.max) * 100) : 0;
+                              return (
+                                <div key={nombre} title={nombre}>
+                                  <div style={{ display: "flex", justifyContent: "space-between",
+                                    fontSize: 11, color: C.muted, marginBottom: 4 }}>
+                                    <span>{dimCorta(nombre)}</span>
+                                    <span style={{ fontFamily: FONT_MONO, color: C.ink2 }}>{d.score}/{d.max}</span>
+                                  </div>
+                                  <div style={{ height: 5, background: C.bg2, borderRadius: 3, overflow: "hidden" }}>
+                                    <div style={{ width: `${pct}%`, height: "100%",
+                                      background: pct >= 80 ? C.blueDark : pct >= 60 ? C.blue : "#B96A1E" }} />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        <div style={{ marginTop: 12, fontSize: 12.5, color: C.muted }}>
+                          Ruta que le recomendó su evaluación:{" "}
+                          <span style={{ color: C.ink2 }}>{meta?.ruta ?? x.lead?.route ?? "—"}</span>
+                          {!candidato && (
+                            <span style={{ color: "#B96A1E" }}>
+                              {" "}· su perfil está arriba del rango de Reconstrucción
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </Section>
+          </>
         ) : (
           <Section title={`${filtered.length} de ${leads.length} prospectos`}
             action={{ label: "Exportar CSV", onClick: exportCSV }}>
@@ -1213,6 +1498,83 @@ export default function MarioCitalanPanel() {
           </div>
         </Modal>
       )}
+
+      {invitar && (() => {
+        const x = evaluados.find((e) => e.ev.id === invitar.id);
+        if (!x) return null;
+        const texto = mensajeInvitacion(x);
+        const correo = x.lead?.email ?? "";
+        const tel = (x.lead?.phone ?? "").replace(/\D/g, "");
+        const yaInvitado = x.inscripcion?.status === "invitado";
+        return (
+          <Modal title={`Invitar a ${x.lead?.name ?? "esta persona"}`} onClose={() => setInvitar(null)} theme={T} wide>
+            <p style={{ margin: "0 0 14px", fontSize: 13.5, lineHeight: 1.6, color: C.ink2 }}>
+              La plataforma <strong>no manda este mensaje</strong>. Cópialo y mándalo tú por
+              el medio que uses con esa persona; al hacerlo, marca la invitación aquí para
+              llevar el registro.
+            </p>
+
+            <Field label="Mensaje" theme={T}>
+              <textarea
+                readOnly
+                value={texto}
+                rows={11}
+                style={{ ...inputStyle, fontSize: 14, lineHeight: 1.6, resize: "vertical" }}
+              />
+            </Field>
+
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
+              <button
+                onClick={() => { navigator.clipboard?.writeText(texto); flash("Mensaje copiado."); }}
+                style={{ background: C.blue, color: "#fff", border: "none", borderRadius: 10,
+                  padding: "11px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
+              >
+                Copiar mensaje
+              </button>
+              {correo && (
+                <a
+                  href={`mailto:${correo}?subject=${encodeURIComponent("Programa Personal de Reconstrucción Mental")}&body=${encodeURIComponent(texto)}`}
+                  style={{ background: C.white, color: C.blueDark, border: `1px solid ${C.blue}`,
+                    borderRadius: 10, padding: "11px 20px", fontSize: 14, fontWeight: 600,
+                    textDecoration: "none", display: "inline-block" }}
+                >
+                  Abrir en correo
+                </a>
+              )}
+              {tel.length >= 10 && (
+                <a
+                  href={`https://wa.me/${tel.length === 10 ? "52" + tel : tel}?text=${encodeURIComponent(texto)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ background: C.white, color: C.blueDark, border: `1px solid ${C.blue}`,
+                    borderRadius: 10, padding: "11px 20px", fontSize: 14, fontWeight: 600,
+                    textDecoration: "none", display: "inline-block" }}
+                >
+                  Abrir en WhatsApp
+                </a>
+              )}
+            </div>
+
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
+              <button
+                onClick={async () => { await marcarInvitado(x.ev, yaInvitado); setInvitar(null); }}
+                disabled={invitando === x.ev.id}
+                style={{ background: yaInvitado ? "transparent" : C.steel,
+                  color: yaInvitado ? C.muted : "#fff",
+                  border: yaInvitado ? `1px solid ${C.border}` : "none",
+                  borderRadius: 10, padding: "11px 20px", fontSize: 14, fontWeight: 600,
+                  cursor: invitando === x.ev.id ? "default" : "pointer", fontFamily: "inherit" }}
+              >
+                {invitando === x.ev.id
+                  ? "Guardando…"
+                  : yaInvitado
+                    ? "Regresar a evaluado"
+                    : "Ya la mandé, marcar como invitada"}
+              </button>
+            </div>
+          </Modal>
+        );
+      })()}
 
       <Toast msg={toast} theme={T} />
     </div>
