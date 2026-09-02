@@ -11,7 +11,7 @@
  * servidor en /api/programa/aceptar. Aquí solo se le avisa con la pista.
  */
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -31,7 +31,25 @@ type Invitacion = {
   subtitulo: string; pasos: number; pasoUnoHecho: boolean;
 };
 
+/**
+ * ⚠️ useSearchParams() obliga a una frontera de Suspense: sin ella `next build`
+ * falla al prerenderizar la ruta y Vercel se queda sirviendo el deploy anterior
+ * — la pagina nueva sale 404 sin que nada avise. No quitar el Suspense.
+ */
 export default function AceptarPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: "100vh", background: C.paper, color: C.muted, fontFamily: BODY,
+        display: "flex", alignItems: "center", justifyContent: "center" }}>
+        Abriendo tu invitación…
+      </div>
+    }>
+      <Aceptar />
+    </Suspense>
+  );
+}
+
+function Aceptar() {
   const router = useRouter();
   const params = useSearchParams();
   const token = (params.get("t") ?? "").trim();
