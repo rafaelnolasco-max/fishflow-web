@@ -1,0 +1,13 @@
+{
+  "name": "Mi programa",
+  "short_name": "Programa",
+  "description": "Tu proceso, paso a paso",
+  "start_url": "/programa",
+  "display": "standalone",
+  "background_color": "#0F1A24",
+  "theme_color": "#0F1A24",
+  "icons": [
+    { "src": "/icons/icon-programa-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-programa-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
