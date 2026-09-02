@@ -83,21 +83,47 @@ function Ornament() {
   );
 }
 
-// ─── Evaluación de Arquitectura Mental y del Criterio ─────────────────────────
-// Los cinco perfiles del cuestionario de mariocitalan.net, en orden de puntaje.
-// La ruta es la que el propio cuestionario ya le recomendó a la persona: aquí
-// solo se repite, no se inventa.
-const PERFILES: { nombre: string; corto: string; min: number; max: number; bg: string; fg: string; ruta: string }[] = [
-  { nombre: "Arquitectura Emergente",         corto: "Emergente",       min: 30,  max: 69,
-    bg: "#FBEAEA", fg: "#C0392B", ruta: "Asesoría en estructuración" },
-  { nombre: "Arquitectura en Desarrollo",     corto: "En Desarrollo",   min: 70,  max: 89,
-    bg: "#FDF0E2", fg: "#B96A1E", ruta: "Fortalecimiento — Etapa 1" },
-  { nombre: "Arquitectura en Consolidación",  corto: "Consolidación",   min: 90,  max: 109,
-    bg: "#FBF7DC", fg: "#8A7B1F", ruta: "Fortalecimiento — Etapa 2" },
-  { nombre: "Arquitectura Funcional",         corto: "Funcional",       min: 110, max: 129,
-    bg: "#E8F0F9", fg: "#2A6AAE", ruta: "Alto Desempeño" },
-  { nombre: "Arquitectura de Alto Desempeño", corto: "Alto Desempeño",  min: 130, max: 150,
-    bg: "#E3EEFA", fg: "#1F4E79", ruta: "Criterio Ejecutivo" },
+// ─── Los dos instrumentos de Mario ────────────────────────────────────────────
+// Criterio (30 reactivos, 30-150) y Actitud (15 reactivos, 0-60). Son escalas
+// distintas y perfiles distintos: un "Funcional" de Actitud NO es un
+// "Funcional" de Criterio. La ruta es la que el propio cuestionario ya le
+// recomendó a la persona; aquí solo se repite, no se inventa.
+const INSTRUMENTOS: { id: string; label: string; corto: string; tope: number }[] = [
+  { id: "criterio_v1", label: "Arquitectura Mental y del Criterio", corto: "Criterio", tope: 150 },
+  { id: "actitud_v1",  label: "Evaluación de Actitud",              corto: "Actitud",  tope: 60 },
+];
+
+type PerfilMeta = {
+  instrumento: string; nombre: string; corto: string;
+  min: number; max: number; bg: string; fg: string;
+  ruta: string;
+  /** ¿Su perfil cae en el rango que el programa de Reconstrucción atiende? */
+  candidato: boolean;
+};
+
+const PERFILES: PerfilMeta[] = [
+  // Criterio — 30 reactivos escala 1-5, puntaje 30-150.
+  { instrumento: "criterio_v1", nombre: "Arquitectura Emergente",         corto: "Emergente",     min: 30,  max: 69,
+    bg: "#FBEAEA", fg: "#C0392B", ruta: "Asesoría en estructuración",  candidato: true },
+  { instrumento: "criterio_v1", nombre: "Arquitectura en Desarrollo",     corto: "En Desarrollo", min: 70,  max: 89,
+    bg: "#FDF0E2", fg: "#B96A1E", ruta: "Fortalecimiento — Etapa 1",   candidato: true },
+  { instrumento: "criterio_v1", nombre: "Arquitectura en Consolidación",  corto: "Consolidación", min: 90,  max: 109,
+    bg: "#FBF7DC", fg: "#8A7B1F", ruta: "Fortalecimiento — Etapa 2",   candidato: true },
+  { instrumento: "criterio_v1", nombre: "Arquitectura Funcional",         corto: "Funcional",     min: 110, max: 129,
+    bg: "#E8F0F9", fg: "#2A6AAE", ruta: "Alto Desempeño",              candidato: false },
+  { instrumento: "criterio_v1", nombre: "Arquitectura de Alto Desempeño", corto: "Alto Desempeño",min: 130, max: 150,
+    bg: "#E3EEFA", fg: "#1F4E79", ruta: "Criterio Ejecutivo",          candidato: false },
+
+  // Actitud — 15 reactivos ponderados 0-4, puntaje 0-60. Es el instrumento de
+  // entrada: tres de sus cuatro perfiles mandan a hacer la evaluación de Criterio.
+  { instrumento: "actitud_v1", nombre: "Arquitectura de Actitud en Reconstrucción", corto: "En Reconstrucción", min: 0,  max: 19,
+    bg: "#FBEAEA", fg: "#C0392B", ruta: "Asesoría individual",     candidato: true },
+  { instrumento: "actitud_v1", nombre: "Arquitectura de Actitud Vulnerable",        corto: "Vulnerable",        min: 20, max: 34,
+    bg: "#FDF0E2", fg: "#B96A1E", ruta: "Evaluación de Criterio",  candidato: true },
+  { instrumento: "actitud_v1", nombre: "Arquitectura de Actitud Funcional",         corto: "Funcional",         min: 35, max: 49,
+    bg: "#FBF7DC", fg: "#8A7B1F", ruta: "Evaluación de Criterio",  candidato: false },
+  { instrumento: "actitud_v1", nombre: "Arquitectura de Actitud Sólida",            corto: "Sólida",            min: 50, max: 60,
+    bg: "#E3EEFA", fg: "#1F4E79", ruta: "Evaluación de Criterio",  candidato: false },
 ];
 
 // Las seis dimensiones vienen con su nombre largo desde el cuestionario. En una
@@ -125,16 +151,36 @@ type Evaluado = {
 /**
  * El mensaje que Mario copia y manda él mismo. La plataforma NO lo envía: una
  * invitación a un proceso personal la manda la persona, no un sistema.
+ *
+ * ⚠️ Cambia según el instrumento. El paso 1 del programa ES la evaluación de
+ * Criterio: a quien solo contestó Actitud no se le puede decir que ya lo tiene
+ * hecho. Y da igual que suene a venta cruzada — es justo lo que su propio
+ * resultado de Actitud le recomienda.
  */
 function mensajeInvitacion(x: Evaluado): string {
   const nombre = (x.lead?.name ?? "").trim().split(" ")[0] || "";
   const perfil = x.ev.profile ?? "";
+  const esCriterio = x.ev.instrument === "criterio_v1";
+  const conDesglose = x.ev.total_score != null;
+
+  const apertura = esCriterio
+    ? `Contestaste la evaluación de Arquitectura Mental y del Criterio y tu resultado fue ${perfil}.`
+    : `Contestaste la Evaluación de Actitud y tu resultado fue ${perfil}.`;
+
+  const sobreElPaso1 = esCriterio
+    ? conDesglose
+      ? "Tu evaluación ya cuenta como el primer paso, así que no tendrías que volver a contestarla."
+      : "Tu evaluación es de hace unos meses, así que el proceso arranca contestándola una vez más para tener un punto de partida actualizado."
+    : "El proceso arranca con la Evaluación de Arquitectura Mental y del Criterio, que es la que da el mapa detallado por dimensión.";
+
   return [
     `Hola ${nombre},`,
     "",
-    `Contestaste la evaluación de Arquitectura Mental y del Criterio y tu resultado fue ${perfil}.`,
+    apertura,
     "",
-    "Quiero invitarte al Programa Personal de Reconstrucción Mental: un proceso individual de diez pasos para trabajar la estructura desde la que interpretas y decides. Tu evaluación ya cuenta como el primer paso, así que no tendrías que volver a contestarla.",
+    "Quiero invitarte al Programa Personal de Reconstrucción Mental: un proceso individual de diez pasos para trabajar la estructura desde la que interpretas y decides.",
+    "",
+    sobreElPaso1,
     "",
     "Si te interesa, respóndeme y te explico cómo funciona.",
     "",
@@ -146,17 +192,18 @@ function perfilMeta(nombre: string | null) {
   return PERFILES.find((p) => p.nombre === nombre) ?? null;
 }
 
+/** Posición del perfil DENTRO de su propio instrumento, para ordenar. */
 function perfilIndice(nombre: string | null): number {
-  const i = PERFILES.findIndex((p) => p.nombre === nombre);
-  return i < 0 ? PERFILES.length : i;
+  const meta = PERFILES.find((p) => p.nombre === nombre);
+  if (!meta) return 99;
+  return PERFILES.filter((p) => p.instrumento === meta.instrumento).indexOf(meta);
 }
 
-// El programa de Reconstrucción trabaja la parte baja de la escala. Arriba de
-// Consolidación el propio cuestionario manda a otro lado, así que marcarlos
-// como "candidato" sería empujar a alguien a un programa que no le toca.
+// El programa de Reconstrucción trabaja la parte baja de cada escala. Arriba de
+// ese rango el propio cuestionario manda a otro lado, así que marcarlos como
+// "candidato" sería empujar a alguien a un programa que no le toca.
 function esCandidatoReconstruccion(nombre: string | null): boolean {
-  const i = PERFILES.findIndex((p) => p.nombre === nombre);
-  return i >= 0 && i <= 2;
+  return PERFILES.find((p) => p.nombre === nombre)?.candidato ?? false;
 }
 
 const ESTADO_INSCRIPCION: Record<string, { label: string; bg: string; fg: string }> = {
@@ -309,6 +356,8 @@ export default function MarioCitalanPanel() {
   const [inscripciones, setInscripciones] = useState<ProgramEnrollment[]>([]);
   const [invitando, setInvitando] = useState<string | null>(null);
   const [invitar, setInvitar] = useState<Assessment | null>(null);
+  // Criterio es el instrumento del programa, así que abre en ese.
+  const [fInstrumento, setFInstrumento] = useState<string>("criterio_v1");
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -647,7 +696,7 @@ export default function MarioCitalanPanel() {
       inscripciones.filter((i) => i.lead_id).map((i) => [i.lead_id as string, i]),
     );
     return evals
-      .filter((e) => e.instrument === "criterio_v1")
+      .filter((e) => e.instrument === fInstrumento)
       .map((e) => ({
         ev: e,
         lead: e.lead_id ? porId.get(e.lead_id) ?? null : null,
@@ -664,7 +713,13 @@ export default function MarioCitalanPanel() {
         if (sb == null) return -1;
         return sa - sb;
       });
-  }, [evals, leads, inscripciones]);
+  }, [evals, leads, inscripciones, fInstrumento]);
+
+  const porInstrumento = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const e of evals) m.set(e.instrument, (m.get(e.instrument) ?? 0) + 1);
+    return m;
+  }, [evals]);
 
   const evalStats = useMemo(() => {
     const conDesglose = evaluados.filter((x) => x.ev.total_score != null).length;
@@ -1198,6 +1253,27 @@ export default function MarioCitalanPanel() {
               </p>
             </div>
 
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
+              {INSTRUMENTOS.map((ins) => {
+                const activo = fInstrumento === ins.id;
+                const n = porInstrumento.get(ins.id) ?? 0;
+                return (
+                  <button
+                    key={ins.id}
+                    onClick={() => setFInstrumento(ins.id)}
+                    title={ins.label}
+                    style={{ background: activo ? C.blueDark : C.white,
+                      color: activo ? "#fff" : C.ink2,
+                      border: `1px solid ${activo ? C.blueDark : C.border}`,
+                      borderRadius: 999, padding: "8px 16px", fontSize: 13,
+                      fontWeight: activo ? 600 : 500, cursor: "pointer", fontFamily: "inherit" }}
+                  >
+                    {ins.corto}{n ? ` (${n})` : ""}
+                  </button>
+                );
+              })}
+            </div>
+
             <StatGrid>
               <StatCard theme={T} label="Personas evaluadas" value={evalStats.total} icon="🧭" accent={C.blueDark}
                 sub={`${evalStats.conDesglose} con desglose por dimensión`} />
@@ -1205,10 +1281,10 @@ export default function MarioCitalanPanel() {
                 icon="🎯" sub={evalStats.total ? `de ${evalStats.total} evaluados` : undefined} />
               <StatCard theme={T} label="Invitados" value={evalStats.invitados} icon="✉️" />
               <StatCard theme={T} label="Puntaje promedio" value={evalStats.promedio} icon="📐"
-                sub={`de 150 · ${evalStats.conDesglose} medidos`} />
+                sub={`de ${INSTRUMENTOS.find((i) => i.id === fInstrumento)?.tope ?? 150} · ${evalStats.conDesglose} medidos`} />
             </StatGrid>
 
-            <Section title={`${evaluados.length} personas evaluadas`}>
+            <Section title={`${evaluados.length} en ${INSTRUMENTOS.find((i) => i.id === fInstrumento)?.label ?? "la evaluación"}`}>
               {evaluados.length === 0 ? (
                 <Empty msg="Todavía no hay evaluaciones cargadas." theme={T} />
               ) : (
@@ -1282,9 +1358,9 @@ export default function MarioCitalanPanel() {
                           <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}`,
                             fontSize: 12.5, color: C.muted, lineHeight: 1.55 }}>
                             Terminó su evaluación, pero es anterior a julio 2026: en ese momento el
-                            cuestionario todavía no guardaba el detalle por dimensión. Sirve para
-                            ubicar su perfil; si entra al programa, la contesta una vez más para
-                            tener una medición de arranque.
+                            cuestionario todavía no guardaba el detalle. Sirve para ubicar su perfil;
+                            si entra al programa, la contesta una vez más para tener una medición
+                            de arranque.
                           </div>
                         )}
 
