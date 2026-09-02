@@ -114,6 +114,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Datos incompletos.' }, { status: 400, headers: CORS_HEADERS })
     }
 
+    /* Atribucion. Hasta el 2-sep-2026 estas evaluaciones se guardaban sin
+       ninguna: 118 registros y cero idea de que canal los trajo. Mario invierte
+       en radio, TV y conferencias, asi que sin esto no hay forma de saber que
+       vale la pena repetir. Mismo patron que /api/demo/enlace-lead. Se recorta
+       para que un query string inflado no ensucie la tabla. */
+    const utm = (k: string) => {
+      const v = (body[k] ?? '').toString().trim()
+      return v ? v.slice(0, 200) : null
+    }
+    const landingUrl = (body.landing_url ?? '').toString().trim().slice(0, 500) || null
+    const referrer = (body.referrer ?? '').toString().trim().slice(0, 500) || null
+
     // 1) Guardar el prospecto (best-effort: si falla, el usuario igual recibe su resultado)
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -132,6 +144,13 @@ export async function POST(req: Request) {
           opt_in: optIn,
           source: test === 'actitud' ? 'actitud' : 'criterio',
           client_id: MARIO_CLIENT_ID,
+          utm_source: utm('utm_source'),
+          utm_medium: utm('utm_medium'),
+          utm_campaign: utm('utm_campaign'),
+          utm_content: utm('utm_content'),
+          utm_term: utm('utm_term'),
+          landing_url: landingUrl,
+          referrer: referrer,
         })
         if (dbErr) console.error('[demo/mario-criterio] Supabase insert error:', dbErr)
       } else {

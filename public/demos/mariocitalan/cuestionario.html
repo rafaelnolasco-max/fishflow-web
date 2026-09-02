@@ -423,6 +423,25 @@
     next.innerHTML = (cur >= total ? 'Ver mi resultado ' : 'Siguiente ') + arrow;
   }
 
+  // Atribución: de dónde llegó esta persona. Sin esto no hay forma de saber qué
+  // canal trae evaluaciones, y Mario invierte en radio, TV y conferencias.
+  // Mismo patrón que /api/demo/enlace-lead, que ya corre en producción.
+  function atribucion(){
+    try {
+      var qs = new URLSearchParams(location.search);
+      var g = function(k){ var v = qs.get(k); return v ? v.slice(0,200) : null; };
+      return {
+        utm_source:   g('utm_source'),
+        utm_medium:   g('utm_medium'),
+        utm_campaign: g('utm_campaign'),
+        utm_content:  g('utm_content'),
+        utm_term:     g('utm_term'),
+        landing_url:  (location.href || '').slice(0,500),
+        referrer:     (document.referrer || '').slice(0,500)
+      };
+    } catch(_) { return {}; }
+  }
+
   function showResult(){
     const sum = answers.reduce((a,b)=>a+b,0); // 30..150 — interno, no se muestra
     let idx = profiles.findIndex(p => sum >= p.min && sum <= p.max);
@@ -472,7 +491,7 @@
       fetch('https://www.fishflow.mx/api/demo/mario-criterio/', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ test:'criterio', nombre, email, tel, optIn, answers:respuestas, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:'Ver mi ruta recomendada', pdf:'assets/pdf/arquitectura-mental-y-del-criterio-2026.pdf', pdfNombre:'Arquitectura Mental y del Criterio' })
+        body: JSON.stringify({ test:'criterio', nombre, email, tel, optIn, answers:respuestas, perfil:p.nm, ruta:p.reco, desc:p.d, link:p.link, ctaLabel:'Ver mi ruta recomendada', pdf:'assets/pdf/arquitectura-mental-y-del-criterio-2026.pdf', pdfNombre:'Arquitectura Mental y del Criterio' , ...atribucion() })
       }).catch(()=>{});
     } catch(_) {}
   }
