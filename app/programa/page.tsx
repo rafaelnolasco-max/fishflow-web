@@ -13,6 +13,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { DIMENSIONES } from "@/lib/instrumentoCriterio";
+import Dumbbell, { type Medicion } from "@/components/programa/Dumbbell";
 
 const C = {
   ink: "#0F1A24", ink2: "#283845", paper: "#F4F7FA", paper2: "#E7EEF4", white: "#FFFFFF",
@@ -45,6 +47,10 @@ type Datos = {
 };
 
 type Tab = "paso" | "proceso" | "cuenta";
+
+const CORTAS: Record<string, string> = Object.fromEntries(
+  DIMENSIONES.map((d) => [d.nombre, d.corta]),
+);
 
 /** Markdown mínimo: párrafos, viñetas y **negritas**. No hace falta más. */
 function Texto({ md }: { md: string }) {
@@ -83,6 +89,7 @@ export default function ProgramaPage() {
   const [cerrando, setCerrando] = useState(false);
   const [aviso, setAviso] = useState("");
   const [correo, setCorreo] = useState("");
+  const [mediciones, setMediciones] = useState<Medicion[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -97,8 +104,13 @@ export default function ProgramaPage() {
   async function cargar() {
     setCargando(true);
     try {
-      const r = await fetch("/api/programa/paso");
+      const [r, rm] = await Promise.all([
+        fetch("/api/programa/paso"),
+        fetch("/api/programa/evaluacion"),
+      ]);
       const j = await r.json();
+      const jm = await rm.json().catch(() => ({ mediciones: [] }));
+      setMediciones((jm.mediciones ?? []) as Medicion[]);
       if (r.ok) {
         setDatos(j as Datos);
         const actual = (j as Datos).inscripcion?.current_step ?? 0;
@@ -115,6 +127,14 @@ export default function ProgramaPage() {
   const rengActual = useMemo(() => datos?.avance.find((a) => a.step_number === actual) ?? null, [datos, actual]);
   const total = datos?.programa?.steps_count ?? 0;
   const completados = (datos?.avance ?? []).filter((a) => a.status === "completado").length;
+
+  // La evaluación se aplica tres veces: al empezar, a la mitad y al cerrar.
+  // Misma regla que usa el servidor para decidir el `milestone`.
+  const tocaEvaluacion = useMemo(() => {
+    if (!datos?.inscripcion || !total) return false;
+    if (actual === 1) return rengActual?.status !== "completado";
+    return actual === Math.ceil(total / 2) || actual === total;
+  }, [datos, actual, total, rengActual]);
 
   async function guardarReflexion(cerrar: boolean) {
     if (!datos?.inscripcion) return;
@@ -217,6 +237,26 @@ export default function ProgramaPage() {
             <p style={{ fontSize: 14, color: C.ink2, lineHeight: 1.6, margin: "0 0 16px" }}>{pasoActual.objective}</p>
           )}
 
+          {tocaEvaluacion && (
+            <div style={{ background: C.blueSoft, border: `1px solid ${C.blue}`, borderRadius: 10,
+              padding: "16px 18px", margin: "14px 0 4px" }}>
+              <div style={{ fontFamily: SERIF, fontSize: 17, color: C.ink, marginBottom: 5 }}>
+                {actual === 1 ? "Empieza por medir dónde estás" : "Toca volver a medir"}
+              </div>
+              <p style={{ fontSize: 14, color: C.ink2, lineHeight: 1.6, margin: "0 0 12px" }}>
+                {actual === 1
+                  ? "Son 30 preguntas. Es tu punto de partida: sin él no hay contra qué comparar más adelante."
+                  : "Las mismas 30 preguntas de la vez pasada. Así se ve qué se movió y qué no."}
+              </p>
+              <button onClick={() => router.push("/programa/evaluacion")}
+                style={{ background: C.blue, color: "#fff", border: "none", borderRadius: 9,
+                  padding: "11px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  fontFamily: "inherit" }}>
+                Contestar la evaluación
+              </button>
+            </div>
+          )}
+
           {pasoActual?.content_md ? (
             <div style={{ fontSize: 15, color: C.ink2, marginTop: 14 }}>
               <Texto md={pasoActual.content_md} />
@@ -279,6 +319,20 @@ export default function ProgramaPage() {
 
       {tab === "proceso" && (
         <div style={{ display: "grid", gap: 10 }}>
+          {mediciones.length >= 2 && (
+            <div style={{ ...card, marginBottom: 6 }}>
+              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: ".2em",
+                textTransform: "uppercase", color: C.muted, marginBottom: 4 }}>Cómo te has movido</div>
+              <h2 style={{ fontFamily: SERIF, fontWeight: 500, fontSize: 19, margin: "0 0 16px" }}>
+                Tus {mediciones.length} mediciones
+              </h2>
+              <Dumbbell
+                antes={mediciones[0]}
+                ahora={mediciones[mediciones.length - 1]}
+                cortas={CORTAS}
+              />
+            </div>
+          )}
           {datos.avance.map((a) => {
             const def = datos.pasos.find((p) => p.step_number === a.step_number);
             const hecho = a.status === "completado";
