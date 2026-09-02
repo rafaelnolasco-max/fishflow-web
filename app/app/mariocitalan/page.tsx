@@ -146,6 +146,11 @@ function perfilMeta(nombre: string | null) {
   return PERFILES.find((p) => p.nombre === nombre) ?? null;
 }
 
+function perfilIndice(nombre: string | null): number {
+  const i = PERFILES.findIndex((p) => p.nombre === nombre);
+  return i < 0 ? PERFILES.length : i;
+}
+
 // El programa de Reconstrucción trabaja la parte baja de la escala. Arriba de
 // Consolidación el propio cuestionario manda a otro lado, así que marcarlos
 // como "candidato" sería empujar a alguien a un programa que no le toca.
@@ -648,10 +653,21 @@ export default function MarioCitalanPanel() {
         lead: e.lead_id ? porId.get(e.lead_id) ?? null : null,
         inscripcion: e.lead_id ? porLead.get(e.lead_id) ?? null : null,
       }))
-      .sort((a, b) => (a.ev.total_score ?? 0) - (b.ev.total_score ?? 0));
+      // Primero las que traen puntaje, de menor a mayor: el que más lo necesita
+      // arriba. Las de antes del 30-jul no tienen puntaje y van al final,
+      // ordenadas por perfil para que no queden revueltas.
+      .sort((a, b) => {
+        const sa = a.ev.total_score;
+        const sb = b.ev.total_score;
+        if (sa == null && sb == null) return perfilIndice(a.ev.profile) - perfilIndice(b.ev.profile);
+        if (sa == null) return 1;
+        if (sb == null) return -1;
+        return sa - sb;
+      });
   }, [evals, leads, inscripciones]);
 
   const evalStats = useMemo(() => {
+    const conDesglose = evaluados.filter((x) => x.ev.total_score != null).length;
     const candidatos = evaluados.filter((x) => esCandidatoReconstruccion(x.ev.profile)).length;
     const invitados = evaluados.filter((x) => x.inscripcion?.status === "invitado").length;
     const activos = evaluados.filter((x) => x.inscripcion?.status === "activo").length;
@@ -659,7 +675,7 @@ export default function MarioCitalanPanel() {
     const promedio = puntajes.length
       ? Math.round((puntajes.reduce((a, b) => a + b, 0) / puntajes.length) * 10) / 10
       : 0;
-    return { total: evaluados.length, candidatos, invitados, activos, promedio };
+    return { total: evaluados.length, conDesglose, candidatos, invitados, activos, promedio };
   }, [evaluados]);
 
   return (
@@ -1183,11 +1199,13 @@ export default function MarioCitalanPanel() {
             </div>
 
             <StatGrid>
-              <StatCard theme={T} label="Evaluaciones completas" value={evalStats.total} icon="🧭" accent={C.blueDark} />
+              <StatCard theme={T} label="Personas evaluadas" value={evalStats.total} icon="🧭" accent={C.blueDark}
+                sub={`${evalStats.conDesglose} con desglose por dimensión`} />
               <StatCard theme={T} label="Perfil para Reconstrucción" value={evalStats.candidatos}
                 icon="🎯" sub={evalStats.total ? `de ${evalStats.total} evaluados` : undefined} />
               <StatCard theme={T} label="Invitados" value={evalStats.invitados} icon="✉️" />
-              <StatCard theme={T} label="Puntaje promedio" value={evalStats.promedio} icon="📐" sub="de 150" />
+              <StatCard theme={T} label="Puntaje promedio" value={evalStats.promedio} icon="📐"
+                sub={`de 150 · ${evalStats.conDesglose} medidos`} />
             </StatGrid>
 
             <Section title={`${evaluados.length} personas evaluadas`}>
@@ -1221,9 +1239,16 @@ export default function MarioCitalanPanel() {
 
                           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
                             {meta && <Chip label={meta.corto} bg={meta.bg} fg={meta.fg} />}
-                            <span style={{ fontFamily: FONT_MONO, fontSize: 13, color: C.ink2 }}>
-                              {x.ev.total_score ?? "—"}<span style={{ color: C.muted }}> / {x.ev.max_score ?? 150}</span>
-                            </span>
+                            {x.ev.total_score != null ? (
+                              <span style={{ fontFamily: FONT_MONO, fontSize: 13, color: C.ink2 }}>
+                                {x.ev.total_score}
+                                <span style={{ color: C.muted }}> / {x.ev.max_score ?? 150}</span>
+                              </span>
+                            ) : (
+                              <span style={{ fontFamily: FONT_MONO, fontSize: 11, color: C.muted }}>
+                                sin desglose
+                              </span>
+                            )}
                             <Chip label={estado.label} bg={estado.bg} fg={estado.fg} />
                           </div>
 
@@ -1252,6 +1277,16 @@ export default function MarioCitalanPanel() {
                             )}
                           </div>
                         </div>
+
+                        {dims.length === 0 && (
+                          <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}`,
+                            fontSize: 12.5, color: C.muted, lineHeight: 1.55 }}>
+                            Terminó su evaluación, pero es anterior a julio 2026: en ese momento el
+                            cuestionario todavía no guardaba el detalle por dimensión. Sirve para
+                            ubicar su perfil; si entra al programa, la contesta una vez más para
+                            tener una medición de arranque.
+                          </div>
+                        )}
 
                         {dims.length > 0 && (
                           <div style={{ display: "grid",

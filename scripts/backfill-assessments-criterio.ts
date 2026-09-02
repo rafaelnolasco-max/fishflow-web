@@ -5,8 +5,19 @@
 // /api/demo/mario-criterio desde mariocitalan.net) en filas de `assessments`
 // con milestone='inicio'. Esa es la línea base del programa.
 //
-// ⚠️ SOLO los leads que traen `_puntaje_total`. Al 1-sep-2026 son 19 de 41:
-// los otros 22 abandonaron a media evaluación y NO tienen paso 1 completado.
+// Dos clases de evaluación, y la diferencia NO es que unos hayan abandonado:
+//
+//   • Desde el 30-jul-2026 el cuestionario manda el detalle reactivo por
+//     reactivo. Esas traen `_puntaje_total` y los seis `_dim · …`.
+//   • Antes del 30-jul solo viajaban el perfil y la ruta. Esas personas SÍ
+//     terminaron su evaluación —tienen perfil, ruta y respuesta, que solo
+//     existen si llegas al final— pero de ellas no hay desglose.
+//
+// Las dos entran a `assessments`. Las viejas con `total_score` en null y
+// `dimensions` vacío, marcadas aparte: sirven para segmentar e invitar, no
+// para la gráfica de antes/después. Si una de esas personas entra al programa,
+// vuelve a contestar las 30 preguntas — su medición ya tiene meses y una línea
+// base vieja no sirve para medir cambio.
 //
 // ⚠️ Esto NO da de alta pacientes. Nadie pasa a `patients` sin invitación
 // aceptada — ver la sección 6 de docs/plan-tecnico-programa-reconstruccion.md.
@@ -31,8 +42,9 @@ const CLIENT_ID = "ea5266d5-cabb-44e2-a96a-0a0f40da07e7";
 const SOURCE_LEADS = "criterio";
 const INSTRUMENT = "criterio_v1";
 
-// Marca de origen: hace el backfill reversible sin tocar nada más.
+// Marcas de origen: hacen el backfill reversible sin tocar nada más.
 const SOURCE_MARK = "backfill_leads_criterio";
+const SOURCE_MARK_SIN_DETALLE = "backfill_leads_criterio_sin_detalle";
 
 // 30 reactivos × escala 1-5.
 const MAX_SCORE = 150;
@@ -141,7 +153,7 @@ async function revertir(): Promise<void> {
     .delete()
     .eq("client_id", CLIENT_ID)
     .eq("instrument", INSTRUMENT)
-    .eq("source", SOURCE_MARK)
+    .in("source", [SOURCE_MARK, SOURCE_MARK_SIN_DETALLE])
     .select("id");
 
   if (error) {
@@ -158,7 +170,6 @@ async function backfill(): Promise<void> {
     .select("id, name, email, profile, created_at, answers")
     .eq("client_id", CLIENT_ID)
     .eq("source", SOURCE_LEADS)
-    .not("answers", "is", null)
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -168,11 +179,19 @@ async function backfill(): Promise<void> {
 
   const todos = (leads ?? []) as Lead[];
 
-  // Solo los que traen puntaje. Los demás abandonaron a media evaluación.
+  // Con desglose: traen las 30 respuestas y el puntaje.
   const completos = todos.filter(
     (l) => l.answers != null && parseTotal(l.answers[KEY_TOTAL]) != null,
   );
-  const incompletos = todos.length - completos.length;
+  // Sin desglose: terminaron la evaluación (tienen perfil) pero son de antes
+  // del 30-jul, cuando el cuestionario todavía no mandaba las respuestas.
+  const soloPerfil = todos.filter(
+    (l) =>
+      !completos.includes(l) &&
+      typeof l.profile === "string" &&
+      l.profile.trim() !== "",
+  );
+  const sinNada = todos.length - completos.length - soloPerfil.length;
 
   // Idempotencia: qué leads ya tienen su evaluación.
   const { data: yaHay, error: errYa } = await db
@@ -236,11 +255,31 @@ async function backfill(): Promise<void> {
     });
   }
 
+  // Las viejas: perfil sí, desglose no.
+  let saltadosPerfil = 0;
+  for (const lead of soloPerfil) {
+    if (existentes.has(lead.id)) { saltadosPerfil++; continue; }
+    filas.push({
+      client_id: CLIENT_ID,
+      lead_id: lead.id,
+      instrument: INSTRUMENT,
+      milestone: "inicio",
+      taken_at: lead.created_at,
+      total_score: null,
+      max_score: MAX_SCORE,
+      profile: lead.profile,
+      dimensions: {},
+      answers: {},
+      source: SOURCE_MARK_SIN_DETALLE,
+    });
+  }
+
   console.log("");
-  console.log(`Leads de "${SOURCE_LEADS}" con answers : ${todos.length}`);
-  console.log(`  con puntaje completo               : ${completos.length}`);
-  console.log(`  incompletos (se quedan como lead)  : ${incompletos}`);
-  console.log(`  ya tenían su evaluación            : ${saltados}`);
+  console.log(`Leads de "${SOURCE_LEADS}"               : ${todos.length}`);
+  console.log(`  con desglose (desde el 30-jul)     : ${completos.length}`);
+  console.log(`  solo perfil (antes del 30-jul)     : ${soloPerfil.length}`);
+  console.log(`  sin perfil (se quedan como lead)   : ${sinNada}`);
+  console.log(`  ya tenían su evaluación            : ${saltados + saltadosPerfil}`);
   console.log(`  por insertar                       : ${filas.length}`);
   if (fueraDeRango) console.log(`  puntajes fuera de rango            : ${fueraDeRango}`);
   console.log("");
@@ -255,7 +294,9 @@ async function backfill(): Promise<void> {
   }
 
   const conDims = filas.filter((f) => Object.keys(f.dimensions as object).length === 6).length;
-  console.log(`Filas con las 6 dimensiones parseadas: ${conDims} de ${filas.length}`);
+  const sinDims = filas.filter((f) => f.source === SOURCE_MARK_SIN_DETALLE).length;
+  console.log(`Filas con las 6 dimensiones parseadas: ${conDims} de ${filas.length - sinDims} con desglose`);
+  if (sinDims) console.log(`Filas solo con perfil (sin desglose) : ${sinDims}`);
   console.log("");
 
   if (DRY_RUN) {
