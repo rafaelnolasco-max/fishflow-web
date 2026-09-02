@@ -157,7 +157,7 @@ type Evaluado = {
  * hecho. Y da igual que suene a venta cruzada — es justo lo que su propio
  * resultado de Actitud le recomienda.
  */
-function mensajeInvitacion(x: Evaluado): string {
+function mensajeInvitacion(x: Evaluado, link: string | null): string {
   const nombre = (x.lead?.name ?? "").trim().split(" ")[0] || "";
   const perfil = x.ev.profile ?? "";
   const esCriterio = x.ev.instrument === "criterio_v1";
@@ -182,7 +182,9 @@ function mensajeInvitacion(x: Evaluado): string {
     "",
     sobreElPaso1,
     "",
-    "Si te interesa, respóndeme y te explico cómo funciona.",
+    link
+      ? `Si quieres entrar, este es tu acceso personal:\n${link}`
+      : "Si te interesa, respóndeme y te explico cómo funciona.",
     "",
     "Dr. Mario Citalán",
   ].join("\n");
@@ -356,6 +358,9 @@ export default function MarioCitalanPanel() {
   const [inscripciones, setInscripciones] = useState<ProgramEnrollment[]>([]);
   const [invitando, setInvitando] = useState<string | null>(null);
   const [invitar, setInvitar] = useState<Assessment | null>(null);
+  // El link con el token: lo devuelve /api/programa/invitar y es lo que hace
+  // que el mensaje sirva de algo. Sin él, "invitar" no lleva a ningún lado.
+  const [linkInvitacion, setLinkInvitacion] = useState<string | null>(null);
   // Criterio es el instrumento del programa, así que abre en ese.
   const [fInstrumento, setFInstrumento] = useState<string>("criterio_v1");
   const [loading, setLoading] = useState(true);
@@ -532,6 +537,7 @@ export default function MarioCitalanPanel() {
       const j = await r.json();
       if (!r.ok) { flash(j.error ?? "No se pudo registrar la invitación"); return; }
 
+      setLinkInvitacion(typeof j.link === "string" ? j.link : null);
       const nueva = j.enrollment as ProgramEnrollment | null;
       setInscripciones((prev) => {
         const otras = prev.filter((i) => i.lead_id !== ev.lead_id);
@@ -543,6 +549,22 @@ export default function MarioCitalanPanel() {
       flash("No se pudo registrar la invitación");
     } finally {
       setInvitando(null);
+    }
+  }
+
+  // Alguien ya invitado necesita que Mario pueda volver a copiar SU link. La
+  // ruta no cambia nada cuando el estado ya no es `evaluado`: solo lo devuelve.
+  async function recuperarLink(ev: Assessment) {
+    try {
+      const r = await fetch("/api/programa/invitar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assessment_id: ev.id }),
+      });
+      const j = await r.json();
+      if (r.ok && typeof j.link === "string") setLinkInvitacion(j.link);
+    } catch (err) {
+      console.error(err);
     }
   }
 
@@ -1330,7 +1352,11 @@ export default function MarioCitalanPanel() {
 
                           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                             <button
-                              onClick={() => setInvitar(x.ev)}
+                              onClick={() => {
+                                setLinkInvitacion(null);
+                                setInvitar(x.ev);
+                                if (yaInvitado) recuperarLink(x.ev);
+                              }}
                               disabled={bloqueado}
                               style={{ background: bloqueado ? C.gray : yaInvitado ? C.white : C.blue,
                                 color: bloqueado ? "#fff" : yaInvitado ? C.blueDark : "#fff",
@@ -1613,7 +1639,7 @@ export default function MarioCitalanPanel() {
       {invitar && (() => {
         const x = evaluados.find((e) => e.ev.id === invitar.id);
         if (!x) return null;
-        const texto = mensajeInvitacion(x);
+        const texto = mensajeInvitacion(x, linkInvitacion);
         const correo = x.lead?.email ?? "";
         const tel = (x.lead?.phone ?? "").replace(/\D/g, "");
         const yaInvitado = x.inscripcion?.status === "invitado";
@@ -1633,6 +1659,21 @@ export default function MarioCitalanPanel() {
                 style={{ ...inputStyle, fontSize: 14, lineHeight: 1.6, resize: "vertical" }}
               />
             </Field>
+
+            {linkInvitacion && (
+              <div style={{ background: "#0A1820", borderRadius: 8, padding: "11px 15px", margin: "0 0 14px" }}>
+                <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: ".18em",
+                  textTransform: "uppercase", color: "#FFAE5E", marginBottom: 4 }}>
+                  Su acceso personal
+                </div>
+                <div style={{ fontFamily: FONT_MONO, fontSize: 11.5, color: "#fff", wordBreak: "break-all" }}>
+                  {linkInvitacion}
+                </div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,.6)", marginTop: 5 }}>
+                  Es de una sola persona y se desactiva cuando la usa. Ya va incluido en el mensaje.
+                </div>
+              </div>
+            )}
 
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
               <button

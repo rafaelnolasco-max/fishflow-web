@@ -8,7 +8,8 @@
 // no es un atajo, es inventar un dato. Ver la sección 6 del plan.
 //
 // El envío del mensaje lo hace Mario a mano desde el panel (texto listo para
-// copiar). Esta ruta solo registra que ya lo invitó y cuándo.
+// copiar). Esta ruta solo registra que ya lo invitó y cuándo, y devuelve el
+// link con el token que debe ir en ese mensaje.
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -18,6 +19,16 @@ export const runtime = "nodejs";
 
 const CRITERIO_CLIENT_ID = "ea5266d5-cabb-44e2-a96a-0a0f40da07e7";
 const PROGRAM_SLUG = "reconstruccion-mental";
+const BASE_URL = "https://www.fishflow.mx";
+
+/** 64 hex. Mismo formato que public.program_invite_token(). */
+function nuevoToken(): string {
+  return crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+}
+
+function linkDe(token: string): string {
+  return `${BASE_URL}/programa/aceptar?t=${token}`;
+}
 
 export async function POST(req: NextRequest) {
   // Candado de sesión antes de leer nada: el client_id no es credencial.
@@ -94,7 +105,7 @@ export async function POST(req: NextRequest) {
     }
     const { data: vuelta, error: errU } = await db
       .from("program_enrollments")
-      .update({ status: "evaluado", invited_at: null })
+      .update({ status: "evaluado", invited_at: null, invite_token: null })
       .eq("id", previa.id)
       .select("id, status, invited_at")
       .single();
@@ -105,19 +116,33 @@ export async function POST(req: NextRequest) {
   if (previa) {
     // Si ya está activa o más adelante, no la regresamos a `invitado`.
     if (previa.status !== "evaluado") {
-      return NextResponse.json({ ok: true, enrollment: previa, sinCambio: true });
+      // Ya invitada: se devuelve su link, no se genera otro. Regenerar el token
+      // invalidaría el mensaje que Mario ya mandó.
+      const { data: conToken } = await db
+        .from("program_enrollments")
+        .select("id, status, invited_at, invite_token")
+        .eq("id", previa.id)
+        .single();
+      return NextResponse.json({
+        ok: true,
+        enrollment: conToken,
+        sinCambio: true,
+        link: conToken?.invite_token ? linkDe(conToken.invite_token) : null,
+      });
     }
+    const token = nuevoToken();
     const { data: act, error: errU } = await db
       .from("program_enrollments")
-      .update({ status: "invitado", invited_at: new Date().toISOString() })
+      .update({ status: "invitado", invited_at: new Date().toISOString(), invite_token: token })
       .eq("id", previa.id)
       .select("id, status, invited_at")
       .single();
     if (errU) return NextResponse.json({ error: errU.message }, { status: 500 });
-    return NextResponse.json({ ok: true, enrollment: act });
+    return NextResponse.json({ ok: true, enrollment: act, link: linkDe(token) });
   }
 
   // 4. Alta nueva, sin paciente.
+  const tokenNuevo = nuevoToken();
   const { data: nueva, error: errIns } = await db
     .from("program_enrollments")
     .insert({
@@ -128,6 +153,7 @@ export async function POST(req: NextRequest) {
       status: "invitado",
       current_step: 0,
       invited_at: new Date().toISOString(),
+      invite_token: tokenNuevo,
     })
     .select("id, status, invited_at")
     .single();
@@ -140,5 +166,5 @@ export async function POST(req: NextRequest) {
     .update({ enrollment_id: nueva.id })
     .eq("id", ev.id);
 
-  return NextResponse.json({ ok: true, enrollment: nueva });
+  return NextResponse.json({ ok: true, enrollment: nueva, link: linkDe(tokenNuevo) });
 }
