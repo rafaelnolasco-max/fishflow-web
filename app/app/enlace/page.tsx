@@ -202,6 +202,22 @@ export default function EnlaceDashboardPage() {
     fetchLeads();
   }, []);
 
+  // Conteo de candidatas (postulaciones en hiring_applications) para el badge del tab.
+  // Fetch ligero con count exact/head: no trae filas, solo el número.
+  const [candidatasCount, setCandidatasCount] = useState<number>(0);
+
+  useEffect(() => {
+    async function fetchCandidatasCount() {
+      const { count, error } = await supabase
+        .from("hiring_applications")
+        .select("id", { count: "exact", head: true })
+        .eq("client_id", ENLACE_CLIENT_ID);
+      if (error) console.error(error);
+      else setCandidatasCount(count ?? 0);
+    }
+    fetchCandidatasCount();
+  }, []);
+
   useEffect(() => {
     async function fetchRows() {
       setLoading(true);
@@ -421,7 +437,7 @@ export default function EnlaceDashboardPage() {
             tabs={[
               { id: "captura", label: "Captura Top 20", icon: "📋" },
               { id: "prospectos", label: `Prospectos${leads.length ? ` (${leads.length})` : ""}`, icon: "🎯" },
-              { id: "candidatas", label: "Candidatas", icon: "👥" },
+              { id: "candidatas", label: `Candidatas${candidatasCount ? ` (${candidatasCount})` : ""}`, icon: "👥" },
               { id: "resenas", label: "Reseñas", icon: "⭐" },
             ]}
           />
