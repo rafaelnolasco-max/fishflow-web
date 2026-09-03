@@ -141,11 +141,61 @@ function dimCorta(nombre: string): string {
   return DIM_CORTA[nombre] ?? nombre.split(" ").slice(0, 2).join(" ");
 }
 
+function fmtFecha(iso: string | null | undefined): string {
+  return iso ? new Date(iso).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+}
+
 /** Evaluación + la persona que la contestó + su estado en el programa. */
 type Evaluado = {
   ev: Assessment;
   lead: CriterioLead | null;
   inscripcion: ProgramEnrollment | null;
+};
+
+// ─── Cohorte (Fase 3): quién va en qué paso ────────────────────────────────────
+
+/** Un paso del catálogo del programa (tabla `program_steps`). */
+type ProgramStep = {
+  program_id: string;
+  step_number: number;
+  title: string;
+};
+
+/** El avance de una persona en un paso (tabla `program_step_progress`). */
+type StepProgress = {
+  enrollment_id: string;
+  step_number: number;
+  /** bloqueado | en_curso | completado */
+  status: string;
+  started_at: string | null;
+  completed_at: string | null;
+  reflection: string | null;
+  session_ids: string[] | null;
+};
+
+/** Nombre y correo de alguien inscrito directo como paciente, sin lead. */
+type PatientBasico = { full_name: string; email: string | null };
+
+/** Lo mínimo de una sesión para mostrarla colgada de un paso — nada clínico. */
+type SesionBasica = { id: string; session_number: number | null; session_date: string | null; session_title: string | null };
+
+const COLOR_PASO: Record<string, string> = {
+  completado: C.blueDark,
+  en_curso:   C.blue,
+  bloqueado:  C.border,
+};
+
+/** Una persona ya inscrita: su avance por paso, reflexiones y movimiento por dimensión. */
+type Cohortado = {
+  inscripcion: ProgramEnrollment;
+  nombre: string;
+  email: string | null;
+  pasos: { paso: ProgramStep; avance: StepProgress | null }[];
+  /** Su medición de arranque (milestone "inicio", o la más antigua con desglose). */
+  inicio: Assessment | null;
+  /** Su medición más reciente con desglose. Si es la misma que `inicio`, no hay con qué comparar. */
+  ultima: Assessment | null;
+  sesiones: SesionBasica[];
 };
 
 /**
@@ -351,11 +401,17 @@ const PERIODOS: { id: Periodo; label: string }[] = [
 
 export default function MarioCitalanPanel() {
   const router = useRouter();
-  const [tab, setTab] = useState<"resumen" | "solicitudes" | "evaluados" | "prospectos" | "newsletter">("resumen");
+  const [tab, setTab] = useState<"resumen" | "solicitudes" | "evaluados" | "cohorte" | "prospectos" | "newsletter">("resumen");
   const [leads, setLeads] = useState<CriterioLead[]>([]);
   // Evaluaciones ya aplicadas (tabla `assessments`) y su inscripción, si la hay.
   const [evals, setEvals] = useState<Assessment[]>([]);
   const [inscripciones, setInscripciones] = useState<ProgramEnrollment[]>([]);
+  // Cohorte (Fase 3): catálogo de pasos, avance por paso, y quién no tiene lead
+  // porque Mario lo inscribió directo como paciente.
+  const [pasos, setPasos] = useState<ProgramStep[]>([]);
+  const [avances, setAvances] = useState<StepProgress[]>([]);
+  const [patientsBasico, setPatientsBasico] = useState<Map<string, PatientBasico>>(new Map());
+  const [sesionesBasico, setSesionesBasico] = useState<Map<string, SesionBasica>>(new Map());
   const [invitando, setInvitando] = useState<string | null>(null);
   const [invitar, setInvitar] = useState<Assessment | null>(null);
   // El link con el token: lo devuelve /api/programa/invitar y es lo que hace
@@ -425,7 +481,13 @@ export default function MarioCitalanPanel() {
   // efecto para que un fallo aquí no deje al panel de prospectos sin cargar.
   useEffect(() => {
     async function fetchPrograma() {
-      const [{ data: ev, error: e1 }, { data: ins, error: e2 }] = await Promise.all([
+      const [
+        { data: ev, error: e1 },
+        { data: ins, error: e2 },
+        { data: pasosData, error: e3 },
+        { data: avancesData, error: e4 },
+        { data: pacientes, error: e5 },
+      ] = await Promise.all([
         supabase
           .from("assessments")
           .select("id,client_id,lead_id,patient_id,enrollment_id,instrument,milestone,taken_at,total_score,max_score,profile,dimensions,answers,source")
@@ -435,12 +497,57 @@ export default function MarioCitalanPanel() {
           .from("program_enrollments")
           .select("id,program_id,client_id,lead_id,patient_id,status,current_step,invited_at,started_at,notes")
           .eq("client_id", CRITERIO_CLIENT_ID),
+        // Catálogo de pasos — para la cohorte, no cambia por persona.
+        supabase
+          .from("program_steps")
+          .select("program_id,step_number,title")
+          .eq("client_id", CRITERIO_CLIENT_ID)
+          .eq("active", true)
+          .order("step_number"),
+        // Avance por paso de TODAS las inscripciones del cliente — se reparte
+        // por enrollment_id al construir la cohorte.
+        supabase
+          .from("program_step_progress")
+          .select("enrollment_id,step_number,status,started_at,completed_at,reflection,session_ids")
+          .eq("client_id", CRITERIO_CLIENT_ID)
+          .order("step_number"),
+        // Nombre/correo de quien Mario inscribió directo como paciente, sin
+        // pasar por un lead (como mi propia inscripción de prueba).
+        supabase
+          .from("patients")
+          .select("id,full_name,email")
+          .eq("client_id", CRITERIO_CLIENT_ID),
       ]);
       if (e1) console.error(e1); else setEvals((ev as Assessment[]) ?? []);
       if (e2) console.error(e2); else setInscripciones((ins as ProgramEnrollment[]) ?? []);
+      if (e3) console.error(e3); else setPasos((pasosData as ProgramStep[]) ?? []);
+      if (e4) console.error(e4); else setAvances((avancesData as StepProgress[]) ?? []);
+      if (e5) console.error(e5);
+      else setPatientsBasico(new Map(
+        ((pacientes as { id: string; full_name: string; email: string | null }[]) ?? [])
+          .map((p) => [p.id, { full_name: p.full_name, email: p.email }]),
+      ));
     }
     fetchPrograma();
   }, []);
+
+  // Sesiones colgadas de cada paso: dependen de los `session_ids` de los
+  // avances, que solo se conocen después de cargarlos. Va en su propio efecto
+  // para no bloquear todo lo demás si esto falla — y solo trae lo mínimo
+  // (nada de transcripciones ni notas clínicas).
+  useEffect(() => {
+    async function fetchSesiones() {
+      const ids = Array.from(new Set(avances.flatMap((a) => a.session_ids ?? [])));
+      if (!ids.length) { setSesionesBasico(new Map()); return; }
+      const { data, error } = await supabase
+        .from("sessions")
+        .select("id,session_number,session_date,session_title")
+        .in("id", ids);
+      if (error) { console.error(error); return; }
+      setSesionesBasico(new Map(((data as SesionBasica[]) ?? []).map((s) => [s.id, s])));
+    }
+    if (avances.length) fetchSesiones();
+  }, [avances]);
 
   async function logout() {
     await supabase.auth.signOut();
@@ -737,6 +844,54 @@ export default function MarioCitalanPanel() {
       });
   }, [evals, leads, inscripciones, fInstrumento]);
 
+  // Cohorte: quienes ya aceptaron y están en el programa (activo/pausado/
+  // completado) — evaluado/invitado se quedan en la pestaña Evaluados. Por
+  // persona: su avance por paso, sus reflexiones y el movimiento por
+  // dimensión desde su medición de inicio hasta la más reciente.
+  const cohorte = useMemo<Cohortado[]>(() => {
+    const porLeadId = new Map(leads.map((l) => [l.id, l]));
+    return inscripciones
+      .filter((i) => i.status === "activo" || i.status === "pausado" || i.status === "completado")
+      .map((insc) => {
+        const lead = insc.lead_id ? porLeadId.get(insc.lead_id) ?? null : null;
+        const paciente = insc.patient_id ? patientsBasico.get(insc.patient_id) ?? null : null;
+        const nombre = lead?.name || paciente?.full_name || "Sin nombre";
+        const email = lead?.email || paciente?.email || null;
+
+        const pasosPrograma = pasos.filter((p) => p.program_id === insc.program_id);
+        const avancePorPaso = new Map(
+          avances.filter((a) => a.enrollment_id === insc.id).map((a) => [a.step_number, a]),
+        );
+        const pasosConAvance = pasosPrograma.map((paso) => ({
+          paso, avance: avancePorPaso.get(paso.step_number) ?? null,
+        }));
+
+        // Sus mediciones con desglose por dimensión — misma lógica que ya usa
+        // /api/programa/evaluacion: por enrollment_id, y si no por lead/patient_id
+        // (cubre la línea base que contestó antes de inscribirse).
+        const misMediciones = evals
+          .filter((e) => e.enrollment_id === insc.id
+            || (!!insc.lead_id && e.lead_id === insc.lead_id)
+            || (!!insc.patient_id && e.patient_id === insc.patient_id))
+          .filter((e) => e.dimensions && Object.keys(e.dimensions).length > 0)
+          .sort((a, b) => new Date(a.taken_at).getTime() - new Date(b.taken_at).getTime());
+        const inicio = misMediciones.find((e) => e.milestone === "inicio") ?? misMediciones[0] ?? null;
+        const ultima = misMediciones[misMediciones.length - 1] ?? null;
+
+        const idsSesiones = Array.from(new Set(
+          Array.from(avancePorPaso.values()).flatMap((a) => a.session_ids ?? []),
+        ));
+        const sesiones = idsSesiones
+          .map((id) => sesionesBasico.get(id))
+          .filter((s): s is SesionBasica => !!s)
+          .sort((a, b) => (a.session_date ?? "").localeCompare(b.session_date ?? ""));
+
+        return { inscripcion: insc, nombre, email, pasos: pasosConAvance, inicio, ultima, sesiones };
+      })
+      // Quien va más avanzado primero: es a quien Mario más necesita revisar.
+      .sort((a, b) => b.inscripcion.current_step - a.inscripcion.current_step);
+  }, [inscripciones, leads, patientsBasico, pasos, avances, evals, sesionesBasico]);
+
   const porInstrumento = useMemo(() => {
     const m = new Map<string, number>();
     for (const e of evals) m.set(e.instrument, (m.get(e.instrument) ?? 0) + 1);
@@ -829,6 +984,8 @@ export default function MarioCitalanPanel() {
             { id: "solicitudes", label: `Solicitudes${solicitudesAbiertas ? ` (${solicitudesAbiertas})` : ""}`, icon: "🔔" },
             // Evaluados NO son pacientes: contestaron la evaluación y nada más.
             { id: "evaluados", label: `Evaluados${evaluados.length ? ` (${evaluados.length})` : ""}`, icon: "🧭" },
+            // Solo quien ya aceptó y está en el proceso — no se mezcla con Evaluados.
+            { id: "cohorte", label: `Cohorte${cohorte.length ? ` (${cohorte.length})` : ""}`, icon: "🪜" },
             { id: "prospectos", label: `Prospectos${filtered.length ? ` (${filtered.length})` : ""}`, icon: "👥" },
             { id: "newsletter", label: "Newsletter", icon: "✉️" },
           ]}
@@ -1421,6 +1578,155 @@ export default function MarioCitalanPanel() {
                               {" "}· su perfil está arriba del rango de Reconstrucción
                             </span>
                           )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </Section>
+          </>
+        ) : tab === "cohorte" ? (
+          <>
+            <div style={{ ...cardStyle, padding: "14px 18px", marginBottom: 18,
+              background: C.blueSoft, borderColor: C.blue, display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <span style={{ fontSize: 18, lineHeight: 1.2 }} aria-hidden>🪜</span>
+              <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6, color: C.ink2 }}>
+                Quienes ya aceptaron tu invitación y están en el Programa de Reconstrucción.
+                Cada quien avanza a su propio ritmo — su evaluación de inicio es su línea base;
+                la comparo contra su medición más reciente para ver qué se movió.
+              </p>
+            </div>
+
+            <Section title={`${cohorte.length} en el programa`}>
+              {cohorte.length === 0 ? (
+                <Empty msg="Todavía nadie aceptó su invitación." theme={T} />
+              ) : (
+                <div style={{ display: "grid", gap: 16 }}>
+                  {cohorte.map((p) => {
+                    const estado = ESTADO_INSCRIPCION[p.inscripcion.status] ?? ESTADO_INSCRIPCION.evaluado;
+                    const totalPasos = p.pasos.length || p.inscripcion.current_step;
+                    const dimsInicio = p.inicio?.dimensions ?? {};
+                    const dimsUltima = p.ultima?.dimensions ?? {};
+                    const hayComparacion = !!p.inicio && !!p.ultima && p.inicio.id !== p.ultima.id;
+                    const nombresDim = Array.from(new Set([
+                      ...Object.keys(dimsInicio),
+                      ...(hayComparacion ? Object.keys(dimsUltima) : []),
+                    ]));
+                    const reflexiones = p.pasos.filter((x) => x.avance?.reflection);
+
+                    return (
+                      <div key={p.inscripcion.id} style={{ ...cardStyle, padding: 18 }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 12,
+                          alignItems: "flex-start", justifyContent: "space-between" }}>
+                          <div style={{ minWidth: 190, flex: "1 1 220px" }}>
+                            <div style={{ fontFamily: FONT_SERIF, fontSize: 18, color: C.ink, lineHeight: 1.25 }}>
+                              {p.nombre}
+                            </div>
+                            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3, wordBreak: "break-word" }}>
+                              {p.email || "—"}
+                            </div>
+                          </div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                            <Chip label={estado.label} bg={estado.bg} fg={estado.fg} />
+                            <span style={{ fontFamily: FONT_MONO, fontSize: 12, color: C.ink2 }}>
+                              Paso {p.inscripcion.current_step} de {totalPasos}
+                            </span>
+                          </div>
+                        </div>
+
+                        {p.pasos.length > 0 && (
+                          <div style={{ display: "flex", gap: 4, marginTop: 16 }}>
+                            {p.pasos.map(({ paso, avance }) => (
+                              <div key={paso.step_number} title={`${paso.step_number}. ${paso.title}`}
+                                style={{ flex: 1, height: 7, borderRadius: 4,
+                                  background: COLOR_PASO[avance?.status ?? "bloqueado"] ?? COLOR_PASO.bloqueado }} />
+                            ))}
+                          </div>
+                        )}
+
+                        {nombresDim.length > 0 ? (
+                          <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+                            <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 10,
+                              textTransform: "uppercase", letterSpacing: ".03em" }}>
+                              {hayComparacion
+                                ? `Movimiento por dimensión · inicio (${fmtFecha(p.inicio?.taken_at)}) → última medición (${fmtFecha(p.ultima?.taken_at)})`
+                                : `Línea base · ${fmtFecha((p.inicio ?? p.ultima)?.taken_at)} — todavía no hay una segunda medición para comparar`}
+                            </div>
+                            <div style={{ display: "grid",
+                              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
+                              {nombresDim.map((nombre) => {
+                                const antes = dimsInicio[nombre];
+                                const despues = hayComparacion ? dimsUltima[nombre] : undefined;
+                                const max = antes?.max ?? despues?.max ?? 1;
+                                const pctAntes = antes ? Math.round((antes.score / max) * 100) : 0;
+                                const pctDespues = despues ? Math.round((despues.score / max) * 100) : null;
+                                const delta = antes && despues ? despues.score - antes.score : null;
+                                return (
+                                  <div key={nombre} title={nombre}>
+                                    <div style={{ display: "flex", justifyContent: "space-between",
+                                      fontSize: 11, color: C.muted, marginBottom: 4 }}>
+                                      <span>{dimCorta(nombre)}</span>
+                                      <span style={{ fontFamily: FONT_MONO, color: C.ink2 }}>
+                                        {antes ? antes.score : "—"}{despues != null ? ` → ${despues.score}` : ""}
+                                        {delta != null && (
+                                          <span style={{ marginLeft: 4,
+                                            color: delta > 0 ? "#4B9A62" : delta < 0 ? C.red : C.muted }}>
+                                            ({delta > 0 ? "+" : ""}{delta})
+                                          </span>
+                                        )}
+                                      </span>
+                                    </div>
+                                    <div style={{ height: 5, background: C.bg2, borderRadius: 3,
+                                      overflow: "hidden", position: "relative" }}>
+                                      <div style={{ width: `${pctAntes}%`, height: "100%", background: C.border }} />
+                                      {pctDespues != null && (
+                                        <div style={{ width: `${pctDespues}%`, height: "100%", position: "absolute",
+                                          top: 0, left: 0, opacity: 0.85,
+                                          background: (delta ?? 0) >= 0 ? C.blueDark : "#B96A1E" }} />
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={{ marginTop: 14, fontSize: 12.5, color: C.muted }}>
+                            Sin desglose por dimensión todavía.
+                          </div>
+                        )}
+
+                        {reflexiones.length > 0 && (
+                          <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+                            <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 10,
+                              textTransform: "uppercase", letterSpacing: ".03em" }}>
+                              Reflexiones
+                            </div>
+                            <div style={{ display: "grid", gap: 10 }}>
+                              {reflexiones.map(({ paso, avance }) => (
+                                <div key={paso.step_number} style={{ background: C.bg, borderRadius: 8, padding: "10px 12px" }}>
+                                  <div style={{ fontSize: 11.5, color: C.blueDark, fontWeight: 600, marginBottom: 4 }}>
+                                    Paso {paso.step_number} · {paso.title}
+                                    {avance?.completed_at && (
+                                      <span style={{ color: C.muted, fontWeight: 400 }}> · {fmtFecha(avance.completed_at)}</span>
+                                    )}
+                                  </div>
+                                  <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55,
+                                    maxHeight: 140, overflowY: "auto", whiteSpace: "pre-wrap" }}>
+                                    {avance?.reflection}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div style={{ marginTop: 14, fontSize: 12.5, color: C.muted }}>
+                          {p.sesiones.length
+                            ? `${p.sesiones.length} sesión${p.sesiones.length === 1 ? "" : "es"} registrada${p.sesiones.length === 1 ? "" : "s"} · `
+                              + p.sesiones.map((s) => fmtFecha(s.session_date)).join(", ")
+                            : "Sin sesiones registradas todavía."}
                         </div>
                       </div>
                     );
