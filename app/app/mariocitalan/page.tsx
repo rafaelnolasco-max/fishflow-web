@@ -1776,16 +1776,16 @@ export default function MarioCitalanPanel() {
             {filtered.length === 0 ? (
               <Empty msg="No hay prospectos con esos filtros" theme={T} />
             ) : (
-              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+              <div style={{ ...cardStyle, padding: 0, overflow: "hidden", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, minWidth: 760 }}>
                   <thead>
                     <tr style={{ textAlign: "left", color: C.muted, fontSize: 12, textTransform: "uppercase", letterSpacing: ".06em" }}>
-                      <th style={{ padding: "10px 12px 10px 0" }}>Prospecto</th>
+                      <th style={{ padding: "10px 12px" }}>Prospecto</th>
                       <th style={{ padding: "10px 12px" }}>Perfil</th>
                       <th style={{ padding: "10px 12px" }}>Evaluación</th>
                       <th style={{ padding: "10px 12px" }}>Fecha</th>
                       <th style={{ padding: "10px 12px" }}>Estatus</th>
-                      <th style={{ padding: "10px 0 10px 12px" }}></th>
+                      <th style={{ padding: "10px 12px" }}></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1793,7 +1793,7 @@ export default function MarioCitalanPanel() {
                       const sm = statusMeta(l.status);
                       return (
                         <tr key={l.id} style={{ borderTop: `1px solid ${C.border}`, background: C.white }}>
-                          <td style={{ padding: "12px 12px 12px 0" }}>
+                          <td style={{ padding: "12px" }}>
                             <div style={{ fontWeight: 600 }}>
                               {l.name}
                               {l.opt_in && <span title="Aceptó recibir publicaciones" style={{ marginLeft: 7 }}>✉️</span>}
@@ -1829,7 +1829,7 @@ export default function MarioCitalanPanel() {
                               {LEAD_STATUS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
                             </select>
                           </td>
-                          <td style={{ padding: "12px 0 12px 12px", textAlign: "right" }}>
+                          <td style={{ padding: "12px", textAlign: "right" }}>
                             <button onClick={() => openDetail(l)}
                               style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 8,
                                 padding: "6px 12px", fontSize: 12.5, cursor: "pointer", color: C.blueDark, whiteSpace: "nowrap" }}>
