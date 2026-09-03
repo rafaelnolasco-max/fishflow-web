@@ -52,6 +52,8 @@ export type ReviewRequest = {
   source: "csv" | "appointment" | "manual";
   stage: 0 | 1 | 2 | 3;
   status: "active" | "completed" | "declined" | "no_response" | "negative_feedback";
+  /** Primer clic al link rastreado. Llegó al formulario; no necesariamente reseñó. */
+  clicked_google_at?: string | null;
   stage1_sent_at: string | null;
   stage2_sent_at: string | null;
   stage3_sent_at: string | null;
@@ -79,6 +81,19 @@ function fillTemplate(tpl: string, name: string, link: string | null) {
 
 function waLink(phone: string, message: string) {
   return `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
+}
+
+/**
+ * El link que va en el mensaje. NO es el de Google directo: pasa por /r/<id>,
+ * que registra el clic y redirige de inmediato. Con la diagonal final, para que
+ * sea un solo salto (sin ella el dominio mete un 308 antes).
+ *
+ * Si el request no trae id todavía, cae al link de Google tal cual: es preferible
+ * mandar un link sin medir que no mandar ninguno.
+ */
+function linkRastreado(requestId: string | null, fallback: string | null): string | null {
+  if (!requestId) return fallback;
+  return `https://www.fishflow.mx/r/${requestId}/`;
 }
 
 function isToday(iso: string | null) {
@@ -293,6 +308,10 @@ export default function ReviewsTab({
   const active = useMemo(() => visibles.filter(r => r.status === "active"), [visibles]);
   const activeAll = useMemo(() => requests.filter(r => r.status === "active"), [requests]);
   const completed = useMemo(() => requests.filter(r => r.status === "completed"), [requests]);
+  // Los que tocaron el link. Se cuenta aparte de "completed" a propósito: un
+  // clic dice que llegó a Google, no que haya escrito. Mezclarlos inflaría el
+  // número que se le reporta al cliente.
+  const clicaron = useMemo(() => requests.filter(r => !!r.clicked_google_at), [requests]);
   const finished = useMemo(() => visibles.filter(r => r.status !== "active"), [visibles]);
   const sentToday = useMemo(
     () => requests.filter(r => isToday(r.stage1_sent_at) || isToday(r.stage2_sent_at) || isToday(r.stage3_sent_at)).length,
@@ -355,7 +374,8 @@ export default function ReviewsTab({
       if (!isVendor) setShowSettings(true);
       return;
     }
-    const msg = opts?.message?.trim() || fillTemplate(tpl ?? "", r.contact_name, settings?.review_link ?? null);
+    const msg = opts?.message?.trim()
+      || fillTemplate(tpl ?? "", r.contact_name, linkRastreado(r.id, settings?.review_link ?? null));
     // Abrir la ventana YA (síncrono, dentro del click) para que el navegador no
     // la bloquee como popup — pero sin navegar todavía. En celular, wa.me saca
     // a la app de WhatsApp y congela esta pestaña: si el fetch de abajo no
@@ -700,6 +720,8 @@ export default function ReviewsTab({
       <StatGrid>
         <StatCard theme={T} icon="⭐" label={isVendor ? "Reseñas logradas" : `Reseñas logradas (meta ${settings?.review_goal ?? 25})`} value={completed.length} accent={U.green} />
         <StatCard theme={T} icon="📤" label={isVendor ? "Te faltan" : "En cola"} value={activeAll.length} />
+        <StatCard theme={T} icon="👉" label="Fueron a Google" value={clicaron.length}
+          sub="Tocaron el link. Llegaron al formulario, no necesariamente reseñaron" />
         <StatCard theme={T} icon="📅" label="Mensajes hoy" value={sentToday} sub="Sugerido: máx 15–20 por día" />
         {!isVendor && (
           <StatCard theme={T} icon="🔗" label="Link de reseña" value={settings?.review_link ? "Listo ✓" : "Pendiente"} accent={settings?.review_link ? U.green : U.yellow} />
@@ -820,7 +842,10 @@ export default function ReviewsTab({
                 <span style={{ display: "inline-block", padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 600,
                   background: r.status === "completed" ? `${U.green}20` : `${U.gray}20`,
                   color: r.status === "completed" ? U.green : T.muted }}>
-                  {r.status === "completed" ? "⭐ Reseña" : r.status === "negative_feedback" ? "Feedback privado" : r.status === "no_response" ? "Sin respuesta" : "Declinó"}
+                  {r.status === "completed" ? "⭐ Reseña"
+                    : r.clicked_google_at ? "Fue a Google"
+                    : r.status === "negative_feedback" ? "Feedback privado"
+                    : r.status === "no_response" ? "Sin respuesta" : "Declinó"}
                 </span>
               </div>
             ))}
