@@ -233,9 +233,109 @@ footer.pie{background:var(--tinta);color:#9C9085;font-size:14px;}
 footer.pie .in{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;padding:26px 0;}
 footer.pie b{color:var(--hueso);font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.1em;font-size:13px;}
 
-.ffnota{background:#0D1B2A;color:#9FB3C8;font-size:12.5px;}
+.ffnota{background:#0D1B2A;color:#9FB3C8;font-size:12.5px;padding-bottom:56px;}
 .ffnota .in{padding:12px 0;display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;}
 .ffnota b{color:#FF8C35;}
+
+/* ---------- barra de personas ---------- */
+.personas{background:var(--tinta);border-bottom:3px solid var(--rojo);}
+.personas .in{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:12px 0;}
+.personas .lb{font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.13em;font-size:11px;color:#B9AC9A;}
+.personas .pz{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;}
+.pz-b{flex:0 0 auto;font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.09em;font-size:12.5px;
+  background:transparent;border:2px solid rgba(247,242,233,.3);color:var(--hueso);border-radius:99px;padding:9px 17px;cursor:pointer;white-space:nowrap;}
+.pz-b:hover{border-color:var(--rojo-cla);}
+.pz-b.on{background:var(--hueso);border-color:var(--hueso);color:var(--tinta);}
+
+/* ---------- sello de actualizacion ---------- */
+.sello{display:inline-flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--linea);border-radius:99px;padding:8px 15px;font-size:13.5px;color:var(--tinta-2);margin-top:16px;}
+.sello .dot{width:9px;height:9px;border-radius:50%;background:var(--verde);flex:0 0 auto;}
+.sello b{font-weight:600;color:var(--tinta);}
+.sello.viva .dot{background:var(--rojo-cla);}
+
+/* ---------- precio por kilo ---------- */
+.prod .kg{font-size:12.5px;color:var(--gris);font-variant-numeric:tabular-nums;line-height:1.2;}
+.prod .kg b{color:var(--tinta-2);font-weight:600;}
+
+/* ---------- opiniones en la ficha ---------- */
+.estrellas{display:flex;flex-wrap:wrap;align-items:center;gap:3px 7px;font-size:12.5px;color:var(--gris);line-height:1.3;}
+.estrellas>*{flex:0 0 auto;}
+.estrellas .st{color:#C98A16;letter-spacing:.08em;font-size:13.5px;}
+.estrellas b{color:var(--tinta-2);font-weight:600;}
+.prod .op{background:var(--hueso);border-left:3px solid #E4C98F;padding:9px 11px;font-size:13px;line-height:1.45;color:var(--tinta-2);border-radius:0 3px 3px 0;}
+.prod .op .q{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.prod .op i{display:block;font-style:normal;font-size:11px;color:var(--gris);margin-top:5px;}
+.ejem{display:inline-block;white-space:nowrap;font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.11em;font-size:9.5px;background:#FBF0D6;color:#8A6A12;border-radius:3px;padding:2px 6px;}
+
+/* ---------- seccion de opiniones ---------- */
+#opiniones{background:var(--hueso-2);border-top:2px solid var(--tinta);}
+.ops{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));}
+.op-card{background:#fff;border:1px solid var(--linea);border-radius:6px;padding:20px;display:flex;flex-direction:column;}
+.op-card p{margin:12px 0 0;font-size:15.5px;color:var(--tinta-2);}
+.op-card .meta{margin-top:auto;padding-top:16px;font-size:13px;color:var(--gris);}
+.op-card .meta b{color:var(--tinta);font-weight:600;display:block;font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:12.5px;}
+
+/* ---------- panel del dueno (demo) ---------- */
+.abre-panel{position:fixed;right:16px;bottom:16px;z-index:80;background:var(--tinta);color:var(--hueso);border:2px solid var(--rojo-cla);border-radius:99px;padding:12px 19px;font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.09em;font-size:12px;cursor:pointer;box-shadow:0 8px 26px rgba(0,0,0,.3);display:flex;align-items:center;gap:9px;}
+.abre-panel:hover{background:var(--rojo);border-color:var(--rojo);}
+.abre-panel .pt{width:8px;height:8px;border-radius:50%;background:var(--rojo-cla);}
+.panel{position:fixed;inset:0;z-index:90;background:rgba(13,14,12,.6);display:none;}
+.panel.open{display:flex;align-items:flex-end;justify-content:center;}
+.hoja{background:var(--hueso);width:min(580px,100%);max-height:93vh;display:flex;flex-direction:column;border:2px solid var(--tinta);border-bottom:none;border-radius:16px 16px 0 0;overflow:hidden;}
+.p-top{display:flex;align-items:center;gap:14px;background:var(--tinta);color:var(--hueso);padding:15px 18px;}
+.p-top .t b{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:15px;display:block;}
+.p-top .t span{font-size:12.5px;color:#B9AC9A;display:flex;flex-wrap:wrap;align-items:center;gap:5px 8px;margin-top:4px;}
+.p-x{margin-left:auto;background:none;border:1px solid rgba(247,242,233,.35);color:var(--hueso);border-radius:5px;font-size:15px;line-height:1;padding:7px 11px;cursor:pointer;}
+.p-x:hover{background:rgba(247,242,233,.12);}
+.p-tabs{display:flex;background:var(--hueso-2);border-bottom:1px solid var(--linea);}
+.p-tab{flex:1 1 0;background:none;border:none;border-bottom:3px solid transparent;font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.09em;font-size:12px;color:var(--gris);padding:13px 6px;cursor:pointer;}
+.p-tab.on{color:var(--rojo);border-bottom-color:var(--rojo);background:var(--hueso);}
+.p-body{overflow-y:auto;padding:18px;-webkit-overflow-scrolling:touch;}
+.p-pane{display:none;}
+.p-pane.on{display:block;}
+.p-nota{font-size:13px;color:var(--gris);line-height:1.5;margin:0 0 14px;}
+.p-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.p-stat{background:#fff;border:1px solid var(--linea);border-radius:6px;padding:13px 14px;}
+.p-stat .k{font-family:var(--display);font-weight:700;font-size:27px;line-height:1;color:var(--tinta);font-variant-numeric:tabular-nums;}
+.p-stat .k.rojo{color:var(--rojo);}
+.p-stat .l{font-size:12px;color:var(--gris);margin-top:6px;line-height:1.35;}
+.p-h{font-family:var(--display);text-transform:uppercase;letter-spacing:.12em;font-size:11.5px;color:var(--rojo);border-bottom:2px solid var(--tinta);padding-bottom:7px;margin:22px 0 12px;}
+.p-h:first-child{margin-top:0;}
+.p-busca{display:flex;align-items:center;gap:9px;background:#fff;border:2px solid var(--tinta);border-radius:5px;padding:9px 12px;margin-bottom:12px;}
+.p-busca input{border:none;outline:none;width:100%;font-family:var(--texto);font-size:16px;background:transparent;color:var(--tinta);}
+.ren{background:#fff;border:1px solid var(--linea);border-radius:6px;padding:11px 12px;margin-bottom:9px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ren.off{opacity:.55;}
+.ren .n{font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.04em;font-size:14px;flex:1 1 130px;line-height:1.2;}
+.ren .n small{display:block;font-family:var(--texto);text-transform:none;letter-spacing:0;font-size:11.5px;color:var(--gris);font-weight:400;margin-top:2px;}
+.ren input[type=number]{width:88px;font-family:var(--display);font-weight:600;font-size:17px;text-align:right;border:2px solid var(--linea);border-radius:5px;padding:7px 9px;color:var(--tinta);background:var(--hueso);}
+.ren input[type=number]:focus{border-color:var(--rojo);outline:none;background:#fff;}
+.ren .b{display:flex;gap:6px;}
+.mini{font-family:var(--display);font-weight:500;text-transform:uppercase;letter-spacing:.08em;font-size:11px;border-radius:4px;padding:8px 11px;cursor:pointer;border:2px solid transparent;}
+.mini--pub{background:var(--verde);color:#fff;}
+.mini--pub:hover{background:#235742;}
+.mini--gris{background:transparent;border-color:var(--linea);color:var(--gris);}
+.mini--gris:hover{border-color:var(--tinta);color:var(--tinta);}
+.barra{margin-bottom:11px;}
+.barra .bt{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--tinta-2);margin-bottom:5px;}
+.barra .bt b{font-variant-numeric:tabular-nums;color:var(--tinta);}
+.barra .bg{height:9px;background:var(--hueso-2);border:1px solid var(--linea);border-radius:99px;overflow:hidden;}
+.barra .bf{height:100%;background:var(--rojo);border-radius:99px;}
+.barra .bf.verde{background:var(--verde);}
+.com{background:#fff;border:1px solid var(--linea);border-left:4px solid var(--linea);border-radius:0 6px 6px 0;padding:12px 13px;margin-bottom:9px;}
+.com.mala{border-left-color:var(--rojo);}
+.com .e{color:#C98A16;font-size:13.5px;letter-spacing:.08em;}
+.com p{margin:7px 0 0;font-size:14.5px;color:var(--tinta-2);line-height:1.45;}
+.com .pie{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:11.5px;color:var(--gris);}
+.com .pie .mini{margin-left:auto;}
+.hecho{font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-size:10.5px;color:var(--verde);margin-left:auto;}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,26px);z-index:120;background:var(--tinta);color:var(--hueso);border-left:4px solid var(--verde);border-radius:6px;padding:13px 18px;font-size:14.5px;box-shadow:0 10px 30px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;max-width:92vw;}
+.toast.on{opacity:1;transform:translate(-50%,0);}
+
+@media(max-width:600px){
+  .p-stats{grid-template-columns:1fr;}
+  .abre-panel{left:16px;right:16px;justify-content:center;}
+  .hoja{max-height:96vh;}
+}
 
 :focus-visible{outline:3px solid var(--rojo-cla);outline-offset:2px;}
 
@@ -273,7 +373,7 @@ footer.pie b{color:var(--hueso);font-family:var(--display);font-weight:500;text-
       <a href="#comprar">Cómo comprar</a>
       <a href="#visita">Visítanos</a>
     </nav>
-    <a class="btn btn--wa" href="https://wa.me/525556727454?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Pedir por WhatsApp</a>
+    <a class="btn btn--wa" data-nav href="https://wa.me/525556727454?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Pedir por WhatsApp</a>
     <button class="burger" id="burger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobmenu">☰</button>
   </div>
   <div class="mobmenu" id="mobmenu">
@@ -281,35 +381,37 @@ footer.pie b{color:var(--hueso);font-family:var(--display);font-weight:500;text-
       <a href="#catalogo">Catálogo y precios</a>
       <a href="#comprar">Cómo comprar</a>
       <a href="#visita">Visítanos</a>
-      <a class="wa" href="https://wa.me/525556727454?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Pedir por WhatsApp</a>
+      <a class="wa" data-nav href="https://wa.me/525556727454?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Pedir por WhatsApp</a>
     </div>
   </div>
 </header>
 
+<div class="personas" id="personas">
+  <div class="ff-container in">
+    <span class="lb">¿Para quién es hoy?</span>
+    <div class="pz" id="pzBtns" role="group" aria-label="Elige para quién es el pedido"></div>
+  </div>
+</div>
+
 <section class="hero" id="top">
   <div class="ff-container in">
     <div>
-      <span class="cap">Mayorista de carnes · Benito Juárez, CDMX</span>
-      <h1>Hoy el rib eye<br>está en <em>$476</em>.</h1>
-      <p>Y así los otros ciento diez: cortes finos, cerdo, cordero, pescado, carnes frías y quesos, con el precio a la vista igual que en la lona del mostrador. Aparta por WhatsApp y pasa a recoger.</p>
+      <span class="cap" id="hCap"></span>
+      <h1 id="hH1"></h1>
+      <p id="hP"></p>
       <div class="acc">
-        <a class="btn btn--wa" href="https://wa.me/525556727454?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Pedir por WhatsApp</a>
-        <a class="btn btn--linea" href="#catalogo">Ver la lista completa</a>
+        <a class="btn btn--wa" id="hCta1" href="#" target="_blank" rel="noopener"></a>
+        <a class="btn btn--linea" id="hCta2" href="#catalogo"></a>
       </div>
     </div>
     <div class="pizarra">
-      <div class="t">Los que más nos piden</div>
+      <div class="t" id="pzT"></div>
       <ul id="destacados"></ul>
     </div>
   </div>
 </section>
 
-<div class="tira"><div class="ff-container in">
-  <div class="it"><span class="k">01</span><span class="v"><b>Precios a la vista</b><span>La misma lista del mostrador, en tu celular. Sin llamar para preguntar.</span></span></div>
-  <div class="it"><span class="k">02</span><span class="v"><b>Volumen y menudeo</b><span>Le surtimos a restaurantes y fondas, y también al que viene por un kilo.</span></span></div>
-  <div class="it"><span class="k">03</span><span class="v"><b>Apartas y recoges</b><span>Mandas el pedido por WhatsApp, lo dejamos cortado y empacado.</span></span></div>
-  <div class="it"><span class="k">04</span><span class="v"><b>4.9 en Google</b><span>Con 129 reseñas de clientes de la colonia y de fuera.</span></span></div>
-</div></div>
+<div class="tira"><div class="ff-container in" id="tira"></div></div>
 
 <section id="catalogo">
   <div class="ff-container">
@@ -317,10 +419,12 @@ footer.pie b{color:var(--hueso);font-family:var(--display);font-weight:500;text-
       <span class="cap">Lista de precios</span>
       <h2>Todo lo que hay, con su precio</h2>
       <p>Busca el corte o filtra por categoría. Cada producto lleva su botón para pedirlo por WhatsApp con el nombre y el precio ya escritos.</p>
+      <span class="sello" id="sello"><span class="dot"></span><span>Lista actualizada <b>el 25 de agosto de 2026</b> · la mantiene el mostrador, no una agencia</span></span>
     </div>
 
     <div class="aviso" id="aviso">
       <b>Demo de trabajo.</b> Los precios son los de las lonas del mostrador al <b>25 de agosto de 2026</b> y están por confirmar contigo antes de publicar. Los renglones marcados <i>por confirmar</i> salen de la lona cuya columna de precios está recorrida.
+      <br><br>Pruébalo de dos maneras. Arriba, <b>¿para quién es hoy?</b> cambia el sitio completo según quién entra —la vecina, un restaurante o el del asador del sábado— sobre el mismo catálogo. Y abajo a la derecha, el botón <b>Panel del dueño</b> abre la pantalla que verías tú: cambia ahí un precio y esta lista se actualiza sola.
     </div>
 
     <div class="filtros">
@@ -335,17 +439,25 @@ footer.pie b{color:var(--hueso);font-family:var(--display);font-weight:500;text-
   </div>
 </section>
 
+<section id="opiniones">
+  <div class="ff-container">
+    <div class="enc">
+      <span class="cap">Lo que dicen</span>
+      <h2>Opiniones del mostrador</h2>
+      <p>No son reseñas de una tienda en línea: son de gente que vino, se llevó su corte y contestó el código QR antes de salir. Cada opinión queda ligada al producto que se llevó.</p>
+      <p style="margin-top:14px"><span class="ejem">Ejemplo</span> &nbsp;Los textos de abajo son de muestra. Así se verá la sección cuando el código QR del mostrador empiece a traer opiniones reales.</p>
+    </div>
+    <div class="ops" id="ops"></div>
+  </div>
+</section>
+
 <section id="comprar">
   <div class="ff-container">
     <div class="enc">
       <span class="cap">Cómo comprar</span>
-      <h2>Tres pasos, sin filas</h2>
+      <h2 id="pasosT"></h2>
     </div>
-    <div class="ff-grid ff-grid--lg">
-      <div class="tarjeta"><h3>1 · Escoge</h3><p>Revisa la lista y toca el botón verde del producto que quieres. Se abre WhatsApp con el nombre y el precio ya escritos; tú nada más pones la cantidad.</p></div>
-      <div class="tarjeta"><h3>2 · Confirmamos</h3><p>Te contestamos con el total y la hora a la que lo tienes listo. Si es pedido grande para restaurante, ahí mismo cerramos la cotización.</p></div>
-      <div class="tarjeta"><h3>3 · Recoges</h3><p>Pasas por la tienda y ya está cortado, pesado y empacado al vacío. Se paga en el mostrador con efectivo o tarjeta.</p></div>
-    </div>
+    <div class="ff-grid ff-grid--lg" id="pasos"></div>
   </div>
 </section>
 
@@ -386,9 +498,9 @@ footer.pie b{color:var(--hueso);font-family:var(--display);font-weight:500;text-
 
 <section class="cierre">
   <div class="ff-container">
-    <h2>¿Ya sabes qué te llevas?</h2>
-    <p>Mándanos el pedido y lo dejamos listo. Si no sabes qué corte pedir, pregúntanos: llevamos años detrás de este mostrador.</p>
-    <a class="btn btn--wa" href="https://wa.me/525556727454?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Escribir por WhatsApp</a>
+    <h2 id="cH2"></h2>
+    <p id="cP"></p>
+    <a class="btn btn--wa" id="cB" href="#" target="_blank" rel="noopener"></a>
   </div>
 </section>
 
@@ -402,13 +514,83 @@ footer.pie b{color:var(--hueso);font-family:var(--display);font-weight:500;text-
   <span>Precios del mostrador al 25 de agosto de 2026 · por confirmar</span>
 </div></div>
 
+<button class="abre-panel" id="abrePanel" type="button"><span class="pt"></span>Panel del dueño</button>
+
+<div class="panel" id="panel" role="dialog" aria-modal="true" aria-label="Panel del dueño">
+  <div class="hoja">
+    <div class="p-top">
+      <div class="t">
+        <b>Tu panel</b>
+        <span>Carnes del Norte <span class="ejem">Datos de ejemplo</span></span>
+      </div>
+      <button class="p-x" id="cierraPanel" type="button" aria-label="Cerrar el panel">✕</button>
+    </div>
+    <div class="p-tabs" id="pTabs" role="tablist">
+      <button class="p-tab on" type="button" data-t="precios">Precios</button>
+      <button class="p-tab" type="button" data-t="resenas">Reseñas</button>
+      <button class="p-tab" type="button" data-t="visitas">Visitas</button>
+    </div>
+    <div class="p-body">
+
+      <section class="p-pane on" data-p="precios">
+        <p class="p-nota">Cambia el número y toca <b>Publicar</b>. El sitio se actualiza en el momento y el sello de la lista pasa a decir que se actualizó hoy. Esto es lo que harías desde tu celular, sin llamarme.</p>
+        <label class="p-busca">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A6E62" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <input id="pq" type="search" placeholder="Buscar el producto que vas a cambiar…" aria-label="Buscar producto en el panel">
+        </label>
+        <div id="pLista"></div>
+      </section>
+
+      <section class="p-pane" data-p="resenas">
+        <p class="p-nota">Lo que contestan tus clientes en el código QR del mostrador. Ya está corriendo: es la fase 0.</p>
+        <div class="p-stats">
+          <div class="p-stat"><div class="k" id="sCal">—</div><div class="l">Calificación promedio<br><span id="sResp"></span></div></div>
+          <div class="p-stat"><div class="k" id="sGoo">—</div><div class="l">Clics al botón de reseña en Google</div></div>
+          <div class="p-stat"><div class="k" id="sCon">—</div><div class="l">Contactos nuevos con permiso de escribirles</div></div>
+          <div class="p-stat"><div class="k rojo" id="sCri">—</div><div class="l">Críticas sin atender</div></div>
+        </div>
+        <div class="p-h">Comentarios</div>
+        <div id="pComent"></div>
+      </section>
+
+      <section class="p-pane" data-p="visitas">
+        <p class="p-nota">Las dos únicas cifras que te dicen qué hacer mañana. Ninguna cadena se las da a su carnicero.</p>
+        <div class="p-stats">
+          <div class="p-stat"><div class="k" id="sVis">—</div><div class="l">Visitas hoy<br><span id="sVisAyer"></span></div></div>
+          <div class="p-stat"><div class="k" id="sWa">—</div><div class="l">Clics a WhatsApp desde el catálogo</div></div>
+        </div>
+        <div class="p-h">Lo que buscaron y no encontraron</div>
+        <p class="p-nota">Si alguien lo escribió en el buscador y no salió nada, aquí aparece. Es tu lista de qué empezar a manejar. <b>Busca “pollo” en el sitio y regresa a esta pantalla.</b></p>
+        <div id="pSin"></div>
+        <div class="p-h">Por qué puerta entraron</div>
+        <p class="p-nota">Cuántos llegaron como vecino, como restaurante o para el asador. Dice en qué negocio conviene invertir el esfuerzo.</p>
+        <div id="pPuerta"></div>
+
+        <div class="p-h">Qué te piden por WhatsApp</div>
+        <p class="p-nota">Producto por producto, cuántos tocaron el botón verde. Lo que se vende solo y lo que hay que empujar.</p>
+        <div id="pWa"></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
-var DATA = {"cats":[{"s":"res","n":"Res","k":27},{"s":"cerdo","n":"Cerdo","k":8},{"s":"cordero","n":"Cordero","k":3},{"s":"mar","n":"Pescado y marisco","k":13},{"s":"embutidos","n":"Embutidos y carnes frías","k":30},{"s":"quesos","n":"Quesos","k":25},{"s":"asador","n":"Para el asador","k":5}],"prods":[{"c":"res","n":"Aguja norteña","u":"kg","p":269,"x":0},{"c":"res","n":"Arrachera importada","u":"kg","p":475,"x":0},{"c":"res","n":"Arrachera nacional","u":"kg","p":352,"x":0},{"c":"res","n":"Asado de tira","u":"kg","p":574,"x":0},{"c":"res","n":"Brisquet","u":"kg","p":325,"x":0},{"c":"res","n":"Costilla","u":"kg","p":331,"x":0},{"c":"res","n":"Costillar","u":"kg","p":194,"x":0},{"c":"res","n":"Cow boy","u":"kg","p":629,"x":0},{"c":"res","n":"Diezmillo","u":"kg","p":306,"x":0},{"c":"res","n":"Filete caña","u":"kg","p":493,"x":0},{"c":"res","n":"Hamburguesa Angus","u":"kg","p":276,"x":0},{"c":"res","n":"Machaca","u":"500 g","p":273,"x":0},{"c":"res","n":"Matambre","u":"kg","p":243,"x":0},{"c":"res","n":"Molida Angus","u":"kg","p":248,"x":0},{"c":"res","n":"Molleja","u":"kg","p":243,"x":0},{"c":"res","n":"New York","u":"kg","p":402,"x":0},{"c":"res","n":"Picaña","u":"kg","p":481,"x":0},{"c":"res","n":"Porter house","u":"kg","p":408,"x":0},{"c":"res","n":"Prime rib","u":"kg","p":394,"x":0},{"c":"res","n":"Rib eye gota","u":"kg","p":476,"x":0},{"c":"res","n":"Rib eye roll","u":"kg","p":476,"x":0},{"c":"res","n":"Roast beef con hueso","u":"kg","p":null,"x":0},{"c":"res","n":"Roast beef sin hueso","u":"kg","p":null,"x":0},{"c":"res","n":"Tomahawk","u":"kg","p":620,"x":0},{"c":"res","n":"Top sirloin","u":"kg","p":306,"x":0},{"c":"res","n":"Tuétano","u":"kg","p":173,"x":0},{"c":"res","n":"Vacío","u":"kg","p":570,"x":0},{"c":"cerdo","n":"Espaldilla","u":"kg","p":133,"x":0},{"c":"cerdo","n":"Chamorro","u":"kg","p":63,"x":0},{"c":"cerdo","n":"Costilla baby back","u":"kg","p":176,"x":0},{"c":"cerdo","n":"Lomo","u":"kg","p":118,"x":0},{"c":"cerdo","n":"Milanesa","u":"2 kg","p":132,"x":0},{"c":"cerdo","n":"Panceta","u":"kg","p":220,"x":0},{"c":"cerdo","n":"Puntas de filete","u":"paquete","p":121,"x":0},{"c":"cerdo","n":"Costillar","u":"kg","p":120,"x":0},{"c":"cordero","n":"Rack francés","u":"kg","p":743,"x":0},{"c":"cordero","n":"T-bone","u":"kg","p":null,"x":0},{"c":"cordero","n":"Lomo","u":"kg","p":473,"x":0},{"c":"mar","n":"Atún ahumado","u":"kg","p":304,"x":0},{"c":"mar","n":"Atún medallón nacional","u":"kg","p":285,"x":0},{"c":"mar","n":"Atún medallón sakura","u":"kg","p":310,"x":0},{"c":"mar","n":"Camarón 16-20","u":"caja","p":744,"x":0},{"c":"mar","n":"Camarón de Chiapas","u":"bolsa","p":385,"x":0},{"c":"mar","n":"Surimi","u":"1 kg","p":156,"x":0},{"c":"mar","n":"Surimi","u":"½ kg","p":78,"x":0},{"c":"mar","n":"Pulpo","u":"kg","p":338,"x":0},{"c":"mar","n":"Salmón","u":"kg","p":370,"x":0},{"c":"mar","n":"Tilapia grande sin agua","u":"kg","p":166,"x":0},{"c":"mar","n":"Bacalao lonja","u":"kg","p":420,"x":0},{"c":"mar","n":"Bacalao langa","u":"1 kg","p":1202,"x":0},{"c":"mar","n":"Bacalao ling","u":"1 kg","p":800,"x":0},{"c":"embutidos","n":"Chistorra casera","u":"kg","p":150,"x":0},{"c":"embutidos","n":"Chistorra Obertal","u":"paquete","p":95,"x":0},{"c":"embutidos","n":"Chorizo a la sidra","u":"paquete","p":148,"x":0},{"c":"embutidos","n":"Chorizo de cerdo ibérico","u":"70 g","p":48,"x":0},{"c":"embutidos","n":"Chorizo argentino","u":"paquete","p":152,"x":0},{"c":"embutidos","n":"Chorizo casero argentino","u":"kg","p":165,"x":0},{"c":"embutidos","n":"Chorizo español","u":"paquete","p":130,"x":0},{"c":"embutidos","n":"Chorizo español Wunsch","u":"kg","p":158,"x":0},{"c":"embutidos","n":"Chorizo italiano","u":"paquete","p":128,"x":1},{"c":"embutidos","n":"Chorizo brasileño","u":"paquete","p":130,"x":1},{"c":"embutidos","n":"Chorizo ranchero","u":"paquete","p":139,"x":0},{"c":"embutidos","n":"Chorizo verde","u":"kg","p":149,"x":1},{"c":"embutidos","n":"Chorizo vela extra","u":"100 g","p":62,"x":0},{"c":"embutidos","n":"Morcilla casera","u":"kg","p":null,"x":1},{"c":"embutidos","n":"Jamón alemán Obertal","u":"kg","p":365,"x":0},{"c":"embutidos","n":"Jamón serrano Obertal","u":"100 g","p":102,"x":0},{"c":"embutidos","n":"Jamón serrano reserva","u":"100 g","p":93,"x":0},{"c":"embutidos","n":"Lomo embuchado","u":"100 g","p":64,"x":0},{"c":"embutidos","n":"Longaniza Obertal","u":"paquete","p":97,"x":0},{"c":"embutidos","n":"Longaniza Wunsch","u":"kg","p":164,"x":0},{"c":"embutidos","n":"Paté a las finas hierbas","u":"pieza","p":55,"x":0},{"c":"embutidos","n":"Paté con ternera","u":"pieza","p":62,"x":0},{"c":"embutidos","n":"Salchicha blanca","u":"paquete","p":120,"x":0},{"c":"embutidos","n":"Salchicha desayuno","u":"paquete","p":90,"x":0},{"c":"embutidos","n":"Salchicha Frankfurt","u":"paquete","p":124,"x":0},{"c":"embutidos","n":"Salchicha Munich","u":"paquete","p":120,"x":1},{"c":"embutidos","n":"Salchicha de pavo","u":"paquete","p":140,"x":0},{"c":"embutidos","n":"Salchichón extra","u":"100 g","p":64,"x":0},{"c":"embutidos","n":"Tocino Obertal","u":"250 g","p":126,"x":0},{"c":"embutidos","n":"Tocino Black Forest","u":"250 g","p":null,"x":0},{"c":"quesos","n":"Adobera","u":"400 g","p":92,"x":0},{"c":"quesos","n":"Muenster","u":"kg","p":271,"x":1},{"c":"quesos","n":"Brie danés","u":"125 g","p":83,"x":0},{"c":"quesos","n":"Cabra","u":"paquete","p":67,"x":0},{"c":"quesos","n":"Cabra Rocinante","u":"paquete","p":160,"x":0},{"c":"quesos","n":"Camembert","u":"125 g","p":92,"x":0},{"c":"quesos","n":"Edam","u":"225 g","p":119,"x":0},{"c":"quesos","n":"Chedar","u":"400 g","p":103,"x":0},{"c":"quesos","n":"Chedar añejo","u":"200 g","p":null,"x":0},{"c":"quesos","n":"Chihuahua super fine","u":"kg","p":205,"x":0},{"c":"quesos","n":"Edam baby","u":"pieza","p":357,"x":1},{"c":"quesos","n":"Gouda Kroon rebanado","u":"400 g","p":142,"x":0},{"c":"quesos","n":"Gouda Kroon","u":"400 g","p":139,"x":0},{"c":"quesos","n":"Ibérico Rocinante","u":"paquete","p":null,"x":0},{"c":"quesos","n":"Maasdam Kroon","u":"kg","p":252,"x":0},{"c":"quesos","n":"Gouda recorte","u":"kg","p":173,"x":0},{"c":"quesos","n":"Manchego","u":"400 g","p":103,"x":0},{"c":"quesos","n":"Manchego Maese Miguel","u":"paquete","p":239,"x":0},{"c":"quesos","n":"Mascarpone italiano","u":"pieza","p":129,"x":0},{"c":"quesos","n":"Provolone","u":"kg","p":265,"x":0},{"c":"quesos","n":"Oaxaca Pilarica","u":"1 kg","p":200,"x":0},{"c":"quesos","n":"Panela Covadonga","u":"1 kg","p":212,"x":0},{"c":"quesos","n":"Parmesano Conaprole","u":"kg","p":282,"x":0},{"c":"quesos","n":"Provoleta","u":"kg","p":301,"x":0},{"c":"quesos","n":"Rondue gourmet","u":"400 g","p":48,"x":1},{"c":"asador","n":"Ravioli de queso","u":"kg","p":246,"x":0},{"c":"asador","n":"Carbón","u":"3 kg","p":88,"x":0},{"c":"asador","n":"Carbón","u":"5 kg","p":121,"x":0},{"c":"asador","n":"Carbón","u":"10 kg","p":270,"x":0},{"c":"asador","n":"Coco Boom","u":"pieza","p":38,"x":0}]};
+var DATA = {"cats":[{"s":"res","n":"Res","k":27},{"s":"cerdo","n":"Cerdo","k":8},{"s":"cordero","n":"Cordero","k":3},{"s":"mar","n":"Pescado y marisco","k":13},{"s":"embutidos","n":"Embutidos y carnes frías","k":30},{"s":"quesos","n":"Quesos","k":25},{"s":"asador","n":"Para el asador","k":5}],"prods":[{"c":"res","n":"Aguja norteña","u":"kg","p":269,"x":0,"z":0},{"c":"res","n":"Arrachera importada","u":"kg","p":475,"x":0,"z":0},{"c":"res","n":"Arrachera nacional","u":"kg","p":352,"x":0,"z":0},{"c":"res","n":"Asado de tira","u":"kg","p":574,"x":0,"z":0},{"c":"res","n":"Brisquet","u":"kg","p":325,"x":0,"z":0},{"c":"res","n":"Costilla","u":"kg","p":331,"x":0,"z":0},{"c":"res","n":"Costillar","u":"kg","p":194,"x":0,"z":0},{"c":"res","n":"Cow boy","u":"kg","p":629,"x":0,"z":0},{"c":"res","n":"Diezmillo","u":"kg","p":306,"x":0,"z":0},{"c":"res","n":"Filete caña","u":"kg","p":493,"x":0,"z":0},{"c":"res","n":"Hamburguesa Angus","u":"kg","p":276,"x":0,"z":0},{"c":"res","n":"Machaca","u":"500 g","p":273,"x":0,"z":0},{"c":"res","n":"Matambre","u":"kg","p":243,"x":0,"z":0},{"c":"res","n":"Molida Angus","u":"kg","p":248,"x":0,"z":0},{"c":"res","n":"Molleja","u":"kg","p":243,"x":0,"z":0},{"c":"res","n":"New York","u":"kg","p":402,"x":0,"z":0},{"c":"res","n":"Picaña","u":"kg","p":481,"x":0,"z":0},{"c":"res","n":"Porter house","u":"kg","p":408,"x":0,"z":0},{"c":"res","n":"Prime rib","u":"kg","p":394,"x":0,"z":0},{"c":"res","n":"Rib eye gota","u":"kg","p":476,"x":0,"z":0},{"c":"res","n":"Rib eye roll","u":"kg","p":476,"x":0,"z":0},{"c":"res","n":"Roast beef con hueso","u":"kg","p":null,"x":0,"z":0},{"c":"res","n":"Roast beef sin hueso","u":"kg","p":null,"x":0,"z":0},{"c":"res","n":"Tomahawk","u":"kg","p":620,"x":0,"z":0},{"c":"res","n":"Top sirloin","u":"kg","p":306,"x":0,"z":0},{"c":"res","n":"Tuétano","u":"kg","p":173,"x":0,"z":0},{"c":"res","n":"Vacío","u":"kg","p":570,"x":0,"z":0},{"c":"cerdo","n":"Espaldilla","u":"kg","p":133,"x":0,"z":0},{"c":"cerdo","n":"Chamorro","u":"kg","p":63,"x":0,"z":0},{"c":"cerdo","n":"Costilla baby back","u":"kg","p":176,"x":0,"z":0},{"c":"cerdo","n":"Lomo","u":"kg","p":118,"x":0,"z":0},{"c":"cerdo","n":"Milanesa","u":"2 kg","p":132,"x":0,"z":0},{"c":"cerdo","n":"Panceta","u":"kg","p":220,"x":0,"z":0},{"c":"cerdo","n":"Puntas de filete","u":"paquete","p":121,"x":0,"z":0},{"c":"cerdo","n":"Costillar","u":"kg","p":120,"x":0,"z":0},{"c":"cordero","n":"Rack francés","u":"kg","p":743,"x":0,"z":0},{"c":"cordero","n":"T-bone","u":"kg","p":null,"x":0,"z":0},{"c":"cordero","n":"Lomo","u":"kg","p":473,"x":0,"z":0},{"c":"mar","n":"Atún ahumado","u":"kg","p":304,"x":0,"z":0},{"c":"mar","n":"Atún medallón nacional","u":"kg","p":285,"x":0,"z":0},{"c":"mar","n":"Atún medallón sakura","u":"kg","p":310,"x":0,"z":0},{"c":"mar","n":"Camarón 16-20","u":"caja","p":744,"x":0,"z":0},{"c":"mar","n":"Camarón de Chiapas","u":"bolsa","p":385,"x":0,"z":0},{"c":"mar","n":"Surimi","u":"1 kg","p":156,"x":0,"z":0},{"c":"mar","n":"Surimi","u":"½ kg","p":78,"x":0,"z":0},{"c":"mar","n":"Pulpo","u":"kg","p":338,"x":0,"z":0},{"c":"mar","n":"Salmón","u":"kg","p":370,"x":0,"z":0},{"c":"mar","n":"Tilapia grande sin agua","u":"kg","p":166,"x":0,"z":0},{"c":"mar","n":"Bacalao lonja","u":"kg","p":420,"x":0,"z":0},{"c":"mar","n":"Bacalao langa","u":"1 kg","p":1202,"x":0,"z":0},{"c":"mar","n":"Bacalao ling","u":"1 kg","p":800,"x":0,"z":0},{"c":"embutidos","n":"Chistorra casera","u":"kg","p":150,"x":0,"z":0},{"c":"embutidos","n":"Chistorra Obertal","u":"paquete","p":95,"x":0,"z":0},{"c":"embutidos","n":"Chorizo a la sidra","u":"paquete","p":148,"x":0,"z":0},{"c":"embutidos","n":"Chorizo de cerdo ibérico","u":"70 g","p":48,"x":0,"z":0},{"c":"embutidos","n":"Chorizo argentino","u":"paquete","p":152,"x":0,"z":0},{"c":"embutidos","n":"Chorizo casero argentino","u":"kg","p":165,"x":0,"z":0},{"c":"embutidos","n":"Chorizo español","u":"paquete","p":130,"x":0,"z":0},{"c":"embutidos","n":"Chorizo español Wunsch","u":"kg","p":158,"x":0,"z":0},{"c":"embutidos","n":"Chorizo italiano","u":"paquete","p":128,"x":1,"z":0},{"c":"embutidos","n":"Chorizo brasileño","u":"paquete","p":130,"x":1,"z":0},{"c":"embutidos","n":"Chorizo ranchero","u":"paquete","p":139,"x":0,"z":0},{"c":"embutidos","n":"Chorizo verde","u":"kg","p":149,"x":1,"z":0},{"c":"embutidos","n":"Chorizo vela extra","u":"100 g","p":62,"x":0,"z":0},{"c":"embutidos","n":"Morcilla casera","u":"kg","p":null,"x":1,"z":0},{"c":"embutidos","n":"Jamón alemán Obertal","u":"kg","p":365,"x":0,"z":0},{"c":"embutidos","n":"Jamón serrano Obertal","u":"100 g","p":102,"x":0,"z":0},{"c":"embutidos","n":"Jamón serrano reserva","u":"100 g","p":93,"x":0,"z":0},{"c":"embutidos","n":"Lomo embuchado","u":"100 g","p":64,"x":0,"z":0},{"c":"embutidos","n":"Longaniza Obertal","u":"paquete","p":97,"x":0,"z":0},{"c":"embutidos","n":"Longaniza Wunsch","u":"kg","p":164,"x":0,"z":0},{"c":"embutidos","n":"Paté a las finas hierbas","u":"pieza","p":55,"x":0,"z":0},{"c":"embutidos","n":"Paté con ternera","u":"pieza","p":62,"x":0,"z":0},{"c":"embutidos","n":"Salchicha blanca","u":"paquete","p":120,"x":0,"z":0},{"c":"embutidos","n":"Salchicha desayuno","u":"paquete","p":90,"x":0,"z":0},{"c":"embutidos","n":"Salchicha Frankfurt","u":"paquete","p":124,"x":0,"z":0},{"c":"embutidos","n":"Salchicha Munich","u":"paquete","p":120,"x":1,"z":0},{"c":"embutidos","n":"Salchicha de pavo","u":"paquete","p":140,"x":0,"z":0},{"c":"embutidos","n":"Salchichón extra","u":"100 g","p":64,"x":0,"z":0},{"c":"embutidos","n":"Tocino Obertal","u":"250 g","p":126,"x":0,"z":0},{"c":"embutidos","n":"Tocino Black Forest","u":"250 g","p":null,"x":0,"z":0},{"c":"quesos","n":"Adobera","u":"400 g","p":92,"x":0,"z":0},{"c":"quesos","n":"Muenster","u":"kg","p":271,"x":1,"z":0},{"c":"quesos","n":"Brie danés","u":"125 g","p":83,"x":0,"z":0},{"c":"quesos","n":"Cabra","u":"paquete","p":67,"x":0,"z":0},{"c":"quesos","n":"Cabra Rocinante","u":"paquete","p":160,"x":0,"z":0},{"c":"quesos","n":"Camembert","u":"125 g","p":92,"x":0,"z":0},{"c":"quesos","n":"Edam","u":"225 g","p":119,"x":0,"z":0},{"c":"quesos","n":"Chedar","u":"400 g","p":103,"x":0,"z":0},{"c":"quesos","n":"Chedar añejo","u":"200 g","p":null,"x":0,"z":0},{"c":"quesos","n":"Chihuahua super fine","u":"kg","p":205,"x":0,"z":0},{"c":"quesos","n":"Edam baby","u":"pieza","p":357,"x":1,"z":0},{"c":"quesos","n":"Gouda Kroon rebanado","u":"400 g","p":142,"x":0,"z":0},{"c":"quesos","n":"Gouda Kroon","u":"400 g","p":139,"x":0,"z":0},{"c":"quesos","n":"Ibérico Rocinante","u":"paquete","p":null,"x":0,"z":0},{"c":"quesos","n":"Maasdam Kroon","u":"kg","p":252,"x":0,"z":0},{"c":"quesos","n":"Gouda recorte","u":"kg","p":173,"x":0,"z":0},{"c":"quesos","n":"Manchego","u":"400 g","p":103,"x":0,"z":0},{"c":"quesos","n":"Manchego Maese Miguel","u":"paquete","p":239,"x":0,"z":0},{"c":"quesos","n":"Mascarpone italiano","u":"pieza","p":129,"x":0,"z":0},{"c":"quesos","n":"Provolone","u":"kg","p":265,"x":0,"z":0},{"c":"quesos","n":"Oaxaca Pilarica","u":"1 kg","p":200,"x":0,"z":0},{"c":"quesos","n":"Panela Covadonga","u":"1 kg","p":212,"x":0,"z":0},{"c":"quesos","n":"Parmesano Conaprole","u":"kg","p":282,"x":0,"z":0},{"c":"quesos","n":"Provoleta","u":"kg","p":301,"x":0,"z":0},{"c":"quesos","n":"Rondue gourmet","u":"400 g","p":48,"x":1,"z":0},{"c":"asador","n":"Ravioli de queso","u":"kg","p":246,"x":0,"z":0},{"c":"asador","n":"Carbón","u":"3 kg","p":88,"x":0,"z":0},{"c":"asador","n":"Carbón","u":"5 kg","p":121,"x":0,"z":0},{"c":"asador","n":"Carbón","u":"10 kg","p":270,"x":0,"z":0},{"c":"asador","n":"Coco Boom","u":"pieza","p":38,"x":0,"z":0}],"res":{"Rib eye gota":{"p":4.9,"k":14,"op":[{"t":"Pedí dos por WhatsApp y ya estaban cortados cuando llegué. El marmoleo se ve desde la bolsa.","a":"Cliente del mostrador","d":"hace 3 días"},{"t":"Lo compro cada quince días para el asador. Nunca me ha salido uno correoso.","a":"Cliente del mostrador","d":"hace 1 semana"}]},"Arrachera nacional":{"p":4.7,"k":11,"op":[{"t":"La marino desde la noche anterior y queda suave. Buen precio contra el súper.","a":"Cliente del mostrador","d":"hace 5 días"}]},"Picaña":{"p":4.8,"k":9,"op":[{"t":"Me explicaron cómo cortarla contra la fibra. Se agradece que te enseñen.","a":"Cliente del mostrador","d":"hace 2 días"}]},"Tomahawk":{"p":5.0,"k":6,"op":[{"t":"Lo pedí para una carne asada de doce personas. Impresionó a todos.","a":"Cliente del mostrador","d":"hace 1 semana"}]},"Costilla baby back":{"p":4.6,"k":8,"op":[{"t":"Las hago al horno tres horas y quedan cayéndose del hueso.","a":"Cliente del mostrador","d":"hace 4 días"}]},"Salmón":{"p":4.8,"k":7,"op":[{"t":"Llegó frío y firme. Lo porcionan como uno se lo pide.","a":"Cliente del mostrador","d":"hace 6 días"}]},"Chorizo argentino":{"p":4.9,"k":12,"op":[{"t":"Es el que llevo siempre para el asador. Jugoso, no se desbarata.","a":"Cliente del mostrador","d":"ayer"}]},"Jamón serrano reserva":{"p":4.7,"k":5,"op":[{"t":"Lo rebanan al momento y del grosor que le pidas.","a":"Cliente del mostrador","d":"hace 2 semanas"}]}},"panel":{"cal":4.8,"resp":23,"google":41,"contactos":18,"criticas":1,"visitas":312,"visitasAyer":268,"coment":[{"e":5,"t":"Muy buena atención, me ayudaron a escoger el corte para la parrilla.","d":"hoy 13:20","at":true},{"e":2,"t":"Esperé veinte minutos y solo había una persona atendiendo.","d":"hoy 11:05","at":false},{"e":5,"t":"Los precios de la lona coinciden con lo que cobran. Eso no siempre pasa.","d":"ayer 18:40","at":true}],"sin":[["pollo",9],["hígado",4],["carbón mezquite",3],["birria",2]],"puerta":[["Para la casa",186],["Para el asador",84],["Para mi restaurante",42]],"wa":[["Rib eye gota",34],["Arrachera nacional",22],["Picaña",17],["Tomahawk",11],["Chorizo argentino",9]]},"fecha":"25 de agosto de 2026","personas":{"casa":{"b":"Para la casa","cap":"Mayorista de carnes · Benito Juárez, CDMX","h1":"Hoy el rib eye<br>está en <em>$476</em>.","p":"Y así los otros ciento diez: cortes finos, cerdo, cordero, pescado, carnes frías y quesos, con el precio a la vista igual que en la lona del mostrador. Aparta por WhatsApp y pasa a recoger.","c1":"Pedir por WhatsApp","c2":"Ver la lista completa","wa0":"Hola, quiero hacer un pedido.","waP":"Hola, me interesa {n}{pr}. ¿Me confirman disponibilidad?","pzT":"Los que más nos piden","favs":["Rib eye gota","Arrachera nacional","Molida Angus","Costilla baby back","Chorizo argentino","Manchego"],"orden":["res","cerdo","embutidos","quesos","mar","asador","cordero"],"tira":[["Precios a la vista","La misma lista del mostrador, en tu celular. Sin llamar para preguntar."],["Se corta al momento","Del grosor que lo pidas, y empacado al vacío para el refrigerador."],["Apartas y recoges","Mandas el pedido por WhatsApp, lo dejamos listo y pasas por él."],["4.9 en Google","Con 129 reseñas de clientes de la colonia y de fuera."]],"pasosT":"Tres pasos, sin filas","pasos":[["1 · Escoge","Revisa la lista y toca el botón verde del producto que quieres. Se abre WhatsApp con el nombre y el precio ya escritos; tú nada más pones la cantidad."],["2 · Confirmamos","Te contestamos con el total y la hora a la que lo tienes listo. Si algo se acabó, te decimos con qué se puede sustituir."],["3 · Recoges","Pasas por la tienda y ya está cortado, pesado y empacado al vacío. Se paga en el mostrador con efectivo o tarjeta."]],"cH2":"¿Ya sabes qué te llevas?","cP":"Mándanos el pedido y lo dejamos listo. Si no sabes qué corte pedir, pregúntanos: llevamos años detrás de este mostrador.","cB":"Escribir por WhatsApp"},"restaurante":{"b":"Para mi restaurante","cap":"Surtimos restaurantes, fondas y taquerías","h1":"Tu lista, cotizada<br><em>el mismo día</em>.","p":"Precio por volumen sobre los mismos 111 productos, entrega programada y el mismo corte cada semana. Mándanos tu lista como la tengas —foto, Excel o mensaje— y te la regresamos cotizada.","c1":"Cotizar mi lista","c2":"Ver precios de mostrador","wa0":"Hola, soy de un restaurante y quiero cotizar un pedido por volumen.","waP":"Hola, soy de un restaurante. Quiero cotizar {n}{pr}. ¿Cuál es su precio a partir de cuántos kilos?","pzT":"Lo que más sale por volumen","favs":["Aguja norteña","Diezmillo","Molida Angus","Costillar","Espaldilla","Milanesa"],"orden":["res","cerdo","mar","embutidos","quesos","cordero","asador"],"tira":[["Precio por volumen","El de la lista es el de mostrador. A partir de cierto kilaje se cotiza aparte."],["Entrega programada","Tú dices el día y la hora; lo dejamos cortado y empacado a esa hora."],["El mismo corte siempre","Tu cocina no tiene que recalibrar porcentajes cada semana."],["Factura","Con todos los datos fiscales, sin que la tengas que perseguir."]],"pasosT":"De tu lista a tu cocina","pasos":[["1 · Mandas tu lista","Como la tengas: foto de la libreta, Excel o un mensaje. No hace falta que uses nuestros nombres de corte."],["2 · Cotizamos completo","Te regresamos la lista con precio por volumen y lo que no manejamos, marcado. Sin sorpresas al recoger."],["3 · Entrega programada","El día y la hora que necesites. Si tu pedido se repite, ya no lo vuelves a escribir."]],"cH2":"Mándanos tu lista y te la cotizamos hoy.","cP":"Si ya le compras a alguien más, mándanos la misma lista y compara. Sin compromiso y sin que tengas que venir a la tienda.","cB":"Cotizar por volumen"},"asador":{"b":"Para el asador","cap":"Cortes gruesos para la carne asada","h1":"El sábado se arma<br>con tomahawk a <em>$620</em>.","p":"Cortes gruesos, chorizo del bueno, quesos para la botana y hasta el carbón, en un solo lugar. Dinos para cuántos son y te decimos cuánto llevar.","c1":"Armar mi pedido","c2":"Ver todos los cortes","wa0":"Hola, voy a hacer carne asada este fin. ¿Me ayudan a armar el pedido?","waP":"Hola, voy a hacer carne asada. Me interesa {n}{pr}. ¿Cuánto me recomiendan para cuántas personas?","pzT":"Los del asador","favs":["Tomahawk","Picaña","Cow boy","Asado de tira","Chorizo argentino","Carbón"],"orden":["res","asador","embutidos","cerdo","quesos","mar","cordero"],"tira":[["Cortes gruesos","Del grosor que aguanta la brasa. Te lo cortamos a dos dedos si así lo quieres."],["Te decimos cuánto","Dinos cuántos van a ser y te calculamos los kilos. Ni de más ni de menos."],["El carbón también","Bolsas de 3, 5 y 10 kilos, para que no hagas otra parada."],["Empacado al vacío","Aguanta el traslado y lo que sobre se congela sin quemarse."]],"pasosT":"Del mensaje a la brasa","pasos":[["1 · Escoge los cortes","Toca el botón verde de lo que te late. Si no sabes cuál, mándanos el mensaje y te decimos qué se está poniendo mejor esta semana."],["2 · Te calculamos","Nos dices cuántos van a ser y te decimos cuántos kilos, cuánto chorizo y cuánto carbón."],["3 · Recoges y prendes","Pasas el sábado en la mañana, ya cortado y empacado. Lo demás es tuyo."]],"cH2":"¿Cuántos van a ser el sábado?","cP":"Dinos el número y te armamos el pedido completo, con carbón incluido. Lo dejamos listo a la hora que pases.","cB":"Armar el pedido"}}};
 var WA = "525556727454";
 var CATNOM = {};
 DATA.cats.forEach(function(c){ CATNOM[c.s] = c.n; });
 
 var filtro = "todo", termino = "";
+var PKEYS = ["casa", "restaurante", "asador"];
+var persona = "casa";
+(function(){
+  var m = location.search.match(/[?&]p=([a-z]+)/);
+  if (m && PKEYS.indexOf(m[1]) !== -1) persona = m[1];
+})();
+function PP(){ return DATA.personas[persona]; }
 
 function money(n){ return n.toLocaleString("es-MX"); }
 
@@ -417,9 +599,46 @@ function normaliza(s){
 }
 
 function waLink(p){
-  var precio = p.p === null ? "" : " (" + "$" + money(p.p) + " por " + p.u + ")";
-  var txt = "Hola, me interesa " + p.n + precio + ". ¿Me confirman disponibilidad?";
+  var precio = p.p === null ? "" : " ($" + money(p.p) + " por " + p.u + ")";
+  var txt = PP().waP.replace("{n}", p.n).replace("{pr}", precio);
   return "https://wa.me/" + WA + "?text=" + encodeURIComponent(txt);
+}
+
+function waBase(){
+  return "https://wa.me/" + WA + "?text=" + encodeURIComponent(PP().wa0);
+}
+
+function kgDe(u){
+  var m = String(u).toLowerCase().trim();
+  if (m === "kg" || m === "1 kg") return 1;
+  if (m === "½ kg") return 0.5;
+  var g = m.match(/^([0-9]+) ?g$/);
+  if (g) return parseInt(g[1],10)/1000;
+  var k = m.match(/^([0-9]+) ?kg$/);
+  if (k) return parseInt(k[1],10);
+  return null;
+}
+
+function porKilo(p){
+  if (p.p === null) return "";
+  var f = kgDe(p.u);
+  if (!f || f === 1) return "";
+  return '<div class="kg">Sale en <b>$' + money(Math.round(p.p / f)) + ' el kilo</b></div>';
+}
+
+function estrellas(v){
+  var n = Math.round(v), out = "";
+  for (var i = 0; i < 5; i++) out += (i < n ? "★" : "☆");
+  return out;
+}
+
+function opinion(p){
+  var r = DATA.res[p.n];
+  if (!r) return "";
+  var o = r.op[0];
+  return '<div class="estrellas"><span class="st">' + estrellas(r.p) + '</span><b>' + r.p.toFixed(1) + '</b>'
+       + '<span>· ' + r.k + ' opiniones</span><span class="ejem">Ejemplo</span></div>'
+       + '<div class="op"><span class="q">“' + o.t + '”</span><i>' + o.a + ' · ' + o.d + '</i></div>';
 }
 
 function tarjeta(p){
@@ -430,20 +649,31 @@ function tarjeta(p){
   return '<article class="prod">'
     + '<h4 class="nm">' + p.n + '</h4>'
     + tag
+    + opinion(p)
     + '<div class="fila">' + precio + '<span class="un">por ' + p.u + '</span></div>'
-    + '<a class="wa" href="' + waLink(p) + '" target="_blank" rel="noopener">'
+    + porKilo(p)
+    + '<a class="wa" data-n="' + p.n + '" href="' + waLink(p) + '" target="_blank" rel="noopener">'
     + '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20zm4.4-5.8c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 01-3.2-2.8c-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3 0-.5l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.5.1-.7.3-.3.3-.9.9-.9 2.1s.9 2.5 1 2.6c.1.2 1.8 2.8 4.4 3.9 1.7.7 2.3.7 3.1.6.5 0 1.4-.6 1.6-1.2.2-.6.2-1.1.1-1.2 0-.1-.2-.2-.4-.3z"/></svg>'
     + 'Pedir</a>'
     + '</article>';
 }
 
+function ordenCats(){
+  var por = {}, out = [];
+  DATA.cats.forEach(function(c){ por[c.s] = c; });
+  PP().orden.forEach(function(k){ if (por[k]) { out.push(por[k]); por[k] = null; } });
+  DATA.cats.forEach(function(c){ if (por[c.s]) out.push(c); });
+  return out;
+}
+
 function pinta(){
   var t = normaliza(termino).trim();
   var out = "", total = 0;
-  DATA.cats.forEach(function(c){
+  ordenCats().forEach(function(c){
     if (filtro !== "todo" && filtro !== c.s) return;
     var items = DATA.prods.filter(function(p){
       if (p.c !== c.s) return false;
+      if (p.z) return false;
       if (!t) return true;
       return normaliza(p.n).indexOf(t) !== -1 || normaliza(c.n).indexOf(t) !== -1;
     });
@@ -455,16 +685,22 @@ function pinta(){
   document.getElementById("lista").innerHTML = total
     ? out
     : '<p class="vacio">No encontramos «' + termino + '». Prueba con otro nombre, o pregúntanos por WhatsApp.</p>';
+  if (!total && termino) registraSin(termino);
 }
 
 /* Chips de categoría */
-(function(){
+function pintaChips(){
   var c = document.getElementById("chips");
-  var html = '<button class="chip on" type="button" data-c="todo">Todo<span class="k">' + DATA.prods.length + '</span></button>';
-  DATA.cats.forEach(function(x){
-    html += '<button class="chip" type="button" data-c="' + x.s + '">' + x.n + '<span class="k">' + x.k + '</span></button>';
+  var html = '<button class="chip' + (filtro === "todo" ? " on" : "") + '" type="button" data-c="todo">Todo<span class="k">' + DATA.prods.length + '</span></button>';
+  ordenCats().forEach(function(x){
+    html += '<button class="chip' + (filtro === x.s ? " on" : "") + '" type="button" data-c="' + x.s + '">' + x.n + '<span class="k">' + x.k + '</span></button>';
   });
   c.innerHTML = html;
+}
+
+(function(){
+  var c = document.getElementById("chips");
+  pintaChips();
   c.addEventListener("click", function(e){
     var b = e.target.closest(".chip");
     if (!b) return;
@@ -481,16 +717,30 @@ document.getElementById("q").addEventListener("input", function(e){
 });
 
 /* Pizarra de destacados */
-(function(){
-  var favs = ["Rib eye gota","Arrachera nacional","Tomahawk","Picaña","Costilla baby back","Salmón"];
+function pizarra(){
   var ul = document.getElementById("destacados"), html = "";
-  favs.forEach(function(nombre){
+  document.getElementById("pzT").textContent = PP().pzT;
+  PP().favs.forEach(function(nombre){
     var p = DATA.prods.filter(function(x){ return x.n === nombre; })[0];
-    if (!p) return;
+    if (!p || p.z || p.p === null) return;
     html += '<li><span class="nm">' + p.n + '</span><span class="pt"></span>'
          +  '<span class="pr">$' + money(p.p) + '<small>/' + p.u + '</small></span></li>';
   });
   ul.innerHTML = html;
+}
+
+/* Opiniones del mostrador (seccion publica) */
+(function(){
+  var nombres = Object.keys(DATA.res).slice(0, 3), html = "";
+  nombres.forEach(function(n){
+    var r = DATA.res[n], o = r.op[0];
+    html += '<div class="op-card">'
+         +  '<div class="estrellas"><span class="st">' + estrellas(r.p) + '</span><b>' + r.p.toFixed(1) + '</b><span class="ejem">Ejemplo</span></div>'
+         +  '<p>“' + o.t + '”</p>'
+         +  '<div class="meta"><b>' + n + '</b>' + o.a + ' · ' + o.d + '</div>'
+         +  '</div>';
+  });
+  document.getElementById("ops").innerHTML = html;
 })();
 
 /* Menú móvil */
@@ -512,7 +762,248 @@ document.getElementById("q").addEventListener("input", function(e){
   });
 })();
 
-pinta();
+/* ===================== LAS TRES PUERTAS ===================== */
+var PUERTA_SESION = {};
+
+function pintaTira(){
+  var html = "";
+  PP().tira.forEach(function(t, i){
+    html += '<div class="it"><span class="k">0' + (i + 1) + '</span><span class="v"><b>' + t[0] + '</b><span>' + t[1] + '</span></span></div>';
+  });
+  document.getElementById("tira").innerHTML = html;
+}
+
+function pintaPasos(){
+  document.getElementById("pasosT").textContent = PP().pasosT;
+  var html = "";
+  PP().pasos.forEach(function(p){
+    html += '<div class="tarjeta"><h3>' + p[0] + '</h3><p>' + p[1] + '</p></div>';
+  });
+  document.getElementById("pasos").innerHTML = html;
+}
+
+function pintaBotonesPersona(){
+  var html = "";
+  PKEYS.forEach(function(k){
+    html += '<button class="pz-b' + (k === persona ? " on" : "") + '" type="button" data-k="' + k + '">' + DATA.personas[k].b + '</button>';
+  });
+  document.getElementById("pzBtns").innerHTML = html;
+}
+
+function aplicaPersona(k, silencio){
+  persona = k;
+  var p = PP();
+  document.getElementById("hCap").textContent = p.cap;
+  document.getElementById("hH1").innerHTML = p.h1;
+  document.getElementById("hP").textContent = p.p;
+  var c1 = document.getElementById("hCta1");
+  c1.textContent = p.c1;
+  c1.href = waBase();
+  document.getElementById("hCta2").textContent = p.c2;
+  document.getElementById("cH2").textContent = p.cH2;
+  document.getElementById("cP").textContent = p.cP;
+  var cb = document.getElementById("cB");
+  cb.textContent = p.cB;
+  cb.href = waBase();
+  var nav = document.querySelectorAll('a.btn--wa[data-nav]');
+  Array.prototype.forEach.call(nav, function(a){ a.href = waBase(); });
+  pintaBotonesPersona();
+  pintaTira();
+  pintaPasos();
+  pintaChips();
+  pizarra();
+  pinta();
+  PUERTA_SESION[p.b] = (PUERTA_SESION[p.b] || 0) + 1;
+  if (typeof pintaVisitas === "function") pintaVisitas();
+  if (!silencio) toast("Listo: el sitio ahora habla con quién entra «" + p.b.toLowerCase() + "». Mismo catálogo, otra puerta.");
+}
+
+document.getElementById("pzBtns").addEventListener("click", function(e){
+  var b = e.target.closest ? e.target.closest(".pz-b") : null;
+  if (!b) return;
+  aplicaPersona(b.getAttribute("data-k"), false);
+  document.getElementById("top").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+/* ===================== PANEL DEL DUENO (demo) ===================== */
+var SIN_SESION = {}, WA_SESION = {}, timerSin = null;
+var COMENT = DATA.panel.coment.slice();
+
+function toast(msg){
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("on");
+  clearTimeout(t._h);
+  t._h = setTimeout(function(){ t.classList.remove("on"); }, 3200);
+}
+
+function selloVivo(){
+  var el = document.getElementById("sello");
+  el.className = "sello viva";
+  el.innerHTML = '<span class="dot"></span><span>Lista actualizada <b>hoy, hace un momento</b> · la mantiene el mostrador, no una agencia</span>';
+}
+
+function registraSin(t){
+  clearTimeout(timerSin);
+  var k = t.trim().toLowerCase();
+  timerSin = setTimeout(function(){
+    if (k.length < 3) return;
+    SIN_SESION[k] = (SIN_SESION[k] || 0) + 1;
+    pintaVisitas();
+  }, 1000);
+}
+
+document.getElementById("lista").addEventListener("click", function(e){
+  var a = e.target.closest ? e.target.closest("a.wa") : null;
+  if (!a) return;
+  var n = a.getAttribute("data-n");
+  WA_SESION[n] = (WA_SESION[n] || 0) + 1;
+  pintaVisitas();
+});
+
+/* ---- pestana Precios ---- */
+var pTermino = "";
+
+function renglon(p, i){
+  return '<div class="ren' + (p.z ? ' off' : '') + '">'
+    + '<div class="n">' + p.n + '<small>' + CATNOM[p.c] + ' · por ' + p.u + '</small></div>'
+    + '<input type="number" min="1" step="1" value="' + (p.p === null ? '' : p.p) + '" data-i="' + i + '" aria-label="Precio de ' + p.n + '">'
+    + '<div class="b">'
+    + '<button class="mini mini--pub" type="button" data-pub="' + i + '">Publicar</button>'
+    + '<button class="mini mini--gris" type="button" data-z="' + i + '">' + (p.z ? "Activar" : "Pausar") + '</button>'
+    + '</div></div>';
+}
+
+function pintaPrecios(){
+  var t = normaliza(pTermino).trim(), html = "", n = 0;
+  DATA.prods.forEach(function(p, i){
+    if (t) {
+      if (normaliza(p.n).indexOf(t) === -1) return;
+    } else if (PP().favs.indexOf(p.n) === -1) {
+      return;
+    }
+    if (n++ >= 30) return;
+    html += renglon(p, i);
+  });
+  if (!n) html = '<p class="p-nota">No hay ningún producto con ese nombre.</p>';
+  document.getElementById("pLista").innerHTML = html;
+}
+
+function publica(i){
+  var inp = document.querySelector('#pLista input[data-i="' + i + '"]');
+  var v = parseFloat(inp.value), p = DATA.prods[i];
+  if (isNaN(v) || v <= 0) { toast("Escribe un precio antes de publicar."); return; }
+  p.p = Math.round(v);
+  p.x = 0;
+  selloVivo(); pinta(); pizarra(); pintaPrecios();
+  toast("Publicado. El sitio ya muestra " + p.n + " en $" + money(p.p) + " por " + p.u + ".");
+}
+
+function alterna(i){
+  var p = DATA.prods[i];
+  p.z = p.z ? 0 : 1;
+  selloVivo(); pinta(); pizarra(); pintaPrecios();
+  toast(p.z ? p.n + " quedó pausado: ya no aparece en el sitio."
+            : p.n + " volvió a aparecer en el sitio.");
+}
+
+document.getElementById("pLista").addEventListener("click", function(e){
+  var b = e.target.closest ? e.target.closest("button") : null;
+  if (!b) return;
+  if (b.hasAttribute("data-pub")) publica(parseInt(b.getAttribute("data-pub"), 10));
+  else if (b.hasAttribute("data-z")) alterna(parseInt(b.getAttribute("data-z"), 10));
+});
+
+document.getElementById("pq").addEventListener("input", function(e){
+  pTermino = e.target.value;
+  pintaPrecios();
+});
+
+/* ---- pestana Resenas ---- */
+function pintaResenas(){
+  var P = DATA.panel;
+  var sin = COMENT.filter(function(c){ return c.e <= 2 && !c.at; }).length;
+  document.getElementById("sCal").textContent = P.cal.toFixed(1);
+  document.getElementById("sResp").textContent = P.resp + " respuestas en 30 días";
+  document.getElementById("sGoo").textContent = P.google;
+  document.getElementById("sCon").textContent = P.contactos;
+  document.getElementById("sCri").textContent = sin;
+  var html = "";
+  COMENT.forEach(function(c, i){
+    html += '<div class="com' + (c.e <= 2 ? " mala" : "") + '">'
+         +  '<span class="e">' + estrellas(c.e) + '</span>'
+         +  '<p>“' + c.t + '”</p>'
+         +  '<div class="pie"><span>' + c.d + '</span>'
+         +  (c.at ? '<span class="hecho">Atendido</span>'
+                  : '<button class="mini mini--pub" type="button" data-at="' + i + '">Marcar atendido</button>')
+         +  '</div></div>';
+  });
+  document.getElementById("pComent").innerHTML = html;
+}
+
+document.getElementById("pComent").addEventListener("click", function(e){
+  var b = e.target.closest ? e.target.closest("button[data-at]") : null;
+  if (!b) return;
+  COMENT[parseInt(b.getAttribute("data-at"), 10)].at = true;
+  pintaResenas();
+  toast("Marcado como atendido. El contador de arriba bajó.");
+});
+
+/* ---- pestana Visitas ---- */
+function combinado(seed, ses){
+  var m = {}, out = [];
+  seed.forEach(function(x){ m[x[0]] = x[1]; });
+  Object.keys(ses).forEach(function(k){ m[k] = (m[k] || 0) + ses[k]; });
+  Object.keys(m).forEach(function(k){ out.push([k, m[k]]); });
+  return out.sort(function(a, b){ return b[1] - a[1]; });
+}
+
+function barras(arr, verde){
+  if (!arr.length) return '<p class="p-nota">Todavía no hay nada aquí.</p>';
+  var max = arr[0][1];
+  return arr.slice(0, 6).map(function(x){
+    return '<div class="barra"><div class="bt"><span>' + x[0] + '</span><b>' + x[1] + '</b></div>'
+      + '<div class="bg"><div class="bf' + (verde ? " verde" : "") + '" style="width:' + Math.round(x[1] / max * 100) + '%"></div></div></div>';
+  }).join("");
+}
+
+function pintaVisitas(){
+  var P = DATA.panel;
+  var sin = combinado(P.sin, SIN_SESION);
+  var wa = combinado(P.wa, WA_SESION);
+  var totalWa = 0;
+  wa.forEach(function(x){ totalWa += x[1]; });
+  document.getElementById("sVis").textContent = P.visitas;
+  document.getElementById("sVisAyer").textContent = "ayer " + P.visitasAyer;
+  document.getElementById("sWa").textContent = totalWa;
+  document.getElementById("pSin").innerHTML = barras(sin, false);
+  document.getElementById("pWa").innerHTML = barras(wa, true);
+  document.getElementById("pPuerta").innerHTML = barras(combinado(P.puerta, PUERTA_SESION), false);
+}
+
+/* ---- abrir, cerrar, pestanas ---- */
+(function(){
+  var panel = document.getElementById("panel");
+  var abre = document.getElementById("abrePanel");
+  function abrir(){ panel.classList.add("open"); pintaPrecios(); pintaResenas(); pintaVisitas(); }
+  function cerrar(){ panel.classList.remove("open"); }
+  abre.addEventListener("click", abrir);
+  document.getElementById("cierraPanel").addEventListener("click", cerrar);
+  panel.addEventListener("click", function(e){ if (e.target === panel) cerrar(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") cerrar(); });
+  document.getElementById("pTabs").addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest(".p-tab") : null;
+    if (!b) return;
+    var t = b.getAttribute("data-t");
+    Array.prototype.forEach.call(document.querySelectorAll(".p-tab"), function(x){ x.classList.remove("on"); });
+    b.classList.add("on");
+    Array.prototype.forEach.call(document.querySelectorAll(".p-pane"), function(x){
+      x.classList.toggle("on", x.getAttribute("data-p") === t);
+    });
+  });
+})();
+
+aplicaPersona(persona, true);
 </script>
 </body>
 </html>
