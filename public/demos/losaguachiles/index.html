@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Los Aguachiles | Aguachiles, ceviches y micheladas a domicilio</title>
+<meta name="description" content="Tostiaguachiles, ceviches y aguachiles. Pide en línea, elige la hora de tu entrega y te llega. Envío $30 en la zona.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='31' fill='%23FFE7F1' stroke='%23E8207A' stroke-width='3'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='30' font-style='italic' font-weight='700' fill='%23E8207A' text-anchor='middle'%3ELA%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="Los Aguachiles | Pide en línea y elige tu hora">
+<meta property="og:description" content="Tostiaguachiles, ceviches y aguachiles. Envio $30.">
+<meta property="og:type" content="website">
+<style>
+/* Los Aguachiles -- demo de venta FishFlow. Generado por build.py, no editar el HTML. */
+:root{
+  --tinta:#12203A; --tinta-2:#0B1729;
+  --rosa:#E8207A; --rosa-osc:#C4155F; --rosa-luz:#FFE7F1;
+  --lima:#A9D91D; --lima-osc:#7FA30D;
+  --crema:#FFF7F0; --papel:#FFFFFF;
+  --gris:#6B7280; --linea:#E9E2DC;
+  --ok:#0F9D58; --alerta:#D9822B;
+  --sombra:0 1px 2px rgba(18,32,58,.06), 0 8px 24px rgba(18,32,58,.08);
+  --radio:16px;
+  --max:1120px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; -webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--crema); color:var(--tinta);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.55; overflow-x:hidden;
+}
+img{max-width:100%}
+h1,h2,h3{line-height:1.15; margin:0 0 .4em; letter-spacing:-.02em}
+h1{font-size:clamp(2rem,7vw,3.4rem); font-weight:800}
+h2{font-size:clamp(1.5rem,4.5vw,2.2rem); font-weight:800}
+h3{font-size:1.06rem; font-weight:700}
+p{margin:0 0 1em}
+a{color:inherit}
+.env{width:100%; max-width:var(--max); margin:0 auto; padding:0 20px}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ---------- avisos de demo ---------- */
+.cinta{background:var(--tinta); color:#fff; font-size:.8rem; text-align:center; padding:7px 16px; letter-spacing:.02em}
+.cinta b{color:var(--lima)}
+
+/* ---------- nav ---------- */
+.nav{position:sticky; top:0; z-index:60; background:rgba(255,247,240,.94); backdrop-filter:blur(10px); border-bottom:1px solid var(--linea)}
+.nav-in{display:flex; align-items:center; gap:12px; height:62px}
+.marca{display:flex; align-items:center; gap:10px; text-decoration:none; font-weight:800; font-size:1.05rem; margin-right:auto}
+.marca .sello{width:36px;height:36px;border-radius:50%;background:var(--rosa-luz);border:2px solid var(--rosa);display:grid;place-items:center;font-size:1rem;flex:none}
+.nav-links{display:flex; gap:22px; align-items:center}
+.nav-links a{text-decoration:none; font-weight:600; font-size:.94rem; color:var(--tinta); padding:6px 0; border-bottom:2px solid transparent}
+.nav-links a:hover{border-bottom-color:var(--rosa)}
+.hamb{display:none; width:42px;height:42px;border:1px solid var(--linea);background:var(--papel);border-radius:12px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:0}
+.hamb span{display:block;width:18px;height:2px;background:var(--tinta);border-radius:2px;transition:.2s}
+.hamb[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamb[aria-expanded="true"] span:nth-child(2){opacity:0}
+.hamb[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+/* ---------- botones ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;
+  padding:13px 22px;font-size:.98rem;font-weight:700;cursor:pointer;text-decoration:none;font-family:inherit;
+  transition:transform .12s ease, box-shadow .12s ease; white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn-rosa{background:var(--rosa);color:#fff;box-shadow:0 6px 18px rgba(232,32,122,.28)}
+.btn-rosa:hover{background:var(--rosa-osc)}
+.btn-wa{background:#25D366;color:#0a2e17;box-shadow:0 6px 18px rgba(37,211,102,.3)}
+.btn-linea{background:transparent;color:var(--tinta);border:2px solid var(--tinta)}
+.btn-linea:hover{background:var(--tinta);color:#fff}
+.btn-chico{padding:9px 16px;font-size:.86rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- hero ---------- */
+.hero{position:relative; background:var(--tinta-2); color:#fff; overflow:hidden; padding:56px 0 64px}
+.hero::before{content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(60% 55% at 12% 8%, rgba(232,32,122,.42), transparent 62%),
+    radial-gradient(55% 50% at 92% 88%, rgba(169,217,29,.30), transparent 60%);
+  pointer-events:none}
+.hero-in{position:relative; display:grid; grid-template-columns:1.15fr .85fr; gap:44px; align-items:center}
+.hero .kicker{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  padding:6px 14px;border-radius:999px;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px}
+.hero h1{color:#fff}
+.hero h1 em{font-style:normal;color:var(--lima)}
+.hero .bajada{font-size:1.1rem;color:rgba(255,255,255,.82);max-width:34ch;margin-bottom:26px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.hero-datos{display:flex;gap:26px;margin-top:30px;flex-wrap:wrap}
+.hero-datos div{font-size:.86rem;color:rgba(255,255,255,.68)}
+.hero-datos b{display:block;font-size:1.35rem;color:#fff;font-weight:800;letter-spacing:-.01em}
+
+/* tarjeta del pedido programado en el hero */
+.tarjeta-hero{background:#fff;color:var(--tinta);border-radius:20px;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.tarjeta-hero .t{font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--rosa);margin-bottom:12px}
+.paso-mini{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--linea)}
+.paso-mini:last-child{border-bottom:0}
+.paso-mini .n{width:26px;height:26px;border-radius:50%;background:var(--rosa-luz);color:var(--rosa-osc);display:grid;place-items:center;font-weight:800;font-size:.8rem;flex:none}
+.paso-mini p{margin:0;font-size:.9rem}
+.paso-mini strong{display:block;font-size:.95rem}
+
+/* ---------- barra de confianza ---------- */
+.confianza{background:var(--lima); color:var(--tinta)}
+.confianza-in{display:flex;justify-content:center;gap:38px;flex-wrap:wrap;padding:14px 20px;font-size:.9rem;font-weight:700}
+.confianza-in span{display:inline-flex;align-items:center;gap:8px}
+
+/* ---------- secciones ---------- */
+section{padding:64px 0}
+.cabeza{max-width:52ch;margin-bottom:34px}
+.cabeza .et{font-size:.75rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--rosa);margin-bottom:8px}
+.cabeza p{color:var(--gris)}
+
+/* ---------- menu ---------- */
+.filtros{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:26px}
+.chip{border:1.5px solid var(--linea);background:var(--papel);border-radius:999px;padding:9px 17px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;color:var(--tinta);transition:.15s}
+.chip[aria-pressed="true"]{background:var(--tinta);color:#fff;border-color:var(--tinta)}
+.grupo{margin-bottom:40px}
+.grupo-t{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.grupo-t h3{font-size:1.4rem;margin:0}
+.grupo-copy{color:var(--gris);font-size:.92rem;margin-bottom:18px}
+.platos{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.plato{background:var(--papel);border:1px solid var(--linea);border-radius:var(--radio);padding:18px;display:flex;flex-direction:column;box-shadow:var(--sombra);position:relative}
+.plato .fav{position:absolute;top:14px;right:14px;background:var(--rosa-luz);color:var(--rosa-osc);font-size:.68rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:4px 9px;border-radius:999px}
+.plato h4{margin:0 0 4px;font-size:1.06rem;font-weight:800;padding-right:74px}
+.plato .desc{color:var(--gris);font-size:.88rem;margin:0 0 14px;flex:1}
+.plato .pie{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.precio{font-size:1.45rem;font-weight:800;letter-spacing:-.02em}
+.precio small{font-size:.78rem;font-weight:700;color:var(--gris);margin-left:2px}
+.picor-sel{margin:0 0 14px}
+.picor-sel label{display:block;font-size:.74rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gris);margin-bottom:6px}
+select,input,textarea{font-family:inherit;font-size:.95rem;color:var(--tinta);background:var(--papel);
+  border:1.5px solid var(--linea);border-radius:10px;padding:10px 12px;width:100%}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--rosa);outline-offset:1px;border-color:var(--rosa)}
+
+/* ---------- como pedir ---------- */
+.pasos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.paso{background:var(--papel);border:1px solid var(--linea);border-radius:var(--radio);padding:24px;box-shadow:var(--sombra)}
+.paso .n{width:38px;height:38px;border-radius:50%;background:var(--tinta);color:var(--lima);display:grid;place-items:center;font-weight:800;margin-bottom:14px}
+.paso p{color:var(--gris);font-size:.92rem;margin:0}
+
+/* ---------- resenas ---------- */
+.rese{background:var(--papel)}
+.rese-top{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-bottom:28px}
+.rese-nota{font-size:3.4rem;font-weight:800;line-height:1;letter-spacing:-.03em}
+.estrellas{color:#F5A623;font-size:1.15rem;letter-spacing:2px}
+.rese-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.op{background:var(--crema);border:1px solid var(--linea);border-radius:var(--radio);padding:20px}
+.op .estrellas{font-size:.95rem;margin-bottom:8px}
+.op p{font-size:.93rem;margin:0 0 12px}
+.op .quien{font-size:.82rem;color:var(--gris);font-weight:700}
+
+/* ---------- pie ---------- */
+footer{background:var(--tinta-2);color:rgba(255,255,255,.75);padding:52px 0 90px;font-size:.92rem}
+footer h3{color:#fff}
+.pie-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;margin-bottom:32px}
+footer a{color:var(--lima)}
+.pie-nota{border-top:1px solid rgba(255,255,255,.14);padding-top:20px;font-size:.8rem;color:rgba(255,255,255,.5)}
+.pendiente{display:inline-block;background:rgba(217,130,43,.18);color:#FFC98A;border:1px dashed rgba(255,201,138,.5);
+  padding:2px 9px;border-radius:6px;font-size:.78rem;font-weight:700}
+
+/* ---------- barra flotante del carrito ---------- */
+.barra{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--tinta);color:#fff;
+  box-shadow:0 -8px 30px rgba(0,0,0,.25);transform:translateY(110%);transition:transform .24s ease;
+  padding:12px 20px calc(12px + env(safe-area-inset-bottom))}
+.barra.on{transform:translateY(0)}
+.barra-in{max-width:var(--max);margin:0 auto;display:flex;align-items:center;gap:14px}
+.barra .res{margin-right:auto;font-size:.9rem;line-height:1.3}
+.barra .res b{display:block;font-size:1.15rem;font-weight:800}
+
+/* ---------- modales ---------- */
+.velo{position:fixed;inset:0;background:rgba(11,23,41,.6);z-index:80;display:none;align-items:flex-end;justify-content:center}
+.velo.on{display:flex}
+.hoja{background:var(--crema);width:100%;max-width:640px;max-height:92vh;overflow-y:auto;border-radius:22px 22px 0 0;
+  box-shadow:0 -10px 60px rgba(0,0,0,.4);animation:sube .26s ease}
+@keyframes sube{from{transform:translateY(28px);opacity:.4}to{transform:translateY(0);opacity:1}}
+.hoja-cab{position:sticky;top:0;background:var(--crema);display:flex;align-items:center;gap:12px;
+  padding:18px 22px 14px;border-bottom:1px solid var(--linea);z-index:2}
+.hoja-cab h3{margin:0;font-size:1.15rem;margin-right:auto}
+.cerrar{width:38px;height:38px;border-radius:50%;border:1px solid var(--linea);background:var(--papel);
+  font-size:1.15rem;line-height:1;cursor:pointer;color:var(--tinta);flex:none}
+.hoja-cuerpo{padding:20px 22px 30px}
+.campo{margin-bottom:16px}
+.campo label{display:block;font-size:.78rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--gris);margin-bottom:6px}
+.campo .ayuda{font-size:.8rem;color:var(--gris);margin-top:5px}
+.par{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.linea-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--linea)}
+.linea-item .txt{flex:1;min-width:0}
+.linea-item .txt b{display:block;font-size:.96rem}
+.linea-item .txt span{font-size:.82rem;color:var(--gris)}
+.cant{display:flex;align-items:center;gap:6px;flex:none}
+.cant button{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--linea);background:var(--papel);
+  font-size:1rem;font-weight:800;cursor:pointer;color:var(--tinta);line-height:1;padding:0}
+.cant span{min-width:22px;text-align:center;font-weight:800}
+.totales{margin-top:18px;padding-top:16px;border-top:2px solid var(--tinta)}
+.tot-l{display:flex;justify-content:space-between;padding:5px 0;font-size:.95rem}
+.tot-l.grande{font-size:1.3rem;font-weight:800;padding-top:10px}
+.vacio{text-align:center;color:var(--gris);padding:34px 0}
+
+/* franjas horarias */
+.franjas{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.franja{border:1.5px solid var(--linea);background:var(--papel);border-radius:10px;padding:11px 6px;
+  font-size:.86rem;font-weight:700;cursor:pointer;font-family:inherit;color:var(--tinta);text-align:center}
+.franja[aria-pressed="true"]{background:var(--rosa);color:#fff;border-color:var(--rosa)}
+.franja:disabled{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+
+/* ---------- panel del duenio ---------- */
+.abrir-panel{position:fixed;right:16px;bottom:16px;z-index:65;background:var(--tinta);color:#fff;border:0;
+  border-radius:999px;padding:12px 18px;font-weight:700;font-size:.88rem;cursor:pointer;font-family:inherit;
+  box-shadow:0 10px 30px rgba(0,0,0,.3);display:inline-flex;align-items:center;gap:8px}
+.abrir-panel.subir{bottom:88px}
+.panel .hoja{max-width:860px;background:var(--papel)}
+.panel .hoja-cab{background:var(--papel)}
+.tabs{display:flex;gap:6px;padding:0 22px;border-bottom:1px solid var(--linea);background:var(--papel);
+  position:sticky;top:66px;z-index:2;overflow-x:auto}
+.tab{border:0;background:none;padding:12px 14px;font-size:.92rem;font-weight:700;cursor:pointer;color:var(--gris);
+  font-family:inherit;border-bottom:3px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--tinta);border-bottom-color:var(--rosa)}
+.tabla{width:100%;border-collapse:collapse;font-size:.88rem}
+.tabla th{text-align:left;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gris);
+  padding:8px 10px;border-bottom:1.5px solid var(--linea);white-space:nowrap}
+.tabla td{padding:11px 10px;border-bottom:1px solid var(--linea);vertical-align:top}
+.tabla tr:last-child td{border-bottom:0}
+.pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:.72rem;font-weight:800;white-space:nowrap}
+.pill.nuevo{background:var(--rosa-luz);color:var(--rosa-osc)}
+.pill.prep{background:#FFF0D6;color:#8A5A00}
+.pill.camino{background:#DFF3FF;color:#0B5E86}
+.pill.listo{background:#DFF6E6;color:#0B6B37}
+.pill.prog{background:#EDE9FE;color:#5B21B6}
+.pill.pub{background:#DFF6E6;color:#0B6B37}
+.aviso-demo{background:var(--rosa-luz);border:1px dashed var(--rosa);border-radius:12px;padding:12px 14px;
+  font-size:.85rem;margin-bottom:18px;color:var(--rosa-osc)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--crema);border:1px solid var(--linea);border-radius:12px;padding:14px}
+.kpi b{display:block;font-size:1.6rem;font-weight:800;letter-spacing:-.02em}
+.kpi span{font-size:.78rem;color:var(--gris);font-weight:700}
+.wrap-tabla{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cola{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--linea)}
+.cola:last-child{border-bottom:0}
+.cola .av{width:36px;height:36px;border-radius:50%;background:var(--tinta);color:#fff;display:grid;place-items:center;
+  font-weight:800;font-size:.85rem;flex:none}
+.cola .cc{flex:1;min-width:0}
+.cola .cc b{font-size:.95rem}
+.cola .cc p{margin:2px 0 8px;font-size:.86rem;color:var(--gris)}
+.post{border:1px solid var(--linea);border-radius:12px;padding:14px;margin-bottom:12px;background:var(--crema)}
+.post-cab{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.post-cab .cuando{font-size:.8rem;font-weight:800;color:var(--tinta)}
+.post-cab .red{font-size:.75rem;font-weight:700;color:var(--gris)}
+.post p{font-size:.88rem;margin:0}
+
+/* ---------- responsivo ---------- */
+@media (max-width:900px){
+  .hero-in{grid-template-columns:1fr;gap:32px}
+  .tarjeta-hero{order:2}
+}
+@media (max-width:760px){
+  .nav-links{position:absolute;top:62px;left:0;right:0;background:var(--crema);border-bottom:1px solid var(--linea);
+    flex-direction:column;align-items:stretch;gap:0;padding:6px 20px 14px;display:none;box-shadow:var(--sombra)}
+  .nav-links.on{display:flex}
+  .nav-links a{padding:12px 0;border-bottom:1px solid var(--linea)}
+  .nav-links a:last-child{border-bottom:0}
+  .hamb{display:flex}
+  section{padding:46px 0}
+  .hero{padding:40px 0 48px}
+  .hoja{max-height:94vh;border-radius:18px 18px 0 0}
+  .par{grid-template-columns:1fr}
+  .confianza-in{gap:16px;font-size:.82rem}
+  .tabs{top:62px}
+  .abrir-panel{padding:11px 15px;font-size:.82rem}
+  /* La tabla de pedidos no cabe en un telefono: se vuelve una tarjeta por pedido. */
+  .wrap-tabla{overflow-x:visible}
+  .tabla thead{display:none}
+  .tabla tbody tr{display:block;background:var(--crema);border:1px solid var(--linea);
+    border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .tabla td{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+    border-bottom:0;padding:4px 0;text-align:right}
+  .tabla td::before{content:attr(data-l);font-size:.7rem;font-weight:800;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--gris);flex:none;text-align:left}
+  .tabla td[data-l=""]{padding-top:10px}
+  .tabla td[data-l=""]::before{content:none}
+  .tabla td[data-l=""] .btn{width:100%}
+}
+@media (max-width:420px){
+  .platos{grid-template-columns:1fr}
+  .hero-datos{gap:18px}
+  .rese-nota{font-size:2.6rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+
+</style>
+</head>
+<body>
+
+<div class="cinta">Demo de venta preparado por <b>FishFlow</b> para Los Aguachiles &middot; los pedidos no son reales</div>
+
+<header class="nav">
+  <div class="env nav-in">
+    <a class="marca" href="#inicio"><span class="sello">&#129424;</span>Los Aguachiles</a>
+    <nav class="nav-links" id="navlinks">
+      <a href="#menu">Menú</a>
+      <a href="#comopedir">Cómo pedir</a>
+      <a href="#opiniones">Opiniones</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <button class="hamb" id="hamb" aria-expanded="false" aria-controls="navlinks" aria-label="Abrir el menú">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="inicio">
+
+<section class="hero">
+  <div class="env hero-in">
+    <div>
+      <span class="kicker">&#127796; Los mejores en mariscos</span>
+      <h1>Aguachiles bien picositos, <em>a la hora que tú digas</em>.</h1>
+      <p class="bajada">Arma tu pedido aquí, escoge el día y la franja de entrega, y nosotros llegamos.
+        Sin cadena de mensajes para cuadrar la hora.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-rosa" href="#menu">Ver el menú y pedir</a>
+        <a class="btn btn-linea" style="color:#fff;border-color:rgba(255,255,255,.6)" href="#comopedir">Cómo funciona</a>
+      </div>
+      <div class="hero-datos">
+        <div><b>desde $155</b>por platillo</div>
+        <div><b>$30</b>de envío en la zona</div>
+        <div><b>Jue a dom</b>de 12:00 a 17:00 h</div>
+      </div>
+    </div>
+    <aside class="tarjeta-hero">
+      <div class="t">Tu pedido, en 3 pasos</div>
+      <div class="paso-mini"><span class="n">1</span><p><strong>Escoge</strong>Aguachile, ceviche o michelada, con tu nivel de picor.</p></div>
+      <div class="paso-mini"><span class="n">2</span><p><strong>Elige tu hora</strong>Jueves a domingo, de 12:00 a 17:00, por franja de una hora.</p></div>
+      <div class="paso-mini"><span class="n">3</span><p><strong>Confirma</strong>Te llega el resumen por WhatsApp con total y hora.</p></div>
+    </aside>
+  </div>
+</section>
+
+<div class="confianza"><div class="confianza-in">
+  <span>&#128031; Producto del día</span>
+  <span>&#127798; Picor al gusto</span>
+  <span>&#128666; Envío $30</span>
+  <span>&#128340; Tú eliges la hora</span>
+</div></div>
+
+<section id="menu">
+  <div class="env">
+    <div class="cabeza">
+      <div class="et">El menú</div>
+      <h2>Todo se prepara al momento del pedido</h2>
+      <p>Precios en pesos, ya con las tostadas. Agrega lo que quieras y al final escoges cuándo lo quieres.</p>
+    </div>
+    <div class="filtros" role="group" aria-label="Filtrar el menú">
+<button type="button" class="chip" data-cat="todo" aria-pressed="true">Todo</button>
+<button type="button" class="chip" data-cat="aguachiles" aria-pressed="false">🦐 Aguachiles</button>
+<button type="button" class="chip" data-cat="ceviches" aria-pressed="false">🍤 Ceviches</button>
+<button type="button" class="chip" data-cat="micheladas" aria-pressed="false">🍺 Micheladas</button>
+</div>
+<div class="grupo" data-cat="aguachiles">
+<div class="grupo-t"><h3>🦐 Aguachiles</h3></div><p class="grupo-copy">Camarón crudo curado en limón, chile y sal. Picor al gusto.</p>
+<div class="platos">
+<article class="plato"><span class="fav">Más pedido</span><h4>Aguachile Verde</h4><p class="desc">Camarón, chile serrano, limón, pepino y cebolla morada.</p><div class="picor-sel"><label for="picor-ag-verde">Nivel de picor</label><select id="picor-ag-verde"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$155<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-verde">Agregar</button></div></article>
+<article class="plato"><h4>Aguachile Rojo</h4><p class="desc">Camarón en salsa de chile de árbol. El que más pica.</p><div class="picor-sel"><label for="picor-ag-rojo">Nivel de picor</label><select id="picor-ag-rojo"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$155<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-rojo">Agregar</button></div></article>
+<article class="plato"><h4>Aguachile Negro</h4><p class="desc">Camarón en salsa negra de chile morita y soya.</p><div class="picor-sel"><label for="picor-ag-negro">Nivel de picor</label><select id="picor-ag-negro"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$170<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-negro">Agregar</button></div></article>
+<article class="plato"><span class="fav">Más pedido</span><h4>Aguachile Mixto</h4><p class="desc">Camarón y pulpo en el mismo plato.</p><div class="picor-sel"><label for="picor-ag-mixto">Nivel de picor</label><select id="picor-ag-mixto"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$180<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-mixto">Agregar</button></div></article>
+</div></div>
+<div class="grupo" data-cat="ceviches">
+<div class="grupo-t"><h3>🍤 Ceviches</h3></div><p class="grupo-copy">Frescos, del día, con tostadas.</p>
+<div class="platos">
+<article class="plato"><h4>Ceviche de Camarón</h4><p class="desc">Camarón picado con jitomate, cebolla y cilantro.</p><div class="pie"><div class="precio">$155<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="cv-camaron">Agregar</button></div></article>
+<article class="plato"><h4>Ceviche de Pulpo</h4><p class="desc">Pulpo suave, curado en limón.</p><div class="pie"><div class="precio">$165<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="cv-pulpo">Agregar</button></div></article>
+<article class="plato"><span class="fav">Más pedido</span><h4>Ceviche Mixto</h4><p class="desc">Camarón y pulpo.</p><div class="pie"><div class="precio">$180<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="cv-mixto">Agregar</button></div></article>
+</div></div>
+<div class="grupo" data-cat="micheladas">
+<div class="grupo-t"><h3>🍺 Micheladas</h3></div><p class="grupo-copy">Para acompañar. Preparadas al momento.</p>
+<div class="platos">
+<article class="plato"><h4>Michelada</h4><p class="desc">Preparada al momento, con su chamoy y chile.</p><div class="pie"><div class="precio">$100<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="mi-normal">Agregar</button></div></article>
+<article class="plato"><h4>Michelada con Clamato</h4><p class="desc">La clásica, con clamato.</p><div class="pie"><div class="precio">$120<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="mi-clamato">Agregar</button></div></article>
+</div></div>
+  </div>
+</section>
+
+<section id="comopedir" style="background:var(--papel)">
+  <div class="env">
+    <div class="cabeza">
+      <div class="et">Cómo pedir</div>
+      <h2>Sin llamadas ni ir y venir de mensajes</h2>
+    </div>
+    <div class="pasos">
+      <div class="paso"><div class="n">1</div><h3>Arma tu pedido</h3>
+        <p>Toca <em>Agregar</em> en lo que quieras. Si es aguachile, dinos qué tan picoso lo quieres.</p></div>
+      <div class="paso"><div class="n">2</div><h3>Agenda la entrega</h3>
+        <p>Abrimos jueves a domingo de 12:00 a 17:00. Escoge el día y una franja de una hora; se cierran una hora antes.</p></div>
+      <div class="paso"><div class="n">3</div><h3>Confirma por WhatsApp</h3>
+        <p>Se abre el chat con tu pedido ya escrito: platillos, total, dirección y hora. Solo le das enviar.</p></div>
+      <div class="paso"><div class="n">4</div><h3>Recibe y disfruta</h3>
+        <p>Llegamos en tu franja. Después te mandamos un mensaje para saber cómo estuvo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="rese" id="opiniones">
+  <div class="env">
+    <div class="cabeza">
+      <div class="et">Opiniones</div>
+      <h2>Lo que dicen los que ya pidieron</h2>
+    </div>
+    <div class="rese-top">
+      <div>
+        <div class="rese-nota">--</div>
+        <div class="estrellas" aria-hidden="true">&#9734;&#9734;&#9734;&#9734;&#9734;</div>
+      </div>
+      <div style="max-width:44ch">
+        <p style="margin:0"><span class="pendiente">Por conectar</span></p>
+        <p style="margin:8px 0 0;color:var(--gris);font-size:.92rem">
+          Aquí van las estrellas reales de Google en cuanto revisemos si el negocio ya tiene su ficha.
+          Las opiniones de abajo son de ejemplo para enseñar cómo se vería.</p>
+      </div>
+    </div>
+    <div class="rese-grid">
+      <div class="op"><div class="estrellas">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p>Ejemplo de cómo se vería una opinión real una vez conectada la ficha de Google.</p>
+        <div class="quien">Opinión de ejemplo</div></div>
+      <div class="op"><div class="estrellas">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p>Ejemplo de cómo se vería una opinión real una vez conectada la ficha de Google.</p>
+        <div class="quien">Opinión de ejemplo</div></div>
+      <div class="op"><div class="estrellas">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p>Ejemplo de cómo se vería una opinión real una vez conectada la ficha de Google.</p>
+        <div class="quien">Opinión de ejemplo</div></div>
+    </div>
+  </div>
+</section>
+
+<footer id="contacto">
+  <div class="env">
+    <div class="pie-grid">
+      <div>
+        <h3>Los Aguachiles</h3>
+        <p>Tostiaguachiles, ceviches y aguachiles<br>Los mejores en mariscos.</p>
+      </div>
+      <div>
+        <h3>Pedidos</h3>
+        <p>WhatsApp <a href="https://wa.me/525510516938">5510516938</a><br>
+        Envío $30 &middot; <span class="pendiente">zona por confirmar</span></p>
+      </div>
+      <div>
+        <h3>Horario</h3>
+        <p><b>Jueves a domingo</b><br>12:00 a 17:00 h, en franjas de una hora.</p>
+      </div>
+    </div>
+    <div class="pie-nota">
+      Demo construido por FishFlow. Los precios y el horario vienen de la dueña (7 de septiembre de 2026).
+      La zona de entrega y la ficha de Google están pendientes de confirmar.
+    </div>
+  </div>
+</footer>
+
+</main>
+
+<button class="abrir-panel" id="abrirPanel" type="button">&#128202; Panel de la dueña</button>
+
+<div class="barra" id="barra">
+  <div class="barra-in">
+    <div class="res" id="barraTxt"></div>
+    <button class="btn btn-rosa" id="verPedido" type="button">Ver mi pedido</button>
+  </div>
+</div>
+
+<!-- hoja del pedido -->
+<div class="velo" id="veloPedido" role="dialog" aria-modal="true" aria-labelledby="tPedido">
+  <div class="hoja">
+    <div class="hoja-cab">
+      <h3 id="tPedido">Tu pedido</h3>
+      <button class="cerrar" id="cerrarPedido" type="button" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="hoja-cuerpo">
+      <div id="lineas"></div>
+      <div id="totales" hidden>
+        <div class="totales">
+          <div class="tot-l"><span>Subtotal</span><span id="subtot">$0</span></div>
+          <div class="tot-l"><span>Envío</span><span>$30</span></div>
+          <div class="tot-l grande"><span>Total</span><span id="granTot">$0</span></div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:26px">Cuándo te lo llevamos</h3>
+      <div class="campo">
+        <label for="dia">Día de entrega</label>
+        <select id="dia"></select>
+      </div>
+      <div class="campo">
+        <label>Franja de entrega</label>
+        <div class="franjas" id="franjas"></div>
+        <div class="ayuda" id="avisoFranjas"></div>
+      </div>
+
+      <h3 style="margin-top:26px">A dónde</h3>
+      <div class="par">
+        <div class="campo"><label for="nombre">Tu nombre</label><input id="nombre" type="text" autocomplete="name"></div>
+        <div class="campo"><label for="tel">Teléfono</label><input id="tel" type="tel" inputmode="tel" autocomplete="tel"></div>
+      </div>
+      <div class="campo"><label for="dir">Dirección</label>
+        <input id="dir" type="text" autocomplete="street-address" placeholder="Calle, número, colonia y referencias"></div>
+      <div class="campo"><label for="nota">Alguna indicación</label>
+        <textarea id="nota" rows="2" placeholder="Sin cebolla, timbre de abajo, etc."></textarea></div>
+
+      <button class="btn btn-wa" id="enviarWa" type="button" style="width:100%;margin-top:8px" disabled>
+        Confirmar por WhatsApp</button>
+      <p class="ayuda" style="text-align:center;margin-top:10px">
+        Se abre WhatsApp con tu pedido ya escrito. Nada se cobra aquí.</p>
+      <p class="ayuda" id="hechoPedido" hidden
+         style="text-align:center;color:var(--ok);font-weight:700">
+        Listo, tu pedido salió a WhatsApp.</p>
+    </div>
+  </div>
+</div>
+
+<!-- panel de la duena -->
+<div class="velo panel" id="veloPanel" role="dialog" aria-modal="true" aria-labelledby="tPanel">
+  <div class="hoja">
+    <div class="hoja-cab">
+      <h3 id="tPanel">Panel de la dueña</h3>
+      <button class="cerrar" id="cerrarPanel" type="button" aria-label="Cerrar">&times;</button>
+    </div>
+    
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" data-tab="pedidos" aria-selected="true">Pedidos</button>
+  <button class="tab" role="tab" data-tab="resenas" aria-selected="false">Reseñas</button>
+  <button class="tab" role="tab" data-tab="posts" aria-selected="false">Publicaciones</button>
+</div>
+<div class="hoja-cuerpo">
+  <div class="aviso-demo">Datos de ejemplo para que Chiva lo pruebe con el pulgar. Nada de esto llama a un servidor todavía.</div>
+
+  <div data-panel="pedidos">
+    <div class="kpis">
+      <div class="kpi"><b>5</b><span>Pedidos de hoy</span></div>
+      <div class="kpi"><b>$2,125</b><span>Vendido hoy</span></div>
+      <div class="kpi"><b>15:00</b><span>Hora más pedida</span></div>
+    </div>
+    <div class="wrap-tabla"><table class="tabla">
+      <thead><tr><th>Folio</th><th>Cliente</th><th>Entrega</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+      <tbody><tr><td data-l="Folio"><b>#1042</b></td><td data-l="Cliente"><span>Karen M.<br><span style="color:var(--gris);font-size:.82rem">2x Aguachile Verde, 1x Michelada</span></span></td><td data-l="Entrega">Hoy 14:00 - 15:00</td><td data-l="Total" style="font-weight:800">$440</td><td data-l="Estado"><span class="pill estado nuevo" data-e="nuevo">Nuevo</span></td><td data-l=""><button type="button" class="btn btn-linea btn-chico" data-avanzar>Avanzar</button></td></tr>
+<tr><td data-l="Folio"><b>#1041</b></td><td data-l="Cliente"><span>José Luis R.<br><span style="color:var(--gris);font-size:.82rem">1x Aguachile Negro, 1x Ceviche Mixto</span></span></td><td data-l="Entrega">Hoy 15:00 - 16:00</td><td data-l="Total" style="font-weight:800">$380</td><td data-l="Estado"><span class="pill estado prep" data-e="prep">Preparando</span></td><td data-l=""><button type="button" class="btn btn-linea btn-chico" data-avanzar>Avanzar</button></td></tr>
+<tr><td data-l="Folio"><b>#1040</b></td><td data-l="Cliente"><span>Fam. Beltrán<br><span style="color:var(--gris);font-size:.82rem">3x Ceviche de Camarón, 2x Michelada Clamato</span></span></td><td data-l="Entrega">Hoy 16:00 - 17:00</td><td data-l="Total" style="font-weight:800">$735</td><td data-l="Estado"><span class="pill estado camino" data-e="camino">En camino</span></td><td data-l=""><button type="button" class="btn btn-linea btn-chico" data-avanzar>Avanzar</button></td></tr>
+<tr><td data-l="Folio"><b>#1039</b></td><td data-l="Cliente"><span>Diana S.<br><span style="color:var(--gris);font-size:.82rem">1x Aguachile Mixto</span></span></td><td data-l="Entrega">Hoy 13:00 - 14:00</td><td data-l="Total" style="font-weight:800">$210</td><td data-l="Estado"><span class="pill estado listo" data-e="listo">Entregado</span></td><td data-l=""><button type="button" class="btn btn-linea btn-chico" data-avanzar>Avanzar</button></td></tr>
+<tr><td data-l="Folio"><b>#1038</b></td><td data-l="Cliente"><span>Marco A.<br><span style="color:var(--gris);font-size:.82rem">2x Ceviche de Pulpo</span></span></td><td data-l="Entrega">Mañana 12:00 - 13:00</td><td data-l="Total" style="font-weight:800">$360</td><td data-l="Estado"><span class="pill estado nuevo" data-e="nuevo">Nuevo</span></td><td data-l=""><button type="button" class="btn btn-linea btn-chico" data-avanzar>Avanzar</button></td></tr></tbody>
+    </table></div>
+    <p style="font-size:.84rem;color:var(--gris);margin-top:14px">
+      Cada pedido entra con la hora que el cliente eligió. Al marcarlo entregado se va solo a la cola de reseñas.</p>
+  </div>
+
+  <div data-panel="resenas" hidden>
+    <div class="kpis">
+      <div class="kpi"><b id="kpiEnviadas">0</b><span>Invitaciones enviadas</span></div>
+      <div class="kpi"><b>0</b><span>Reseñas en Google</span></div>
+      <div class="kpi"><b>--</b><span>Calificación</span></div>
+    </div>
+    <p style="font-size:.9rem;color:var(--gris);margin:-6px 0 16px">
+      Arranca en cero porque hay que revisar si Chiva ya tiene ficha de Google. La invitación se le manda
+      a <b>todos</b> los que ya recibieron su pedido, no solo a los contentos: filtrar va contra las reglas de Google.</p>
+    <div class="cola"><div class="av">DS</div><div class="cc"><b>Diana S.</b><p>Entregado hoy 13:40 · Aguachile Mixto</p><button type="button" class="btn btn-wa btn-chico" data-invitar>Invitar por WhatsApp</button></div></div>
+<div class="cola"><div class="av">MC</div><div class="cc"><b>Mario C.</b><p>Entregado ayer 19:10 · Ceviche Mixto</p><button type="button" class="btn btn-wa btn-chico" data-invitar>Invitar por WhatsApp</button></div></div>
+<div class="cola"><div class="av">LG</div><div class="cc"><b>Lupita G.</b><p>Entregado ayer 15:20 · Aguachile Verde x2</p><button type="button" class="btn btn-wa btn-chico" data-invitar>Invitar por WhatsApp</button></div></div>
+  </div>
+
+  <div data-panel="posts" hidden>
+    <div class="kpis">
+      <div class="kpi"><b id="kpiProgramadas">2</b><span>Programadas</span></div>
+      <div class="kpi"><b>2</b><span>Borradores por aprobar</span></div>
+      <div class="kpi"><b>3</b><span>Por semana</span></div>
+    </div>
+    <p style="font-size:.9rem;color:var(--gris);margin:-6px 0 16px">
+      Los textos se redactan solos con la voz del negocio y su menú. Chiva solo aprueba desde el celular
+      y se publican en automático. Deja de perder la tarde escribiendo posts.</p>
+    <div class="post"><div class="post-cab"><span class="cuando">Lunes 12:00</span><span class="red">Facebook</span><span class="pill prog estado">Programada</span></div><p>El lunes se arregla con aguachile verde. Camarón fresco, picor al gusto, y llega a tu casa. Pide por WhatsApp.</p></div>
+<div class="post"><div class="post-cab"><span class="cuando">Miércoles 13:00</span><span class="red">Facebook</span><span class="pill prog estado">Programada</span></div><p>Mixto de camarón y pulpo: los dos en el mismo plato. Es el que más nos piden los fines.</p></div>
+<div class="post"><div class="post-cab"><span class="cuando">Viernes 12:00</span><span class="red">Facebook</span><span class="pill nuevo estado">Borrador</span><button type="button" class="btn btn-rosa btn-chico" data-aprobar style="margin-left:auto">Aprobar y programar</button></div><p>Viernes de michelada con clamato y ceviche de pulpo. Agenda tu hora de entrega y lo dejamos listo.</p></div>
+<div class="post"><div class="post-cab"><span class="cuando">Sábado 11:00</span><span class="red">Facebook</span><span class="pill nuevo estado">Borrador</span><button type="button" class="btn btn-rosa btn-chico" data-aprobar style="margin-left:auto">Aprobar y programar</button></div><p>Sábado de antojo: pide con anticipación y elige la hora. Envío $30 en la zona.</p></div>
+  </div>
+</div>
+  </div>
+</div>
+
+<script>window.DATOS = {"productos": [{"id": "ag-verde", "nombre": "Aguachile Verde", "precio": 155}, {"id": "ag-rojo", "nombre": "Aguachile Rojo", "precio": 155}, {"id": "ag-negro", "nombre": "Aguachile Negro", "precio": 170}, {"id": "ag-mixto", "nombre": "Aguachile Mixto", "precio": 180}, {"id": "cv-camaron", "nombre": "Ceviche de Camarón", "precio": 155}, {"id": "cv-pulpo", "nombre": "Ceviche de Pulpo", "precio": 165}, {"id": "cv-mixto", "nombre": "Ceviche Mixto", "precio": 180}, {"id": "mi-normal", "nombre": "Michelada", "precio": 100}, {"id": "mi-clamato", "nombre": "Michelada con Clamato", "precio": 120}], "envio": 30, "franjas": ["12:00 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00"], "dias": [4, 5, 6, 0], "wa": "525510516938"};</script>
+<script>
+/* Los Aguachiles -- demo. Estado en memoria, sin servidor. */
+(function () {
+  "use strict";
+  var D = window.DATOS;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var pesos = function (n) { return "$" + n.toLocaleString("es-MX"); };
+
+  /* ---------------- nav movil ---------------- */
+  var hamb = $("#hamb"), links = $("#navlinks");
+  hamb.addEventListener("click", function () {
+    var abierto = hamb.getAttribute("aria-expanded") === "true";
+    hamb.setAttribute("aria-expanded", String(!abierto));
+    links.classList.toggle("on", !abierto);
+  });
+  $$("#navlinks a").forEach(function (a) {
+    a.addEventListener("click", function () {
+      hamb.setAttribute("aria-expanded", "false");
+      links.classList.remove("on");
+    });
+  });
+
+  /* ---------------- filtros del menu ---------------- */
+  $$(".chip").forEach(function (c) {
+    c.addEventListener("click", function () {
+      var cat = c.dataset.cat;
+      $$(".chip").forEach(function (o) { o.setAttribute("aria-pressed", String(o === c)); });
+      $$(".grupo").forEach(function (g) {
+        g.hidden = !(cat === "todo" || g.dataset.cat === cat);
+      });
+    });
+  });
+
+  /* ---------------- carrito ---------------- */
+  var carrito = [];              // {id, nombre, precio, picor, cant}
+  var barra = $("#barra"), btnPanel = $("#abrirPanel");
+
+  function claveDe(id, picor) { return id + "|" + (picor || ""); }
+
+  function agregar(prod, picor) {
+    var k = claveDe(prod.id, picor);
+    var l = carrito.filter(function (x) { return x.k === k; })[0];
+    if (l) { l.cant += 1; }
+    else { carrito.push({ k: k, id: prod.id, nombre: prod.nombre, precio: prod.precio, picor: picor, cant: 1 }); }
+    pintarBarra();
+  }
+  function cambiar(k, delta) {
+    var l = carrito.filter(function (x) { return x.k === k; })[0];
+    if (!l) return;
+    l.cant += delta;
+    if (l.cant <= 0) carrito = carrito.filter(function (x) { return x.k !== k; });
+    pintarBarra(); pintarCheckout();
+  }
+  function subtotal() {
+    return carrito.reduce(function (s, l) { return s + l.precio * l.cant; }, 0);
+  }
+  function piezas() {
+    return carrito.reduce(function (s, l) { return s + l.cant; }, 0);
+  }
+  function pintarBarra() {
+    var n = piezas();
+    barra.classList.toggle("on", n > 0);
+    btnPanel.classList.toggle("subir", n > 0);
+    $("#barraTxt").innerHTML = n
+      ? "<b>" + pesos(subtotal() + D.envio) + "</b>" + n + (n === 1 ? " platillo" : " platillos") + " + " + pesos(D.envio) + " de envío"
+      : "";
+  }
+
+  $$("[data-add]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var prod = D.productos.filter(function (p) { return p.id === b.dataset.add; })[0];
+      var sel = $("#picor-" + prod.id);
+      agregar(prod, sel ? sel.value : "");
+      b.textContent = "Agregado";
+      setTimeout(function () { b.textContent = "Agregar"; }, 900);
+    });
+  });
+
+  /* ---------------- hoja de pedido ---------------- */
+  var velo = $("#veloPedido");
+  function abrirPedido() { velo.classList.add("on"); document.body.style.overflow = "hidden"; pintarCheckout(); }
+  function cerrarPedido() { velo.classList.remove("on"); document.body.style.overflow = ""; }
+  $("#verPedido").addEventListener("click", abrirPedido);
+  $("#cerrarPedido").addEventListener("click", cerrarPedido);
+  velo.addEventListener("click", function (e) { if (e.target === velo) cerrarPedido(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { cerrarPedido(); cerrarPanel(); }
+  });
+
+  function pintarCheckout() {
+    var cont = $("#lineas");
+    if (!carrito.length) {
+      cont.innerHTML = '<div class="vacio">Todavía no eliges nada.<br>Cierra esta ventana y agrega del menú.</div>';
+      $("#totales").hidden = true;
+      $("#enviarWa").disabled = true;
+      return;
+    }
+    $("#totales").hidden = false;
+    cont.innerHTML = carrito.map(function (l) {
+      return '<div class="linea-item">' +
+        '<div class="txt"><b>' + l.nombre + "</b>" +
+        (l.picor ? "<span>Picor: " + l.picor + "</span>" : "") +
+        "</div>" +
+        '<div class="cant">' +
+        '<button type="button" data-menos="' + l.k + '" aria-label="Quitar uno">-</button>' +
+        "<span>" + l.cant + "</span>" +
+        '<button type="button" data-mas="' + l.k + '" aria-label="Agregar uno">+</button>' +
+        "</div>" +
+        '<div style="font-weight:800;min-width:70px;text-align:right">' + pesos(l.precio * l.cant) + "</div>" +
+        "</div>";
+    }).join("");
+    $$("[data-menos]", cont).forEach(function (b) {
+      b.addEventListener("click", function () { cambiar(b.dataset.menos, -1); });
+    });
+    $$("[data-mas]", cont).forEach(function (b) {
+      b.addEventListener("click", function () { cambiar(b.dataset.mas, 1); });
+    });
+    $("#subtot").textContent = pesos(subtotal());
+    $("#granTot").textContent = pesos(subtotal() + D.envio);
+    revisarForma();
+  }
+
+  /* ---------------- agenda de entrega ---------------- */
+  var franjaElegida = "";
+  var HOY = new Date();
+  var campos = ["nombre", "tel", "dir"];
+
+  function fechaLarga(d) {
+    var dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+    var meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+                 "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    return dias[d.getDay()] + " " + d.getDate() + " de " + meses[d.getMonth()];
+  }
+
+  // opciones de dia: hoy y los 3 siguientes
+  // Solo se ofrecen los dias que abre (jueves a domingo): se recorren los
+  // proximos 21 dias y se toman los primeros 4 abiertos.
+  var selDia = $("#dia");
+  (function () {
+    var puestos = 0;
+    for (var i = 0; i < 21 && puestos < 4; i++) {
+      var d = new Date(HOY.getFullYear(), HOY.getMonth(), HOY.getDate() + i);
+      if (D.dias.indexOf(d.getDay()) === -1) continue;
+      var o = document.createElement("option");
+      o.value = String(i);
+      o.textContent = (i === 0 ? "Hoy, " : i === 1 ? "Mañana, " : "") + fechaLarga(d);
+      selDia.appendChild(o);
+      puestos++;
+    }
+  })();
+
+  function pintarFranjas() {
+    var esHoy = selDia.value === "0";
+    var ahora = HOY.getHours() + HOY.getMinutes() / 60;
+    $("#franjas").innerHTML = D.franjas.map(function (f) {
+      var inicio = parseInt(f.split(":")[0], 10);
+      // con pedido anticipado: la franja se cierra 1 h antes
+      var muerta = esHoy && inicio - 1 <= ahora;
+      return '<button type="button" class="franja" data-f="' + f + '"' +
+        ' aria-pressed="false"' + (muerta ? " disabled" : "") + ">" + f + "</button>";
+    }).join("");
+    franjaElegida = "";
+    $$("#franjas .franja").forEach(function (b) {
+      b.addEventListener("click", function () {
+        franjaElegida = b.dataset.f;
+        $$("#franjas .franja").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+        revisarForma();
+      });
+    });
+    var libres = $$("#franjas .franja:not([disabled])").length;
+    $("#avisoFranjas").textContent = libres
+      ? "Se cierra una hora antes para que le dé tiempo de prepararlo."
+      : "Ya no hay horarios hoy. Elige otro día.";
+    revisarForma();
+  }
+  selDia.addEventListener("change", pintarFranjas);
+  pintarFranjas();
+  // Si hoy ya se paso la ultima franja, arrancamos en manana en vez de dejarlo atorado.
+  if (!$$("#franjas .franja:not([disabled])").length && selDia.options.length > 1) {
+    selDia.value = selDia.options[1].value;
+    pintarFranjas();
+  }
+
+  /* ---------------- validacion y handoff a WhatsApp ---------------- */
+  campos.forEach(function (id) { $("#" + id).addEventListener("input", revisarForma); });
+
+  function revisarForma() {
+    var lleno = campos.every(function (id) { return $("#" + id).value.trim().length > 2; });
+    $("#enviarWa").disabled = !(lleno && franjaElegida && carrito.length);
+  }
+
+  $("#enviarWa").addEventListener("click", function () {
+    var d = new Date(HOY.getFullYear(), HOY.getMonth(), HOY.getDate() + parseInt(selDia.value, 10));
+    var L = [];
+    L.push("Hola Los Aguachiles, quiero hacer un pedido:");
+    L.push("");
+    carrito.forEach(function (l) {
+      L.push("- " + l.cant + "x " + l.nombre + (l.picor ? " (" + l.picor + ")" : "") + " = " + pesos(l.precio * l.cant));
+    });
+    L.push("");
+    L.push("Subtotal: " + pesos(subtotal()));
+    L.push("Envío: " + pesos(D.envio));
+    L.push("TOTAL: " + pesos(subtotal() + D.envio));
+    L.push("");
+    L.push("Entrega: " + fechaLarga(d) + ", entre " + franjaElegida);
+    L.push("Nombre: " + $("#nombre").value.trim());
+    L.push("Teléfono: " + $("#tel").value.trim());
+    L.push("Dirección: " + $("#dir").value.trim());
+    var nota = $("#nota").value.trim();
+    if (nota) L.push("Nota: " + nota);
+    L.push("");
+    L.push("(Pedido armado desde la página)");
+    var url = "https://wa.me/" + D.wa + "?text=" + encodeURIComponent(L.join("\n"));
+    window.open(url, "_blank", "noopener");
+    $("#hechoPedido").hidden = false;
+  });
+
+  /* ---------------- panel de la duenia ---------------- */
+  var veloPanel = $("#veloPanel");
+  function abrirPanel() { veloPanel.classList.add("on"); document.body.style.overflow = "hidden"; }
+  function cerrarPanel() { veloPanel.classList.remove("on"); document.body.style.overflow = ""; }
+  btnPanel.addEventListener("click", abrirPanel);
+  $("#cerrarPanel").addEventListener("click", cerrarPanel);
+  veloPanel.addEventListener("click", function (e) { if (e.target === veloPanel) cerrarPanel(); });
+
+  $$(".tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      $$(".tab").forEach(function (o) { o.setAttribute("aria-selected", String(o === t)); });
+      $$("[data-panel]").forEach(function (p) { p.hidden = p.dataset.panel !== t.dataset.tab; });
+    });
+  });
+
+  // Resenas: mandar la invitacion (simulado)
+  $$("[data-invitar]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      b.textContent = "Invitación enviada";
+      b.disabled = true;
+      var n = parseInt($("#kpiEnviadas").textContent, 10) + 1;
+      $("#kpiEnviadas").textContent = String(n);
+    });
+  });
+
+  // Publicaciones: aprobar un borrador (simulado)
+  $$("[data-aprobar]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var caja = b.closest(".post");
+      caja.querySelector(".estado").outerHTML = '<span class="pill prog estado">Programada</span>';
+      b.remove();
+      var n = parseInt($("#kpiProgramadas").textContent, 10) + 1;
+      $("#kpiProgramadas").textContent = String(n);
+    });
+  });
+
+  // Pedidos: avanzar estado (simulado)
+  $$("[data-avanzar]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var celda = b.closest("tr").querySelector(".estado");
+      var orden = [["nuevo", "Nuevo"], ["prep", "Preparando"], ["camino", "En camino"], ["listo", "Entregado"]];
+      var actual = orden.map(function (o) { return o[0]; }).indexOf(celda.dataset.e);
+      if (actual < orden.length - 1) {
+        var sig = orden[actual + 1];
+        celda.dataset.e = sig[0];
+        celda.className = "pill estado " + sig[0];
+        celda.textContent = sig[1];
+        if (sig[0] === "listo") { b.textContent = "Pedir reseña"; }
+      } else {
+        b.textContent = "En la cola";
+        b.disabled = true;
+        var n = parseInt($("#kpiEnviadas").textContent, 10) + 1;
+        $("#kpiEnviadas").textContent = String(n);
+      }
+    });
+  });
+})();
+
+</script>
+</body>
+</html>
