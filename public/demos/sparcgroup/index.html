@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administración de Condominios en CDMX y Estado de México | SPARC</title>
+<meta name="description" content="SPARC administra condominios residenciales y centros comerciales en CDMX y Estado de México con app propia para condóminos, departamento jurídico interno, fianza de cumplimiento y transparencia financiera en tiempo real. Cotiza sin costo.">
+<meta name="keywords" content="administración de condominios CDMX, administradora de condominios, administración de centros comerciales, app para condominios, cartera vencida condominio">
+<link rel="canonical" href="https://sparcgroup.mx/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Administración de Condominios en CDMX | SPARC">
+<meta property="og:description" content="Administración profesional de condominios y centros comerciales con app propia, respaldo jurídico y transparencia financiera total.">
+<meta property="og:url" content="https://sparcgroup.mx/">
+<meta property="og:locale" content="es_MX">
+<link rel="icon" href="favicon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESPONSIVE BASE — FishFlow (no modificar)
+   ============================================================ */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1240px);margin-inline:auto;
+  padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-tablewrap > table{min-width:var(--ff-tablemin,520px);}
+.ff-shell{display:grid;gap:var(--ff-gap,24px);align-items:start;
+  grid-template-columns:var(--ff-side,260px) minmax(0,1fr);}
+.ff-shell--3{grid-template-columns:var(--ff-side,260px) minmax(0,1fr) var(--ff-right,300px);}
+.ff-h1{font-size:clamp(32px,5vw,64px);line-height:1.02;letter-spacing:-.02em;}
+.ff-h2{font-size:clamp(26px,3.6vw,46px);line-height:1.06;letter-spacing:-.02em;}
+.ff-lede{font-size:clamp(15px,1.4vw,19px);line-height:1.55;}
+.ff-hide-mobile{}
+.ff-stack-mobile{}
+@media(max-width:900px){ .ff-shell,.ff-shell--3{grid-template-columns:1fr;} }
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}
+
+/* ============================================================
+   MARCA SPARC
+   PMS 641C  #0065A1  ·  PMS 7739C  #2C9A42
+   Tipografía original: Champagne & Limousines
+   (sustituto web geométrico: Jost)
+   ============================================================ */
+:root{
+  --azul:#0065A1;
+  --azul-900:#00405F;
+  --azul-700:#005486;
+  --azul-050:#EDF5FA;
+  --verde:#2C9A42;
+  --verde-700:#217634;
+  --verde-050:#EDF7EF;
+  --tinta:#0E1D28;
+  --gris:#5C6E7C;
+  --gris-claro:#8698A5;
+  --linea:#E1E9F0;
+  --papel:#F7FAFC;
+  --blanco:#fff;
+  --r:14px;
+  --sombra:0 1px 2px rgba(14,29,40,.05), 0 12px 32px -12px rgba(0,101,161,.18);
+}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  color:var(--tinta);
+  background:var(--blanco);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+}
+h1,h2,h3,h4,.display{font-family:'Jost',system-ui,sans-serif;font-weight:400;letter-spacing:-.01em;}
+h1,h2,h3,h4,p{margin:0;}
+a{color:inherit;}
+
+/* ---------- Banner de propuesta ---------- */
+.banner{
+  background:linear-gradient(90deg,var(--verde),var(--verde-700));
+  color:#fff;text-align:center;padding:9px 18px;
+  font-size:12.5px;letter-spacing:.04em;font-weight:500;
+}
+.banner b{font-weight:600;}
+.banner span{opacity:.8;font-weight:400;}
+
+/* ---------- Nav ---------- */
+.nav{position:sticky;top:0;z-index:80;background:rgba(255,255,255,.94);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--linea);}
+.nav-in{display:flex;align-items:center;justify-content:space-between;gap:20px;height:74px;}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.nav-logo img{height:54px;width:auto;}
+.nav-logo .sub{font-family:'Jost',sans-serif;font-size:10px;letter-spacing:.14em;
+  color:var(--gris-claro);text-transform:uppercase;line-height:1.5;max-width:140px;
+  padding-left:13px;border-left:1px solid var(--linea);}
+.nav-links{display:flex;align-items:center;gap:30px;}
+.nav-links a{font-size:14px;color:var(--gris);text-decoration:none;font-weight:500;transition:color .18s;}
+.nav-links a:hover{color:var(--azul);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'Inter',sans-serif;font-size:14.5px;font-weight:600;text-decoration:none;
+  padding:13px 24px;border-radius:9px;border:1px solid transparent;cursor:pointer;transition:.18s;}
+.btn-primary{background:var(--azul);color:#fff;}
+.btn-primary:hover{background:var(--azul-700);transform:translateY(-1px);}
+.btn-verde{background:var(--verde);color:#fff;}
+.btn-verde:hover{background:var(--verde-700);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--azul);border-color:#C7DCEA;}
+.btn-ghost:hover{background:var(--azul-050);}
+.btn-blanco{background:#fff;color:var(--azul-900);}
+.btn-blanco:hover{transform:translateY(-1px);}
+
+.hamb{display:none;width:44px;height:44px;border:1px solid var(--linea);background:#fff;
+  border-radius:9px;cursor:pointer;align-items:center;justify-content:center;}
+.hamb span{display:block;width:19px;height:2px;background:var(--azul);position:relative;}
+.hamb span::before,.hamb span::after{content:'';position:absolute;left:0;width:19px;height:2px;background:var(--azul);}
+.hamb span::before{top:-6px;} .hamb span::after{top:6px;}
+.mobile-menu{display:none;border-top:1px solid var(--linea);background:#fff;padding:12px 0 22px;}
+.mobile-menu.open{display:block;}
+.mobile-menu a{display:block;padding:13px 0;font-size:15.5px;font-weight:500;
+  color:var(--tinta);text-decoration:none;border-bottom:1px solid var(--papel);}
+.mobile-menu .btn{margin-top:16px;width:100%;}
+@media(max-width:900px){ .nav-links{display:none;} .hamb{display:flex;} .nav-logo .sub{display:none;} }
+
+/* ---------- Secciones ---------- */
+section{padding:clamp(58px,7vw,104px) 0;}
+.eyebrow{font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--verde);font-weight:500;margin-bottom:14px;}
+.eyebrow.azul{color:var(--azul);}
+.stitle{font-size:clamp(27px,3.4vw,42px);line-height:1.14;max-width:19ch;}
+.slede{font-size:clamp(15px,1.3vw,17.5px);color:var(--gris);max-width:60ch;margin-top:16px;line-height:1.62;}
+.center{text-align:center;} .center .stitle,.center .slede{margin-inline:auto;}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;overflow:hidden;background:var(--papel);
+  padding:clamp(56px,6vw,86px) 0 clamp(56px,6vw,90px);}
+.hero::before{content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(760px 460px at 88% 6%, rgba(0,101,161,.10), transparent 62%),
+    radial-gradient(560px 400px at 4% 96%, rgba(44,154,66,.09), transparent 64%);}
+.hero-in{position:relative;display:grid;grid-template-columns:1.06fr .94fr;gap:clamp(30px,4.5vw,64px);align-items:center;}
+@media(max-width:960px){ .hero-in{grid-template-columns:1fr;} }
+.hero h1{max-width:15ch;font-size:clamp(33px,4.6vw,56px);line-height:1.06;letter-spacing:-.022em;font-weight:400;}
+.hero h1 b{font-weight:600;color:var(--azul);}
+.hero p.lede{font-size:clamp(15.5px,1.35vw,18.5px);color:var(--gris);margin-top:22px;max-width:52ch;line-height:1.62;}
+.hero-cta{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;}
+.hero-note{display:flex;align-items:center;gap:9px;margin-top:26px;font-size:13.5px;color:var(--gris-claro);}
+.dot-live{width:8px;height:8px;border-radius:50%;background:var(--verde);
+  box-shadow:0 0 0 4px rgba(44,154,66,.16);flex:none;}
+
+/* ---------- Teléfono ---------- */
+.phone{width:min(300px,86vw);margin-inline:auto;background:#0E1D28;border-radius:38px;
+  padding:11px;box-shadow:0 40px 80px -30px rgba(0,64,95,.5), 0 0 0 1px rgba(14,29,40,.07);}
+.phone-screen{background:#fff;border-radius:29px;overflow:hidden;}
+.phone-top{background:var(--azul);color:#fff;padding:16px 18px 18px;}
+.phone-top .app{font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.16em;opacity:.75;}
+.phone-top .who{font-family:'Jost',sans-serif;font-size:19px;margin-top:5px;}
+.phone-top .sub{font-size:11.5px;opacity:.78;margin-top:2px;}
+.phone-body{padding:15px;display:flex;flex-direction:column;gap:10px;background:#F4F8FB;}
+.pcard{background:#fff;border:1px solid var(--linea);border-radius:11px;padding:12px 13px;}
+.pcard .lbl{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--gris-claro);}
+.pcard .val{font-family:'Jost',sans-serif;font-size:21px;color:var(--tinta);margin-top:3px;}
+.pcard .val small{font-size:12px;color:var(--verde);font-family:'Inter',sans-serif;font-weight:600;margin-left:6px;}
+.prow{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--linea);
+  border-radius:11px;padding:11px 12px;}
+.pchip{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;
+  font-size:13px;flex:none;background:var(--azul-050);color:var(--azul);}
+.pchip.v{background:var(--verde-050);color:var(--verde-700);}
+.prow .t{font-size:12.5px;font-weight:600;line-height:1.3;}
+.prow .s{font-size:11px;color:var(--gris-claro);}
+.pill-ok{margin-left:auto;font-size:10px;font-weight:600;color:var(--verde-700);
+  background:var(--verde-050);padding:4px 8px;border-radius:20px;flex:none;}
+
+/* ---------- Barra de credenciales ---------- */
+.creds{background:var(--azul-900);color:#fff;padding:clamp(30px,3.4vw,44px) 0;}
+.creds .ff-grid{--ff-min:180px;--ff-gap:24px;}
+.cred .n{font-family:'Jost',sans-serif;font-size:clamp(28px,3vw,38px);font-weight:500;line-height:1;}
+.cred .n em{font-style:normal;color:#7FD08F;}
+.cred .l{font-size:12.5px;opacity:.72;margin-top:8px;line-height:1.45;}
+
+/* ---------- Tarjetas ---------- */
+.card{background:#fff;border:1px solid var(--linea);border-radius:var(--r);
+  padding:26px 24px;transition:.2s;height:100%;}
+.card:hover{border-color:#BFD9E9;box-shadow:var(--sombra);transform:translateY(-2px);}
+.card h3{font-size:18.5px;margin-bottom:9px;line-height:1.25;font-weight:500;}
+.card p{font-size:14.3px;color:var(--gris);line-height:1.6;}
+.ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;
+  background:var(--azul-050);color:var(--azul);}
+.ico.v{background:var(--verde-050);color:var(--verde-700);}
+.ico svg{width:22px;height:22px;}
+
+/* ---------- Servicios (lista numerada) ---------- */
+.serv{border-top:1px solid var(--linea);padding:30px 0;display:grid;
+  grid-template-columns:64px 1fr 1.25fr;gap:clamp(16px,3vw,40px);align-items:start;}
+@media(max-width:820px){ .serv{grid-template-columns:44px 1fr;} .serv .sbody{grid-column:2;} }
+.serv .num{font-family:'Jost',sans-serif;font-size:15px;color:var(--verde);font-weight:500;
+  padding-top:4px;letter-spacing:.06em;}
+.serv h3{font-size:clamp(19px,2vw,25px);line-height:1.2;font-weight:400;}
+.serv ul{margin:0;padding-left:19px;color:var(--gris);font-size:14.5px;line-height:1.72;}
+.serv ul li{margin-bottom:5px;}
+.serv ul li::marker{color:#B8C9D6;}
+
+/* ---------- App / IA ---------- */
+.dark{background:var(--azul-900);color:#fff;position:relative;overflow:hidden;}
+.dark::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(680px 440px at 82% 12%, rgba(44,154,66,.20), transparent 62%);}
+.dark .ff-container{position:relative;}
+.dark .slede{color:rgba(255,255,255,.72);}
+.dark .eyebrow{color:#7FD08F;}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,4.5vw,64px);align-items:center;}
+@media(max-width:900px){ .split{grid-template-columns:1fr;} }
+.feat{display:flex;gap:14px;margin-top:24px;}
+.feat .fi{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.11);
+  display:grid;place-items:center;flex:none;color:#7FD08F;}
+.feat .fi svg{width:17px;height:17px;}
+.feat h4{font-size:16px;font-weight:500;margin-bottom:4px;}
+.feat p{font-size:14px;color:rgba(255,255,255,.66);line-height:1.55;}
+
+/* Panel IA */
+.ia{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.14);
+  border-radius:18px;padding:20px;backdrop-filter:blur(8px);}
+.ia-head{display:flex;align-items:center;gap:9px;padding-bottom:14px;
+  border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:15px;}
+.ia-head .t{font-family:'Jost',sans-serif;font-size:14px;letter-spacing:.03em;}
+.ia-head .live{margin-left:auto;font-size:10px;letter-spacing:.1em;color:#7FD08F;
+  border:1px solid rgba(127,208,143,.4);padding:3px 9px;border-radius:20px;}
+.msg{background:rgba(255,255,255,.09);border-radius:12px 12px 12px 4px;padding:10px 13px;
+  font-size:12.8px;color:rgba(255,255,255,.86);margin-bottom:8px;line-height:1.5;}
+.msg b{display:block;font-size:10.5px;color:rgba(255,255,255,.5);font-weight:500;margin-bottom:3px;}
+.ia-out{background:rgba(44,154,66,.16);border:1px solid rgba(127,208,143,.34);
+  border-radius:12px;padding:14px;margin-top:15px;}
+.ia-out .tag{font-size:10px;letter-spacing:.12em;color:#7FD08F;margin-bottom:8px;}
+.ia-out .txt{font-size:13px;line-height:1.55;color:#fff;}
+.ia-out .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;}
+.ia-out .meta span{font-size:10.5px;background:rgba(255,255,255,.12);padding:4px 9px;border-radius:20px;}
+
+/* ---------- Estructura ---------- */
+.org{background:#fff;border:1px solid var(--linea);border-left:3px solid var(--verde);
+  border-radius:0 var(--r) var(--r) 0;padding:22px 24px;height:100%;}
+.org h4{font-size:16.5px;margin-bottom:7px;font-weight:500;}
+.org p{font-size:14px;color:var(--gris);line-height:1.6;}
+
+/* ---------- Talento ---------- */
+.talento{background:var(--verde-050);border:1px solid #C9E6D0;border-radius:18px;
+  padding:clamp(28px,4vw,46px);}
+
+/* ---------- Contacto ---------- */
+.contacto{background:var(--papel);}
+.form-card{background:#fff;border:1px solid var(--linea);border-radius:18px;
+  padding:clamp(26px,3.4vw,38px);box-shadow:var(--sombra);}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--gris);margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;padding:12px 14px;border:1px solid var(--linea);
+  border-radius:9px;font-family:'Inter',sans-serif;font-size:14.5px;color:var(--tinta);background:#fff;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--azul);
+  box-shadow:0 0 0 3px rgba(0,101,161,.12);}
+.field textarea{resize:vertical;min-height:90px;}
+.form-note{font-size:12px;color:var(--gris-claro);margin-top:12px;line-height:1.5;}
+.contacto-info li{display:flex;gap:13px;margin-bottom:20px;align-items:flex-start;}
+.contacto-info ul{list-style:none;margin:26px 0 0;padding:0;}
+.contacto-info .ci{width:38px;height:38px;border-radius:11px;background:var(--azul-050);color:var(--azul);
+  display:grid;place-items:center;flex:none;}
+.contacto-info .ci svg{width:17px;height:17px;}
+.contacto-info .k{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gris-claro);}
+.contacto-info .v{font-size:15px;font-weight:500;margin-top:2px;line-height:1.45;}
+.contacto-info .v a{text-decoration:none;color:var(--azul);}
+
+/* ---------- Comparativa ---------- */
+.tabla{width:100%;border-collapse:collapse;background:#fff;font-size:14.5px;}
+.tabla th,.tabla td{padding:16px 18px;text-align:left;border-bottom:1px solid var(--linea);vertical-align:top;}
+.tabla thead th{font-family:'Jost',sans-serif;font-weight:500;font-size:14px;letter-spacing:.02em;
+  background:var(--papel);border-bottom:1px solid var(--linea);}
+.tabla thead th.destaca{background:var(--azul);color:#fff;border-bottom-color:var(--azul);}
+.tabla td.destaca{background:var(--azul-050);font-weight:500;color:var(--azul-900);}
+.tabla td.crit{font-weight:500;color:var(--tinta);width:26%;}
+.tabla td.otros{color:var(--gris);}
+.tabla tbody tr:last-child td{border-bottom:none;}
+.tabla-wrap{border:1px solid var(--linea);border-radius:var(--r);overflow:hidden;box-shadow:var(--sombra);}
+.ck{display:inline-block;width:15px;height:15px;margin-right:7px;vertical-align:-2px;}
+
+/* ---------- Timeline transición ---------- */
+.tl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,225px),1fr));gap:0;margin-top:42px;}
+.tl-step{position:relative;padding:0 22px 0 0;}
+.tl-step::before{content:'';position:absolute;left:0;top:17px;right:0;height:1px;background:var(--linea);}
+.tl-step:last-child::before{display:none;}
+.tl-dot{width:35px;height:35px;border-radius:50%;background:#fff;border:1px solid var(--linea);
+  display:grid;place-items:center;font-family:'Jost',sans-serif;font-size:14px;color:var(--azul);
+  position:relative;z-index:2;margin-bottom:16px;}
+.tl-step.on .tl-dot{background:var(--verde);border-color:var(--verde);color:#fff;}
+.tl-step h4{font-size:16.5px;font-weight:500;margin-bottom:7px;}
+.tl-step p{font-size:14px;color:var(--gris);line-height:1.58;padding-right:16px;}
+.tl-step .wk{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--verde);
+  font-weight:600;margin-bottom:6px;}
+@media(max-width:600px){ .tl-step::before{display:none;} .tl-step{padding:0 0 26px;} }
+
+/* ---------- Testimonios ---------- */
+.quote{background:#fff;border:1px solid var(--linea);border-radius:var(--r);padding:28px 26px;height:100%;
+  display:flex;flex-direction:column;}
+.quote .q{font-family:'Jost',sans-serif;font-size:34px;color:var(--verde);line-height:1;margin-bottom:10px;}
+.quote p{font-size:14.8px;color:#25384A;line-height:1.65;flex:1;}
+.quote .who{margin-top:20px;padding-top:16px;border-top:1px solid var(--linea);}
+.quote .who .n{font-size:14.5px;font-weight:600;}
+.quote .who .r{font-size:12.8px;color:var(--gris-claro);margin-top:2px;}
+.pendiente{position:relative;}
+.pendiente::after{content:'POR VALIDAR CON SPARC';position:absolute;top:11px;right:11px;
+  font-size:9px;letter-spacing:.1em;font-weight:600;color:#B07A16;
+  background:#FDF4E0;border:1px solid #F0DDAE;padding:3px 8px;border-radius:20px;}
+
+/* ---------- FAQ ---------- */
+.faq{border-top:1px solid var(--linea);}
+.faq details{border-bottom:1px solid var(--linea);}
+.faq summary{padding:22px 44px 22px 0;cursor:pointer;list-style:none;position:relative;
+  font-family:'Jost',sans-serif;font-size:clamp(16.5px,1.7vw,19.5px);font-weight:400;line-height:1.35;}
+.faq summary::-webkit-details-marker{display:none;}
+.faq summary::after{content:'';position:absolute;right:6px;top:50%;width:11px;height:11px;
+  border-right:1.6px solid var(--azul);border-bottom:1.6px solid var(--azul);
+  transform:translateY(-70%) rotate(45deg);transition:transform .2s;}
+.faq details[open] summary::after{transform:translateY(-30%) rotate(-135deg);}
+.faq .a{padding:0 clamp(0px,6vw,80px) 24px 0;font-size:14.8px;color:var(--gris);line-height:1.68;}
+
+/* ---------- Cobertura ---------- */
+.zonas{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px;}
+.zonas span{font-size:13px;background:#fff;border:1px solid var(--linea);color:var(--gris);
+  padding:8px 14px;border-radius:22px;}
+
+/* ---------- WhatsApp flotante ---------- */
+.wa{position:fixed;right:20px;bottom:20px;z-index:90;width:56px;height:56px;border-radius:50%;
+  background:#25D366;display:grid;place-items:center;text-decoration:none;
+  box-shadow:0 10px 26px -6px rgba(37,211,102,.55);transition:transform .18s;}
+.wa:hover{transform:scale(1.06);}
+.wa svg{width:29px;height:29px;fill:#fff;}
+@media(max-width:600px){ .wa{right:14px;bottom:14px;width:52px;height:52px;} }
+
+/* ---------- Footer ---------- */
+footer{background:var(--tinta);color:rgba(255,255,255,.6);padding:clamp(44px,5vw,66px) 0 30px;font-size:13.5px;}
+.f-logo{background:#fff;border-radius:12px;padding:16px 22px;display:inline-block;}
+.f-logo img{height:70px;width:auto;}
+footer h5{font-family:'Jost',sans-serif;color:#fff;font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;margin:0 0 15px;font-weight:500;}
+footer ul{list-style:none;margin:0;padding:0;}
+footer li{margin-bottom:9px;line-height:1.5;}
+footer a{text-decoration:none;transition:color .18s;}
+footer a:hover{color:#fff;}
+.f-bottom{border-top:1px solid rgba(255,255,255,.11);margin-top:44px;padding-top:22px;
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:rgba(255,255,255,.42);}
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <b>PROPUESTA DE SITIO WEB</b> <span>· preparada por FishFlow para SPARC · sparcgroup.mx · contenido y datos sujetos a validación</span>
+</div>
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="ff-container">
+    <div class="nav-in">
+      <a href="#inicio" class="nav-logo">
+        <img src="sparc-logo.png" alt="SPARC">
+        <span class="sub">Administración<br>Residencial y Comercial</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#nosotros">Nosotros</a>
+        <a href="#diferencia">Por qué SPARC</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#app">App y tecnología</a>
+        <a href="#comparativa">Comparativa</a>
+        <a href="#faq">Preguntas</a>
+        <a href="#contacto" class="btn btn-primary">Cotizar mi condominio</a>
+      </nav>
+      <button class="hamb" id="hamb" aria-label="Abrir menú" aria-expanded="false"><span></span></button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mm">
+    <div class="ff-container">
+      <a href="#nosotros">Nosotros</a>
+      <a href="#diferencia">Por qué SPARC</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#app">App y tecnología</a>
+      <a href="#comparativa">Comparativa</a>
+      <a href="#transicion">Cambio de administradora</a>
+      <a href="#estructura">Estructura</a>
+      <a href="#faq">Preguntas frecuentes</a>
+      <a href="#talento">Bolsa de trabajo</a>
+      <a href="#contacto" class="btn btn-primary">Cotizar mi condominio</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="inicio">
+  <div class="ff-container hero-in">
+    <div>
+      <div class="eyebrow">Condominios residenciales y centros comerciales</div>
+      <h1>Tu patrimonio, <b>en las mejores manos</b>. Tu tiempo, de vuelta.</h1>
+      <p class="lede">En SPARC redefinimos la administración de condominios: gestión tradicional con más de 15 años de experiencia, fusionada con tecnología propia y atención humana ultra-personalizada. Protegemos e incrementamos la plusvalía de tu patrimonio mientras tú disfrutas de tu hogar.</p>
+      <div class="hero-cta">
+        <a href="#contacto" class="btn btn-primary">Cotizar mi condominio</a>
+        <a href="#app" class="btn btn-ghost">Conocer la app SPARC</a>
+      </div>
+      <div class="hero-note"><span class="dot-live"></span> Atención de emergencias 24 horas, los 365 días del año</div>
+    </div>
+
+    <div class="ff-hide-mobile">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-top">
+            <div class="app">APP SPARC</div>
+            <div class="who">Residencial Cumbres</div>
+            <div class="sub">Torre B · Depto 402</div>
+          </div>
+          <div class="phone-body">
+            <div class="pcard">
+              <div class="lbl">Estado de cuenta</div>
+              <div class="val">Al corriente <small>✓</small></div>
+            </div>
+            <div class="prow">
+              <div class="pchip">📅</div>
+              <div><div class="t">Salón de eventos</div><div class="s">Sáb 14 · 18:00 – 23:00</div></div>
+              <span class="pill-ok">Reservado</span>
+            </div>
+            <div class="prow">
+              <div class="pchip v">🔧</div>
+              <div><div class="t">Mantenimiento hidroneumático</div><div class="s">Programado · miércoles 9:00</div></div>
+            </div>
+            <div class="prow">
+              <div class="pchip">📣</div>
+              <div><div class="t">Aviso del comité</div><div class="s">Asamblea ordinaria · 12 oct</div></div>
+            </div>
+            <div class="prow">
+              <div class="pchip v">📄</div>
+              <div><div class="t">Reporte financiero</div><div class="s">Septiembre · conciliado</div></div>
+              <span class="pill-ok">Nuevo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CREDENCIALES ============ -->
+<div class="creds">
+  <div class="ff-container">
+    <div class="ff-grid ff-grid--sm">
+      <div class="cred"><div class="n">15<em>+</em></div><div class="l">Años administrando inmuebles de alto nivel</div></div>
+      <div class="cred"><div class="n">24<em>/</em>7</div><div class="l">Atención de emergencias los 365 días del año</div></div>
+      <div class="cred"><div class="n">100<em>%</em></div><div class="l">Responsabilidad patronal asumida por SPARC</div></div>
+      <div class="cred"><div class="n">0</div><div class="l">Riesgo laboral y legal para el condominio</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ NOSOTROS ============ -->
+<section id="nosotros">
+  <div class="ff-container">
+    <div class="split">
+      <div>
+        <div class="eyebrow">Nosotros</div>
+        <h2 class="stitle">Transformamos la gestión inmobiliaria en experiencias de tranquilidad</h2>
+        <p class="slede">SPARC — Servicios Profesionales en Administración Residencial y Comercial — atiende condominios residenciales y centros comerciales con una fórmula clara: procesos de administración probados, tecnología de vanguardia y trato humano personalizado para cada inmueble.</p>
+        <p class="slede">Nuestra misión es proteger e incrementar la plusvalía de tu patrimonio, con total seguridad, confort y transparencia.</p>
+      </div>
+      <div class="ff-grid" style="--ff-gap:14px;--ff-min:215px">
+        <div class="card"><h3>Honestidad</h3><p>Rendición de cuentas sin letra chica ni cargos ocultos.</p></div>
+        <div class="card"><h3>Excelencia</h3><p>Estándares de servicio de nivel hospitality en cada inmueble.</p></div>
+        <div class="card"><h3>Integridad profesional</h3><p>Personal certificado y procesos auditables de principio a fin.</p></div>
+        <div class="card"><h3>Compromiso</h3><p>Servicios diseñados a la medida de cada condominio, no plantillas.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DIFERENCIADORES ============ -->
+<section id="diferencia" style="background:var(--papel)">
+  <div class="ff-container">
+    <div class="center" style="margin-bottom:42px">
+      <div class="eyebrow azul">Cualidades diferenciadoras</div>
+      <h2 class="stitle">Por qué las comunidades exclusivas eligen a SPARC</h2>
+    </div>
+    <div class="ff-grid ff-grid--lg">
+
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18.5h2"/></svg></div>
+        <h3>Tecnología propietaria de vanguardia</h3>
+        <p>Aplicación móvil y plataforma web exclusivas para que los residentes gestionen pagos, reservaciones, avisos y consultas desde cualquier dispositivo, con un clic.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.7v5.6c0 4.7 3.1 8.4 7.5 10.2 4.4-1.8 7.5-5.5 7.5-10.2V5.7z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Respaldo y garantía total</h3>
+        <p>Máxima tranquilidad operativa: incorporamos Fianza de Cumplimiento y Seguro de Responsabilidad Civil para cubrir cualquier imprevisto de forma inmediata.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M4 7h16"/><path d="M7 7 4 14h6z"/><path d="m17 7-3 7h6z"/></svg></div>
+        <h3>Recuperación de cartera vencida</h3>
+        <p>Departamento jurídico interno especializado en la pronta recuperación de morosidad por vías convenidas, extrajudiciales o judiciales.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/><path d="M8.5 11.5 10.5 13.5 14 10"/></svg></div>
+        <h3>Transparencia financiera absoluta</h3>
+        <p>Presupuestos auditados, reportes mensuales digitalizados, conciliaciones bancarias y estados de cuenta disponibles en tiempo real.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg></div>
+        <h3>Cobertura de emergencias 24/7</h3>
+        <p>Atención de emergencias y soporte técnico operativo continuo las 24 horas del día, los 365 días del año.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-1.8a3.2 3.2 0 0 0-3.2-3.2H6.2A3.2 3.2 0 0 0 3 18.2V20"/><circle cx="9.5" cy="7.5" r="3.4"/><path d="M17 11.5h4M19 9.5v4"/></svg></div>
+        <h3>Cero riesgo laboral para el condominio</h3>
+        <p>Asumimos el 100% de la responsabilidad patronal y laboral del personal en sitio, liberando a la comunidad y al comité de contingencias legales.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVICIOS ============ -->
+<section id="servicios">
+  <div class="ff-container">
+    <div style="margin-bottom:34px">
+      <div class="eyebrow">Propuesta integral de servicios</div>
+      <h2 class="stitle">Todo lo que tu inmueble necesita, con un solo interlocutor</h2>
+    </div>
+
+    <div class="serv">
+      <div class="num">01</div>
+      <div><h3>Administración estratégica y financiera</h3></div>
+      <div class="sbody"><ul>
+        <li>Gestión transparente de presupuestos de ingresos y egresos, conciliaciones bancarias y reportes comparativos mensuales.</li>
+        <li>Negociación de tarifas preferenciales con proveedores certificados para optimizar costos.</li>
+        <li>Asesoría legal y mediación conforme a la Ley de Propiedad en Condominio.</li>
+        <li>Organización de asambleas, juntas de comité y formalización ante Notario Público.</li>
+      </ul></div>
+    </div>
+
+    <div class="serv">
+      <div class="num">02</div>
+      <div><h3>Mantenimiento especializado e ingeniería</h3></div>
+      <div class="sbody"><ul>
+        <li>Planes de mantenimiento preventivo y correctivo dirigidos y evaluados por ingenieros calificados.</li>
+        <li>Conservación de equipos hidroneumáticos, bombas, albercas, calderas, gas e iluminación.</li>
+        <li>Plomería, electricidad, pintura, carpintería, albañilería y jardinería integral.</li>
+        <li>Proyectos de eficiencia energética, diseño de interiores y remodelaciones.</li>
+      </ul></div>
+    </div>
+
+    <div class="serv">
+      <div class="num">03</div>
+      <div><h3>Limpieza y mantenimiento estético profesional</h3></div>
+      <div class="sbody"><ul>
+        <li>Personal capacitado, uniformado e identificado, con maquinaria de grado industrial.</li>
+        <li>Supervisión constante — mínimo tres veces por semana — para asegurar estándares superiores.</li>
+        <li>Productos químicos de alta calidad e insumos ecológicos para la protección de superficies.</li>
+        <li>Pulido y encerado de pisos, lavado de cisternas y tinacos, alfombras y limpieza post-construcción.</li>
+      </ul></div>
+    </div>
+
+    <div class="serv">
+      <div class="num">04</div>
+      <div><h3>Conserjería, operación y hospitality</h3></div>
+      <div class="sbody"><ul>
+        <li>Atención VIP a residentes y control riguroso de accesos vehiculares y peatonales.</li>
+        <li>Servicio de valet parking, comunicación interna y seguimiento de consignas personalizadas.</li>
+        <li>Protocolos estrictos de seguridad, confidencialidad absoluta y brigadas de emergencia 24/7.</li>
+      </ul></div>
+    </div>
+
+    <div class="serv">
+      <div class="num">05</div>
+      <div><h3>Servicios concierge y mensajería</h3></div>
+      <div class="sbody"><ul>
+        <li>Recolección y gestión segura de trámites administrativos y pagos comunitarios para la comodidad de los condóminos.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP + IA ============ -->
+<section id="app" class="dark">
+  <div class="ff-container">
+    <div class="center" style="margin-bottom:48px">
+      <div class="eyebrow">Tecnología SPARC</div>
+      <h2 class="stitle" style="color:#fff">La administración de tu condominio, visible en tiempo real</h2>
+      <p class="slede">Ninguna administradora tradicional te da esto: una plataforma propia donde el condómino consulta y el comité supervisa, sin llamadas ni carpetas de papel.</p>
+    </div>
+
+    <div class="split">
+      <div>
+        <h3 style="font-size:clamp(21px,2.4vw,29px);font-weight:400;line-height:1.2">App para el condómino</h3>
+        <p class="slede" style="margin-top:14px">Todo lo que un residente necesita, en el celular.</p>
+
+        <div class="feat">
+          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19"/></svg></div>
+          <div><h4>Pagos y estado de cuenta</h4><p>Cuotas, adeudos y comprobantes siempre disponibles, sin pedirlos por WhatsApp.</p></div>
+        </div>
+        <div class="feat">
+          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9h17M8 2.5v4M16 2.5v4"/></svg></div>
+          <div><h4>Reservación de amenidades</h4><p>Salón, asador, cancha o gimnasio con calendario en vivo y confirmación inmediata.</p></div>
+        </div>
+        <div class="feat">
+          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v11H8l-4 3.5z"/></svg></div>
+          <div><h4>Avisos, reportes y consultas</h4><p>Comunicados del comité, reportes de mantenimiento y seguimiento a cada solicitud.</p></div>
+        </div>
+        <div class="feat">
+          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9.5l8-6 8 6V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/><path d="M9.5 20.5v-6h5v6"/></svg></div>
+          <div><h4>Panel para el comité</h4><p>Finanzas, incidencias y cumplimiento del personal en un tablero único, auditable.</p></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="ia">
+          <div class="ia-head">
+            <div class="fi" style="width:32px;height:32px;border-radius:9px;background:rgba(127,208,143,.18);display:grid;place-items:center;color:#7FD08F">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg>
+            </div>
+            <div class="t">Analizador de chats con IA</div>
+            <div class="live">EN OPERACIÓN</div>
+          </div>
+
+          <div class="msg"><b>Torre A · 14:02</b>No hay agua en el nivel 3 otra vez, van tres veces este mes.</div>
+          <div class="msg"><b>Torre B · 14:09</b>Aquí igual, y la bomba hace un ruido raro desde ayer.</div>
+          <div class="msg"><b>Torre A · 14:15</b>¿Alguien ya reportó a la administración?</div>
+
+          <div class="ia-out">
+            <div class="tag">RESUMEN AUTOMÁTICO PARA EL ADMINISTRADOR</div>
+            <div class="txt">Incidencia recurrente de suministro de agua en niveles altos, con ruido anómalo reportado en el equipo hidroneumático. Se recomienda inspección del equipo antes de 24 h.</div>
+            <div class="meta"><span>Prioridad alta</span><span>Hidroneumático</span><span>3 reportes / 30 días</span><span>Ticket generado</span></div>
+          </div>
+        </div>
+        <p style="font-size:12.5px;color:rgba(255,255,255,.5);margin-top:14px;line-height:1.55">
+          El módulo de análisis inteligente de chats está desarrollado por FishFlow y opera hoy en los desarrollos administrados por SPARC. Ejemplo ilustrativo con datos ficticios.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPARATIVA ============ -->
+<section id="comparativa">
+  <div class="ff-container">
+    <div class="center" style="margin-bottom:40px">
+      <div class="eyebrow azul">La diferencia, punto por punto</div>
+      <h2 class="stitle">Compara antes de firmar</h2>
+      <p class="slede">La mayoría de las administradoras ofrece lo mismo con distinto nombre. Estas son las diferencias que un comité sí nota en el primer trimestre.</p>
+    </div>
+
+    <div class="tabla-wrap">
+      <div class="ff-tablewrap" style="--ff-tablemin:680px">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Criterio</th>
+              <th class="destaca">SPARC</th>
+              <th>Administradora tradicional</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="crit">Información para el condómino</td>
+              <td class="destaca">App propia: estado de cuenta, reservaciones y avisos en tiempo real</td>
+              <td class="otros">Grupo de WhatsApp y correos sueltos</td>
+            </tr>
+            <tr>
+              <td class="crit">Reportes financieros</td>
+              <td class="destaca">Digitalizados, conciliados y auditados internamente cada mes</td>
+              <td class="otros">Carpeta impresa que se revisa en asamblea</td>
+            </tr>
+            <tr>
+              <td class="crit">Cartera vencida</td>
+              <td class="destaca">Departamento jurídico interno: vía convenida, extrajudicial o judicial</td>
+              <td class="otros">Se subcontrata un despacho externo y se cobra aparte</td>
+            </tr>
+            <tr>
+              <td class="crit">Responsabilidad laboral del personal</td>
+              <td class="destaca">100% asumida por SPARC — cero contingencia para el condominio</td>
+              <td class="otros">Riesgo solidario para el comité y los condóminos</td>
+            </tr>
+            <tr>
+              <td class="crit">Respaldo ante imprevistos</td>
+              <td class="destaca">Fianza de cumplimiento y seguro de responsabilidad civil</td>
+              <td class="otros">Sin garantía formal</td>
+            </tr>
+            <tr>
+              <td class="crit">Emergencias</td>
+              <td class="destaca">24 horas, 365 días del año</td>
+              <td class="otros">Horario de oficina</td>
+            </tr>
+            <tr>
+              <td class="crit">Supervisión del personal en sitio</td>
+              <td class="destaca">Supervisores itinerantes, mínimo 3 visitas por semana</td>
+              <td class="otros">Visita del administrador una vez al mes</td>
+            </tr>
+            <tr>
+              <td class="crit">Detección de problemas</td>
+              <td class="destaca">Análisis con IA de los chats del condominio: alertas antes de que escalen</td>
+              <td class="otros">Se atiende cuando alguien se queja formalmente</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p style="font-size:12.5px;color:var(--gris-claro);margin-top:14px;line-height:1.55">
+      Comparativo elaborado con base en las prácticas habituales del sector de administración de condominios en CDMX y Zona Metropolitana.
+    </p>
+  </div>
+</section>
+
+<!-- ============ TRANSICIÓN ============ -->
+<section id="transicion" style="background:var(--papel)">
+  <div class="ff-container">
+    <div style="max-width:62ch">
+      <div class="eyebrow">Cambio de administradora</div>
+      <h2 class="stitle">Cambiar de administradora no tiene por qué ser un problema</h2>
+      <p class="slede">Es la duda número uno de todo comité: “¿y si el cambio nos deja peor?”. SPARC se encarga de la transición completa —entrega-recepción, personal, proveedores y cartera— en un plan de cuatro semanas.</p>
+    </div>
+
+    <div class="tl">
+      <div class="tl-step on">
+        <div class="tl-dot">1</div>
+        <div class="wk">Semana 1</div>
+        <h4>Diagnóstico y propuesta</h4>
+        <p>Visita al inmueble, revisión de estados financieros, contratos vigentes y plantilla de personal. Entregamos propuesta económica cerrada.</p>
+      </div>
+      <div class="tl-step on">
+        <div class="tl-dot">2</div>
+        <div class="wk">Semana 2</div>
+        <h4>Asamblea y formalización</h4>
+        <p>Acompañamos al comité en la asamblea, con el respaldo jurídico para el acta y la formalización ante Notario Público.</p>
+      </div>
+      <div class="tl-step on">
+        <div class="tl-dot">3</div>
+        <div class="wk">Semana 3</div>
+        <h4>Entrega-recepción</h4>
+        <p>Auditoría del corte financiero, inventario de áreas comunes, transferencia de contratos y regularización del personal en nómina SPARC.</p>
+      </div>
+      <div class="tl-step on">
+        <div class="tl-dot">4</div>
+        <div class="wk">Semana 4</div>
+        <h4>Arranque con la app</h4>
+        <p>Alta de todos los condóminos en la plataforma, primer reporte financiero digital y arranque de la operación con supervisión en sitio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIOS ============ -->
+<section id="testimonios">
+  <div class="ff-container">
+    <div class="center" style="margin-bottom:40px">
+      <div class="eyebrow azul">Testimonios</div>
+      <h2 class="stitle">Lo que dicen los comités que ya trabajan con SPARC</h2>
+    </div>
+    <div class="ff-grid ff-grid--lg">
+      <div class="quote pendiente">
+        <div class="q">“</div>
+        <p>Espacio para el testimonio de un presidente de comité: qué problema tenían antes, qué cambió con SPARC y en cuánto tiempo lo notaron.</p>
+        <div class="who"><div class="n">Nombre del testimonio</div><div class="r">Presidente de Comité · Nombre del desarrollo</div></div>
+      </div>
+      <div class="quote pendiente">
+        <div class="q">“</div>
+        <p>Espacio para el testimonio de un condómino: cómo cambió su experiencia diaria con la app, los reportes y la atención.</p>
+        <div class="who"><div class="n">Nombre del testimonio</div><div class="r">Condómino · Nombre del desarrollo</div></div>
+      </div>
+      <div class="quote pendiente">
+        <div class="q">“</div>
+        <p>Espacio para un testimonio sobre resultados financieros: recuperación de cartera vencida, ahorro en proveedores o mejora en la plusvalía.</p>
+        <div class="who"><div class="n">Nombre del testimonio</div><div class="r">Tesorero de Comité · Nombre del desarrollo</div></div>
+      </div>
+    </div>
+    <p style="font-size:12.5px;color:var(--gris-claro);margin-top:18px;text-align:center;line-height:1.55">
+      Bloque listo para publicar en cuanto SPARC entregue tres testimonios reales con nombre, rol y desarrollo. Ninguno de los competidores directos publica testimonios: es una ventaja fácil de tomar.
+    </p>
+  </div>
+</section>
+
+<!-- ============ ESTRUCTURA ============ -->
+<section id="estructura">
+  <div class="ff-container">
+    <div style="margin-bottom:38px">
+      <div class="eyebrow azul">Estructura organizacional de respaldo</div>
+      <h2 class="stitle">Detrás de cada residencial hay una infraestructura corporativa completa</h2>
+      <p class="slede">No contratas a un administrador aislado: contratas a un equipo con áreas especializadas velando por la eficiencia operativa de tu inmueble.</p>
+    </div>
+    <div class="ff-grid ff-grid--lg">
+      <div class="org"><h4>Dirección y ejecutivos de cuenta</h4><p>Atención personalizada y continua de lunes a sábado, con seguimiento a requerimientos diarios.</p></div>
+      <div class="org"><h4>Departamento de auditoría interna</h4><p>Auditores dedicados a revisar y certificar la veracidad de la información financiera entregada.</p></div>
+      <div class="org"><h4>Cuerpo jurídico especializado</h4><p>Protección legal integral, atención ante dependencias gubernamentales y cobro de cartera vencida.</p></div>
+      <div class="org"><h4>Supervisión operativa en campo</h4><p>Supervisores itinerantes con visitas programadas para verificar disciplina y cumplimiento del personal.</p></div>
+      <div class="org"><h4>Equipo de mantenimiento e ingeniería</h4><p>Especialistas a cargo del diagnóstico, planeación y ejecución de obras y reparaciones.</p></div>
+      <div class="org"><h4>Recursos humanos y selección</h4><p>Reclutamiento riguroso y capacitación continua del personal asignado a cada inmueble.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TALENTO ============ -->
+<section id="talento" style="padding-top:0">
+  <div class="ff-container">
+    <div class="talento">
+      <div class="split" style="align-items:center">
+        <div>
+          <div class="eyebrow">Bolsa de trabajo</div>
+          <h2 class="stitle" style="font-size:clamp(23px,2.7vw,32px)">Las personas son el motor de nuestro éxito</h2>
+          <p class="slede">Promovemos una atmósfera de respeto, confianza, trabajo en equipo y diversidad. Ofrecemos oportunidades de desarrollo personal y profesional para atraer y conservar al mejor talento del sector.</p>
+        </div>
+        <div style="text-align:right">
+          <a href="#contacto" class="btn btn-verde">Enviar mi CV</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" style="background:var(--papel);padding-top:0">
+  <div class="ff-container" style="padding-top:clamp(58px,7vw,104px)">
+    <div style="max-width:60ch;margin-bottom:34px">
+      <div class="eyebrow azul">Preguntas frecuentes</div>
+      <h2 class="stitle">Lo que todo comité pregunta antes de decidir</h2>
+    </div>
+
+    <div class="faq">
+      <details open>
+        <summary>¿Cómo se cobran los honorarios de administración?</summary>
+        <div class="a">Los honorarios se cotizan por inmueble, en función del número de unidades, las amenidades y el alcance de servicios que el condominio requiera —administración total o parcial, con o sin personal de limpieza y conserjería. La propuesta se entrega cerrada y por escrito, sin cargos ocultos ni comisiones sobre compras a proveedores.</div>
+      </details>
+      <details>
+        <summary>¿Qué pasa con el personal que ya trabaja en el condominio?</summary>
+        <div class="a">SPARC puede absorber al personal existente en su propia nómina, asumiendo el 100% de la responsabilidad patronal y laboral. Esto elimina la contingencia legal que hoy recae sobre el comité y los condóminos, y garantiza que el personal opere bajo capacitación, uniforme y supervisión de SPARC.</div>
+      </details>
+      <details>
+        <summary>¿Cómo se recupera la cartera vencida?</summary>
+        <div class="a">Contamos con un departamento jurídico interno —no un despacho subcontratado— especializado en morosidad de condominios. El proceso escala por etapas: recordatorio y convenio de pago, gestión extrajudicial y, cuando es necesario, la vía judicial conforme a la Ley de Propiedad en Condominio.</div>
+      </details>
+      <details>
+        <summary>¿Qué es exactamente la app SPARC y cuánto cuesta?</summary>
+        <div class="a">Es la plataforma propia de SPARC —app móvil y web— incluida en el servicio de administración, sin costo adicional para el condominio. Cada condómino consulta su estado de cuenta, reserva amenidades, recibe avisos y levanta reportes; el comité accede a un panel con las finanzas y las incidencias del inmueble.</div>
+      </details>
+      <details>
+        <summary>¿Con qué frecuencia recibimos información financiera?</summary>
+        <div class="a">Mensualmente se entrega el reporte comparativo de ingresos y egresos contra presupuesto, con la conciliación bancaria correspondiente, revisado por nuestro departamento de auditoría interna. Los estados de cuenta y comprobantes están disponibles en la plataforma en tiempo real, sin esperar a la asamblea.</div>
+      </details>
+      <details>
+        <summary>¿Qué pasa si hay una emergencia de madrugada o en fin de semana?</summary>
+        <div class="a">La cobertura de emergencias opera las 24 horas, los 365 días del año, con brigadas y protocolos definidos por inmueble. Además, incorporamos fianza de cumplimiento y seguro de responsabilidad civil para cubrir imprevistos de forma inmediata.</div>
+      </details>
+      <details>
+        <summary>¿Administran centros comerciales y edificios de oficinas?</summary>
+        <div class="a">Sí. SPARC administra condominios residenciales verticales y horizontales, centros comerciales y edificios corporativos. El modelo de servicio se diseña a la medida de cada inmueble: la operación de un centro comercial no se administra con el mismo esquema que una torre residencial.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACTO ============ -->
+<section id="contacto" class="contacto">
+  <div class="ff-container">
+    <div class="split">
+      <div class="contacto-info">
+        <div class="eyebrow azul">Contacto</div>
+        <h2 class="stitle">¿Listo para llevar la gestión de tu condominio al siguiente nivel?</h2>
+        <p class="slede">Cuéntanos de tu residencial o centro comercial y preparamos una cotización personalizada, sin compromiso.</p>
+        <ul>
+          <li>
+            <div class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></div>
+            <div><div class="k">Oficinas</div><div class="v">Av. Jesús del Monte, Plaza Victoria 39<br>Col. Jesús del Monte, C.P. 52764<br>Huixquilucan, Estado de México</div></div>
+          </li>
+          <li>
+            <div class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h3.5l1.7 4.3-2.2 1.5a12.5 12.5 0 0 0 6.7 6.7l1.5-2.2 4.3 1.7V19a1.7 1.7 0 0 1-1.9 1.7A16.5 16.5 0 0 1 3.3 5.4 1.7 1.7 0 0 1 5 3.5z"/></svg></div>
+            <div><div class="k">Teléfono</div><div class="v"><a href="tel:+525536879047">55 3687 9047</a></div></div>
+          </li>
+          <li>
+            <div class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.6 6.5 8.4 6 8.4-6"/></svg></div>
+            <div><div class="k">Correo</div><div class="v"><a href="mailto:contacto@sparcgroup.mx">contacto@sparcgroup.mx</a></div></div>
+          </li>
+        </ul>
+
+        <div style="margin-top:6px">
+          <div class="k" style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gris-claro)">Zonas de cobertura</div>
+          <div class="zonas">
+            <span>Huixquilucan</span><span>Interlomas</span><span>Bosque Real</span>
+            <span>Santa Fe</span><span>Naucalpan</span><span>Lomas Verdes</span>
+            <span>Ciudad de México</span><span>Zona Metropolitana</span>
+          </div>
+          <p style="font-size:12px;color:var(--gris-claro);margin-top:12px;line-height:1.5">
+            Listado sujeto a validación con SPARC. Conviene cerrar con las zonas donde ya hay inmuebles administrados: es lo que posiciona el sitio en búsquedas locales.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <form onsubmit="event.preventDefault(); this.innerHTML='<div style=&quot;text-align:center;padding:38px 10px&quot;><div style=&quot;font-family:Jost,sans-serif;font-size:22px;color:#0065A1;margin-bottom:8px&quot;>Gracias por escribirnos</div><div style=&quot;font-size:14.5px;color:#5C6E7C&quot;>Un ejecutivo de cuenta te contactará en menos de 24 horas hábiles.</div></div>';">
+          <div class="field"><label for="n">Nombre completo</label><input id="n" type="text" required placeholder="Tu nombre"></div>
+          <div class="field"><label for="d">Nombre del desarrollo o inmueble</label><input id="d" type="text" required placeholder="Residencial, torre o centro comercial"></div>
+          <div class="field"><label for="t">Tipo de inmueble</label>
+            <select id="t">
+              <option>Condominio residencial vertical</option>
+              <option>Condominio residencial horizontal</option>
+              <option>Centro comercial</option>
+              <option>Edificio de oficinas</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div class="field"><label for="u">Número de unidades / locales</label><input id="u" type="text" placeholder="Ej. 48"></div>
+          <div class="field"><label for="tel">Teléfono</label><input id="tel" type="tel" required placeholder="55 0000 0000"></div>
+          <div class="field"><label for="m">¿Qué necesitas resolver?</label><textarea id="m" placeholder="Cuéntanos brevemente la situación actual de tu inmueble"></textarea></div>
+          <button type="submit" class="btn btn-primary" style="width:100%">Solicitar cotización</button>
+          <p class="form-note">Al enviar aceptas el tratamiento de tus datos conforme a nuestro <a href="aviso-de-privacidad.html" style="color:var(--azul)">Aviso de Privacidad</a>.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="ff-container">
+    <div class="ff-grid ff-grid--md" style="--ff-gap:38px">
+      <div>
+        <div class="f-logo"><img src="sparc-logo.png" alt="SPARC"></div>
+        <p style="margin-top:18px;line-height:1.6;max-width:34ch">Servicios Profesionales en Administración Residencial y Comercial.</p>
+      </div>
+      <div>
+        <h5>Servicios</h5>
+        <ul>
+          <li><a href="#servicios">Administración financiera</a></li>
+          <li><a href="#servicios">Mantenimiento e ingeniería</a></li>
+          <li><a href="#servicios">Limpieza profesional</a></li>
+          <li><a href="#servicios">Conserjería y hospitality</a></li>
+          <li><a href="#servicios">Concierge y mensajería</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Empresa</h5>
+        <ul>
+          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="#diferencia">Por qué SPARC</a></li>
+          <li><a href="#app">App y tecnología</a></li>
+          <li><a href="#comparativa">Comparativa</a></li>
+          <li><a href="#transicion">Cambio de administradora</a></li>
+          <li><a href="#faq">Preguntas frecuentes</a></li>
+          <li><a href="#estructura">Estructura</a></li>
+          <li><a href="#talento">Bolsa de trabajo</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contacto</h5>
+        <ul>
+          <li>Av. Jesús del Monte, Plaza Victoria 39<br>Jesús del Monte, Huixquilucan, Edo. Méx.</li>
+          <li><a href="tel:+525536879047">55 3687 9047</a></li>
+          <li><a href="mailto:contacto@sparcgroup.mx">contacto@sparcgroup.mx</a></li>
+          <li><a href="aviso-de-privacidad.html">Aviso de Privacidad</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="f-bottom">
+      <div>© <span id="y">2026</span> SPARC · Servicios Profesionales en Administración Residencial y Comercial</div>
+      <div>sparcgroup.mx</div>
+    </div>
+  </div>
+</footer>
+
+<a class="wa" href="https://wa.me/525536879047?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20la%20administraci%C3%B3n%20de%20mi%20condominio" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-1.7-.9-2.9-1.6-4-3.6-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5 1.9.8 2.6.9 3.5.7.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3.1.8.8-3-.2-.3c-.8-1.3-1.3-2.9-1.3-4.4 0-4.6 3.7-8.3 8.3-8.3s8.3 3.7 8.3 8.3-3.7 8.3-8.2 8.3z"/></svg>
+</a>
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"ProfessionalService",
+  "name":"SPARC · Servicios Profesionales en Administración Residencial y Comercial",
+  "url":"https://sparcgroup.mx/",
+  "telephone":"+52-55-3687-9047",
+  "email":"contacto@sparcgroup.mx",
+  "description":"Administración de condominios residenciales y centros comerciales en CDMX y Estado de México, con app propia para condóminos, departamento jurídico interno, fianza de cumplimiento y transparencia financiera en tiempo real.",
+  "address":{
+    "@type":"PostalAddress",
+    "streetAddress":"Av. Jesús del Monte, Plaza Victoria 39, Col. Jesús del Monte",
+    "addressLocality":"Huixquilucan",
+    "addressRegion":"Estado de México",
+    "postalCode":"52764",
+    "addressCountry":"MX"
+  },
+  "areaServed":["Ciudad de México","Huixquilucan","Naucalpan","Santa Fe","Zona Metropolitana del Valle de México"],
+  "knowsLanguage":"es-MX"
+}
+</script>
+
+<script>
+  var h=document.getElementById('hamb'), m=document.getElementById('mm');
+  h.addEventListener('click',function(){
+    var open=m.classList.toggle('open');
+    h.setAttribute('aria-expanded',open?'true':'false');
+    h.setAttribute('aria-label',open?'Cerrar menú':'Abrir menú');
+  });
+  m.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',function(){
+      m.classList.remove('open');
+      h.setAttribute('aria-expanded','false');
+      h.setAttribute('aria-label','Abrir menú');
+    });
+  });
+  document.getElementById('y').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
