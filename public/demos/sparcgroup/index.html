@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Administración de Condominios en CDMX y Estado de México | SPARC</title>
-<meta name="description" content="SPARC administra condominios residenciales y centros comerciales en CDMX y Estado de México con app propia para condóminos, departamento jurídico interno, fianza de cumplimiento y transparencia financiera en tiempo real. Cotiza sin costo.">
+<meta name="description" content="SPARC administra condominios residenciales y centros comerciales en CDMX y Estado de México con portal web para condóminos, departamento jurídico interno, fianza de cumplimiento y transparencia financiera en tiempo real. Cotiza sin costo.">
 <meta name="keywords" content="administración de condominios CDMX, administradora de condominios, administración de centros comerciales, app para condominios, cartera vencida condominio">
 <link rel="canonical" href="https://sparcgroup.mx/">
 <meta property="og:type" content="website">
@@ -340,6 +340,56 @@ section{padding:clamp(58px,7vw,104px) 0;}
 .wa svg{width:29px;height:29px;fill:#fff;}
 @media(max-width:600px){ .wa{right:14px;bottom:14px;width:52px;height:52px;} }
 
+
+/* ---------- Bloques por audiencia ---------- */
+.aud{margin-bottom:26px;}
+.aud-tag{display:inline-block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:600;color:#9FD8F2;background:rgba(159,216,242,.13);
+  border:1px solid rgba(159,216,242,.3);padding:5px 12px;border-radius:20px;}
+.aud-tag.verde{color:#7FD08F;background:rgba(127,208,143,.13);border-color:rgba(127,208,143,.32);}
+.aud-h{font-family:'Jost',sans-serif;font-size:clamp(21px,2.4vw,29px);font-weight:400;
+  line-height:1.2;margin-top:16px;color:#fff;}
+.linea-aud{height:1px;background:rgba(255,255,255,.14);margin:clamp(46px,5.5vw,72px) 0;}
+.cc{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13);
+  border-radius:13px;padding:19px 18px;height:100%;}
+.cc h4{font-size:15.5px;font-weight:500;margin-bottom:6px;color:#fff;}
+.cc p{font-size:13.5px;color:rgba(255,255,255,.63);line-height:1.55;}
+.nota-modulo{font-size:12.5px;color:rgba(255,255,255,.5);margin-top:14px;line-height:1.55;
+  border-left:2px solid rgba(255,205,120,.5);padding-left:12px;}
+
+/* ---------- Mock del Portal (navegador) ---------- */
+.portal-mock{background:#fff;color:var(--tinta);border-radius:15px;overflow:hidden;
+  box-shadow:0 40px 80px -30px rgba(0,32,50,.6), 0 0 0 1px rgba(255,255,255,.1);}
+.pm-bar{background:#E9EFF4;padding:10px 13px;display:flex;align-items:center;gap:6px;
+  border-bottom:1px solid #D7E1EA;}
+.pm-dot{width:9px;height:9px;border-radius:50%;background:#C6D2DC;flex:none;}
+.pm-url{margin-left:10px;background:#fff;border:1px solid #D7E1EA;border-radius:20px;
+  font-size:11px;color:var(--gris-claro);padding:4px 14px;flex:1;text-align:center;}
+.pm-body{padding:16px;background:#F4F8FB;display:flex;flex-direction:column;gap:12px;}
+.pm-top{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--azul);color:#fff;border-radius:12px;padding:14px 16px;}
+.pm-hi{font-family:'Jost',sans-serif;font-size:17px;}
+.pm-sub{font-size:11.5px;opacity:.78;margin-top:2px;}
+.pm-ok{font-size:10.5px;font-weight:600;background:rgba(255,255,255,.2);
+  padding:5px 11px;border-radius:20px;flex:none;}
+.pm-card{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:14px;}
+.pm-k{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gris-claro);
+  margin-bottom:11px;}
+.pm-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center;}
+.pm-cal span{font-size:10.5px;color:var(--gris-claro);padding:5px 0;}
+.pm-cal .d{color:var(--tinta);border-radius:7px;font-size:11.5px;}
+.pm-cal .d.busy{background:#F2F5F8;color:#B8C6D2;text-decoration:line-through;}
+.pm-cal .d.sel{background:var(--verde);color:#fff;font-weight:600;}
+.pm-slot{margin-top:11px;font-size:11.8px;color:var(--gris);background:var(--verde-050);
+  border:1px solid #C9E6D0;border-radius:9px;padding:9px 11px;}
+.pm-slot b{color:var(--verde-700);float:right;font-size:11px;}
+.pm-av{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--papel);}
+.pm-av:first-of-type{border-top:none;padding-top:0;}
+.pm-pin{width:7px;height:7px;border-radius:50%;background:var(--azul);margin-top:5px;flex:none;}
+.pm-pin.v{background:var(--verde);}
+.pm-av b{display:block;font-size:12.3px;font-weight:600;line-height:1.3;}
+.pm-av i{display:block;font-style:normal;font-size:11px;color:var(--gris-claro);margin-top:2px;line-height:1.4;}
+
 /* ---------- Footer ---------- */
 footer{background:var(--tinta);color:rgba(255,255,255,.6);padding:clamp(44px,5vw,66px) 0 30px;font-size:13.5px;}
 .f-logo{background:#fff;border-radius:12px;padding:16px 22px;display:inline-block;}
@@ -372,7 +422,7 @@ footer a:hover{color:#fff;}
         <a href="#nosotros">Nosotros</a>
         <a href="#diferencia">Por qué SPARC</a>
         <a href="#servicios">Servicios</a>
-        <a href="#app">App y tecnología</a>
+        <a href="#portal">Portal SPARC</a>
         <a href="#comparativa">Comparativa</a>
         <a href="#faq">Preguntas</a>
         <a href="#contacto" class="btn btn-primary">Cotizar mi condominio</a>
@@ -385,7 +435,7 @@ footer a:hover{color:#fff;}
       <a href="#nosotros">Nosotros</a>
       <a href="#diferencia">Por qué SPARC</a>
       <a href="#servicios">Servicios</a>
-      <a href="#app">App y tecnología</a>
+      <a href="#portal">Portal SPARC</a>
       <a href="#comparativa">Comparativa</a>
       <a href="#transicion">Cambio de administradora</a>
       <a href="#estructura">Estructura</a>
@@ -405,7 +455,7 @@ footer a:hover{color:#fff;}
       <p class="lede">En SPARC redefinimos la administración de condominios: gestión tradicional con más de 15 años de experiencia, fusionada con tecnología propia y atención humana ultra-personalizada. Protegemos e incrementamos la plusvalía de tu patrimonio mientras tú disfrutas de tu hogar.</p>
       <div class="hero-cta">
         <a href="#contacto" class="btn btn-primary">Cotizar mi condominio</a>
-        <a href="#app" class="btn btn-ghost">Conocer la app SPARC</a>
+        <a href="#portal" class="btn btn-ghost">Ver el Portal SPARC</a>
       </div>
       <div class="hero-note"><span class="dot-live"></span> Atención de emergencias 24 horas, los 365 días del año</div>
     </div>
@@ -414,7 +464,7 @@ footer a:hover{color:#fff;}
       <div class="phone">
         <div class="phone-screen">
           <div class="phone-top">
-            <div class="app">APP SPARC</div>
+            <div class="app">PORTAL SPARC</div>
             <div class="who">Residencial Cumbres</div>
             <div class="sub">Torre B · Depto 402</div>
           </div>
@@ -443,6 +493,9 @@ footer a:hover{color:#fff;}
             </div>
           </div>
         </div>
+        <p style="text-align:center;font-size:11.5px;color:var(--gris-claro);margin-top:14px;letter-spacing:.03em">
+          Portal SPARC · módulo propuesto, pantalla ilustrativa
+        </p>
       </div>
     </div>
   </div>
@@ -491,8 +544,8 @@ footer a:hover{color:#fff;}
 
       <div class="card">
         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18.5h2"/></svg></div>
-        <h3>Tecnología propietaria de vanguardia</h3>
-        <p>Aplicación móvil y plataforma web exclusivas para que los residentes gestionen pagos, reservaciones, avisos y consultas desde cualquier dispositivo, con un clic.</p>
+        <h3>Portal web propio para residentes</h3>
+        <p>Plataforma exclusiva para que los residentes consulten pagos, reserven amenidades y revisen avisos desde cualquier dispositivo, sin descargar ninguna aplicación.</p>
       </div>
 
       <div class="card">
@@ -590,61 +643,87 @@ footer a:hover{color:#fff;}
   </div>
 </section>
 
-<!-- ============ APP + IA ============ -->
-<section id="app" class="dark">
+<!-- ============ PORTAL SPARC (condómino) + COMITÉ ============ -->
+<section id="portal" class="dark">
   <div class="ff-container">
-    <div class="center" style="margin-bottom:48px">
-      <div class="eyebrow">Tecnología SPARC</div>
-      <h2 class="stitle" style="color:#fff">La administración de tu condominio, visible en tiempo real</h2>
-      <p class="slede">Ninguna administradora tradicional te da esto: una plataforma propia donde el condómino consulta y el comité supervisa, sin llamadas ni carpetas de papel.</p>
+    <div class="center" style="margin-bottom:46px">
+      <div class="eyebrow">Portal SPARC</div>
+      <h2 class="stitle" style="color:#fff">Todo tu condominio, desde el navegador de tu celular</h2>
+      <p class="slede">Sin descargar nada, sin ocupar espacio, sin actualizaciones que instalar. Entras con una liga y ya estás dentro: es lo que un residente realmente usa.</p>
     </div>
 
     <div class="split">
       <div>
-        <h3 style="font-size:clamp(21px,2.4vw,29px);font-weight:400;line-height:1.2">App para el condómino</h3>
-        <p class="slede" style="margin-top:14px">Todo lo que un residente necesita, en el celular.</p>
+        <div class="aud">
+          <span class="aud-tag">Para ti, que vives aquí</span>
+          <h3 class="aud-h">Deja de perseguir a la administración por WhatsApp</h3>
+        </div>
 
         <div class="feat">
-          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19"/></svg></div>
-          <div><h4>Pagos y estado de cuenta</h4><p>Cuotas, adeudos y comprobantes siempre disponibles, sin pedirlos por WhatsApp.</p></div>
+          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9h17M8 2.5v4M16 2.5v4"/></svg></div>
+          <div><h4>Reserva el salón en línea</h4><p>Salón, asador, cancha o roof garden con el calendario a la vista y confirmación inmediata. Se acabó preguntar quién lo apartó primero.</p></div>
         </div>
         <div class="feat">
-          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9h17M8 2.5v4M16 2.5v4"/></svg></div>
-          <div><h4>Reservación de amenidades</h4><p>Salón, asador, cancha o gimnasio con calendario en vivo y confirmación inmediata.</p></div>
+          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19"/></svg></div>
+          <div><h4>Consulta tus pagos cuando quieras</h4><p>Cuotas, adeudos y comprobantes disponibles a cualquier hora, sin pedirle el estado de cuenta a nadie.</p></div>
         </div>
         <div class="feat">
           <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v11H8l-4 3.5z"/></svg></div>
-          <div><h4>Avisos, reportes y consultas</h4><p>Comunicados del comité, reportes de mantenimiento y seguimiento a cada solicitud.</p></div>
+          <div><h4>Avisos publicados, no perdidos en el chat</h4><p>Cortes de agua, mantenimientos y convocatorias en un tablero que sigue ahí mañana, no enterrado bajo doscientos mensajes.</p></div>
         </div>
         <div class="feat">
-          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9.5l8-6 8 6V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/><path d="M9.5 20.5v-6h5v6"/></svg></div>
-          <div><h4>Panel para el comité</h4><p>Finanzas, incidencias y cumplimiento del personal en un tablero único, auditable.</p></div>
+          <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.6 6.5 8.4 6 8.4-6"/></svg></div>
+          <div><h4>El reporte mensual te llega solo</h4><p>Estado financiero del condominio y avisos oportunos directo a tu correo, sin que tengas que ir a buscarlos.</p></div>
         </div>
       </div>
 
       <div>
-        <div class="ia">
-          <div class="ia-head">
-            <div class="fi" style="width:32px;height:32px;border-radius:9px;background:rgba(127,208,143,.18);display:grid;place-items:center;color:#7FD08F">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16" stroke-linecap="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg>
+        <div class="portal-mock">
+          <div class="pm-bar"><span class="pm-dot"></span><span class="pm-dot"></span><span class="pm-dot"></span><div class="pm-url">portal.sparcgroup.mx</div></div>
+          <div class="pm-body">
+            <div class="pm-top">
+              <div>
+                <div class="pm-hi">Residencial Cumbres</div>
+                <div class="pm-sub">Torre B · Depto 402</div>
+              </div>
+              <span class="pm-ok">Al corriente</span>
             </div>
-            <div class="t">Analizador de chats con IA</div>
-            <div class="live">EN OPERACIÓN</div>
-          </div>
 
-          <div class="msg"><b>Torre A · 14:02</b>No hay agua en el nivel 3 otra vez, van tres veces este mes.</div>
-          <div class="msg"><b>Torre B · 14:09</b>Aquí igual, y la bomba hace un ruido raro desde ayer.</div>
-          <div class="msg"><b>Torre A · 14:15</b>¿Alguien ya reportó a la administración?</div>
+            <div class="pm-card">
+              <div class="pm-k">Reservar amenidad</div>
+              <div class="pm-cal">
+                <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                <span class="d">9</span><span class="d">10</span><span class="d">11</span><span class="d busy">12</span><span class="d">13</span><span class="d sel">14</span><span class="d">15</span>
+              </div>
+              <div class="pm-slot">Salón de eventos · sáb 14, 18:00 – 23:00 <b>Disponible</b></div>
+            </div>
 
-          <div class="ia-out">
-            <div class="tag">RESUMEN AUTOMÁTICO PARA EL ADMINISTRADOR</div>
-            <div class="txt">Incidencia recurrente de suministro de agua en niveles altos, con ruido anómalo reportado en el equipo hidroneumático. Se recomienda inspección del equipo antes de 24 h.</div>
-            <div class="meta"><span>Prioridad alta</span><span>Hidroneumático</span><span>3 reportes / 30 días</span><span>Ticket generado</span></div>
+            <div class="pm-card">
+              <div class="pm-k">Avisos del condominio</div>
+              <div class="pm-av"><span class="pm-pin"></span><div><b>Corte de agua programado</b><i>Miércoles 9:00 – 13:00 · mantenimiento de cisterna</i></div></div>
+              <div class="pm-av"><span class="pm-pin v"></span><div><b>Asamblea ordinaria</b><i>12 de octubre · 19:00 · salón de usos múltiples</i></div></div>
+            </div>
           </div>
         </div>
-        <p style="font-size:12.5px;color:rgba(255,255,255,.5);margin-top:14px;line-height:1.55">
-          El módulo de análisis inteligente de chats está desarrollado por FishFlow y opera hoy en los desarrollos administrados por SPARC. Ejemplo ilustrativo con datos ficticios.
-        </p>
+        <p class="nota-modulo">Portal SPARC es un módulo propuesto por FishFlow: hoy no está en operación. Pantalla ilustrativa con datos ficticios.</p>
+      </div>
+    </div>
+
+    <div class="linea-aud"></div>
+
+    <div class="split" style="align-items:start">
+      <div>
+        <div class="aud">
+          <span class="aud-tag verde">Para tu comité</span>
+          <h3 class="aud-h">Supervisar sin tener que estar encima</h3>
+        </div>
+        <p class="slede" style="margin-top:0">El comité no necesita otra app: necesita ver el dinero, las incidencias y el cumplimiento del personal en un solo lugar, y poder comprobarlo en asamblea.</p>
+      </div>
+      <div class="ff-grid ff-grid--sm" style="--ff-gap:14px;--ff-min:200px">
+        <div class="cc"><h4>Tablero financiero</h4><p>Presupuesto contra ejercido, conciliaciones y cartera vencida al día.</p></div>
+        <div class="cc"><h4>Bitácora de incidencias</h4><p>Cada reporte con responsable, fecha de atención y evidencia de cierre.</p></div>
+        <div class="cc"><h4>Cumplimiento en sitio</h4><p>Asistencia del personal y visitas de supervisión, registradas y consultables.</p></div>
+        <div class="cc"><h4>Detección temprana</h4><p>Las incidencias que se repiten se marcan antes de convertirse en un problema mayor.</p></div>
       </div>
     </div>
   </div>
@@ -672,7 +751,7 @@ footer a:hover{color:#fff;}
           <tbody>
             <tr>
               <td class="crit">Información para el condómino</td>
-              <td class="destaca">App propia: estado de cuenta, reservaciones y avisos en tiempo real</td>
+              <td class="destaca">Portal web propio: estado de cuenta, reservaciones y avisos publicados</td>
               <td class="otros">Grupo de WhatsApp y correos sueltos</td>
             </tr>
             <tr>
@@ -707,7 +786,7 @@ footer a:hover{color:#fff;}
             </tr>
             <tr>
               <td class="crit">Detección de problemas</td>
-              <td class="destaca">Análisis con IA de los chats del condominio: alertas antes de que escalen</td>
+              <td class="destaca">Las incidencias que se repiten se detectan y se marcan antes de escalar</td>
               <td class="otros">Se atiende cuando alguien se queja formalmente</td>
             </tr>
           </tbody>
@@ -751,8 +830,8 @@ footer a:hover{color:#fff;}
       <div class="tl-step on">
         <div class="tl-dot">4</div>
         <div class="wk">Semana 4</div>
-        <h4>Arranque con la app</h4>
-        <p>Alta de todos los condóminos en la plataforma, primer reporte financiero digital y arranque de la operación con supervisión en sitio.</p>
+        <h4>Arranque con el Portal</h4>
+        <p>Alta de todos los condóminos en el Portal, primer reporte financiero digital y arranque de la operación con supervisión en sitio.</p>
       </div>
     </div>
   </div>
@@ -847,8 +926,12 @@ footer a:hover{color:#fff;}
         <div class="a">Contamos con un departamento jurídico interno —no un despacho subcontratado— especializado en morosidad de condominios. El proceso escala por etapas: recordatorio y convenio de pago, gestión extrajudicial y, cuando es necesario, la vía judicial conforme a la Ley de Propiedad en Condominio.</div>
       </details>
       <details>
-        <summary>¿Qué es exactamente la app SPARC y cuánto cuesta?</summary>
-        <div class="a">Es la plataforma propia de SPARC —app móvil y web— incluida en el servicio de administración, sin costo adicional para el condominio. Cada condómino consulta su estado de cuenta, reserva amenidades, recibe avisos y levanta reportes; el comité accede a un panel con las finanzas y las incidencias del inmueble.</div>
+        <summary>¿Qué es el Portal SPARC y hay que descargar algo?</summary>
+        <div class="a">Es la plataforma web propia de SPARC, incluida en el servicio de administración. No se descarga nada: se abre desde el navegador del celular o la computadora con una liga, así que funciona igual en iPhone, Android o cualquier equipo, sin ocupar espacio ni pedir actualizaciones. Cada condómino consulta su estado de cuenta, reserva amenidades y revisa los avisos publicados; el comité accede a su propio tablero con las finanzas y las incidencias del inmueble.</div>
+      </details>
+      <details>
+        <summary>¿Cómo nos enteramos de los avisos y del reporte mensual?</summary>
+        <div class="a">Por dos vías, para que nadie se quede fuera. Los avisos se publican en el Portal, donde siguen disponibles al día siguiente en vez de perderse en el chat del condominio. Y cada condómino recibe en su correo el reporte mensual del inmueble y los avisos urgentes —cortes de agua, mantenimientos, convocatorias de asamblea— redactados y aprobados por la administración antes de salir.</div>
       </details>
       <details>
         <summary>¿Con qué frecuencia recibimos información financiera?</summary>
@@ -949,7 +1032,7 @@ footer a:hover{color:#fff;}
         <ul>
           <li><a href="#nosotros">Nosotros</a></li>
           <li><a href="#diferencia">Por qué SPARC</a></li>
-          <li><a href="#app">App y tecnología</a></li>
+          <li><a href="#portal">Portal SPARC</a></li>
           <li><a href="#comparativa">Comparativa</a></li>
           <li><a href="#transicion">Cambio de administradora</a></li>
           <li><a href="#faq">Preguntas frecuentes</a></li>
@@ -986,7 +1069,7 @@ footer a:hover{color:#fff;}
   "url":"https://sparcgroup.mx/",
   "telephone":"+52-55-3687-9047",
   "email":"contacto@sparcgroup.mx",
-  "description":"Administración de condominios residenciales y centros comerciales en CDMX y Estado de México, con app propia para condóminos, departamento jurídico interno, fianza de cumplimiento y transparencia financiera en tiempo real.",
+  "description":"Administración de condominios residenciales y centros comerciales en CDMX y Estado de México, con portal web para condóminos, departamento jurídico interno, fianza de cumplimiento y transparencia financiera en tiempo real.",
   "address":{
     "@type":"PostalAddress",
     "streetAddress":"Av. Jesús del Monte, Plaza Victoria 39, Col. Jesús del Monte",

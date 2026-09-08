@@ -39,6 +39,62 @@ se sustituye con `@font-face` sin tocar el resto del CSS.
 - Test de 3 anchos pasado: 390 / 820 / 1280 px, sin scroll horizontal en ninguno.
 - Banner superior que marca el sitio como PROPUESTA, en las dos páginas.
 
+## Audiencias: quién ve qué (decisión 08-sep-2026)
+
+La landing le habla a **tres públicos distintos** y no debe mezclarlos:
+
+| Público | Qué le interesa | Dónde vive en la página |
+|---|---|---|
+| Prospecto (comité buscando administradora) | Credibilidad, comparativa, proceso de cambio, FAQ | Toda la landing |
+| Condómino actual | Reservar salón, ver pagos, avisos publicados, reporte por correo | Bloque "Para ti, que vives aquí" |
+| Eduardo (administrador) | Tablero, cumplimiento, detección de incidencias | Bloque "Para tu comité" |
+
+**El analizador de chats con IA se bajó de la web pública.** Es herramienta de
+Eduardo, no beneficio del condómino, y decir en abierto "analizamos los chats
+del condominio con IA" se lee como vigilancia — además el Aviso de Privacidad de
+SPARC no cubre el tratamiento de mensajes de chat. En la landing quedó como una
+línea sobria ("las incidencias que se repiten se detectan antes de escalar"). Su
+lugar es la junta de venta de Eduardo con un comité, no la página abierta.
+
+**Portal SPARC, no "app".** Webapp, no aplicación nativa: sin App Store ni Play,
+sin descargas, sobre el Next.js + Supabase que ya existe. De cara al condómino
+nunca se le llama "webapp" —es jerga— sino **Portal SPARC**, y el no-descargar
+se vende como ventaja: *entras desde tu celular, sin instalar nada*.
+
+## ⚠️ El Portal NO existe hoy
+
+Lo único que corre en producción para SPARC es el lado del administrador:
+`sparc_buildings`, `sparc_staff`, subir chats, mensajes y dashboard en
+`app/app/sparc/`. **No hay reservas, ni pagos, ni avisos, ni portal del
+condómino.** El claim de "aplicación móvil y plataforma web" viene del Resumen
+Informativo de SPARC y es aspiracional — confirmado por Rafa el 08-sep-2026.
+
+Consecuencia, y es dura:
+
+- **El demo sí muestra el Portal** — es una propuesta, el banner lo dice, y es
+  el gancho para venderle el módulo a Eduardo. Va marcado con la nota "módulo
+  propuesto por FishFlow: hoy no está en operación" bajo la pantalla y bajo el
+  teléfono del hero.
+- **sparcgroup.mx en vivo NO puede salir con esa sección hasta que el Portal
+  exista**, aunque sea en su primera pieza. Regla de la casa: no se publica nada
+  que no corra ya en producción.
+- **Primera pieza a construir: avisos públicos.** Es lo único de la lista que no
+  necesita login, se construye rápido y ninguno de los tres competidores lo tiene.
+
+## Newsletter: módulo vendible aparte
+
+Ya corre con Mario Citalán y se replica casi tal cual:
+`app/api/newsletter/draft|send|subscribe`, tabla `newsletter_campaigns`. La
+mecánica que hay que conservar: **la IA propone el borrador, Eduardo lo edita y
+aprueba, y el envío sale individual** para que ningún condómino vea el correo de
+otro. Para SPARC: reporte mensual del inmueble + avisos oportunos.
+
+En la landing aparece como beneficio ("el reporte mensual te llega solo"), no
+como tecnología. A Eduardo se le cotiza como módulo recurrente, no incluido.
+
+Pendiente antes de encenderlo: `TEST_MODE` sigue en `true` en
+`api/newsletter/send`, y falta el List-Unsubscribe con token por destinatario.
+
 ## Contenido pendiente de validar con SPARC
 
 Todo lo marcado con la píldora naranja **POR VALIDAR CON SPARC** o con nota al pie:
@@ -63,6 +119,8 @@ Todo lo marcado con la píldora naranja **POR VALIDAR CON SPARC** o con nota al 
    CDMX (`55 3687 9047`). Confirmar.
 7. **Aviso de Privacidad** — texto adaptado del `.doc` original, con el dominio
    actualizado a sparcgroup.mx. Requiere validación jurídica antes de publicar.
+   **Si el Portal se construye, hay que ampliarlo**: hoy no cubre reservas,
+   pagos en línea ni envío de newsletter.
 
 ## Lo que sigue
 
@@ -72,3 +130,5 @@ Todo lo marcado con la píldora naranja **POR VALIDAR CON SPARC** o con nota al 
 2. Validar el contenido pendiente con Eduardo.
 3. Decidir esquema de hosting: `fishflow-clients/sparcgroup/` en Vercel
    (recomendado, dominio propio) vs. Hostinger del cliente.
+4. Cotizar a Eduardo los dos módulos por separado: **Portal SPARC** (fase 1 =
+   avisos públicos) y **newsletter** (reporte mensual + avisos oportunos).
