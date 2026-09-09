@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avisos oportunos · SPARC — Demo FishFlow</title>
+<meta name="description" content="Demo interactivo del módulo de avisos oportunos y reporte mensual para SPARC: el borrador se genera solo, el administrador lo edita y aprueba, y el envío sale individual a cada condómino.">
+<link rel="icon" href="favicon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESPONSIVE BASE — FishFlow (no modificar)
+   ============================================================ */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1180px);margin-inline:auto;
+  padding-inline:var(--ff-pad,clamp(18px,4vw,48px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-tablewrap > table{min-width:var(--ff-tablemin,520px);}
+.ff-shell{display:grid;gap:var(--ff-gap,24px);align-items:start;
+  grid-template-columns:var(--ff-side,260px) minmax(0,1fr);}
+.ff-shell--3{grid-template-columns:var(--ff-side,260px) minmax(0,1fr) var(--ff-right,300px);}
+.ff-h1{font-size:clamp(32px,5vw,64px);line-height:1.02;letter-spacing:-.02em;}
+.ff-h2{font-size:clamp(26px,3.6vw,46px);line-height:1.06;letter-spacing:-.02em;}
+.ff-lede{font-size:clamp(15px,1.4vw,19px);line-height:1.55;}
+.ff-hide-mobile{}
+.ff-stack-mobile{}
+@media(max-width:900px){ .ff-shell,.ff-shell--3{grid-template-columns:1fr;} }
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}
+
+/* ============================================================
+   MARCA SPARC  ·  azul #0065A1 / verde #2C9A42
+   ============================================================ */
+:root{
+  --azul:#0065A1; --azul-900:#00405F; --azul-700:#005486; --azul-050:#EDF5FA;
+  --verde:#2C9A42; --verde-700:#217634; --verde-050:#EDF7EF;
+  --tinta:#0E1D28; --gris:#5C6E7C; --gris-claro:#8698A5;
+  --linea:#E1E9F0; --papel:#F7FAFC; --ambar:#B07A16; --ambar-bg:#FDF6E8; --ambar-br:#F0DDAE;
+  --r:14px; --sombra:0 1px 2px rgba(14,29,40,.05), 0 12px 32px -12px rgba(0,101,161,.18);
+}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--tinta);background:var(--papel);
+  -webkit-font-smoothing:antialiased;line-height:1.6;}
+h1,h2,h3,h4{font-family:'Jost',system-ui,sans-serif;font-weight:400;letter-spacing:-.01em;margin:0;}
+p{margin:0;}
+button{font-family:inherit;}
+
+.banner{background:linear-gradient(90deg,var(--verde),var(--verde-700));color:#fff;text-align:center;
+  padding:9px 18px;font-size:12.5px;letter-spacing:.04em;font-weight:500;}
+.banner span{opacity:.8;font-weight:400;}
+
+/* ---------- Encabezado ---------- */
+.top{background:#fff;border-bottom:1px solid var(--linea);}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 0;flex-wrap:wrap;}
+.top-id{display:flex;align-items:center;gap:14px;}
+.top-id img{height:48px;width:auto;}
+.top-id .t{font-family:'Jost',sans-serif;font-size:19px;line-height:1.2;}
+.top-id .s{font-size:12.5px;color:var(--gris-claro);margin-top:2px;}
+.reset{background:#fff;border:1px solid var(--linea);color:var(--gris);border-radius:9px;
+  padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:.18s;}
+.reset:hover{border-color:#C7DCEA;color:var(--azul);}
+
+/* ---------- Pasos ---------- */
+.pasos{display:flex;gap:0;margin:26px 0 0;flex-wrap:wrap;}
+.paso{display:flex;align-items:center;gap:9px;padding:9px 18px 9px 0;font-size:12.8px;color:var(--gris-claro);}
+.paso .b{width:24px;height:24px;border-radius:50%;background:#fff;border:1px solid var(--linea);
+  display:grid;place-items:center;font-size:11.5px;font-weight:600;flex:none;transition:.2s;}
+.paso.on{color:var(--tinta);font-weight:600;}
+.paso.on .b{background:var(--azul);border-color:var(--azul);color:#fff;}
+.paso.done .b{background:var(--verde);border-color:var(--verde);color:#fff;}
+.paso.done{color:var(--gris);}
+
+/* ---------- Tarjetas ---------- */
+.panel{background:#fff;border:1px solid var(--linea);border-radius:var(--r);
+  padding:clamp(20px,2.6vw,30px);box-shadow:var(--sombra);}
+.eyebrow{font-family:'Jost',sans-serif;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--verde);font-weight:500;margin-bottom:10px;}
+.eyebrow.azul{color:var(--azul);}
+.h-sec{font-size:clamp(21px,2.4vw,28px);line-height:1.2;}
+.lede{font-size:14.5px;color:var(--gris);margin-top:10px;line-height:1.62;max-width:68ch;}
+
+/* Selector de tipo de aviso */
+.tipos{margin-top:22px;}
+.tipo{text-align:left;width:100%;background:#fff;border:1px solid var(--linea);border-radius:12px;
+  padding:18px 18px;cursor:pointer;transition:.18s;height:100%;display:flex;gap:13px;align-items:flex-start;}
+.tipo:hover{border-color:#BFD9E9;box-shadow:var(--sombra);transform:translateY(-2px);}
+.tipo.sel{border-color:var(--azul);background:var(--azul-050);box-shadow:0 0 0 3px rgba(0,101,161,.12);}
+.tipo .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none;
+  background:var(--azul-050);color:var(--azul);}
+.tipo.urg .ic{background:#FDECEC;color:#C0392B;}
+.tipo.sel .ic{background:#fff;}
+.tipo .ic svg{width:18px;height:18px;}
+.tipo h4{font-size:15.5px;font-weight:500;margin-bottom:4px;line-height:1.25;}
+.tipo p{font-size:12.5px;color:var(--gris);line-height:1.5;}
+.tipo .orig{font-size:11px;color:var(--gris-claro);margin-top:7px;display:block;}
+
+/* Origen / incidencia */
+.origen{background:var(--papel);border:1px solid var(--linea);border-left:3px solid var(--verde);
+  border-radius:0 11px 11px 0;padding:15px 17px;margin-top:20px;}
+.origen .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gris-claro);margin-bottom:6px;}
+.origen .v{font-size:13.5px;line-height:1.55;}
+.origen .meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;}
+.origen .meta span{font-size:10.5px;background:#fff;border:1px solid var(--linea);color:var(--gris);
+  padding:4px 10px;border-radius:20px;}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-size:14.5px;font-weight:600;
+  padding:13px 24px;border-radius:9px;border:1px solid transparent;cursor:pointer;transition:.18s;text-decoration:none;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-primary{background:var(--azul);color:#fff;}
+.btn-primary:not(:disabled):hover{background:var(--azul-700);transform:translateY(-1px);}
+.btn-verde{background:var(--verde);color:#fff;}
+.btn-verde:not(:disabled):hover{background:var(--verde-700);transform:translateY(-1px);}
+.btn-ghost{background:#fff;color:var(--azul);border-color:#C7DCEA;}
+.btn-ghost:hover{background:var(--azul-050);}
+.acciones{display:flex;gap:11px;margin-top:22px;flex-wrap:wrap;}
+
+/* Borrador */
+.draft-wrap{margin-top:20px;}
+.draft-head{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--linea);
+  margin-bottom:14px;flex-wrap:wrap;}
+.draft-head .t{font-family:'Jost',sans-serif;font-size:14.5px;}
+.pill{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  padding:4px 10px;border-radius:20px;white-space:nowrap;}
+.pill-ia{background:var(--verde-050);color:var(--verde-700);border:1px solid #C9E6D0;}
+.pill-edit{background:var(--ambar-bg);color:var(--ambar);border:1px solid var(--ambar-br);}
+.campo{margin-bottom:13px;}
+.campo label{display:block;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--gris-claro);margin-bottom:5px;font-weight:600;}
+.campo input,.campo textarea{width:100%;padding:12px 14px;border:1px solid var(--linea);border-radius:9px;
+  font-family:'Inter',sans-serif;font-size:14px;color:var(--tinta);background:#fff;line-height:1.6;}
+.campo textarea{resize:vertical;min-height:180px;}
+.campo input:focus,.campo textarea:focus{outline:none;border-color:var(--azul);
+  box-shadow:0 0 0 3px rgba(0,101,161,.12);}
+.skel{height:14px;border-radius:6px;margin-bottom:10px;
+  background:linear-gradient(90deg,#EEF3F7 25%,#F7FAFC 50%,#EEF3F7 75%);
+  background-size:200% 100%;animation:sh 1.1s infinite;}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.pensando{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gris);margin-bottom:16px;}
+.spin{width:16px;height:16px;border:2px solid var(--linea);border-top-color:var(--azul);
+  border-radius:50%;animation:sp .7s linear infinite;flex:none;}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* Destinatarios */
+.dest{background:var(--papel);border:1px solid var(--linea);border-radius:11px;padding:16px 17px;margin-top:18px;}
+.dest .row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.dest .n{font-family:'Jost',sans-serif;font-size:23px;}
+.dest .k{font-size:11.5px;color:var(--gris-claro);letter-spacing:.06em;text-transform:uppercase;}
+.avatares{display:flex;margin-top:12px;}
+.av{width:29px;height:29px;border-radius:50%;background:var(--azul);color:#fff;display:grid;place-items:center;
+  font-size:11px;font-weight:600;border:2px solid #fff;margin-left:-8px;flex:none;}
+.av:first-child{margin-left:0;}
+.av.mas{background:#fff;color:var(--gris);border:2px solid var(--linea);}
+
+/* Nota de control */
+.control{display:flex;gap:12px;background:var(--ambar-bg);border:1px solid var(--ambar-br);
+  border-radius:11px;padding:14px 16px;margin-top:18px;}
+.control .ic{color:var(--ambar);flex:none;}
+.control .ic svg{width:19px;height:19px;}
+.control p{font-size:12.8px;line-height:1.55;color:#6B5518;}
+.control b{color:#4A3A0F;}
+
+/* Resultado */
+.exito{text-align:center;padding:10px 0 4px;}
+.check{width:62px;height:62px;border-radius:50%;background:var(--verde-050);border:1px solid #C9E6D0;
+  display:grid;place-items:center;margin:0 auto 16px;color:var(--verde-700);}
+.check svg{width:28px;height:28px;}
+.kpis{margin-top:22px;}
+.kpi{background:#fff;border:1px solid var(--linea);border-radius:11px;padding:16px;text-align:center;}
+.kpi .n{font-family:'Jost',sans-serif;font-size:26px;line-height:1;}
+.kpi .n em{font-style:normal;color:var(--verde);}
+.kpi .k{font-size:11.5px;color:var(--gris-claro);margin-top:7px;line-height:1.4;}
+
+/* Correo en el celular */
+.fone{width:min(320px,90vw);margin:0 auto;background:#0E1D28;border-radius:34px;padding:10px;
+  box-shadow:0 30px 60px -25px rgba(0,64,95,.45);}
+.fone-in{background:#fff;border-radius:26px;overflow:hidden;}
+.fone-bar{background:#F2F6F9;padding:11px 15px;font-size:11px;color:var(--gris-claro);
+  border-bottom:1px solid var(--linea);display:flex;justify-content:space-between;}
+.mail-h{padding:16px 16px 13px;border-bottom:1px solid var(--linea);}
+.mail-h .de{display:flex;align-items:center;gap:10px;}
+.mail-h .logo{width:34px;height:34px;border-radius:9px;background:var(--azul);color:#fff;
+  display:grid;place-items:center;font-family:'Jost',sans-serif;font-size:8.5px;font-weight:600;
+  letter-spacing:.02em;flex:none;}
+.mail-h .nm{font-size:12.5px;font-weight:600;line-height:1.3;}
+.mail-h .em{font-size:10.5px;color:var(--gris-claro);}
+.mail-h .asunto{font-family:'Jost',sans-serif;font-size:15px;margin-top:12px;line-height:1.3;}
+.mail-b{padding:16px;font-size:12.3px;line-height:1.65;color:#25384A;white-space:pre-wrap;
+  max-height:290px;overflow-y:auto;}
+.mail-f{padding:12px 16px;border-top:1px solid var(--linea);font-size:10px;color:var(--gris-claro);
+  line-height:1.5;background:var(--papel);}
+
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,34px);align-items:start;margin-top:24px;}
+@media(max-width:820px){ .dos{grid-template-columns:1fr;} }
+
+.pieza{margin-top:26px;}
+.nota{font-size:12px;color:var(--gris-claro);line-height:1.55;margin-top:14px;
+  border-left:2px solid var(--ambar-br);padding-left:12px;}
+footer{background:var(--tinta);color:rgba(255,255,255,.55);padding:30px 0;font-size:12.5px;margin-top:44px;}
+footer .f{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.oculto{display:none !important;}
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <b>DEMO INTERACTIVO</b> <span>· módulo de avisos oportunos preparado por FishFlow para SPARC · datos ficticios</span>
+</div>
+
+<header class="top">
+  <div class="ff-container top-in">
+    <div class="top-id">
+      <img src="sparc-logo.png" alt="SPARC">
+      <div>
+        <div class="t">Avisos y reporte mensual</div>
+        <div class="s">Consola de administración · Residencial Cumbres</div>
+      </div>
+    </div>
+    <button class="reset" id="reset">Empezar de nuevo</button>
+  </div>
+</header>
+
+<main class="ff-container" style="padding-top:26px;padding-bottom:20px">
+
+  <div class="pasos" id="pasos">
+    <div class="paso on" data-p="1"><span class="b">1</span> Elegir el aviso</div>
+    <div class="paso" data-p="2"><span class="b">2</span> Generar borrador</div>
+    <div class="paso" data-p="3"><span class="b">3</span> Revisar y editar</div>
+    <div class="paso" data-p="4"><span class="b">4</span> Aprobar y enviar</div>
+  </div>
+
+  <!-- ===== PASO 1 ===== -->
+  <section class="panel pieza" id="p1">
+    <div class="eyebrow azul">Paso 1</div>
+    <h2 class="h-sec">¿Qué necesitas comunicar hoy?</h2>
+    <p class="lede">Cada tipo de aviso arranca de un origen distinto: una incidencia detectada, el cierre financiero del mes, una fecha de asamblea o el calendario de cuotas. Elige uno y sigue el flujo completo.</p>
+
+    <div class="tipos ff-grid ff-grid--md" id="tipos"></div>
+  </section>
+
+  <!-- ===== PASO 2 ===== -->
+  <section class="panel pieza oculto" id="p2">
+    <div class="eyebrow azul">Paso 2</div>
+    <h2 class="h-sec" id="p2-titulo">Generar el borrador</h2>
+    <p class="lede" id="p2-lede"></p>
+
+    <div class="origen">
+      <div class="k" id="origen-k">Origen</div>
+      <div class="v" id="origen-v"></div>
+      <div class="meta" id="origen-meta"></div>
+    </div>
+
+    <div class="acciones">
+      <button class="btn btn-primary" id="btn-generar">Generar borrador</button>
+      <button class="btn btn-ghost" id="btn-volver1">Elegir otro aviso</button>
+    </div>
+  </section>
+
+  <!-- ===== PASO 3 ===== -->
+  <section class="panel pieza oculto" id="p3">
+    <div class="eyebrow azul">Paso 3</div>
+    <h2 class="h-sec">Revisa, corrige y decide</h2>
+    <p class="lede">El borrador es una propuesta, no un envío. Puedes cambiar cada palabra antes de aprobarlo.</p>
+
+    <div class="draft-wrap">
+      <div id="cargando" class="oculto">
+        <div class="pensando"><span class="spin"></span> Redactando con los datos del inmueble&hellip;</div>
+        <div class="skel" style="width:60%"></div>
+        <div class="skel" style="width:95%"></div>
+        <div class="skel" style="width:88%"></div>
+        <div class="skel" style="width:92%"></div>
+        <div class="skel" style="width:45%"></div>
+      </div>
+
+      <div id="editor" class="oculto">
+        <div class="draft-head">
+          <span class="t">Borrador</span>
+          <span class="pill pill-ia">Generado automáticamente</span>
+          <span class="pill pill-edit oculto" id="pill-edit">Editado por ti</span>
+        </div>
+        <div class="campo">
+          <label for="asunto">Asunto</label>
+          <input id="asunto" type="text">
+        </div>
+        <div class="campo">
+          <label for="cuerpo">Mensaje</label>
+          <textarea id="cuerpo"></textarea>
+        </div>
+
+        <div class="dest">
+          <div class="row">
+            <div>
+              <div class="k">Destinatarios</div>
+              <div class="n" id="dest-n">48 condóminos</div>
+            </div>
+            <div style="text-align:right">
+              <div class="k">Modo de envío</div>
+              <div style="font-size:13.5px;font-weight:600;color:var(--verde-700)">Individual, uno por uno</div>
+            </div>
+          </div>
+          <div class="avatares">
+            <span class="av">MG</span><span class="av">RL</span><span class="av">AT</span>
+            <span class="av">JC</span><span class="av">SP</span><span class="av mas" id="av-mas">+43</span>
+          </div>
+        </div>
+
+        <div class="control">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.7v5.6c0 4.7 3.1 8.4 7.5 10.2 4.4-1.8 7.5-5.5 7.5-10.2V5.7z"/><path d="M12 8v4.5"/><path d="M12 16h.01"/></svg></span>
+          <p><b>Nada sale sin tu aprobación.</b> Cada condómino recibe su propio correo: nadie ve la dirección de nadie más, y queda registro de qué se envió, a quién y a qué hora.</p>
+        </div>
+
+        <div class="acciones">
+          <button class="btn btn-verde" id="btn-enviar">Aprobar y enviar</button>
+          <button class="btn btn-ghost" id="btn-regenerar">Generar otro borrador</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PASO 4 ===== -->
+  <section class="panel pieza oculto" id="p4">
+    <div class="exito">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
+      <div class="eyebrow" style="margin-bottom:8px">Enviado</div>
+      <h2 class="h-sec" id="exito-t">El aviso salió a los 48 condóminos</h2>
+      <p class="lede" style="margin-inline:auto;text-align:center" id="exito-s"></p>
+    </div>
+
+    <div class="kpis ff-grid ff-grid--sm">
+      <div class="kpi"><div class="n" id="k1">48</div><div class="k">Correos individuales enviados</div></div>
+      <div class="kpi"><div class="n"><em>0</em></div><div class="k">Direcciones expuestas a terceros</div></div>
+      <div class="kpi"><div class="n" id="k3">1</div><div class="k">Aprobación tuya antes de salir</div></div>
+      <div class="kpi"><div class="n">100<em>%</em></div><div class="k">Envíos con registro y hora</div></div>
+    </div>
+
+    <div class="dos">
+      <div>
+        <div class="eyebrow azul" style="margin-top:6px">Del otro lado</div>
+        <h3 style="font-size:20px;line-height:1.25">Así le llega al condómino</h3>
+        <p class="lede">En su celular, con el nombre de SPARC como remitente y el logo del inmueble. No tiene que entrar a ningún lado ni buscar nada en el chat.</p>
+        <p class="nota">Todo lo que ves en esta pantalla es un ejemplo con datos ficticios. El módulo de envío ya opera hoy con otros clientes de FishFlow; adaptarlo a SPARC es configuración.</p>
+        <div class="acciones">
+          <button class="btn btn-primary" id="btn-otro">Probar otro tipo de aviso</button>
+        </div>
+      </div>
+
+      <div class="fone">
+        <div class="fone-in">
+          <div class="fone-bar"><span>9:41</span><span>Correo</span></div>
+          <div class="mail-h">
+            <div class="de">
+              <span class="logo">SPARC</span>
+              <div>
+                <div class="nm">SPARC Administración</div>
+                <div class="em">avisos@sparcgroup.mx</div>
+              </div>
+            </div>
+            <div class="asunto" id="mail-asunto"></div>
+          </div>
+          <div class="mail-b" id="mail-cuerpo"></div>
+          <div class="mail-f">Recibes este correo porque tu unidad está registrada en Residencial Cumbres, administrado por SPARC. Para dejar de recibirlos, responde BAJA.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="ff-container f">
+    <div>Demo preparado por FishFlow para SPARC · Eduardo Curiel</div>
+    <div>raf@fishflow.mx</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var EDIF = 'Residencial Cumbres';
+  var TOTAL = 48;
+
+  var TIPOS = [
+    {
+      id:'urgente', clase:'urg', titulo:'Aviso urgente',
+      desc:'Corte de agua, falla de equipo o mantenimiento no programado.',
+      origen:'Incidencia detectada hoy, 14:15',
+      ico:'<path d="M12 3 2.5 20h19z"/><path d="M12 9.5v4"/><path d="M12 16.8h.01"/>',
+      okOrigen:'Origen · incidencia detectada',
+      originTexto:'Tres reportes de falta de agua en niveles altos de Torre A y Torre B en las últimas 48 horas, con ruido anómalo en el equipo hidroneumático. El proveedor confirmó ventana de reparación para el miércoles.',
+      meta:['Prioridad alta','Hidroneumático','3 reportes / 48 h','Torres A y B'],
+      lede:'La incidencia ya está identificada. El borrador se arma con los datos del inmueble: qué pasó, a quién afecta, cuándo se resuelve y qué debe hacer el condómino mientras tanto.',
+      asunto:'Corte de agua programado — miércoles 9:00 a 13:00',
+      cuerpo:'Estimado condómino:\n\nLe informamos que el próximo miércoles se realizará una reparación al equipo hidroneumático que abastece las Torres A y B, derivada de las fallas de suministro reportadas en los niveles superiores durante los últimos dos días.\n\nVentana de trabajo: miércoles de 9:00 a 13:00 horas.\nAfectación: suministro de agua suspendido en Torres A y B durante ese periodo.\n\nLe sugerimos almacenar el agua que requiera antes de las 9:00 horas. La cisterna general permanecerá disponible para emergencias.\n\nEn cuanto el trabajo concluya le confirmaremos el restablecimiento del servicio por este mismo medio.\n\nQuedamos a sus órdenes.\n\nAdministración SPARC\n' + EDIF,
+      envio:'Enviado a los 48 condóminos registrados. El aviso queda además publicado en el Portal.',
+      dest:48
+    },
+    {
+      id:'reporte', clase:'', titulo:'Reporte mensual',
+      desc:'Estado financiero del inmueble: presupuesto, cartera y obras.',
+      origen:'Cierre del mes · septiembre',
+      ico:'<rect x="3.5" y="3" width="17" height="18" rx="2.5"/><path d="M8 8.5h8M8 12.5h8M8 16.5h5"/>',
+      okOrigen:'Origen · cierre financiero del mes',
+      originTexto:'Cierre de septiembre conciliado y revisado por auditoría interna: presupuesto contra ejercido, movimientos bancarios, estado de la cartera vencida y avance de las obras autorizadas por el comité.',
+      meta:['Septiembre 2026','Conciliado','Auditoría interna','Presupuesto vs. ejercido'],
+      lede:'El reporte no se redacta desde cero cada mes: se arma con las cifras ya conciliadas y tú ajustas el comentario del mes antes de aprobarlo.',
+      asunto:'Reporte mensual de septiembre — ' + EDIF,
+      cuerpo:'Estimado condómino:\n\nPonemos a su disposición el reporte financiero correspondiente al mes de septiembre.\n\nRESUMEN DEL MES\n\n· Ingresos por cuotas: 92% de lo presupuestado\n· Egresos de operación: dentro del presupuesto autorizado\n· Cartera vencida: se recuperaron tres unidades por convenio de pago\n· Obras: concluida la impermeabilización de azotea de Torre A\n\nEl estado de cuenta detallado, las conciliaciones bancarias y los comprobantes de cada egreso están disponibles en el Portal, en la sección de reportes.\n\nCualquier aclaración sobre las cifras puede solicitarla por este medio o directamente con su ejecutivo de cuenta.\n\nQuedamos a sus órdenes.\n\nAdministración SPARC\n' + EDIF,
+      envio:'Enviado a los 48 condóminos, con el reporte detallado disponible en el Portal.',
+      dest:48
+    },
+    {
+      id:'asamblea', clase:'', titulo:'Convocatoria de asamblea',
+      desc:'Fecha, orden del día y quórum requerido, con acuse.',
+      origen:'Acuerdo del comité · 28 de septiembre',
+      ico:'<rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9h17M8 2.5v4M16 2.5v4"/>',
+      okOrigen:'Origen · acuerdo del comité',
+      originTexto:'El comité acordó convocar a asamblea ordinaria. La convocatoria debe salir con la anticipación que marca la Ley de Propiedad en Condominio y dejar constancia de que cada condómino la recibió.',
+      meta:['Asamblea ordinaria','12 de octubre','Acuse de recibido','Quórum 51%'],
+      lede:'Aquí lo que importa no es solo enviar: es poder demostrar que se convocó en tiempo y forma. Cada envío queda registrado con fecha y hora.',
+      asunto:'Convocatoria a Asamblea Ordinaria — 12 de octubre, 19:00 h',
+      cuerpo:'Estimado condómino:\n\nPor acuerdo del Comité de Vigilancia se convoca a Asamblea General Ordinaria.\n\nFecha: domingo 12 de octubre\nHora: 19:00 horas en primera convocatoria\nLugar: salón de usos múltiples\n\nORDEN DEL DÍA\n\n1. Lista de asistencia y declaración de quórum\n2. Presentación del informe financiero del ejercicio\n3. Presupuesto para el siguiente periodo\n4. Estado de la cartera vencida y acuerdos de recuperación\n5. Asuntos generales\n\nDe no reunirse el quórum requerido en primera convocatoria, la asamblea se celebrará en segunda convocatoria treinta minutos después, siendo válidos los acuerdos que se tomen con los condóminos presentes.\n\nSi no puede asistir, puede acreditar a un representante mediante carta poder simple.\n\nQuedamos a sus órdenes.\n\nAdministración SPARC\n' + EDIF,
+      envio:'Enviado a los 48 condóminos, con acuse de recibido individual para el expediente de la asamblea.',
+      dest:48
+    },
+    {
+      id:'cuota', clase:'', titulo:'Recordatorio de cuota',
+      desc:'Aviso previo al vencimiento, con enlace al estado de cuenta.',
+      origen:'Calendario de cobranza · vence el día 10',
+      ico:'<rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19"/>',
+      okOrigen:'Origen · calendario de cobranza',
+      originTexto:'La cuota de mantenimiento vence el día 10. El recordatorio sale únicamente a las unidades con saldo pendiente, no a todo el edificio: quien ya pagó no recibe nada.',
+      meta:['Vence el día 10','Solo unidades con saldo','11 destinatarios','Enlace a estado de cuenta'],
+      lede:'Un recordatorio a tiempo evita la mitad de la cobranza posterior. Y sale segmentado: quien está al corriente no recibe un correo que no le toca.',
+      asunto:'Recordatorio: su cuota de mantenimiento vence el día 10',
+      cuerpo:'Estimado condómino:\n\nLe recordamos que su cuota de mantenimiento correspondiente al mes en curso vence el próximo día 10.\n\nPuede consultar el monto exacto, su historial de pagos y sus comprobantes en cualquier momento desde el Portal, en la sección de estado de cuenta.\n\nSi ya realizó su pago en los últimos días, por favor haga caso omiso de este mensaje: es posible que la conciliación bancaria aún no lo refleje.\n\nSi requiere un convenio de pago o tiene alguna aclaración, escríbanos por este medio y con gusto lo atendemos.\n\nQuedamos a sus órdenes.\n\nAdministración SPARC\n' + EDIF,
+      envio:'Enviado únicamente a las 11 unidades con saldo pendiente. Las 37 restantes no recibieron nada.',
+      dest:11
+    }
+  ];
+
+  var sel = null, editado = false;
+  var $ = function(id){ return document.getElementById(id); };
+
+  // Pintar las tarjetas de tipo
+  var cont = $('tipos');
+  TIPOS.forEach(function(t, i){
+    var b = document.createElement('button');
+    b.className = 'tipo ' + t.clase;
+    b.setAttribute('data-i', i);
+    b.innerHTML =
+      '<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + t.ico + '</svg></span>' +
+      '<span><h4>' + t.titulo + '</h4><p>' + t.desc + '</p>' +
+      '<span class="orig">' + t.origen + '</span></span>';
+    b.addEventListener('click', function(){ elegir(i); });
+    cont.appendChild(b);
+  });
+
+  function pasos(n){
+    [].forEach.call(document.querySelectorAll('.paso'), function(el){
+      var p = +el.getAttribute('data-p');
+      el.classList.toggle('on', p === n);
+      el.classList.toggle('done', p < n);
+    });
+  }
+  function ver(ids){
+    ['p1','p2','p3','p4'].forEach(function(id){
+      $(id).classList.toggle('oculto', ids.indexOf(id) === -1);
+    });
+  }
+  function irA(el){
+    if (el && el.scrollIntoView) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function elegir(i){
+    sel = TIPOS[i];
+    editado = false;
+    [].forEach.call(document.querySelectorAll('.tipo'), function(el, j){
+      el.classList.toggle('sel', j === i);
+    });
+    $('p2-titulo').textContent = sel.titulo;
+    $('p2-lede').textContent = sel.lede;
+    $('origen-k').textContent = sel.okOrigen;
+    $('origen-v').textContent = sel.originTexto;
+    $('origen-meta').innerHTML = sel.meta.map(function(m){ return '<span>' + m + '</span>'; }).join('');
+    ver(['p1','p2']);
+    pasos(2);
+    irA($('p2'));
+  }
+
+  $('btn-generar').addEventListener('click', function(){
+    ver(['p1','p2','p3']);
+    pasos(3);
+    $('cargando').classList.remove('oculto');
+    $('editor').classList.add('oculto');
+    irA($('p3'));
+    setTimeout(function(){
+      $('cargando').classList.add('oculto');
+      $('editor').classList.remove('oculto');
+      $('pill-edit').classList.add('oculto');
+      $('asunto').value = sel.asunto;
+      $('cuerpo').value = sel.cuerpo;
+      $('dest-n').textContent = sel.dest + ' condóminos';
+      $('av-mas').textContent = '+' + (sel.dest - 5);
+      editado = false;
+    }, 1500);
+  });
+
+  $('btn-regenerar').addEventListener('click', function(){
+    $('btn-generar').click();
+  });
+
+  ['asunto','cuerpo'].forEach(function(id){
+    $(id).addEventListener('input', function(){
+      if (!editado){ editado = true; $('pill-edit').classList.remove('oculto'); }
+    });
+  });
+
+  $('btn-enviar').addEventListener('click', function(){
+    var b = this;
+    b.disabled = true;
+    b.textContent = 'Enviando…';
+    setTimeout(function(){
+      b.disabled = false;
+      b.textContent = 'Aprobar y enviar';
+      $('exito-t').textContent = sel.id === 'cuota'
+        ? 'El recordatorio salió a las 11 unidades con saldo'
+        : 'El aviso salió a los ' + sel.dest + ' condóminos';
+      $('exito-s').textContent = sel.envio;
+      $('k1').textContent = sel.dest;
+      $('k3').textContent = editado ? '1' : '1';
+      $('mail-asunto').textContent = $('asunto').value;
+      $('mail-cuerpo').textContent = $('cuerpo').value;
+      ver(['p4']);
+      pasos(5);
+      window.scrollTo({top:0, behavior:'smooth'});
+    }, 1100);
+  });
+
+  $('btn-volver1').addEventListener('click', function(){ reiniciar(); });
+  $('btn-otro').addEventListener('click', function(){ reiniciar(); });
+  $('reset').addEventListener('click', function(){ reiniciar(); });
+
+  function reiniciar(){
+    sel = null; editado = false;
+    [].forEach.call(document.querySelectorAll('.tipo'), function(el){ el.classList.remove('sel'); });
+    ver(['p1']);
+    pasos(1);
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+})();
+</script>
+</body>
+</html>
