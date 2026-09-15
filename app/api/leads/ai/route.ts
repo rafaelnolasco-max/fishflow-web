@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 import { Resend } from 'resend'
 import { SENDERS } from '@/lib/email'
+import { revisarAntibot, logDescarte } from '@/lib/antibot'
 
 // ─── Clientes ────────────────────────────────────────────────────────────────
 
@@ -104,7 +105,22 @@ function buildEmailHtml(name: string, aiResponse: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, problem } = await req.json()
+    const body = await req.json().catch(() => ({}))
+    const { name, email, problem } = body
+
+    // Filtro antibot (ver lib/antibot.ts). Va ANTES que nada porque este
+    // endpoint es el más caro de abusar del portafolio: cada POST gasta una
+    // llamada a Claude y manda un correo a la dirección que le escriban. Se
+    // devuelve un texto genérico en vez de un error para no enseñarle al bot
+    // qué campo corregir.
+    const veredicto = revisarAntibot(req, body)
+    if (!veredicto.ok) {
+      logDescarte('leads/ai', veredicto.motivo, email)
+      return NextResponse.json({
+        response:
+          'Gracias por escribir. Te mandamos el diagnóstico a tu correo en un momento.',
+      })
+    }
 
     // Validaciones básicas
     if (!name?.trim() || !email?.trim() || !problem?.trim()) {

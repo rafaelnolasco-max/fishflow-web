@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { SENDERS, enlaceNotifyTo, ENLACE_DEFAULT_TO } from '@/lib/email'
 import { corsHeaders, preflight } from '@/lib/cors'
+import { revisarAntibot, logDescarte } from '@/lib/antibot'
 
 export const runtime = 'nodejs'
 
@@ -129,6 +130,16 @@ export async function POST(req: Request) {
   const cors = corsHeaders(req.headers.get('origin'))
   try {
     const b = await req.json().catch(() => ({}))
+
+    // Filtro antibot (ver lib/antibot.ts). Mismo tratamiento que en los
+    // formularios de Mario: se responde como un alta buena y no se guarda ni
+    // se manda nada. El CORS de arriba solo frena al navegador; un POST con
+    // curl lo ignora y llegaba hasta el insert.
+    const veredicto = revisarAntibot(req, b)
+    if (!veredicto.ok) {
+      logDescarte('demo/enlace-lead', veredicto.motivo, b.email)
+      return NextResponse.json({ ok: true, cuando: siguienteContacto() }, { headers: cors })
+    }
     const nombre = (b.nombre ?? '').toString().trim()
     const whatsapp = (b.whatsapp ?? '').toString().trim()
     const email = (b.email ?? '').toString().trim().toLowerCase()

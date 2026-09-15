@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { fbqTrack } from '@/components/MetaPixel'
 
 type FormState = 'idle' | 'loading' | 'success' | 'error'
@@ -13,6 +13,13 @@ export default function LeadForm() {
   const [state, setState]     = useState<FormState>('idle')
   const [response, setResponse] = useState('')
 
+  /* Señales antibot (ver lib/antibot.ts). `montado` es el momento en que se
+     pintó el formulario: el servidor descarta lo que se envíe en menos de 3
+     segundos. `honeypot` es un campo que solo un programa llena — está fuera
+     de la pantalla y oculto a los lectores de pantalla. */
+  const montado = useRef(Date.now())
+  const honeypot = useRef<HTMLInputElement>(null)
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!consent) return
@@ -23,7 +30,13 @@ export default function LeadForm() {
       const res = await fetch('/api/leads/ai', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ name, email, problem }),
+        body:    JSON.stringify({
+          name,
+          email,
+          problem,
+          _ts: montado.current,
+          _hp: honeypot.current?.value ?? '',
+        }),
       })
 
       const data = await res.json()
@@ -158,6 +171,13 @@ export default function LeadForm() {
               onFocus={(e) => (e.target.style.borderColor = '#FF8C35')}
               onBlur={(e)  => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
             />
+          </div>
+
+          {/* Honeypot. Invisible para una persona; un bot que llena todos los
+              campos del formulario cae aquí y el servidor descarta el envío. */}
+          <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+            <label htmlFor="lead-website">Deja este campo vacío</label>
+            <input id="lead-website" name="_hp" type="text" tabIndex={-1} autoComplete="off" ref={honeypot} />
           </div>
 
           {/* Consentimiento */}

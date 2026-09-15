@@ -45,15 +45,7 @@
  * puede poner EXIGIR_TS en true y cerrar también ese hueco.
  */
 
-/** Dominios desde los que sí puede salir un formulario nuestro. */
-const ORIGENES_PERMITIDOS = new Set([
-  'https://mariocitalan.net',
-  'https://www.mariocitalan.net',
-  'http://mariocitalan.net',
-  'http://www.mariocitalan.net',
-  'https://fishflow.mx',
-  'https://www.fishflow.mx',
-])
+import { origenPermitido } from '@/lib/cors'
 
 /** Mínimo entre cargar la página y enviar. Un humano no baja de esto. */
 const MIN_MS = 3000
@@ -86,7 +78,7 @@ export function revisarAntibot(req: Request, body: unknown): Veredicto {
   // 3. Origen. Se evalúa antes que el tiempo porque decide qué tan estricto
   //    ser con un `_ts` ausente.
   const origin = req.headers.get('origin')
-  if (origin && !ORIGENES_PERMITIDOS.has(origin.toLowerCase())) {
+  if (origin && !origenPermitido(origin)) {
     return { ok: false, motivo: `origen no permitido: ${origin}` }
   }
 

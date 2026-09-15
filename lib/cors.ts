@@ -18,6 +18,10 @@
 
 const ALLOWED_ORIGINS = [
   'https://enlaceintegralseguros.com',
+  'https://mariocitalan.net',
+  'https://www.mariocitalan.net',
+  'http://mariocitalan.net',
+  'http://www.mariocitalan.net',
   'https://www.enlaceintegralseguros.com',
   'https://enlace-integral.vercel.app',
   'https://fishflow.mx',
@@ -51,4 +55,17 @@ export function preflight(req: Request): Response {
     status: 204,
     headers: corsHeaders(req.headers.get('origin')),
   })
+}
+
+/**
+ * ¿Este origen es uno de nuestros sitios?
+ *
+ * Misma lista que usa CORS, expuesta aparte porque lib/antibot.ts la necesita
+ * para otra cosa: CORS le dice al NAVEGADOR si puede leer la respuesta, pero
+ * un bot con curl la ignora por completo y el insert ocurre igual. El antibot
+ * la usa para decidir del lado del servidor, que es donde sí importa.
+ */
+export function origenPermitido(origin: string | null): boolean {
+  if (!origin) return false
+  return ALLOWED_ORIGINS.includes(origin) || PREVIEW_ORIGIN.test(origin)
 }
