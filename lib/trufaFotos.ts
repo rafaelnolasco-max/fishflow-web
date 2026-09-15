@@ -19,7 +19,7 @@ export const MAX_BYTES = 10 * 1024 * 1024;
 export type FotoSubida = { storagePath: string; bytes: number };
 
 /** Reescala a JPEG. Si el navegador no puede decodificar, regresa el original. */
-export async function reducirImagen(file: File): Promise<Blob> {
+export async function reducirImagen(file: Blob): Promise<Blob> {
   try {
     const bitmap = await createImageBitmap(file);
     const escala = Math.min(1, LADO_MAX / Math.max(bitmap.width, bitmap.height));
@@ -124,16 +124,17 @@ export async function borrarFoto(id: string, storagePath: string): Promise<void>
  *
  * Guarda la RUTA, no una URL: el bucket es privado y la URL firmada caduca.
  */
-export async function subirFotoPerfil(file: File, petId: string): Promise<string> {
-  const blob = await reducirImagen(file);
+export async function subirFotoPerfil(imagen: Blob, petId: string): Promise<string> {
+  // Recibe un Blob y no un File porque lo normal es que llegue YA RECORTADO
+  // desde RecortarFoto: 800x800 JPEG. `reducirImagen` no le hace nada (es más
+  // chico que LADO_MAX) y sigue cubriendo el caso de subir el original directo.
+  const blob = await reducirImagen(imagen);
   if (blob.size > MAX_BYTES) {
     throw new Error(`La foto pesa ${(blob.size / 1024 / 1024).toFixed(1)} MB y el máximo son 10 MB.`);
   }
 
-  const ext = blob.type === "image/jpeg" ? "jpg"
-    : (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5);
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const storagePath = `${petId}/perfil-${stamp}.${ext || "jpg"}`;
+  const storagePath = `${petId}/perfil-${stamp}.jpg`;
 
   const { error: upErr } = await supabase.storage
     .from("trufa-media")

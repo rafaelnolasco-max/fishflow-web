@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { subirFoto, borrarFoto } from "@/lib/trufaFotos";
+import RecortarFoto from "@/components/trufa/RecortarFoto";
 
 // ─── Trufa — fotos del carnet ─────────────────────────────────────────────────
 // Dos piezas: el botón que sube y la tira que muestra. Se usan juntas dentro de
@@ -155,20 +156,29 @@ export function PortadaMascota({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // La foto elegida espera aquí mientras la persona la encuadra.
+  const [porRecortar, setPorRecortar] = useState<File | null>(null);
 
-  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+  function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    if (inputRef.current) inputRef.current.value = "";
     if (!file) return;
+    setError("");
+    setPorRecortar(file);
+  }
+
+  async function guardarRecorte(blob: Blob) {
     setBusy(true); setError("");
     try {
       const { subirFotoPerfil } = await import("@/lib/trufaFotos");
-      await subirFotoPerfil(file, petId);
+      await subirFotoPerfil(blob, petId);
+      setPorRecortar(null);
       await onDone();
     } catch (err) {
+      setPorRecortar(null);
       setError(err instanceof Error ? err.message : "No se pudo subir la foto.");
     } finally {
       setBusy(false);
-      if (inputRef.current) inputRef.current.value = "";
     }
   }
 
@@ -200,6 +210,15 @@ export function PortadaMascota({
         </button>
         {error && <div style={{ fontSize: 12.5, color: t.danger, marginTop: 4, lineHeight: 1.5 }}>{error}</div>}
       </div>
+
+      {porRecortar && (
+        <RecortarFoto
+          file={porRecortar}
+          onCancel={() => setPorRecortar(null)}
+          onListo={guardarRecorte}
+          theme={t}
+        />
+      )}
     </div>
   );
 }
