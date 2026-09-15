@@ -157,9 +157,24 @@ export default function TrufaApp() {
         if (res.ok) { const j = await res.json(); setClientId(j.client_id ?? null); }
       } catch { /* la RLS resuelve el acceso igual */ }
 
+      // Solo las mascotas de las que ESTE usuario es dueño. No basta con la RLS:
+      // user_owns_pet() también deja pasar por user_has_access_to_client(), así
+      // que un administrador veía aquí las mascotas demo de la clínica SieckVet.
+      // El carnet B2C se arma desde vet_pet_owners, no desde el cliente.
+      const email = session.user.email ?? "";
+      const { data: links, error: linkErr } = await supabase
+        .from("vet_pet_owners")
+        .select("pet_id")
+        .or(`user_id.eq.${session.user.id},email.eq.${email}`);
+      if (linkErr) { say("No se pudo cargar tu carnet."); setLoading(false); return; }
+
+      const ids = Array.from(new Set((links ?? []).map(l => l.pet_id as string)));
+      if (ids.length === 0) { setPets([]); setPetId(null); setLoading(false); return; }
+
       const { data, error } = await supabase
         .from("vet_pets")
         .select("id, client_id, name, species, breed, sex, birth_date, color, microchip, notes")
+        .in("id", ids)
         .eq("active", true)
         .order("created_at", { ascending: true });
       if (error) { say("No se pudo cargar tu carnet."); setLoading(false); return; }
@@ -194,11 +209,24 @@ export default function TrufaApp() {
   const agenda = useMemo<AgendaItem[]>(() => {
     const items: AgendaItem[] = [];
 
-    for (const v of vacunas) {
+    // Una entrada por LÍNEA, no por dosis: la refuerzo de este año sustituye a
+    // la del año pasado. Sin esto, cada dosis vieja se queda vencida para
+    // siempre y el contador de vencidas miente (8 cuando en realidad son 4).
+    const latestBy = <R extends { applied_on: string }>(rows: R[], keyOf: (r: R) => string) => {
+      const m = new Map<string, R>();
+      for (const r of rows) {
+        const k = keyOf(r);
+        const prev = m.get(k);
+        if (!prev || r.applied_on > prev.applied_on) m.set(k, r);
+      }
+      return Array.from(m.values());
+    };
+
+    for (const v of latestBy(vacunas, r => r.vaccine.trim().toLowerCase())) {
       if (v.next_due_on) items.push({ key: `v-${v.id}`, label: v.vaccine, detail: v.brand ?? "Vacuna", due: v.next_due_on, estimated: false });
     }
-    for (const d of desp) {
-      if (d.next_due_on) items.push({ key: `d-${d.id}`, label: "Desparasitación", detail: d.product, due: d.next_due_on, estimated: false });
+    for (const d of latestBy(desp, r => r.kind)) {
+      if (d.next_due_on) items.push({ key: `d-${d.id}`, label: `Desparasitación ${d.kind}`, detail: d.product, due: d.next_due_on, estimated: false });
     }
 
     // Tratamientos: una entrada por producto, la más reciente. Si el MVZ no
