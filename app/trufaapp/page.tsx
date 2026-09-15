@@ -4,6 +4,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ConsultaRecorder from "@/components/trufa/ConsultaRecorder";
+import { BotonSubirFoto, TiraFotos, type Foto } from "@/components/trufa/Fotos";
+import { firmarFotos } from "@/lib/trufaFotos";
 import {
   DashboardHeader, StatGrid, TabBar, Toast, Section, Modal as DModal,
   StatCard as DStatCard, Empty as DEmpty, Field as DField, SaveBtn as DSaveBtn,
@@ -157,6 +159,8 @@ export default function TrufaApp() {
   const [trat, setTrat] = useState<Treatment[]>([]);
   const [duenos, setDuenos] = useState<PetOwner[]>([]);
   const [consultas, setConsultas] = useState<Consulta[]>([]);
+  const [fotos, setFotos] = useState<Foto[]>([]);
+  const [fotoUrls, setFotoUrls] = useState<Record<string, string>>({});
   const [tab, setTab] = useState<TabKey>("carnet");
   const [toast, setToast] = useState<string | null>(null);
   const [modal, setModal] = useState<null | "vacuna" | "tratamiento" | "desparasitacion" | "peso" | "invitar" | "mascota">(null);
@@ -244,7 +248,20 @@ export default function TrufaApp() {
     })) as unknown as Consulta[]);
   }, []);
 
-  useEffect(() => { if (petId) loadPet(petId); }, [petId, loadPet]);
+  // Las fotos se cargan aparte porque además hay que FIRMARLAS: el bucket es
+  // privado y sin URL firmada no se pinta nada. Una sola llamada para todas.
+  const loadFotos = useCallback(async (id: string) => {
+    const { data } = await supabase
+      .from("vet_photos")
+      .select("id, storage_path, caption, taken_on, appointment_id")
+      .eq("pet_id", id)
+      .order("taken_on", { ascending: false });
+    const lista = (data ?? []) as Foto[];
+    setFotos(lista);
+    setFotoUrls(await firmarFotos(lista.map(f => f.storage_path)));
+  }, []);
+
+  useEffect(() => { if (petId) { loadPet(petId); loadFotos(petId); } }, [petId, loadPet, loadFotos]);
 
   // ── Agenda: lo que viene, con estimación cuando el MVZ no anotó fecha ───────
   const agenda = useMemo<AgendaItem[]>(() => {
@@ -577,6 +594,27 @@ export default function TrufaApp() {
               </p>
             </Section>
 
+            <Section theme={T} title="Seguimiento en fotos"
+              action={undefined}>
+              <p style={{ fontSize: 13.5, color: T.muted, lineHeight: 1.6, margin: "0 0 12px" }}>
+                Fotos que no pertenecen a ninguna consulta. Para un padecimiento de piel,
+                la misma zona retratada cada pocas semanas le dice más al veterinario que
+                cualquier descripción.
+              </p>
+              <div style={{ marginBottom: 12 }}>
+                <BotonSubirFoto petId={pet.id} clientId={pet.client_id} appointmentId={null}
+                  onDone={() => loadFotos(pet.id)}
+                  theme={{ accent: TERRACOTA, surface: "#FFFFFF", border: ARENA, text: TINTA, muted: T.muted, danger: T.danger, panel: T.panel }} />
+              </div>
+              {fotos.filter(f => !f.appointment_id).length === 0
+                ? <Empty msg="Sin fotos de seguimiento." />
+                : <TiraFotos
+                    fotos={fotos.filter(f => !f.appointment_id)}
+                    urls={fotoUrls}
+                    onChanged={() => loadFotos(pet.id)}
+                    theme={{ accent: TERRACOTA, surface: "#FFFFFF", border: ARENA, text: TINTA, muted: T.muted, danger: T.danger, panel: T.panel }} />}
+            </Section>
+
             <Section theme={T} title="Consultas guardadas">
               {consultas.length === 0 ? <Empty msg="Todavía no hay ninguna." /> : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -626,6 +664,23 @@ export default function TrufaApp() {
                             <strong>Seguimiento:</strong> {n.proxima_cita}
                           </div>
                         )}
+
+                        <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${CREMA}` }}>
+                          <div style={{ display: "flex", justifyContent: "space-between",
+                            alignItems: "center", gap: 10, marginBottom: 9 }}>
+                            <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: ".08em",
+                              textTransform: "uppercase", color: T.muted }}>Fotos</div>
+                            <BotonSubirFoto petId={pet.id} clientId={pet.client_id}
+                              appointmentId={c.appointment_id}
+                              onDone={() => loadFotos(pet.id)}
+                              theme={{ accent: TERRACOTA, surface: "#FFFFFF", border: ARENA, text: TINTA, muted: T.muted, danger: T.danger, panel: T.panel }} label="+ Foto" />
+                          </div>
+                          <TiraFotos
+                            fotos={fotos.filter(f => f.appointment_id === c.appointment_id)}
+                            urls={fotoUrls}
+                            onChanged={() => loadFotos(pet.id)}
+                            theme={{ accent: TERRACOTA, surface: "#FFFFFF", border: ARENA, text: TINTA, muted: T.muted, danger: T.danger, panel: T.panel }} />
+                        </div>
 
                         {n?.preguntas && n.preguntas.length > 0 && (
                           <div style={{ background: "rgba(224,163,62,.14)", borderRadius: 9, padding: "10px 12px" }}>
