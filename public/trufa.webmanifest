@@ -1,0 +1,14 @@
+{
+  "name": "Trufa — el carnet de tu mascota",
+  "short_name": "Trufa",
+  "description": "Vacunas, tratamientos, peso y consultas de tu mascota en un solo lugar.",
+  "start_url": "/trufaapp",
+  "scope": "/trufaapp",
+  "display": "standalone",
+  "background_color": "#F6F0E8",
+  "theme_color": "#1F1714",
+  "icons": [
+    { "src": "/icons/icon-trufa-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-trufa-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
