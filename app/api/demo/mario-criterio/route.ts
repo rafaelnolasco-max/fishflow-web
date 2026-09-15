@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { SENDERS } from '@/lib/email'
+import { revisarAntibot, logDescarte } from '@/lib/antibot'
 
 export const runtime = 'nodejs'
 
@@ -93,6 +94,15 @@ function leadHtml(d: {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}))
+
+    // Filtro antibot: honeypot, tiempo de llenado y origen (ver lib/antibot.ts).
+    // Un descarte responde 200 como si hubiera entrado: un 400 le enseña al bot
+    // qué campo corregir, un 200 lo deja creyendo que funcionó.
+    const veredicto = revisarAntibot(req, body)
+    if (!veredicto.ok) {
+      logDescarte('demo/mario-criterio', veredicto.motivo, body.email)
+      return NextResponse.json({ ok: true }, { headers: CORS_HEADERS })
+    }
     const nombre = (body.nombre ?? '').toString().trim()
     const email = (body.email ?? '').toString().trim()
     const tel = (body.tel ?? '').toString().trim()

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { CRITERIO_CLIENT_ID } from '@/lib/supabase'
 import { SENDERS, getResend } from '@/lib/email'
+import { revisarAntibot, logDescarte } from '@/lib/antibot'
 
 export const runtime = 'nodejs'
 
@@ -136,6 +137,15 @@ function acuseHtml(nombre: string, servicio: string) {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}))
+
+    // Filtro antibot: honeypot, tiempo de llenado y origen (ver lib/antibot.ts).
+    // Un descarte responde 200 como si hubiera entrado: un 400 le enseña al bot
+    // qué campo corregir, un 200 lo deja creyendo que funcionó.
+    const veredicto = revisarAntibot(req, body)
+    if (!veredicto.ok) {
+      logDescarte('mario/solicitud', veredicto.motivo, body.email)
+      return NextResponse.json({ ok: true }, { headers: CORS_HEADERS })
+    }
     const origen = (body.origen ?? '').toString().trim().toLowerCase()
     const servicio = SERVICIOS[origen]
     if (!servicio) {
