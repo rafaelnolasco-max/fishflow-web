@@ -9,6 +9,7 @@ import {
   type DashTheme,
 } from "@/components/dashboard";
 import CapturaScreenshot from "@/components/finanzas/CapturaScreenshot";
+import Novedades from "@/components/Novedades";
 
 // ─── FishFlow Finanzas — app universal B2C ─────────────────────────────────────
 // Versión multi-usuario de /app/rafa: sin cubetas, límite mensual + rubros
@@ -920,6 +921,7 @@ export default function FinanzasApp() {
       )}
 
       <Toast msg={toast} theme={T} />
+      <Novedades modulo="finanzas" theme={T} />
     </div>
   );
 

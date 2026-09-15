@@ -8,6 +8,8 @@ import {
   StatCard as DStatCard, Empty as DEmpty, Field as DField, SaveBtn as DSaveBtn,
   type DashTheme,
 } from "@/components/dashboard";
+import CapturaScreenshot from "@/components/finanzas/CapturaScreenshot";
+import Novedades from "@/components/Novedades";
 
 // ─── Client ───────────────────────────────────────────────────────────────────
 export const RAFA_CLIENT_ID = "40ee7b1f-ef78-4632-a9ea-0468e26320e1";
@@ -557,7 +559,21 @@ export default function RafaFinanzas() {
 
         {/* ══ CAPTURA ══ */}
         {tab === "captura" && (
-          <Section title="Registrar movimiento" theme={T}>
+          <Section title="Del app del banco" theme={T}>
+            <CapturaScreenshot
+              clientId={RAFA_CLIENT_ID}
+              theme={T}
+              txMeta={TX_META}
+              rubros={GASTO_TYPES}
+              extraCats={EXTRA_CATS}
+              onToast={showToast}
+              onSaved={loadAll}
+            />
+          </Section>
+        )}
+
+        {tab === "captura" && (
+          <Section title="Registrar a mano" theme={T}>
             <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: 18 }}>
               {/* Monto grande */}
               <input inputMode="decimal" type="number" placeholder="$0" value={fAmount}
@@ -853,6 +869,7 @@ export default function RafaFinanzas() {
       )}
 
       <Toast msg={toast} theme={T} />
+      <Novedades modulo="finanzas" theme={T} />
     </div>
   );
 
