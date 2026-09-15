@@ -24,7 +24,7 @@ export interface Novedad {
 export const NOVEDADES: Record<string, Novedad[]> = {
   finanzas: [
     {
-      version: "2026-09-15.2",
+      version: "2026-09-15.3",
       titulo: "Carga tus gastos con una foto",
       puntos: [
         "En la pestaña Captura puedes subir los screenshots de los movimientos del app de tu banco. Leo los cargos, los clasifico y tú confirmas con un tap.",
@@ -32,6 +32,7 @@ export const NOVEDADES: Record<string, Novedad[]> = {
         "Los pagos a la tarjeta y las devoluciones se omiten solos: no son gastos.",
         "Si dos capturas traen el mismo cargo, no se duplica.",
         "Cada vez que corriges el rubro de un comercio se guarda como regla tuya. La próxima vez ese cargo ya llega bien clasificado.",
+        "Los cargos hechos con una tarjeta adicional llegan marcados con el nombre de quien los hizo. No se descartan solos —los pagas tú— pero hay un botón para sacarlos todos de un tap si así lo decides.",
       ],
     },
   ],

@@ -30,6 +30,8 @@ export interface Borrador {
   confidence: number | null;
   rule_hit: boolean;
   txn_state: "authorized" | "posted";
+  /** Tarjetahabiente adicional que hizo el cargo. null = tú. */
+  cardholder: string | null;
   status: "pending" | "confirmed" | "discarded" | "duplicate";
 }
 
@@ -123,6 +125,26 @@ export default function CapturaScreenshot({
     [borradores, descartados],
   );
   const aGuardar = borradores.filter(b => !descartados.has(b.id)).length;
+
+  /**
+   * Cargos hechos con una tarjeta adicional. NO se descartan solos: los paga el
+   * titular igual, y excluirlos por sistema subestimaría el gasto del mes. Se
+   * marcan, y aquí hay un atajo para sacarlos todos de un tap si así se decide.
+   */
+  const adicionales = useMemo(
+    () => borradores.filter(b => b.cardholder),
+    [borradores],
+  );
+  const adicionalesFuera = adicionales.length > 0 && adicionales.every(b => descartados.has(b.id));
+
+  function alternarAdicionales() {
+    setDescartados(s => {
+      const n = new Set(s);
+      if (adicionalesFuera) adicionales.forEach(b => n.delete(b.id));
+      else adicionales.forEach(b => n.add(b.id));
+      return n;
+    });
+  }
 
   async function bearer(): Promise<string | null> {
     const { data: { session } } = await supabase.auth.getSession();
@@ -372,6 +394,18 @@ export default function CapturaScreenshot({
               </span>
             )}
           </div>
+          {adicionales.length > 0 && (
+            <button onClick={alternarAdicionales}
+              style={{ marginTop: 10, padding: "7px 12px", borderRadius: 9, cursor: "pointer",
+                border: `1px solid ${adicionalesFuera ? "#B08CFF" : T.border}`,
+                background: adicionalesFuera ? "rgba(176,140,255,.14)" : T.panel,
+                color: adicionalesFuera ? "#B08CFF" : T.muted,
+                fontSize: 12.5, fontWeight: 600, fontFamily: "inherit", textAlign: "left" }}>
+              {adicionalesFuera
+                ? `Recuperar ${adicionales.length} de tarjetas adicionales`
+                : `Descartar ${adicionales.length} de tarjetas adicionales`}
+            </button>
+          )}
           {hayDivisaExtranjera && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
               <span style={{ fontSize: 11.5, color: T.muted }}>Tipo de cambio aplicado</span>
@@ -428,6 +462,12 @@ export default function CapturaScreenshot({
                     <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: .3, padding: "2px 7px",
                       borderRadius: 5, background: T.accentSoft, color: T.accent }}>
                       REVISAR
+                    </span>
+                  )}
+                  {b.cardholder && (
+                    <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: .3, padding: "2px 7px",
+                      borderRadius: 5, background: "rgba(176,140,255,.16)", color: "#B08CFF" }}>
+                      TARJETA DE {b.cardholder.toUpperCase()}
                     </span>
                   )}
                   {b.txn_state === "authorized" && (

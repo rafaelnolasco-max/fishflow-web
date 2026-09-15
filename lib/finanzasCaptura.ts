@@ -45,6 +45,8 @@ export interface MovimientoLeido {
   txn_state: TxnState;
   tx_type: TxType | null;   // propuesta; null = no se atrevió
   confidence: number;       // 0–1
+  /** Tarjetahabiente adicional que hizo el cargo. null = el titular. */
+  cardholder: string | null;
 }
 
 export interface LecturaCaptura {
@@ -70,6 +72,7 @@ export interface BorradorGasto {
   confidence: number | null;
   rule_hit: boolean;
   txn_state: TxnState;
+  cardholder: string | null;
   status: "pending" | "confirmed" | "discarded" | "duplicate";
 }
 
@@ -287,6 +290,11 @@ export function parseLectura(raw: string, monedaDefault: string): LecturaCaptura
       txn_state: estado === "authorized" ? "authorized" : ("posted" as TxnState),
       tx_type: (TX_TYPES as readonly string[]).includes(tipo) ? (tipo as TxType) : null,
       confidence: Number.isFinite(conf) ? Math.min(1, Math.max(0, conf)) : 0.5,
+      cardholder: (() => {
+        const c = String(r.cardholder ?? "").trim();
+        // Se acota para que un desvarío del modelo no meta un párrafo aquí.
+        return c && c.length <= 60 ? c.slice(0, 60) : null;
+      })(),
     });
   }
 

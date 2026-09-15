@@ -36,6 +36,7 @@ interface Borrador {
   tx_type: TxType | null;
   category: string | null;
   dedupe_hash: string;
+  cardholder: string | null;
   status: string;
 }
 
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
     // lo que se extrajo, no lo que el navegador diga que se extrajo.
     const { data: filas, error: selErr } = await supabase
       .from("finance_tx_drafts")
-      .select("id, tx_date, merchant_key, concept, amount_original, currency, amount, fx_rate_used, tx_type, category, dedupe_hash, status")
+      .select("id, tx_date, merchant_key, concept, amount_original, currency, amount, fx_rate_used, tx_type, category, dedupe_hash, cardholder, status")
       .in("capture_id", captureIds)
       .eq("client_id", clientId)
       .eq("status", "pending");
@@ -139,6 +140,7 @@ export async function POST(req: NextRequest) {
           source:          "screenshot",
           merchant_key:    b.merchant_key,
           dedupe_hash:     b.dedupe_hash,
+          cardholder:      b.cardholder,
         })
         .select("id")
         .single();

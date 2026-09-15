@@ -86,8 +86,11 @@ Reglas duras:
    Si un renglón queda sin encabezado visible arriba, no lo adivines: cuéntalo
    en unreadable_rows.
 7. Debajo de algunos comercios aparece, en azul, el nombre de un tarjetahabiente
-   adicional (una persona). Eso NO es parte del comercio: no lo metas en
-   merchant_raw ni lo uses para clasificar.
+   adicional (una persona). NO va en merchant_raw y NO se usa para clasificar,
+   pero SÍ lo necesito aparte: ponlo en el campo "cardholder", tal como está
+   escrito. Si el renglón no trae ese nombre, cardholder va en null — eso
+   significa que el cargo lo hizo el titular. No lo inventes ni lo arrastres
+   del renglón anterior: cada cargo trae el suyo o no trae ninguno.
 8. confidence de 0 a 1: qué tan seguro estás del conjunto monto + fecha +
    comercio + rubro de ESE renglón. Sé honesto: un ${LOW_CONFIDENCE} o menos
    manda el renglón al tope de la lista de revisión del usuario, que es
@@ -98,7 +101,7 @@ Reglas duras:
 Responde ÚNICAMENTE con JSON válido, sin markdown y sin texto alrededor:
 {"card_last4":"1234","movimientos":[{"tx_date":"YYYY-MM-DD","merchant_raw":"...",
 "amount":123.45,"currency":"MXN","txn_state":"posted","tx_type":"placer",
-"confidence":0.9}],"unreadable_rows":0}`;
+"confidence":0.9,"cardholder":null}],"unreadable_rows":0}`;
 }
 
 export async function POST(req: NextRequest) {
@@ -267,6 +270,7 @@ export async function POST(req: NextRequest) {
         confidence: regla ? 1 : m.confidence,
         rule_hit: Boolean(regla),
         txn_state: m.txn_state,
+        cardholder: m.cardholder,
         dedupe_hash: await dedupeHash(m.tx_date, m.amount, m.currency, key),
       };
     }));
