@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import ConsultaRecorder from "@/components/trufa/ConsultaRecorder";
 import {
   DashboardHeader, StatGrid, TabBar, Toast, Section, Modal as DModal,
   StatCard as DStatCard, Empty as DEmpty, Field as DField, SaveBtn as DSaveBtn,
@@ -41,7 +42,7 @@ const SaveBtn  = (p: Omit<React.ComponentProps<typeof DSaveBtn>,  "theme">) => <
 const Modal    = (p: Omit<React.ComponentProps<typeof DModal>,    "theme">) => <DModal    theme={T} {...p} />;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type TabKey = "carnet" | "salud" | "peso" | "duenos";
+type TabKey = "carnet" | "salud" | "consultas" | "peso" | "duenos";
 
 interface Pet {
   id: string; client_id: string; name: string; species: string;
@@ -64,6 +65,25 @@ interface Treatment {
   id: string; condition_id: string | null; product: string; dose: string | null;
   applied_on: string; lot: string | null; weight_kg: number | null;
   next_due_on: string | null; notes: string | null;
+}
+/** Lo que el modelo sacó de la grabación. Los null son deliberados: si la
+ *  dosis no se escuchó, se queda vacía y sube a `preguntas`. */
+interface IndicacionVet {
+  que: string; producto: string | null; dosis: string | null;
+  frecuencia: string | null; duracion: string | null;
+}
+interface NotaVet {
+  motivo: string | null; hallazgos: string | null;
+  indicaciones: IndicacionVet[]; proxima_cita: string | null;
+  preguntas: string[]; resumen: string | null;
+}
+interface Consulta {
+  id: string;
+  appointment_id: string;
+  owner_summary: string | null;
+  raw_summary: NotaVet | null;
+  created_at: string;
+  appointment: { scheduled_at: string; reason: string | null; notes: string | null } | null;
 }
 interface PetOwner {
   id: string; user_id: string | null; email: string;
@@ -136,6 +156,7 @@ export default function TrufaApp() {
   const [cond, setCond] = useState<Condition[]>([]);
   const [trat, setTrat] = useState<Treatment[]>([]);
   const [duenos, setDuenos] = useState<PetOwner[]>([]);
+  const [consultas, setConsultas] = useState<Consulta[]>([]);
   const [tab, setTab] = useState<TabKey>("carnet");
   const [toast, setToast] = useState<string | null>(null);
   const [modal, setModal] = useState<null | "vacuna" | "tratamiento" | "desparasitacion" | "peso" | "invitar" | "mascota">(null);
@@ -187,13 +208,17 @@ export default function TrufaApp() {
 
   // ── Carga del carnet de la mascota seleccionada ────────────────────────────
   const loadPet = useCallback(async (id: string) => {
-    const [v, d, w, c, t, o] = await Promise.all([
+    const [v, d, w, c, t, o, s] = await Promise.all([
       supabase.from("vet_vaccinations").select("id, applied_on, vaccine, brand, lot, next_due_on, vet_name, notes").eq("pet_id", id).order("applied_on", { ascending: false }),
       supabase.from("vet_dewormings").select("id, applied_on, kind, product, weight_kg, next_due_on, notes").eq("pet_id", id).order("applied_on", { ascending: false }),
       supabase.from("vet_weights").select("id, measured_on, weight_kg, source").eq("pet_id", id).order("measured_on", { ascending: false }),
       supabase.from("vet_conditions").select("id, name, diagnosed_on, status, notes").eq("pet_id", id).order("created_at", { ascending: true }),
       supabase.from("vet_treatments").select("id, condition_id, product, dose, applied_on, lot, weight_kg, next_due_on, notes").eq("pet_id", id).order("applied_on", { ascending: false }),
       supabase.from("vet_pet_owners").select("id, user_id, email, display_name, role, accepted_at").eq("pet_id", id).order("created_at", { ascending: true }),
+      supabase.from("vet_appointments")
+        .select("id, scheduled_at, reason, notes")
+        .eq("pet_id", id)
+        .order("scheduled_at", { ascending: false }),
     ]);
     setVacunas((v.data ?? []) as Vaccination[]);
     setDesp((d.data ?? []) as Deworming[]);
@@ -201,6 +226,22 @@ export default function TrufaApp() {
     setCond((c.data ?? []) as Condition[]);
     setTrat((t.data ?? []) as Treatment[]);
     setDuenos((o.data ?? []) as PetOwner[]);
+
+    // Las consultas se arman en dos pasos: primero las citas de ESTA mascota y
+    // luego sus notas. Un join con filtro embebido haría lo mismo, pero deja la
+    // correctitud en manos de la sintaxis de PostgREST; esto no.
+    const citas = (s.data ?? []) as { id: string; scheduled_at: string; reason: string | null; notes: string | null }[];
+    if (citas.length === 0) { setConsultas([]); return; }
+    const { data: notas } = await supabase
+      .from("vet_visit_summaries")
+      .select("id, appointment_id, owner_summary, raw_summary, created_at")
+      .in("appointment_id", citas.map(a => a.id))
+      .order("created_at", { ascending: false });
+    const porCita = new Map(citas.map(a => [a.id, a]));
+    setConsultas(((notas ?? []) as Record<string, unknown>[]).map(n => ({
+      ...n,
+      appointment: porCita.get(n.appointment_id as string) ?? null,
+    })) as unknown as Consulta[]);
   }, []);
 
   useEffect(() => { if (petId) loadPet(petId); }, [petId, loadPet]);
@@ -390,6 +431,7 @@ export default function TrufaApp() {
             tabs={[
               { id: "carnet", label: "Carnet" },
               { id: "salud",  label: "Salud" },
+              { id: "consultas", label: "Consultas" },
               { id: "peso",   label: "Peso" },
               { id: "duenos", label: "Dueños" },
             ]}
@@ -514,6 +556,93 @@ export default function TrufaApp() {
                   id: d.id, title: d.product, date: d.applied_on,
                   meta: [d.kind, d.weight_kg ? `${d.weight_kg} kg` : null, d.next_due_on ? `Próxima ${fmtDate(d.next_due_on)}` : null].filter(Boolean).join(" · "),
                 }))} />
+              )}
+            </Section>
+          </>
+        )}
+
+        {/* ── Consultas ── */}
+        {tab === "consultas" && (
+          <>
+            <Section theme={T} title="Grabar una consulta">
+              <ConsultaRecorder
+                petId={pet.id}
+                onSaved={async () => { await loadPet(pet.id); say("Consulta guardada."); }}
+                theme={{ accent: TERRACOTA, surface: "#FFFFFF", border: ARENA, text: TINTA, muted: T.muted, danger: T.danger, panel: T.panel }}
+              />
+              <p style={{ fontSize: 12.5, color: T.muted, lineHeight: 1.6, margin: "14px 0 0" }}>
+                Esto es tu memoria de lo que te dijeron, no un documento clínico. Si algo no se
+                escuchó bien, Trufa lo deja en blanco y te lo apunta como pregunta en vez de
+                inventarlo — sobre todo las dosis.
+              </p>
+            </Section>
+
+            <Section theme={T} title="Consultas guardadas">
+              {consultas.length === 0 ? <Empty msg="Todavía no hay ninguna." /> : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {consultas.map(c => {
+                    const n = c.raw_summary;
+                    const fecha = (c.appointment?.scheduled_at ?? c.created_at).slice(0, 10);
+                    return (
+                      <div key={c.id} style={{ background: "#FFFFFF", border: `1px solid ${ARENA}`,
+                        borderRadius: 11, padding: "14px 16px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
+                          <div style={{ fontWeight: 700, fontSize: 14 }}>
+                            {n?.motivo ?? c.appointment?.reason ?? "Consulta"}
+                          </div>
+                          <div style={{ fontSize: 13, color: T.muted, whiteSpace: "nowrap" }}>{fmtDate(fecha)}</div>
+                        </div>
+
+                        {n?.hallazgos && (
+                          <p style={{ fontSize: 14, lineHeight: 1.6, color: TINTA, margin: "0 0 12px" }}>{n.hallazgos}</p>
+                        )}
+
+                        {n?.indicaciones && n.indicaciones.length > 0 && (
+                          <div style={{ marginBottom: 12 }}>
+                            <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: ".08em",
+                              textTransform: "uppercase", color: T.muted, marginBottom: 7 }}>Qué hacer en casa</div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                              {n.indicaciones.map((ind, i) => {
+                                const detalle = [ind.dosis, ind.frecuencia, ind.duracion].filter(Boolean).join(" · ");
+                                return (
+                                  <div key={i} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
+                                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: SALVIA, marginTop: 7, flexShrink: 0 }} />
+                                    <div style={{ minWidth: 0 }}>
+                                      <div style={{ fontSize: 14, fontWeight: 600 }}>
+                                        {ind.que}{ind.producto ? ` — ${ind.producto}` : ""}
+                                      </div>
+                                      {detalle && <div style={{ fontSize: 12.5, color: T.muted, marginTop: 2 }}>{detalle}</div>}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {n?.proxima_cita && (
+                          <div style={{ fontSize: 13.5, color: TINTA, background: "rgba(95,138,106,.12)",
+                            borderRadius: 9, padding: "9px 12px", marginBottom: n.preguntas?.length ? 10 : 0 }}>
+                            <strong>Seguimiento:</strong> {n.proxima_cita}
+                          </div>
+                        )}
+
+                        {n?.preguntas && n.preguntas.length > 0 && (
+                          <div style={{ background: "rgba(224,163,62,.14)", borderRadius: 9, padding: "10px 12px" }}>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: "#7A5A1C", marginBottom: 5 }}>
+                              Esto no se entendió — vuelve a preguntarlo
+                            </div>
+                            <ul style={{ margin: 0, paddingLeft: 17 }}>
+                              {n.preguntas.map((q, i) => (
+                                <li key={i} style={{ fontSize: 13, color: "#7A5A1C", lineHeight: 1.5 }}>{q}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </Section>
           </>
