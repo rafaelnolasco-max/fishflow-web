@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ConsultaRecorder from "@/components/trufa/ConsultaRecorder";
 import { BotonSubirFoto, TiraFotos, PortadaMascota, type Foto } from "@/components/trufa/Fotos";
+import ImportarCarnet from "@/components/trufa/ImportarCarnet";
 import { firmarFotos } from "@/lib/trufaFotos";
 import {
   DashboardHeader, StatGrid, TabBar, Toast, Section, Modal as DModal,
@@ -163,6 +164,7 @@ export default function TrufaApp() {
   const [fotos, setFotos] = useState<Foto[]>([]);
   const [fotoUrls, setFotoUrls] = useState<Record<string, string>>({});
   const [perfilPath, setPerfilPath] = useState<string | null>(null);
+  const [importando, setImportando] = useState(false);
   const [tab, setTab] = useState<TabKey>("carnet");
   const [toast, setToast] = useState<string | null>(null);
   const [modal, setModal] = useState<null | "vacuna" | "tratamiento" | "desparasitacion" | "peso" | "invitar" | "mascota">(null);
@@ -478,6 +480,22 @@ export default function TrufaApp() {
               onDone={() => loadFotos(pet.id)}
               theme={{ accent: TERRACOTA, surface: "#FFFFFF", border: ARENA, text: TINTA, muted: T.muted, danger: T.danger, panel: T.panel }}
             />
+            {vacunas.length + desp.length + trat.length === 0 && (
+              <div style={{ background: "rgba(194,85,46,.09)", border: `1px solid ${ARENA}`,
+                borderRadius: 12, padding: "16px 18px", marginBottom: 18 }}>
+                <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 5 }}>
+                  ¿{pet.name} ya tiene carnet de papel?
+                </div>
+                <div style={{ fontSize: 13.5, color: T.muted, lineHeight: 1.6, marginBottom: 12 }}>
+                  Tómale fotos y lo paso yo. Tú revisas antes de que se guarde nada.
+                </div>
+                <button onClick={() => setImportando(true)}
+                  style={{ padding: "10px 18px", borderRadius: 9, border: "none", background: TERRACOTA,
+                    color: "#FFF4EC", font: "700 14px/1 inherit", cursor: "pointer" }}>
+                  Pasar mi carnet
+                </button>
+              </div>
+            )}
             <StatGrid>
               <StatCard label="Próxima fecha" icon="📅"
                 value={proxima ? fmtDate(proxima.due) : "Sin pendientes"}
@@ -545,6 +563,14 @@ export default function TrufaApp() {
         {/* ── Salud ── */}
         {tab === "salud" && (
           <>
+            <Section theme={T} title="Pasar el carnet de papel"
+              action={{ label: "Subir fotos", onClick: () => setImportando(true) }}>
+              <p style={{ fontSize: 13.5, color: T.muted, lineHeight: 1.6, margin: 0 }}>
+                Fotografía las páginas con registros y las leo por ti. Revisas renglón por
+                renglón antes de guardar: lo que se lea con dudas llega desmarcado.
+              </p>
+            </Section>
+
             <Section theme={T} title="Padecimientos">
               {cond.length === 0 ? <Empty msg="Ninguno registrado." /> : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -802,6 +828,16 @@ export default function TrufaApp() {
           <PesoForm saving={saving} onSave={r => insertRow("vet_weights", r, "Peso guardado.")} />
         </Modal>
       )}
+      {importando && (
+        <ImportarCarnet
+          petId={pet.id}
+          clientId={pet.client_id}
+          onCerrar={() => setImportando(false)}
+          onListo={async () => { await loadPet(pet.id); await loadFotos(pet.id); say("Carnet importado."); }}
+          theme={{ accent: TERRACOTA, surface: "#FFFFFF", border: ARENA, text: TINTA, muted: T.muted, danger: T.danger, panel: T.panel }}
+        />
+      )}
+
       {modal === "invitar" && (
         <Modal title="Invitar a otro dueño" onClose={() => setModal(null)}>
           <InvitarForm saving={saving} onSave={invitar} />
