@@ -47,6 +47,9 @@ interface Props {
 
 const LOW_CONFIDENCE = 0.75;
 
+/** Tope de imágenes por tanda. Cada una es un llamado de visión que se paga. */
+const MAX_IMAGENES = 8;
+
 // Topes del cliente. Van POR ENCIMA del timeout del SDK en la ruta (90 s) para
 // que el servidor tenga chance de contestar un error de verdad antes de que el
 // navegador corte, y por debajo del maxDuration (120 s).
@@ -102,7 +105,8 @@ export default function CapturaScreenshot({
   const [monedaHint, setMonedaHint] = useState("MXN");
   const [fx, setFx] = useState<string>("");
 
-  const [captureId, setCaptureId] = useState<string | null>(null);
+  const [captureIds, setCaptureIds] = useState<string[]>([]);
+  const [progreso, setProgreso] = useState<{ actual: number; total: number } | null>(null);
   const [borradores, setBorradores] = useState<Borrador[]>([]);
   const [descartados, setDescartados] = useState<Set<string>>(new Set());
   const [resumen, setResumen] = useState({ duplicados: 0, ilegibles: 0, last4: "" as string | null, fx: 0 });
@@ -125,57 +129,79 @@ export default function CapturaScreenshot({
     return session?.access_token ?? null;
   }
 
-  async function subir(file: File) {
+  /**
+   * Varias capturas en una sola pasada. Se procesan EN SERIE, no en paralelo,
+   * por dos razones: cada una es un llamado de visión (en paralelo se topa con
+   * el rate limit), y sobre todo porque la deduplicación depende del orden —
+   * los borradores de la primera imagen ya están en la base cuando se lee la
+   * segunda, así que el traslape entre capturas se detecta solo.
+   */
+  async function subirVarias(files: File[]) {
     const token = await bearer();
     if (!token) { onToast("Tu sesión expiró — vuelve a entrar"); return; }
 
     setFase("subiendo");
+    const acumulados: Borrador[] = [];
+    const ids: string[] = [];
+    const fallos: string[] = [];
+    let dup = 0, ileg = 0, tasa = 0;
+    let last4: string | null = null;
+
     try {
-      const fd = new FormData();
-      fd.append("archivo", file);
-      fd.append("client_id", clientId);
-      fd.append("currency_hint", monedaHint);
-      if (Number(fx) > 0) fd.append("fx_rate", fx);
+      for (let i = 0; i < files.length; i++) {
+        setProgreso({ actual: i + 1, total: files.length });
 
-      const r = await postJson<{
-        capture_id?: string; borradores?: Borrador[];
-        duplicados?: number; ilegibles?: number; card_last4?: string | null; fx_rate?: number;
-      }>("/api/finanzas/captura", {
-        method: "POST",
-        headers: { authorization: `Bearer ${token}` },
-        body: fd,
-      }, LECTURA_TIMEOUT_MS);
+        const fd = new FormData();
+        fd.append("archivo", files[i]);
+        fd.append("client_id", clientId);
+        fd.append("currency_hint", monedaHint);
+        if (Number(fx) > 0) fd.append("fx_rate", fx);
 
-      if (!r.ok || !r.data) { onToast(r.error ?? "No se pudo leer la captura"); setFase("idle"); return; }
-      const json = r.data;
+        const r = await postJson<{
+          capture_id?: string; borradores?: Borrador[];
+          duplicados?: number; ilegibles?: number; card_last4?: string | null; fx_rate?: number;
+        }>("/api/finanzas/captura", {
+          method: "POST",
+          headers: { authorization: `Bearer ${token}` },
+          body: fd,
+        }, LECTURA_TIMEOUT_MS);
 
-      const pendientes = (json.borradores ?? []).filter(b => b.status === "pending");
-      setCaptureId(json.capture_id ?? null);
-      setBorradores(pendientes);
-      setDescartados(new Set());
-      setResumen({
-        duplicados: json.duplicados ?? 0,
-        ilegibles: json.ilegibles ?? 0,
-        last4: json.card_last4 ?? null,
-        fx: json.fx_rate ?? 0,
-      });
-      if (json.fx_rate && !fx) setFx(String(json.fx_rate));
+        // Una imagen que falla no tumba las demás: se anota y se sigue.
+        if (!r.ok || !r.data) { fallos.push(r.error ?? "no se pudo leer"); continue; }
+        const j = r.data;
 
-      if (pendientes.length === 0) {
-        onToast(
-          (json.duplicados ?? 0) > 0
-            ? "Todos esos cargos ya estaban registrados"
-            : "No encontré cargos nuevos en esa imagen",
-        );
-        setFase("idle");
-        return;
+        if (j.capture_id) ids.push(j.capture_id);
+        acumulados.push(...(j.borradores ?? []).filter(b => b.status === "pending"));
+        dup  += j.duplicados ?? 0;
+        ileg += j.ilegibles ?? 0;
+        if (!last4 && j.card_last4) last4 = j.card_last4;
+        if (j.fx_rate) tasa = j.fx_rate;
       }
-      setFase("revisando");
     } catch (e) {
       console.error("[captura] subir:", e);
-      onToast("Error al subir la imagen");
-      setFase("idle");
+      onToast("Error al subir las imágenes");
+      setFase("idle"); setProgreso(null);
+      return;
     }
+
+    setProgreso(null);
+    setCaptureIds(ids);
+    setBorradores(acumulados);
+    setDescartados(new Set());
+    setResumen({ duplicados: dup, ilegibles: ileg, last4, fx: tasa });
+    if (tasa && !fx) setFx(String(tasa));
+
+    if (acumulados.length === 0) {
+      onToast(
+        fallos.length === files.length ? (fallos[0] ?? "No pude leer las capturas")
+        : dup > 0 ? "Todos esos cargos ya estaban registrados"
+        : "No encontré cargos nuevos en esas imágenes",
+      );
+      setFase("idle");
+      return;
+    }
+    if (fallos.length > 0) onToast(`${fallos.length} de ${files.length} no se pudieron leer`);
+    setFase("revisando");
   }
 
   /** El tipo de cambio se aplica en vivo sobre los renglones en divisa. */
@@ -203,7 +229,7 @@ export default function CapturaScreenshot({
   }
 
   async function confirmar() {
-    if (!captureId || faltanRubro > 0) return;
+    if (captureIds.length === 0 || faltanRubro > 0) return;
     const token = await bearer();
     if (!token) { onToast("Tu sesión expiró — vuelve a entrar"); return; }
 
@@ -224,7 +250,7 @@ export default function CapturaScreenshot({
       }>("/api/finanzas/captura/confirmar", {
         method: "POST",
         headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-        body: JSON.stringify({ client_id: clientId, capture_id: captureId, movimientos }),
+        body: JSON.stringify({ client_id: clientId, capture_ids: captureIds, movimientos }),
       }, CONFIRMA_TIMEOUT_MS);
 
       if (!r.ok || !r.data) { onToast(r.error ?? "No se pudo confirmar"); return; }
@@ -237,7 +263,7 @@ export default function CapturaScreenshot({
 
       setFase("idle");
       setBorradores([]);
-      setCaptureId(null);
+      setCaptureIds([]);
       onSaved();
     } catch (e) {
       console.error("[captura] confirmar:", e);
@@ -256,8 +282,10 @@ export default function CapturaScreenshot({
             📸 Subir screenshot del banco
           </div>
           <div style={{ fontSize: 12.5, color: T.muted, marginTop: 4, lineHeight: 1.55, maxWidth: 460 }}>
-            Toma la captura de los movimientos en el app de tu banco y súbela. Leo los cargos,
-            los clasifico y tú solo confirmas. Los pagos a la tarjeta y las devoluciones se omiten.
+            Toma las capturas de los movimientos en el app de tu banco y súbelas todas juntas
+            — puedes elegir varias. Leo los cargos, los clasifico y tú confirmas una sola vez.
+            Los pagos a la tarjeta y las devoluciones se omiten, y si dos capturas traen el mismo
+            cargo no se duplica.
           </div>
         </div>
       </div>
@@ -286,11 +314,16 @@ export default function CapturaScreenshot({
         Solo es una pista: si la pantalla dice la divisa, mando esa.
       </div>
 
-      <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" hidden
+      <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" multiple hidden
         onChange={e => {
-          const f = e.target.files?.[0];
+          const elegidas = Array.from(e.target.files ?? []);
           e.target.value = "";
-          if (f) void subir(f);
+          if (elegidas.length === 0) return;
+          if (elegidas.length > MAX_IMAGENES) {
+            onToast(`Máximo ${MAX_IMAGENES} imágenes por tanda`);
+            return;
+          }
+          void subirVarias(elegidas);
         }} />
 
       <button onClick={() => fileRef.current?.click()} disabled={fase === "subiendo"}
@@ -298,11 +331,15 @@ export default function CapturaScreenshot({
           background: fase === "subiendo" ? T.disabled : T.accent, color: "#fff",
           fontSize: 15, fontWeight: 700, cursor: fase === "subiendo" ? "default" : "pointer",
           fontFamily: "'Plus Jakarta Sans', Inter, sans-serif" }}>
-        {fase === "subiendo" ? "Leyendo la captura…" : "Elegir captura"}
+        {fase === "subiendo"
+          ? (progreso && progreso.total > 1
+              ? `Leyendo ${progreso.actual} de ${progreso.total}…`
+              : "Leyendo la captura…")
+          : "Elegir capturas"}
       </button>
       {fase === "subiendo" && (
         <div style={{ fontSize: 12, color: T.muted, textAlign: "center", marginTop: 8 }}>
-          Toma unos segundos. No cierres la pantalla.
+          Unos segundos por imagen. No cierres la pantalla.
         </div>
       )}
     </div>
@@ -323,7 +360,7 @@ export default function CapturaScreenshot({
               Revisar {borradores.length} {borradores.length === 1 ? "cargo" : "cargos"}
               {resumen.last4 && <span style={{ color: T.muted, fontWeight: 600 }}> · ••{resumen.last4}</span>}
             </div>
-            <button onClick={() => { setFase("idle"); setBorradores([]); setCaptureId(null); }}
+            <button onClick={() => { setFase("idle"); setBorradores([]); setCaptureIds([]); }}
               style={{ background: "none", border: "none", fontSize: 22, color: T.muted, cursor: "pointer" }}>×</button>
           </div>
           <div style={{ fontSize: 12, color: T.muted, marginTop: 4, lineHeight: 1.6 }}>

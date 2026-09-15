@@ -53,14 +53,19 @@ export async function POST(req: NextRequest) {
 
     const body = (await req.json()) as {
       client_id?: string;
-      capture_id?: string;
+      capture_ids?: string[];
       movimientos?: Ajuste[];
     };
     const clientId = String(body.client_id ?? "");
-    const captureId = String(body.capture_id ?? "");
+    // Varias capturas se revisan y confirman juntas: el usuario sube los tres
+    // screenshots del día de un jalón y da un solo "Guardar".
+    const captureIds = (Array.isArray(body.capture_ids) ? body.capture_ids : [])
+      .map(String)
+      .filter(id => /^[0-9a-f-]{36}$/.test(id))
+      .slice(0, 20);
     const ajustes = Array.isArray(body.movimientos) ? body.movimientos : [];
 
-    if (!/^[0-9a-f-]{36}$/.test(clientId) || !/^[0-9a-f-]{36}$/.test(captureId)) {
+    if (!/^[0-9a-f-]{36}$/.test(clientId) || captureIds.length === 0) {
       return NextResponse.json({ error: "Parámetros inválidos" }, { status: 400 });
     }
     if (ajustes.length === 0 || ajustes.length > 100) {
@@ -77,7 +82,7 @@ export async function POST(req: NextRequest) {
     const { data: filas, error: selErr } = await supabase
       .from("finance_tx_drafts")
       .select("id, tx_date, merchant_key, concept, amount_original, currency, amount, fx_rate_used, tx_type, category, dedupe_hash, status")
-      .eq("capture_id", captureId)
+      .in("capture_id", captureIds)
       .eq("client_id", clientId)
       .eq("status", "pending");
     if (selErr) {
@@ -177,17 +182,20 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // La captura se cierra solo si ya no quedan pendientes.
-    const { count: pendientes } = await supabase
+    // Cada captura se cierra solo si ya no le quedan borradores pendientes.
+    const { data: restantes } = await supabase
       .from("finance_tx_drafts")
-      .select("id", { count: "exact", head: true })
-      .eq("capture_id", captureId).eq("status", "pending");
+      .select("capture_id")
+      .in("capture_id", captureIds).eq("status", "pending");
 
-    if ((pendientes ?? 0) === 0) {
+    const conPendientes = new Set((restantes ?? []).map(r => r.capture_id as string));
+    const cerradas = captureIds.filter(id => !conPendientes.has(id));
+    if (cerradas.length > 0) {
       await supabase.from("finance_captures")
         .update({ status: "reviewed", reviewed_at: new Date().toISOString() })
-        .eq("id", captureId);
+        .in("id", cerradas);
     }
+    const pendientes = (restantes ?? []).length;
 
     return NextResponse.json({
       ok: true,
@@ -195,7 +203,7 @@ export async function POST(req: NextRequest) {
       descartados,
       duplicados,
       reglas,
-      pendientes: pendientes ?? 0,
+      pendientes,
       sin_rubro: sinRubro,
     });
   } catch (err) {

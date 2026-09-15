@@ -6,7 +6,9 @@
 //
 // Reglas de la casa:
 //  - `version` es la fecha del cambio (YYYY-MM-DD). Es lo que se compara contra
-//    lo último que vio el usuario, así que tiene que crecer.
+//    lo último que vio el usuario, así que tiene que cambiar. La comparación es
+//    por igualdad, no por orden: si hay dos entregas el mismo día, súfijala
+//    ("2026-09-15.2") y el aviso vuelve a salir.
 //  - La entrada más reciente va PRIMERO en el arreglo.
 //  - Se escribe para el usuario, no para el commit: qué puede hacer ahora, no
 //    qué tabla se creó. Si un punto no cambia lo que él puede hacer, no va.
@@ -22,10 +24,11 @@ export interface Novedad {
 export const NOVEDADES: Record<string, Novedad[]> = {
   finanzas: [
     {
-      version: "2026-09-15",
+      version: "2026-09-15.2",
       titulo: "Carga tus gastos con una foto",
       puntos: [
-        "En la pestaña Captura puedes subir el screenshot de los movimientos del app de tu banco. Leo los cargos, los clasifico y tú confirmas con un tap.",
+        "En la pestaña Captura puedes subir los screenshots de los movimientos del app de tu banco. Leo los cargos, los clasifico y tú confirmas con un tap.",
+        "Puedes elegir VARIAS capturas de una vez, hasta 8. Se leen una tras otra y todas caen en la misma lista para que revises y guardes una sola vez.",
         "Los pagos a la tarjeta y las devoluciones se omiten solos: no son gastos.",
         "Si dos capturas traen el mismo cargo, no se duplica.",
         "Cada vez que corriges el rubro de un comercio se guarda como regla tuya. La próxima vez ese cargo ya llega bien clasificado.",
