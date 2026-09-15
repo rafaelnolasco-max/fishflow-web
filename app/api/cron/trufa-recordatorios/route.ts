@@ -17,12 +17,19 @@ export const maxDuration = 120;
 // le tocaría hoy sin gastarle un correo a nadie.
 
 export async function GET(req: Request) {
+  // Falla CERRADO, a diferencia de los otros dos crons. Ahí un `if (secret)`
+  // solo deja la ruta abierta; aquí la ruta MANDA CORREOS a clientes finales,
+  // así que sin llave configurada no corre. Verificado el 15-sep-2026: en
+  // producción CRON_SECRET no estaba puesta y la ruta respondía a cualquiera.
   const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = req.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+  if (!secret) {
+    console.error("[trufa-recordatorios] CRON_SECRET no configurada — no se envía nada");
+    return NextResponse.json(
+      { error: "CRON_SECRET no configurada en el entorno" }, { status: 503 },
+    );
+  }
+  if (req.headers.get("authorization") !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   const dryRun = new URL(req.url).searchParams.get("dry") === "1";
