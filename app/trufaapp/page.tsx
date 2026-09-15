@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ConsultaRecorder from "@/components/trufa/ConsultaRecorder";
-import { BotonSubirFoto, TiraFotos, type Foto } from "@/components/trufa/Fotos";
+import { BotonSubirFoto, TiraFotos, PortadaMascota, type Foto } from "@/components/trufa/Fotos";
 import { firmarFotos } from "@/lib/trufaFotos";
 import {
   DashboardHeader, StatGrid, TabBar, Toast, Section, Modal as DModal,
@@ -50,6 +50,7 @@ interface Pet {
   id: string; client_id: string; name: string; species: string;
   breed: string | null; sex: string | null; birth_date: string | null;
   color: string | null; microchip: string | null; notes: string | null;
+  photo_url: string | null;
 }
 interface Vaccination {
   id: string; applied_on: string; vaccine: string; brand: string | null;
@@ -161,6 +162,7 @@ export default function TrufaApp() {
   const [consultas, setConsultas] = useState<Consulta[]>([]);
   const [fotos, setFotos] = useState<Foto[]>([]);
   const [fotoUrls, setFotoUrls] = useState<Record<string, string>>({});
+  const [perfilPath, setPerfilPath] = useState<string | null>(null);
   const [tab, setTab] = useState<TabKey>("carnet");
   const [toast, setToast] = useState<string | null>(null);
   const [modal, setModal] = useState<null | "vacuna" | "tratamiento" | "desparasitacion" | "peso" | "invitar" | "mascota">(null);
@@ -198,7 +200,7 @@ export default function TrufaApp() {
 
       const { data, error } = await supabase
         .from("vet_pets")
-        .select("id, client_id, name, species, breed, sex, birth_date, color, microchip, notes")
+        .select("id, client_id, name, species, breed, sex, birth_date, color, microchip, notes, photo_url")
         .in("id", ids)
         .eq("active", true)
         .order("created_at", { ascending: true });
@@ -258,10 +260,18 @@ export default function TrufaApp() {
       .order("taken_on", { ascending: false });
     const lista = (data ?? []) as Foto[];
     setFotos(lista);
-    setFotoUrls(await firmarFotos(lista.map(f => f.storage_path)));
+    // La portada se firma en la misma llamada: es una ruta más del mismo bucket.
+    const { data: p } = await supabase.from("vet_pets").select("photo_url").eq("id", id).maybeSingle();
+    const rutas = lista.map(f => f.storage_path);
+    const perfil = (p?.photo_url as string | null) ?? null;
+    if (perfil) rutas.push(perfil);
+    setFotoUrls(await firmarFotos(rutas));
+    setPerfilPath(perfil);
   }, []);
 
   useEffect(() => { if (petId) { loadPet(petId); loadFotos(petId); } }, [petId, loadPet, loadFotos]);
+
+  const perfilUrl = perfilPath ? (fotoUrls[perfilPath] ?? null) : null;
 
   // ── Agenda: lo que viene, con estimación cuando el MVZ no anotó fecha ───────
   const agenda = useMemo<AgendaItem[]>(() => {
@@ -346,7 +356,7 @@ export default function TrufaApp() {
       owner_email: session.user.email ?? "",
       owner_user_id: session.user.id,
       active: true,
-    }).select("id, client_id, name, species, breed, sex, birth_date, color, microchip, notes").single();
+    }).select("id, client_id, name, species, breed, sex, birth_date, color, microchip, notes, photo_url").single();
     if (error || !data) { setSaving(false); say("No se pudo crear la mascota."); return; }
     await supabase.from("vet_pet_owners").insert({
       pet_id: data.id, user_id: session.user.id, email: session.user.email,
@@ -427,7 +437,9 @@ export default function TrufaApp() {
         sticky
         iconShape="circle"
         iconBg="#FFFFFF"
-        icon={<img src="/trufa-isotipo.svg" alt="" style={{ width: 24, height: 21 }} />}
+        icon={perfilUrl
+          ? <img src={perfilUrl} alt="" style={{ width: 38, height: 38, objectFit: "cover", borderRadius: "50%", display: "block" }} />
+          : <img src="/trufa-isotipo.svg" alt="" style={{ width: 24, height: 21 }} />}
         title={pet.name}
         subtitle={`${pet.breed ?? pet.species} · ${ageLabel(pet.birth_date)}`}
         onLogout={async () => { await supabase.auth.signOut(); router.push("/trufaapp/registro"); }}
@@ -458,6 +470,14 @@ export default function TrufaApp() {
         {/* ── Carnet ── */}
         {tab === "carnet" && (
           <>
+            <PortadaMascota
+              nombre={pet.name}
+              subtitulo={`${pet.breed ?? pet.species} · ${ageLabel(pet.birth_date)}`}
+              url={perfilUrl}
+              petId={pet.id}
+              onDone={() => loadFotos(pet.id)}
+              theme={{ accent: TERRACOTA, surface: "#FFFFFF", border: ARENA, text: TINTA, muted: T.muted, danger: T.danger, panel: T.panel }}
+            />
             <StatGrid>
               <StatCard label="Próxima fecha" icon="📅"
                 value={proxima ? fmtDate(proxima.due) : "Sin pendientes"}

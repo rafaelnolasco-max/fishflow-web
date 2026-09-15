@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/blotato-failures",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/trufa-recordatorios",
+      "schedule": "0 15 * * *"
     }
   ]
 }

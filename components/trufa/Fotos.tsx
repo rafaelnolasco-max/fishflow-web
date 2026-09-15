@@ -140,3 +140,66 @@ export function TiraFotos({
     </>
   );
 }
+
+/**
+ * Portada del carnet: la foto de la mascota, grande y redonda, con su nombre.
+ * Sin foto muestra la inicial — un hueco gris haría ver el carnet incompleto
+ * desde el primer día.
+ */
+export function PortadaMascota({
+  nombre, subtitulo, url, petId, onDone, theme: t,
+}: {
+  nombre: string; subtitulo: string; url: string | null; petId: string;
+  onDone: () => Promise<void> | void; theme: Tema;
+}) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusy(true); setError("");
+    try {
+      const { subirFotoPerfil } = await import("@/lib/trufaFotos");
+      await subirFotoPerfil(file, petId);
+      await onDone();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo subir la foto.");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 18, background: t.surface,
+      border: `1px solid ${t.border}`, borderRadius: 14, padding: 20, marginBottom: 18 }}>
+      <input ref={inputRef} type="file" accept="image/*" onChange={onPick} style={{ display: "none" }} />
+      <button onClick={() => inputRef.current?.click()} disabled={busy}
+        aria-label={url ? `Cambiar la foto de ${nombre}` : `Agregar una foto de ${nombre}`}
+        style={{ width: 84, height: 84, borderRadius: "50%", overflow: "hidden", flexShrink: 0,
+          padding: 0, border: `2px solid ${t.border}`, background: t.panel ?? t.surface,
+          cursor: busy ? "default" : "pointer", display: "grid", placeItems: "center" }}>
+        {url
+          ? <img src={url} alt={nombre} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          : <span style={{ font: "800 30px/1 -apple-system, sans-serif", color: t.accent }}>
+              {nombre.slice(0, 1).toUpperCase()}
+            </span>}
+      </button>
+
+      <div style={{ minWidth: 0 }}>
+        <div style={{ font: "800 24px/1.15 'Plus Jakarta Sans', Inter, sans-serif",
+          letterSpacing: "-.02em", color: t.text }}>{nombre}</div>
+        <div style={{ fontSize: 14, color: t.muted, marginTop: 3 }}>{subtitulo}</div>
+        <button onClick={() => inputRef.current?.click()} disabled={busy}
+          style={{ background: "none", border: "none", padding: "6px 0 0", fontFamily: "inherit",
+            fontSize: 12.5, fontWeight: 700, color: busy ? t.muted : t.accent,
+            cursor: busy ? "default" : "pointer" }}>
+          {busy ? "Subiendo…" : url ? "Cambiar foto" : "Agregar foto"}
+        </button>
+        {error && <div style={{ fontSize: 12.5, color: t.danger, marginTop: 4, lineHeight: 1.5 }}>{error}</div>}
+      </div>
+    </div>
+  );
+}

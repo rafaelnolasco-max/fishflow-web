@@ -116,3 +116,45 @@ export async function borrarFoto(id: string, storagePath: string): Promise<void>
   if (error) throw new Error("No se pudo borrar la foto.");
   await supabase.storage.from("trufa-media").remove([storagePath]);
 }
+
+/**
+ * Foto de perfil de la mascota. No pasa por vet_photos a propósito: no es una
+ * foto más del historial, es la portada, y vive en vet_pets.photo_url para que
+ * el carnet y el encabezado la lean sin recorrer el álbum.
+ *
+ * Guarda la RUTA, no una URL: el bucket es privado y la URL firmada caduca.
+ */
+export async function subirFotoPerfil(file: File, petId: string): Promise<string> {
+  const blob = await reducirImagen(file);
+  if (blob.size > MAX_BYTES) {
+    throw new Error(`La foto pesa ${(blob.size / 1024 / 1024).toFixed(1)} MB y el máximo son 10 MB.`);
+  }
+
+  const ext = blob.type === "image/jpeg" ? "jpg"
+    : (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5);
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const storagePath = `${petId}/perfil-${stamp}.${ext || "jpg"}`;
+
+  const { error: upErr } = await supabase.storage
+    .from("trufa-media")
+    .upload(storagePath, blob, { contentType: blob.type || "image/jpeg", upsert: false });
+  if (upErr) throw new Error(`No se pudo subir la foto: ${upErr.message}`);
+
+  // La anterior se lee ANTES de pisarla, si no queda huérfana en el bucket.
+  const { data: previa } = await supabase
+    .from("vet_pets").select("photo_url").eq("id", petId).maybeSingle();
+
+  const { error: rowErr } = await supabase
+    .from("vet_pets").update({ photo_url: storagePath }).eq("id", petId);
+  if (rowErr) {
+    await supabase.storage.from("trufa-media").remove([storagePath]);
+    throw new Error("No se pudo guardar la foto de perfil.");
+  }
+
+  const anterior = previa?.photo_url as string | null | undefined;
+  if (anterior && anterior !== storagePath) {
+    await supabase.storage.from("trufa-media").remove([anterior]);
+  }
+
+  return storagePath;
+}

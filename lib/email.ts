@@ -30,6 +30,14 @@ export const SENDERS = {
   /** TherapyOS — resúmenes de sesión a pacientes de Mario. */
   therapyos: 'TherapyOS · Mario Citalán <noreply@fishflow.mx>',
 
+  /**
+   * Trufa — recordatorios del carnet a dueños de mascotas.
+   * PENDIENTE: mover a trufa.com.mx en cuanto se compre el dominio. Un aviso de
+   * Trufa firmado por fishflow.mx le dice al cliente final que la marca que le
+   * vendimos no es la que le escribe.
+   */
+  trufa: 'Trufa <noreply@fishflow.mx>',
+
   cane: 'CANE Neurofeedback <raf@fishflow.mx>',
   sieckvet: 'SieckVet <noreply@fishflow.mx>',
   enlace: 'Enlace Integral <recibos@fishflow.mx>',
