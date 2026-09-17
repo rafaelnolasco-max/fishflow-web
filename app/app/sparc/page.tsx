@@ -3,10 +3,16 @@
 /**
  * Panel de SPARC — Prospectos de la landing.
  *
+ * BRANDING: este panel usa la marca del CLIENTE, no la de FishFlow. Colores y
+ * tipografia salen del manual de SPARC y de su landing (www.sparcgroup.mx):
+ * azul PMS 641C, verde PMS 7739C, Jost para titulos e Inter para cuerpo, con
+ * su logo en el encabezado. Es la regla para todos los paneles de cliente: el
+ * cliente entra a SU herramienta, no a la de su proveedor.
+ *
  * Antes esta pantalla era la lista de edificios del analizador de chats de
  * WhatsApp. Eduardo no lo esta usando (17-sep-2026), asi que la entrada del
  * panel pasa a ser lo unico que si ocupa hoy: los prospectos que llegan por
- * www.sparcgroup.mx.
+ * la pagina.
  *
  * El analizador NO se borro: sigue vivo en /app/sparc/<building_id>/dashboard,
  * mensajes y subir, con sus tablas `sparc_buildings` y `sparc_chat_uploads`.
@@ -20,8 +26,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-const FF_CYAN   = "#00B8CC";
-const FF_ORANGE = "#FF7200";
+/* Marca SPARC — misma paleta que la landing. */
+const AZUL      = "#0065A1";
+const AZUL_900  = "#00405F";
+const AZUL_050  = "#EDF5FA";
+const VERDE     = "#2C9A42";
+const TINTA     = "#0E1D28";
+const GRIS      = "#5C6E7C";
+const LINEA     = "#E1E9F0";
+const PAPEL     = "#F7FAFC";
+
 const SPARC_CLIENT_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
 
 /** Embudo. Mismos nombres que Enlace para no inventar un vocabulario nuevo. */
@@ -29,11 +43,11 @@ const ESTATUS = ["nuevo", "contactado", "cotizado", "ganado", "perdido"] as cons
 
 function statusMeta(id: string | null) {
   switch (id) {
-    case "contactado": return { bg: "#1e3a52", fg: "#7fc3ff", label: "Contactado" };
-    case "cotizado":   return { bg: "#3a3320", fg: "#ffd479", label: "Cotizado" };
-    case "ganado":     return { bg: "#12331f", fg: "#6ee7a0", label: "Ganado" };
-    case "perdido":    return { bg: "#33191c", fg: "#ff9b9b", label: "Perdido" };
-    default:           return { bg: "#2a1c0e", fg: "#ffb26b", label: "Nuevo" };
+    case "contactado": return { bg: AZUL_050,   fg: AZUL,      bd: "#C7DCEA", label: "Contactado" };
+    case "cotizado":   return { bg: "#FFF6E5",  fg: "#9A6B00",  bd: "#F0DDB5", label: "Cotizado" };
+    case "ganado":     return { bg: "#EDF7EF",  fg: "#217634",  bd: "#BFE0CB", label: "Ganado" };
+    case "perdido":    return { bg: "#FCEEEC",  fg: "#B3261E",  bd: "#F3C9C4", label: "Perdido" };
+    default:           return { bg: "#FFF1E6",  fg: "#B45010",  bd: "#F5D5BC", label: "Nuevo" };
   }
 }
 
@@ -50,19 +64,8 @@ interface Lead {
   utm_source: string | null;
 }
 
-function FishFlowMark({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size * 0.52} viewBox="0 0 68 36" fill="none">
-      <path d="M34 18 C34 9 25 3 15 6 C6 9 4 19 11 24 C19 30 34 27 34 18Z" stroke={FF_CYAN} strokeWidth="2.5" strokeLinecap="round" fill="none" />
-      <path d="M34 18 C34 9 43 3 53 6 C62 9 64 19 57 24 C49 30 34 27 34 18Z" stroke={FF_ORANGE} strokeWidth="2.5" strokeLinecap="round" fill="none" />
-      <path d="M64 14 L68 10 M64 22 L68 26" stroke={FF_ORANGE} strokeWidth="2" strokeLinecap="round" fill="none" />
-    </svg>
-  );
-}
-
 function fecha(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleString("es-MX", {
+  return new Date(iso).toLocaleString("es-MX", {
     day: "2-digit", month: "short", year: "numeric",
     hour: "2-digit", minute: "2-digit", hour12: false,
   });
@@ -86,7 +89,7 @@ export default function SparcProspectos() {
         .select("id,name,email,phone,problem,answers,status,created_at,utm_campaign,utm_source")
         .eq("client_id", SPARC_CLIENT_ID)
         .order("created_at", { ascending: false })
-        .range(0, 999); // PostgREST corta en 1000; ver nota de paginacion
+        .range(0, 999); // PostgREST corta en 1000
       if (error) setError(error.message);
       else setLeads((data ?? []) as Lead[]);
       setLoading(false);
@@ -114,44 +117,54 @@ export default function SparcProspectos() {
   const nuevos = leads.filter((l) => (l.status ?? "nuevo") === "nuevo").length;
 
   const card: React.CSSProperties = {
-    background: "#112233", border: "1px solid #1e3048", borderRadius: 12,
+    background: "#fff", border: `1px solid ${LINEA}`, borderRadius: 13,
     padding: "20px 22px", marginBottom: 14,
+    boxShadow: "0 1px 2px rgba(14,29,40,.04)",
   };
   const chip: React.CSSProperties = {
-    background: "none", border: "1px solid #1e3048", color: "#5a7a9a",
+    background: "#fff", border: `1px solid ${LINEA}`, color: GRIS,
     borderRadius: 999, padding: "6px 14px", cursor: "pointer", fontSize: 13,
+    fontFamily: "inherit",
   };
+  const jost: React.CSSProperties = { fontFamily: "'Jost', system-ui, sans-serif" };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0D1B2A", color: "#f0f4f8", fontFamily: "Inter, sans-serif" }}>
-      <div style={{ borderBottom: "1px solid #1e3048", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <FishFlowMark size={28} />
-          <span style={{ fontWeight: 700, fontSize: 16, color: FF_CYAN }}>Sparc</span>
-          <span style={{ color: "#5a7a9a", fontSize: 14 }}>/ Prospectos</span>
+    <div style={{ minHeight: "100vh", background: PAPEL, color: TINTA, fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+      {/* Encabezado con la marca del cliente */}
+      <div style={{ background: "#fff", borderBottom: `1px solid ${LINEA}`, padding: "12px 24px",
+        display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/clients/sparc/logo.png" alt="SPARC Administración" style={{ height: 46, width: "auto", display: "block" }} />
+          <span style={{ ...jost, color: GRIS, fontSize: 15, borderLeft: `1px solid ${LINEA}`, paddingLeft: 14 }}>
+            Prospectos
+          </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <span style={{ fontSize: 13, color: "#5a7a9a" }}>{userEmail}</span>
-          <button onClick={handleLogout} style={{ ...chip, borderRadius: 6, padding: "6px 14px" }}>Salir</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <span style={{ fontSize: 13, color: GRIS }}>{userEmail}</span>
+          <button onClick={handleLogout} style={{ ...chip, borderRadius: 8, padding: "7px 14px" }}>Salir</button>
         </div>
       </div>
 
       <div style={{ maxWidth: 920, margin: "0 auto", padding: "40px 20px 64px" }}>
-        <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>Prospectos</h1>
-        <p style={{ color: "#5a7a9a", fontSize: 15, margin: "0 0 28px", lineHeight: 1.6 }}>
+        <h1 style={{ ...jost, fontSize: 30, fontWeight: 500, marginBottom: 10, letterSpacing: "-.01em" }}>Prospectos</h1>
+        <p style={{ color: GRIS, fontSize: 15, margin: "0 0 28px", lineHeight: 1.65, maxWidth: "62ch" }}>
           Cada persona que llena el formulario de{" "}
-          <a href="https://www.sparcgroup.mx" target="_blank" rel="noopener noreferrer" style={{ color: FF_CYAN }}>www.sparcgroup.mx</a>{" "}
-          queda aqui, ademas del aviso que llega a contacto@sparcgroup.mx.
+          <a href="https://www.sparcgroup.mx" target="_blank" rel="noopener noreferrer" style={{ color: AZUL, fontWeight: 500 }}>www.sparcgroup.mx</a>{" "}
+          queda registrada aquí, además del aviso que llega a contacto@sparcgroup.mx.
         </p>
 
-        <div style={{ display: "flex", gap: 20, marginBottom: 26, flexWrap: "wrap" }}>
-          <div style={{ ...card, marginBottom: 0, minWidth: 130 }}>
-            <div style={{ fontSize: 28, fontWeight: 800 }}>{leads.length}</div>
-            <div style={{ color: "#5a7a9a", fontSize: 13 }}>Prospectos totales</div>
+        <div style={{ display: "flex", gap: 16, marginBottom: 26, flexWrap: "wrap" }}>
+          <div style={{ ...card, marginBottom: 0, minWidth: 148 }}>
+            <div style={{ ...jost, fontSize: 30, fontWeight: 500, color: AZUL_900 }}>{leads.length}</div>
+            <div style={{ color: GRIS, fontSize: 13 }}>Prospectos totales</div>
           </div>
-          <div style={{ ...card, marginBottom: 0, minWidth: 130 }}>
-            <div style={{ fontSize: 28, fontWeight: 800, color: nuevos ? "#ffb26b" : "#f0f4f8" }}>{nuevos}</div>
-            <div style={{ color: "#5a7a9a", fontSize: 13 }}>Sin contactar</div>
+          <div style={{ ...card, marginBottom: 0, minWidth: 148 }}>
+            <div style={{ ...jost, fontSize: 30, fontWeight: 500, color: nuevos ? VERDE : AZUL_900 }}>{nuevos}</div>
+            <div style={{ color: GRIS, fontSize: 13 }}>Sin contactar</div>
           </div>
         </div>
 
@@ -159,24 +172,26 @@ export default function SparcProspectos() {
           {["todos", ...ESTATUS].map((f) => (
             <button key={f} onClick={() => setFiltro(f)}
               style={{ ...chip,
-                borderColor: filtro === f ? FF_CYAN : "#1e3048",
-                color: filtro === f ? FF_CYAN : "#5a7a9a" }}>
+                background: filtro === f ? AZUL : "#fff",
+                borderColor: filtro === f ? AZUL : LINEA,
+                color: filtro === f ? "#fff" : GRIS,
+                fontWeight: filtro === f ? 600 : 400 }}>
               {f === "todos" ? "Todos" : statusMeta(f).label}
             </button>
           ))}
         </div>
 
-        {loading && <p style={{ color: "#5a7a9a" }}>Cargando prospectos…</p>}
-        {error   && <p style={{ color: "#ff6b6b" }}>Error: {error}</p>}
+        {loading && <p style={{ color: GRIS }}>Cargando prospectos…</p>}
+        {error   && <p style={{ color: "#B3261E" }}>Error: {error}</p>}
 
         {!loading && !error && visibles.length === 0 && (
-          <div style={{ textAlign: "center", padding: "60px 24px", color: "#5a7a9a" }}>
-            <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 16 }}>
-              {leads.length === 0 ? "Todavia no llega ningun prospecto" : "Ninguno con ese estatus"}
+          <div style={{ ...card, textAlign: "center", padding: "56px 24px", color: GRIS }}>
+            <div style={{ ...jost, fontWeight: 500, marginBottom: 8, fontSize: 18, color: TINTA }}>
+              {leads.length === 0 ? "Todavía no llega ningún prospecto" : "Ninguno con ese estatus"}
             </div>
             {leads.length === 0 && (
-              <div style={{ fontSize: 14, lineHeight: 1.6 }}>
-                En cuanto alguien llene el formulario de la pagina, aparece aqui.
+              <div style={{ fontSize: 14.5, lineHeight: 1.6 }}>
+                En cuanto alguien llene el formulario de la página, aparece aquí.
               </div>
             )}
           </div>
@@ -189,26 +204,27 @@ export default function SparcProspectos() {
           return (
             <div key={l.id} style={card}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "baseline" }}>
-                <div style={{ fontWeight: 700, fontSize: 17 }}>{l.name}</div>
+                <div style={{ ...jost, fontWeight: 600, fontSize: 19 }}>{l.name}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                  <span style={{ padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: st.bg, color: st.fg }}>
+                  <span style={{ padding: "3px 11px", borderRadius: 999, fontSize: 11, fontWeight: 700,
+                    background: st.bg, color: st.fg, border: `1px solid ${st.bd}` }}>
                     {st.label}
                   </span>
-                  <span style={{ color: "#5a7a9a", fontSize: 12.5 }}>{fecha(l.created_at)}</span>
+                  <span style={{ color: "#8698A5", fontSize: 12.5 }}>{fecha(l.created_at)}</span>
                 </div>
               </div>
 
               {(a.inmueble || a.tipo || a.unidades) && (
-                <div style={{ color: "#8fa8be", fontSize: 14, marginTop: 8, lineHeight: 1.6 }}>
-                  {a.inmueble && <><strong style={{ color: "#f0f4f8" }}>{a.inmueble}</strong>{" · "}</>}
+                <div style={{ color: GRIS, fontSize: 14.5, marginTop: 8, lineHeight: 1.6 }}>
+                  {a.inmueble && <><strong style={{ color: TINTA }}>{a.inmueble}</strong>{" · "}</>}
                   {a.tipo}
                   {a.unidades && ` · ${a.unidades} unidades`}
                 </div>
               )}
 
               {a.mensaje && (
-                <div style={{ color: "#c6d4e0", fontSize: 14.5, marginTop: 12, lineHeight: 1.65,
-                  background: "#0D1B2A", border: "1px solid #1e3048", borderRadius: 9, padding: "12px 14px" }}>
+                <div style={{ color: "#25384A", fontSize: 14.5, marginTop: 12, lineHeight: 1.65,
+                  background: PAPEL, border: `1px solid ${LINEA}`, borderRadius: 10, padding: "12px 14px" }}>
                   {a.mensaje}
                 </div>
               )}
@@ -216,31 +232,33 @@ export default function SparcProspectos() {
               <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
                 {tel && (
                   <a href={`https://wa.me/52${tel}`} target="_blank" rel="noopener noreferrer"
-                    style={{ background: "#2C9A42", color: "#fff", textDecoration: "none", borderRadius: 8, padding: "9px 16px", fontSize: 13.5, fontWeight: 700 }}>
+                    style={{ background: VERDE, color: "#fff", textDecoration: "none", borderRadius: 9,
+                      padding: "9px 16px", fontSize: 13.5, fontWeight: 600 }}>
                     WhatsApp
                   </a>
                 )}
                 {l.phone && (
-                  <a href={`tel:+52${tel}`} style={{ ...chip, textDecoration: "none", display: "inline-block" }}>{l.phone}</a>
+                  <a href={`tel:+52${tel}`} style={{ ...chip, textDecoration: "none", display: "inline-block", color: AZUL }}>{l.phone}</a>
                 )}
-                <a href={`mailto:${l.email}`} style={{ ...chip, textDecoration: "none", display: "inline-block" }}>{l.email}</a>
+                <a href={`mailto:${l.email}`} style={{ ...chip, textDecoration: "none", display: "inline-block", color: AZUL }}>{l.email}</a>
               </div>
 
               <div style={{ display: "flex", gap: 6, marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
-                <span style={{ color: "#5a7a9a", fontSize: 12.5, marginRight: 4 }}>Marcar como</span>
-                {ESTATUS.map((s) => (
-                  <button key={s} onClick={() => cambiarEstatus(l.id, s)}
-                    disabled={(l.status ?? "nuevo") === s}
-                    style={{ ...chip, padding: "5px 12px", fontSize: 12.5,
-                      opacity: (l.status ?? "nuevo") === s ? 0.35 : 1,
-                      cursor: (l.status ?? "nuevo") === s ? "default" : "pointer" }}>
-                    {statusMeta(s).label}
-                  </button>
-                ))}
+                <span style={{ color: "#8698A5", fontSize: 12.5, marginRight: 4 }}>Marcar como</span>
+                {ESTATUS.map((s) => {
+                  const activo = (l.status ?? "nuevo") === s;
+                  return (
+                    <button key={s} onClick={() => cambiarEstatus(l.id, s)} disabled={activo}
+                      style={{ ...chip, padding: "5px 12px", fontSize: 12.5,
+                        opacity: activo ? 0.4 : 1, cursor: activo ? "default" : "pointer" }}>
+                      {statusMeta(s).label}
+                    </button>
+                  );
+                })}
               </div>
 
               {l.utm_campaign && (
-                <div style={{ color: "#5a7a9a", fontSize: 12, marginTop: 12 }}>
+                <div style={{ color: "#8698A5", fontSize: 12, marginTop: 12 }}>
                   Origen: {l.utm_source || "—"} / {l.utm_campaign}
                 </div>
               )}
