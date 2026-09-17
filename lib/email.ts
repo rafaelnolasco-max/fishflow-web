@@ -38,6 +38,18 @@ export const SENDERS = {
    */
   trufa: 'Trufa <noreply@fishflow.mx>',
 
+  /**
+   * SPARC — dominio propio verificado en Resend (`sparcgroup.mx`, 10-sep-2026).
+   * El acuse sale a nombre de SPARC, no de FishFlow: el prospecto acaba de
+   * dejar sus datos en sparcgroup.mx y un correo de otro remitente se lee como
+   * si lo hubieran vendido a un tercero.
+   *
+   * Alineacion DMARC: Resend firma DKIM con d=sparcgroup.mx (alinea con este
+   * From) y el SPF se valida contra send.sparcgroup.mx, que es el Return-Path.
+   * Por eso NO choca con el SPF de Google Workspace en la raiz del dominio.
+   */
+  sparc: 'SPARC Administracion <contacto@sparcgroup.mx>',
+
   cane: 'CANE Neurofeedback <raf@fishflow.mx>',
   sieckvet: 'SieckVet <noreply@fishflow.mx>',
   enlace: 'Enlace Integral <recibos@fishflow.mx>',
@@ -70,6 +82,23 @@ export const REPLY_TO = 'raf@fishflow.mx'
  * `ENLACE_LEAD_TO=""` apaga el aviso a Enlace y deja solo el de Rafa.
  */
 export const ENLACE_DEFAULT_TO = 'enlaceintegralseguros@gmail.com'
+
+/**
+ * Buzon de SPARC que recibe los avisos de prospecto.
+ * `contacto@sparcgroup.mx` es alias de coordinacionejecutiva@ (Monica) en
+ * Google Workspace, dado de alta el 10-sep-2026. Se puede sobrescribir con la
+ * env `SPARC_LEAD_TO` (coma-separada).
+ */
+export const SPARC_DEFAULT_TO = 'contacto@sparcgroup.mx'
+
+/** Rafa siempre + SPARC (salvo que se apague por env). */
+export function sparcNotifyTo(): string[] {
+  const sparc = (process.env.SPARC_LEAD_TO ?? SPARC_DEFAULT_TO)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  return [REPLY_TO, ...sparc]
+}
 
 /** Rafa siempre + Enlace (salvo que se apague por env). */
 export function enlaceNotifyTo(): string[] {

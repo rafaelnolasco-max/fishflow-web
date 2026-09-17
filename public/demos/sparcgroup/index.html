@@ -6,12 +6,23 @@
 <title>Administración de Condominios en CDMX y Estado de México | SPARC</title>
 <meta name="description" content="SPARC administra condominios residenciales y centros comerciales en CDMX y Estado de México con portal web para condóminos, departamento jurídico interno, fianza de cumplimiento y transparencia financiera en tiempo real. Cotiza sin costo.">
 <meta name="keywords" content="administración de condominios CDMX, administradora de condominios, administración de centros comerciales, app para condominios, cartera vencida condominio">
-<link rel="canonical" href="https://sparcgroup.mx/">
+<link rel="canonical" href="https://www.sparcgroup.mx/">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="SPARC Administración">
 <meta property="og:title" content="Administración de Condominios en CDMX | SPARC">
 <meta property="og:description" content="Administración profesional de condominios y centros comerciales con app propia, respaldo jurídico y transparencia financiera total.">
-<meta property="og:url" content="https://sparcgroup.mx/">
+<meta property="og:url" content="https://www.sparcgroup.mx/">
 <meta property="og:locale" content="es_MX">
+<meta property="og:image" content="https://www.sparcgroup.mx/og-image.png">
+<meta property="og:image:secure_url" content="https://www.sparcgroup.mx/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SPARC Administración — Servicios Profesionales en Administración Residencial y Comercial">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Administración de Condominios en CDMX | SPARC">
+<meta name="twitter:description" content="Administración profesional de condominios y centros comerciales con app propia, respaldo jurídico y transparencia financiera total.">
+<meta name="twitter:image" content="https://www.sparcgroup.mx/og-image.png">
 <link rel="icon" href="favicon-512.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -104,12 +115,14 @@ a{color:inherit;}
 .nav-logo .sub{font-family:'Jost',sans-serif;font-size:10.5px;letter-spacing:.15em;
   color:var(--gris-claro);text-transform:uppercase;line-height:1.5;max-width:140px;
   padding-left:13px;border-left:1px solid var(--linea);}
-.nav-links{display:flex;align-items:center;gap:30px;}
-.nav-links a{font-size:14px;color:var(--gris);text-decoration:none;font-weight:500;transition:color .18s;}
-.nav-links a:hover{color:var(--azul);}
+.nav-links{display:flex;align-items:center;gap:22px;}
+.nav-links a:not(.btn){white-space:nowrap;}
+@media(max-width:1180px){ .nav-links .solo-ancho{display:none;} }
+.nav-links a:not(.btn){font-size:14px;color:var(--gris);text-decoration:none;font-weight:500;transition:color .18s;}
+.nav-links a:not(.btn):hover{color:var(--azul);}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
   font-family:'Inter',sans-serif;font-size:14.5px;font-weight:600;text-decoration:none;
-  padding:13px 24px;border-radius:9px;border:1px solid transparent;cursor:pointer;transition:.18s;}
+  padding:13px 24px;border-radius:9px;border:1px solid transparent;cursor:pointer;transition:.18s;white-space:nowrap;}
 .btn-primary{background:var(--azul);color:#fff;}
 .btn-primary:hover{background:var(--azul-700);transform:translateY(-1px);}
 .btn-verde{background:var(--verde);color:#fff;}
@@ -118,6 +131,13 @@ a{color:inherit;}
 .btn-ghost:hover{background:var(--azul-050);}
 .btn-blanco{background:#fff;color:var(--azul-900);}
 .btn-blanco:hover{transform:translateY(-1px);}
+.btn-acceso{background:transparent;color:var(--azul);border-color:#C7DCEA;}
+.btn-acceso:hover{background:var(--azul-050);}
+.btn-acceso svg{width:15px;height:15px;flex:0 0 auto;}
+.dark .btn-acceso{color:#fff;border-color:rgba(255,255,255,.38);}
+.dark .btn-acceso:hover{background:rgba(255,255,255,.1);}
+.acceso-cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:26px;}
+.acceso-cta .nota{font-size:13.2px;color:rgba(255,255,255,.62);max-width:40ch;}
 
 .hamb{display:none;width:44px;height:44px;border:1px solid var(--linea);background:#fff;
   border-radius:9px;cursor:pointer;align-items:center;justify-content:center;}
@@ -126,10 +146,10 @@ a{color:inherit;}
 .hamb span::before{top:-6px;} .hamb span::after{top:6px;}
 .mobile-menu{display:none;border-top:1px solid var(--linea);background:#fff;padding:12px 0 22px;}
 .mobile-menu.open{display:block;}
-.mobile-menu a{display:block;padding:13px 0;font-size:15.5px;font-weight:500;
+.mobile-menu a:not(.btn){display:block;padding:13px 0;font-size:15.5px;font-weight:500;
   color:var(--tinta);text-decoration:none;border-bottom:1px solid var(--papel);}
 .mobile-menu .btn{margin-top:16px;width:100%;}
-@media(max-width:900px){ .nav-links{display:none;} .hamb{display:flex;} .nav-logo .sub{display:none;} }
+@media(max-width:1100px){ .nav-links{display:none;} .hamb{display:flex;} .nav-logo .sub{display:none;} }
 
 /* ---------- Secciones ---------- */
 section{padding:clamp(58px,7vw,104px) 0;}
@@ -265,6 +285,10 @@ section{padding:clamp(58px,7vw,104px) 0;}
   box-shadow:0 0 0 3px rgba(0,101,161,.12);}
 .field textarea{resize:vertical;min-height:90px;}
 .form-note{font-size:12px;color:var(--gris-claro);margin-top:12px;line-height:1.5;}
+.ff-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+.form-error{font-size:13.5px;color:#B3261E;background:#FCEEEC;border:1px solid #F3C9C4;
+  border-radius:9px;padding:11px 14px;margin-top:12px;line-height:1.5;}
+#ff-submit[disabled]{opacity:.62;cursor:progress;}
 .contacto-info li{display:flex;gap:13px;margin-bottom:20px;align-items:flex-start;}
 .contacto-info ul{list-style:none;margin:26px 0 0;padding:0;}
 .contacto-info .ci{width:38px;height:38px;border-radius:11px;background:var(--azul-050);color:var(--azul);
@@ -410,8 +434,9 @@ footer a:hover{color:#fff;}
         <a href="#diferencia">Por qué SPARC</a>
         <a href="#servicios">Servicios</a>
         <a href="#portal">Portal SPARC</a>
-        <a href="#comparativa">Comparativa</a>
+        <a href="#comparativa" class="solo-ancho">Comparativa</a>
         <a href="#faq">Preguntas</a>
+        <a href="https://webapp.vivook.com/2025/sessions/signin" class="btn btn-acceso" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>Ingresar al portal</a>
         <a href="#contacto" class="btn btn-primary">Cotizar mi condominio</a>
       </nav>
       <button class="hamb" id="hamb" aria-label="Abrir menú" aria-expanded="false"><span></span></button>
@@ -428,6 +453,7 @@ footer a:hover{color:#fff;}
       <a href="#estructura">Estructura</a>
       <a href="#faq">Preguntas frecuentes</a>
       <a href="#talento">Bolsa de trabajo</a>
+      <a href="https://webapp.vivook.com/2025/sessions/signin" class="btn btn-acceso" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>Ingresar al portal</a>
       <a href="#contacto" class="btn btn-primary">Cotizar mi condominio</a>
     </div>
   </div>
@@ -666,7 +692,7 @@ footer a:hover{color:#fff;}
 
       <div>
         <div class="portal-mock">
-          <div class="pm-bar"><span class="pm-dot"></span><span class="pm-dot"></span><span class="pm-dot"></span><div class="pm-url">portal.sparcgroup.mx</div></div>
+          <div class="pm-bar"><span class="pm-dot"></span><span class="pm-dot"></span><span class="pm-dot"></span><div class="pm-url" aria-hidden="true">&nbsp;</div></div>
           <div class="pm-body">
             <div class="pm-top">
               <div>
@@ -693,6 +719,10 @@ footer a:hover{color:#fff;}
           </div>
         </div>
         <p class="nota-modulo">Pantalla ilustrativa con datos ficticios. La plataforma opera hoy en los desarrollos administrados por SPARC.</p>
+        <div class="acceso-cta">
+          <a href="https://webapp.vivook.com/2025/sessions/signin" class="btn btn-acceso" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>Ingresar al portal</a>
+          <span class="nota">&iquest;Ya eres cond&oacute;mino de un desarrollo que administramos? Entra con el usuario que te dio la administraci&oacute;n.</span>
+        </div>
       </div>
     </div>
 
@@ -943,11 +973,12 @@ footer a:hover{color:#fff;}
       </div>
 
       <div class="form-card">
-        <form onsubmit="event.preventDefault(); this.innerHTML='<div style=&quot;text-align:center;padding:38px 10px&quot;><div style=&quot;font-family:Jost,sans-serif;font-size:22px;color:#0065A1;margin-bottom:8px&quot;>Gracias por escribirnos</div><div style=&quot;font-size:14.5px;color:#5C6E7C&quot;>Un ejecutivo de cuenta te contactará en menos de 24 horas hábiles.</div></div>';">
-          <div class="field"><label for="n">Nombre completo</label><input id="n" type="text" required placeholder="Tu nombre"></div>
-          <div class="field"><label for="d">Nombre del desarrollo o inmueble</label><input id="d" type="text" required placeholder="Residencial, torre o centro comercial"></div>
+        <form id="ff-form" novalidate>
+          <div class="field"><label for="n">Nombre completo</label><input id="n" name="nombre" type="text" required autocomplete="name" placeholder="Tu nombre"></div>
+          <div class="field"><label for="e">Correo electr&oacute;nico</label><input id="e" name="email" type="email" required autocomplete="email" placeholder="tucorreo@ejemplo.com"></div>
+          <div class="field"><label for="d">Nombre del desarrollo o inmueble</label><input id="d" name="inmueble" type="text" required placeholder="Residencial, torre o centro comercial"></div>
           <div class="field"><label for="t">Tipo de inmueble</label>
-            <select id="t">
+            <select id="t" name="tipo">
               <option>Condominio residencial vertical</option>
               <option>Condominio residencial horizontal</option>
               <option>Centro comercial</option>
@@ -955,10 +986,13 @@ footer a:hover{color:#fff;}
               <option>Otro</option>
             </select>
           </div>
-          <div class="field"><label for="u">Número de unidades / locales</label><input id="u" type="text" placeholder="Ej. 48"></div>
-          <div class="field"><label for="tel">Teléfono</label><input id="tel" type="tel" required placeholder="55 0000 0000"></div>
-          <div class="field"><label for="m">¿Qué necesitas resolver?</label><textarea id="m" placeholder="Cuéntanos brevemente la situación actual de tu inmueble"></textarea></div>
-          <button type="submit" class="btn btn-primary" style="width:100%">Solicitar cotización</button>
+          <div class="field"><label for="u">N&uacute;mero de unidades / locales</label><input id="u" name="unidades" type="text" inputmode="numeric" placeholder="Ej. 48"></div>
+          <div class="field"><label for="tel">Tel&eacute;fono</label><input id="tel" name="telefono" type="tel" required autocomplete="tel" placeholder="55 0000 0000"></div>
+          <div class="field"><label for="m">&iquest;Qu&eacute; necesitas resolver?</label><textarea id="m" name="mensaje" placeholder="Cu&eacute;ntanos brevemente la situaci&oacute;n actual de tu inmueble"></textarea></div>
+          <!-- Trampa antibot: ningun humano la ve. Ver lib/antibot.ts. -->
+          <div class="ff-hp" aria-hidden="true"><label for="ff-hp-x">No llenar</label><input id="ff-hp-x" name="_hp" type="text" tabindex="-1" autocomplete="off"></div>
+          <button type="submit" class="btn btn-primary" id="ff-submit" style="width:100%">Solicitar cotizaci&oacute;n</button>
+          <p class="form-error" id="ff-error" hidden></p>
           <p class="form-note">Al enviar aceptas el tratamiento de tus datos conforme a nuestro <a href="aviso-de-privacidad.html" style="color:var(--azul)">Aviso de Privacidad</a>.</p>
         </form>
       </div>
@@ -1055,6 +1089,86 @@ footer a:hover{color:#fff;}
     });
   });
   document.getElementById('y').textContent=new Date().getFullYear();
+</script>
+
+<script>
+/* ---------- Formulario de contacto ----------
+   Manda el prospecto a FishFlow, que lo guarda, avisa a SPARC y le manda
+   acuse al prospecto. OJO: la URL lleva diagonal final a proposito —
+   fishflow-web corre con trailingSlash:true y un 308 a media peticion CORS
+   se come el preflight. */
+(function(){
+  var API = 'https://www.fishflow.mx/api/demo/sparc-lead/';
+  var form = document.getElementById('ff-form');
+  if (!form) return;
+  var btn  = document.getElementById('ff-submit');
+  var err  = document.getElementById('ff-error');
+  var cargada = Date.now();           // time-trap del antibot
+  var enviando = false;
+
+  function fallo(msg){
+    err.textContent = msg;
+    err.hidden = false;
+    btn.disabled = false;
+    btn.textContent = 'Solicitar cotizaci\u00F3n';
+    enviando = false;
+  }
+
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    if (enviando) return;
+    err.hidden = true;
+
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
+    enviando = true;
+    btn.disabled = true;
+    btn.textContent = 'Enviando\u2026';
+
+    var q = new URLSearchParams(location.search);
+    var datos = {
+      nombre:   form.nombre.value.trim(),
+      email:    form.email.value.trim(),
+      inmueble: form.inmueble.value.trim(),
+      tipo:     form.tipo.value,
+      unidades: form.unidades.value.trim(),
+      telefono: form.telefono.value.trim(),
+      mensaje:  form.mensaje.value.trim(),
+      _hp:      form._hp.value,
+      _ts:      cargada,
+      utm_source:   q.get('utm_source')   || '',
+      utm_medium:   q.get('utm_medium')   || '',
+      utm_campaign: q.get('utm_campaign') || '',
+      utm_content:  q.get('utm_content')  || '',
+      utm_term:     q.get('utm_term')     || '',
+      landing_url:  location.href,
+      referrer:     document.referrer || ''
+    };
+
+    fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    })
+    .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
+    .then(function(res){
+      if (!res.ok || res.j.error) {
+        fallo(res.j.error || 'No pudimos enviar tu solicitud. Int\u00E9ntalo de nuevo o ll\u00E1manos al 55 5990 2906.');
+        return;
+      }
+      var cuando = res.j.cuando || 'en menos de 24 horas h\u00E1biles';
+      form.innerHTML =
+        '<div style="text-align:center;padding:38px 10px">' +
+          '<div style="font-family:Jost,sans-serif;font-size:22px;color:#0065A1;margin-bottom:8px">Gracias por escribirnos</div>' +
+          '<div style="font-size:14.5px;color:#5C6E7C;line-height:1.6">Un ejecutivo de cuenta te contacta ' + cuando +
+          '. Te enviamos un acuse a tu correo.</div>' +
+        '</div>';
+    })
+    .catch(function(){
+      fallo('No pudimos enviar tu solicitud. Rev\u00EDsa tu conexi\u00F3n, o ll\u00E1manos al 55 5990 2906.');
+    });
+  });
+})();
 </script>
 </body>
 </html>

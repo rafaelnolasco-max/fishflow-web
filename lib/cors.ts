@@ -17,6 +17,9 @@
  */
 
 const ALLOWED_ORIGINS = [
+  'https://sparcgroup.mx',
+  'https://www.sparcgroup.mx',
+  'https://sparcgroup.vercel.app',
   'https://enlaceintegralseguros.com',
   'https://mariocitalan.net',
   'https://www.mariocitalan.net',
@@ -28,8 +31,8 @@ const ALLOWED_ORIGINS = [
   'https://www.fishflow.mx',
 ]
 
-/** Previews de Vercel del proyecto de Enlace: enlace-integral-<hash>.vercel.app */
-const PREVIEW_ORIGIN = /^https:\/\/enlace-integral-[a-z0-9-]+\.vercel\.app$/
+/** Previews de Vercel de Enlace y SPARC: <proyecto>-<hash>.vercel.app */
+const PREVIEW_ORIGIN = /^https:\/\/(enlace-integral|sparcgroup)-[a-z0-9-]+\.vercel\.app$/
 
 /**
  * Encabezados CORS para un origen dado.

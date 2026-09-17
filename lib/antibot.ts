@@ -74,7 +74,16 @@ export type Veredicto = { ok: true } | { ok: false; motivo: string }
  * @param req  la Request, para leer el header Origin
  * @param body el JSON ya parseado
  */
-export function revisarAntibot(req: Request, body: unknown): Veredicto {
+export function revisarAntibot(
+  req: Request,
+  body: unknown,
+  opts: { exigirTs?: boolean } = {}
+): Veredicto {
+  /* `exigirTs` por ruta: el hueco de EXIGIR_TS existe solo porque el sitio de
+     Mario se sube a mano a Hostinger y el API se despliega antes que el HTML.
+     Una landing que vive en su propio proyecto de Vercel se despliega junto
+     con su formulario, asi que ahi si se puede cerrar desde el dia uno. */
+  const exigirTs = opts.exigirTs ?? EXIGIR_TS
   const b = (body ?? {}) as Record<string, unknown>
 
   // 1. Honeypot. Cualquier contenido lo delata.
@@ -96,7 +105,7 @@ export function revisarAntibot(req: Request, body: unknown): Veredicto {
     // Sin marca de tiempo. Si además no hay Origin, no vino de un navegador:
     // es la firma exacta del bot del 12-sep.
     if (!origin) return { ok: false, motivo: 'sin _ts y sin Origin' }
-    if (EXIGIR_TS) return { ok: false, motivo: 'sin _ts' }
+    if (exigirTs) return { ok: false, motivo: 'sin _ts' }
     return { ok: true }
   }
 
