@@ -54,11 +54,17 @@ const MIN_MS = 3000
 const MAX_MS = 12 * 60 * 60 * 1000
 
 /**
- * Ponlo en true cuando las 8 páginas de mariocitalan.net ya carguen
- * assets/antibot.js en Hostinger. Entonces un envío sin `_ts` se bloquea
- * aunque traiga un Origin correcto.
+ * Un envío sin `_ts` se bloquea aunque traiga un Origin correcto.
+ *
+ * Estuvo en false mientras el HTML de mariocitalan.net se subía a mano a
+ * Hostinger. Se cerró el 17-sep-2026, con las 8 páginas ya sirviendo
+ * assets/antibot.js y la cadena verificada en el navegador real: un alta
+ * normal entra, y la misma alta con el honeypot lleno se descarta.
+ *
+ * Si algún día un formulario nuestro deja de mandar `_ts`, sus envíos se
+ * pierden en silencio. El log de Vercel lo dice: [antibot] ... (sin _ts).
  */
-const EXIGIR_TS = false
+const EXIGIR_TS = true
 
 export type Veredicto = { ok: true } | { ok: false; motivo: string }
 
