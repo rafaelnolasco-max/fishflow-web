@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { CRITERIO_CLIENT_ID } from '@/lib/supabase'
 import { SENDERS, REPLY_TO, getResend } from '@/lib/email'
+import { emailUI, escHtml } from '@/lib/emailLayout'
 import { revisarAntibot, logDescarte } from '@/lib/antibot'
 
 export const runtime = 'nodejs'
@@ -37,11 +38,6 @@ export async function OPTIONS() {
 
 const ORIGENES = new Set(['newsletter', 'libro'])
 
-function esc(s: unknown) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
 /** Nombre a partir del correo cuando la persona no lo dio: `leads.name` es NOT NULL. */
 function nombreDesdeEmail(email: string) {
   const local = email.split('@')[0].replace(/[._-]+/g, ' ').trim()
@@ -60,43 +56,37 @@ function nombreDesdeEmail(email: string) {
  */
 function saludo(nombreDado: string) {
   const primer = nombreDado.trim().split(/\s+/)[0]
-  return primer ? `Hola ${esc(primer)},` : 'Hola,'
+  return primer ? `Hola ${escHtml(primer)},` : 'Hola,'
 }
 
 function bienvenidaHtml(nombreDado: string, esLibro: boolean) {
+  const ui = emailUI('mario')
   const cuerpo = esLibro
     ? 'Quedaste en la lista de espera de <strong>Ciencia en escena</strong>. Te aviso en cuanto el libro esté disponible.'
     : 'Quedaste suscrito a mis publicaciones. De vez en cuando te escribo con algo que valga tu tiempo: cómo se construye un criterio, cómo se sostiene una decisión, y qué hacer cuando la estructura se tambalea.'
 
-  return `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#0F1A24">
-    <div style="background:#0F1A24;color:#fff;padding:26px">
-      <div style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#67D4E8">Arquitectura del Criterio</div>
-      <div style="font-family:Georgia,serif;font-size:24px;margin-top:8px">${esLibro ? 'Estás en la lista' : 'Listo, estás dentro'}</div>
-    </div>
-    <div style="padding:26px;border:1px solid #DCE4EC;border-top:none">
-      <p style="font-size:16px;margin:0 0 16px">${saludo(nombreDado)}</p>
-      <p style="font-size:15px;line-height:1.65;margin:0 0 22px">${cuerpo}</p>
-
-      <div style="background:#F4F7FA;border:1px solid #DCE4EC;border-left:3px solid #3E86CF;padding:18px 20px;margin:0 0 24px">
-        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#2A6AAE;margin-bottom:8px">Si algún día quieres ir más a fondo</div>
-        <div style="font-size:14.5px;color:#283845;line-height:1.6">
-          Las evaluaciones te dan un perfil y una ruta concreta. No hay prisa: están ahí cuando quieras.
-        </div>
-        <div style="margin-top:14px">
-          <a href="https://mariocitalan.net/actitud.html" style="color:#2A6AAE;font-size:14px">Evalúa tu actitud (15 preguntas)</a>
-          <span style="color:#7B8794"> · </span>
-          <a href="https://mariocitalan.net/cuestionario.html" style="color:#2A6AAE;font-size:14px">Evaluación de Criterio</a>
-        </div>
-      </div>
-
-      <p style="font-size:14px;color:#283845;margin:0">Un abrazo,<br><strong>Mario Citalán</strong></p>
-      <p style="font-size:11px;color:#7B8794;line-height:1.5;margin-top:24px;border-top:1px solid #DCE4EC;padding-top:16px">
-        Recibes este correo porque te suscribiste en mariocitalan.net. Si no fuiste tú o ya no quieres recibirlo, responde "baja" a este mensaje y te saco de la lista.
-        Consulta el <a href="https://mariocitalan.net/aviso-de-privacidad.html" style="color:#7B8794;text-decoration:underline">Aviso de privacidad</a>.
-      </p>
-    </div>
-  </div>`
+  return ui.layout({
+    audiencia: 'externo',
+    preheader: esLibro
+      ? 'Te aviso en cuanto Ciencia en escena esté disponible.'
+      : 'Te escribo de vez en cuando con algo que valga tu tiempo.',
+    titulo: esLibro ? 'Estás en la lista' : 'Listo, estás dentro',
+    cuerpo:
+      ui.p(saludo(nombreDado)) +
+      ui.p(cuerpo) +
+      ui.bloque(
+        ui.rotulo('Si algún día quieres ir más a fondo') +
+          ui.p('Las evaluaciones te dan un perfil y una ruta concreta. No hay prisa: están ahí cuando quieras.') +
+          ui.p(
+            `${ui.link('Evalúa tu actitud (15 preguntas)', 'https://mariocitalan.net/actitud.html')} &nbsp;·&nbsp; ` +
+              ui.link('Evaluación de Criterio', 'https://mariocitalan.net/cuestionario.html')
+          )
+      ) +
+      ui.firma(),
+    nota:
+      'Recibes este correo porque te suscribiste en mariocitalan.net. Si no fuiste tú o ya no quieres ' +
+      'recibirlo, responde "baja" a este mensaje y te saco de la lista.',
+  })
 }
 
 export async function POST(req: Request) {

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { SENDERS } from '@/lib/email'
+import { emailUI, escHtml } from '@/lib/emailLayout'
 import { revisarAntibot, logDescarte } from '@/lib/antibot'
 
 export const runtime = 'nodejs'
@@ -28,67 +29,62 @@ export async function OPTIONS() {
 //   3) Al prospecto → su resultado (perfil + ruta recomendada).
 const ADMIN_TO = ['mariocitalan@gmail.com', 'raf@fishflow.mx']
 
-function esc(s: string) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
+const DISCLAIMER =
+  'Esta evaluación es una herramienta de desarrollo humano y autoconocimiento. ' +
+  'No constituye una prueba psicológica, psiquiátrica ni diagnóstica, y sus resultados son orientativos.'
 
+/** Aviso interno → Mario + Rafa. Marca de Mario (lib/emailLayout.ts). */
 function adminHtml(d: {
-  nombre: string; email: string; tel: string; perfil: string; ruta: string
+  nombre: string; email: string; tel: string; perfil: string; ruta: string; test: string
 }) {
-  return `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#0F1A24">
-    <div style="background:#0F1A24;color:#fff;padding:22px 26px">
-      <div style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#67D4E8">Arquitectura Mental y del Criterio</div>
-      <div style="font-family:Georgia,serif;font-size:22px;margin-top:6px">Alguien completó tu evaluación</div>
-    </div>
-    <div style="padding:24px 26px;border:1px solid #DCE4EC;border-top:none">
-      <table style="width:100%;border-collapse:collapse;font-size:15px">
-        <tr><td style="padding:8px 0;color:#7B8794;width:120px">Nombre</td><td style="padding:8px 0"><strong>${esc(d.nombre)}</strong></td></tr>
-        <tr><td style="padding:8px 0;color:#7B8794">Correo</td><td style="padding:8px 0">${esc(d.email)}</td></tr>
-        <tr><td style="padding:8px 0;color:#7B8794">Teléfono</td><td style="padding:8px 0">${esc(d.tel) || '—'}</td></tr>
-        <tr><td style="padding:8px 0;color:#7B8794">Perfil</td><td style="padding:8px 0"><strong style="color:#2A6AAE">${esc(d.perfil)}</strong></td></tr>
-        <tr><td style="padding:8px 0;color:#7B8794">Ruta sugerida</td><td style="padding:8px 0">${esc(d.ruta)}</td></tr>
-      </table>
-      <p style="font-size:12px;color:#7B8794;margin-top:20px">Aviso automático del demo · FishFlow</p>
-    </div>
-  </div>`
+  const ui = emailUI('mario')
+  return ui.layout({
+    audiencia: 'interno',
+    preheader: `${d.nombre} · ${d.perfil}`,
+    etiqueta: `Evaluación de ${d.test}`,
+    titulo: 'Alguien completó tu evaluación',
+    cuerpo:
+      ui.tabla([
+        ['Nombre', d.nombre],
+        ['Correo', d.email],
+        ['Teléfono', d.tel],
+        ['Perfil', d.perfil],
+        ['Ruta sugerida', d.ruta],
+      ]) +
+      ui.p('Responde este correo y le escribes directo a quien hizo la evaluación.') +
+      ui.botones([{ texto: 'Ver en el panel', href: 'https://www.fishflow.mx/app/mariocitalan' }]),
+  })
 }
 
+/** Resultado → prospecto. */
 function leadHtml(d: {
   nombre: string; perfil: string; desc: string; ruta: string; ctaUrl: string; ctaLabel: string
   pdfUrl: string; pdfNombre: string
 }) {
-  const primer = d.nombre.split(' ')[0] || d.nombre
-  const pdfBlock = d.pdfUrl ? `
-      <div style="background:#0F1A24;border-radius:4px;padding:20px 22px;margin:0 0 24px;text-align:center">
-        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#67D4E8;margin-bottom:10px">Tu material de regalo</div>
-        <a href="${esc(d.pdfUrl)}" style="display:inline-block;background:#fff;color:#0F1A24;text-decoration:none;padding:13px 24px;font-size:13px;letter-spacing:.06em;text-transform:uppercase">Descargar PDF · ${esc(d.pdfNombre)}</a>
-      </div>` : ''
-  return `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#0F1A24">
-    <div style="background:#0F1A24;color:#fff;padding:26px">
-      <div style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#67D4E8">Tu resultado</div>
-      <div style="font-family:Georgia,serif;font-size:26px;margin-top:8px">${esc(d.perfil)}</div>
-    </div>
-    <div style="padding:26px;border:1px solid #DCE4EC;border-top:none">
-      <p style="font-size:16px;margin:0 0 16px">Hola ${esc(primer)},</p>
-      <p style="font-size:15px;line-height:1.6;margin:0 0 18px">Gracias por completar tu evaluación. Este es tu perfil general:</p>
-      <div style="border-left:3px solid #3E86CF;padding:4px 0 4px 18px;margin:0 0 22px">
-        <div style="font-family:Georgia,serif;font-size:19px;color:#0F1A24">${esc(d.perfil)}</div>
-        <div style="font-size:14.5px;color:#283845;line-height:1.6;margin-top:6px">${esc(d.desc)}</div>
-      </div>
-      ${pdfBlock}
-      <div style="background:#F4F7FA;border:1px solid #DCE4EC;border-left:3px solid #3E86CF;padding:18px 20px;margin:0 0 24px">
-        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#2A6AAE;margin-bottom:6px">Tu siguiente paso</div>
-        <div style="font-size:15px;color:#0F1A24;line-height:1.5">${esc(d.ruta)}</div>
-      </div>
-      <a href="${esc(d.ctaUrl)}" style="display:inline-block;background:#0F1A24;color:#fff;text-decoration:none;padding:14px 26px;font-size:13px;letter-spacing:.08em;text-transform:uppercase">${esc(d.ctaLabel)}</a>
-      <p style="font-size:14px;color:#283845;line-height:1.6;margin:26px 0 0">Te escribo personalmente en menos de 24 horas hábiles con la lectura completa de tu resultado.</p>
-      <p style="font-size:14px;color:#283845;margin:18px 0 0">Un abrazo,<br><strong>Mario Citalán</strong></p>
-      <p style="font-size:11px;color:#7B8794;line-height:1.5;margin-top:24px;border-top:1px solid #DCE4EC;padding-top:16px">Esta evaluación es una herramienta de desarrollo humano y autoconocimiento. No constituye una prueba psicológica, psiquiátrica ni diagnóstica, y sus resultados son orientativos.</p>
-    </div>
-  </div>`
+  const ui = emailUI('mario')
+  const primer = d.nombre.trim().split(/\s+/)[0] || ''
+  const regalo = d.pdfUrl
+    ? ui.bloque(
+        ui.rotulo('Tu material de regalo') +
+          ui.botones([{ texto: `Descargar PDF · ${d.pdfNombre}`, href: d.pdfUrl, estilo: 'secundario' }])
+      )
+    : ''
+  return ui.layout({
+    audiencia: 'externo',
+    preheader: `Tu perfil: ${d.perfil}. Tu siguiente paso: ${d.ruta}`,
+    etiqueta: 'Tu resultado',
+    titulo: primer ? `${primer}, este es tu resultado` : 'Este es tu resultado',
+    cuerpo:
+      ui.p('Gracias por completar tu evaluación. Este es tu perfil general:') +
+      ui.dato('Tu perfil', d.perfil) +
+      (d.desc ? ui.p(escHtml(d.desc)) : '') +
+      regalo +
+      ui.dato('Tu siguiente paso', d.ruta) +
+      ui.botones([{ texto: d.ctaLabel, href: d.ctaUrl }]) +
+      ui.p('Te escribo personalmente en menos de 24 horas hábiles con la lectura completa de tu resultado.') +
+      ui.firma(),
+    nota: DISCLAIMER,
+  })
 }
 
 export async function POST(req: Request) {
@@ -196,7 +192,7 @@ export async function POST(req: Request) {
       to: ADMIN_TO,
       replyTo: email,
       subject: `Nueva evaluación de ${testLabel} — ${nombre} (${perfil})`,
-      html: adminHtml({ nombre, email, tel, perfil, ruta }),
+      html: adminHtml({ nombre, email, tel, perfil, ruta, test: testLabel }),
     })
     if (adminErr) console.error('[demo/mario-criterio] admin email error:', adminErr)
 

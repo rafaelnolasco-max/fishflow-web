@@ -30,6 +30,13 @@ export type EmailBrand = {
   logo: { src: string; width: number; height: number; alt: string }
   /** Nombre en texto junto al logo. Solo cuando el logo es un isotipo sin nombre. */
   wordmark?: { titulo: string; subtitulo: string }
+  /**
+   * 'claro' (default): fondo blanco, para logos dibujados sobre claro.
+   * 'oscuro': fondo `color.oscuro`, para logos dibujados sobre oscuro (Mario).
+   */
+  encabezado?: 'claro' | 'oscuro'
+  /** Firma al cierre de los correos al cliente final (ver `ui.firma()`). */
+  firma?: { nombre: string; rol: string }
   color: {
     /** Barra de marca, títulos de sección y botón principal. */
     primario: string
@@ -42,8 +49,18 @@ export type EmailBrand = {
     linea: string
     papel: string
     suave: string
+    /** Fondo del encabezado cuando `encabezado: 'oscuro'`. */
+    oscuro?: string
+    /** Fondo del botón principal. Default: `primario`. */
+    boton?: string
   }
-  fuente: { titulos: string; cuerpo: string; googleFonts: string }
+  fuente: {
+    titulos: string
+    cuerpo: string
+    /** Subtítulo del wordmark. Default: `cuerpo`. */
+    detalle?: string
+    googleFonts: string
+  }
   sitio: { url: string; etiqueta: string }
   /** Línea legal del pie en correos al cliente final. Texto plano. */
   pieLegal: string
@@ -113,6 +130,47 @@ export const EMAIL_BRANDS = {
     sitio: { url: 'https://www.sparcgroup.mx', etiqueta: 'sparcgroup.mx' },
     pieLegal: 'SPARC · Servicios Profesionales en Administración Residencial y Comercial',
     privacidad: 'https://www.sparcgroup.mx/aviso-de-privacidad.html',
+  },
+
+  /**
+   * Mario Citalán — misma identidad que mariocitalan.net y que su newsletter
+   * (app/api/newsletter/send). El logo Dr. Mente está dibujado sobre oscuro,
+   * por eso su encabezado va en el navy del sitio. Fraunces solo carga en
+   * algunos clientes (Apple Mail sí, Gmail no); la pila cae a Georgia.
+   */
+  mario: {
+    nombre: 'Mario Citalán',
+    logo: {
+      src: `${ORIGIN}/clients/mariocitalan/email-logo.png`,
+      width: 48,
+      height: 48,
+      alt: 'Dr. Mente',
+    },
+    wordmark: { titulo: 'Mario Citalán', subtitulo: 'Arquitectura del Criterio' },
+    encabezado: 'oscuro',
+    firma: { nombre: 'Mario Citalán', rol: 'Médico y psicoterapeuta · Ciudad de México' },
+    color: {
+      primario: '#2A6AAE',
+      acento: '#67D4E8',
+      acentoTexto: '#2A6AAE',
+      tinta: '#0F1A24',
+      gris: '#6B7784',
+      linea: '#DCE4EC',
+      papel: '#F4F7FA',
+      suave: '#EEF3F8',
+      oscuro: '#0F1A24',
+      boton: '#0F1A24',
+    },
+    fuente: {
+      titulos: "'Fraunces', Georgia, 'Times New Roman', serif",
+      cuerpo: "'Inter', -apple-system, 'Segoe UI', Arial, sans-serif",
+      detalle: "'JetBrains Mono', ui-monospace, 'Courier New', monospace",
+      googleFonts:
+        'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;600&family=JetBrains+Mono:wght@500&display=swap',
+    },
+    sitio: { url: 'https://mariocitalan.net', etiqueta: 'mariocitalan.net' },
+    pieLegal: 'Mario Citalán · Arquitectura del Criterio · Ciudad de México',
+    privacidad: 'https://mariocitalan.net/aviso-de-privacidad.html',
   },
 } satisfies Record<string, EmailBrand>
 
@@ -211,10 +269,11 @@ export function emailUI(marca: EmailBrandKey) {
       .filter((x) => x.href)
       .map((x) => {
         const sec = x.estilo === 'secundario'
+        const fondo = c.boton ?? c.primario
         return `<td style="padding:0 10px 10px 0">
           <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-            <td style="border-radius:8px;background:${sec ? '#FFFFFF' : c.primario};border:1.5px solid ${c.primario}">
-              <a href="${escHtml(x.href)}" style="display:inline-block;padding:12px 22px;font-family:${F};font-size:14px;font-weight:700;color:${sec ? c.primario : '#FFFFFF'};text-decoration:none;border-radius:8px">${escHtml(x.texto)}</a>
+            <td style="border-radius:8px;background:${sec ? '#FFFFFF' : fondo};border:1.5px solid ${fondo}">
+              <a href="${escHtml(x.href)}" style="display:inline-block;padding:12px 22px;font-family:${F};font-size:14px;font-weight:700;color:${sec ? fondo : '#FFFFFF'};text-decoration:none;border-radius:8px">${escHtml(x.texto)}</a>
             </td>
           </tr></table>
         </td>`
@@ -225,13 +284,28 @@ export function emailUI(marca: EmailBrandKey) {
       : ''
   }
 
+  const oscuro = b.encabezado === 'oscuro'
+  const fondoEncabezado = oscuro ? c.oscuro ?? c.tinta : '#FFFFFF'
+
+  /** Cierre firmado ("Un abrazo, …") para correos al cliente final. */
+  const firma = (despedida = 'Un abrazo,') =>
+    b.firma
+      ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:10px 0 0">
+      <tr><td style="border-top:1px solid ${c.linea};padding-top:18px">
+        <div style="font-family:${F};font-size:14px;color:${c.gris};padding-bottom:4px">${escHtml(despedida)}</div>
+        <div style="font-family:${T};font-size:18px;color:${c.tinta}">${escHtml(b.firma.nombre)}</div>
+        <div style="font-family:${F};font-size:13px;color:${c.gris};padding-top:3px">${escHtml(b.firma.rol)}</div>
+      </td></tr>
+    </table>`
+      : ''
+
   const encabezado = () => {
     const img = `<img src="${b.logo.src}" width="${b.logo.width}" height="${b.logo.height}" alt="${escHtml(b.logo.alt)}"
       style="display:block;width:${b.logo.width}px;height:${b.logo.height}px;border:0;outline:none;font-family:${T};font-size:18px;font-weight:600;color:${c.primario}">`
     const wm = b.wordmark
       ? `<td style="vertical-align:middle;padding-left:14px">
-          <div style="font-family:${T};font-size:22px;font-weight:500;letter-spacing:.2em;color:${c.primario};line-height:1.1">${escHtml(b.wordmark.titulo)}</div>
-          <div style="font-family:${T};font-size:12px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:${c.acentoTexto};padding-top:3px">${escHtml(b.wordmark.subtitulo)}</div>
+          <div style="font-family:${T};font-size:${oscuro ? '20px' : '22px'};font-weight:500;letter-spacing:${oscuro ? '0' : '.2em'};color:${oscuro ? '#FFFFFF' : c.primario};line-height:1.15">${escHtml(b.wordmark.titulo)}</div>
+          <div style="font-family:${b.fuente.detalle ?? T};font-size:${oscuro ? '10px' : '12px'};font-weight:400;letter-spacing:${oscuro ? '.2em' : '.14em'};text-transform:uppercase;color:${oscuro ? c.acento : c.acentoTexto};padding-top:${oscuro ? '5px' : '3px'}">${escHtml(b.wordmark.subtitulo)}</div>
         </td>`
       : ''
     return `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
@@ -282,7 +356,7 @@ export function emailUI(marca: EmailBrandKey) {
   <tr><td align="center" class="ff-outer" style="padding:28px 14px">
     <table role="presentation" class="ff-card" width="600" cellpadding="0" cellspacing="0" border="0"
            style="width:600px;max-width:100%;background:#FFFFFF;border:1px solid ${c.linea}">
-      <tr><td class="ff-px" style="padding:24px 32px 20px">${encabezado()}</td></tr>
+      <tr><td class="ff-px" style="padding:24px 32px 20px;background:${fondoEncabezado}">${encabezado()}</td></tr>
       <tr><td style="padding:0;font-size:0;line-height:0">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
           <td width="72%" height="4" style="height:4px;background:${c.primario};font-size:0;line-height:0">&nbsp;</td>
@@ -302,5 +376,5 @@ export function emailUI(marca: EmailBrandKey) {
 </body>
 </html>`
 
-  return { marca: b, p, link, dato, tabla, lista, rotulo, bloque, botones, layout }
+  return { marca: b, p, link, dato, tabla, lista, rotulo, bloque, botones, firma, layout }
 }
