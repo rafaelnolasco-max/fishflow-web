@@ -176,7 +176,7 @@ export default function EnlaceDashboardPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"meta" | "avatar">("meta");
-  const [mainTab, setMainTab] = useState<"captura" | "prospectos" | "resenas" | "candidatas">("captura");
+  const [mainTab, setMainTab] = useState<"captura" | "prospectos" | "resenas" | "candidatas">("prospectos");
   const [leads, setLeads] = useState<Lead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
 
@@ -435,8 +435,8 @@ export default function EnlaceDashboardPage() {
               )
             }
             tabs={[
-              { id: "captura", label: "Captura Top 20", icon: "📋" },
               { id: "prospectos", label: `Prospectos${leads.length ? ` (${leads.length})` : ""}`, icon: "🎯" },
+              { id: "captura", label: "Captura Top 20", icon: "📋" },
               { id: "candidatas", label: `Candidatas${candidatasCount ? ` (${candidatasCount})` : ""}`, icon: "👥" },
               { id: "resenas", label: "Reseñas", icon: "⭐" },
             ]}
