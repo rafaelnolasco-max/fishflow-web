@@ -52,7 +52,7 @@ export const SENDERS = {
 
   cane: 'CANE Neurofeedback <raf@fishflow.mx>',
   sieckvet: 'SieckVet <noreply@fishflow.mx>',
-  enlace: 'Enlace Integral <recibos@fishflow.mx>',
+  enlace: 'Enlace Integral Seguros <recibos@fishflow.mx>',
   rmz: 'Cocinas y Closets RMZ <recibos@fishflow.mx>',
 
   /**

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { SENDERS, sparcNotifyTo, SPARC_DEFAULT_TO } from '@/lib/email'
+import { emailUI, escHtml } from '@/lib/emailLayout'
 import { corsHeaders, preflight } from '@/lib/cors'
 import { revisarAntibot, logDescarte } from '@/lib/antibot'
 
@@ -35,11 +36,6 @@ export async function OPTIONS(req: Request) {
 /** client_id de Sparc — Eduardo Curiel en la tabla `clients`. */
 const SPARC_CLIENT_ID = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
 
-function esc(s: unknown) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
 /**
  * Horario de SPARC en CDMX (UTC-6 fijo, sin horario de verano).
  * La landing promete "menos de 24 horas habiles"; aqui se traduce a una frase
@@ -50,75 +46,60 @@ function siguienteContacto(nowUtc: Date = new Date()): string {
   const cdmx = new Date(nowUtc.getTime() + CDMX_OFFSET_MS)
   const dia = cdmx.getUTCDay()
   const hora = cdmx.getUTCHours()
-  if (dia === 0) return 'manana lunes, a partir de las 9:00'
+  if (dia === 0) return 'mañana lunes, a partir de las 9:00'
   if (dia === 6) return 'el lunes, a partir de las 9:00'
   if (hora < 9) return 'hoy mismo, a partir de las 9:00'
   if (hora < 18) return 'hoy mismo, dentro del horario de oficina'
   if (dia === 5) return 'el lunes, a partir de las 9:00'
-  return 'manana, a partir de las 9:00'
+  return 'mañana, a partir de las 9:00'
 }
 
-/** Acuse para el PROSPECTO. Marca SPARC: azul PMS 641C, verde PMS 7739C. */
+/** Acuse para el PROSPECTO. Marca SPARC — ver EMAIL_BRANDS.sparc en lib/emailLayout.ts. */
 function prospectoHtml(d: { nombre: string; inmueble: string; cuando: string }) {
-  const primerNombre = esc(d.nombre.trim().split(/\s+/)[0] || '')
-  return `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#0E1D28">
-    <div style="background:#0065A1;color:#fff;padding:26px">
-      <div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#A9D8EF">SPARC Administracion</div>
-      <div style="font-size:23px;font-weight:700;margin-top:8px;line-height:1.25">Recibimos tu solicitud, ${primerNombre}</div>
-    </div>
-    <div style="padding:26px;background:#fff;border:1px solid #E1E9F0;border-top:none">
-      <p style="margin:0 0 16px;font-size:15px;line-height:1.6">
-        Gracias por contactarnos. Registramos tu solicitud de cotizacion para:
-      </p>
-      <div style="background:#EDF5FA;border-left:3px solid #2C9A42;padding:14px 18px;margin-bottom:18px">
-        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#5C6E7C">Inmueble</div>
-        <div style="font-size:19px;font-weight:700;margin-top:4px">${esc(d.inmueble) || 'Tu inmueble'}</div>
-      </div>
-      <p style="margin:0 0 20px;font-size:15px;line-height:1.6">
-        <strong>Un ejecutivo de cuenta te contacta ${esc(d.cuando)}</strong> para conocer
-        la situacion de tu condominio y preparar una propuesta cerrada, por escrito y
-        sin cargos ocultos.
-      </p>
-      <p style="margin:0 0 22px;font-size:15px;line-height:1.6">
-        Si es una urgencia, puedes llamarnos al
-        <a href="tel:+525559902906" style="color:#0065A1;font-weight:600">55 5990 2906</a>.
-      </p>
-      <p style="margin:0;font-size:12.5px;line-height:1.6;color:#5C6E7C;border-top:1px solid #E1E9F0;padding-top:16px">
-        SPARC &middot; Servicios Profesionales en Administracion Residencial y Comercial<br>
-        Tus datos se usan unicamente para atender esta solicitud, conforme a nuestro
-        <a href="https://www.sparcgroup.mx/aviso-de-privacidad.html" style="color:#0065A1">Aviso de Privacidad</a>.
-      </p>
-    </div>
-  </div>`
+  const ui = emailUI('sparc')
+  const primerNombre = d.nombre.trim().split(/\s+/)[0] || ''
+  return ui.layout({
+    audiencia: 'externo',
+    preheader: `Un ejecutivo de cuenta te contacta ${d.cuando}.`,
+    titulo: `Recibimos tu solicitud${primerNombre ? ', ' + primerNombre : ''}`,
+    cuerpo:
+      ui.p('Gracias por contactarnos. Registramos tu solicitud de cotización para:') +
+      ui.dato('Inmueble', d.inmueble || 'Tu inmueble') +
+      ui.p(
+        `<strong>Un ejecutivo de cuenta te contacta ${escHtml(d.cuando)}</strong> para conocer ` +
+          'la situación de tu condominio y preparar una propuesta cerrada, por escrito y sin cargos ocultos.'
+      ) +
+      ui.p(`Si es una urgencia, puedes llamarnos al ${ui.link('55 5990 2906', 'tel:+525559902906')}.`),
+    nota: 'Tus datos se usan únicamente para atender esta solicitud, conforme a nuestro Aviso de Privacidad.',
+  })
 }
 
-/** Aviso para SPARC. */
+/** Aviso para el equipo de SPARC (y Rafa). */
 function adminHtml(d: Record<string, string>) {
-  const row = (k: string, v: string) =>
-    `<tr><td style="padding:7px 0;color:#5C6E7C;width:170px">${k}</td><td style="padding:7px 0"><strong>${esc(v) || '—'}</strong></td></tr>`
-  const tel = esc(d.telefono).replace(/\D/g, '')
-  return `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#0E1D28">
-    <div style="background:#00405F;color:#fff;padding:22px 26px">
-      <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#7FD494">SPARC &middot; Nuevo prospecto</div>
-      <div style="font-size:22px;margin-top:6px;font-weight:800">Alguien pidio cotizacion desde la pagina</div>
-    </div>
-    <div style="padding:22px 26px;border:1px solid #E1E9F0;border-top:none">
-      <table style="width:100%;border-collapse:collapse;font-size:15px">
-        ${row('Nombre', d.nombre)}
-        ${row('Telefono', d.telefono)}
-        ${row('Correo', d.email)}
-        ${row('Desarrollo o inmueble', d.inmueble)}
-        ${row('Tipo', d.tipo)}
-        ${row('Unidades / locales', d.unidades)}
-        ${row('Que necesita resolver', d.mensaje)}
-        ${row('Origen', d.origen)}
-      </table>
-      ${tel ? `<a href="https://wa.me/52${tel}" style="display:inline-block;margin-top:18px;background:#2C9A42;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:700;font-size:14px">Escribirle por WhatsApp</a>` : ''}
-      <p style="font-size:12px;color:#5C6E7C;margin-top:20px">Aviso automatico de www.sparcgroup.mx &middot; FishFlow</p>
-    </div>
-  </div>`
+  const ui = emailUI('sparc')
+  const tel = String(d.telefono ?? '').replace(/\D/g, '')
+  return ui.layout({
+    audiencia: 'interno',
+    preheader: `${d.nombre}${d.inmueble ? ' · ' + d.inmueble : ''} pidió cotización.`,
+    etiqueta: 'Nuevo prospecto',
+    titulo: 'Alguien pidió cotización desde la página',
+    cuerpo:
+      ui.tabla([
+        ['Nombre', d.nombre],
+        ['Teléfono', d.telefono],
+        ['Correo', d.email],
+        ['Desarrollo o inmueble', d.inmueble],
+        ['Tipo', d.tipo],
+        ['Unidades / locales', d.unidades],
+        ['Qué necesita resolver', d.mensaje],
+        ['Origen', d.origen],
+      ]) +
+      ui.botones([
+        { texto: 'Escribirle por WhatsApp', href: tel ? `https://wa.me/52${tel}` : '' },
+        { texto: 'Ver en el panel', href: 'https://www.fishflow.mx/app/sparc', estilo: 'secundario' },
+      ]),
+    nota: 'Llegó desde el formulario de www.sparcgroup.mx.',
+  })
 }
 
 export async function POST(req: Request) {
@@ -222,7 +203,7 @@ export async function POST(req: Request) {
         from: SENDERS.sparc,
         to: email,
         replyTo: SPARC_DEFAULT_TO,
-        subject: 'Recibimos tu solicitud — SPARC Administracion',
+        subject: 'Recibimos tu solicitud — SPARC Administración',
         html: prospectoHtml({ nombre, inmueble, cuando }),
       })
       if (ackErr) console.error('[demo/sparc-lead] acuse al prospecto error:', ackErr)

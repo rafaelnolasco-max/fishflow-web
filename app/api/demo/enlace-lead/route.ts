@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { SENDERS, enlaceNotifyTo, ENLACE_DEFAULT_TO } from '@/lib/email'
+import { emailUI, escHtml } from '@/lib/emailLayout'
 import { corsHeaders, preflight } from '@/lib/cors'
 import { revisarAntibot, logDescarte } from '@/lib/antibot'
 
@@ -33,11 +34,6 @@ const PLAN_LABEL: Record<string, string> = {
   educacion: 'Ahorro educativo',
 }
 
-function esc(s: unknown) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
 /**
  * Horario de atención de Enlace, en CDMX (UTC-6 fijo, sin horario de verano —
  * ver lib/socialTargets.ts). Confirmado por Edna Cruz el 2026-08-27:
@@ -65,65 +61,58 @@ function siguienteContacto(nowUtc: Date = new Date()): string {
 
 /** Acuse de recibo para el PROSPECTO. Confirma, fija expectativa y deja salida por WhatsApp. */
 function prospectoHtml(d: { nombre: string; plan: string; cuando: string; wa: string }) {
-  const primerNombre = esc(d.nombre.trim().split(/\s+/)[0] || '')
-  return `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#13282B">
-    <div style="background:#064A4F;color:#fff;padding:26px 26px 24px">
-      <div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#7FE3E3">Enlace Integral Seguros</div>
-      <div style="font-size:23px;font-weight:700;margin-top:8px;line-height:1.25">Recibimos tus datos, ${primerNombre}</div>
-    </div>
-    <div style="padding:26px;background:#fff;border:1px solid #DCE9E9;border-top:none">
-      <p style="margin:0 0 16px;font-size:15px;line-height:1.6">
-        Gracias por tomarte el minuto para responder el cuestionario. Según tus respuestas,
-        el plan que mejor se ajusta a lo que buscas es:
-      </p>
-      <div style="background:#F4FBFB;border-left:3px solid #0FB8B8;padding:14px 18px;margin-bottom:18px">
-        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#5B6B6E">Tu plan recomendado</div>
-        <div style="font-size:19px;font-weight:700;margin-top:4px">${esc(d.plan)}</div>
-      </div>
-      <p style="margin:0 0 20px;font-size:15px;line-height:1.6">
-        <strong>Un asesor te contacta ${esc(d.cuando)}</strong> para explicarte las opciones
-        sin compromiso y resolver tus dudas.
-      </p>
-      <p style="margin:0 0 8px;font-size:15px;line-height:1.6">¿Prefieres adelantarlo? Escríbenos directo:</p>
-      <p style="margin:0 0 22px">
-        <a href="${d.wa}" style="display:inline-block;background:#0FB8B8;color:#fff;text-decoration:none;padding:13px 26px;border-radius:10px;font-weight:700;font-size:15px">Hablar por WhatsApp</a>
-      </p>
-      <p style="margin:0;font-size:12.5px;line-height:1.6;color:#5B6B6E;border-top:1px solid #DCE9E9;padding-top:16px">
-        Enlace Integral Seguros · Distribuidor Autorizado Allianz<br>
-        Tus datos se usan únicamente para contactarte sobre tu solicitud. Si no deseas que
-        te contactemos, responde este correo y lo damos de baja.
-      </p>
-    </div>
-  </div>`
+  const ui = emailUI('enlace')
+  const primerNombre = d.nombre.trim().split(/\s+/)[0] || ''
+  return ui.layout({
+    audiencia: 'externo',
+    preheader: `Tu plan recomendado: ${d.plan}. Un asesor te contacta ${d.cuando}.`,
+    titulo: `Recibimos tus datos${primerNombre ? ', ' + primerNombre : ''}`,
+    cuerpo:
+      ui.p(
+        'Gracias por tomarte el minuto para responder el cuestionario. Según tus respuestas, ' +
+          'el plan que mejor se ajusta a lo que buscas es:'
+      ) +
+      ui.dato('Tu plan recomendado', d.plan) +
+      ui.p(
+        `<strong>Un asesor te contacta ${escHtml(d.cuando)}</strong> para explicarte las opciones ` +
+          'sin compromiso y resolver tus dudas.'
+      ) +
+      ui.p('¿Prefieres adelantarlo? Escríbenos directo:') +
+      ui.botones([{ texto: 'Hablar por WhatsApp', href: d.wa }]),
+    nota:
+      'Tus datos se usan únicamente para contactarte sobre tu solicitud. ' +
+      'Si no deseas que te contactemos, responde este correo y lo damos de baja.',
+  })
 }
 
+/** Aviso al equipo de Enlace (y Rafa). */
 function adminHtml(d: Record<string, string>) {
-  const row = (k: string, v: string) =>
-    `<tr><td style="padding:7px 0;color:#5d7080;width:150px">${k}</td><td style="padding:7px 0"><strong>${esc(v) || '—'}</strong></td></tr>`
-  return `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#1b2733">
-    <div style="background:#212934;color:#fff;padding:22px 26px">
-      <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#65BC7B">Enlace Integral Seguros · Nuevo lead</div>
-      <div style="font-size:22px;margin-top:6px;font-weight:800">Llegó un prospecto desde tu página</div>
-    </div>
-    <div style="padding:22px 26px;border:1px solid #E2EAE5;border-top:none">
-      <table style="width:100%;border-collapse:collapse;font-size:15px">
-        ${row('Nombre', d.nombre)}
-        ${row('WhatsApp', d.whatsapp)}
-        ${row('Correo', d.email)}
-        ${row('Plan recomendado', d.plan)}
-        ${row('Objetivo', d.objetivo)}
-        ${row('Edad', d.edad)}
-        ${row('Dependientes', d.dependientes)}
-        ${row('Capacidad mensual', d.capacidad)}
-        ${row('Ocupación', d.ocupacion)}
-        ${row('Origen', d.origen)}
-      </table>
-      <a href="https://wa.me/52${esc(d.whatsapp).replace(/\D/g, '')}" style="display:inline-block;margin-top:18px;background:#25D366;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:700;font-size:14px">Escribirle por WhatsApp</a>
-      <p style="font-size:12px;color:#5d7080;margin-top:20px">Aviso automático de la landing · FishFlow</p>
-    </div>
-  </div>`
+  const ui = emailUI('enlace')
+  const tel = String(d.whatsapp ?? '').replace(/\D/g, '')
+  return ui.layout({
+    audiencia: 'interno',
+    preheader: `${d.nombre} · ${d.plan}`,
+    etiqueta: 'Nuevo prospecto',
+    titulo: 'Llegó un prospecto desde tu página',
+    cuerpo:
+      ui.tabla([
+        ['Nombre', d.nombre],
+        ['WhatsApp', d.whatsapp],
+        ['Correo', d.email],
+        ['Plan recomendado', d.plan],
+        ['Objetivo', d.objetivo],
+        ['Edad', d.edad],
+        ['Dependientes', d.dependientes],
+        ['Capacidad mensual', d.capacidad],
+        ['Ocupación', d.ocupacion],
+        ['Origen', d.origen],
+      ]) +
+      ui.botones([
+        { texto: 'Escribirle por WhatsApp', href: tel ? `https://wa.me/52${tel}` : '' },
+        { texto: 'Ver en el panel', href: 'https://www.fishflow.mx/app/enlace', estilo: 'secundario' },
+      ]),
+    nota: 'Llegó desde el cuestionario de enlaceintegralseguros.com.',
+  })
 }
 
 export async function POST(req: Request) {

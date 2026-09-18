@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 import { sendEmail, REPLY_TO, enlaceNotifyTo } from '@/lib/email'
+import { emailUI, escHtml } from '@/lib/emailLayout'
 import { corsHeaders, preflight } from '@/lib/cors'
 
 export const runtime = 'nodejs'
@@ -41,11 +42,6 @@ type Scoring = {
   fortalezas: string[]
   banderas: string[]
   veredicto: 'alto' | 'medio' | 'bajo'
-}
-
-function esc(s: unknown) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
 /** Nombre de archivo seguro para Storage (sin acentos, espacios ni rutas). */
@@ -128,49 +124,48 @@ ${cvText || '(no se pudo extraer texto del archivo)'}`
 }
 
 function adminHtml(d: Record<string, string>, s: Scoring | null, cvUrl: string | null) {
-  const color = !s ? '#5d7080' : s.veredicto === 'alto' ? '#0FB8B8' : s.veredicto === 'medio' ? '#D69E2E' : '#B05252'
-  const row = (k: string, v: string) =>
-    `<tr><td style="padding:7px 0;color:#5d7080;width:170px">${k}</td><td style="padding:7px 0"><strong>${esc(v) || '—'}</strong></td></tr>`
-  const list = (items: string[]) =>
-    items.length
-      ? `<ul style="margin:6px 0 0;padding-left:18px;font-size:14px">${items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`
-      : '<div style="font-size:14px;color:#5d7080">—</div>'
+  const ui = emailUI('enlace')
+  const c = ui.marca.color
+  const color = !s ? c.gris : s.veredicto === 'alto' ? c.acentoTexto : s.veredicto === 'medio' ? '#B7791F' : '#B05252'
+  const tel = String(d.whatsapp ?? '').replace(/\D/g, '')
 
-  return `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:580px;margin:0 auto;color:#13282B">
-    <div style="background:#064A4F;color:#fff;padding:22px 26px">
-      <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#7FE3E3">Enlace Integral · Nueva candidatura</div>
-      <div style="font-size:22px;margin-top:6px;font-weight:800">${esc(d.nombre)} quiere ser asesor</div>
-    </div>
-    ${s ? `
-    <div style="padding:18px 26px;background:#F6FBFB;border:1px solid #DCE9E9;border-top:none">
-      <div style="display:inline-block;background:${color};color:#fff;font-weight:800;font-size:26px;padding:10px 18px;border-radius:10px">${s.score}</div>
-      <span style="margin-left:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:12px;color:${color}">Prioridad ${esc(s.veredicto)}</span>
-      <p style="margin:14px 0 0;font-size:15px;line-height:1.55">${esc(s.resumen)}</p>
-      <div style="margin-top:14px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#5d7080">A favor</div>
-      ${list(s.fortalezas)}
-      <div style="margin-top:12px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#5d7080">A revisar</div>
-      ${list(s.banderas)}
-    </div>` : `
-    <div style="padding:16px 26px;background:#FFF6E5;border:1px solid #DCE9E9;border-top:none;font-size:14px">
-      El filtro automático no pudo evaluar este CV. Revísalo a mano.
-    </div>`}
-    <div style="padding:22px 26px;border:1px solid #DCE9E9;border-top:none">
-      <table style="width:100%;border-collapse:collapse;font-size:15px">
-        ${row('Nombre', d.nombre)}
-        ${row('WhatsApp', d.whatsapp)}
-        ${row('Correo', d.email)}
-        ${row('Ciudad', d.ciudad)}
-        ${row('Experiencia en ventas', d.experiencia)}
-        ${row('¿Ya vendió seguros?', d.seguros)}
-        ${row('Disponibilidad', d.disponibilidad)}
-        ${row('Por qué se interesa', d.motivacion)}
-      </table>
-      ${cvUrl ? `<a href="${cvUrl}" style="display:inline-block;margin-top:18px;background:#064A4F;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:700;font-size:14px">Descargar CV</a>` : ''}
-      <a href="https://wa.me/52${esc(d.whatsapp).replace(/\D/g, '')}" style="display:inline-block;margin:18px 0 0 8px;background:#25D366;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:700;font-size:14px">Escribirle</a>
-      <p style="font-size:12px;color:#5d7080;margin-top:20px">El enlace del CV vence en 7 días. Después, descárgalo desde el panel. · FishFlow</p>
-    </div>
-  </div>`
+  const evaluacion = s
+    ? ui.bloque(
+        `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="background:${color};border-radius:10px;padding:10px 16px;font-family:${ui.marca.fuente.titulos};font-size:26px;font-weight:700;color:#FFFFFF">${escHtml(s.score)}</td>
+          <td style="padding-left:12px;font-family:${ui.marca.fuente.cuerpo};font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${color}">Prioridad ${escHtml(s.veredicto)}</td>
+        </tr></table>
+        <p style="margin:14px 0 8px;font-family:${ui.marca.fuente.cuerpo};font-size:15px;line-height:1.55;color:${c.tinta}">${escHtml(s.resumen)}</p>` +
+          ui.rotulo('A favor') +
+          ui.lista(s.fortalezas) +
+          ui.rotulo('A revisar') +
+          ui.lista(s.banderas)
+      )
+    : ui.bloque(ui.p('El filtro automático no pudo evaluar este CV. Revísalo a mano.'), 'aviso')
+
+  return ui.layout({
+    audiencia: 'interno',
+    preheader: s ? `${s.score}/100 · prioridad ${s.veredicto}` : 'CV sin evaluar — revisar a mano',
+    etiqueta: 'Nueva candidatura',
+    titulo: `${d.nombre} quiere ser asesor`,
+    cuerpo:
+      evaluacion +
+      ui.tabla([
+        ['Nombre', d.nombre],
+        ['WhatsApp', d.whatsapp],
+        ['Correo', d.email],
+        ['Ciudad', d.ciudad],
+        ['Experiencia en ventas', d.experiencia],
+        ['¿Ya vendió seguros?', d.seguros],
+        ['Disponibilidad', d.disponibilidad],
+        ['Por qué se interesa', d.motivacion],
+      ]) +
+      ui.botones([
+        { texto: 'Descargar CV', href: cvUrl ?? '' },
+        { texto: 'Escribirle por WhatsApp', href: tel ? `https://wa.me/52${tel}` : '', estilo: 'secundario' },
+      ]),
+    nota: 'El enlace del CV vence en 7 días. Después, descárgalo desde el panel.',
+  })
 }
 
 // La página /unete vive en enlaceintegralseguros.com. Ver lib/cors.ts.

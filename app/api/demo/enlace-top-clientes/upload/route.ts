@@ -4,6 +4,7 @@ import { Resend } from 'resend'
 import * as XLSX from 'xlsx'
 import { ENLACE_CLIENT_ID } from '@/lib/supabase'
 import { SENDERS } from '@/lib/email'
+import { emailUI } from '@/lib/emailLayout'
 
 export const runtime = 'nodejs'
 
@@ -60,6 +61,23 @@ function findHeaderRow(rows: unknown[][]): number {
     }
   }
   return -1
+}
+
+/** Aviso de carga de Excel, con la marca de Enlace. */
+function excelHtml(vendedor: string, nuevos: number, duplicados: number) {
+  const ui = emailUI('enlace')
+  return ui.layout({
+    audiencia: 'interno',
+    preheader: `${vendedor} subió ${nuevos} clientes nuevos.`,
+    etiqueta: 'Top clientes · Excel',
+    titulo: `${vendedor} subió ${nuevos} clientes nuevos`,
+    cuerpo:
+      ui.tabla([
+        ['Vendedor', vendedor],
+        ['Clientes nuevos', String(nuevos)],
+        ['Duplicados ignorados', String(duplicados)],
+      ]) + ui.botones([{ texto: 'Ver en el panel', href: 'https://www.fishflow.mx/app/enlace' }]),
+  })
 }
 
 export async function POST(req: Request) {
@@ -186,7 +204,7 @@ export async function POST(req: Request) {
           from: SENDERS.enlace,
           to: ADMIN_TO,
           subject: `Top clientes recibido (Excel) — ${vendorName} (${newRows.length})`,
-          html: `<p>El vendedor <strong>${vendorName}</strong> subió un Excel con <strong>${newRows.length}</strong> clientes nuevos.${duplicates > 0 ? ` (${duplicates} ya estaban guardados y se ignoraron)` : ''}</p>`,
+          html: excelHtml(vendorName, newRows.length, duplicates),
         })
       } catch (e) {
         console.error('[demo/enlace-top-clientes/upload] email error:', e)

@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { ENLACE_CLIENT_ID } from '@/lib/supabase'
 import { SENDERS } from '@/lib/email'
+import { emailUI, escHtml } from '@/lib/emailLayout'
 
 export const runtime = 'nodejs'
 
@@ -17,10 +18,6 @@ export const runtime = 'nodejs'
 
 const ADMIN_TO = ['raf@fishflow.mx']
 const TZ = 'America/Mexico_City'
-
-function esc(s: unknown) {
-  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
 
 type Row = {
   vendor_name: string | null
@@ -87,40 +84,18 @@ export async function GET(req: Request) {
     weekday: 'long', day: 'numeric', month: 'long', timeZone: TZ,
   })
 
-  const filas = ranking
-    .map(
-      ([v, n]) => `<tr>
-        <td style="padding:9px 0;border-bottom:1px solid #E2EAE5">${esc(v)}</td>
-        <td style="padding:9px 0;border-bottom:1px solid #E2EAE5;text-align:right"><strong>${n}</strong></td>
-      </tr>`
-    )
-    .join('')
-
-  const html = `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;color:#1b2733">
-    <div style="background:#212934;color:#fff;padding:22px 26px">
-      <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#65BC7B">Enlace Integral Seguros</div>
-      <div style="font-size:22px;margin-top:6px;font-weight:800">${rows.length} contactos capturados hoy</div>
-      <div style="font-size:13px;margin-top:4px;opacity:.75">${esc(fecha)}</div>
-    </div>
-    <div style="padding:22px 26px;border:1px solid #E2EAE5;border-top:none">
-      <table style="width:100%;border-collapse:collapse;font-size:15px">
-        <tr>
-          <td style="padding:0 0 8px;color:#5d7080;font-size:12px;text-transform:uppercase;letter-spacing:.08em">Vendedora</td>
-          <td style="padding:0 0 8px;color:#5d7080;font-size:12px;text-transform:uppercase;letter-spacing:.08em;text-align:right">Hoy</td>
-        </tr>
-        ${filas}
-      </table>
-      <p style="font-size:14px;color:#1b2733;margin:20px 0 0">
-        Base total acumulada: <strong>${total ?? '—'}</strong> contactos.
-      </p>
-      <a href="https://www.fishflow.mx/app/enlace"
-         style="display:inline-block;margin-top:18px;background:#65BC7B;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:700;font-size:14px">
-        Ver el panel
-      </a>
-      <p style="font-size:12px;color:#5d7080;margin-top:20px">Resumen automático diario · FishFlow</p>
-    </div>
-  </div>`
+  const ui = emailUI('enlace')
+  const html = ui.layout({
+    audiencia: 'interno',
+    preheader: `${rows.length} contactos capturados hoy · base total ${total ?? '—'}`,
+    etiqueta: 'Resumen diario',
+    titulo: `${rows.length} contactos capturados hoy`,
+    subtitulo: fecha.charAt(0).toUpperCase() + fecha.slice(1),
+    cuerpo:
+      ui.tabla(ranking.map(([v, n]) => [v, String(n)] as [string, string])) +
+      ui.p(`Base total acumulada: <strong>${escHtml(total ?? '—')}</strong> contactos.`) +
+      ui.botones([{ texto: 'Ver el panel', href: 'https://www.fishflow.mx/app/enlace' }]),
+  })
 
   const resendKey = process.env.RESEND_API_KEY
   if (!resendKey) {
