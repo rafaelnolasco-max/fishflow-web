@@ -12,6 +12,7 @@ import {
 } from "@/components/dashboard";
 import ReviewsTab from "./ReviewsTab";
 import CandidatasTab from "./CandidatasTab";
+import { ladaInfo } from "@/lib/ladas";
 
 // ─── Paleta Enlace Integral (verde + carbón) ──────────────────────────────────
 const C = {
@@ -774,6 +775,7 @@ export default function EnlaceDashboardPage() {
                 const tel = leadWhats(l);
                 const telDigits = tel.replace(/\D/g, "");
                 const mail = leadEmail(l);
+                const lada = ladaInfo(tel);
                 return (
                   <div key={l.id} style={{ ...cardStyle, padding: "14px 16px" }}>
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
@@ -781,6 +783,11 @@ export default function EnlaceDashboardPage() {
                         <div style={{ fontSize: 15, fontWeight: 700, color: C.carbon }}>{l.name}</div>
                         <div style={{ marginTop: 4, display: "flex", gap: 6, flexWrap: "wrap" }}>
                           <Chip label={leadPlan(l)} bg={C.greenSoft} fg={C.greenDark} />
+                          {lada && (
+                            <span title={`Lada ${lada.lada}: indica dónde se dio de alta el número, no necesariamente dónde vive hoy`}>
+                              <Chip label={`📍 ${lada.ciudad}, ${lada.estado}`} bg="#EEF1F4" fg={C.carbon} />
+                            </span>
+                          )}
                         </div>
                         <div style={{ fontSize: 12.5, color: C.muted, marginTop: 8, lineHeight: 1.6 }}>
                           {tel && <>WhatsApp: <b style={{ color: C.carbon }}>{tel}</b><br /></>}
