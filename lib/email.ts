@@ -52,7 +52,21 @@ export const SENDERS = {
 
   cane: 'CANE Neurofeedback <raf@fishflow.mx>',
   sieckvet: 'SieckVet <noreply@fishflow.mx>',
-  enlace: 'Enlace Integral <recibos@fishflow.mx>',
+  /**
+   * Enlace Integral — dominio propio verificado en Resend
+   * (`enlaceintegralseguros.com`, 17-sep-2026). Mismo criterio que SPARC: el
+   * prospecto deja sus datos en la landing de Enlace y el acuse debe venir de
+   * Enlace, no de su proveedor.
+   *
+   * Alineacion DMARC: Resend firma DKIM con d=enlaceintegralseguros.com y el
+   * SPF se valida contra send.enlaceintegralseguros.com (Return-Path). El
+   * correo real de la promotoria vive en enlaceintegralseguros.com.mx con
+   * Google Workspace y NO se toca desde aqui.
+   *
+   * El buzon `contacto@` de este dominio no recibe: las respuestas van al
+   * replyTo (ENLACE_DEFAULT_TO).
+   */
+  enlace: 'Enlace Integral Seguros <contacto@enlaceintegralseguros.com>',
   rmz: 'Cocinas y Closets RMZ <recibos@fishflow.mx>',
 
   /**
