@@ -25,6 +25,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import SparcHeader, { SparcFonts } from "./_components/SparcHeader";
 
 /* Marca SPARC — misma paleta que la landing. */
 const AZUL      = "#0065A1";
@@ -97,11 +98,6 @@ export default function SparcProspectos() {
     load();
   }, [router]);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
-  }
-
   async function cambiarEstatus(id: string, status: string) {
     const previo = leads.find((l) => l.id === id)?.status ?? null;
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
@@ -130,24 +126,8 @@ export default function SparcProspectos() {
 
   return (
     <div style={{ minHeight: "100vh", background: PAPEL, color: TINTA, fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
-      {/* Encabezado con la marca del cliente */}
-      <div style={{ background: "#fff", borderBottom: `1px solid ${LINEA}`, padding: "12px 24px",
-        display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/clients/sparc/logo.png" alt="SPARC Administración" style={{ height: 46, width: "auto", display: "block" }} />
-          <span style={{ ...jost, color: GRIS, fontSize: 15, borderLeft: `1px solid ${LINEA}`, paddingLeft: 14 }}>
-            Prospectos
-          </span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <span style={{ fontSize: 13, color: GRIS }}>{userEmail}</span>
-          <button onClick={handleLogout} style={{ ...chip, borderRadius: 8, padding: "7px 14px" }}>Salir</button>
-        </div>
-      </div>
+      <SparcFonts />
+      <SparcHeader userEmail={userEmail} />
 
       <div style={{ maxWidth: 920, margin: "0 auto", padding: "40px 20px 64px" }}>
         <h1 style={{ ...jost, fontSize: 30, fontWeight: 500, marginBottom: 10, letterSpacing: "-.01em" }}>Prospectos</h1>
