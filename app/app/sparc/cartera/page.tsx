@@ -61,12 +61,13 @@ const NIVEL_META: Record<Nivel, { fg: string; bg: string; bd: string; label: str
 /** Vivook guarda nombres en mayusculas o mixtos; se muestran parejos. */
 function nombre(s: string) {
   const menores = new Set(["de", "del", "la", "las", "los", "y"]);
-  return s.toLowerCase().split(/\s+/).map((w, i) => {
+  const limpio = s.trim().replace(/^(condominio|residencial)\s+/i, "");
+  return limpio.toLowerCase().split(/\s+/).map((w, i) => {
     if (/^(a\.c\.|s\.c\.)$/.test(w)) return w.toUpperCase();
     if (/^dr\.?$/.test(w)) return "Dr.";
     if (i > 0 && menores.has(w)) return w;
     return w.charAt(0).toUpperCase() + w.slice(1);
-  }).join(" ").replace(/^Condominio |^Residencial /, "");
+  }).join(" ");
 }
 
 const mxn = (v: number) => v.toLocaleString("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 });

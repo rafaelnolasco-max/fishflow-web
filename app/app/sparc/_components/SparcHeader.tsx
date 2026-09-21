@@ -52,7 +52,8 @@ export default function SparcHeader({ userEmail }: { userEmail: string }) {
         <img src="/clients/sparc/logo.png" alt="SPARC Administración" style={{ height: 46, width: "auto", display: "block" }} />
         <nav style={{ display: "flex", gap: 4, borderLeft: `1px solid ${SPARC.LINEA}`, paddingLeft: 14 }}>
           {SECCIONES.map((s) => {
-            const activo = pathname === s.href;
+            const ruta = (pathname ?? "").replace(/\/$/, "");
+            const activo = s.href.endsWith("/cartera") ? ruta.endsWith("/cartera") : !ruta.endsWith("/cartera");
             return (
               <Link key={s.href} href={s.href}
                 style={{ fontFamily: "'Jost', system-ui, sans-serif", fontSize: 15, textDecoration: "none",
