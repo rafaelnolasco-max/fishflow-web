@@ -1,110 +1,82 @@
 "use client";
 
 /**
- * Cartera consolidada de SPARC — todos los condominios en una sola pantalla.
+ * Cartera consolidada de SPARC — los 10 condominios en una sola pantalla.
  *
- * Por que existe: Vivook (el sistema con el que SPARC administra) opera por
- * condominio. Eduardo nunca ve el total de su cartera junto: cuanto le deben,
- * cuanto deben sus edificios y cuales estan en riesgo. Esta pantalla lo junta.
+ * Vivook opera condominio por condominio; su "Reporte Global" solo trae
+ * viviendas, ingresos, egresos y % de cobranza. Aquí se junta lo que Eduardo
+ * no ve junto: cuánto le deben, cuánto deben sus edificios, si les alcanza
+ * para pagar y qué parte de lo vencido heredó de administraciones anteriores.
  *
- * Datos: tabla `sparc_portfolio_snapshots`, un renglon por condominio por fecha
- * de corte, cargados por FishFlow desde los reportes que exporta Vivook. Solo
- * lectura: el panel no escribe nada. RLS con user_has_access_to_client.
+ * Datos (solo lectura, RLS por cliente):
+ *   sparc_portfolio_snapshots  saldos por condominio por fecha de corte
+ *   sparc_delinquencies        vencido por unidad (reporte Morosos de Vivook)
  *
- * Semaforo (criterio propio de FishFlow, explicado en pantalla):
- *   rojo   = morosidad >= 25 %  o  bancos en negativo
- *   ambar  = morosidad >= 10 %  o  bancos no alcanzan a cubrir las CxP
- *   verde  = lo demas
- *
- * No se calcula una "morosidad de la cartera": Vivook no documenta como la
- * calcula por condominio, y promediarla seria inventar un numero.
+ * Semáforo (criterio FishFlow, explicado en pantalla):
+ *   Atender ya  morosidad >= 25 %  o  bancos en negativo
+ *   Vigilar     morosidad >= 10 %  o  bancos no cubren las CxP
+ *   Sano        lo demás
  */
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import SparcHeader, { SPARC, SparcFonts } from "../_components/SparcHeader";
+import {
+  COLOR, NIVEL, Chip, card, compacto, fechaCorta, fechaLarga, jost, mxn, n, nombre, useTip,
+  type Nivel,
+} from "../_components/sparcData";
 
-const { AZUL, AZUL_900, VERDE, TINTA, GRIS, LINEA, PAPEL, CLIENT_ID } = SPARC;
-const ROJO = "#B3261E";
-const AMBAR = "#9A6B00";
+const { AZUL, AZUL_900, TINTA, GRIS, LINEA, PAPEL, CLIENT_ID } = SPARC;
 
 interface Corte {
   snapshot_date: string;
   condominio: string;
   viviendas: number | null;
-  usuarios: number | null;
   cxc: number | null;
   cxp: number | null;
   bancos: number | null;
   morosidad_pct: number | null;
 }
-
-type Nivel = "rojo" | "ambar" | "verde";
-type Orden = "cxc" | "morosidad_pct" | "liquidez" | "viviendas" | "condominio";
-
-const n = (v: number | null | undefined) => Number(v ?? 0);
+interface Vencido { snapshot_date: string; condominio: string; saldo: number; saldo_inicial: number | null }
 
 function nivel(c: Corte): Nivel {
   const m = n(c.morosidad_pct), b = n(c.bancos), p = n(c.cxp);
-  if (m >= 25 || b < 0) return "rojo";
-  if (m >= 10 || b < p) return "ambar";
-  return "verde";
-}
-
-const NIVEL_META: Record<Nivel, { fg: string; bg: string; bd: string; label: string }> = {
-  rojo:  { fg: ROJO,  bg: "#FCEEEC", bd: "#F3C9C4", label: "Atender ya" },
-  ambar: { fg: AMBAR, bg: "#FFF6E5", bd: "#F0DDB5", label: "Vigilar" },
-  verde: { fg: "#217634", bg: "#EDF7EF", bd: "#BFE0CB", label: "Sano" },
-};
-
-/** Vivook guarda nombres en mayusculas o mixtos; se muestran parejos. */
-function nombre(s: string) {
-  const menores = new Set(["de", "del", "la", "las", "los", "y"]);
-  const limpio = s.trim().replace(/^(condominio|residencial)\s+/i, "");
-  return limpio.toLowerCase().split(/\s+/).map((w, i) => {
-    if (/^(a\.c\.|s\.c\.)$/.test(w)) return w.toUpperCase();
-    if (/^dr\.?$/.test(w)) return "Dr.";
-    if (i > 0 && menores.has(w)) return w;
-    return w.charAt(0).toUpperCase() + w.slice(1);
-  }).join(" ");
-}
-
-const mxn = (v: number) => v.toLocaleString("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 });
-function compacto(v: number) {
-  const a = Math.abs(v);
-  if (a >= 1_000_000) return `${v < 0 ? "-" : ""}$${(a / 1_000_000).toFixed(2)} M`;
-  if (a >= 1_000) return `${v < 0 ? "-" : ""}$${Math.round(a / 1_000)} mil`;
-  return mxn(v);
-}
-function fechaLarga(iso: string) {
-  return new Date(iso + "T12:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+  if (m >= 25 || b < 0) return "atender";
+  if (m >= 10 || b < p) return "vigilar";
+  return "sano";
 }
 
 export default function SparcCartera() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState("");
   const [cortes, setCortes] = useState<Corte[]>([]);
-  const [fecha, setFecha] = useState<string>("");
+  const [vencidos, setVencidos] = useState<Vencido[]>([]);
+  const [fecha, setFecha] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [orden, setOrden] = useState<Orden>("cxc");
+  const [verTabla, setVerTabla] = useState(false);
+  const tip = useTip();
 
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
       setUserEmail(user.email ?? "");
-      const { data, error } = await supabase
-        .from("sparc_portfolio_snapshots")
-        .select("snapshot_date,condominio,viviendas,usuarios,cxc,cxp,bancos,morosidad_pct")
-        .eq("client_id", CLIENT_ID)
-        .order("snapshot_date", { ascending: false })
-        .range(0, 999);
-      if (error) setError(error.message);
+      const [a, b] = await Promise.all([
+        supabase.from("sparc_portfolio_snapshots")
+          .select("snapshot_date,condominio,viviendas,cxc,cxp,bancos,morosidad_pct")
+          .eq("client_id", CLIENT_ID).order("snapshot_date", { ascending: false }).range(0, 999),
+        supabase.from("sparc_delinquencies")
+          .select("snapshot_date,condominio,saldo,saldo_inicial")
+          .eq("client_id", CLIENT_ID).order("snapshot_date", { ascending: false }).range(0, 999),
+      ]);
+      if (a.error || b.error) setError((a.error ?? b.error)!.message);
       else {
-        const filas = (data ?? []) as Corte[];
+        const filas = (a.data ?? []) as Corte[];
         setCortes(filas);
+        setVencidos((b.data ?? []) as Vencido[]);
         if (filas.length) setFecha(filas[0].snapshot_date);
       }
       setLoading(false);
@@ -114,84 +86,85 @@ export default function SparcCartera() {
 
   const fechas = useMemo(() => Array.from(new Set(cortes.map((c) => c.snapshot_date))), [cortes]);
   const actual = useMemo(() => cortes.filter((c) => c.snapshot_date === fecha), [cortes, fecha]);
-  const previo = useMemo(() => {
-    const i = fechas.indexOf(fecha);
-    const f = i >= 0 ? fechas[i + 1] : undefined;
-    return f ? new Map(cortes.filter((c) => c.snapshot_date === f).map((c) => [c.condominio, c])) : null;
-  }, [cortes, fechas, fecha]);
+  const fechaPrevia = fechas[fechas.indexOf(fecha) + 1];
+  const previo = useMemo(
+    () => new Map(cortes.filter((c) => c.snapshot_date === fechaPrevia).map((c) => [c.condominio, c])),
+    [cortes, fechaPrevia],
+  );
 
-  const tot = useMemo(() => ({
-    condominios: actual.length,
-    viviendas: actual.reduce((s, c) => s + n(c.viviendas), 0),
-    cxc: actual.reduce((s, c) => s + n(c.cxc), 0),
-    cxp: actual.reduce((s, c) => s + n(c.cxp), 0),
-    bancos: actual.reduce((s, c) => s + n(c.bancos), 0),
-    rojos: actual.filter((c) => nivel(c) === "rojo").length,
-    ambar: actual.filter((c) => nivel(c) === "ambar").length,
-  }), [actual]);
+  /* Vencido: el corte de Morosos más reciente que no sea posterior al corte elegido. */
+  const fechaVenc = useMemo(
+    () => Array.from(new Set(vencidos.map((v) => v.snapshot_date))).find((f) => f <= fecha) ?? "",
+    [vencidos, fecha],
+  );
+  const venc = useMemo(() => {
+    const m = new Map<string, { total: number; heredado: number; unidades: number }>();
+    for (const v of vencidos.filter((x) => x.snapshot_date === fechaVenc)) {
+      const cur = m.get(v.condominio) ?? { total: 0, heredado: 0, unidades: 0 };
+      cur.total += n(v.saldo);
+      cur.heredado += Math.min(n(v.saldo_inicial), n(v.saldo));
+      cur.unidades += 1;
+      m.set(v.condominio, cur);
+    }
+    return m;
+  }, [vencidos, fechaVenc]);
 
-  const filas = useMemo(() => {
-    const v = (c: Corte) =>
-      orden === "liquidez" ? n(c.bancos) - n(c.cxp)
-      : orden === "condominio" ? 0
-      : n(c[orden] as number | null);
-    const copia = [...actual];
-    if (orden === "condominio") copia.sort((a, b) => nombre(a.condominio).localeCompare(nombre(b.condominio)));
-    else if (orden === "liquidez") copia.sort((a, b) => v(a) - v(b));
-    else copia.sort((a, b) => v(b) - v(a));
-    return copia;
-  }, [actual, orden]);
+  const tot = useMemo(() => {
+    const s = (k: keyof Corte, arr: Corte[]) => arr.reduce((acc, c) => acc + n(c[k] as number), 0);
+    const prev = Array.from(previo.values());
+    const vt = Array.from(venc.values());
+    return {
+      condominios: actual.length,
+      viviendas: s("viviendas", actual),
+      cxc: s("cxc", actual), cxcPrev: prev.length ? s("cxc", prev) : null,
+      cxp: s("cxp", actual), bancos: s("bancos", actual),
+      vencido: vt.reduce((a, v) => a + v.total, 0),
+      heredado: vt.reduce((a, v) => a + v.heredado, 0),
+      unidades: vt.reduce((a, v) => a + v.unidades, 0),
+      atender: actual.filter((c) => nivel(c) === "atender").length,
+      vigilar: actual.filter((c) => nivel(c) === "vigilar").length,
+    };
+  }, [actual, previo, venc]);
 
-  const maxCxc = Math.max(1, ...actual.map((c) => n(c.cxc)));
-  const top3 = [...actual].sort((a, b) => n(b.cxc) - n(a.cxc)).slice(0, 3);
-  const pctTop3 = tot.cxc ? Math.round((top3.reduce((s, c) => s + n(c.cxc), 0) / tot.cxc) * 100) : 0;
+  const ordenados = useMemo(() => [...actual].sort((a, b) =>
+    NIVEL[nivel(a)].orden - NIVEL[nivel(b)].orden || n(b.cxc) - n(a.cxc)), [actual]);
 
-  const jost: React.CSSProperties = { fontFamily: "'Jost', system-ui, sans-serif" };
-  const card: React.CSSProperties = {
-    background: "#fff", border: `1px solid ${LINEA}`, borderRadius: 13, padding: "18px 20px",
-    boxShadow: "0 1px 2px rgba(14,29,40,.04)",
-  };
-  const th: React.CSSProperties = {
-    textAlign: "right", padding: "10px 12px", fontSize: 12, fontWeight: 600, color: GRIS,
-    borderBottom: `1px solid ${LINEA}`, whiteSpace: "nowrap", cursor: "pointer", userSelect: "none",
-  };
-  const td: React.CSSProperties = {
-    textAlign: "right", padding: "12px", fontSize: 14, borderBottom: `1px solid ${LINEA}`,
-    whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums",
-  };
+  const porVencido = useMemo(() => [...actual]
+    .map((c) => ({ c, v: venc.get(c.condominio) ?? { total: 0, heredado: 0, unidades: 0 } }))
+    .sort((a, b) => b.v.total - a.v.total), [actual, venc]);
+  const maxVenc = Math.max(1, ...porVencido.map((x) => x.v.total));
 
-  function Th({ k, children, left }: { k: Orden; children: React.ReactNode; left?: boolean }) {
-    const activo = orden === k;
-    return (
-      <th onClick={() => setOrden(k)} style={{ ...th, textAlign: left ? "left" : "right", color: activo ? AZUL : GRIS }}>
-        {children}{activo ? " ▾" : ""}
-      </th>
-    );
-  }
+  const porLiquidez = useMemo(() => [...actual]
+    .map((c) => ({ c, liq: n(c.bancos) - n(c.cxp) }))
+    .sort((a, b) => b.liq - a.liq), [actual]);
+  const maxLiq = Math.max(1, ...porLiquidez.map((x) => Math.abs(x.liq)));
 
-  function Delta({ actual: a, antes, invertir }: { actual: number; antes?: number | null; invertir?: boolean }) {
-    if (antes === undefined || antes === null) return null;
-    const d = a - antes;
-    if (Math.abs(d) < 0.005) return null;
-    const bueno = invertir ? d < 0 : d > 0;
-    return (
-      <div style={{ fontSize: 11.5, color: bueno ? "#217634" : ROJO, marginTop: 2 }}>
-        {d > 0 ? "▲" : "▼"} {compacto(Math.abs(d)).replace("-", "")}
-      </div>
-    );
-  }
+  const delta = tot.cxcPrev !== null ? tot.cxc - tot.cxcPrev : null;
+
+  const titulo2: React.CSSProperties = { ...jost, fontSize: 19, fontWeight: 500, margin: "0 0 4px" };
+  const sub: React.CSSProperties = { color: GRIS, fontSize: 13.5, margin: "0 0 18px", lineHeight: 1.55 };
 
   return (
     <div style={{ minHeight: "100vh", background: PAPEL, color: TINTA, fontFamily: "'Inter', system-ui, sans-serif" }}>
       <SparcFonts />
+      <style>{`
+        .sp-hero { display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; gap: 14px; }
+        .sp-bld  { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+        .sp-two  { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .sp-bld a:hover, .sp-bld a:focus-visible { border-color: ${AZUL} !important; box-shadow: 0 4px 14px rgba(0,101,161,.10) !important; }
+        @media (max-width: 900px) { .sp-hero { grid-template-columns: 1fr 1fr; } .sp-hero > :first-child { grid-column: 1 / -1; } .sp-two { grid-template-columns: 1fr; } }
+        @media (max-width: 520px) { .sp-hero { grid-template-columns: 1fr; } }
+      `}</style>
       <SparcHeader userEmail={userEmail} />
+      {tip.node}
 
-      <div style={{ maxWidth: 1120, margin: "0 auto", padding: "36px 16px 64px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, flexWrap: "wrap", marginBottom: 24 }}>
+      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "32px 16px 64px" }}>
+        {/* Encabezado */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, flexWrap: "wrap", marginBottom: 22 }}>
           <div>
-            <h1 style={{ ...jost, fontSize: 30, fontWeight: 500, margin: "0 0 8px", letterSpacing: "-.01em" }}>Cartera consolidada</h1>
-            <p style={{ color: GRIS, fontSize: 15, margin: 0, lineHeight: 1.6, maxWidth: "64ch" }}>
-              Todos los condominios que administra SPARC en una sola vista, con los saldos que reporta Vivook.
+            <h1 style={{ ...jost, fontSize: 30, fontWeight: 500, margin: "0 0 6px", letterSpacing: "-.01em" }}>Tu cartera</h1>
+            <p style={{ color: GRIS, fontSize: 15, margin: 0 }}>
+              {tot.condominios} condominios · {tot.viviendas.toLocaleString("es-MX")} viviendas · saldos de Vivook
             </p>
           </div>
           {fechas.length > 0 && (
@@ -206,128 +179,220 @@ export default function SparcCartera() {
         </div>
 
         {loading && <p style={{ color: GRIS }}>Cargando cartera…</p>}
-        {error && <p style={{ color: ROJO }}>Error: {error}</p>}
+        {error && <p style={{ color: COLOR.negativo }}>Error: {error}</p>}
         {!loading && !error && actual.length === 0 && (
-          <div style={{ ...card, textAlign: "center", padding: "56px 24px", color: GRIS }}>
-            Todavía no hay cortes de cartera cargados.
-          </div>
+          <div style={{ ...card, textAlign: "center", padding: "56px 24px", color: GRIS }}>Todavía no hay cortes de cartera cargados.</div>
         )}
 
         {!loading && !error && actual.length > 0 && (
           <>
-            {/* Totales */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14, marginBottom: 18 }}>
+            {/* 1 · Cifras principales */}
+            <div className="sp-hero" style={{ marginBottom: 14 }}>
+              <div style={{ ...card, background: AZUL_900, border: "none", color: "#fff", padding: "22px 24px" }}>
+                <div style={{ fontSize: 13.5, opacity: 0.8 }}>Te deben tus condóminos</div>
+                <div style={{ ...jost, fontSize: 48, fontWeight: 500, lineHeight: 1.1, margin: "6px 0 8px" }}>{compacto(tot.cxc)}</div>
+                {delta !== null && fechaPrevia && (
+                  <div style={{ fontSize: 13.5, display: "inline-flex", alignItems: "center", gap: 6,
+                    background: "rgba(255,255,255,.12)", borderRadius: 999, padding: "4px 11px" }}>
+                    <span aria-hidden>{delta <= 0 ? "▼" : "▲"}</span>
+                    {compacto(Math.abs(delta)).replace("-", "")} {delta <= 0 ? "menos" : "más"} que el {fechaCorta(fechaPrevia)}
+                  </div>
+                )}
+              </div>
               {[
-                { v: String(tot.condominios), l: `condominios · ${tot.viviendas.toLocaleString("es-MX")} viviendas`, c: AZUL_900 },
-                { v: compacto(tot.cxc), l: "por cobrar a condóminos", c: AZUL_900 },
-                { v: compacto(tot.cxp), l: "por pagar a proveedores", c: AZUL_900 },
-                { v: compacto(tot.bancos), l: "en bancos", c: AZUL_900 },
-                { v: String(tot.rojos), l: tot.rojos === 1 ? "condominio por atender ya" : "condominios por atender ya", c: tot.rojos ? ROJO : VERDE },
+                { l: "Vencido", v: tot.vencido, s: tot.vencido ? `${Math.round((tot.heredado / tot.vencido) * 100)}% heredado · ${tot.unidades} unidades` : "sin detalle" },
+                { l: "Deben tus edificios a proveedores", v: tot.cxp, s: "cuentas por pagar" },
+                { l: "En bancos", v: tot.bancos, s: `${compacto(tot.bancos - tot.cxp)} después de pagar` },
               ].map((k) => (
                 <div key={k.l} style={card}>
-                  <div style={{ ...jost, fontSize: 28, fontWeight: 500, color: k.c, lineHeight: 1.15 }}>{k.v}</div>
-                  <div style={{ color: GRIS, fontSize: 13, marginTop: 4 }}>{k.l}</div>
+                  <div style={{ color: GRIS, fontSize: 13 }}>{k.l}</div>
+                  <div style={{ ...jost, fontSize: 30, fontWeight: 500, color: AZUL_900, lineHeight: 1.2, margin: "6px 0 4px" }}>{compacto(k.v)}</div>
+                  <div style={{ color: GRIS, fontSize: 12.5 }}>{k.s}</div>
                 </div>
               ))}
             </div>
 
-            {/* Lectura rapida */}
-            <div style={{ ...card, marginBottom: 18, background: "#fff", borderLeft: `4px solid ${AZUL}` }}>
-              <div style={{ fontSize: 14.5, lineHeight: 1.7, color: TINTA }}>
-                Tres condominios concentran el <strong>{pctTop3}%</strong> de lo que se debe:{" "}
-                {top3.map((c, i) => (
-                  <span key={c.condominio}>
-                    <strong>{nombre(c.condominio)}</strong> ({compacto(n(c.cxc))}){i < 2 ? (i === 1 ? " y " : ", ") : "."}
+            {/* Lectura en una línea */}
+            <div style={{ ...card, marginBottom: 26, display: "flex", gap: 18, flexWrap: "wrap", alignItems: "center", padding: "14px 20px" }}>
+              {(["atender", "vigilar", "sano"] as Nivel[]).map((k) => {
+                const cuantos = actual.filter((c) => nivel(c) === k).length;
+                return (
+                  <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14 }}>
+                    <span aria-hidden style={{ color: NIVEL[k].color }}>{NIVEL[k].icono}</span>
+                    <strong style={{ ...jost, fontSize: 18, fontWeight: 600 }}>{cuantos}</strong>
+                    <span style={{ color: GRIS }}>{NIVEL[k].label.toLowerCase()}</span>
                   </span>
-                ))}{" "}
-                {tot.rojos + tot.ambar > 0 && (
-                  <>Hay <strong>{tot.rojos}</strong> en rojo y <strong>{tot.ambar}</strong> en ámbar.</>
-                )}
-              </div>
+                );
+              })}
+              <Link href="/app/sparc/cobranza" style={{ marginLeft: "auto", color: AZUL, fontWeight: 600, fontSize: 14, textDecoration: "none" }}>
+                Ver a quién cobrar →
+              </Link>
             </div>
 
-            {/* Por cobrar por condominio */}
-            <div style={{ ...card, marginBottom: 18 }}>
-              <div style={{ ...jost, fontSize: 18, fontWeight: 500, marginBottom: 14 }}>Por cobrar, por condominio</div>
-              <div style={{ display: "grid", gap: 9 }}>
-                {[...actual].sort((a, b) => n(b.cxc) - n(a.cxc)).map((c) => {
-                  const nv = NIVEL_META[nivel(c)];
-                  return (
-                    <div key={c.condominio} style={{ display: "grid", gridTemplateColumns: "minmax(110px, 190px) 1fr auto", gap: 12, alignItems: "center" }}>
-                      <div style={{ fontSize: 13.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={c.condominio}>
-                        {nombre(c.condominio)}
-                      </div>
-                      <div style={{ background: PAPEL, borderRadius: 4, height: 14 }}>
-                        <div style={{ width: `${(n(c.cxc) / maxCxc) * 100}%`, height: "100%", borderRadius: 4, background: nv.fg, opacity: 0.85 }} />
-                      </div>
-                      <div style={{ fontSize: 13, fontVariantNumeric: "tabular-nums", minWidth: 72, textAlign: "right" }}>{compacto(n(c.cxc))}</div>
+            {/* 2 · Condominios */}
+            <h2 style={titulo2}>Tus condominios</h2>
+            <p style={sub}>Ordenados por urgencia. Toca uno para ver sus adeudos por unidad.</p>
+            <div className="sp-bld" style={{ marginBottom: 30 }}>
+              {ordenados.map((c) => {
+                const nv = nivel(c);
+                const mor = n(c.morosidad_pct);
+                const liq = n(c.bancos) - n(c.cxp);
+                const p = previo.get(c.condominio);
+                const d = p ? n(c.cxc) - n(p.cxc) : 0;
+                return (
+                  <Link key={c.condominio} href={`/app/sparc/cobranza?c=${encodeURIComponent(c.condominio)}`}
+                    style={{ ...card, display: "block", textDecoration: "none", color: TINTA, padding: "16px 18px",
+                      borderTop: `3px solid ${NIVEL[nv].color}`, transition: "box-shadow .15s, border-color .15s" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start" }}>
+                      <div style={{ ...jost, fontSize: 17, fontWeight: 600, lineHeight: 1.25 }}>{nombre(c.condominio)}</div>
+                      <Chip nivel={nv} />
                     </div>
-                  );
-                })}
-              </div>
+                    <div style={{ color: GRIS, fontSize: 12.5, marginTop: 2 }}>{n(c.viviendas)} viviendas</div>
+
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "14px 0 2px", flexWrap: "wrap" }}>
+                      <span style={{ ...jost, fontSize: 26, fontWeight: 500 }}>{compacto(n(c.cxc))}</span>
+                      <span style={{ color: GRIS, fontSize: 12.5 }}>por cobrar</span>
+                      {p && Math.abs(d) >= 1 && (
+                        <span style={{ fontSize: 12, fontWeight: 600, color: d < 0 ? "#217634" : COLOR.negativo }}>
+                          {d < 0 ? "▼" : "▲"} {compacto(Math.abs(d))}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Medidor de morosidad */}
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: GRIS, margin: "12px 0 5px" }}>
+                      <span>Morosidad del mes</span>
+                      <strong style={{ color: TINTA }}>{mor.toFixed(1)}%</strong>
+                    </div>
+                    <div style={{ height: 8, background: COLOR.track, borderRadius: 4, overflow: "hidden" }}
+                      role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={mor} aria-label="Morosidad">
+                      <div style={{ width: `${Math.min(100, mor)}%`, height: "100%", borderRadius: 4, background: NIVEL[nv].color }} />
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginTop: 12, paddingTop: 10, borderTop: `1px solid ${LINEA}` }}>
+                      <span style={{ color: GRIS }}>Bancos − por pagar</span>
+                      <span style={{ fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                        <span aria-hidden style={{ width: 7, height: 7, borderRadius: 4, background: liq < 0 ? COLOR.negativo : COLOR.positivo }} />
+                        {compacto(liq)}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
 
-            {/* Tabla completa */}
-            <div style={{ ...card, padding: 0, overflowX: "auto", marginBottom: 14 }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 780 }}>
-                <thead>
-                  <tr>
-                    <Th k="condominio" left>Condominio</Th>
-                    <Th k="viviendas">Viviendas</Th>
-                    <Th k="cxc">Por cobrar</Th>
-                    <th style={{ ...th, cursor: "default" }}>Por pagar</th>
-                    <th style={{ ...th, cursor: "default" }}>Bancos</th>
-                    <Th k="liquidez">Bancos − por pagar</Th>
-                    <Th k="morosidad_pct">Morosidad</Th>
-                    <th style={{ ...th, cursor: "default", textAlign: "center" }}>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filas.map((c) => {
-                    const nv = NIVEL_META[nivel(c)];
-                    const liq = n(c.bancos) - n(c.cxp);
-                    const p = previo?.get(c.condominio);
+            {/* 3 · Dos gráficas */}
+            <div className="sp-two" style={{ marginBottom: 26 }}>
+              {/* Vencido heredado vs generado */}
+              <div style={card}>
+                <h2 style={titulo2}>¿De dónde viene lo vencido?</h2>
+                <p style={{ ...sub, marginBottom: 12 }}>
+                  {tot.vencido ? <>El <strong style={{ color: TINTA }}>{Math.round((tot.heredado / tot.vencido) * 100)}%</strong> se heredó de administraciones anteriores.</> : "Sin detalle de adeudos para este corte."}
+                </p>
+                <div style={{ display: "flex", gap: 16, fontSize: 12.5, color: GRIS, marginBottom: 12, flexWrap: "wrap" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><i style={{ width: 10, height: 10, borderRadius: 2, background: COLOR.heredado, display: "inline-block" }} />Heredado</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><i style={{ width: 10, height: 10, borderRadius: 2, background: COLOR.generado, display: "inline-block" }} />Generado en la gestión actual</span>
+                </div>
+                <div style={{ display: "grid", gap: 10 }}>
+                  {porVencido.map(({ c, v }) => {
+                    const gen = v.total - v.heredado;
+                    const wH = (v.heredado / maxVenc) * 100, wG = (gen / maxVenc) * 100;
                     return (
-                      <tr key={c.condominio}>
-                        <td style={{ ...td, textAlign: "left", fontWeight: 500 }} title={c.condominio}>{nombre(c.condominio)}</td>
-                        <td style={td}>{n(c.viviendas)}</td>
-                        <td style={td}>{mxn(n(c.cxc))}<Delta actual={n(c.cxc)} antes={p ? n(p.cxc) : undefined} invertir /></td>
-                        <td style={td}>{mxn(n(c.cxp))}</td>
-                        <td style={{ ...td, color: n(c.bancos) < 0 ? ROJO : TINTA }}>{mxn(n(c.bancos))}</td>
-                        <td style={{ ...td, color: liq < 0 ? ROJO : TINTA }}>{mxn(liq)}</td>
-                        <td style={{ ...td, fontWeight: 600, color: nv.fg }}>
-                          {n(c.morosidad_pct).toFixed(1)}%
-                          {p && Math.abs(n(c.morosidad_pct) - n(p.morosidad_pct)) >= 0.05 && (
-                            <div style={{ fontSize: 11.5, fontWeight: 400, color: n(c.morosidad_pct) < n(p.morosidad_pct) ? "#217634" : ROJO }}>
-                              {n(c.morosidad_pct) > n(p.morosidad_pct) ? "▲" : "▼"} {Math.abs(n(c.morosidad_pct) - n(p.morosidad_pct)).toFixed(1)} pts
-                            </div>
-                          )}
-                        </td>
-                        <td style={{ ...td, textAlign: "center" }}>
-                          <span style={{ padding: "3px 10px", borderRadius: 999, fontSize: 11.5, fontWeight: 700,
-                            background: nv.bg, color: nv.fg, border: `1px solid ${nv.bd}` }}>{nv.label}</span>
-                        </td>
-                      </tr>
+                      <div key={c.condominio} style={{ display: "grid", gridTemplateColumns: "minmax(92px,128px) 1fr auto", gap: 10, alignItems: "center" }}
+                        {...tip.bind([nombre(c.condominio), `Vencido ${mxn(v.total)}`, `Heredado ${mxn(v.heredado)}`, `Generado ${mxn(gen)}`, `${v.unidades} unidades con adeudo`])}>
+                        <span style={{ fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nombre(c.condominio)}</span>
+                        <div style={{ display: "flex", height: 16, gap: wH > 0 && wG > 0 ? 2 : 0 }}>
+                          {wH > 0 && <div style={{ width: `${wH}%`, background: COLOR.heredado, borderRadius: wG > 0 ? "0" : "0 4px 4px 0" }} />}
+                          {wG > 0 && <div style={{ width: `${wG}%`, background: COLOR.generado, borderRadius: "0 4px 4px 0" }} />}
+                        </div>
+                        <span style={{ fontSize: 12.5, fontVariantNumeric: "tabular-nums", minWidth: 62, textAlign: "right" }}>{compacto(v.total)}</span>
+                      </div>
                     );
                   })}
-                  <tr>
-                    <td style={{ ...td, textAlign: "left", fontWeight: 700, borderBottom: "none" }}>Total</td>
-                    <td style={{ ...td, fontWeight: 700, borderBottom: "none" }}>{tot.viviendas}</td>
-                    <td style={{ ...td, fontWeight: 700, borderBottom: "none" }}>{mxn(tot.cxc)}</td>
-                    <td style={{ ...td, fontWeight: 700, borderBottom: "none" }}>{mxn(tot.cxp)}</td>
-                    <td style={{ ...td, fontWeight: 700, borderBottom: "none" }}>{mxn(tot.bancos)}</td>
-                    <td style={{ ...td, fontWeight: 700, borderBottom: "none" }}>{mxn(tot.bancos - tot.cxp)}</td>
-                    <td style={{ ...td, borderBottom: "none" }} />
-                    <td style={{ ...td, borderBottom: "none" }} />
-                  </tr>
-                </tbody>
-              </table>
+                </div>
+              </div>
+
+              {/* Liquidez */}
+              <div style={card}>
+                <h2 style={titulo2}>¿Alcanza para pagar a proveedores?</h2>
+                <p style={{ ...sub, marginBottom: 12 }}>
+                  Bancos menos cuentas por pagar. <strong style={{ color: TINTA }}>{porLiquidez.filter((x) => x.liq < 0).length}</strong> condominios no alcanzan.
+                </p>
+                <div style={{ display: "flex", gap: 16, fontSize: 12.5, color: GRIS, marginBottom: 12, flexWrap: "wrap" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><i style={{ width: 10, height: 10, borderRadius: 2, background: COLOR.positivo, display: "inline-block" }} />Sobra</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><i style={{ width: 10, height: 10, borderRadius: 2, background: COLOR.negativo, display: "inline-block" }} />Falta</span>
+                </div>
+                <div style={{ display: "grid", gap: 10 }}>
+                  {porLiquidez.map(({ c, liq }) => {
+                    const w = (Math.abs(liq) / maxLiq) * 36;
+                    return (
+                      <div key={c.condominio} style={{ display: "grid", gridTemplateColumns: "minmax(92px,128px) 1fr", gap: 10, alignItems: "center" }}
+                        {...tip.bind([nombre(c.condominio), `Bancos ${mxn(n(c.bancos))}`, `Por pagar ${mxn(n(c.cxp))}`, `${liq < 0 ? "Faltan" : "Sobran"} ${mxn(Math.abs(liq))}`])}>
+                        <span style={{ fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nombre(c.condominio)}</span>
+                        <div style={{ position: "relative", height: 16 }}>
+                          <div style={{ position: "absolute", left: "50%", top: -3, bottom: -3, width: 1, background: "#C3CFD8" }} />
+                          <div style={{ position: "absolute", top: 0, height: 16, width: `${w}%`, background: liq < 0 ? COLOR.negativo : COLOR.positivo,
+                            left: liq < 0 ? `${50 - w}%` : "50%", borderRadius: liq < 0 ? "4px 0 0 4px" : "0 4px 4px 0" }} />
+                          <span style={{ position: "absolute", top: -1, fontSize: 11.5, fontVariantNumeric: "tabular-nums", color: TINTA, whiteSpace: "nowrap",
+                            ...(liq < 0 ? { right: `${50 + w}%`, marginRight: 5 } : { left: `${50 + w}%`, marginLeft: 5 }) }}>
+                            {compacto(liq)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
-            <p style={{ color: GRIS, fontSize: 12.5, lineHeight: 1.65, margin: 0 }}>
-              <strong style={{ color: ROJO }}>Atender ya</strong>: morosidad de 25% o más, o bancos en negativo.{" "}
-              <strong style={{ color: AMBAR }}>Vigilar</strong>: morosidad de 10% o más, o el saldo en bancos no cubre lo que se debe a proveedores.{" "}
-              La morosidad es la que calcula Vivook para cada condominio. Fuente: Panel del Administrador de Vivook, corte del {fecha && fechaLarga(fecha)}.
+            {/* 4 · Tabla completa */}
+            <button onClick={() => setVerTabla((v) => !v)} aria-expanded={verTabla}
+              style={{ background: "#fff", border: `1px solid ${LINEA}`, borderRadius: 9, padding: "9px 16px", fontSize: 14,
+                fontFamily: "inherit", color: AZUL, fontWeight: 600, cursor: "pointer", marginBottom: 14 }}>
+              {verTabla ? "Ocultar tabla completa" : "Ver tabla completa"}
+            </button>
+            {verTabla && (
+              <div style={{ ...card, padding: 0, overflowX: "auto", marginBottom: 14 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760, fontSize: 14 }}>
+                  <thead>
+                    <tr style={{ color: GRIS, fontSize: 12 }}>
+                      {["Condominio", "Viviendas", "Por cobrar", "Vencido", "Por pagar", "Bancos", "Morosidad", "Estado"].map((h, i) => (
+                        <th key={h} style={{ textAlign: i === 0 ? "left" : i === 7 ? "center" : "right", padding: "10px 12px", borderBottom: `1px solid ${LINEA}`, fontWeight: 600 }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody style={{ fontVariantNumeric: "tabular-nums" }}>
+                    {ordenados.map((c) => (
+                      <tr key={c.condominio}>
+                        <td style={{ padding: "11px 12px", borderBottom: `1px solid ${LINEA}`, fontWeight: 500 }}>{nombre(c.condominio)}</td>
+                        <td style={{ padding: "11px 12px", borderBottom: `1px solid ${LINEA}`, textAlign: "right" }}>{n(c.viviendas)}</td>
+                        <td style={{ padding: "11px 12px", borderBottom: `1px solid ${LINEA}`, textAlign: "right" }}>{mxn(n(c.cxc))}</td>
+                        <td style={{ padding: "11px 12px", borderBottom: `1px solid ${LINEA}`, textAlign: "right" }}>{mxn(venc.get(c.condominio)?.total ?? 0)}</td>
+                        <td style={{ padding: "11px 12px", borderBottom: `1px solid ${LINEA}`, textAlign: "right" }}>{mxn(n(c.cxp))}</td>
+                        <td style={{ padding: "11px 12px", borderBottom: `1px solid ${LINEA}`, textAlign: "right" }}>{mxn(n(c.bancos))}</td>
+                        <td style={{ padding: "11px 12px", borderBottom: `1px solid ${LINEA}`, textAlign: "right" }}>{n(c.morosidad_pct).toFixed(1)}%</td>
+                        <td style={{ padding: "11px 12px", borderBottom: `1px solid ${LINEA}`, textAlign: "center" }}><Chip nivel={nivel(c)} /></td>
+                      </tr>
+                    ))}
+                    <tr style={{ fontWeight: 700 }}>
+                      <td style={{ padding: "11px 12px" }}>Total</td>
+                      <td style={{ padding: "11px 12px", textAlign: "right" }}>{tot.viviendas}</td>
+                      <td style={{ padding: "11px 12px", textAlign: "right" }}>{mxn(tot.cxc)}</td>
+                      <td style={{ padding: "11px 12px", textAlign: "right" }}>{mxn(tot.vencido)}</td>
+                      <td style={{ padding: "11px 12px", textAlign: "right" }}>{mxn(tot.cxp)}</td>
+                      <td style={{ padding: "11px 12px", textAlign: "right" }}>{mxn(tot.bancos)}</td>
+                      <td colSpan={2} />
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <p style={{ color: GRIS, fontSize: 12.5, lineHeight: 1.7, margin: "8px 0 0", maxWidth: "90ch" }}>
+              <strong style={{ color: TINTA }}>▲ Atender ya</strong>: morosidad de 25% o más, o bancos en negativo.{" "}
+              <strong style={{ color: TINTA }}>● Vigilar</strong>: morosidad de 10% o más, o los bancos no cubren lo que se debe a proveedores.{" "}
+              La morosidad es la que Vivook calcula al mes corriente. «Heredado» son los saldos iniciales y adeudos anteriores que Vivook registra al arrancar la administración.
+              Fuente: Panel del Administrador y reporte de Morosos de Vivook, corte del {fecha && fechaLarga(fecha)}.
             </p>
           </>
         )}

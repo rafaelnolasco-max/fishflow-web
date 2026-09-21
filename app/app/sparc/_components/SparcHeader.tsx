@@ -24,6 +24,7 @@ export const SPARC = {
 const SECCIONES = [
   { href: "/app/sparc", label: "Prospectos" },
   { href: "/app/sparc/cartera", label: "Cartera" },
+  { href: "/app/sparc/cobranza", label: "Cobranza" },
 ];
 
 export function SparcFonts() {
@@ -50,10 +51,11 @@ export default function SparcHeader({ userEmail }: { userEmail: string }) {
       <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/clients/sparc/logo.png" alt="SPARC Administración" style={{ height: 46, width: "auto", display: "block" }} />
-        <nav style={{ display: "flex", gap: 4, borderLeft: `1px solid ${SPARC.LINEA}`, paddingLeft: 14 }}>
+        <nav style={{ display: "flex", gap: 4, flexWrap: "wrap", borderLeft: `1px solid ${SPARC.LINEA}`, paddingLeft: 14 }}>
           {SECCIONES.map((s) => {
             const ruta = (pathname ?? "").replace(/\/$/, "");
-            const activo = s.href.endsWith("/cartera") ? ruta.endsWith("/cartera") : !ruta.endsWith("/cartera");
+            const seccion = ruta.match(/\/(cartera|cobranza)$/)?.[1] ?? "";
+            const activo = s.href === "/app/sparc" ? seccion === "" : s.href.endsWith("/" + seccion) && seccion !== "";
             return (
               <Link key={s.href} href={s.href}
                 style={{ fontFamily: "'Jost', system-ui, sans-serif", fontSize: 15, textDecoration: "none",
