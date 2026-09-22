@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
       <p style="margin:0 0 4px">${esc(direccion)}</p>
       <p style="margin:0 0 4px">Pago: ${esc(PAGO_LABEL[pago])}</p>
       ${nota ? `<p style="margin:0 0 4px">Nota: ${esc(nota)}</p>` : ""}
-      <p style="margin:18px 0 0"><a href="https://www.fishflow.mx/app/aguachiles" style="background:#E8207A;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none;font-weight:700">Ver en el panel</a></p>
+      <p style="margin:18px 0 0"><a href="https://www.fishflow.mx/app/aguachiles/" style="background:#E8207A;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none;font-weight:700">Ver en el panel</a></p>
     </div>`,
   });
 

@@ -517,7 +517,8 @@ footer a{color:var(--lima)}
 
 <script>window.DATOS = {"productos": [{"id": "ag-verde", "uuid": "0e065b48-ff0e-44bd-92fd-a2f35e142a46", "nombre": "Aguachile Verde", "precio": 155}, {"id": "ag-rojo", "uuid": "4c633d1e-88f7-40d7-88eb-863f7deea7c0", "nombre": "Aguachile Rojo", "precio": 155}, {"id": "ag-negro", "uuid": "3a02e72f-3a75-4b9f-ad40-5ee37195676d", "nombre": "Aguachile Negro", "precio": 170}, {"id": "ag-mixto", "uuid": "6e989100-b4b2-4f6f-8637-2e2334e92c55", "nombre": "Aguachile Mixto", "precio": 180}, {"id": "cv-camaron", "uuid": "30f957dd-9d7c-4fe7-8fcd-f40b2ee949db", "nombre": "Ceviche de Camarón", "precio": 155}, {"id": "cv-pulpo", "uuid": "382d3340-cb20-4249-b312-fa1aed61144b", "nombre": "Ceviche de Pulpo", "precio": 165}, {"id": "cv-mixto", "uuid": "9ffb63ea-1769-46ba-b409-5705302a49cb", "nombre": "Ceviche Mixto", "precio": 180}, {"id": "mi-normal", "uuid": "4b42ac69-f528-4e51-8306-34ae8890522a", "nombre": "Michelada", "precio": 100}, {"id": "mi-clamato", "uuid": "00f1dee7-9fc1-4e6f-8745-0bda4d8f3cdc", "nombre": "Michelada con Clamato", "precio": 120}], "pagos": [["efectivo", "Efectivo al entregar"], ["transferencia", "Transferencia al entregar"]], "envio": 30, "franjas": ["12:00 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00"], "dias": [4, 5, 6, 0], "wa": "525510516938"};</script>
 <script>
-/* Los Aguachiles -- pagina de pedidos. El pedido se guarda en /api/store/aguachiles/order
+/* Los Aguachiles -- pagina de pedidos. OJO: next.config trae trailingSlash:true, por eso
+   las URLs de la API llevan diagonal final (sin ella contestan 308). El pedido se guarda en /api/store/aguachiles/order
    y despues se abre WhatsApp con el folio. Menu y precios se revalidan en el servidor. */
 (function () {
   "use strict";
@@ -730,7 +731,7 @@ footer a{color:var(--lima)}
   // Si Chiva pausa un platillo o cambia un precio desde su panel, se refleja aqui
   // sin volver a publicar la pagina. Si la consulta falla, se queda el menu
   // horneado: el servidor revalida todo al guardar de cualquier modo.
-  fetch("/api/store/aguachiles/menu", { cache: "no-store" })
+  fetch("/api/store/aguachiles/menu/", { cache: "no-store" })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (j) {
       if (!j || !j.productos) return;
@@ -843,7 +844,7 @@ footer a{color:var(--lima)}
     mostrarError("");
     $("#waSinFolio").hidden = true;
 
-    fetch("/api/store/aguachiles/order", {
+    fetch("/api/store/aguachiles/order/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
