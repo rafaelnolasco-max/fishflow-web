@@ -262,6 +262,17 @@ footer a{color:var(--lima)}
 .hecho b{display:block;margin-bottom:4px}
 .hecho a{color:#0B5A2E;font-weight:700}
 
+/* ---------- mapa de ubicacion (Leaflet + OpenStreetMap, sin llave) ---------- */
+.mapa-acciones{display:flex;gap:8px;flex-wrap:wrap}
+/* isolation: los z-index internos de Leaflet (400+) no se salen encima del encabezado de la hoja */
+.mapa{height:240px;border-radius:12px;border:1.5px solid var(--linea);overflow:hidden;margin-top:10px;
+  background:#E8EEF2;position:relative;isolation:isolate}
+.mapa .leaflet-container{font:inherit}
+.pin-ag span{display:block;width:26px;height:26px;background:var(--rosa);border:3px solid #fff;
+  border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.ayuda.ok{color:var(--ok);font-weight:700}
+.ayuda.mal{color:#9B1C1C;font-weight:700}
+
 /* ---------- responsivo ---------- */
 @media (max-width:900px){
   .hero-in{grid-template-columns:1fr;gap:32px}
@@ -489,6 +500,15 @@ footer a{color:var(--lima)}
       </div>
       <div class="campo"><label for="dir">Dirección</label>
         <input id="dir" type="text" autocomplete="street-address" placeholder="Calle, número, colonia y referencias"></div>
+      <div class="campo">
+        <label>Confirma tu ubicación en el mapa</label>
+        <div class="mapa-acciones">
+          <button type="button" class="btn btn-linea btn-chico" id="usarUbic">&#128205; Usar mi ubicación</button>
+          <button type="button" class="btn btn-linea btn-chico" id="buscarUbic">Buscar mi dirección</button>
+        </div>
+        <div class="mapa" id="mapa" role="application" aria-label="Mapa para confirmar el lugar de entrega"></div>
+        <div class="ayuda" id="avisoMapa">Toca el mapa o arrastra el pin hasta tu puerta. Así el repartidor llega directo.</div>
+      </div>
       <div class="campo"><label for="nota">Alguna indicación</label>
         <textarea id="nota" rows="2" placeholder="Sin cebolla, timbre de abajo, etc."></textarea></div>
 
@@ -598,7 +618,7 @@ footer a{color:var(--lima)}
 
   /* ---------------- hoja de pedido ---------------- */
   var velo = $("#veloPedido");
-  function abrirPedido() { velo.classList.add("on"); document.body.style.overflow = "hidden"; pintarCheckout(); }
+  function abrirPedido() { velo.classList.add("on"); document.body.style.overflow = "hidden"; pintarCheckout(); prepararMapa(); }
   function cerrarPedido() {
     velo.classList.remove("on"); document.body.style.overflow = "";
     if (guardado) {
@@ -654,6 +674,7 @@ footer a{color:var(--lima)}
   var campos = ["nombre", "tel", "dir"];
   var pagoElegido = "";
   var enviando = false, guardado = false;
+  var ubic = null, mapaFallo = false;
 
   function fechaLarga(d) {
     var dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
@@ -727,6 +748,116 @@ footer a{color:var(--lima)}
     return p ? p[1] : "";
   }
 
+  /* ---------------- mapa para confirmar la ubicacion ---------------- */
+  // Leaflet + teselas de OpenStreetMap: gratis y sin llave. Lo que recibe Chiva es
+  // una liga de Google Maps con el punto exacto, que es la que abre el repartidor.
+  var CENTRO = [19.3953, -99.0975]; // Iztacalco
+  var CAJA = { latMin: 18.8, latMax: 20.2, lngMin: -99.9, lngMax: -98.5 }; // igual que lib/storeAguachiles.ts
+  var mapa = null, pin = null, iconoPin = null, cargandoMapa = false;
+
+  function ligaMaps(u) {
+    return "https://www.google.com/maps/search/?api=1&query=" + u.lat.toFixed(6) + "," + u.lng.toFixed(6);
+  }
+  function avisoMapa(msg, tipo) {
+    var a = $("#avisoMapa");
+    a.textContent = msg;
+    a.className = "ayuda" + (tipo ? " " + tipo : "");
+  }
+  function cargarLeaflet(listo) {
+    if (window.L) return listo();
+    if (cargandoMapa) return;
+    cargandoMapa = true;
+    var css = document.createElement("link");
+    css.rel = "stylesheet";
+    css.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";
+    document.head.appendChild(css);
+    var js = document.createElement("script");
+    js.src = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js";
+    js.onload = function () { cargandoMapa = false; listo(); };
+    js.onerror = function () {
+      cargandoMapa = false;
+      mapaFallo = true;
+      $("#mapa").hidden = true;
+      $("#usarUbic").hidden = true;
+      $("#buscarUbic").hidden = true;
+      avisoMapa("No se pudo cargar el mapa. Escribe tu dirección con referencias y la confirmamos por WhatsApp.");
+      revisarForma();
+    };
+    document.head.appendChild(js);
+  }
+  function prepararMapa() {
+    cargarLeaflet(function () {
+      if (mapa) { setTimeout(function () { mapa.invalidateSize(); }, 200); return; }
+      mapa = window.L.map("mapa", { zoomControl: true }).setView(CENTRO, 13);
+      window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap"
+      }).addTo(mapa);
+      mapa.attributionControl.setPrefix(false);
+      iconoPin = window.L.divIcon({ className: "pin-ag", html: "<span></span>", iconSize: [26, 26], iconAnchor: [13, 26] });
+      mapa.on("click", function (e) {
+        ponerPin(e.latlng.lat, e.latlng.lng, "Listo, ahí marcamos. Si no es tu puerta, arrastra el pin.");
+      });
+      setTimeout(function () { mapa.invalidateSize(); }, 250);
+    });
+  }
+  function dentroDeCaja(lat, lng) {
+    return lat >= CAJA.latMin && lat <= CAJA.latMax && lng >= CAJA.lngMin && lng <= CAJA.lngMax;
+  }
+  function fijar(lat, lng, msg) {
+    if (!dentroDeCaja(lat, lng)) {
+      ubic = null;
+      avisoMapa("Ese punto quedó fuera de la Ciudad de México. Mueve el pin a tu casa.", "mal");
+    } else {
+      ubic = { lat: lat, lng: lng };
+      avisoMapa(msg, "ok");
+    }
+    revisarForma();
+  }
+  function ponerPin(lat, lng, msg) {
+    if (!mapa) return;
+    if (!pin) {
+      pin = window.L.marker([lat, lng], { draggable: true, icon: iconoPin }).addTo(mapa);
+      pin.on("dragend", function () {
+        var p = pin.getLatLng();
+        fijar(p.lat, p.lng, "Ubicación confirmada. Así llega el repartidor.");
+      });
+    } else {
+      pin.setLatLng([lat, lng]);
+    }
+    mapa.setView([lat, lng], Math.max(mapa.getZoom(), 17));
+    fijar(lat, lng, msg);
+  }
+
+  $("#usarUbic").addEventListener("click", function () {
+    if (!navigator.geolocation) { avisoMapa("Tu teléfono no comparte ubicación. Toca el mapa donde vives."); return; }
+    avisoMapa("Buscándote…");
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        ponerPin(pos.coords.latitude, pos.coords.longitude, "Te encontramos. Revisa que el pin esté en tu puerta.");
+      },
+      function () { avisoMapa("No pudimos leer tu ubicación. Toca el mapa donde vives.", "mal"); },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  });
+
+  $("#buscarUbic").addEventListener("click", function () {
+    var q = $("#dir").value.trim();
+    if (q.length < 5) { avisoMapa("Escribe primero tu dirección arriba.", "mal"); $("#dir").focus(); return; }
+    avisoMapa("Buscando tu dirección…");
+    fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=mx" +
+      "&viewbox=-99.36,19.59,-98.94,19.18&accept-language=es&q=" + encodeURIComponent(q + ", Ciudad de México"))
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (res) {
+        if (res && res[0]) {
+          ponerPin(parseFloat(res[0].lat), parseFloat(res[0].lon), "La encontramos. Ajusta el pin si hace falta.");
+        } else {
+          avisoMapa("No la encontramos en el mapa. Toca el mapa donde vives.", "mal");
+        }
+      })
+      .catch(function () { avisoMapa("No pudimos buscarla. Toca el mapa donde vives.", "mal"); });
+  });
+
   /* ---------------- disponibilidad en vivo ---------------- */
   // Si Chiva pausa un platillo o cambia un precio desde su panel, se refleja aqui
   // sin volver a publicar la pagina. Si la consulta falla, se queda el menu
@@ -766,7 +897,8 @@ footer a{color:var(--lima)}
   function revisarForma() {
     var lleno = campos.every(function (id) { return $("#" + id).value.trim().length > 2; });
     var telOk = tel10($("#tel").value).length === 10;
-    $("#enviarWa").disabled = enviando || !(lleno && telOk && franjaElegida && pagoElegido && carrito.length);
+    var ubicOk = mapaFallo || !!ubic;
+    $("#enviarWa").disabled = enviando || !(lleno && telOk && ubicOk && franjaElegida && pagoElegido && carrito.length);
   }
 
   /* ---------------- guardar el pedido y abrir WhatsApp ---------------- */
@@ -794,6 +926,7 @@ footer a{color:var(--lima)}
     L.push("Nombre: " + $("#nombre").value.trim());
     L.push("Teléfono: " + $("#tel").value.trim());
     L.push("Dirección: " + $("#dir").value.trim());
+    if (ubic) L.push("Ubicación: " + ligaMaps(ubic));
     var nota = $("#nota").value.trim();
     if (nota) L.push("Nota: " + nota);
     if (folioTxt) { L.push(""); L.push("Folio " + folioTxt + " (pedido guardado desde la página)"); }
@@ -833,6 +966,8 @@ footer a{color:var(--lima)}
       franja: franjaElegida,
       pago: pagoElegido,
       website: $("#website").value,
+      lat: ubic ? Math.round(ubic.lat * 1e6) / 1e6 : undefined,
+      lng: ubic ? Math.round(ubic.lng * 1e6) / 1e6 : undefined,
       items: carritoEnviado.map(function (l) {
         var p = D.productos.filter(function (x) { return x.id === l.id; })[0];
         return { product_id: p ? p.uuid : "", qty: l.cant, picor: l.picor || undefined };

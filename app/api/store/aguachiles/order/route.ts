@@ -12,7 +12,7 @@ import { createClient } from "@supabase/supabase-js";
 import { sendEmail, REPLY_TO } from "@/lib/email";
 import {
   AGUACHILES_CLIENT_ID, ENVIO_MXN, PAGOS, PAGO_LABEL,
-  motivoFranjaInvalida, folio, telefono10, pesos, fechaLarga,
+  motivoFranjaInvalida, folio, telefono10, pesos, fechaLarga, ubicacionValida, ligaMapa,
 } from "@/lib/storeAguachiles";
 
 export const runtime = "nodejs";
@@ -47,12 +47,18 @@ export async function POST(req: NextRequest) {
   const franja = String(body.franja ?? "");
   const pago = String(body.pago ?? "");
   const items = body.items as Item[];
+  // Pin del mapa: opcional (si el mapa no cargó en el navegador del cliente, llega sin él).
+  const lat = typeof body.lat === "number" ? body.lat : null;
+  const lng = typeof body.lng === "number" ? body.lng : null;
 
   if (nombre.length < 2) return NextResponse.json({ error: "Escribe tu nombre" }, { status: 400 });
   if (tel.length !== 10) return NextResponse.json({ error: "El teléfono debe tener 10 dígitos" }, { status: 400 });
   if (direccion.length < 8) return NextResponse.json({ error: "Escribe la dirección completa" }, { status: 400 });
   if (!(PAGOS as readonly string[]).includes(pago))
     return NextResponse.json({ error: "Escoge cómo vas a pagar" }, { status: 400 });
+
+  if ((lat != null || lng != null) && !ubicacionValida(lat, lng))
+    return NextResponse.json({ error: "La ubicación del mapa quedó fuera de la Ciudad de México. Vuelve a poner el pin en tu casa." }, { status: 400 });
 
   const motivo = motivoFranjaInvalida(fecha, franja);
   if (motivo) return NextResponse.json({ error: motivo }, { status: 400 });
@@ -112,6 +118,8 @@ export async function POST(req: NextRequest) {
       fulfillment_status: "nuevo",
       delivery_date: fecha,
       delivery_slot: franja,
+      delivery_lat: lat,
+      delivery_lng: lng,
       notes: nota || null,
     })
     .select("id, order_no")
@@ -151,7 +159,7 @@ export async function POST(req: NextRequest) {
         <tr><td style="padding:4px 0;color:#6B7280">Envío</td><td style="text-align:right">${pesos(ENVIO_MXN)}</td></tr>
         <tr><td style="padding:6px 0;font-weight:800">Total</td><td style="text-align:right;font-weight:800">${pesos(total)}</td></tr></table>
       <p style="margin:14px 0 4px"><b>${esc(nombre)}</b> · <a href="https://wa.me/52${tel}">${tel}</a></p>
-      <p style="margin:0 0 4px">${esc(direccion)}</p>
+      <p style="margin:0 0 4px">${esc(direccion)} · <a href="${ligaMapa(lat, lng, direccion)}">${lat != null ? "Ver pin en Google Maps" : "Buscar en Google Maps"}</a></p>
       <p style="margin:0 0 4px">Pago: ${esc(PAGO_LABEL[pago])}</p>
       ${nota ? `<p style="margin:0 0 4px">Nota: ${esc(nota)}</p>` : ""}
       <p style="margin:18px 0 0"><a href="https://www.fishflow.mx/app/aguachiles/" style="background:#E8207A;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none;font-weight:700">Ver en el panel</a></p>

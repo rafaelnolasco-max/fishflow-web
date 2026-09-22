@@ -19,7 +19,7 @@ import {
 import ReviewsTab, { normalizePhone } from "@/components/reviews/ReviewsTab";
 import {
   AGUACHILES_CLIENT_ID, ESTADO_LABEL, SIGUIENTE, PAGO_LABEL, type Estado,
-  cdmxToday, fechaLarga, folio, pesos,
+  cdmxToday, fechaLarga, folio, pesos, ligaMapa, ligaRuta,
 } from "@/lib/storeAguachiles";
 
 // Rosa del logo sobre azul marino de su portada.
@@ -53,7 +53,8 @@ type Pedido = {
   id: string; order_no: number; customer_name: string; customer_phone: string;
   shipping_address: string; subtotal: number; shipping_cost: number; total: number;
   payment_method: string; fulfillment_status: Estado; delivery_date: string | null;
-  delivery_slot: string | null; notes: string | null; created_at: string;
+  delivery_slot: string | null; delivery_lat: number | null; delivery_lng: number | null;
+  notes: string | null; created_at: string;
   store_order_items: Partida[];
 };
 type Producto = {
@@ -162,7 +163,7 @@ function PedidosTab() {
     desde.setUTCDate(desde.getUTCDate() - 60);
     const { data, error } = await supabase
       .from("store_orders")
-      .select("id, order_no, customer_name, customer_phone, shipping_address, subtotal, shipping_cost, total, payment_method, fulfillment_status, delivery_date, delivery_slot, notes, created_at, store_order_items(id, product_name, qty, unit_price, line_total, item_note)")
+      .select("id, order_no, customer_name, customer_phone, shipping_address, subtotal, shipping_cost, total, payment_method, fulfillment_status, delivery_date, delivery_slot, delivery_lat, delivery_lng, notes, created_at, store_order_items(id, product_name, qty, unit_price, line_total, item_note)")
       .eq("client_id", AGUACHILES_CLIENT_ID)
       .gte("delivery_date", desde.toISOString().slice(0, 10))
       .order("delivery_date", { ascending: true })
@@ -301,7 +302,8 @@ function TarjetaPedido({ p, ocupado, onAvanzar, onCancelar }: {
   const sig = SIGUIENTE[p.fulfillment_status];
   const c = ESTADO_COLOR[p.fulfillment_status] ?? ESTADO_COLOR.nuevo;
   const cerrado = p.fulfillment_status === "entregado" || p.fulfillment_status === "cancelado";
-  const mapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.shipping_address)}`;
+  const conPin = p.delivery_lat != null && p.delivery_lng != null;
+  const mapa = ligaMapa(p.delivery_lat, p.delivery_lng, p.shipping_address);
   return (
     <article style={{
       background: T.surface, borderRadius: 14, padding: 16,
@@ -328,7 +330,18 @@ function TarjetaPedido({ p, ocupado, onAvanzar, onCancelar }: {
 
       <div style={{ fontSize: 13, lineHeight: 1.55, color: T.text, borderTop: `1px solid ${T.border}`, paddingTop: 10 }}>
         <div><b>{p.customer_name}</b> · <a href={`https://wa.me/52${p.customer_phone}`} target="_blank" rel="noreferrer" style={{ color: "#128C4A", fontWeight: 700 }}>{p.customer_phone}</a></div>
-        <div><a href={mapa} target="_blank" rel="noreferrer" style={{ color: T.text }}>{p.shipping_address}</a></div>
+        <div>{p.shipping_address}</div>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", margin: "4px 0 2px" }}>
+          <a href={mapa} target="_blank" rel="noreferrer" style={{ color: T.accentDark, fontWeight: 700 }}>
+            {conPin ? "📍 Ver pin en Google Maps" : "Buscar dirección en Maps"}
+          </a>
+          {conPin && (
+            <a href={ligaRuta(p.delivery_lat!, p.delivery_lng!)} target="_blank" rel="noreferrer" style={{ color: T.accentDark, fontWeight: 700 }}>
+              Cómo llegar
+            </a>
+          )}
+        </div>
+        {!conPin && <div style={{ fontSize: 12, color: T.muted }}>Sin pin: el cliente no confirmó en el mapa.</div>}
         <div style={{ color: T.muted }}>{PAGO_LABEL[p.payment_method] ?? p.payment_method}</div>
       </div>
 

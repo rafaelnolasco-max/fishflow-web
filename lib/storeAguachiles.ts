@@ -123,3 +123,25 @@ export function fechaLarga(fecha: string): string {
     "septiembre", "octubre", "noviembre", "diciembre"];
   return `${dias[d.getUTCDay()]} ${d.getUTCDate()} de ${meses[d.getUTCMonth()]}`;
 }
+
+// ─── Ubicación de entrega ────────────────────────────────────────────────────
+/** Caja amplia de la zona metropolitana del Valle de México. Fuera de aquí es un pin equivocado. */
+export const CAJA_ZMVM = { latMin: 18.8, latMax: 20.2, lngMin: -99.9, lngMax: -98.5 };
+
+export function ubicacionValida(lat: unknown, lng: unknown): lat is number {
+  return typeof lat === "number" && typeof lng === "number" &&
+    Number.isFinite(lat) && Number.isFinite(lng) &&
+    lat >= CAJA_ZMVM.latMin && lat <= CAJA_ZMVM.latMax &&
+    lng >= CAJA_ZMVM.lngMin && lng <= CAJA_ZMVM.lngMax;
+}
+
+/** Liga que abre el punto exacto en Google Maps (app o web). */
+export function ligaMapa(lat: number | null, lng: number | null, direccion: string): string {
+  if (lat != null && lng != null) return `https://www.google.com/maps/search/?api=1&query=${lat.toFixed(6)},${lng.toFixed(6)}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`;
+}
+
+/** Liga de "cómo llegar" para el repartidor. */
+export function ligaRuta(lat: number, lng: number): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(6)},${lng.toFixed(6)}`;
+}
