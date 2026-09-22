@@ -24,6 +24,9 @@
   --max:1120px;
 }
 *{box-sizing:border-box}
+/* El atributo hidden tiene que ganarle a .plato{display:flex} y .btn{display:inline-flex}:
+   sin esto un platillo pausado seguia visible y el boton de respaldo salia desde el inicio. */
+[hidden]{display:none!important}
 html{scroll-behavior:smooth; -webkit-text-size-adjust:100%}
 body{
   margin:0; background:var(--crema); color:var(--tinta);
@@ -246,12 +249,29 @@ footer a{color:var(--lima)}
 .post-cab .red{font-size:.75rem;font-weight:700;color:var(--gris)}
 .post p{font-size:.88rem;margin:0}
 
+/* ---------- flyers del menu ---------- */
+.flyers{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:0 0 30px}
+.flyers img{width:100%;height:auto;display:block;border-radius:var(--radio);box-shadow:var(--sombra);background:#1a1a1a}
+
+/* ---------- forma de pago y estados del envio ---------- */
+.pagos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.error-pedido{background:#FDECEC;color:#9B1C1C;border:1px solid #F5C2C2;border-radius:10px;
+  padding:10px 12px;font-size:.88rem;font-weight:600;margin:14px 0 0}
+.hecho{margin-top:14px;background:#E8F7EE;border:1px solid #BFE6CD;color:#0B5A2E;border-radius:12px;
+  padding:12px 14px;font-size:.9rem;line-height:1.45;text-align:center}
+.hecho b{display:block;margin-bottom:4px}
+.hecho a{color:#0B5A2E;font-weight:700}
+
 /* ---------- responsivo ---------- */
 @media (max-width:900px){
   .hero-in{grid-template-columns:1fr;gap:32px}
   .tarjeta-hero{order:2}
 }
 @media (max-width:760px){
+  /* flyers en carrusel: apilados empujaban el menu ~1,100 px hacia abajo */
+  .flyers{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;
+    margin:0 -20px 26px;padding:0 20px 6px;-webkit-overflow-scrolling:touch}
+  .flyers img{flex:0 0 auto;width:62%;min-width:0;scroll-snap-align:start}
   .nav-links{position:absolute;top:62px;left:0;right:0;background:var(--crema);border-bottom:1px solid var(--linea);
     flex-direction:column;align-items:stretch;gap:0;padding:6px 20px 14px;display:none;box-shadow:var(--sombra)}
   .nav-links.on{display:flex}
@@ -292,7 +312,6 @@ footer a{color:var(--lima)}
 </head>
 <body>
 
-<div class="cinta">Demo de venta preparado por <b>FishFlow</b> para Los Aguachiles &middot; los pedidos no son reales</div>
 
 <header class="nav">
   <div class="env nav-in">
@@ -300,7 +319,6 @@ footer a{color:var(--lima)}
     <nav class="nav-links" id="navlinks">
       <a href="#menu">Menú</a>
       <a href="#comopedir">Cómo pedir</a>
-      <a href="#opiniones">Opiniones</a>
       <a href="#contacto">Contacto</a>
     </nav>
     <button class="hamb" id="hamb" aria-expanded="false" aria-controls="navlinks" aria-label="Abrir el menú">
@@ -351,6 +369,10 @@ footer a{color:var(--lima)}
       <h2>Todo se prepara al momento del pedido</h2>
       <p>Precios en pesos, ya con las tostadas. Agrega lo que quieras y al final escoges cuándo lo quieres.</p>
     </div>
+    <div class="flyers">
+      <img src="/demos/losaguachiles/img/flyer-viernes.jpg" alt="Aguachile verde, rojo, negro y mixto de Los Aguachiles" width="720" height="1080" loading="lazy">
+      <img src="/demos/losaguachiles/img/flyer-sabado.jpg" alt="Aguachiles, ceviches y micheladas de Los Aguachiles" width="720" height="1080" loading="lazy">
+    </div>
     <div class="filtros" role="group" aria-label="Filtrar el menú">
 <button type="button" class="chip" data-cat="todo" aria-pressed="true">Todo</button>
 <button type="button" class="chip" data-cat="aguachiles" aria-pressed="false">🦐 Aguachiles</button>
@@ -360,23 +382,23 @@ footer a{color:var(--lima)}
 <div class="grupo" data-cat="aguachiles">
 <div class="grupo-t"><h3>🦐 Aguachiles</h3></div><p class="grupo-copy">Camarón crudo curado en limón, chile y sal. Picor al gusto.</p>
 <div class="platos">
-<article class="plato"><span class="fav">Más pedido</span><h4>Aguachile Verde</h4><p class="desc">Camarón, chile serrano, limón, pepino y cebolla morada.</p><div class="picor-sel"><label for="picor-ag-verde">Nivel de picor</label><select id="picor-ag-verde"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$155<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-verde">Agregar</button></div></article>
-<article class="plato"><h4>Aguachile Rojo</h4><p class="desc">Camarón en salsa de chile de árbol. El que más pica.</p><div class="picor-sel"><label for="picor-ag-rojo">Nivel de picor</label><select id="picor-ag-rojo"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$155<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-rojo">Agregar</button></div></article>
-<article class="plato"><h4>Aguachile Negro</h4><p class="desc">Camarón en salsa negra de chile morita y soya.</p><div class="picor-sel"><label for="picor-ag-negro">Nivel de picor</label><select id="picor-ag-negro"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$170<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-negro">Agregar</button></div></article>
-<article class="plato"><span class="fav">Más pedido</span><h4>Aguachile Mixto</h4><p class="desc">Camarón y pulpo en el mismo plato.</p><div class="picor-sel"><label for="picor-ag-mixto">Nivel de picor</label><select id="picor-ag-mixto"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$180<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-mixto">Agregar</button></div></article>
+<article class="plato" data-pid="ag-verde"><span class="fav">Más pedido</span><h4>Aguachile Verde</h4><p class="desc">Camarón, chile serrano, limón, pepino y cebolla morada.</p><div class="picor-sel"><label for="picor-ag-verde">Nivel de picor</label><select id="picor-ag-verde"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$<span data-precio>155</span><small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-verde">Agregar</button></div></article>
+<article class="plato" data-pid="ag-rojo"><h4>Aguachile Rojo</h4><p class="desc">Camarón en salsa de chile de árbol. El que más pica.</p><div class="picor-sel"><label for="picor-ag-rojo">Nivel de picor</label><select id="picor-ag-rojo"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$<span data-precio>155</span><small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-rojo">Agregar</button></div></article>
+<article class="plato" data-pid="ag-negro"><h4>Aguachile Negro</h4><p class="desc">Camarón en salsa negra de chile morita y soya.</p><div class="picor-sel"><label for="picor-ag-negro">Nivel de picor</label><select id="picor-ag-negro"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$<span data-precio>170</span><small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-negro">Agregar</button></div></article>
+<article class="plato" data-pid="ag-mixto"><span class="fav">Más pedido</span><h4>Aguachile Mixto</h4><p class="desc">Camarón y pulpo en el mismo plato.</p><div class="picor-sel"><label for="picor-ag-mixto">Nivel de picor</label><select id="picor-ag-mixto"><option>Sin picante</option><option>Poquito</option><option selected>Normal</option><option>Bien picoso</option></select></div><div class="pie"><div class="precio">$<span data-precio>180</span><small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="ag-mixto">Agregar</button></div></article>
 </div></div>
 <div class="grupo" data-cat="ceviches">
 <div class="grupo-t"><h3>🍤 Ceviches</h3></div><p class="grupo-copy">Frescos, del día, con tostadas.</p>
 <div class="platos">
-<article class="plato"><h4>Ceviche de Camarón</h4><p class="desc">Camarón picado con jitomate, cebolla y cilantro.</p><div class="pie"><div class="precio">$155<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="cv-camaron">Agregar</button></div></article>
-<article class="plato"><h4>Ceviche de Pulpo</h4><p class="desc">Pulpo suave, curado en limón.</p><div class="pie"><div class="precio">$165<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="cv-pulpo">Agregar</button></div></article>
-<article class="plato"><span class="fav">Más pedido</span><h4>Ceviche Mixto</h4><p class="desc">Camarón y pulpo.</p><div class="pie"><div class="precio">$180<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="cv-mixto">Agregar</button></div></article>
+<article class="plato" data-pid="cv-camaron"><h4>Ceviche de Camarón</h4><p class="desc">Camarón picado con jitomate, cebolla y cilantro.</p><div class="pie"><div class="precio">$<span data-precio>155</span><small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="cv-camaron">Agregar</button></div></article>
+<article class="plato" data-pid="cv-pulpo"><h4>Ceviche de Pulpo</h4><p class="desc">Pulpo suave, curado en limón.</p><div class="pie"><div class="precio">$<span data-precio>165</span><small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="cv-pulpo">Agregar</button></div></article>
+<article class="plato" data-pid="cv-mixto"><span class="fav">Más pedido</span><h4>Ceviche Mixto</h4><p class="desc">Camarón y pulpo.</p><div class="pie"><div class="precio">$<span data-precio>180</span><small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="cv-mixto">Agregar</button></div></article>
 </div></div>
 <div class="grupo" data-cat="micheladas">
 <div class="grupo-t"><h3>🍺 Micheladas</h3></div><p class="grupo-copy">Para acompañar. Preparadas al momento.</p>
 <div class="platos">
-<article class="plato"><h4>Michelada</h4><p class="desc">Preparada al momento, con su chamoy y chile.</p><div class="pie"><div class="precio">$100<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="mi-normal">Agregar</button></div></article>
-<article class="plato"><h4>Michelada con Clamato</h4><p class="desc">La clásica, con clamato.</p><div class="pie"><div class="precio">$120<small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="mi-clamato">Agregar</button></div></article>
+<article class="plato" data-pid="mi-normal"><h4>Michelada</h4><p class="desc">Preparada al momento, con su chamoy y chile.</p><div class="pie"><div class="precio">$<span data-precio>100</span><small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="mi-normal">Agregar</button></div></article>
+<article class="plato" data-pid="mi-clamato"><h4>Michelada con Clamato</h4><p class="desc">La clásica, con clamato.</p><div class="pie"><div class="precio">$<span data-precio>120</span><small> MXN</small></div><button type="button" class="btn btn-rosa btn-chico" data-add="mi-clamato">Agregar</button></div></article>
 </div></div>
   </div>
 </section>
@@ -400,38 +422,6 @@ footer a{color:var(--lima)}
   </div>
 </section>
 
-<section class="rese" id="opiniones">
-  <div class="env">
-    <div class="cabeza">
-      <div class="et">Opiniones</div>
-      <h2>Lo que dicen los que ya pidieron</h2>
-    </div>
-    <div class="rese-top">
-      <div>
-        <div class="rese-nota">--</div>
-        <div class="estrellas" aria-hidden="true">&#9734;&#9734;&#9734;&#9734;&#9734;</div>
-      </div>
-      <div style="max-width:44ch">
-        <p style="margin:0"><span class="pendiente">Por conectar</span></p>
-        <p style="margin:8px 0 0;color:var(--gris);font-size:.92rem">
-          Aquí van las estrellas reales de Google en cuanto revisemos si el negocio ya tiene su ficha.
-          Las opiniones de abajo son de ejemplo para enseñar cómo se vería.</p>
-      </div>
-    </div>
-    <div class="rese-grid">
-      <div class="op"><div class="estrellas">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-        <p>Ejemplo de cómo se vería una opinión real una vez conectada la ficha de Google.</p>
-        <div class="quien">Opinión de ejemplo</div></div>
-      <div class="op"><div class="estrellas">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-        <p>Ejemplo de cómo se vería una opinión real una vez conectada la ficha de Google.</p>
-        <div class="quien">Opinión de ejemplo</div></div>
-      <div class="op"><div class="estrellas">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-        <p>Ejemplo de cómo se vería una opinión real una vez conectada la ficha de Google.</p>
-        <div class="quien">Opinión de ejemplo</div></div>
-    </div>
-  </div>
-</section>
-
 <footer id="contacto">
   <div class="env">
     <div class="pie-grid">
@@ -442,7 +432,7 @@ footer a{color:var(--lima)}
       <div>
         <h3>Pedidos</h3>
         <p>WhatsApp <a href="https://wa.me/525510516938">5510516938</a><br>
-        Envío $30 &middot; <span class="pendiente">zona por confirmar</span></p>
+        Envío a domicilio $30</p>
       </div>
       <div>
         <h3>Horario</h3>
@@ -450,15 +440,12 @@ footer a{color:var(--lima)}
       </div>
     </div>
     <div class="pie-nota">
-      Demo construido por FishFlow. Los precios y el horario vienen de la dueña (7 de septiembre de 2026).
-      La zona de entrega y la ficha de Google están pendientes de confirmar.
+      Pedidos en línea con FishFlow.
     </div>
   </div>
 </footer>
 
 </main>
-
-<button class="abrir-panel" id="abrirPanel" type="button">&#128202; Panel de la dueña</button>
 
 <div class="barra" id="barra">
   <div class="barra-in">
@@ -505,86 +492,33 @@ footer a{color:var(--lima)}
       <div class="campo"><label for="nota">Alguna indicación</label>
         <textarea id="nota" rows="2" placeholder="Sin cebolla, timbre de abajo, etc."></textarea></div>
 
+      <div class="campo">
+        <label>Cómo vas a pagar</label>
+        <div class="pagos" id="pagos" role="radiogroup" aria-label="Forma de pago"></div>
+      </div>
+      <!-- honeypot: lo llenan los bots, no las personas -->
+      <div class="sr" aria-hidden="true"><label for="website">No llenar</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+
+      <p class="error-pedido" id="errorPedido" role="alert" hidden></p>
       <button class="btn btn-wa" id="enviarWa" type="button" style="width:100%;margin-top:8px" disabled>
-        Confirmar por WhatsApp</button>
+        Confirmar pedido por WhatsApp</button>
       <p class="ayuda" style="text-align:center;margin-top:10px">
-        Se abre WhatsApp con tu pedido ya escrito. Nada se cobra aquí.</p>
-      <p class="ayuda" id="hechoPedido" hidden
-         style="text-align:center;color:var(--ok);font-weight:700">
-        Listo, tu pedido salió a WhatsApp.</p>
+        Guardamos tu pedido y se abre WhatsApp con todo ya escrito. Pagas al recibir.</p>
+      <div class="hecho" id="hechoPedido" hidden>
+        <b id="hechoFolio"></b>
+        <span>Si WhatsApp no se abrió solo, <a id="hechoLink" href="#">toca aquí para mandarlo</a>.</span>
+      </div>
+      <button class="btn btn-linea" id="waSinFolio" type="button" style="width:100%;margin-top:10px" hidden>
+        Mandarlo por WhatsApp de todos modos</button>
     </div>
   </div>
 </div>
 
-<!-- panel de la duena -->
-<div class="velo panel" id="veloPanel" role="dialog" aria-modal="true" aria-labelledby="tPanel">
-  <div class="hoja">
-    <div class="hoja-cab">
-      <h3 id="tPanel">Panel de la dueña</h3>
-      <button class="cerrar" id="cerrarPanel" type="button" aria-label="Cerrar">&times;</button>
-    </div>
-    
-<div class="tabs" role="tablist">
-  <button class="tab" role="tab" data-tab="pedidos" aria-selected="true">Pedidos</button>
-  <button class="tab" role="tab" data-tab="resenas" aria-selected="false">Reseñas</button>
-  <button class="tab" role="tab" data-tab="posts" aria-selected="false">Publicaciones</button>
-</div>
-<div class="hoja-cuerpo">
-  <div class="aviso-demo">Datos de ejemplo para que Chiva lo pruebe con el pulgar. Nada de esto llama a un servidor todavía.</div>
-
-  <div data-panel="pedidos">
-    <div class="kpis">
-      <div class="kpi"><b>5</b><span>Pedidos de hoy</span></div>
-      <div class="kpi"><b>$2,125</b><span>Vendido hoy</span></div>
-      <div class="kpi"><b>15:00</b><span>Hora más pedida</span></div>
-    </div>
-    <div class="wrap-tabla"><table class="tabla">
-      <thead><tr><th>Folio</th><th>Cliente</th><th>Entrega</th><th>Total</th><th>Estado</th><th></th></tr></thead>
-      <tbody><tr><td data-l="Folio"><b>#1042</b></td><td data-l="Cliente"><span>Karen M.<br><span style="color:var(--gris);font-size:.82rem">2x Aguachile Verde, 1x Michelada</span></span></td><td data-l="Entrega">Hoy 14:00 - 15:00</td><td data-l="Total" style="font-weight:800">$440</td><td data-l="Estado"><span class="pill estado nuevo" data-e="nuevo">Nuevo</span></td><td data-l=""><button type="button" class="btn btn-linea btn-chico" data-avanzar>Avanzar</button></td></tr>
-<tr><td data-l="Folio"><b>#1041</b></td><td data-l="Cliente"><span>José Luis R.<br><span style="color:var(--gris);font-size:.82rem">1x Aguachile Negro, 1x Ceviche Mixto</span></span></td><td data-l="Entrega">Hoy 15:00 - 16:00</td><td data-l="Total" style="font-weight:800">$380</td><td data-l="Estado"><span class="pill estado prep" data-e="prep">Preparando</span></td><td data-l=""><button type="button" class="btn btn-linea btn-chico" data-avanzar>Avanzar</button></td></tr>
-<tr><td data-l="Folio"><b>#1040</b></td><td data-l="Cliente"><span>Fam. Beltrán<br><span style="color:var(--gris);font-size:.82rem">3x Ceviche de Camarón, 2x Michelada Clamato</span></span></td><td data-l="Entrega">Hoy 16:00 - 17:00</td><td data-l="Total" style="font-weight:800">$735</td><td data-l="Estado"><span class="pill estado camino" data-e="camino">En camino</span></td><td data-l=""><button type="button" class="btn btn-linea btn-chico" data-avanzar>Avanzar</button></td></tr>
-<tr><td data-l="Folio"><b>#1039</b></td><td data-l="Cliente"><span>Diana S.<br><span style="color:var(--gris);font-size:.82rem">1x Aguachile Mixto</span></span></td><td data-l="Entrega">Hoy 13:00 - 14:00</td><td data-l="Total" style="font-weight:800">$210</td><td data-l="Estado"><span class="pill estado listo" data-e="listo">Entregado</span></td><td data-l=""><button type="button" class="btn btn-linea btn-chico" data-avanzar>Avanzar</button></td></tr>
-<tr><td data-l="Folio"><b>#1038</b></td><td data-l="Cliente"><span>Marco A.<br><span style="color:var(--gris);font-size:.82rem">2x Ceviche de Pulpo</span></span></td><td data-l="Entrega">Mañana 12:00 - 13:00</td><td data-l="Total" style="font-weight:800">$360</td><td data-l="Estado"><span class="pill estado nuevo" data-e="nuevo">Nuevo</span></td><td data-l=""><button type="button" class="btn btn-linea btn-chico" data-avanzar>Avanzar</button></td></tr></tbody>
-    </table></div>
-    <p style="font-size:.84rem;color:var(--gris);margin-top:14px">
-      Cada pedido entra con la hora que el cliente eligió. Al marcarlo entregado se va solo a la cola de reseñas.</p>
-  </div>
-
-  <div data-panel="resenas" hidden>
-    <div class="kpis">
-      <div class="kpi"><b id="kpiEnviadas">0</b><span>Invitaciones enviadas</span></div>
-      <div class="kpi"><b>0</b><span>Reseñas en Google</span></div>
-      <div class="kpi"><b>--</b><span>Calificación</span></div>
-    </div>
-    <p style="font-size:.9rem;color:var(--gris);margin:-6px 0 16px">
-      Arranca en cero porque hay que revisar si Chiva ya tiene ficha de Google. La invitación se le manda
-      a <b>todos</b> los que ya recibieron su pedido, no solo a los contentos: filtrar va contra las reglas de Google.</p>
-    <div class="cola"><div class="av">DS</div><div class="cc"><b>Diana S.</b><p>Entregado hoy 13:40 · Aguachile Mixto</p><button type="button" class="btn btn-wa btn-chico" data-invitar>Invitar por WhatsApp</button></div></div>
-<div class="cola"><div class="av">MC</div><div class="cc"><b>Mario C.</b><p>Entregado ayer 19:10 · Ceviche Mixto</p><button type="button" class="btn btn-wa btn-chico" data-invitar>Invitar por WhatsApp</button></div></div>
-<div class="cola"><div class="av">LG</div><div class="cc"><b>Lupita G.</b><p>Entregado ayer 15:20 · Aguachile Verde x2</p><button type="button" class="btn btn-wa btn-chico" data-invitar>Invitar por WhatsApp</button></div></div>
-  </div>
-
-  <div data-panel="posts" hidden>
-    <div class="kpis">
-      <div class="kpi"><b id="kpiProgramadas">2</b><span>Programadas</span></div>
-      <div class="kpi"><b>2</b><span>Borradores por aprobar</span></div>
-      <div class="kpi"><b>3</b><span>Por semana</span></div>
-    </div>
-    <p style="font-size:.9rem;color:var(--gris);margin:-6px 0 16px">
-      Los textos se redactan solos con la voz del negocio y su menú. Chiva solo aprueba desde el celular
-      y se publican en automático. Deja de perder la tarde escribiendo posts.</p>
-    <div class="post"><div class="post-cab"><span class="cuando">Lunes 12:00</span><span class="red">Facebook</span><span class="pill prog estado">Programada</span></div><p>El lunes se arregla con aguachile verde. Camarón fresco, picor al gusto, y llega a tu casa. Pide por WhatsApp.</p></div>
-<div class="post"><div class="post-cab"><span class="cuando">Miércoles 13:00</span><span class="red">Facebook</span><span class="pill prog estado">Programada</span></div><p>Mixto de camarón y pulpo: los dos en el mismo plato. Es el que más nos piden los fines.</p></div>
-<div class="post"><div class="post-cab"><span class="cuando">Viernes 12:00</span><span class="red">Facebook</span><span class="pill nuevo estado">Borrador</span><button type="button" class="btn btn-rosa btn-chico" data-aprobar style="margin-left:auto">Aprobar y programar</button></div><p>Viernes de michelada con clamato y ceviche de pulpo. Agenda tu hora de entrega y lo dejamos listo.</p></div>
-<div class="post"><div class="post-cab"><span class="cuando">Sábado 11:00</span><span class="red">Facebook</span><span class="pill nuevo estado">Borrador</span><button type="button" class="btn btn-rosa btn-chico" data-aprobar style="margin-left:auto">Aprobar y programar</button></div><p>Sábado de antojo: pide con anticipación y elige la hora. Envío $30 en la zona.</p></div>
-  </div>
-</div>
-  </div>
-</div>
-
-<script>window.DATOS = {"productos": [{"id": "ag-verde", "nombre": "Aguachile Verde", "precio": 155}, {"id": "ag-rojo", "nombre": "Aguachile Rojo", "precio": 155}, {"id": "ag-negro", "nombre": "Aguachile Negro", "precio": 170}, {"id": "ag-mixto", "nombre": "Aguachile Mixto", "precio": 180}, {"id": "cv-camaron", "nombre": "Ceviche de Camarón", "precio": 155}, {"id": "cv-pulpo", "nombre": "Ceviche de Pulpo", "precio": 165}, {"id": "cv-mixto", "nombre": "Ceviche Mixto", "precio": 180}, {"id": "mi-normal", "nombre": "Michelada", "precio": 100}, {"id": "mi-clamato", "nombre": "Michelada con Clamato", "precio": 120}], "envio": 30, "franjas": ["12:00 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00"], "dias": [4, 5, 6, 0], "wa": "525510516938"};</script>
+<script>window.DATOS = {"productos": [{"id": "ag-verde", "uuid": "0e065b48-ff0e-44bd-92fd-a2f35e142a46", "nombre": "Aguachile Verde", "precio": 155}, {"id": "ag-rojo", "uuid": "4c633d1e-88f7-40d7-88eb-863f7deea7c0", "nombre": "Aguachile Rojo", "precio": 155}, {"id": "ag-negro", "uuid": "3a02e72f-3a75-4b9f-ad40-5ee37195676d", "nombre": "Aguachile Negro", "precio": 170}, {"id": "ag-mixto", "uuid": "6e989100-b4b2-4f6f-8637-2e2334e92c55", "nombre": "Aguachile Mixto", "precio": 180}, {"id": "cv-camaron", "uuid": "30f957dd-9d7c-4fe7-8fcd-f40b2ee949db", "nombre": "Ceviche de Camarón", "precio": 155}, {"id": "cv-pulpo", "uuid": "382d3340-cb20-4249-b312-fa1aed61144b", "nombre": "Ceviche de Pulpo", "precio": 165}, {"id": "cv-mixto", "uuid": "9ffb63ea-1769-46ba-b409-5705302a49cb", "nombre": "Ceviche Mixto", "precio": 180}, {"id": "mi-normal", "uuid": "4b42ac69-f528-4e51-8306-34ae8890522a", "nombre": "Michelada", "precio": 100}, {"id": "mi-clamato", "uuid": "00f1dee7-9fc1-4e6f-8745-0bda4d8f3cdc", "nombre": "Michelada con Clamato", "precio": 120}], "pagos": [["efectivo", "Efectivo al entregar"], ["transferencia", "Transferencia al entregar"]], "envio": 30, "franjas": ["12:00 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00"], "dias": [4, 5, 6, 0], "wa": "525510516938"};</script>
 <script>
-/* Los Aguachiles -- demo. Estado en memoria, sin servidor. */
+/* Los Aguachiles -- pagina de pedidos. El pedido se guarda en /api/store/aguachiles/order
+   y despues se abre WhatsApp con el folio. Menu y precios se revalidan en el servidor. */
 (function () {
   "use strict";
   var D = window.DATOS;
@@ -612,14 +546,14 @@ footer a{color:var(--lima)}
       var cat = c.dataset.cat;
       $$(".chip").forEach(function (o) { o.setAttribute("aria-pressed", String(o === c)); });
       $$(".grupo").forEach(function (g) {
-        g.hidden = !(cat === "todo" || g.dataset.cat === cat);
+        g.hidden = g.dataset.vacio === "1" || !(cat === "todo" || g.dataset.cat === cat);
       });
     });
   });
 
   /* ---------------- carrito ---------------- */
   var carrito = [];              // {id, nombre, precio, picor, cant}
-  var barra = $("#barra"), btnPanel = $("#abrirPanel");
+  var barra = $("#barra");
 
   function claveDe(id, picor) { return id + "|" + (picor || ""); }
 
@@ -646,7 +580,6 @@ footer a{color:var(--lima)}
   function pintarBarra() {
     var n = piezas();
     barra.classList.toggle("on", n > 0);
-    btnPanel.classList.toggle("subir", n > 0);
     $("#barraTxt").innerHTML = n
       ? "<b>" + pesos(subtotal() + D.envio) + "</b>" + n + (n === 1 ? " platillo" : " platillos") + " + " + pesos(D.envio) + " de envío"
       : "";
@@ -665,12 +598,20 @@ footer a{color:var(--lima)}
   /* ---------------- hoja de pedido ---------------- */
   var velo = $("#veloPedido");
   function abrirPedido() { velo.classList.add("on"); document.body.style.overflow = "hidden"; pintarCheckout(); }
-  function cerrarPedido() { velo.classList.remove("on"); document.body.style.overflow = ""; }
+  function cerrarPedido() {
+    velo.classList.remove("on"); document.body.style.overflow = "";
+    if (guardado) {
+      guardado = false; enviando = false;
+      $("#hechoPedido").hidden = true;
+      $("#enviarWa").textContent = "Confirmar pedido por WhatsApp";
+      pintarCheckout();
+    }
+  }
   $("#verPedido").addEventListener("click", abrirPedido);
   $("#cerrarPedido").addEventListener("click", cerrarPedido);
   velo.addEventListener("click", function (e) { if (e.target === velo) cerrarPedido(); });
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") { cerrarPedido(); cerrarPanel(); }
+    if (e.key === "Escape") cerrarPedido();
   });
 
   function pintarCheckout() {
@@ -710,6 +651,8 @@ footer a{color:var(--lima)}
   var franjaElegida = "";
   var HOY = new Date();
   var campos = ["nombre", "tel", "dir"];
+  var pagoElegido = "";
+  var enviando = false, guardado = false;
 
   function fechaLarga(d) {
     var dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
@@ -767,95 +710,176 @@ footer a{color:var(--lima)}
     pintarFranjas();
   }
 
-  /* ---------------- validacion y handoff a WhatsApp ---------------- */
+  /* ---------------- forma de pago ---------------- */
+  $("#pagos").innerHTML = D.pagos.map(function (p) {
+    return '<button type="button" class="franja pago" data-pago="' + p[0] + '" aria-pressed="false">' + p[1] + "</button>";
+  }).join("");
+  $$("#pagos .pago").forEach(function (b) {
+    b.addEventListener("click", function () {
+      pagoElegido = b.dataset.pago;
+      $$("#pagos .pago").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      revisarForma();
+    });
+  });
+  function pagoLabel() {
+    var p = D.pagos.filter(function (x) { return x[0] === pagoElegido; })[0];
+    return p ? p[1] : "";
+  }
+
+  /* ---------------- disponibilidad en vivo ---------------- */
+  // Si Chiva pausa un platillo o cambia un precio desde su panel, se refleja aqui
+  // sin volver a publicar la pagina. Si la consulta falla, se queda el menu
+  // horneado: el servidor revalida todo al guardar de cualquier modo.
+  fetch("/api/store/aguachiles/menu", { cache: "no-store" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j || !j.productos) return;
+      var vivo = {};
+      j.productos.forEach(function (p) { vivo[p.id] = p; });
+      D.productos.forEach(function (p) {
+        var card = document.querySelector('.plato[data-pid="' + p.id + '"]');
+        if (!card) return;
+        var v = vivo[p.uuid];
+        if (!v || !v.activo) { card.hidden = true; return; }
+        p.precio = v.precio;
+        var el = card.querySelector("[data-precio]");
+        if (el) el.textContent = Number(v.precio).toLocaleString("es-MX");
+      });
+      $$(".grupo").forEach(function (g) {
+        var hay = $$(".plato", g).some(function (c) { return !c.hidden; });
+        if (!hay) { g.dataset.vacio = "1"; g.hidden = true; }
+      });
+    })
+    .catch(function () {});
+
+  /* ---------------- validacion ---------------- */
   campos.forEach(function (id) { $("#" + id).addEventListener("input", revisarForma); });
+
+  function tel10(raw) {
+    var d = (raw || "").replace(/\D/g, "");
+    if (d.length === 13 && d.indexOf("521") === 0) d = d.slice(3);
+    if (d.length === 12 && d.indexOf("52") === 0) d = d.slice(2);
+    return d;
+  }
 
   function revisarForma() {
     var lleno = campos.every(function (id) { return $("#" + id).value.trim().length > 2; });
-    $("#enviarWa").disabled = !(lleno && franjaElegida && carrito.length);
+    var telOk = tel10($("#tel").value).length === 10;
+    $("#enviarWa").disabled = enviando || !(lleno && telOk && franjaElegida && pagoElegido && carrito.length);
   }
 
-  $("#enviarWa").addEventListener("click", function () {
-    var d = new Date(HOY.getFullYear(), HOY.getMonth(), HOY.getDate() + parseInt(selDia.value, 10));
+  /* ---------------- guardar el pedido y abrir WhatsApp ---------------- */
+  function fechaSel() {
+    return new Date(HOY.getFullYear(), HOY.getMonth(), HOY.getDate() + parseInt(selDia.value, 10));
+  }
+  function iso(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function mensaje(folioTxt, d) {
     var L = [];
-    L.push("Hola Los Aguachiles, quiero hacer un pedido:");
+    L.push("Hola Los Aguachiles, quiero hacer un pedido" + (folioTxt ? " (" + folioTxt + ")" : "") + ":");
     L.push("");
-    carrito.forEach(function (l) {
+    carritoEnviado.forEach(function (l) {
       L.push("- " + l.cant + "x " + l.nombre + (l.picor ? " (" + l.picor + ")" : "") + " = " + pesos(l.precio * l.cant));
     });
+    var sub = carritoEnviado.reduce(function (s, l) { return s + l.precio * l.cant; }, 0);
     L.push("");
-    L.push("Subtotal: " + pesos(subtotal()));
+    L.push("Subtotal: " + pesos(sub));
     L.push("Envío: " + pesos(D.envio));
-    L.push("TOTAL: " + pesos(subtotal() + D.envio));
+    L.push("TOTAL: " + pesos(sub + D.envio));
+    L.push("Pago: " + pagoLabel());
     L.push("");
-    L.push("Entrega: " + fechaLarga(d) + ", entre " + franjaElegida);
+    L.push("Entrega: " + fechaLarga(d) + ", de " + franjaElegida.replace(" - ", " a "));
     L.push("Nombre: " + $("#nombre").value.trim());
     L.push("Teléfono: " + $("#tel").value.trim());
     L.push("Dirección: " + $("#dir").value.trim());
     var nota = $("#nota").value.trim();
     if (nota) L.push("Nota: " + nota);
-    L.push("");
-    L.push("(Pedido armado desde la página)");
-    var url = "https://wa.me/" + D.wa + "?text=" + encodeURIComponent(L.join("\n"));
-    window.open(url, "_blank", "noopener");
-    $("#hechoPedido").hidden = false;
+    if (folioTxt) { L.push(""); L.push("Folio " + folioTxt + " (pedido guardado desde la página)"); }
+    return L.join("\n");
+  }
+  function waUrl(txt) { return "https://wa.me/" + D.wa + "?text=" + encodeURIComponent(txt); }
+
+  var carritoEnviado = [];
+  var btnEnviar = $("#enviarWa");
+
+  function mostrarError(msg) {
+    var e = $("#errorPedido");
+    e.textContent = msg;
+    e.hidden = !msg;
+  }
+  function restaurarBoton() {
+    enviando = false;
+    btnEnviar.textContent = "Confirmar pedido por WhatsApp";
+    revisarForma();
+  }
+  function fallo() {
+    mostrarError("No pudimos guardar tu pedido en este momento. Mándalo directo por WhatsApp y Chiva lo toma igual.");
+    $("#waSinFolio").hidden = false;
+    restaurarBoton();
+  }
+
+  btnEnviar.addEventListener("click", function () {
+    if (enviando || btnEnviar.disabled) return;
+    var d = fechaSel();
+    carritoEnviado = carrito.map(function (l) { return { nombre: l.nombre, precio: l.precio, picor: l.picor, cant: l.cant, id: l.id }; });
+    var payload = {
+      nombre: $("#nombre").value.trim(),
+      telefono: $("#tel").value.trim(),
+      direccion: $("#dir").value.trim(),
+      nota: $("#nota").value.trim(),
+      fecha: iso(d),
+      franja: franjaElegida,
+      pago: pagoElegido,
+      website: $("#website").value,
+      items: carritoEnviado.map(function (l) {
+        var p = D.productos.filter(function (x) { return x.id === l.id; })[0];
+        return { product_id: p ? p.uuid : "", qty: l.cant, picor: l.picor || undefined };
+      })
+    };
+    enviando = true;
+    btnEnviar.disabled = true;
+    btnEnviar.textContent = "Guardando tu pedido…";
+    mostrarError("");
+    $("#waSinFolio").hidden = true;
+
+    fetch("/api/store/aguachiles/order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) {
+        return r.json().then(
+          function (j) { return { ok: r.ok, status: r.status, j: j }; },
+          function () { return { ok: false, status: r.status, j: {} }; }
+        );
+      })
+      .then(function (res) {
+        if (res.ok && res.j && res.j.folio) {
+          var url = waUrl(mensaje(res.j.folio, d));
+          guardado = true;
+          btnEnviar.textContent = "Pedido " + res.j.folio + " guardado";
+          $("#hechoFolio").textContent = "Pedido " + res.j.folio + " guardado. Te esperamos el " + fechaLarga(d) + ", de " + franjaElegida.replace(" - ", " a ") + ".";
+          $("#hechoLink").href = url;
+          $("#hechoPedido").hidden = false;
+          carrito = [];
+          pintarBarra();
+          // Misma pestaña: en iPhone un window.open despues de un await lo bloquea Safari.
+          window.location.href = url;
+          return;
+        }
+        if (res.status >= 400 && res.status < 500) {
+          mostrarError((res.j && res.j.error) || "Revisa tu pedido e intenta de nuevo.");
+          restaurarBoton();
+          return;
+        }
+        fallo();
+      })
+      .catch(fallo);
   });
 
-  /* ---------------- panel de la duenia ---------------- */
-  var veloPanel = $("#veloPanel");
-  function abrirPanel() { veloPanel.classList.add("on"); document.body.style.overflow = "hidden"; }
-  function cerrarPanel() { veloPanel.classList.remove("on"); document.body.style.overflow = ""; }
-  btnPanel.addEventListener("click", abrirPanel);
-  $("#cerrarPanel").addEventListener("click", cerrarPanel);
-  veloPanel.addEventListener("click", function (e) { if (e.target === veloPanel) cerrarPanel(); });
-
-  $$(".tab").forEach(function (t) {
-    t.addEventListener("click", function () {
-      $$(".tab").forEach(function (o) { o.setAttribute("aria-selected", String(o === t)); });
-      $$("[data-panel]").forEach(function (p) { p.hidden = p.dataset.panel !== t.dataset.tab; });
-    });
-  });
-
-  // Resenas: mandar la invitacion (simulado)
-  $$("[data-invitar]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      b.textContent = "Invitación enviada";
-      b.disabled = true;
-      var n = parseInt($("#kpiEnviadas").textContent, 10) + 1;
-      $("#kpiEnviadas").textContent = String(n);
-    });
-  });
-
-  // Publicaciones: aprobar un borrador (simulado)
-  $$("[data-aprobar]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var caja = b.closest(".post");
-      caja.querySelector(".estado").outerHTML = '<span class="pill prog estado">Programada</span>';
-      b.remove();
-      var n = parseInt($("#kpiProgramadas").textContent, 10) + 1;
-      $("#kpiProgramadas").textContent = String(n);
-    });
-  });
-
-  // Pedidos: avanzar estado (simulado)
-  $$("[data-avanzar]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var celda = b.closest("tr").querySelector(".estado");
-      var orden = [["nuevo", "Nuevo"], ["prep", "Preparando"], ["camino", "En camino"], ["listo", "Entregado"]];
-      var actual = orden.map(function (o) { return o[0]; }).indexOf(celda.dataset.e);
-      if (actual < orden.length - 1) {
-        var sig = orden[actual + 1];
-        celda.dataset.e = sig[0];
-        celda.className = "pill estado " + sig[0];
-        celda.textContent = sig[1];
-        if (sig[0] === "listo") { b.textContent = "Pedir reseña"; }
-      } else {
-        b.textContent = "En la cola";
-        b.disabled = true;
-        var n = parseInt($("#kpiEnviadas").textContent, 10) + 1;
-        $("#kpiEnviadas").textContent = String(n);
-      }
-    });
+  $("#waSinFolio").addEventListener("click", function () {
+    window.location.href = waUrl(mensaje("", fechaSel()));
   });
 })();
 

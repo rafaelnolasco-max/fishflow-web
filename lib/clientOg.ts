@@ -49,6 +49,7 @@ export const CLIENT_NAMES: Record<string, string> = {
   jjlaboral: "JJ Laboral Asociados",
   lukon: "Lukon Telemática",
   cafemoran: "Café Moran's",
+  aguachiles: "Los Aguachiles",
   therapyos: "TherapyOS — Mario Citalán",
   tintosentido: "Tinto Sentido",
 };
