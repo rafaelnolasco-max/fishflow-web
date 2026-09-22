@@ -273,6 +273,11 @@ footer a{color:var(--lima)}
 .ayuda.ok{color:var(--ok);font-weight:700}
 .ayuda.mal{color:#9B1C1C;font-weight:700}
 
+/* ---------- direccion por partes: estas parejas NO se apilan en celular ---------- */
+.par2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.par2-cp{grid-template-columns:1.6fr 1fr}
+.opc{font-weight:600;text-transform:none;letter-spacing:0;color:var(--gris)}
+
 /* ---------- responsivo ---------- */
 @media (max-width:900px){
   .hero-in{grid-template-columns:1fr;gap:32px}
@@ -498,8 +503,20 @@ footer a{color:var(--lima)}
         <div class="campo"><label for="nombre">Tu nombre</label><input id="nombre" type="text" autocomplete="name"></div>
         <div class="campo"><label for="tel">Teléfono</label><input id="tel" type="tel" inputmode="tel" autocomplete="tel"></div>
       </div>
-      <div class="campo"><label for="dir">Dirección</label>
-        <input id="dir" type="text" autocomplete="street-address" placeholder="Calle, número, colonia y referencias"></div>
+      <div class="campo"><label for="calle">Calle</label>
+        <input id="calle" type="text" autocomplete="address-line1" placeholder="Ej. Av. Río Churubusco"></div>
+      <div class="par2">
+        <div class="campo"><label for="numExt">Número</label>
+          <input id="numExt" type="text" autocomplete="off" placeholder="Ej. 100"></div>
+        <div class="campo"><label for="numInt">Interior <span class="opc">(opcional)</span></label>
+          <input id="numInt" type="text" autocomplete="address-line2" placeholder="Depto, casa, torre"></div>
+      </div>
+      <div class="par2 par2-cp">
+        <div class="campo"><label for="colonia">Colonia</label>
+          <input id="colonia" type="text" autocomplete="address-level3" placeholder="Ej. Agrícola Oriental"></div>
+        <div class="campo"><label for="cp">Código postal</label>
+          <input id="cp" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="08500"></div>
+      </div>
       <div class="campo">
         <label>Confirma tu ubicación en el mapa</label>
         <div class="mapa-acciones">
@@ -671,7 +688,7 @@ footer a{color:var(--lima)}
   /* ---------------- agenda de entrega ---------------- */
   var franjaElegida = "";
   var HOY = new Date();
-  var campos = ["nombre", "tel", "dir"];
+  var campos = ["nombre", "tel", "calle", "numExt", "numInt", "colonia", "cp"];
   var pagoElegido = "";
   var enviando = false, guardado = false;
   var ubic = null, mapaFallo = false;
@@ -842,8 +859,9 @@ footer a{color:var(--lima)}
   });
 
   $("#buscarUbic").addEventListener("click", function () {
-    var q = $("#dir").value.trim();
-    if (q.length < 5) { avisoMapa("Escribe primero tu dirección arriba.", "mal"); $("#dir").focus(); return; }
+    if ($("#calle").value.trim().length < 3) { avisoMapa("Escribe primero la calle y el número.", "mal"); $("#calle").focus(); return; }
+    var q = [$("#calle").value.trim() + " " + $("#numExt").value.trim(), $("#colonia").value.trim(), $("#cp").value.trim()]
+      .filter(function (x) { return x.trim(); }).join(", ");
     avisoMapa("Buscando tu dirección…");
     fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=mx" +
       "&viewbox=-99.36,19.59,-98.94,19.18&accept-language=es&q=" + encodeURIComponent(q + ", Ciudad de México"))
@@ -895,11 +913,24 @@ footer a{color:var(--lima)}
   }
 
   function revisarForma() {
-    var lleno = campos.every(function (id) { return $("#" + id).value.trim().length > 2; });
+    var v = function (id) { return $("#" + id).value.trim(); };
+    var lleno = v("nombre").length > 1 && v("calle").length > 2 && v("numExt").length >= 1 &&
+      v("colonia").length > 2 && /^\d{5}$/.test(v("cp"));
     var telOk = tel10($("#tel").value).length === 10;
     var ubicOk = mapaFallo || !!ubic;
     $("#enviarWa").disabled = enviando || !(lleno && telOk && ubicOk && franjaElegida && pagoElegido && carrito.length);
   }
+
+  function direccionTexto() {
+    var i = $("#numInt").value.trim();
+    return $("#calle").value.trim() + " " + $("#numExt").value.trim() + (i ? " int. " + i : "") +
+      ", Col. " + $("#colonia").value.trim() + ", C.P. " + $("#cp").value.trim();
+  }
+  $("#cp").addEventListener("input", function () {
+    var d = this.value.replace(/\D/g, "").slice(0, 5);
+    if (d !== this.value) this.value = d;
+    revisarForma();
+  });
 
   /* ---------------- guardar el pedido y abrir WhatsApp ---------------- */
   function fechaSel() {
@@ -925,7 +956,7 @@ footer a{color:var(--lima)}
     L.push("Entrega: " + fechaLarga(d) + ", de " + franjaElegida.replace(" - ", " a "));
     L.push("Nombre: " + $("#nombre").value.trim());
     L.push("Teléfono: " + $("#tel").value.trim());
-    L.push("Dirección: " + $("#dir").value.trim());
+    L.push("Dirección: " + direccionTexto());
     if (ubic) L.push("Ubicación: " + ligaMaps(ubic));
     var nota = $("#nota").value.trim();
     if (nota) L.push("Nota: " + nota);
@@ -960,7 +991,12 @@ footer a{color:var(--lima)}
     var payload = {
       nombre: $("#nombre").value.trim(),
       telefono: $("#tel").value.trim(),
-      direccion: $("#dir").value.trim(),
+      calle: $("#calle").value.trim(),
+      numero: $("#numExt").value.trim(),
+      interior: $("#numInt").value.trim(),
+      colonia: $("#colonia").value.trim(),
+      cp: $("#cp").value.trim(),
+      direccion: direccionTexto(),
       nota: $("#nota").value.trim(),
       fecha: iso(d),
       franja: franjaElegida,

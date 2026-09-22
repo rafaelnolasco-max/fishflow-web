@@ -41,7 +41,16 @@ export async function POST(req: NextRequest) {
 
   const nombre = String(body.nombre ?? "").trim().slice(0, 80);
   const tel = telefono10(String(body.telefono ?? ""));
-  const direccion = String(body.direccion ?? "").trim().slice(0, 300);
+  // Dirección por partes (calle, número, interior, colonia, C.P.). Se arma una sola
+  // línea para shipping_address; el C.P. se guarda aparte para definir zonas después.
+  // Si llega solo `direccion` (página vieja en caché), se acepta tal cual.
+  const txt = (k: string, max: number) => String(body[k] ?? "").trim().slice(0, max);
+  const calle = txt("calle", 120), numero = txt("numero", 20), interior = txt("interior", 30), colonia = txt("colonia", 80);
+  const cp = String(body.cp ?? "").replace(/\D/g, "");
+  const porPartes = !!(calle || numero || colonia || cp);
+  const direccion = porPartes
+    ? `${calle} ${numero}${interior ? ` int. ${interior}` : ""}, Col. ${colonia}, C.P. ${cp}`
+    : txt("direccion", 300);
   const nota = String(body.nota ?? "").trim().slice(0, 300);
   const fecha = String(body.fecha ?? "");
   const franja = String(body.franja ?? "");
@@ -53,7 +62,14 @@ export async function POST(req: NextRequest) {
 
   if (nombre.length < 2) return NextResponse.json({ error: "Escribe tu nombre" }, { status: 400 });
   if (tel.length !== 10) return NextResponse.json({ error: "El teléfono debe tener 10 dígitos" }, { status: 400 });
-  if (direccion.length < 8) return NextResponse.json({ error: "Escribe la dirección completa" }, { status: 400 });
+  if (porPartes) {
+    if (calle.length < 3) return NextResponse.json({ error: "Escribe la calle" }, { status: 400 });
+    if (!numero) return NextResponse.json({ error: "Escribe el número de la casa o edificio" }, { status: 400 });
+    if (colonia.length < 3) return NextResponse.json({ error: "Escribe la colonia" }, { status: 400 });
+    if (!/^\d{5}$/.test(cp)) return NextResponse.json({ error: "El código postal debe tener 5 dígitos" }, { status: 400 });
+  } else if (direccion.length < 8) {
+    return NextResponse.json({ error: "Escribe la dirección completa" }, { status: 400 });
+  }
   if (!(PAGOS as readonly string[]).includes(pago))
     return NextResponse.json({ error: "Escoge cómo vas a pagar" }, { status: 400 });
 
@@ -120,6 +136,7 @@ export async function POST(req: NextRequest) {
       delivery_slot: franja,
       delivery_lat: lat,
       delivery_lng: lng,
+      delivery_cp: porPartes ? cp : null,
       notes: nota || null,
     })
     .select("id, order_no")
