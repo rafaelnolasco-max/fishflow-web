@@ -145,3 +145,102 @@ export function ligaMapa(lat: number | null, lng: number | null, direccion: stri
 export function ligaRuta(lat: number, lng: number): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(6)},${lng.toFixed(6)}`;
 }
+
+// ─── Ruta de entrega ─────────────────────────────────────────────────────────
+/**
+ * Cocina de Chiva, punto de salida por defecto de la ruta.
+ * PENDIENTE: pedirle la dirección. Mientras sea null, la ruta sale de la
+ * ubicación del celular (si da permiso) o del orden más corto entre paradas.
+ */
+export const AGUACHILES_COCINA: { lat: number; lng: number } | null = null;
+
+export type Punto = { lat: number; lng: number };
+
+/** Distancia en línea recta, en km (haversine). */
+export function kmEntre(a: Punto, b: Punto): number {
+  const R = 6371;
+  const rad = (x: number) => (x * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+function largo<T extends Punto>(orden: T[], origen: Punto | null): number {
+  let km = 0;
+  if (origen && orden.length) km += kmEntre(origen, orden[0]);
+  for (let i = 1; i < orden.length; i++) km += kmEntre(orden[i - 1], orden[i]);
+  return km;
+}
+
+function vecinoMasCercano<T extends Punto>(paradas: T[], inicio: Punto, yaIncluido?: T): T[] {
+  const pend = paradas.filter((p) => p !== yaIncluido);
+  const orden: T[] = yaIncluido ? [yaIncluido] : [];
+  let actual: Punto = yaIncluido ?? inicio;
+  while (pend.length) {
+    let mejor = 0;
+    for (let i = 1; i < pend.length; i++) if (kmEntre(actual, pend[i]) < kmEntre(actual, pend[mejor])) mejor = i;
+    actual = pend[mejor];
+    orden.push(pend.splice(mejor, 1)[0]);
+  }
+  return orden;
+}
+
+/** Mejora 2-opt: invierte tramos mientras acorte el recorrido (n chico, sobra). */
+function dosOpt<T extends Punto>(orden: T[], origen: Punto | null): T[] {
+  let r = orden.slice();
+  let mejoro = true;
+  while (mejoro) {
+    mejoro = false;
+    for (let i = origen ? 0 : 1; i < r.length - 1; i++) {
+      for (let k = i + 1; k < r.length; k++) {
+        const cand = r.slice(0, i).concat(r.slice(i, k + 1).reverse(), r.slice(k + 1));
+        if (largo(cand, origen) + 1e-9 < largo(r, origen)) { r = cand; mejoro = true; }
+      }
+    }
+  }
+  return r;
+}
+
+/**
+ * Orden de entrega que minimiza el recorrido en línea recta.
+ * Con origen (cocina o GPS) sale de ahí; sin origen prueba cada parada como
+ * arranque y se queda con la más corta. Recorrido abierto: no regresa.
+ */
+export function proponerRuta<T extends Punto>(paradas: T[], origen: Punto | null): { orden: T[]; km: number } {
+  if (paradas.length <= 1) return { orden: paradas.slice(), km: largo(paradas, origen) };
+  let mejor: T[] = [];
+  if (origen) {
+    mejor = dosOpt(vecinoMasCercano(paradas, origen), origen);
+  } else {
+    let mejorKm = Infinity;
+    for (const arranque of paradas) {
+      const r = dosOpt(vecinoMasCercano(paradas, arranque, arranque), null);
+      const km = largo(r, null);
+      if (km < mejorKm) { mejorKm = km; mejor = r; }
+    }
+  }
+  return { orden: mejor, km: largo(mejor, origen) };
+}
+
+/**
+ * Ligas de Google Maps para recorrer la ruta en orden. Google Maps en celular
+ * solo respeta pocas paradas intermedias por liga, así que se parte en tramos de
+ * hasta 4 entregas; cada tramo arranca donde terminó el anterior. Sin origen,
+ * Google Maps sale de donde esté el teléfono.
+ */
+export function ligasRuta(orden: Punto[], origen: Punto | null, porTramo = 4): string[] {
+  const c = (p: Punto) => `${p.lat.toFixed(6)},${p.lng.toFixed(6)}`;
+  const ligas: string[] = [];
+  let desde: Punto | null = origen;
+  for (let i = 0; i < orden.length; i += porTramo) {
+    const tramo = orden.slice(i, i + porTramo);
+    const destino = tramo[tramo.length - 1];
+    const intermedias = tramo.slice(0, -1);
+    let url = `https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=${c(destino)}`;
+    if (desde) url += `&origin=${c(desde)}`;
+    if (intermedias.length) url += `&waypoints=${encodeURIComponent(intermedias.map(c).join("|"))}`;
+    ligas.push(url);
+    desde = destino;
+  }
+  return ligas;
+}

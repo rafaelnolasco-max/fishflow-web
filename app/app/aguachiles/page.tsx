@@ -14,12 +14,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
-  DashboardHeader, TabBar, StatGrid, StatCard, Empty, Toast, type DashTheme,
+  DashboardHeader, TabBar, StatGrid, StatCard, Empty, Toast, Modal, type DashTheme,
 } from "@/components/dashboard";
 import ReviewsTab, { normalizePhone } from "@/components/reviews/ReviewsTab";
 import {
   AGUACHILES_CLIENT_ID, ESTADO_LABEL, SIGUIENTE, PAGO_LABEL, type Estado,
   cdmxToday, fechaLarga, folio, pesos, ligaMapa, ligaRuta,
+  AGUACHILES_COCINA, proponerRuta, ligasRuta, kmEntre, type Punto,
 } from "@/lib/storeAguachiles";
 
 // Rosa del logo sobre azul marino de su portada.
@@ -155,6 +156,7 @@ function PedidosTab() {
   const [toast, setToast] = useState<string | null>(null);
   const [actualizado, setActualizado] = useState<Date | null>(null);
   const [ocupado, setOcupado] = useState<string | null>(null);
+  const [ruta, setRuta] = useState<{ titulo: string; pedidos: Pedido[] } | null>(null);
 
   const avisar = (m: string) => { setToast(m); setTimeout(() => setToast(null), 2600); };
 
@@ -280,6 +282,17 @@ function PedidosTab() {
                 {fecha === hoy ? "Hoy" : fecha === "sin fecha" ? "Sin fecha" : fechaLarga(fecha)}
                 {franja ? ` · ${franja}` : ""}
                 <span style={{ fontWeight: 600, marginLeft: 8 }}>({lista.length})</span>
+                {(() => {
+                  const pendientes = lista.filter((p) => !["entregado", "cancelado"].includes(p.fulfillment_status));
+                  if (!pendientes.length) return null;
+                  const titulo = `${fecha === hoy ? "Hoy" : fechaLarga(fecha)}${franja ? ` · ${franja}` : ""}`;
+                  return (
+                    <button onClick={() => setRuta({ titulo, pedidos: pendientes })}
+                      style={{ ...botonLinea, marginLeft: 12, padding: "5px 12px", fontSize: 12, textTransform: "none", letterSpacing: 0 }}>
+                      🛵 Ruta de entrega
+                    </button>
+                  );
+                })()}
               </h3>
               <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))" }}>
                 {lista.map((p) => (
@@ -291,6 +304,7 @@ function PedidosTab() {
           );
         })
       )}
+      {ruta && <RutaModal titulo={ruta.titulo} pedidos={ruta.pedidos} onClose={() => setRuta(null)} />}
       <Toast theme={T} msg={toast} />
     </div>
   );
@@ -356,6 +370,106 @@ function TarjetaPedido({ p, ocupado, onAvanzar, onCancelar }: {
         </div>
       )}
     </article>
+  );
+}
+
+// ─── Ruta de entrega ─────────────────────────────────────────────────────────
+// Propone el orden de las entregas pendientes de una franja con el pin que dejó
+// cada cliente. Distancias en línea recta: sirven para ordenar, no para prometer
+// tiempos. El tiempo real lo da Google Maps al abrir la liga.
+type Parada = Pedido & Punto;
+
+function RutaModal({ titulo, pedidos, onClose }: { titulo: string; pedidos: Pedido[]; onClose: () => void }) {
+  const [origen, setOrigen] = useState<Punto | null>(AGUACHILES_COCINA);
+  const [gps, setGps] = useState<string | null>(null);
+
+  const conPin: Parada[] = pedidos
+    .filter((p) => p.delivery_lat != null && p.delivery_lng != null)
+    .map((p) => ({ ...p, lat: p.delivery_lat!, lng: p.delivery_lng! }));
+  const sinPin = pedidos.filter((p) => p.delivery_lat == null || p.delivery_lng == null);
+
+  const { orden, km } = useMemo(() => proponerRuta(conPin, origen), [conPin.map((p) => p.id).join(","), origen]); // eslint-disable-line react-hooks/exhaustive-deps
+  const ligas = ligasRuta(orden, origen);
+
+  function desdeAqui() {
+    if (!navigator.geolocation) { setGps("Este teléfono no comparte ubicación."); return; }
+    setGps("Buscando tu ubicación…");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setOrigen({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setGps("La ruta sale de donde estás."); },
+      () => setGps("No se pudo leer tu ubicación. La ruta sale de la primera entrega."),
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
+
+  return (
+    <Modal title={`Ruta de entrega · ${titulo}`} onClose={onClose} theme={T}>
+      {conPin.length === 0 ? (
+        <p style={{ fontSize: 14, color: T.muted, lineHeight: 1.55 }}>
+          Ningún pedido de esta franja trae pin en el mapa, así que no se puede armar la ruta.
+          Usa la dirección escrita de cada uno.
+        </p>
+      ) : (
+        <>
+          <p style={{ fontSize: 13, color: T.muted, margin: "0 0 12px", lineHeight: 1.55 }}>
+            Orden sugerido para entregar lo pendiente de esta franja con el menor recorrido.
+            {origen ? "" : " Sin punto de salida, arranca por la entrega que deja el camino más corto."}
+          </p>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 14 }}>
+            <button onClick={desdeAqui} style={botonLinea}>📍 Salir desde donde estoy</button>
+            {gps && <span style={{ fontSize: 12, color: T.muted }}>{gps}</span>}
+          </div>
+          <ol style={{ listStyle: "none", padding: 0, margin: "0 0 14px" }}>
+            {orden.map((p, i) => {
+              const previo = i === 0 ? origen : orden[i - 1];
+              const tramo = previo ? kmEntre(previo, p) : null;
+              return (
+                <li key={p.id} style={{ display: "flex", gap: 12, padding: "10px 0", borderBottom: `1px solid ${T.border}` }}>
+                  <span style={{ flex: "none", width: 28, height: 28, borderRadius: "50%", background: T.accent, color: "#fff",
+                    display: "grid", placeItems: "center", fontWeight: 800, fontSize: 13 }}>{i + 1}</span>
+                  <div style={{ fontSize: 13, lineHeight: 1.5 }}>
+                    <b>{folio(p.order_no)} · {p.customer_name}</b>
+                    <div>{p.shipping_address}</div>
+                    <div style={{ color: T.muted }}>
+                      {tramo != null ? `a ${tramo.toFixed(1)} km ${i === 0 ? "de la salida" : "de la anterior"} · ` : ""}
+                      <a href={`https://wa.me/52${p.customer_phone}`} target="_blank" rel="noreferrer" style={{ color: "#128C4A", fontWeight: 700 }}>
+                        Avisar que voy
+                      </a>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+          <p style={{ fontSize: 12, color: T.muted, margin: "0 0 12px" }}>
+            ≈ {km.toFixed(1)} km en línea recta. Google Maps te da la distancia y el tiempo reales.
+          </p>
+          <div style={{ display: "grid", gap: 8 }}>
+            {ligas.map((u, i) => (
+              <a key={u} href={u} target="_blank" rel="noreferrer"
+                style={{ ...botonRosa, display: "block", textAlign: "center", textDecoration: "none", padding: "12px 14px" }}>
+                Abrir ruta en Google Maps{ligas.length > 1 ? ` · tramo ${i + 1} de ${ligas.length}` : ""}
+              </a>
+            ))}
+          </div>
+          {ligas.length > 1 && (
+            <p style={{ fontSize: 12, color: T.muted, margin: "8px 0 0" }}>
+              Google Maps en el celular solo acepta pocas paradas por ruta: al terminar un tramo, abre el siguiente.
+            </p>
+          )}
+        </>
+      )}
+      {sinPin.length > 0 && (
+        <div style={{ marginTop: 16, background: T.panel, borderRadius: 10, padding: "10px 12px", fontSize: 13 }}>
+          <b>Sin pin, no entran a la ruta:</b>
+          {sinPin.map((p) => (
+            <div key={p.id} style={{ marginTop: 4 }}>
+              {folio(p.order_no)} · {p.shipping_address} ·{" "}
+              <a href={ligaMapa(null, null, p.shipping_address)} target="_blank" rel="noreferrer" style={{ color: T.accentDark, fontWeight: 700 }}>Buscar</a>
+            </div>
+          ))}
+        </div>
+      )}
+    </Modal>
   );
 }
 
