@@ -15,7 +15,7 @@ export const runtime = 'nodejs'
 // Mario y a Rafa en el momento: un prospecto comercial no puede esperar a que
 // alguien se acuerde de revisar el panel.
 //
-// Estos cuatro formularios llevaban desde el lanzamiento del sitio diciendo
+// Los formularios originales llevaban desde el lanzamiento del sitio diciendo
 // "gracias" y tirando el dato a la basura.
 
 const CORS_HEADERS = {
@@ -34,6 +34,13 @@ const SERVICIOS: Record<string, string> = {
   cea: 'CEA — Centro de Entrenamiento en Actitud',
   evoluciona: 'Evoluciona',
   'ciencia-en-escena': 'Ciencia en Escena',
+  // DERVIAC (sep-2026): Arquitectura Mental y del Criterio evolucionó a DERVIAC.
+  // Las claves viejas se quedan para leer solicitudes históricas.
+  'programa-personal': 'Programa Personal DERVIAC',
+  empresas: 'DERVIAC Empresas',
+  conferencias: 'Conferencias DERVIAC',
+  talleres: 'Talleres DERVIAC',
+  'conferencias-y-talleres': 'Conferencias y Talleres DERVIAC',
 }
 
 const AVISO_A = ['mariocitalan@gmail.com', 'raf@fishflow.mx']

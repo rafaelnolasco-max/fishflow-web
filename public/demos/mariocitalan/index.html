@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mario Citalán — Arquitectura Mental y del Criterio · CDMX</title>
-<meta name="description" content="Ecosistema para evaluar y fortalecer tu arquitectura mental. Haz la Evaluación de Arquitectura Mental y del Criterio y descubre desde qué estructura interpretas, decides y construyes tu vida.">
+<title>Mario Citalán — DERVIAC · La ciencia de comprender cómo decidimos</title>
+<meta name="description" content="DERVIAC te ayuda a comprender cómo estás decidiendo y a desarrollar la capacidad de tomar decisiones que te convengan más. Programas, conferencias, talleres, experiencias y consultoría del Dr. Mario Citalán.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -424,13 +424,118 @@
     .nl-optin{padding:22px 20px;margin-top:30px}
     .nl-optin .nl-row{display:block}
   }
+
+  .topstack{position:fixed;top:0;left:0;right:0;z-index:50}
+  .nav{position:relative;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(255,255,255,.93);border-bottom:1px solid transparent;transition:.4s}
+  .nav.scrolled{border-bottom-color:var(--rule)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:16px 44px}
+  .nav-mark{display:flex;align-items:center;gap:11px;font-family:"Fraunces",serif;font-weight:500;font-size:18px;letter-spacing:.02em;white-space:nowrap}
+  .nav-logo{height:32px;width:auto;display:block}
+  .nav-links{display:flex;gap:24px;font-size:13px;letter-spacing:.02em;color:var(--ink-2)}
+  .nav-links a{white-space:nowrap;padding:4px 0;border-bottom:1px solid transparent}
+  .nav-links a:hover{color:var(--accent-deep)}
+  .nav-links a.on{color:var(--accent-deep);border-bottom-color:var(--accent-deep)}
+  .nav-cta{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:12px 20px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);transition:.3s;white-space:nowrap}
+  .nav-cta:hover{background:var(--accent-deep);border-color:var(--accent-deep)}
+  .nav-burger{display:none;background:none;border:1px solid var(--ink);width:42px;height:42px;align-items:center;justify-content:center;cursor:pointer;font-size:17px;line-height:1;color:var(--ink);margin-left:12px}
+  .nav-mobile{display:none;flex-direction:column;background:rgba(255,255,255,.98);border-bottom:1px solid var(--rule);padding:6px 24px 20px}
+  .nav-mobile.open{display:flex}
+  .nav-mobile a{padding:14px 4px;border-bottom:1px solid var(--rule);font-size:14px;letter-spacing:.02em;color:var(--ink-2)}
+  .nav-mobile a.on{color:var(--accent-deep)}
+  .nav-mobile a.nav-mobile-cta{margin-top:16px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:13px 20px}
+  .nav-right{display:flex;align-items:center}
+  @media (max-width:1180px){.nav-links{display:none}.nav-burger{display:flex}}
+  @media (max-width:640px){.nav-inner{padding:12px 18px;gap:10px}.nav-logo{height:26px}.nav-mark{font-size:15px;gap:8px}.nav-cta{padding:10px 12px;font-size:10px;letter-spacing:.1em}}
+  @media (max-width:360px){.nav-mark{font-size:0;gap:0}}
+
+  /* ---- DERVIAC (sep-2026) ---- */
+  .hero-lead p{margin-bottom:14px}
+  .hero-lead p:last-child{margin-bottom:0}
+  .hero-lead .kick{font-family:"Fraunces",serif;font-size:21px;line-height:1.4;color:var(--ink)}
+  .flow{margin-top:96px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .flow > div{padding:30px 24px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:8px;position:relative}
+  .flow > div:last-child{border-right:none}
+  .flow > div:not(:last-child)::after{content:"\2192";position:absolute;right:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;background:var(--paper);color:var(--accent-deep);font-size:14px;display:flex;align-items:center;justify-content:center;z-index:1}
+  .flow .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;color:var(--accent-deep)}
+  .flow .n{font-family:"Fraunces",serif;font-size:clamp(22px,2.3vw,32px);line-height:1.05;color:var(--ink);text-transform:uppercase;letter-spacing:.02em}
+  .flow > div:last-child .n{color:var(--accent-deep)}
+  .evol{max-width:880px}
+  .evol p{color:var(--ink-2);margin-bottom:16px;max-width:62ch}
+  .evol p.last{font-family:"Fraunces",serif;font-size:clamp(20px,2.1vw,26px);line-height:1.4;color:var(--ink);max-width:40ch;margin-top:26px}
+  .evol .from{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-family:"Fraunces",serif;font-size:clamp(20px,2vw,26px);margin:6px 0 30px}
+  .evol .from .old{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+  .evol .from .arrow{color:var(--accent-deep)}
+  .evol .from .new{font-weight:600;letter-spacing:.06em;color:var(--ink)}
+  .que{margin-top:84px;padding-top:72px;border-top:1px solid var(--rule);display:grid;grid-template-columns:1.05fr .95fr;gap:72px;align-items:start}
+  .que h3{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(34px,3.8vw,56px);line-height:1.02;letter-spacing:-.015em;margin-bottom:26px}
+  .que p{color:var(--ink-2);margin-bottom:16px;max-width:56ch}
+  .que .idea{font-family:"Fraunces",serif;font-style:italic;font-size:clamp(19px,1.9vw,24px);line-height:1.42;color:var(--accent-deep);border-left:3px solid var(--accent);padding:4px 0 4px 20px;margin:26px 0}
+  .dmap{background:var(--ink);color:var(--paper);padding:40px 32px;text-align:center}
+  .dmap .top,.dmap .bottom{font-family:"Fraunces",serif;font-size:30px;letter-spacing:.1em}
+  .dmap .bottom{font-size:22px;color:#67D4E8;letter-spacing:.16em}
+  .dmap .down{color:#67D4E8;font-size:22px;margin:14px 0}
+  .dmap .three{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--rule-dark)}
+  .dmap .three > div{padding:20px 10px;border-right:1px solid var(--rule-dark)}
+  .dmap .three > div:last-child{border-right:none}
+  .dmap .three .a{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;color:#67D4E8}
+  .dmap .three .b{font-family:"Fraunces",serif;font-size:18px;margin-top:6px}
+  .dmap .cap{margin-top:22px;font-size:13px;color:rgba(244,247,250,.6)}
+  .crit-body{max-width:760px}
+  .crit-body p{color:var(--ink-2);margin-bottom:16px;font-size:17px;max-width:60ch}
+  .crit-body p.lead-q{font-family:"Fraunces",serif;font-size:clamp(22px,2.4vw,30px);line-height:1.36;color:var(--ink)}
+  .crit-tests{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:44px}
+  .crit-test{background:var(--bone);border:1px solid var(--rule);padding:30px 28px;display:flex;flex-direction:column;gap:12px}
+  .crit-test .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-deep)}
+  .crit-test h4{font-family:"Fraunces",serif;font-weight:500;font-size:25px;line-height:1.14}
+  .crit-test p{font-size:14.5px;color:var(--ink-2)}
+  .crit-test .btn-primary,.crit-test .btn-outline{margin-top:auto;align-self:flex-start}
+  .newsletter{background:var(--paper-2)}
+  .newsletter .nl-optin{max-width:640px;margin:0 auto;padding:40px 40px 34px}
+  .newsletter .nl-optin .nl-eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.24em}
+  .newsletter .nl-optin h2{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(28px,3.2vw,42px);line-height:1.06;margin-bottom:14px}
+  .newsletter .nl-optin .nl-lead{font-size:16px}
+  .newsletter .nl-optin button{background:var(--ink);color:var(--paper)}
+  .newsletter .nl-optin button:hover{background:var(--accent-deep);border-color:var(--accent-deep)}
+  .sol.feature{grid-column:1 / -1}
+  .sol .facts{display:flex;gap:8px;flex-wrap:wrap}
+  .sol .facts span{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--rule-dark);padding:5px 9px;color:rgba(244,247,250,.75)}
+  .soluciones .section-head .kicker p.sol-claim{margin-top:10px;font-family:"Fraunces",serif;font-style:italic;font-size:clamp(20px,2.2vw,28px);color:var(--accent)}
+  .libro p + p{margin-top:-14px}
+  .drmente{background:var(--ink);color:var(--paper);text-align:center}
+  .drmente .badge{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink);background:#67D4E8;padding:7px 12px;margin-bottom:26px}
+  .drmente h2{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(40px,5vw,72px);line-height:1;letter-spacing:-.015em}
+  .drmente .with{font-family:"Fraunces",serif;font-style:italic;font-size:clamp(20px,2vw,26px);color:#67D4E8;margin:10px 0 24px}
+  .drmente .sub{font-size:17px;color:rgba(244,247,250,.8);margin-bottom:34px}
+  .drmente .qs{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:860px;margin:0 auto 34px;text-align:left}
+  .drmente .qs li{border:1px solid var(--rule-dark);padding:18px 20px;font-family:"Fraunces",serif;font-size:19px;line-height:1.35;background:rgba(255,255,255,.03)}
+  .drmente p{color:rgba(244,247,250,.74);max-width:58ch;margin:0 auto 14px}
+  .drmente .end{font-family:"Fraunces",serif;font-style:italic;color:var(--paper);font-size:21px}
+  .about-body .roles{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-deep);margin:-12px 0 24px;line-height:1.8}
+  .about-body .purpose{font-family:"Fraunces",serif;font-style:italic;font-size:clamp(19px,1.9vw,23px);line-height:1.42;color:var(--accent-deep);border-left:3px solid var(--accent);padding:4px 0 4px 20px;margin:22px 0 0;max-width:40ch}
+  .foot-mark.dv{font-size:26px;letter-spacing:.06em}
+  @media (max-width:900px){
+    .flow{grid-template-columns:repeat(2,1fr);margin-top:56px}
+    .flow > div:nth-child(2){border-right:none}
+    .flow > div:nth-child(1),.flow > div:nth-child(2){border-bottom:1px solid var(--rule)}
+    .flow > div:nth-child(2)::after{display:none}
+    .que{grid-template-columns:1fr;gap:40px;margin-top:56px;padding-top:52px}
+    .crit-tests{grid-template-columns:1fr}
+    .drmente .qs{grid-template-columns:1fr}
+  }
+  @media (max-width:640px){
+    .flow > div{padding:20px 16px}
+    .dmap{padding:30px 16px}
+    .dmap .three .b{font-size:15px}
+    .dmap .three .a{font-size:9.5px;letter-spacing:.12em}
+    .newsletter .nl-optin{padding:26px 20px}
+  }
 </style>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Mario Citalán · Dr. Mente">
-<meta property="og:title" content="Mario Citalán — Arquitectura Mental y del Criterio · CDMX">
-<meta property="og:description" content="Ecosistema para evaluar y fortalecer tu arquitectura mental. Haz la Evaluación de Arquitectura Mental y del Criterio y descubre desde qué estructura interpretas, decides y construyes tu vida.">
+<meta property="og:site_name" content="Mario Citalán · DERVIAC">
+<meta property="og:title" content="Mario Citalán — DERVIAC · La ciencia de comprender cómo decidimos">
+<meta property="og:description" content="DERVIAC te ayuda a comprender cómo estás decidiendo y a desarrollar la capacidad de tomar decisiones que te convengan más. Programas, conferencias, talleres, experiencias y consultoría del Dr. Mario Citalán.">
 <meta property="og:url" content="https://mariocitalan.net/">
 <meta property="og:image" content="https://mariocitalan.net/assets/img/og-cover.jpg">
 <meta property="og:image:width" content="1200">
@@ -438,25 +543,24 @@
 <meta property="og:locale" content="es_MX">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://mariocitalan.net/">
+<script src="assets/antibot.js?v=1"></script>
 </head>
 <body>
 
-<!-- Barra fija (banner demo + navegación) -->
+<!-- Barra fija (navegación) -->
 <div class="topstack">
-
-  <!-- ============== NAV ============== -->
   <nav class="nav" id="nav">
     <div class="nav-inner">
       <a href="#inicio" class="nav-mark"><img class="nav-logo" src="assets/img/dr-mente-logo.png" alt="Dr. Mente"> Mario Citalán</a>
       <div class="nav-links">
-        <a href="ecosistema.html">El Ecosistema</a>
-        <a href="#modelo">El modelo</a>
-        <a href="#criterio">Tu criterio</a>
-        <a href="#soluciones">Soluciones</a>
+        <a href="#derviac" class="on">DERVIAC</a>
+        <a href="programa-personal.html">Programa Personal</a>
+        <a href="empresas.html">Empresas</a>
+        <a href="conferencias-y-talleres.html">Conferencias y Talleres</a>
         <a href="ciencia-en-escena.html">Ciencia en Escena</a>
-        <a href="recursos.html">Recursos</a>
+        <a href="#sobre">Mario Citalán</a>
       </div>
-      <a href="actitud.html" class="nav-cta">Evalúa tu actitud</a>
+      <a href="actitud.html" class="nav-cta">Haz el test</a>
     </div>
   </nav>
 </div>
@@ -468,15 +572,20 @@
       <div class="hero-text">
         <div class="hero-meta">
           <span class="bar"></span>
-          <span class="eyebrow">Arquitectura Mental y del Criterio · CDMX</span>
+          <span class="eyebrow">DERVIAC · Dr. Mario Citalán · CDMX</span>
         </div>
         <h1 class="display">Tu vida depende de cómo <span class="italic">piensas y decides</span>.</h1>
-        <p class="hero-lead">No depende únicamente de tus capacidades, sino de la arquitectura desde la que interpretas, decides y actúas &mdash; y de la actitud que tienes hacia ella. Empieza por descubrir cómo está la tuya.</p>
+        <div class="hero-lead">
+          <p>Todos los días tomas decisiones. Muchas son simples y otras más complejas. Algunas no las quieres tomar y otras las repites una y otra vez, aunque el resultado no te favorezca.</p>
+          <p>Y también puede pasar que sientas que no avanzas, simplemente porque no sabes qué decidir.</p>
+          <p><strong>DERVIAC</strong> te ayuda a comprender cómo estás decidiendo y a desarrollar la capacidad de tomar decisiones que te convengan más.</p>
+          <p class="kick">Empieza por comprender cómo decides.</p>
+        </div>
         <div class="hero-cta-row">
-          <a href="actitud.html" class="btn-primary">Evalúa tu actitud · 15 preguntas
+          <a href="actitud.html" class="btn-primary">Haz el test
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
           </a>
-          <a href="cuestionario.html" class="btn-outline">Evaluación completa de Criterio
+          <a href="#derviac" class="btn-outline">Conoce DERVIAC
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
           </a>
         </div>
@@ -484,91 +593,101 @@
 
       <div class="hero-right">
         <div class="hero-figure">
-          <img src="assets/img/estudio-hero.jpg" alt="Mario Citalán — Arquitectura del Criterio" style="width:100%;height:100%;object-fit:cover;object-position:center top">
+          <img src="assets/img/estudio-hero.jpg" alt="Dr. Mario Citalán, creador de DERVIAC" style="width:100%;height:100%;object-fit:cover;object-position:center top">
         </div>
         <div class="hero-stamp-box">
-          <span class="eyebrow">El modelo</span>
-          <div class="num">01</div>
-          <div class="label">El problema primero · la persona después</div>
+          <span class="eyebrow">DERVIAC</span>
+          <div class="num">Comprender</div>
+          <div class="label">mejor para decidir mejor</div>
         </div>
       </div>
     </div>
 
-    <div class="metrics">
-      <div><div class="n">Actitud</div><div class="l">cómo enfrentas la vida</div></div>
-      <div><div class="n">Criterio</div><div class="l">cómo tomas decisiones</div></div>
-      <div><div class="n">Tu perfil</div><div class="l">y la ruta recomendada para ti</div></div>
-      <div><div class="n">+30 años</div><div class="l">de experiencia clínica</div></div>
+    <div class="flow" aria-label="Observa, comprende, construye criterio, decide">
+      <div><div class="k">01</div><div class="n">Observa</div></div>
+      <div><div class="k">02</div><div class="n">Comprende</div></div>
+      <div><div class="k">03</div><div class="n">Construye criterio</div></div>
+      <div><div class="k">04</div><div class="n">Decide</div></div>
     </div>
   </div>
 </section>
 
-<!-- ============== MODELO — ¿Qué es la Arquitectura Mental? ============== -->
-<section class="modelo" id="modelo">
+<!-- ============== DERVIAC — evolución + ¿qué es? ============== -->
+<section class="modelo" id="derviac">
   <div class="container">
-    <div class="section-head">
-      <div><span class="eyebrow">El modelo</span></div>
-      <div class="kicker">
-        <div class="ornament" style="margin-bottom:14px"><span class="line"></span><span class="diamond"></span></div>
-        <p>Todo este ecosistema nace para resolver un problema: ayudar a las personas a comprender cómo se construye su forma de pensar, decidir y actuar para que puedan transformar su vida de manera consciente.</p>
-        <p>La Arquitectura Mental es el modelo científico que explica cómo se organiza esa estructura interna. La Arquitectura del Criterio es la metodología que permite fortalecerla para tomar mejores decisiones, mantenerlas en el tiempo y construir una vida con mayor coherencia.</p>
-      </div>
+    <div class="evol">
+      <span class="eyebrow" style="display:block;margin-bottom:18px">La evolución</span>
+      <div class="from"><span class="old">Arquitectura Mental y del Criterio</span><span class="arrow">&rarr;</span><span class="new">DERVIAC</span></div>
+      <p>Arquitectura Mental y del Criterio nació para comprender desde dónde pensamos y decidimos, y cómo ello influye en la construcción de nuestro criterio.</p>
+      <p>DERVIAC parte de este conocimiento y da un paso más: transformarlo en soluciones aplicables para personas, profesionales, empresas y organizaciones.</p>
+      <p>Para hacerlo, incorporamos nuevas preguntas, desarrollamos metodologías e instrumentos y ampliamos sus posibilidades de aplicación.</p>
+      <p class="last">Así, Arquitectura Mental y del Criterio evoluciona a DERVIAC: no sólo para comprender cómo decidimos, sino también para desarrollar mejores maneras de hacerlo.</p>
     </div>
 
-    <div class="modelo-grid">
-      <div class="modelo-body">
-        <p class="lead-q">La estructura <span class="accent">invisible</span> que determina cómo piensas, sientes, decides y construyes tu vida.</p>
-        <p>La mayoría intenta cambiar resultados sin tocar la estructura desde la que decide. Por eso el cambio no se sostiene. La Arquitectura del Criterio trabaja en la raíz: tu capacidad de interpretar la realidad, tomar decisiones y construir una vida funcional.</p>
-        <div class="modelo-defs">
-          <div class="modelo-def">
-            <div class="t">Arquitectura Mental</div>
-            <div class="d">La estructura invisible que determina cómo piensas, sientes y actúas ante la vida.</div>
-          </div>
-          <div class="modelo-def">
-            <div class="t">Arquitectura del Criterio</div>
-            <div class="d">La capacidad de interpretar la realidad y tomar decisiones que construyen una vida funcional.</div>
-          </div>
-        </div>
-        <p class="modelo-claim">Te acompaño a construir la arquitectura mental que necesitas, para fortalecer el criterio con el que construyes tu vida.</p>
+    <div class="que">
+      <div>
+        <span class="eyebrow" style="display:block;margin-bottom:18px">¿Qué es DERVIAC?</span>
+        <h3>¿Qué es <span class="italic">DERVIAC</span>?</h3>
+        <p>DERVIAC es una plataforma de conocimiento y desarrollo humano de la que se desprende un modelo diseñado para estudiar cómo pensamos, interpretamos, respondemos y decidimos, con la finalidad de transformar este conocimiento en herramientas que puedan aplicarse en nuestra vida, las organizaciones y las empresas.</p>
+        <p>Partimos de una idea sencilla:</p>
+        <p class="idea">Comprender cómo decidimos es importante. Pero saber qué hacer con lo que vamos comprendiendo puede hacer una gran diferencia.</p>
+        <p>Es por ello que del modelo DERVIAC se desarrollan programas, conferencias, talleres, metodologías, instrumentos, experiencias inmersivas y consultoría, diseñados para llevar el conocimiento a situaciones reales.</p>
       </div>
-
+      <div class="dmap" aria-label="DERVIAC: vida, proceso y desempeño se convierten en soluciones">
+        <div class="top">DERVIAC</div>
+        <div class="down">&darr;</div>
+        <div class="three">
+          <div><div class="a">VIDA</div><div class="b">Individuos</div></div>
+          <div><div class="a">PROCESO</div><div class="b">Organizaciones</div></div>
+          <div><div class="a">DESEMPEÑO</div><div class="b">Empresas</div></div>
+        </div>
+        <div class="down">&darr;</div>
+        <div class="bottom">SOLUCIONES</div>
+        <div class="cap">Programas · conferencias · talleres · metodologías · instrumentos · experiencias inmersivas · consultoría</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============== CRITERIO — prueba profunda ============== -->
+<!-- ============== CÓMO DECIDIMOS + tests (se conservan) ============== -->
 <section class="criterio" id="criterio">
   <div class="container">
     <div class="section-head">
-      <div><span class="eyebrow">Evaluación de Arquitectura Mental y del Criterio</span></div>
+      <div><span class="eyebrow">Cómo decidimos</span></div>
       <div class="kicker">
-        <h2 class="display">¿Desde qué <span class="italic">estructura</span><br>interpretas y decides?</h2>
+        <h2 class="display">Muchas de nuestras decisiones empiezan a construirse <span class="italic">antes de que nos demos cuenta</span>.</h2>
       </div>
     </div>
 
-    <p class="crit-intro">La evaluación completa. Identifica fortalezas y áreas de mejora en las seis dimensiones que sostienen tu capacidad para interpretar la realidad, tomar decisiones y construir una vida más funcional. Al final recibes tu perfil y la ruta recomendada para ti. Si prefieres empezar por algo más rápido, haz primero la <a href="actitud.html" style="color:var(--accent-deep);border-bottom:1px solid var(--accent-deep)">Evaluación de la Actitud</a> (15 preguntas).</p>
-
-    <div class="crit-stats">
-      <div><div class="n">5–7</div><div class="l">minutos</div></div>
-      <div><div class="n">30</div><div class="l">reactivos</div></div>
-      <div><div class="n">6</div><div class="l">dimensiones</div></div>
+    <div class="crit-body">
+      <p class="lead-q">Lo que hemos vivido, lo que aprendimos, nuestras emociones, creencias, expectativas y hasta las circunstancias del momento influyen en cómo vemos lo que ocurre y en lo que decidimos hacer.</p>
+      <p>DERVIAC nos ayuda a reconocer qué hay detrás de nuestras decisiones, comprenderlo y decidir qué queremos hacer con ello.</p>
     </div>
 
-    <div class="niveles" aria-label="Cinco perfiles de resultado">
-      <div class="nivel n1"><div class="bar"></div><div class="nm">Emergente</div><div class="d">Áreas importantes de oportunidad en tu estructura.</div></div>
-      <div class="nivel n2"><div class="bar"></div><div class="nm">En Desarrollo</div><div class="d">Recursos valiosos, con áreas que limitan el crecimiento.</div></div>
-      <div class="nivel n3"><div class="bar"></div><div class="nm">En Consolidación</div><div class="d">Bases sólidas; aún hay oportunidades de fortalecimiento.</div></div>
-      <div class="nivel n4"><div class="bar"></div><div class="nm">Funcional</div><div class="d">Adaptación, estabilidad y decisión saludables.</div></div>
-      <div class="nivel n5"><div class="bar"></div><div class="nm">Alto Desempeño</div><div class="d">Solidez, coherencia y dirección sostenidas.</div></div>
+    <div class="crit-tests">
+      <div class="crit-test">
+        <div class="k">Test · 15 preguntas</div>
+        <h4>Evaluación de la Actitud</h4>
+        <p>El primer paso: descubre cómo enfrentas lo que te ocurre. Al final recibes tu perfil y el siguiente paso recomendado.</p>
+        <a href="actitud.html" class="btn-primary">Haz el test <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg></a>
+      </div>
+      <div class="crit-test">
+        <div class="k">Evaluación completa · 30 reactivos</div>
+        <h4>Evaluación de Arquitectura Mental y del Criterio</h4>
+        <p>Seis dimensiones que sostienen tu manera de interpretar y decidir. Recibes tu perfil y la ruta recomendada para ti.</p>
+        <a href="cuestionario.html" class="btn-outline">Iniciar la evaluación <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg></a>
+      </div>
     </div>
+  </div>
+</section>
 
-    <a href="cuestionario.html" class="btn-primary">Iniciar la evaluación
-      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
-    </a>
-<!-- Opt-in de newsletter: alta sin completar la evaluación -->
+<!-- ============== NEWSLETTER ============== -->
+<section class="newsletter" id="newsletter">
+  <div class="container">
 <div class="nl-optin" id="nlOptin">
-  <div class="nl-eyebrow">¿Aún no quieres contestar?</div>
-  <p class="nl-lead">Suscríbete y recibe lo que escribo sobre criterio, decisiones y estructura mental. La evaluación va a seguir aquí cuando tengas ganas.</p>
+  <div class="nl-eyebrow">Newsletter</div>
+  <h2>Sigue comprendiendo cómo decides.</h2>
+  <p class="nl-lead">Recibe contenidos sobre mente, criterio y decisiones, además de novedades, herramientas y experiencias DERVIAC.</p>
   <form id="nlForm" novalidate>
     <div class="nl-field">
       <label for="nlEmail">Correo</label>
@@ -589,49 +708,63 @@
       <span>Acepto recibir correos de Mario Citalán y que se guarden mis datos para ese fin. Puedo darme de baja cuando quiera.</span>
     </label>
     <button type="submit" id="nlBtn">Suscribirme al newsletter</button>
-    <p class="nl-note" id="nlNote">Solo el boletín. Esto no es la evaluación ni sustituye su resultado.</p>
+    <p class="nl-note" id="nlNote">Solo el boletín. Puedes darte de baja cuando quieras.</p>
     <p class="nl-note" style="margin-top:8px">Tus datos los trata el Dr. Mario Citalán para atender tu solicitud, enviarte la newsletter e informarte de sus servicios y proyectos. Puedes ejercer tus derechos ARCO cuando quieras. <a href="aviso-de-privacidad.html" target="_blank" rel="noopener" style="color:var(--accent-deep);text-decoration:underline">Aviso de privacidad</a>.</p>
   </form>
 </div>
-
   </div>
 </section>
 
-<!-- ============== SOLUCIONES (4 tarjetas) ============== -->
+<!-- ============== SOLUCIONES DERVIAC ============== -->
 <section class="soluciones" id="soluciones">
   <div class="container">
     <div class="section-head">
-      <div><span class="eyebrow">Nuestras soluciones</span></div>
+      <div><span class="eyebrow">Soluciones</span></div>
       <div class="kicker">
-        <h2 class="display">Una ruta para cada<br>punto de <span class="italic" style="color:var(--accent)">partida</span>.</h2>
-        <p style="margin-top:18px">Según el resultado de tu evaluación, te guío a la ruta más adecuada para tu situación y tus objetivos.</p>
+        <h2 class="display">DERVIAC puede vivirse de <span class="italic" style="color:var(--accent)">distintas maneras</span>.</h2>
+        <p style="margin-top:18px">Cada persona, profesional u organización enfrenta situaciones diferentes. Por eso DERVIAC ofrece distintas formas de llevar la comprensión a la práctica.</p>
+        <p>Programas, conferencias, talleres, experiencias y consultoría con un mismo propósito:</p>
+        <p class="sol-claim">comprender mejor para decidir mejor.</p>
       </div>
     </div>
 
     <div class="sol-grid">
-      <article class="sol">
-        <div class="sol-tag">Ruta 1 · Individual</div>
-        <h4>Asesoría individual</h4>
-        <p class="desc">Trabajo uno a uno para reconstruir tu arquitectura desde la raíz. Para quien necesita acompañamiento personalizado.</p>
-        <a href="asesoria.html" class="more">Conocer la asesoría →</a>
-      </article>
-      <article class="sol">
-        <div class="sol-tag">Ruta 2 · Programa</div>
-        <h4>Arquitectura para el Alto Desempeño®</h4>
-        <p class="desc">Programa estructurado de desarrollo personal y reconstrucción de la arquitectura mental para transformar tu vida de forma sostenida.</p>
-        <a href="evoluciona.html" class="more">Ver el programa →</a>
-      </article>
-      <article class="sol">
-        <div class="sol-tag">Ruta 3 · Ejecutivo</div>
-        <h4>Arquitectura del Criterio Ejecutivo®</h4>
-        <p class="desc">Para líderes, empresarios y directivos que toman decisiones de alto impacto y necesitan sostenerlas con congruencia.</p>
-        <a href="cea.html" class="more">Conocer el programa →</a>
-      </article>
       <article class="sol feature">
-        <div class="sol-tag">Ruta 4 · Empresas e instituciones</div>
+        <div class="sol-tag">Personas</div>
+        <h4>Programa Personal DERVIAC</h4>
+        <div class="facts"><span>Individual · 10 sesiones</span><span>Grupal · 2 días</span></div>
+        <p class="desc">Hay momentos en los que sabes que necesitas hacer algo diferente, pero no tienes claro qué hacer, por dónde empezar o por qué sigues haciendo las cosas de la misma manera.</p>
+        <p class="desc">El Programa Personal DERVIAC es un entrenamiento individual de 10 sesiones o grupal de 2 días que te ayuda a comprender qué está influyendo en tu manera de decidir, construir tu propio criterio y llevarlo a decisiones y acciones concretas.</p>
+        <a href="programa-personal.html" class="more">Conoce el programa →</a>
+      </article>
+      <article class="sol">
+        <div class="sol-tag">Organizaciones</div>
+        <h4>DERVIAC Empresas</h4>
+        <p class="desc">En una empresa no siempre el problema está donde creemos que está. Lo que vemos puede ser sólo el resultado de algo más grande que está ocurriendo detrás.</p>
+        <p class="desc">DERVIAC Empresas ayuda a comprender qué está ocurriendo, identificar dónde es necesario intervenir y tomar mejores decisiones sobre qué hacer. A partir de esa comprensión, desarrollamos soluciones específicas para cada situación, en lugar de aplicar respuestas iguales a problemas diferentes.</p>
+        <a href="empresas.html" class="more">Conoce DERVIAC Empresas →</a>
+      </article>
+      <article class="sol">
+        <div class="sol-tag">Audiencias</div>
+        <h4>Conferencias DERVIAC</h4>
+        <p class="desc">A veces basta una idea, una pregunta o una forma diferente de mirar algo para descubrir lo que antes no habíamos visto.</p>
+        <p class="desc">Las Conferencias DERVIAC son experiencias diseñadas para comprender de manera sencilla cómo funciona nuestra mente y descubrir cómo influye en lo que pensamos, sentimos, hacemos y decidimos. Más que decirte qué hacer, buscan dejarte preguntas, reflexiones y nuevas maneras de comprender lo que te ocurre.</p>
+        <a href="conferencias-y-talleres.html" class="more">Conoce las conferencias →</a>
+      </article>
+      <article class="sol">
+        <div class="sol-tag">Equipos</div>
+        <h4>Talleres DERVIAC</h4>
+        <p class="desc">Comprender algo puede cambiar nuestra manera de verlo. Trabajarlo puede cambiar nuestra manera de hacerlo.</p>
+        <p class="desc">Los Talleres DERVIAC son experiencias prácticas en las que los participantes pueden observar cómo están pensando, interpretando y decidiendo ante situaciones concretas. A través de ejercicios, herramientas y experiencias, llevamos esa comprensión a la práctica para explorar nuevas maneras de responder y decidir.</p>
+        <a href="conferencias-y-talleres.html" class="more">Conoce los talleres →</a>
+      </article>
+      <article class="sol">
+        <div class="sol-tag">Experiencia en vivo</div>
         <h4>Ciencia en Escena</h4>
-        <p class="desc">Espectáculos que unen ciencia, emoción y aprendizaje para transformar a públicos masivos, empresas e instituciones.</p>
-        <a href="ciencia-en-escena.html" class="more">Ver los espectáculos →</a>
+        <p class="desc">Hay cosas que podemos comprender cuando nos las explican. Y hay otras que necesitamos ver, sentir y experimentar para comprenderlas de otra manera.</p>
+        <p class="desc">Ciencia en Escena transforma el conocimiento sobre la mente y la conducta humana en una experiencia en vivo, donde la ciencia se encuentra con la narrativa, la actuación y la emoción. A través de historias, personajes y situaciones cotidianas, hacemos visible aquello que muchas veces ocurre dentro de nosotros sin que nos demos cuenta.</p>
+        <p class="desc"><em>Una manera diferente de acercarse a la ciencia: no sólo para entenderla, sino para vivirla.</em></p>
+        <a href="ciencia-en-escena.html" class="more">Conoce Ciencia en Escena →</a>
       </article>
     </div>
   </div>
@@ -643,17 +776,20 @@
     <div class="libro-grid">
       <div class="libro-cover">
         <span class="badge">Próximamente</span>
-        <div class="ctitle">Ciencia<br>en escena</div>
+        <div class="ctitle">Un libro de<br><span style="font-style:italic;color:#67D4E8">Mario Citalán</span></div>
       </div>
       <div class="libro-text">
-        <span class="eyebrow" style="display:block;margin-bottom:18px">El libro</span>
-        <h2 class="display">El libro que explica<br>cómo se <span class="italic" style="color:var(--accent)">construye</span> una decisión.</h2>
-        <p>Un libro para comprender cómo se construye la calidad de nuestras decisiones y por qué la calidad de nuestra vida depende de ellas. Sé de los primeros en enterarte cuando salga.</p>
+        <span class="eyebrow" style="display:block;margin-bottom:18px">Próximo lanzamiento</span>
+        <h2 class="display">Estoy escribiendo algo que quiero <span class="italic" style="color:var(--accent)">compartir contigo</span>.</h2>
+        <p>Durante años he trabajado tratando de comprender por qué las personas pensamos, actuamos y decidimos como lo hacemos.</p>
+        <p>Muchas de esas ideas, preguntas y descubrimientos están tomando ahora una nueva forma: un libro.</p>
+        <p>Un libro para descubrir todo aquello que participa en nuestras decisiones sin que necesariamente nos demos cuenta.</p>
+        <p>Muy pronto podré contarte más.</p>
         <form class="libro-form" id="libroForm" novalidate>
           <input type="email" id="libroEmail" placeholder="tu@correo.com" aria-label="Tu correo">
-          <button type="submit">Quiero enterarme</button>
+          <button type="submit">Quiero saber cuándo se publique</button>
         </form>
-        <p class="libro-note" id="libroNote">Cada correo es un lugar en la lista de espera. Sin spam.</p>
+        <p class="libro-note" id="libroNote">Te aviso en cuanto se publique. Sin spam.</p>
         <p class="libro-note" style="margin-top:8px">Tus datos los trata el Dr. Mario Citalán solo para avisarte del lanzamiento. <a href="aviso-de-privacidad.html" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Aviso de privacidad</a>.</p>
       </div>
     </div>
@@ -750,6 +886,24 @@
   </div>
 </section>
 
+<!-- ============== ASÍ ES LA MENTE — Próximamente ============== -->
+<section class="drmente" id="asi-es-la-mente">
+  <div class="container">
+    <span class="badge">Próximamente</span>
+    <h2>Así es la mente</h2>
+    <div class="with">con Dr. Mente</div>
+    <p class="sub">Ideas simples para entender lo complejo.</p>
+    <ul class="qs">
+      <li>¿Por qué pensamos lo que pensamos?</li>
+      <li>¿Por qué a veces repetimos lo que no nos funciona?</li>
+      <li>¿Por qué sentimos una cosa y hacemos otra?</li>
+      <li>¿Y por qué tomamos decisiones que después no entendemos?</li>
+    </ul>
+    <p>Muy pronto tendremos un nuevo espacio para hablar de la mente y la conducta humana de manera sencilla, cercana y sin complicarnos de más.</p>
+    <p class="end">Porque entender nuestra mente no debería ser complicado.</p>
+  </div>
+</section>
+
 <!-- ============== SOBRE MÍ (bio al final) ============== -->
 <section class="about" id="sobre">
   <div class="container">
@@ -757,7 +911,7 @@
       <div><span class="eyebrow">Mario Citalán</span></div>
       <div class="kicker">
         <div class="ornament" style="margin-bottom:14px"><span class="line"></span><span class="diamond"></span></div>
-        <p>El problema primero, la persona después. Ahora que conoces el modelo, te cuento quién está detrás de él.</p>
+        <p>Ahora que conoces DERVIAC, te cuento quién está detrás.</p>
       </div>
     </div>
 
@@ -767,9 +921,12 @@
         <img class="about-photo" src="assets/img/estudio-bio.jpg" alt="Mario Citalán" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top">
       </div>
       <div class="about-body">
-        <h3>Más que motivación,<br><span class="italic">criterio sólido</span>.</h3>
-        <p>Médico y psicoterapeuta con <strong>más de 30 años</strong> de experiencia clínica, dedicado a desarrollar el criterio de quienes toman decisiones de alto nivel para que cada decisión importante sea clara, objetiva y estratégicamente superior.</p>
-        <p>El objetivo no es decidir más rápido, sino construir una <strong>arquitectura mental sólida</strong>: una forma de pensar que sostiene decisiones congruentes en tu vida, tu empresa y tu trabajo, incluso bajo presión.</p>
+        <h3>Dr. Mario <span class="italic">Citalán</span></h3>
+        <div class="roles">Médico · Psicoterapeuta · Docente · Conferencista · Creador de DERVIAC</div>
+        <p>Durante <strong>30 años</strong> he trabajado con personas tratando de comprender algo que siempre me ha apasionado: por qué pensamos, sentimos, actuamos y decidimos como lo hacemos.</p>
+        <p>La medicina, la psicoterapia, la docencia, los medios de comunicación y los escenarios me han permitido acercarme a esa pregunta desde lugares muy diferentes.</p>
+        <p>Hoy, gran parte de ese conocimiento y experiencia se integran en <strong>DERVIAC</strong>, con un propósito muy sencillo:</p>
+        <p class="purpose">hacer comprensible lo complejo para que pueda ser útil en la vida real.</p>
         <div class="about-creds">
           <div><div class="label">Especialidad</div><div class="val">Criterio y toma de decisiones</div></div>
           <div><div class="label">Enfoque</div><div class="val">Neurociencia aplicada</div></div>
@@ -786,9 +943,9 @@
   <div class="container">
     <div class="foot-grid">
       <div>
-        <div class="foot-mark"><span class="dot"></span> Mario Citalán</div>
+        <div class="foot-mark dv"><span class="dot"></span> DERVIAC</div>
         <div class="ornament" style="margin-bottom:18px"><span class="line" style="width:46px"></span><span class="diamond"></span></div>
-        <p class="foot-tag">Arquitectura Mental y del Criterio. Un ecosistema para evaluar y fortalecer cómo piensas, decides y construyes tu vida.</p>
+        <p class="foot-tag">La ciencia de comprender cómo decidimos.<br><em style="font-family:'Fraunces',serif;color:var(--accent-deep)">La evolución de Arquitectura Mental y del Criterio.</em></p>
         <a class="foot-wa" href="https://wa.me/525514853986?text=Hola%20Mario%2C%20vi%20tu%20p%C3%A1gina%20y%20me%20interesa%20saber%20m%C3%A1s." target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.28-.47-2.44-1.5-.9-.8-1.51-1.8-1.69-2.1-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.06 2.88 1.21 3.08c.15.2 2.08 3.32 5.05 4.52.71.3 1.26.48 1.69.61.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35zM12.02 21.5h-.01a9.44 9.44 0 01-4.8-1.32l-.35-.2-3.57.93.96-3.48-.22-.36a9.4 9.4 0 01-1.44-5.02c0-5.2 4.24-9.43 9.44-9.43a9.38 9.38 0 016.67 2.77 9.34 9.34 0 012.76 6.67c0 5.2-4.24 9.43-9.44 9.43zM20.46 3.5A11.32 11.32 0 0012.02 0C5.76 0 .66 5.1.66 11.36c0 2 .52 3.95 1.52 5.67L.5 24l7.13-1.87a11.3 11.3 0 004.39 1.06h.01c6.26 0 11.36-5.1 11.36-11.36 0-3.03-1.18-5.89-3.33-8.04z"/></svg>
           55 1485 3986
@@ -796,21 +953,21 @@
         <div class="foot-wa-note">Escríbeme por WhatsApp · Lun a Vie</div>
       </div>
       <div class="foot-col">
-        <h5>Ecosistema</h5>
+        <h5>Empieza aquí</h5>
         <ul>
-          <li><a href="ecosistema.html">El mapa del ecosistema</a></li>
-          <li><a href="#modelo">El modelo</a></li>
-          <li><a href="actitud.html">Evalúa tu actitud</a></li>
+          <li><a href="#derviac">DERVIAC</a></li>
+          <li><a href="actitud.html">Haz el test</a></li>
           <li><a href="cuestionario.html">Evaluación de Criterio</a></li>
-          <li><a href="recursos.html">Recursos gratuitos</a></li>
+          <li><a href="#newsletter">Newsletter</a></li>
+          <li><a href="#sobre">Mario Citalán</a></li>
         </ul>
       </div>
       <div class="foot-col">
         <h5>Soluciones</h5>
         <ul>
-          <li><a href="#soluciones">Asesoría</a></li>
-          <li><a href="#soluciones">Alto Desempeño®</a></li>
-          <li><a href="#soluciones">Criterio Ejecutivo®</a></li>
+          <li><a href="programa-personal.html">Programa Personal</a></li>
+          <li><a href="empresas.html">Empresas</a></li>
+          <li><a href="conferencias-y-talleres.html">Conferencias y Talleres</a></li>
           <li><a href="ciencia-en-escena.html">Ciencia en Escena</a></li>
         </ul>
       </div>
@@ -836,13 +993,7 @@
 </footer>
 
 <script>
-  // Nav scroll state
-  const nav = document.getElementById('nav');
-  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 30);
-  window.addEventListener('scroll', onScroll, {passive:true});
-  onScroll();
-
-  // ---- Libro: lista de espera de "Ciencia en escena" ----
+  // ---- Libro: lista de espera del próximo lanzamiento ----
   // Antes era un placeholder que descartaba el correo. Ahora entra a la misma
   // tabla `leads` con source 'libro', así que aparece en el panel de Mario.
   const libroForm = document.getElementById('libroForm');
@@ -865,7 +1016,7 @@
       note.style.color = 'rgba(247,244,237,.5)';
     })
     .catch(() => {
-      btn.disabled = false; btn.textContent = 'Quiero enterarme';
+      btn.disabled = false; btn.textContent = 'Quiero saber cuándo se publique';
       note.textContent = 'No se pudo guardar. Inténtalo de nuevo en un momento.';
       note.style.color = '#E8A9A9';
     });
@@ -874,23 +1025,26 @@
 
 <script>
 (function(){
+  var nav=document.getElementById('nav');
+  if(nav){var s=function(){nav.classList.toggle('scrolled',window.scrollY>30)};window.addEventListener('scroll',s,{passive:true});s();}
   var inner=document.querySelector('.nav-inner');if(!inner)return;
-  var nav=inner.parentNode;
   var links=inner.querySelector('.nav-links');
   var cta=inner.querySelector('.nav-cta');
+  var right=document.createElement('div');right.className='nav-right';
+  if(cta){inner.insertBefore(right,cta);right.appendChild(cta);}else{inner.appendChild(right);}
   var b=document.createElement('button');
-  b.className='nav-burger';b.setAttribute('aria-label','Abrir men\u00fa');b.setAttribute('aria-expanded','false');b.innerHTML='\u2630';
-  inner.appendChild(b);
+  b.className='nav-burger';b.type='button';b.setAttribute('aria-label','Abrir menú');b.setAttribute('aria-expanded','false');b.innerHTML='☰';
+  right.appendChild(b);
   var m=document.createElement('div');m.className='nav-mobile';
   if(links)m.innerHTML=links.innerHTML;
   if(cta){var c=cta.cloneNode(true);c.className='nav-mobile-cta';m.appendChild(c);}
-  nav.appendChild(m);
-  function close(){m.classList.remove('open');b.setAttribute('aria-expanded','false');b.setAttribute('aria-label','Abrir men\u00fa');b.innerHTML='\u2630';}
+  inner.parentNode.appendChild(m);
+  function close(){m.classList.remove('open');b.setAttribute('aria-expanded','false');b.setAttribute('aria-label','Abrir menú');b.innerHTML='☰';}
   b.addEventListener('click',function(){
     var open=m.classList.toggle('open');
     b.setAttribute('aria-expanded',String(open));
-    b.setAttribute('aria-label',open?'Cerrar men\u00fa':'Abrir men\u00fa');
-    b.innerHTML=open?'\u2715':'\u2630';
+    b.setAttribute('aria-label',open?'Cerrar menú':'Abrir menú');
+    b.innerHTML=open?'✕':'☰';
   });
   m.addEventListener('click',function(e){if(e.target.closest('a'))close();});
 })();

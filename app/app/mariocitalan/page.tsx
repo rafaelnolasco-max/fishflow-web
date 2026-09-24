@@ -325,6 +325,11 @@ const SOURCE_LABEL: Record<string, string> = {
   cea:                  "CEA",
   evoluciona:           "Evoluciona",
   "ciencia-en-escena":  "Ciencia en Escena",
+  "programa-personal":  "Programa Personal DERVIAC",
+  empresas:             "DERVIAC Empresas",
+  conferencias:         "Conferencias DERVIAC",
+  talleres:             "Talleres DERVIAC",
+  "conferencias-y-talleres": "Conferencias y Talleres DERVIAC",
 };
 
 // Fuentes que SÍ son una evaluación. Quien llegó solo por el newsletter o por la
@@ -335,13 +340,18 @@ const FUENTES_EVALUACION = new Set(["actitud", "criterio"]);
 // Solicitudes de servicio: alguien pidiendo contratar. Tienen su propia pestaña
 // porque el trabajo es distinto —hay que responderlas, no nutrirlas— y mezcladas
 // entre decenas de evaluaciones se pierden.
-const FUENTES_SOLICITUD = new Set(["asesoria", "cea", "evoluciona", "ciencia-en-escena"]);
+const FUENTES_SOLICITUD = new Set(["asesoria", "cea", "evoluciona", "ciencia-en-escena", "programa-personal", "empresas", "conferencias", "talleres", "conferencias-y-talleres"]);
 
 const SOLICITUD_META: Record<string, { corto: string; bg: string; fg: string }> = {
   asesoria:             { corto: "Asesoría",  bg: "#E8F0F9", fg: "#2A6AAE" },
   cea:                  { corto: "CEA",       bg: "#EAF7EE", fg: "#4B9A62" },
   evoluciona:           { corto: "Evoluciona", bg: "#FFF4E5", fg: "#B96A1E" },
   "ciencia-en-escena":  { corto: "Ciencia",   bg: "#F3EEF9", fg: "#6B4E9B" },
+  "programa-personal":  { corto: "Programa",  bg: "#E8F0F9", fg: "#2A6AAE" },
+  empresas:             { corto: "Empresas",  bg: "#EAF7EE", fg: "#4B9A62" },
+  conferencias:         { corto: "Conferencia", bg: "#FFF4E5", fg: "#B96A1E" },
+  talleres:             { corto: "Taller",    bg: "#FDECEC", fg: "#B0413E" },
+  "conferencias-y-talleres": { corto: "Conf./Taller", bg: "#FFF4E5", fg: "#B96A1E" },
 };
 
 // ─── Suscripción al newsletter ─────────────────────────────────────────────────
