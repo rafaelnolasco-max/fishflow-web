@@ -8,6 +8,7 @@ type FormState = 'idle' | 'loading' | 'success' | 'error'
 export default function LeadForm() {
   const [name, setName]       = useState('')
   const [email, setEmail]     = useState('')
+  const [phone, setPhone]     = useState('')
   const [problem, setProblem] = useState('')
   const [consent, setConsent] = useState(false)
   const [state, setState]     = useState<FormState>('idle')
@@ -33,6 +34,7 @@ export default function LeadForm() {
         body:    JSON.stringify({
           name,
           email,
+          phone,
           problem,
           _ts: montado.current,
           _hp: honeypot.current?.value ?? '',
@@ -145,6 +147,35 @@ export default function LeadForm() {
             </div>
           </div>
 
+          {/* WhatsApp (opcional) */}
+          <div>
+            <label
+              htmlFor="lead-phone"
+              className="block text-sm font-medium mb-1"
+              style={{ color: '#94a3b8' }}
+            >
+              Tu WhatsApp <span style={{ color: '#64748b' }}>(opcional, para mandarte tu diagnóstico)</span>
+            </label>
+            <input
+              id="lead-phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="55 1234 5678"
+              disabled={state === 'loading'}
+              className="w-full rounded-lg px-4 py-3 text-sm outline-none transition-all disabled:opacity-50"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#F1F5F9',
+              }}
+              onFocus={(e) => (e.target.style.borderColor = '#FF8C35')}
+              onBlur={(e)  => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+            />
+          </div>
+
           {/* Problema */}
           <div>
             <label
@@ -202,7 +233,7 @@ export default function LeadForm() {
               >
                 Aviso de Privacidad
               </a>{' '}
-              y autorizo el tratamiento de mis datos para ser contactado.
+              y autorizo el tratamiento de mis datos para ser contactado por correo o WhatsApp.
             </span>
           </label>
 

@@ -12,13 +12,14 @@
  * Registrado en: developers.facebook.com → app FishFlow Mensajeria →
  * WhatsApp → Configuración → Webhooks, campo `messages`.
  */
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email'
+import { handleInbound } from '@/lib/whatsappBot'
 
 export const runtime = 'nodejs'
-export const maxDuration = 30
+export const maxDuration = 60
 
 const ADMIN_NOTIFY_TO = 'rafaelnolasco@gmail.com'
 
@@ -150,7 +151,7 @@ export async function POST(req: NextRequest) {
       for (const m of value.messages ?? []) {
         const contact = value.contacts?.find((c) => c.wa_id === m.from)
         const body = messageText(m)
-        const { error } = await db.from('whatsapp_messages').upsert(
+        const { data: inserted, error } = await db.from('whatsapp_messages').upsert(
           {
             phone_number_id: phoneNumberId,
             wa_message_id: m.id,
@@ -164,11 +165,23 @@ export async function POST(req: NextRequest) {
             raw: m,
           },
           { onConflict: 'wa_message_id', ignoreDuplicates: true }
-        )
+        ).select('id')
         if (error) {
           console.error('[wa-webhook] insert entrante:', error)
           continue
         }
+        // Reintento de Meta (ya lo teníamos): ni correo ni bot otra vez.
+        if (!inserted?.length) continue
+
+        // Reseñas / asistente IA, después de responderle 200 a Meta.
+        after(() =>
+          handleInbound({
+            waId: m.from,
+            name: contact?.profile?.name ?? null,
+            text: body,
+            msgType: m.type,
+          })
+        )
 
         const quien = contact?.profile?.name
           ? `${contact.profile.name} (+${m.from})`

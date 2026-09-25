@@ -24,7 +24,7 @@ import SharedScheduleTab from "@/components/schedule/ScheduleTab";
 import type { DashTheme } from "@/components/dashboard";
 
 /** Paleta oscura del /admin (los mismos valores del bloque CSS de page.tsx). */
-const T: DashTheme = {
+export const ADMIN_THEME: DashTheme = {
   accent:      "#1FA9D6",
   // accentDark es a la vez color de texto (tab activo, chips) y fondo del toast.
   // Se deja en el mismo azul del CSS del /admin: así el toast queda como los
@@ -48,6 +48,8 @@ const T: DashTheme = {
   infoBg:      "rgba(242,107,23,.15)",
   infoText:    "#F26B17",
 };
+
+const T = ADMIN_THEME;
 
 export default function PublicacionesTab() {
   return (

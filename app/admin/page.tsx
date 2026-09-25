@@ -10,6 +10,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
 import PublicacionesTab from './PublicacionesTab'
 import WhatsAppTab from './WhatsAppTab'
+import ResenasTab from './ResenasTab'
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -138,7 +139,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 
 export default function CRMPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads' | 'publicaciones' | 'whatsapp'>('crm')
+  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads' | 'publicaciones' | 'whatsapp' | 'resenas'>('crm')
 
   // ── CRM state ──────────────────────────────────────────────────────────────
   const [deals,   setDeals]   = useState<Deal[]>([])
@@ -447,6 +448,9 @@ export default function CRMPage() {
           </button>
           <button className={`ff-tab ${activeTab === 'whatsapp' ? 'active' : ''}`} onClick={() => setActiveTab('whatsapp')}>
             💬 WhatsApp
+          </button>
+          <button className={`ff-tab ${activeTab === 'resenas' ? 'active' : ''}`} onClick={() => setActiveTab('resenas')}>
+            ⭐ Reseñas
           </button>
         </div>
         {activeTab === 'crm' && (
@@ -842,6 +846,7 @@ export default function CRMPage() {
           Vive en su propio archivo porque trae su tema oscuro y nada más. */}
       {activeTab === 'publicaciones' && <PublicacionesTab />}
       {activeTab === 'whatsapp' && <WhatsAppTab />}
+      {activeTab === 'resenas' && <ResenasTab />}
 
       {/* ── Modal CRM ─────────────────────────────────────────────────────── */}
       {modal.open && (

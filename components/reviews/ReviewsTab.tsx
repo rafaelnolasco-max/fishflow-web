@@ -126,6 +126,7 @@ export default function ReviewsTab({
   vendorToken,
   showVendors = false,
   showTouchpoints = false,
+  waApi = false,
 }: {
   clientId?: string;           // requerido salvo en modo vendedora (se resuelve del token)
   theme: DashTheme;
@@ -150,6 +151,12 @@ export default function ReviewsTab({
    * en CANE, Belange, Lukon y Enlace.
    */
   showTouchpoints?: boolean;
+  /**
+   * El cliente tiene su número en la WhatsApp Cloud API (hoy solo FishFlow):
+   * los mensajes salen por /api/reviews/wa-advance en vez de abrir wa.me, y
+   * las respuestas del cliente las contesta solo el bot (lib/whatsappBot).
+   */
+  waApi?: boolean;
 }) {
   const isVendor = !!vendorToken;
   const apiBase = `/api/reviews/vendor/${vendorToken}`;
@@ -376,6 +383,26 @@ export default function ReviewsTab({
     }
     const msg = opts?.message?.trim()
       || fillTemplate(tpl ?? "", r.contact_name, linkRastreado(r.id, settings?.review_link ?? null));
+
+    if (waApi) {
+      try {
+        const res = await fetch("/api/reviews/wa-advance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ requestId: r.id, message: r.stage === 0 ? undefined : msg }),
+          signal: AbortSignal.timeout(30000),
+        });
+        const d = await res.json().catch(() => null);
+        if (!res.ok) { notify(d?.error ?? "No se pudo enviar por WhatsApp"); return; }
+        const patch = { ...(d?.patch ?? {}), ...(opts?.extraPatch ?? {}) };
+        if (opts?.extraPatch) await patchRequest(r.id, opts.extraPatch);
+        setRequests(prev => prev.map(x => x.id === r.id ? { ...x, ...patch } as ReviewRequest : x));
+        notify("Enviado por WhatsApp ✓");
+      } catch (e) {
+        console.error(e); notify("Sin conexión. Intenta de nuevo.");
+      }
+      return;
+    }
     // Abrir la ventana YA (síncrono, dentro del click) para que el navegador no
     // la bloquee como popup — pero sin navegar todavía. En celular, wa.me saca
     // a la app de WhatsApp y congela esta pestaña: si el fetch de abajo no
@@ -445,7 +472,18 @@ export default function ReviewsTab({
 
   // ── Mensaje privado para feedback negativo ──────────────────────────────────
   function openNegativeChat(r: ReviewRequest) {
-    window.open(waLink(r.contact_phone, fillTemplate(NEGATIVE_TPL, r.contact_name, null)), "_blank");
+    const msg = fillTemplate(NEGATIVE_TPL, r.contact_name, null);
+    if (waApi) {
+      fetch("/api/reviews/wa-advance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: r.id, message: msg, noAdvance: true }),
+      })
+        .then(async res => notify(res.ok ? "Mensaje enviado por WhatsApp" : ((await res.json().catch(() => null))?.error ?? "No se pudo enviar")))
+        .catch(() => notify("Sin conexión"));
+      return;
+    }
+    window.open(waLink(r.contact_phone, msg), "_blank");
   }
 
   async function setStatus(r: ReviewRequest, status: ReviewRequest["status"]) {

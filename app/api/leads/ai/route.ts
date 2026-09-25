@@ -4,6 +4,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { Resend } from 'resend'
 import { SENDERS } from '@/lib/email'
 import { revisarAntibot, logDescarte } from '@/lib/antibot'
+import { sendTemplate } from '@/lib/whatsapp'
 
 // ─── Clientes ────────────────────────────────────────────────────────────────
 
@@ -107,6 +108,9 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}))
     const { name, email, problem } = body
+    // WhatsApp opcional: solo si trae entre 10 y 13 dígitos (MX con o sin 52/521)
+    const phoneDigits = String(body.phone ?? '').replace(/\D/g, '')
+    const phone = phoneDigits.length >= 10 && phoneDigits.length <= 13 ? phoneDigits : null
 
     // Filtro antibot (ver lib/antibot.ts). Va ANTES que nada porque este
     // endpoint es el más caro de abusar del portafolio: cada POST gasta una
@@ -143,12 +147,13 @@ export async function POST(req: NextRequest) {
       message.content[0].type === 'text' ? message.content[0].text : ''
 
     // ── 2. Guardar lead en Supabase ───────────────────────────────────────────
-    const { error: dbError } = await supabaseAdmin.from('leads').insert({
+    const { data: leadRow, error: dbError } = await supabaseAdmin.from('leads').insert({
       name:        name.trim(),
       email:       email.trim().toLowerCase(),
+      phone,
       problem:     problem.trim(),
       ai_response: aiResponse,
-    })
+    }).select('id').single()
 
     if (dbError) {
       console.error('[leads/ai] Supabase insert error:', dbError)
@@ -167,6 +172,19 @@ export async function POST(req: NextRequest) {
     if (emailError) {
       console.error('[leads/ai] Resend error:', emailError)
       // Igual devolvemos la respuesta aunque falle el email
+    }
+
+    // ── 4. WhatsApp inmediato (plantilla diagnostico_recibido) ───────────────
+    // No bloquea: si la plantilla no está aprobada o Meta falla, queda en logs
+    // y en whatsapp_messages con status 'failed'.
+    if (phone) {
+      const wa = await sendTemplate({
+        to: phone,
+        name: 'diagnostico_recibido',
+        params: [name.trim().split(/\s+/)[0]],
+        ref: leadRow?.id ?? null,
+      })
+      if (!wa.ok) console.error('[leads/ai] WhatsApp no salió:', wa.error)
     }
 
     return NextResponse.json({ response: aiResponse })

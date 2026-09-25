@@ -36,6 +36,7 @@ interface Msg {
   template_name: string | null;
   status: string | null;
   error: unknown;
+  sent_by: string | null;
   created_at: string;
 }
 
@@ -79,7 +80,7 @@ export default function WhatsAppTab() {
   const load = useCallback(async () => {
     const { data, error } = await supabase
       .from("whatsapp_messages")
-      .select("id,direction,contact_wa_id,contact_name,msg_type,body,template_name,status,error,created_at")
+      .select("id,direction,contact_wa_id,contact_name,msg_type,body,template_name,status,error,sent_by,created_at")
       .order("created_at", { ascending: false })
       .range(0, 999);
     if (error) setLoadError(error.message);
@@ -219,8 +220,10 @@ export default function WhatsAppTab() {
                   color: C.text, borderRadius: 10, padding: "8px 10px", fontSize: 13, lineHeight: 1.4,
                   border: m.status === "failed" ? `1px solid ${C.danger}` : "none",
                 }}>
-                  {m.template_name && (
-                    <div style={{ color: C.muted, fontSize: 11, marginBottom: 2 }}>Plantilla · {m.template_name}</div>
+                  {(m.template_name || m.sent_by === "bot") && (
+                    <div style={{ color: C.muted, fontSize: 11, marginBottom: 2 }}>
+                      {m.sent_by === "bot" ? "🤖 Asistente IA" : `Plantilla · ${m.template_name}`}
+                    </div>
                   )}
                   <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{m.body ?? `[${m.msg_type}]`}</div>
                   <div style={{ color: C.muted, fontSize: 10, textAlign: "right", marginTop: 3 }}>

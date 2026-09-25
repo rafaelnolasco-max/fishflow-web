@@ -41,7 +41,7 @@ type SendResult =
 
 async function postMessage(
   payload: Record<string, unknown>,
-  log: { to: string; msgType: string; body?: string; templateName?: string; clientId?: string | null; ref?: string | null }
+  log: { to: string; msgType: string; body?: string; templateName?: string; clientId?: string | null; ref?: string | null; sentBy?: 'bot' | 'admin' | 'system' }
 ): Promise<SendResult> {
   const token = process.env.WHATSAPP_TOKEN
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID
@@ -75,6 +75,7 @@ async function postMessage(
     body: log.body ?? null,
     template_name: log.templateName ?? null,
     ref: log.ref ?? null,
+    sent_by: log.sentBy ?? 'system',
     status: res.ok ? 'accepted' : 'failed',
     status_at: new Date().toISOString(),
     error: res.ok ? null : data,
@@ -89,11 +90,11 @@ async function postMessage(
 }
 
 /** Texto libre. Solo funciona dentro de la ventana de 24 h. */
-export function sendText(args: { to: string; body: string; clientId?: string | null }) {
+export function sendText(args: { to: string; body: string; clientId?: string | null; sentBy?: 'bot' | 'admin' | 'system' }) {
   const to = normalizeWaNumber(args.to)
   return postMessage(
     { to, type: 'text', text: { body: args.body, preview_url: true } },
-    { to, msgType: 'text', body: args.body, clientId: args.clientId }
+    { to, msgType: 'text', body: args.body, clientId: args.clientId, sentBy: args.sentBy }
   )
 }
 

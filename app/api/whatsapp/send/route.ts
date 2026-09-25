@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   const res = b.template
     ? await sendTemplate({ to: b.to, name: b.template, params: b.params ?? [] })
     : b.text?.trim()
-      ? await sendText({ to: b.to, body: b.text.trim() })
+      ? await sendText({ to: b.to, body: b.text.trim(), sentBy: 'admin' })
       : null
   if (!res) return NextResponse.json({ error: 'Mensaje vacío' }, { status: 400 })
   if (!res.ok) {
