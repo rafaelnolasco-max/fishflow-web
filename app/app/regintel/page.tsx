@@ -205,8 +205,8 @@ export default function RegIntelPage() {
     let v = full;
     if (filtro === "pendiente") v = v.filter((h) => h.estado === "pendiente");
     if (portafolio !== "todos") v = v.filter((h) => h.watch?.portafolio === portafolio);
-    const orden: Record<string, number> = { discrepancia: 0, fuera_de_base_curada: 1, producto_propio: 2, ya_en_base: 3 };
-    return [...v].sort((a, b) => (orden[a.clasificacion ?? ""] ?? 9) - (orden[b.clasificacion ?? ""] ?? 9));
+    const orden: Record<string, number> = { discrepancia: 0, nuevo: 1, fuera_de_base_curada: 2, producto_propio: 3, ya_en_base: 4 };
+    return [...v].sort((a, b) => (orden[a.clasificacion ?? "nuevo"] ?? 9) - (orden[b.clasificacion ?? "nuevo"] ?? 9));
   }, [full, filtro, portafolio]);
 
   const revisados = useMemo(
@@ -513,7 +513,9 @@ export default function RegIntelPage() {
                   return (
                     <div key={h.id} style={{ ...cardStyle, padding: 14 }}>
                       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 8 }}>
-                        {h.clasificacion && <Chip label={CLAS_LABEL[h.clasificacion]} bg={cl.bg} fg={cl.fg} />}
+                        {h.clasificacion
+                          ? <Chip label={CLAS_LABEL[h.clasificacion]} bg={cl.bg} fg={cl.fg} />
+                          : <Chip label="Nuevo · radar" bg="#FFF3E0" fg={C.amber} />}
                         {r && tc && <Chip label={r.tipo} bg={tc.bg} fg={tc.fg} />}
                         {h.watch?.portafolio && <Chip label={h.watch.portafolio} bg={C.sky} fg={C.navy} />}
                         {h.estado !== "pendiente" && (
@@ -703,11 +705,18 @@ export default function RegIntelPage() {
                       {estancada && <Chip label={`Sin cambios ${d} días`} bg="#FDECEC" fg={C.alert} />}
                       {s.origen === "manual" && <Chip label="Carga manual" bg={C.sky} fg={C.navy} />}
                       {s.estado_proceso === "pendiente" && <Chip label="Pendiente de procesar" bg="#FFF3E0" fg={C.amber} />}
+                      {s.estado_proceso === "procesando" && <Chip label="Procesando" bg="#FFF3E0" fg={C.amber} />}
+                      {s.estado_proceso === "url_rota" && <Chip label="URL rota · pegar la nueva" bg="#FDECEC" fg={C.alert} />}
+                      {s.estado_proceso === "no_cuadra" && <Chip label="Corte no publicado" bg="#FDECEC" fg={C.alert} />}
+                      {s.estado_proceso === "error" && <Chip label="Error al procesar" bg="#FDECEC" fg={C.alert} />}
+                      {s.estado_proceso === "archivado" && <Chip label="Archivado" bg="#EDEFF0" fg={C.muted} />}
                     </div>
                     <div style={{ fontSize: 12.5, color: T.muted, marginTop: 6 }}>
                       Declarados {s.registros_declarados ?? "—"} · leídos {s.registros_parseados ?? "—"}
                       {s.last_modified ? ` · actualizado ${fecha(s.last_modified.slice(0, 10))}` : " · sin fecha de actualización"}
+                      {s.revisado_en ? ` · radar revisó ${fecha(s.revisado_en.slice(0, 10))}` : ""}
                     </div>
+                    {s.nota && <div style={{ fontSize: 12.5, color: T.text, marginTop: 6 }}>{s.nota}</div>}
                     <div style={{ fontSize: 11, color: T.muted, marginTop: 4, fontFamily: "ui-monospace, monospace", wordBreak: "break-all" }}>
                       {s.url}
                     </div>

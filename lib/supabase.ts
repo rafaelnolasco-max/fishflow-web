@@ -690,7 +690,7 @@ export interface RegIntelSource {
   detectado_en: string;
   revisado_en: string | null;
   origen: "automatico" | "manual";
-  estado_proceso: "pendiente" | "procesado" | "error";
+  estado_proceso: "pendiente" | "procesando" | "procesado" | "error" | "url_rota" | "no_cuadra" | "archivado";
   nombre_archivo: string | null;
   subido_por: string | null;
   nota: string | null;
