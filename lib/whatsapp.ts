@@ -41,7 +41,7 @@ type SendResult =
 
 async function postMessage(
   payload: Record<string, unknown>,
-  log: { to: string; msgType: string; body?: string; templateName?: string; clientId?: string | null }
+  log: { to: string; msgType: string; body?: string; templateName?: string; clientId?: string | null; ref?: string | null }
 ): Promise<SendResult> {
   const token = process.env.WHATSAPP_TOKEN
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID
@@ -74,6 +74,7 @@ async function postMessage(
     msg_type: log.msgType,
     body: log.body ?? null,
     template_name: log.templateName ?? null,
+    ref: log.ref ?? null,
     status: res.ok ? 'accepted' : 'failed',
     status_at: new Date().toISOString(),
     error: res.ok ? null : data,
@@ -107,6 +108,8 @@ export function sendTemplate(args: {
   params?: string[]
   lang?: string
   clientId?: string | null
+  /** Referencia externa (uid de reserva, id de pedido…) para deduplicar. */
+  ref?: string | null
 }) {
   const to = normalizeWaNumber(args.to)
   const params = args.params ?? []
@@ -129,6 +132,19 @@ export function sendTemplate(args: {
           : {}),
       },
     },
-    { to, msgType: 'template', templateName: args.name, body: params.join(' | ') || undefined, clientId: args.clientId }
+    { to, msgType: 'template', templateName: args.name, body: params.join(' | ') || undefined, clientId: args.clientId, ref: args.ref }
   )
+}
+
+/** ¿Ya salió (sin fallar) esta plantilla para esta referencia? */
+export async function templateAlreadySent(name: string, ref: string): Promise<boolean> {
+  const { data } = await supabaseAdmin()
+    .from('whatsapp_messages')
+    .select('id')
+    .eq('direction', 'outbound')
+    .eq('template_name', name)
+    .eq('ref', ref)
+    .neq('status', 'failed')
+    .limit(1)
+  return !!data?.length
 }

@@ -64,3 +64,19 @@ export function forwardCookies(req: NextRequest): Record<string, string> {
   const cookie = req.headers.get("cookie");
   return cookie ? { cookie } : {};
 }
+
+/** Solo Rafa (ADMIN_EMAIL). Para rutas del /admin. Fail closed. */
+export async function requireAdmin(): Promise<AuthResult> {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } },
+  );
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return deny(401, "No autorizado");
+  if (user.email !== ADMIN_EMAIL) return deny(403, "Solo administrador");
+  return { ok: true, email: user.email, isAdmin: true };
+}

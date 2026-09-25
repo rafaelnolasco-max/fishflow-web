@@ -9,6 +9,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
 import PublicacionesTab from './PublicacionesTab'
+import WhatsAppTab from './WhatsAppTab'
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -137,7 +138,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 
 export default function CRMPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads' | 'publicaciones'>('crm')
+  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads' | 'publicaciones' | 'whatsapp'>('crm')
 
   // ── CRM state ──────────────────────────────────────────────────────────────
   const [deals,   setDeals]   = useState<Deal[]>([])
@@ -443,6 +444,9 @@ export default function CRMPage() {
           </button>
           <button className={`ff-tab ${activeTab === 'publicaciones' ? 'active' : ''}`} onClick={() => setActiveTab('publicaciones')}>
             🗓️ Publicaciones
+          </button>
+          <button className={`ff-tab ${activeTab === 'whatsapp' ? 'active' : ''}`} onClick={() => setActiveTab('whatsapp')}>
+            💬 WhatsApp
           </button>
         </div>
         {activeTab === 'crm' && (
@@ -837,6 +841,7 @@ export default function CRMPage() {
       {/* Mismo módulo que el tablero de CANE, apuntado a las cuentas de FishFlow.
           Vive en su propio archivo porque trae su tema oscuro y nada más. */}
       {activeTab === 'publicaciones' && <PublicacionesTab />}
+      {activeTab === 'whatsapp' && <WhatsAppTab />}
 
       {/* ── Modal CRM ─────────────────────────────────────────────────────── */}
       {modal.open && (
