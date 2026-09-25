@@ -202,7 +202,7 @@ export async function POST(req: NextRequest) {
         // Meta no garantiza el orden: un 'sent' tardío no debe pisar un 'read'.
         const { data: actual } = await db
           .from('whatsapp_messages')
-          .select('status')
+          .select('status, template_name, ref')
           .eq('wa_message_id', s.id)
           .maybeSingle()
         if (actual && (STATUS_RANK[actual.status ?? ''] ?? 0) > (STATUS_RANK[s.status] ?? 0)) continue
@@ -216,6 +216,23 @@ export async function POST(req: NextRequest) {
           })
           .eq('wa_message_id', s.id)
         if (error) console.error('[wa-webhook] update estado:', error)
+
+        // Si el saludo de reseña no llegó, la solicitud regresa a "sin contactar"
+        // para que no parezca enviada (p. ej. Meta 130472: el número está en el
+        // experimento de mensajes de marketing y no recibe plantillas de ese tipo).
+        if (s.status === 'failed' && actual?.template_name === 'opinion_fishflow' && actual.ref) {
+          const motivo = (s.errors as { code?: number; title?: string }[] | undefined)?.[0]
+          const nota = `${new Date().toISOString().slice(0, 10)}: el saludo por WhatsApp no llegó` +
+            (motivo ? ` (Meta ${motivo.code ?? ''}: ${motivo.title ?? ''})` : '') + '.'
+          const { data: rr } = await db.from('review_requests').select('notes').eq('id', actual.ref).maybeSingle()
+          const { error: rErr } = await db.from('review_requests').update({
+            stage: 0,
+            stage1_sent_at: null,
+            notes: rr?.notes ? `${rr.notes}\n${nota}` : nota,
+            updated_at: new Date().toISOString(),
+          }).eq('id', actual.ref).eq('stage', 1)
+          if (rErr) console.error('[wa-webhook] revertir reseña', rErr)
+        }
       }
     }
   }
