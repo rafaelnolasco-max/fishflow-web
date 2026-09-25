@@ -28,7 +28,8 @@ import { parsePdf, type Tipo } from "./parser.ts";
 
 const CLIENT_ID = "c2b2a692-7f39-42a1-841a-5ae31e21e851";
 const BUCKET = "regintel-docs";
-const AVISO_A = "raf@fishflow.mx";
+const AVISO_RAFA = "raf@fishflow.mx"; // siempre en copia
+// Destinatarios del cliente: tabla regintel_avisos (se cambian sin redeploy).
 const FROM = "FishFlow · Radar COFEPRIS <noreply@fishflow.mx>";
 const PANEL_URL = "https://fishflow.mx/app/regintel";
 const DIAS_ESTANCADA = 45;
@@ -301,7 +302,7 @@ function hayNovedad(r: Reporte) {
     r.procesadas.some((p) => p.hallazgosNuevos.length || !p.publicado || p.registrosNuevos);
 }
 
-function correoHtml(r: Reporte) {
+function correoHtml(r: Reporte, completo: boolean) {
   const td = 'style="padding:7px 10px;border-bottom:1px solid #DCE5EC;font-size:13px;vertical-align:top"';
   const th = 'style="padding:7px 10px;border-bottom:2px solid #12395C;font-size:12px;text-align:left;color:#12395C"';
   const seccion = (titulo: string, cuerpo: string) =>
@@ -324,7 +325,7 @@ function correoHtml(r: Reporte) {
         <td ${td}>${esc(h.titular ?? "—")}${h.propio ? " <i>(propio)</i>" : ""}</td><td ${td}>${esc(h.tipo)}</td></tr>`).join("")}
     </table>`);
   }
-  if (r.urlRotas.length) {
+  if (completo && r.urlRotas.length) {
     html += seccion("URLs rotas — hay que pegar la nueva", `<ol style="font-size:13px;padding-left:18px">${
       r.urlRotas.map((u) => `<li>${esc(u.nombre)} (HTTP ${u.status})<br><span style="color:#65798A;font-size:12px">${esc(u.url)}</span></li>`).join("")
     }</ol><p style="font-size:12.5px;color:#65798A">COFEPRIS reemplazó el archivo y cambió su ID. El índice está protegido contra bots: abrir <a href="https://www.gob.mx/cofepris/documentos/registros-sanitarios-medicamentos">el índice</a>, copiar la URL nueva y actualizarla en la fuente.</p>`);
@@ -333,7 +334,7 @@ function correoHtml(r: Reporte) {
     html += seccion("Fuentes estancadas", `<ol style="font-size:13px;padding-left:18px">${
       r.estancadas.map((s) => `<li>${esc(s.nombre)}: ${s.dias} días sin actualizarse en COFEPRIS</li>`).join("")}</ol>`);
   }
-  if (r.errores.length) {
+  if (completo && r.errores.length) {
     html += seccion("Errores", `<ol style="font-size:13px;padding-left:18px">${r.errores.map((e) => `<li>${esc(e)}</li>`).join("")}</ol>`);
   }
 
@@ -349,31 +350,47 @@ function correoHtml(r: Reporte) {
     ${html}
     <p style="margin:26px 0 0"><a href="${PANEL_URL}" style="background:#12395C;color:#fff;text-decoration:none;padding:11px 20px;border-radius:5px;font-size:13px;font-weight:600">Abrir la bandeja</a></p>
   </td></tr>
-  <tr><td style="padding:14px 24px;border-top:1px solid #DCE5EC;font-size:11px;color:#65798A">Aviso interno generado por FishFlow. Los listados de COFEPRIS son informativos y llegan con rezago; lo más reciente sigue requiriendo la consulta con CAPTCHA.</td></tr>
+  <tr><td style="padding:14px 24px;border-top:1px solid #DCE5EC;font-size:11px;color:#65798A">Radar de inteligencia regulatoria operado por FishFlow. Información para uso interno del área. Los listados de COFEPRIS son informativos y llegan con rezago; lo más reciente sigue requiriendo la consulta con CAPTCHA.</td></tr>
   </table></td></tr></table></body></html>`;
 }
 
-async function enviarCorreo(r: Reporte) {
-  const key = Deno.env.get("RESEND_API_KEY");
-  if (!key) { console.warn("[regintel-scan] sin RESEND_API_KEY"); return; }
-  const hall = r.procesadas.reduce((n, p) => n + p.hallazgosNuevos.length, 0);
-  const partes = [
-    r.cortesNuevos.length ? `${r.cortesNuevos.length} corte(s) nuevo(s)` : null,
-    hall ? `${hall} hallazgo(s) nuevo(s)` : null,
-    r.urlRotas.length ? `${r.urlRotas.length} URL rota(s)` : null,
-    r.procesadas.some((p) => !p.publicado) ? "corte que no cuadra" : null,
-    r.errores.length ? `${r.errores.length} error(es)` : null,
-  ].filter(Boolean);
+async function enviarUno(key: string, to: string[], subject: string, html: string) {
   const resp = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({
-      from: FROM, to: [AVISO_A], reply_to: AVISO_A,
-      subject: `Radar COFEPRIS: ${partes.join(" · ") || "novedades"}`,
-      html: correoHtml(r),
-    }),
+    body: JSON.stringify({ from: FROM, to, reply_to: AVISO_RAFA, subject, html }),
   });
   if (!resp.ok) console.error("[regintel-scan] Resend:", await resp.text());
+}
+
+/** Novedades que le importan al cliente (no las operativas: URL rota, errores). */
+function novedadCliente(r: Reporte) {
+  return r.cortesNuevos.length || r.procesadas.some((p) => p.publicado && (p.hallazgosNuevos.length || p.registrosNuevos));
+}
+
+async function enviarCorreo(sb: SupabaseClient, r: Reporte, soloCliente = false) {
+  const key = Deno.env.get("RESEND_API_KEY");
+  if (!key) { console.warn("[regintel-scan] sin RESEND_API_KEY"); return; }
+  const hall = r.procesadas.reduce((n, p) => n + p.hallazgosNuevos.length, 0);
+  const asunto = (completo: boolean) => {
+    const partes = [
+      r.cortesNuevos.length ? `${r.cortesNuevos.length} corte(s) nuevo(s)` : null,
+      hall ? `${hall} hallazgo(s) nuevo(s)` : null,
+      completo && r.urlRotas.length ? `${r.urlRotas.length} URL rota(s)` : null,
+      completo && r.procesadas.some((p) => !p.publicado) ? "corte que no cuadra" : null,
+      completo && r.errores.length ? `${r.errores.length} error(es)` : null,
+    ].filter(Boolean);
+    return `Radar COFEPRIS: ${partes.join(" · ") || "novedades"}`;
+  };
+
+  // Rafa: siempre la versión completa (incluye lo operativo).
+  if (!soloCliente) await enviarUno(key, [AVISO_RAFA], asunto(true), correoHtml(r, true));
+
+  // Cliente: solo si hay novedad de negocio, sin secciones operativas.
+  if (!novedadCliente(r)) return;
+  const { data: av } = await sb.from("regintel_avisos").select("email").eq("client_id", CLIENT_ID).eq("activo", true);
+  const cliente = (av ?? []).map((a) => a.email as string).filter((e) => e && e !== AVISO_RAFA);
+  if (cliente.length) await enviarUno(key, cliente, asunto(false), correoHtml(r, false));
 }
 
 // ─── Serve ─────────────────────────────────────────────────────────────────────
@@ -385,7 +402,7 @@ Deno.serve(async (req) => {
   const { data: token, error: te } = await sb.rpc("regintel_scan_token");
   if (te || !token || req.headers.get("x-regintel-token") !== token) return json({ error: "no autorizado" }, 401);
 
-  let body: { fase?: string; reporte?: Reporte; noCorreo?: boolean; saltos?: number } = {};
+  let body: { fase?: string; reporte?: Reporte; noCorreo?: boolean; soloCliente?: boolean; saltos?: number } = {};
   try { body = await req.json(); } catch { /* cuerpo vacío = corrida completa */ }
 
   const rep = body.reporte ?? nuevoReporte();
@@ -407,12 +424,12 @@ Deno.serve(async (req) => {
       return json({ ok: true, fase: "procesar", siguiente: true, procesadas: rep.procesadas.length });
     }
 
-    if (!body.noCorreo && hayNovedad(rep)) await enviarCorreo(rep);
+    if (!body.noCorreo && hayNovedad(rep)) await enviarCorreo(sb, rep, body.soloCliente);
     return json({ ok: true, terminado: true, reporte: rep });
   } catch (e) {
     console.error("[regintel-scan]", e);
     rep.errores.push(String(e).slice(0, 300));
-    if (!body.noCorreo) await enviarCorreo(rep);
+    if (!body.noCorreo) await enviarCorreo(sb, rep);
     return json({ ok: false, error: String(e) }, 500);
   }
 });
