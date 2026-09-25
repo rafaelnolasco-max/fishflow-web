@@ -159,6 +159,10 @@ async function assistant(waId: string, name: string | null, text: string) {
     return
   }
   if (!reply) return
+  // Haiku a veces omite el aviso de traspaso: garantizarlo.
+  if (handoff && !/rafa/i.test(reply)) {
+    reply += '\n\nRafa te escribe personalmente en cuanto esté disponible.'
+  }
 
   await sendText({ to: waId, body: reply, clientId: FISHFLOW_CLIENT_ID, sentBy: 'bot' })
 
