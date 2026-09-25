@@ -24,7 +24,8 @@ import { sendEmail } from '@/lib/email'
 // ese módulo crea un cliente de navegador al cargarse).
 const FISHFLOW_CLIENT_ID = 'b0d1a4f6-3c58-4a7e-9d21-7fe6c0a13b42'
 const TZ = 'America/Mexico_City'
-const ADMIN_NOTIFY_TO = 'rafaelnolasco@gmail.com'
+// Buzón de FishFlow (no el personal). Se puede cambiar con WHATSAPP_NOTIFY_TO.
+const ADMIN_NOTIFY_TO = process.env.WHATSAPP_NOTIFY_TO || 'raf@fishflow.mx'
 const PAUSE_MS = 24 * 60 * 60 * 1000
 
 function db() {

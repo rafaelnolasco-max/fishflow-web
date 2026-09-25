@@ -21,7 +21,8 @@ import { handleInbound } from '@/lib/whatsappBot'
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-const ADMIN_NOTIFY_TO = 'rafaelnolasco@gmail.com'
+// Buzón de FishFlow (no el personal). Se puede cambiar con WHATSAPP_NOTIFY_TO.
+const ADMIN_NOTIFY_TO = process.env.WHATSAPP_NOTIFY_TO || 'raf@fishflow.mx'
 
 function supabaseAdmin() {
   return createClient(
