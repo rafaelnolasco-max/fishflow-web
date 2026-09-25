@@ -9,7 +9,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useRouter } from 'next/navigation'
 import PublicacionesTab from './PublicacionesTab'
-import WhatsAppTab from './WhatsAppTab'
+import WhatsAppTab, { useWhatsAppPending } from './WhatsAppTab'
 import ResenasTab from './ResenasTab'
 
 const supabase = createBrowserClient(
@@ -140,6 +140,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 export default function CRMPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads' | 'publicaciones' | 'whatsapp' | 'resenas'>('crm')
+  const waPending = useWhatsAppPending()
 
   // ── CRM state ──────────────────────────────────────────────────────────────
   const [deals,   setDeals]   = useState<Deal[]>([])
@@ -448,6 +449,9 @@ export default function CRMPage() {
           </button>
           <button className={`ff-tab ${activeTab === 'whatsapp' ? 'active' : ''}`} onClick={() => setActiveTab('whatsapp')}>
             💬 WhatsApp
+            {waPending > 0 && (
+              <span style={{ marginLeft: 6, background: '#F26B17', color: '#fff', borderRadius: 999, padding: '1px 7px', fontSize: 11, fontWeight: 700 }}>{waPending}</span>
+            )}
           </button>
           <button className={`ff-tab ${activeTab === 'resenas' ? 'active' : ''}`} onClick={() => setActiveTab('resenas')}>
             ⭐ Reseñas

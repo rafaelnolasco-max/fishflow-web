@@ -49,6 +49,18 @@ export function enHorario(d = new Date()): boolean {
 
 // ─── 1. Reseñas ───────────────────────────────────────────────────────────────
 
+/** ¿El número tiene una solicitud de reseña de FishFlow en curso (etapas 1–3)? */
+export async function isReviewContact(waId: string): Promise<boolean> {
+  const { data } = await db()
+    .from('review_requests')
+    .select('contact_phone')
+    .eq('client_id', FISHFLOW_CLIENT_ID)
+    .eq('status', 'active')
+    .in('stage', [1, 2, 3])
+    .limit(500)
+  return (data ?? []).some((x) => last10(x.contact_phone ?? '') === last10(waId))
+}
+
 async function tryReviewFlow(waId: string, name: string | null, text: string): Promise<boolean> {
   const { data: reqs } = await db()
     .from('review_requests')

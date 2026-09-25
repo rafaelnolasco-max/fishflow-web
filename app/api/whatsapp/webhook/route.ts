@@ -16,7 +16,7 @@ import { NextRequest, NextResponse, after } from 'next/server'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email'
-import { handleInbound } from '@/lib/whatsappBot'
+import { handleInbound, isReviewContact } from '@/lib/whatsappBot'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -184,16 +184,33 @@ export async function POST(req: NextRequest) {
           })
         )
 
+        // Correo solo cuando empieza una conversación: contacto nuevo o más de
+        // 24 h sin escribir. Los mensajes siguientes se ven en /admin → WhatsApp
+        // y en el resumen diario (/api/cron/whatsapp-digest). Las respuestas de
+        // reseñas no avisan: el bot las contesta solo.
+        const { data: previo } = await db
+          .from('whatsapp_messages')
+          .select('created_at')
+          .eq('contact_wa_id', m.from)
+          .eq('direction', 'inbound')
+          .neq('wa_message_id', m.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        const conversacionNueva =
+          !previo || Date.now() - new Date(previo.created_at).getTime() > 24 * 60 * 60 * 1000
+        if (!conversacionNueva || (await isReviewContact(m.from))) continue
+
         const quien = contact?.profile?.name
           ? `${contact.profile.name} (+${m.from})`
           : `+${m.from}`
         await sendEmail({
           from: 'fishflowNoreply',
           to: ADMIN_NOTIFY_TO,
-          subject: `WhatsApp FishFlow — mensaje de ${quien}`,
+          subject: `WhatsApp FishFlow — nueva conversación con ${quien}`,
           html: `<p><strong>${escapeHtml(quien)}</strong> escribió a la línea FishFlow:</p>
 <blockquote style="border-left:3px solid #FF8C35;padding-left:12px;margin:12px 0">${escapeHtml(body ?? '')}</blockquote>
-<p style="color:#666;font-size:13px">Tienes 24 h para contestar con texto libre. Después solo con plantilla aprobada.</p>`,
+<p style="color:#666;font-size:13px">Los siguientes mensajes de esta conversación no te llegan por correo: están en <a href="https://www.fishflow.mx/admin">/admin → WhatsApp</a> y en el resumen de las 9:00. Tienes 24 h para contestar con texto libre.</p>`,
           tag: 'wa-webhook',
         })
       }

@@ -282,3 +282,36 @@ export default function WhatsAppTab() {
     </div>
   );
 }
+
+/**
+ * Contador para la pestaña 💬 del /admin: conversaciones (últimos 7 días)
+ * cuyo último mensaje es del cliente, o sea, sin responder. Se refresca cada 60 s.
+ */
+export function useWhatsAppPending(): number {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    const run = async () => {
+      const desde = new Date(Date.now() - 7 * DAY).toISOString();
+      const { data, error } = await supabase
+        .from("whatsapp_messages")
+        .select("contact_wa_id, direction")
+        .gte("created_at", desde)
+        .order("created_at", { ascending: false })
+        .limit(2000);
+      if (!alive || error || !data) return;
+      const seen = new Set<string>();
+      let count = 0;
+      for (const m of data as { contact_wa_id: string; direction: string }[]) {
+        if (seen.has(m.contact_wa_id)) continue;
+        seen.add(m.contact_wa_id);
+        if (m.direction === "inbound") count++;
+      }
+      setN(count);
+    };
+    run();
+    const t = setInterval(run, 60_000);
+    return () => { alive = false; clearInterval(t); };
+  }, []);
+  return n;
+}
