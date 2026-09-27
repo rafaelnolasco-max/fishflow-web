@@ -484,6 +484,12 @@
   .crit-body p{color:var(--ink-2);margin-bottom:16px;font-size:17px;max-width:60ch}
   .crit-body p.lead-q{font-family:"Fraunces",serif;font-size:clamp(22px,2.4vw,30px);line-height:1.36;color:var(--ink)}
   .crit-tests{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:44px}
+  .crit-test.feature{grid-column:1 / -1;background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .crit-test.feature .k{color:#67D4E8}
+  .crit-test.feature p{color:rgba(244,247,250,.78);max-width:62ch}
+  .crit-test.feature h4{font-size:clamp(26px,2.8vw,36px)}
+  .crit-test.feature .btn-primary{background:var(--accent);color:#fff}
+  .crit-test.feature .btn-primary:hover{background:var(--accent-deep)}
   .crit-test{background:var(--bone);border:1px solid var(--rule);padding:30px 28px;display:flex;flex-direction:column;gap:12px}
   .crit-test .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-deep)}
   .crit-test h4{font-family:"Fraunces",serif;font-weight:500;font-size:25px;line-height:1.14}
@@ -560,7 +566,7 @@
         <a href="ciencia-en-escena.html">Ciencia en Escena</a>
         <a href="#sobre">Mario Citalán</a>
       </div>
-      <a href="actitud.html" class="nav-cta">Haz el test</a>
+      <a href="decisiones.html" class="nav-cta">Haz el test</a>
     </div>
   </nav>
 </div>
@@ -582,7 +588,7 @@
           <p class="kick">Empieza por comprender cómo decides.</p>
         </div>
         <div class="hero-cta-row">
-          <a href="actitud.html" class="btn-primary">Haz el test
+          <a href="decisiones.html" class="btn-primary">Haz el test
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
           </a>
           <a href="#derviac" class="btn-outline">Conoce DERVIAC
@@ -665,11 +671,17 @@
     </div>
 
     <div class="crit-tests">
+      <div class="crit-test feature">
+        <div class="k">Test DERVIAC · 29 preguntas</div>
+        <h4>Descubre qué influye en tus decisiones</h4>
+        <p>Una breve experiencia DERVIAC para observar aspectos de tu manera de decidir que quizá no habías considerado. No es una calificación: es un punto de partida para la reflexión.</p>
+        <a href="decisiones.html" class="btn-primary">Comenzar el test <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg></a>
+      </div>
       <div class="crit-test">
         <div class="k">Test · 15 preguntas</div>
         <h4>Evaluación de la Actitud</h4>
-        <p>El primer paso: descubre cómo enfrentas lo que te ocurre. Al final recibes tu perfil y el siguiente paso recomendado.</p>
-        <a href="actitud.html" class="btn-primary">Haz el test <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg></a>
+        <p>Descubre cómo enfrentas lo que te ocurre. Al final recibes tu perfil y el siguiente paso recomendado.</p>
+        <a href="actitud.html" class="btn-outline">Hacer el test <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg></a>
       </div>
       <div class="crit-test">
         <div class="k">Evaluación completa · 30 reactivos</div>
@@ -956,7 +968,7 @@
         <h5>Empieza aquí</h5>
         <ul>
           <li><a href="#derviac">DERVIAC</a></li>
-          <li><a href="actitud.html">Haz el test</a></li>
+          <li><a href="decisiones.html">Haz el test</a></li>
           <li><a href="cuestionario.html">Evaluación de Criterio</a></li>
           <li><a href="#newsletter">Newsletter</a></li>
           <li><a href="#sobre">Mario Citalán</a></li>

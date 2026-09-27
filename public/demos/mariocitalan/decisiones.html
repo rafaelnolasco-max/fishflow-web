@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test DERVIAC · Descubre qué influye en tus decisiones — Mario Citalán</title>
+<meta name="description" content="Una breve experiencia DERVIAC para observar aspectos de tu manera de decidir que quizá no habías considerado. No es una calificación: es un punto de partida para la reflexión.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1A24;--ink-2:#283845;--ink-3:#4C5C6A;--paper:#F4F7FA;--paper-2:#E7EEF4;
+    --bone:#FFFFFF;--muted:#7B8794;--accent:#3E86CF;--accent-deep:#2A6AAE;--steel:#1F4E79;
+    --rule:#DCE4EC;--rule-dark:rgba(255,255,255,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  html,body{background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:"Inter",system-ui,sans-serif;font-size:16px;line-height:1.65;letter-spacing:.01em}
+  a{color:inherit;text-decoration:none}
+  .display{font-family:"Fraunces",Georgia,serif;font-weight:500;letter-spacing:-.01em;line-height:1.02}
+  .italic{font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:400;color:var(--accent-deep)}
+  .eyebrow{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-deep)}
+  .container{max-width:760px;margin:0 auto;padding:0 28px}
+
+
+  .topbar{padding:22px 0;border-bottom:1px solid var(--rule);background:rgba(255,255,255,.8);backdrop-filter:blur(12px);position:sticky;top:0;z-index:20}
+  .topbar .container{display:flex;align-items:center;justify-content:space-between;max-width:1100px}
+  .backlink{display:inline-flex;align-items:center;gap:9px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+  .backlink:hover{color:var(--accent-deep)}
+  .backlink svg{width:14px;height:14px}
+  .topbar .mark{display:flex;align-items:center;gap:10px;font-family:"Fraunces",serif;font-size:18px}
+  .topbar .mark img{height:30px}
+
+  .intro{padding:80px 0 30px;text-align:center}
+  .intro .eyebrow{display:block;margin-bottom:20px}
+  .intro h1{font-size:clamp(34px,5vw,58px);margin-bottom:20px}
+  .intro p{color:var(--ink-2);max-width:56ch;margin:0 auto;font-size:17px}
+  .intro-stats{display:flex;justify-content:center;gap:0;margin:38px auto 0;border:1px solid var(--rule);max-width:520px;background:var(--bone)}
+  .intro-stats > div{flex:1;padding:22px 12px;border-right:1px solid var(--rule)}
+  .intro-stats > div:last-child{border-right:none}
+  .intro-stats .n{font-family:"Fraunces",serif;font-size:34px;line-height:1}
+  .intro-stats .l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+  .quiz{padding:40px 0 100px}
+  .card{background:var(--bone);border:1px solid var(--rule);padding:44px 42px}
+  .q-head{margin-bottom:26px}
+  .q-dim{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:14px}
+  .progress{height:5px;background:var(--paper-2);border-radius:3px;overflow:hidden}
+  .bar{height:100%;width:5%;background:var(--accent);transition:width .4s ease}
+  .count{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);margin-top:11px}
+  .q{font-family:"Fraunces",serif;font-weight:500;font-size:25px;line-height:1.28;margin-bottom:26px}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;align-items:center;gap:14px;padding:15px 18px;border:1px solid var(--rule);background:var(--paper);cursor:pointer;transition:.2s;font-size:15px;color:var(--ink-2);line-height:1.4}
+  .opt:hover{border-color:var(--accent)}
+  .opt.sel{border-color:var(--accent);background:rgba(62,134,207,.09);color:var(--ink)}
+  .opt .mark{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--rule);flex:0 0 18px;transition:.2s;margin-top:2px}
+  .opt.sel .mark{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--bone)}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:30px;gap:14px}
+  .back{background:none;border:none;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:10px 0}
+  .back:hover{color:var(--ink)}
+  .back[disabled]{opacity:.3;cursor:default}
+  .next{background:var(--ink);color:var(--paper);border:none;padding:15px 28px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:.3s;display:inline-flex;align-items:center;gap:10px}
+  .next:hover{background:var(--accent-deep)}
+  .next[disabled]{opacity:.4;cursor:default;background:var(--ink-3)}
+  .next svg{width:13px;height:13px}
+
+  .field{margin-bottom:20px}
+  .field label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+  .field input{width:100%;background:var(--paper);border:1px solid var(--rule);padding:14px 16px;font-family:"Inter",sans-serif;font-size:15px;color:var(--ink)}
+  .field input:focus{outline:none;border-color:var(--accent);background:#fff}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .note{margin-top:16px;font-size:12px;color:var(--muted);line-height:1.5}
+  .optin{display:flex;gap:11px;align-items:flex-start;margin-top:18px;font-size:13.5px;line-height:1.55;color:var(--ink-2);cursor:pointer}
+  .optin input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--accent-deep);flex-shrink:0}
+
+  /* RESULTADO */
+  .result{display:none;text-align:center}
+  .result.show{display:block}
+  .result .lvl-num{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .result h2{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(30px,5vw,48px);margin-bottom:16px}
+  .result .lvl-bar{height:8px;border-radius:4px;background:var(--accent);max-width:340px;margin:0 auto 24px}
+  .result p.desc{color:var(--ink-2);max-width:50ch;margin:0 auto 28px;font-size:16px}
+  .scale{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:560px;margin:0 auto 30px}
+  .scale .s{padding:12px 6px;border:1px solid var(--rule);font-size:10.5px;color:var(--muted);font-family:"JetBrains Mono",monospace;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;line-height:1.3}
+  .scale .s.on{color:#fff;border-color:transparent}
+  .reco{background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);padding:20px 22px;max-width:520px;margin:0 auto 30px;text-align:left}
+  .reco .reco-l{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:8px}
+  .reco .reco-t{font-family:"Fraunces",serif;font-size:19px;color:var(--ink);line-height:1.3}
+  .res-actions{display:flex;flex-direction:column;align-items:center;gap:12px}
+  .res-cta{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:var(--paper);padding:15px 26px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .res-cta:hover{background:var(--accent-deep)}
+  .res-cta svg{width:13px;height:13px}
+  .res-dl{display:inline-flex;align-items:center;gap:9px;background:transparent;color:var(--ink);border:1px solid var(--ink);padding:14px 24px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .res-dl:hover{border-color:var(--accent-deep);color:var(--accent-deep)}
+  .res-dl svg{width:13px;height:13px}
+
+  .metodo{max-width:620px;margin:36px auto 0;padding-top:22px;border-top:1px solid var(--rule);font-size:11.5px;color:var(--muted);line-height:1.6;text-align:left}
+
+  footer{background:var(--ink);color:rgba(247,244,237,.55);padding:40px 0;text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  footer a{color:rgba(247,244,237,.8)}
+
+  @media (max-width:640px){
+    .card{padding:30px 24px}
+    .q{font-size:21px}
+    .field-row{grid-template-columns:1fr}
+    .topbar .mark span{display:none}
+    .scale{grid-template-columns:repeat(2,1fr)}
+  }
+
+
+  /* ---------------- NAV MOVIL (hamburguesa — estandar FishFlow) ---------------- */
+  .nav-burger{display:none;background:none;border:1px solid var(--ink);width:42px;height:42px;align-items:center;justify-content:center;cursor:pointer;font-size:17px;line-height:1;color:var(--ink);margin-left:14px}
+  .nav-mobile{display:none;flex-direction:column;background:rgba(255,255,255,.98);border-bottom:1px solid var(--rule);padding:6px 24px 20px}
+  .nav-mobile.open{display:flex}
+  .nav-mobile a{padding:14px 4px;border-bottom:1px solid var(--rule);font-size:14px;letter-spacing:.02em;color:var(--ink-2)}
+  .nav-mobile a.nav-mobile-cta{margin-top:16px;border:1px solid var(--ink);border-bottom:1px solid var(--ink);text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:13px 20px;color:var(--ink)}
+  @media (max-width:900px){.nav-burger{display:flex}}
+
+  /* MOBILE HARDENING (estandar FishFlow) */
+  html,body{overflow-x:hidden;max-width:100%}
+  img,svg,video{max-width:100%;height:auto}
+
+  /* ── Opt-in de newsletter — salida secundaria, sin cuestionario ────────────── */
+  /* Jerarquía deliberada: caja discreta, botón en outline y tipografía menor que
+     la del CTA de la evaluación. Es una puerta de salida, no la puerta principal;
+     si compite visualmente con el cuestionario, canibaliza el lead bueno. */
+  .nl-optin{max-width:520px;margin:40px auto 0;border:1px solid var(--rule);background:var(--bone);padding:26px 28px;text-align:left}
+  .nl-optin .nl-eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:10px}
+  .nl-optin .nl-lead{font-size:14.5px;line-height:1.6;color:var(--ink-2);margin:0 0 20px}
+  .nl-optin .nl-field{margin-bottom:14px}
+  .nl-optin .nl-field label{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .nl-optin .nl-field label span{text-transform:none;letter-spacing:0;font-size:11.5px}
+  /* 16px reales en móvil: menos de eso hace que Safari iOS haga zoom al enfocar. */
+  .nl-optin input[type=email],.nl-optin input[type=text],.nl-optin input[type=tel]{width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid var(--rule);background:var(--paper);font-family:inherit;font-size:16px;color:var(--ink)}
+  .nl-optin input:focus{outline:none;border-color:var(--accent)}
+  .nl-optin .nl-row{display:flex;gap:12px}
+  .nl-optin .nl-row .nl-field{flex:1;min-width:0}
+  .nl-optin .nl-check{display:flex;gap:10px;align-items:flex-start;margin:4px 0 18px;cursor:pointer}
+  .nl-optin .nl-check input{margin-top:3px;flex:none;width:15px;height:15px;accent-color:var(--accent-deep)}
+  .nl-optin .nl-check span{font-size:12.5px;line-height:1.55;color:var(--ink-3)}
+  .nl-optin button{width:100%;padding:13px 20px;border:1px solid var(--ink);background:transparent;color:var(--ink);font-family:inherit;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .18s,color .18s}
+  .nl-optin button:hover{background:var(--ink);color:var(--bone)}
+  .nl-optin button[disabled]{opacity:.5;cursor:default}
+  .nl-optin .nl-note{font-size:12px;color:var(--muted);margin:12px 0 0;line-height:1.5}
+  .nl-optin .nl-note.err{color:#C0392B}
+  .nl-optin .nl-done{font-family:"Fraunces",serif;font-size:19px;color:var(--ink);margin:0}
+  @media (max-width:600px){
+    .nl-optin{padding:22px 20px;margin-top:30px}
+    .nl-optin .nl-row{display:block}
+  }
+
+  /* ---- Test DERVIAC ---- */
+  .intro .lead-q{font-family:"Fraunces",serif;font-size:clamp(20px,2.2vw,26px);line-height:1.4;color:var(--ink);max-width:40ch;margin:0 auto 18px}
+  .intro .strong{font-family:"Fraunces",serif;font-size:19px;color:var(--ink);margin-top:14px}
+  .intro .strong + .strong{margin-top:2px;color:var(--accent-deep);font-style:italic}
+  .start{display:inline-flex;align-items:center;gap:12px;margin-top:30px;background:var(--ink);color:var(--paper);padding:17px 30px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.3s}
+  .start:hover{background:var(--accent-deep)}
+  .start svg{width:13px;height:13px}
+  .instr{background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);padding:18px 20px;margin-bottom:28px}
+  .instr .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:8px}
+  .instr p{font-size:14.5px;color:var(--ink-2);margin:0}
+  .instr p strong{color:var(--ink)}
+  .preface{font-size:15px;color:var(--ink-2);margin:-6px 0 22px;padding:16px 18px;background:var(--paper);border:1px solid var(--rule)}
+  .result h2{max-width:22ch;margin-left:auto;margin-right:auto;line-height:1.1}
+  .terr{background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);padding:24px 26px;max-width:600px;margin:0 auto 16px;text-align:left}
+  .terr .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:8px}
+  .terr h3{font-family:"Fraunces",serif;font-weight:500;font-size:26px;line-height:1.1;margin-bottom:12px}
+  .terr p{font-size:15px;color:var(--ink-2);margin-bottom:14px}
+  .terr .pq{font-family:"Fraunces",serif;font-style:italic;font-size:19px;line-height:1.4;color:var(--accent-deep);margin:0}
+  .general{max-width:600px;margin:26px auto 0;text-align:left}
+  .general p{font-size:15px;color:var(--ink-2);margin-bottom:14px}
+  .bigq{font-family:"Fraunces",serif;font-size:clamp(22px,2.6vw,30px);line-height:1.3;color:var(--ink);max-width:24ch;margin:26px auto 26px;text-align:center}
+  .alerta{max-width:600px;margin:0 auto 26px;text-align:left;background:#FFF6E5;border:1px solid #F1DDB3;border-left:3px solid #D69655;padding:20px 22px}
+  .alerta .k{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#9A5B1E;margin-bottom:8px}
+  .alerta p{font-size:15px;color:var(--ink);margin:0}
+  .alerta p + p{margin-top:10px}
+  .closing-t{max-width:600px;margin:0 auto 22px;text-align:left;font-size:15px;color:var(--ink-2)}
+  @media (max-width:640px){.terr{padding:20px 18px}.terr h3{font-size:22px}}
+</style>
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mario Citalán · DERVIAC">
+<meta property="og:title" content="Test DERVIAC · Descubre qué influye en tus decisiones — Mario Citalán">
+<meta property="og:description" content="Una breve experiencia DERVIAC para observar aspectos de tu manera de decidir que quizá no habías considerado. No es una calificación: es un punto de partida para la reflexión.">
+<meta property="og:url" content="https://mariocitalan.net/decisiones.html">
+<meta property="og:image" content="https://mariocitalan.net/assets/img/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_MX">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://mariocitalan.net/decisiones.html">
+<script src="assets/antibot.js?v=1"></script>
+</head>
+<body>
+
+
+<div class="topbar">
+  <div class="container">
+    <a href="index.html" class="backlink"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M13 7H1M6 2L1 7l5 5"/></svg> Volver</a>
+    <a href="index.html" class="mark"><img src="assets/img/dr-mente-logo.png" alt="Dr. Mente"> <span>Mario Citalán</span></a>
+  </div>
+</div>
+
+<section class="intro" id="intro">
+  <div class="container">
+    <span class="eyebrow">Test DERVIAC</span>
+    <h1 class="display">Descubre qué influye en <span class="italic">tus decisiones</span>.</h1>
+    <p class="lead-q">Una breve experiencia DERVIAC para observar aspectos de tu manera de decidir que quizá no habías considerado.</p>
+    <p>Todos tomamos decisiones creyendo que sabemos por qué las tomamos. Pero no siempre vemos todo lo que participa en ellas.</p>
+    <p style="margin-top:12px">Este test puede ayudarte a observar algunos de los aspectos que podrían estar influyendo en tu manera de decidir.</p>
+    <p class="strong">No busca decirte qué debes hacer.</p>
+    <p class="strong">Busca ayudarte a descubrir qué quizá no estás viendo.</p>
+    <div class="intro-stats">
+      <div><div class="n">6</div><div class="l">territorios</div></div>
+      <div><div class="n">29</div><div class="l">preguntas</div></div>
+      <div><div class="n">7–10</div><div class="l">minutos</div></div>
+    </div>
+    <a href="#test" class="start">Comenzar el test
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+    </a>
+
+<!-- Opt-in de newsletter: alta sin completar la evaluación -->
+<div class="nl-optin" id="nlOptin">
+  <div class="nl-eyebrow">¿Prefieres contestarlo después?</div>
+  <p class="nl-lead">Suscríbete al boletín y recibe reflexiones y contenidos DERVIAC para comprender mejor cómo decidimos. El test va a seguir aquí cuando tengas ganas.</p>
+  <form id="nlForm" novalidate>
+    <div class="nl-field">
+      <label for="nlEmail">Correo</label>
+      <input type="email" id="nlEmail" placeholder="tu@correo.com" autocomplete="email" required>
+    </div>
+    <div class="nl-row">
+      <div class="nl-field">
+        <label for="nlNombre">Nombre <span>(opcional)</span></label>
+        <input type="text" id="nlNombre" placeholder="Tu nombre" autocomplete="name">
+      </div>
+      <div class="nl-field">
+        <label for="nlTel">Teléfono <span>(opcional)</span></label>
+        <input type="tel" id="nlTel" placeholder="55 0000 0000" autocomplete="tel">
+      </div>
+    </div>
+    <label class="nl-check">
+      <input type="checkbox" id="nlConsent">
+      <span>Acepto recibir correos de Mario Citalán y que se guarden mis datos para ese fin. Puedo darme de baja cuando quiera.</span>
+    </label>
+    <button type="submit" id="nlBtn">Suscribirme al newsletter</button>
+    <p class="nl-note" id="nlNote">Solo el boletín. Esto no es el test ni sustituye su resultado.</p>
+    <p class="nl-note" style="margin-top:8px">Tus datos los trata el Dr. Mario Citalán para atender tu solicitud, enviarte la newsletter e informarte de sus servicios y proyectos. Puedes ejercer tus derechos ARCO cuando quieras. <a href="aviso-de-privacidad.html" target="_blank" rel="noopener" style="color:var(--accent-deep);text-decoration:underline">Aviso de privacidad</a>.</p>
+  </form>
+</div>
+  </div>
+</section>
+
+<section class="quiz" id="test">
+  <div class="container">
+    <div class="card">
+      <!-- QUIZ -->
+      <div id="quiz">
+        <div class="q-head">
+          <div class="q-dim" id="qDim">Territorio 1</div>
+          <div class="progress"><div class="bar" id="bar"></div></div>
+          <div class="count">Pregunta <span id="qNum">1</span> de <span id="qTotal">29</span></div>
+        </div>
+
+        <div id="qBody">
+          <div class="instr" id="qInstr">
+            <div class="k">Instrucciones</div>
+            <p>Piensa en cómo sueles responder ante situaciones importantes para ti. No busques la respuesta correcta. <strong>Elige la que más se parezca a lo que realmente haces.</strong></p>
+          </div>
+          <div class="preface" id="qPreface" style="display:none">El Programa de Desarrollo Personal DERVIAC te ayuda a comprender cómo decides y con ello a desarrollar un mejor criterio para responder ante las situaciones de tu vida.</div>
+          <div class="q" id="qText"></div>
+          <div class="opts" id="qOpts"></div>
+        </div>
+
+        <!-- captura final -->
+        <div id="contactBody" style="display:none">
+          <div class="q">¿A dónde te enviamos tu Mapa DERVIAC?</div>
+          <div class="field"><label for="c-nombre">Nombre completo</label><input type="text" id="c-nombre" placeholder="Tu nombre"></div>
+          <div class="field-row">
+            <div class="field"><label for="c-email">Correo</label><input type="email" id="c-email" placeholder="tu@correo.com"></div>
+            <div class="field"><label for="c-tel">Teléfono</label><input type="tel" id="c-tel" placeholder="55 0000 0000"></div>
+          </div>
+          <label class="optin" for="c-optin">
+            <input type="checkbox" id="c-optin">
+            <span>Quiero recibir el boletín DERVIAC: reflexiones y contenidos para comprender mejor cómo decidimos. Puedo darme de baja cuando quiera.</span>
+          </label>
+          <p class="note">Recibes tu Mapa DERVIAC por correo. No es una calificación: es un punto de partida para la reflexión. Confidencial: tus datos los trata Mario Citalán únicamente para enviarte tu resultado y darte seguimiento; no se comparten con terceros. <a href="aviso-de-privacidad.html" target="_blank" rel="noopener" style="color:var(--accent-deep);text-decoration:underline">Aviso de privacidad</a>.</p>
+        </div>
+
+        <div class="nav-row">
+          <button class="back" id="back" disabled>Atrás</button>
+          <button class="next" id="next" disabled>Siguiente
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- RESULTADO -->
+      <div class="result" id="result">
+        <div class="lvl-num">Tu Mapa DERVIAC</div>
+        <h2 id="rTitle">Esto podría estar influyendo en tus decisiones</h2>
+        <div id="rTerr"></div>
+        <div class="general">
+          <p id="rIntroGeneral">Estos son algunos aspectos que, según tus respuestas, podría valer la pena que identifiques. No son una calificación. No son los únicos que influyen en tus decisiones. Son un punto de partida para observar cómo decides y descubrir qué más podría estar influyendo en ti.</p>
+          <p>A veces, una pregunta nos ayuda a mirar con más claridad una decisión. Ojalá este resultado te invite a observarte con curiosidad, sin juzgarte, y a descubrir algo que te ayude a seguir creciendo.</p>
+        </div>
+        <p class="bigq">¿Qué podrías estar dejando de considerar cuando decides?</p>
+        <div class="alerta" id="rAlerta" style="display:none">
+          <div class="k">Una recomendación importante</div>
+          <p>Por lo que nos compartes, te recomendamos buscar una valoración con un profesional de la salud mental (psicólogo o psiquiatra) que pueda acompañarte en lo que estás viviendo.</p>
+          <p>El Programa de Desarrollo Personal DERVIAC no es psicoterapia ni sustituye la atención psicológica o psiquiátrica cuando ésta se requiere.</p>
+        </div>
+        <p class="closing-t">Si quieres profundizar en esta pregunta, te invitamos a conocer el Programa de Desarrollo Personal DERVIAC: una experiencia para comprender mejor tu manera de decidir y desarrollar un criterio más claro para responder a las situaciones que se presentan en tu vida.</p>
+        <div class="res-actions">
+          <a class="res-cta" href="programa-personal.html">Conocer el programa DERVIAC
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+          </a>
+        </div>
+        <p class="closing-t" style="margin-top:26px">También recuerda que, si quieres saber más sobre decisiones, criterio, creencias, emociones, estructura mental y demás temas que tienen que ver con tu desarrollo personal y toma de decisiones, puedes suscribirte a nuestro boletín. Compartiremos reflexiones y contenidos DERVIAC para comprender mejor cómo decidimos.</p>
+        <div class="res-actions">
+          <a class="res-dl" href="index.html#newsletter" id="rNl">Quiero recibir el boletín
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>
+          </a>
+        </div>
+        <p class="note" style="margin-top:22px">También te enviamos este resultado a tu correo.</p>
+        <p class="metodo">El Test DERVIAC «Descubre qué influye en tus decisiones» es una herramienta de desarrollo humano y autoconocimiento. No es una calificación ni constituye una prueba psicológica, psiquiátrica o diagnóstica, y no sustituye la valoración de un profesional de la salud mental.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">© MMXXVI — Mario Citalán · <a href="index.html">Inicio</a> · <a href="aviso-de-privacidad.html">Aviso de privacidad</a> · Creado por <a href="https://www.fishflow.mx" target="_blank" rel="noopener">FishFlow</a></div>
+</footer>
+
+<script>
+  // ====== Test DERVIAC · Descubre qué influye en tus decisiones ======
+  // 24 reactivos en 6 territorios (4 por territorio, Nunca=0 … Casi siempre=4, 0–16 por territorio)
+  // + 5 preguntas de orientación que NO puntúan (modalidad, interés grupal, qué busca,
+  // afectación y necesidad de atención). No se muestran puntos ni porcentajes.
+  // Resultado: los 2 territorios con mayor puntaje (empate → el que aparece primero).
+  // Si todo es «Nunca», solo el mensaje general. Afectación importante o posible
+  // necesidad de atención → recomendación de valoración profesional.
+  const questions = [{"k": "interpretacion", "cat": "Territorio 1 — La interpretación", "t": "Cuando alguien no responde como esperaba, suelo pensar que conozco sus motivos sin preguntarle.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "interpretacion", "cat": "Territorio 1 — La interpretación", "t": "Reacciono antes de comprobar si entendí bien lo que está pasando.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "interpretacion", "cat": "Territorio 1 — La interpretación", "t": "Cuando algo me preocupa, doy por hecho que sé lo que va a ocurrir.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "interpretacion", "cat": "Territorio 1 — La interpretación", "t": "Cuando estoy convencido de lo que pasó, me cuesta pensar que podría haber otra explicación.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "aprendido", "cat": "Territorio 2 — Lo aprendido", "t": "Cuando una decisión se parece a otra que salió mal, me cuesta decidir.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "aprendido", "cat": "Territorio 2 — Lo aprendido", "t": "Cuando alguien ha reaccionado mal conmigo, pienso que volverá a reaccionar de la misma manera.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "aprendido", "cat": "Territorio 2 — Lo aprendido", "t": "Ante ciertas situaciones, reacciono igual desde hace muchos años.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "aprendido", "cat": "Territorio 2 — Lo aprendido", "t": "He dejado de intentar algo porque pienso que no soy capaz de hacerlo.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "automatico", "cat": "Territorio 3 — Lo automático", "t": "Actúo sin pensarlo y después reflexiono sobre lo que hice.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "automatico", "cat": "Territorio 3 — Lo automático", "t": "Reacciono de la misma manera, aunque sé que eso no me conviene.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "automatico", "cat": "Territorio 3 — Lo automático", "t": "Cuando vivo una situación similar a otra del pasado, suelo responder de la misma manera.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "automatico", "cat": "Territorio 3 — Lo automático", "t": "Termino haciendo exactamente lo que había decidido no volver a hacer.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "presion", "cat": "Territorio 4 — La presión", "t": "Cuando tengo poco tiempo para decidir, considero menos aspectos de los que consideraría habitualmente.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "presion", "cat": "Territorio 4 — La presión", "t": "Cuando una situación me preocupa mucho, me cuesta pensar en otras posibilidades.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "presion", "cat": "Territorio 4 — La presión", "t": "Las opiniones o expectativas de otras personas pueden influir en decisiones importantes para mí.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "presion", "cat": "Territorio 4 — La presión", "t": "Cuando me siento con mucha presión, decido solo para dejar de sentir esa presión.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "criterio", "cat": "Territorio 5 — El criterio", "t": "Sé lo que quiero, pero me cuesta explicar por qué sería bueno para mí.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "criterio", "cat": "Territorio 5 — El criterio", "t": "Tomo decisiones sin evaluar con detenimiento otras opciones.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "criterio", "cat": "Territorio 5 — El criterio", "t": "Me doy cuenta de las posibles consecuencias de una decisión después de tomarla.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "criterio", "cat": "Territorio 5 — El criterio", "t": "Cuando una opción me parece correcta desde el principio, dejo de considerar la posibilidad de estar equivocado.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "accion", "cat": "Territorio 6 — La acción", "t": "He decidido hacer cambios importantes, pero todavía no he dado pasos para llevarlos a cabo.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "accion", "cat": "Territorio 6 — La acción", "t": "Sé qué quiero hacer, pero sigo postergando el momento de hacerlo.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "accion", "cat": "Territorio 6 — La acción", "t": "Me propongo cambiar algunas cosas, pero con el tiempo vuelvo a hacer lo mismo.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "accion", "cat": "Territorio 6 — La acción", "t": "A veces creo que ya tomé una decisión, pero todavía no actúo de acuerdo con ella.", "opts": ["Nunca", "Pocas veces", "Algunas veces", "Muchas veces", "Casi siempre"]}, {"k": "modalidad", "cat": "Para orientarte", "t": "¿De qué manera preferirías vivir esta experiencia?", "opts": ["En un proceso individual y personalizado.", "En un grupo, aprendiendo también mediante las experiencias de otras personas.", "Podría participar en cualquiera de las dos modalidades.", "Todavía no lo sé y me gustaría recibir orientación."], "o": 1}, {"k": "grupal", "cat": "Para orientarte", "t": "Si próximamente se abre una experiencia grupal DERVIAC, ¿te gustaría recibir información?", "opts": ["Sí, me interesa participar.", "Tal vez, dependiendo de los horarios, el formato y la inversión.", "Por ahora prefiero únicamente la modalidad individual."], "o": 1}, {"k": "busca", "cat": "Para orientarte", "t": "¿Qué estás buscando principalmente en este momento?", "opts": ["Comprender mejor una situación o una decisión que debo o quiero tomar.", "Cambiar algo que sigo repitiendo.", "Desarrollar una mejor manera de decidir.", "Recibir ayuda porque lo que estoy viviendo me está resultando difícil de manejar.", "No estoy seguro/a."], "o": 1}, {"k": "afectacion", "cat": "Para orientarte", "t": "¿Lo que estás viviendo está afectando de manera importante tu vida cotidiana, tus relaciones, tu trabajo o tu capacidad para realizar tus actividades habituales?", "opts": ["No.", "Un poco.", "Sí, de manera importante."], "o": 1}, {"k": "atencion", "cat": "Para orientarte", "t": "En este momento, ¿consideras que necesitas atención psicológica o psiquiátrica?", "opts": ["No.", "No estoy seguro/a.", "Sí."], "o": 1}];
+  const DEV = {"interpretacion": ["Interpretación", "A veces decidimos a partir de lo que creemos que ocurrió, sin haberlo comprobado. Tus respuestas invitan a observar cómo interpretas las acciones de otras personas y qué das por hecho cuando una situación te preocupa. Una primera pista puede estar en distinguir lo que sabes de lo que supones.", "¿Hay alguna decisión que hayas tomado, o sigas tomando, sin haber comprobado su veracidad?"], "aprendido": ["Lo aprendido", "Lo que has vivido puede influir en lo que esperas de una situación y en lo que crees posible para ti. Algunas ideas que aprendiste hace tiempo quizá sigan participando en tus decisiones actuales.", "¿Hay algo que hoy estás dejando de intentar por una idea que tienes sobre ti?"], "automatico": ["Lo automático", "Hay maneras de responder que, con el tiempo, se vuelven habituales. Pueden aparecer tan rápido que solo después de haber tomado la decisión nos detenemos a pensar qué hicimos. Observar cuándo se repiten puede abrir espacio para responder de otra forma.", "¿Qué respuesta repites incluso cuando sabes que no suele ayudarte?"], "presion": ["La presión", "La presión puede cambiar la manera en que decides. Cuando hay poco tiempo, preocupación o expectativas de otras personas, quizá consideres menos posibilidades o busques terminar cuanto antes con la incomodidad.", "¿Qué cosas consideras que tomarías en cuenta si pudieras decidir con menos presión?"], "criterio": ["El criterio", "Tener clara una opción no siempre significa haberla examinado totalmente. Tus respuestas invitan a observar qué alternativas consideras, qué consecuencias anticipas y en qué basas la idea de que algo te conviene.", "¿Actualmente qué razones sostienen una decisión que consideras correcta?"], "accion": ["La acción", "Tomar una decisión y llevarla a la práctica son momentos distintos. A veces sabemos qué queremos hacer, pero lo postergamos o volvemos a una conducta conocida. Mirar esa distancia puede ayudar a comprender qué está ocurriendo.", "¿Qué podrías hacer hoy para empezar a llevar a la práctica esa decisión que está postergada?"]};
+  const ORDER = ['interpretacion','aprendido','automatico','presion','criterio','accion'];
+
+  const total = questions.length;
+  const answers = new Array(total).fill(null);
+
+  const elQuiz = document.getElementById('quiz');
+  const elResult = document.getElementById('result');
+  const qBody = document.getElementById('qBody');
+  const contactBody = document.getElementById('contactBody');
+  const qText = document.getElementById('qText');
+  const qOpts = document.getElementById('qOpts');
+  const qDim = document.getElementById('qDim');
+  const qNum = document.getElementById('qNum');
+  const qInstr = document.getElementById('qInstr');
+  const qPreface = document.getElementById('qPreface');
+  const bar = document.getElementById('bar');
+  const back = document.getElementById('back');
+  const next = document.getElementById('next');
+  document.getElementById('qTotal').textContent = total;
+  const arrow = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 7h12M8 2l5 5-5 5"/></svg>';
+  const firstOrient = questions.findIndex(q => q.o);
+
+  let cur = 0;
+
+  function renderQuestion(){
+    const isContact = cur >= total;
+    qBody.style.display = isContact ? 'none' : 'block';
+    contactBody.style.display = isContact ? 'block' : 'none';
+    document.querySelector('.q-head').style.display = isContact ? 'none' : 'block';
+    if(!isContact){
+      const q = questions[cur];
+      qDim.textContent = q.cat;
+      qInstr.style.display = q.o ? 'none' : 'block';
+      qPreface.style.display = cur === firstOrient ? 'block' : 'none';
+      qText.textContent = (cur+1) + '. ' + q.t;
+      qOpts.innerHTML = '';
+      q.opts.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'opt' + (answers[cur] === i ? ' sel' : '');
+        div.innerHTML = '<span class="mark"></span><span></span>';
+        div.lastChild.textContent = opt;
+        div.addEventListener('click', () => {
+          answers[cur] = i; renderQuestion(); refresh();
+          // avance automático en los reactivos de escala, para que 29 preguntas no pesen
+          if(!q.o) setTimeout(() => { if(answers[cur] === i && cur < total){ cur++; renderQuestion(); } }, 260);
+        });
+        qOpts.appendChild(div);
+      });
+      qNum.textContent = cur + 1;
+    }
+    refresh();
+  }
+
+  function valid(){
+    if(cur >= total){
+      const n = document.getElementById('c-nombre').value.trim();
+      const e = document.getElementById('c-email').value.trim();
+      return n.length > 1 && /.+@.+\..+/.test(e);
+    }
+    return answers[cur] !== null;
+  }
+
+  function refresh(){
+    bar.style.width = ((cur >= total ? total : cur+1) / total * 100) + '%';
+    back.disabled = cur === 0;
+    next.disabled = !valid();
+    next.innerHTML = (cur >= total ? 'Ver mi resultado ' : 'Siguiente ') + arrow;
+  }
+
+  function atribucion(){
+    try {
+      var qs = new URLSearchParams(location.search);
+      var g = function(k){ var v = qs.get(k); return v ? v.slice(0,200) : null; };
+      return { utm_source:g('utm_source'), utm_medium:g('utm_medium'), utm_campaign:g('utm_campaign'),
+        utm_content:g('utm_content'), utm_term:g('utm_term'),
+        landing_url:(location.href||'').slice(0,500), referrer:(document.referrer||'').slice(0,500) };
+    } catch(_) { return {}; }
+  }
+
+  function orient(key){
+    const i = questions.findIndex(q => q.k === key);
+    return i >= 0 && answers[i] !== null ? questions[i].opts[answers[i]] : '';
+  }
+
+  function calcular(){
+    const pts = {}; ORDER.forEach(k => pts[k] = 0);
+    questions.forEach((q, i) => { if(!q.o && answers[i] !== null) pts[q.k] += answers[i]; });
+    // Orden estable: mayor puntaje primero; empate → el que aparece primero en el test.
+    const top = ORDER.slice().sort((a,b) => (pts[b]-pts[a]) || (ORDER.indexOf(a)-ORDER.indexOf(b)))
+                     .filter(k => pts[k] > 0).slice(0,2);
+    const alerta = orient('afectacion') === 'Sí, de manera importante.'
+                || orient('atencion') === 'Sí.' || orient('atencion') === 'No estoy seguro/a.';
+    return { pts, top, alerta };
+  }
+
+  function showResult(){
+    const r = calcular();
+    const box = document.getElementById('rTerr');
+    box.innerHTML = '';
+    r.top.forEach((k, i) => {
+      const d = DEV[k];
+      const el = document.createElement('div');
+      el.className = 'terr';
+      el.innerHTML = '<div class="k"></div><h3></h3><p></p><p class="pq"></p>';
+      el.querySelector('.k').textContent = 'Territorio ' + (i+1) + ' de tu mapa';
+      el.querySelector('h3').textContent = d[0];
+      el.querySelector('p').textContent = d[1];
+      el.querySelector('.pq').textContent = d[2];
+      box.appendChild(el);
+    });
+    if(!r.top.length){
+      document.getElementById('rTitle').textContent = 'Tu Mapa DERVIAC';
+      document.getElementById('rIntroGeneral').style.display = 'none';
+    }
+    document.getElementById('rAlerta').style.display = r.alerta ? 'block' : 'none';
+
+    elQuiz.style.display = 'none';
+    elResult.classList.add('show');
+    document.getElementById('test').scrollIntoView({behavior:'smooth'});
+
+    const nombre = (document.getElementById('c-nombre')||{}).value || '';
+    const email  = (document.getElementById('c-email') ||{}).value || '';
+    const tel    = (document.getElementById('c-tel')   ||{}).value || '';
+    const optIn  = !!(document.getElementById('c-optin')||{}).checked;
+    const respuestas = {};
+    try {
+      questions.forEach((q, i) => {
+        if(answers[i] === null) return;
+        respuestas[(i+1) + '. ' + q.t] = q.opts[answers[i]] + (q.o ? '' : ' (' + answers[i] + ')');
+      });
+      ORDER.forEach(k => { respuestas['_territorio · ' + DEV[k][0]] = r.pts[k]; });
+    } catch(_) {}
+    try {
+      fetch('https://www.fishflow.mx/api/demo/mario-criterio/', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(Object.assign({
+          test:'decisiones', nombre, email, tel, optIn, answers:respuestas,
+          territorios: r.top, alerta: r.alerta,
+          modalidad: orient('modalidad'), grupal: orient('grupal'), busca: orient('busca'),
+          afectacion: orient('afectacion'), atencion: orient('atencion')
+        }, atribucion()))
+      }).catch(()=>{});
+    } catch(_) {}
+  }
+
+  back.addEventListener('click', () => { if(cur>0){ cur--; renderQuestion(); } });
+  next.addEventListener('click', () => {
+    if(!valid()) return;
+    if(cur < total){ cur++; renderQuestion(); }
+    else { showResult(); }
+  });
+  ['c-nombre','c-email'].forEach(id => document.getElementById(id).addEventListener('input', refresh));
+
+  renderQuestion();
+</script>
+
+<script>
+(function(){
+  var inner=document.querySelector('.nav-inner');if(!inner)return;
+  var nav=inner.parentNode;
+  var links=inner.querySelector('.nav-links');
+  var cta=inner.querySelector('.nav-cta');
+  var b=document.createElement('button');
+  b.className='nav-burger';b.setAttribute('aria-label','Abrir men\u00fa');b.setAttribute('aria-expanded','false');b.innerHTML='\u2630';
+  inner.appendChild(b);
+  var m=document.createElement('div');m.className='nav-mobile';
+  if(links)m.innerHTML=links.innerHTML;
+  if(cta){var c=cta.cloneNode(true);c.className='nav-mobile-cta';m.appendChild(c);}
+  nav.appendChild(m);
+  function close(){m.classList.remove('open');b.setAttribute('aria-expanded','false');b.setAttribute('aria-label','Abrir men\u00fa');b.innerHTML='\u2630';}
+  b.addEventListener('click',function(){
+    var open=m.classList.toggle('open');
+    b.setAttribute('aria-expanded',String(open));
+    b.setAttribute('aria-label',open?'Cerrar men\u00fa':'Abrir men\u00fa');
+    b.innerHTML=open?'\u2715':'\u2630';
+  });
+  m.addEventListener('click',function(e){if(e.target.closest('a'))close();});
+})();
+</script>
+
+<script>
+/* Alta al newsletter sin cuestionario → /api/newsletter/subscribe en fishflow.mx.
+   La diagonal final es obligatoria: fishflow-web corre con trailingSlash:true y
+   sin ella Next redirige, lo que en un POST cross-origin tira la petición. */
+(function(){
+  var form = document.getElementById('nlForm');
+  if (!form) return;
+  var box  = document.getElementById('nlOptin');
+  var note = document.getElementById('nlNote');
+  var btn  = document.getElementById('nlBtn');
+
+  function fail(msg){ note.textContent = msg; note.className = 'nl-note err'; }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var email   = document.getElementById('nlEmail').value.trim();
+    var nombre  = document.getElementById('nlNombre').value.trim();
+    var tel     = document.getElementById('nlTel').value.trim();
+    var consent = document.getElementById('nlConsent').checked;
+
+    if (!/.+@.+\..+/.test(email)) { fail('Escribe un correo válido.'); return; }
+    if (!consent) { fail('Marca la casilla para poder enviarte los correos.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Enviando…';
+    note.className = 'nl-note';
+    note.textContent = '';
+
+    fetch('https://www.fishflow.mx/api/newsletter/subscribe/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, nombre: nombre, tel: tel, consent: true, origen: 'newsletter' })
+    })
+    .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+    .then(function(res){
+      if (!res.ok) throw new Error((res.d && res.d.error) || 'error');
+      var ya = res.d && res.d.yaEstaba;
+      box.innerHTML =
+        '<div class="nl-eyebrow">' + (ya ? 'Ya estabas en la lista' : 'Listo') + '</div>' +
+        '<p class="nl-done">' + (ya ? 'Tu correo ya estaba suscrito. ✓' : 'Estás suscrito. ✓') + '</p>' +
+        '<p class="nl-note">' + (ya ? 'No hicimos nada nuevo, sigues recibiendo el boletín.' : 'Te llegó un correo de confirmación. Si no aparece, revisa spam.') + '</p>';
+    })
+    .catch(function(){
+      btn.disabled = false;
+      btn.textContent = 'Suscribirme al newsletter';
+      fail('No se pudo completar el alta. Inténtalo de nuevo en un momento.');
+    });
+  });
+})();
+</script>
+</body>
+</html>

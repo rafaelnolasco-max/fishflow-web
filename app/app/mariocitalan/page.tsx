@@ -319,6 +319,7 @@ function priorityOf(profile: string | null) {
 const SOURCE_LABEL: Record<string, string> = {
   actitud:              "Evaluación de Actitud",
   criterio:             "Evaluación de Criterio",
+  decisiones:           "Test DERVIAC",
   newsletter:           "Suscripción directa",
   libro:                "Lista de espera del libro",
   asesoria:             "Asesoría personal",
@@ -335,7 +336,7 @@ const SOURCE_LABEL: Record<string, string> = {
 // Fuentes que SÍ son una evaluación. Quien llegó solo por el newsletter o por la
 // lista del libro no tiene perfil ni respuestas: no debe contar como evaluación
 // ni caer en un grupo de prioridad, porque no hay nada que priorizar todavía.
-const FUENTES_EVALUACION = new Set(["actitud", "criterio"]);
+const FUENTES_EVALUACION = new Set(["actitud", "criterio", "decisiones"]);
 
 // Solicitudes de servicio: alguien pidiendo contratar. Tienen su propia pestaña
 // porque el trabajo es distinto —hay que responderlas, no nutrirlas— y mezcladas
@@ -1759,6 +1760,7 @@ export default function MarioCitalanPanel() {
                 <option value="todo">Todas las fuentes</option>
                 <option value="actitud">Actitud</option>
                 <option value="criterio">Criterio</option>
+                <option value="decisiones">Test DERVIAC</option>
                 <option value="newsletter">Suscripción directa</option>
                 <option value="libro">Lista de espera del libro</option>
               </select>
