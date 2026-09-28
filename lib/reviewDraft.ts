@@ -17,6 +17,28 @@ function genericPersona(business: string) {
   return `Eres el dueño de ${business || 'un negocio local en México'}. Le escribes de tú a tú a un cliente, como el dueño que eres: cordial, directo y cercano. Nada de lenguaje corporativo ni de marketing.`
 }
 
+// Red de seguridad: si Haiku se cuela una grosería, se sustituye por una
+// alternativa neutra antes de que el mensaje llegue al cliente. El prompt ya
+// lo prohíbe; esto cubre el caso en que aun así aparezca.
+const REEMPLAZOS: Array<[RegExp, string]> = [
+  [/\bun\s+chingo\b/gi, 'muchísimo'],
+  [/\bun\s+chin(?:a|e)dal\b/gi, 'muchísimo'],
+  [/\bchingones?\b/gi, 'excelentes'],
+  [/\bchingar?\b/gi, 'ayudar'],
+  [/\bpinch[ea]s?\b/gi, ''],
+  [/\bcabrón(?:es)?\b/gi, 'increíble'],
+  [/\bvalió\s+madre\b/gi, 'salió mal'],
+  [/\bmadres?\b/gi, 'cosas'],
+  [/\bmamadas?\b/gi, 'tonterías'],
+  [/\b(?:verga|puto|puta|pendej[oa]s?|culero|mierda)\b/gi, ''],
+]
+
+function limpiarLenguaje(texto: string) {
+  let t = texto
+  for (const [re, rep] of REEMPLAZOS) t = t.replace(re, rep)
+  return t.replace(/[ \t]{2,}/g, ' ').replace(/ ([,.;!?])/g, '$1').trim()
+}
+
 export type DraftResult = { ok: true; draft: string } | { ok: false; status: number; error: string }
 
 /**
@@ -79,15 +101,16 @@ Reglas:
 1. Redacta tomando en cuenta LO QUE EL CLIENTE ACABA DE RESPONDER. Reconócelo antes de pedir.
 2. Si la respuesta menciona algo del servicio (una duda, una falla, soporte, algo técnico): atiéndelo primero como el dueño, ofrece resolverlo, y NO fuerces la reseña — sugiere pedirla después.
 3. Si el cliente suena molesto o insatisfecho: nada de link de reseña; ofrece una llamada para resolverlo.
-4. Devuelve SOLO el texto del mensaje listo para enviar, sin comillas ni explicaciones.${
+4. Devuelve SOLO el texto del mensaje listo para enviar, sin comillas ni explicaciones.
+5. LENGUAJE LIMPIO (obligatorio): jamás uses groserías, malas palabras, albures ni modismos vulgares o soeces (por ejemplo "un chingo", "cabrón", "madre", "pinche", "verga", "puto", "pendejo", "mamada", "valer madre"), aunque el cliente los use o tu persona sea cercana. Cercano no es vulgar: usa "mucho", "muchísimo", "de verdad", "bastante". Si el cliente dice una grosería, no la repitas ni la cites.${
     sensitive
       ? `
 
 CONFIDENCIALIDAD (obligatorio, este es un servicio de salud):
-5. NUNCA repitas, parafrasees ni aludas al contenido de salud que la persona haya mencionado: síntomas, diagnósticos, medicamentos, emociones, sueño, ansiedad, avances o retrocesos del tratamiento. Ese mensaje puede ser leído por alguien más en su teléfono.
-6. Agradece en términos neutros y generales ("me da mucho gusto saber de ti", "gracias por contarme"). Sin adjetivos que revelen cómo va su proceso.
-7. No menciones el tipo de tratamiento ni el motivo de consulta.
-8. Si la persona expresa malestar emocional o algo delicado: NO pidas reseña ni mandes link. Responde con calidez y ofrécele agendar un espacio para platicarlo.`
+6. NUNCA repitas, parafrasees ni aludas al contenido de salud que la persona haya mencionado: síntomas, diagnósticos, medicamentos, emociones, sueño, ansiedad, avances o retrocesos del tratamiento. Ese mensaje puede ser leído por alguien más en su teléfono.
+7. Agradece en términos neutros y generales ("me da mucho gusto saber de ti", "gracias por contarme"). Sin adjetivos que revelen cómo va su proceso.
+8. No menciones el tipo de tratamiento ni el motivo de consulta.
+9. Si la persona expresa malestar emocional o algo delicado: NO pidas reseña ni mandes link. Responde con calidez y ofrécele agendar un espacio para platicarlo.`
       : ''
   }`
 
@@ -102,7 +125,8 @@ Respuesta del cliente por WhatsApp: "${reply.trim()}"`
     messages: [{ role: 'user', content: userMsg }],
   })
 
-  const draft = message.content[0].type === 'text' ? message.content[0].text.trim() : ''
+  const raw = message.content[0].type === 'text' ? message.content[0].text.trim() : ''
+  const draft = raw ? limpiarLenguaje(raw) : ''
   if (!draft) return { ok: false, status: 502, error: 'No se pudo generar el mensaje. Intenta de nuevo.' }
   return { ok: true, draft }
 }
