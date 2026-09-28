@@ -76,14 +76,16 @@ export const REPLY_TO = 'raf@fishflow.mx'
  * Destinatarios de los avisos que se le mandan a Enlace Integral (leads de la
  * landing y candidatas de /unete).
  *
+ * Desde el 28-sep-2026 los avisos van a Edna Cruz (antes al Gmail de la
+ * promotoría, `enlaceintegralseguros@gmail.com`, buzón de Ivonne).
+ *
  * OJO: `contacto@enlaceintegralseguros.com.mx` NO EXISTE — Resend lo rebotó con
- * "Recipient not found" en la prueba del 22-jul-2026. El buzón bueno que Ivonne
- * confirmó es `enlaceintegralseguros@gmail.com`. No volver a asumir `contacto@`.
+ * "Recipient not found" en la prueba del 22-jul-2026. No volver a asumir `contacto@`.
  *
  * Se puede sobrescribir con la env `ENLACE_LEAD_TO` (coma-separada).
  * `ENLACE_LEAD_TO=""` apaga el aviso a Enlace y deja solo el de Rafa.
  */
-export const ENLACE_DEFAULT_TO = 'enlaceintegralseguros@gmail.com'
+export const ENLACE_DEFAULT_TO = 'edna.cruz@enlaceintegralseguros.com.mx'
 
 /**
  * Buzon de SPARC que recibe los avisos de prospecto.
