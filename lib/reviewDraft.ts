@@ -98,7 +98,7 @@ Plantilla base (úsala como referencia de estilo, adáptala a la respuesta):
 "${baseTpl ?? ''}"
 
 Reglas:
-1. Redacta tomando en cuenta LO QUE EL CLIENTE ACABA DE RESPONDER. Reconócelo antes de pedir.
+1. Redacta tomando en cuenta LO QUE EL CLIENTE ACABA DE RESPONDER. Reconócelo antes de pedir. Si la respuesta viene entre paréntesis como sticker o reacción, el cliente no escribió texto: agradécele el gesto con calidez, sin inventar lo que dijo ni citar el paréntesis.
 2. Si la respuesta menciona algo del servicio (una duda, una falla, soporte, algo técnico): atiéndelo primero como el dueño, ofrece resolverlo, y NO fuerces la reseña — sugiere pedirla después.
 3. Si el cliente suena molesto o insatisfecho: nada de link de reseña; ofrece una llamada para resolverlo.
 4. Devuelve SOLO el texto del mensaje listo para enviar, sin comillas ni explicaciones.

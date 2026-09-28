@@ -61,10 +61,10 @@ export async function isReviewContact(waId: string): Promise<boolean> {
   return (data ?? []).some((x) => last10(x.contact_phone ?? '') === last10(waId))
 }
 
-async function tryReviewFlow(waId: string, name: string | null, text: string): Promise<boolean> {
+async function tryReviewFlow(waId: string, name: string | null, text: string, nota?: string): Promise<boolean> {
   const { data: reqs } = await db()
     .from('review_requests')
-    .select('id, contact_name, contact_phone, stage, status')
+    .select('id, contact_name, contact_phone, stage, status, notes')
     .eq('client_id', FISHFLOW_CLIENT_ID)
     .eq('status', 'active')
     .in('stage', [1, 2])
@@ -94,6 +94,7 @@ async function tryReviewFlow(waId: string, name: string | null, text: string): P
     [`draft_${next}`]: draft.draft,
     updated_at: now,
   }
+  if (nota) patch.notes = r.notes ? `${r.notes}\n${nota}` : nota
   if (sent.ok) {
     patch.stage = next
     patch[`stage${next}_sent_at`] = now
@@ -206,6 +207,47 @@ async function assistant(waId: string, name: string | null, text: string) {
   }
 }
 
+// ─── Reacciones y stickers ────────────────────────────────────────────────────
+
+// Quita variantes de tono de piel y selector de emoji para comparar.
+const normEmoji = (e: string) => e.replace(/[\u{1F3FB}-\u{1F3FF}\uFE0F]/gu, '')
+const REACCIONES_POSITIVAS = new Set(
+  ['👍', '❤', '🙏', '😊', '👏', '🔥', '😍', '🥰', '💯', '🙌', '😀', '😃', '😄', '🤝', '💪', '✅', '⭐', '🌟', '💙', '💚', '🧡', '😎'].map(normEmoji)
+)
+
+/**
+ * Reacción o sticker de alguien con una solicitud de reseña en curso.
+ *  - Sticker o reacción positiva → cuenta como un "sí": el flujo avanza.
+ *  - Cualquier otra reacción → no se contesta, se avisa a Rafa.
+ * Quien no está en una solicitud de reseña se ignora, como antes.
+ */
+async function handleGesture(waId: string, name: string | null, msgType: string, emoji: string | null) {
+  if (!(await isReviewContact(waId))) return
+  const esReaccion = msgType === 'reaction'
+  // Reacción retirada: WhatsApp la manda sin emoji.
+  if (esReaccion && (!emoji || emoji === '[reacción]')) return
+
+  const fecha = new Date().toISOString().slice(0, 10)
+  const gesto = esReaccion ? `reacción ${emoji}` : 'sticker'
+
+  if (esReaccion && !REACCIONES_POSITIVAS.has(normEmoji(emoji!))) {
+    const quien = name ? `${name} (+${waId})` : `+${waId}`
+    await sendEmail({
+      from: 'fishflowNoreply',
+      to: ADMIN_NOTIFY_TO,
+      subject: `WhatsApp FishFlow — ${quien} reaccionó con ${emoji}`,
+      html: `<p><strong>${quien.replace(/[&<>]/g, '')}</strong> reaccionó con <strong>${emoji}</strong> en una conversación de reseña. El bot no contestó: decide tú si le escribes desde <a href="https://www.fishflow.mx/admin">/admin → WhatsApp</a>.</p>`,
+      tag: 'wa-bot',
+    })
+    return
+  }
+
+  const descriptor = esReaccion
+    ? `(sin texto: reaccionó con ${emoji} a tu mensaje)`
+    : '(sin texto: respondió con un sticker)'
+  await tryReviewFlow(waId, name, descriptor, `${fecha}: respondió con ${gesto}.`)
+}
+
 // ─── Entrada ──────────────────────────────────────────────────────────────────
 
 export async function handleInbound(args: {
@@ -215,8 +257,12 @@ export async function handleInbound(args: {
   msgType: string
 }) {
   const { waId, name, text, msgType } = args
-  if (!text || msgType === 'reaction' || msgType === 'sticker') return
   try {
+    if (msgType === 'reaction' || msgType === 'sticker') {
+      await handleGesture(waId, name, msgType, text)
+      return
+    }
+    if (!text) return
     if (await tryReviewFlow(waId, name, text)) return
     await assistant(waId, name, text)
   } catch (e) {
