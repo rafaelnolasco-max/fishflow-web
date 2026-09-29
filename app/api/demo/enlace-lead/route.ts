@@ -91,11 +91,14 @@ function adminHtml(d: Record<string, string>) {
   const tel = String(d.whatsapp ?? '').replace(/\D/g, '')
   return ui.layout({
     audiencia: 'interno',
-    preheader: `${d.nombre} · ${d.plan}`,
-    etiqueta: 'Nuevo prospecto',
-    titulo: 'Llegó un prospecto desde tu página',
+    preheader: `${d.repetido ? 'Lead repetido · ' : ''}${d.nombre} · ${d.plan}`,
+    etiqueta: d.repetido ? 'Prospecto repetido' : 'Nuevo prospecto',
+    titulo: d.repetido
+      ? 'Un prospecto volvió a llenar el cuestionario'
+      : 'Llegó un prospecto desde tu página',
     cuerpo:
       ui.tabla([
+        ...(d.repetido ? ([['Aviso', d.repetido], ['Estado actual', d.estadoPrevio]] as [string, string][]) : []),
         ['Nombre', d.nombre],
         ['WhatsApp', d.whatsapp],
         ['Correo', d.email],
@@ -114,6 +117,12 @@ function adminHtml(d: Record<string, string>) {
     nota: 'Llegó desde el cuestionario de enlaceintegralseguros.com.',
   })
 }
+
+
+/** Ventana en la que un mismo correo o teléfono cuenta como el mismo prospecto. */
+const DUP_DIAS = 30
+const soloDigitos = (v: string) => v.replace(/\D/g, '')
+const ult10 = (v: string) => soloDigitos(v).slice(-10)
 
 export async function POST(req: Request) {
   const cors = corsHeaders(req.headers.get('origin'))
@@ -182,32 +191,73 @@ export async function POST(req: Request) {
       `Ocupación: ${ocupacion}`,
     ].join(' · ')
 
-    // 1) Guardar en Supabase (best-effort; no bloquea al usuario si falla)
+    // 1) Guardar en Supabase (best-effort; no bloquea al usuario si falla).
+    //    Antes de insertar se busca al mismo prospecto (correo real o teléfono,
+    //    últimos 10 dígitos) en los últimos DUP_DIAS días. Si ya existe NO se
+    //    crea otro lead: se anota el reenvío en `notes`, se conserva su estado
+    //    y el aviso a Enlace sale marcado como "repetido". Sin esto, quien
+    //    volvía a ver el anuncio y llenaba el formulario otra vez inflaba el
+    //    conteo de leads (y el costo por prospecto real quedaba subestimado).
+    let repetido: { id: string; status: string | null; veces: number } | null = null
     try {
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
       )
-      const { error } = await supabase.from('leads').insert({
-        name: nombre,
-        email: email || `wa-${whatsapp.replace(/\D/g, '')}@enlace.local`,
-        // El WhatsApp tambien va en su propia columna. Antes solo vivia dentro
-        // del texto de `problem`, asi que toda vista o export que leyera
-        // `leads.phone` mostraba el prospecto sin telefono.
-        phone: whatsapp || null,
-        problem: resumen,
-        ai_response: `Plan recomendado: ${plan}`,
-        source: 'enlace_landing',
-        client_id: ENLACE_CLIENT_ID,
-        utm_source: utmSource,
-        utm_medium: utmMedium,
-        utm_campaign: utmCampaign,
-        utm_content: utmContent,
-        utm_term: utmTerm,
-        landing_url: landingUrl,
-        referrer: referrer,
-      })
-      if (error) console.error('[demo/enlace-lead] Supabase insert error:', error)
+
+      const desde = new Date(Date.now() - DUP_DIAS * 86400_000).toISOString()
+      const correoReal = email && !email.endsWith('@enlace.local') ? email : ''
+      const tel10 = ult10(whatsapp)
+      const { data: recientes, error: errBusca } = await supabase
+        .from('leads')
+        .select('id, email, phone, status, notes')
+        .eq('client_id', ENLACE_CLIENT_ID)
+        .eq('source', 'enlace_landing')
+        .gte('created_at', desde)
+        .order('created_at', { ascending: true })
+        .limit(1000)
+      if (errBusca) console.error('[demo/enlace-lead] busqueda de duplicado error:', errBusca)
+
+      const previo = (recientes ?? []).find(
+        (r) =>
+          (correoReal && (r.email ?? '').toLowerCase() === correoReal) ||
+          (tel10.length === 10 && ult10(r.phone ?? '') === tel10)
+      )
+
+      if (previo) {
+        const veces = ((previo.notes ?? '').match(/\[Reenvi[oó] #/g) ?? []).length + 1
+        const stamp = new Date(Date.now() + CDMX_OFFSET_MS).toISOString().slice(0, 16).replace('T', ' ')
+        const nota =
+          `[Reenvió #${veces}] ${stamp} CDMX · WhatsApp: ${whatsapp} · Plan: ${plan}` +
+          (utmContent ? ` · anuncio: ${utmContent}` : '')
+        const { error: errUp } = await supabase
+          .from('leads')
+          .update({ notes: [previo.notes, nota].filter(Boolean).join('\n') })
+          .eq('id', previo.id)
+        if (errUp) console.error('[demo/enlace-lead] update de repetido error:', errUp)
+        else repetido = { id: previo.id, status: previo.status ?? null, veces }
+      } else {
+        const { error } = await supabase.from('leads').insert({
+          name: nombre,
+          email: email || `wa-${whatsapp.replace(/\D/g, '')}@enlace.local`,
+          // El WhatsApp tambien va en su propia columna. Antes solo vivia dentro
+          // del texto de `problem`, asi que toda vista o export que leyera
+          // `leads.phone` mostraba el prospecto sin telefono.
+          phone: whatsapp || null,
+          problem: resumen,
+          ai_response: `Plan recomendado: ${plan}`,
+          source: 'enlace_landing',
+          client_id: ENLACE_CLIENT_ID,
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          utm_content: utmContent,
+          utm_term: utmTerm,
+          landing_url: landingUrl,
+          referrer: referrer,
+        })
+        if (error) console.error('[demo/enlace-lead] Supabase insert error:', error)
+      }
     } catch (e) {
       console.error('[demo/enlace-lead] Supabase error:', e)
     }
@@ -220,15 +270,21 @@ export async function POST(req: Request) {
         from: SENDERS.enlace,
         to: enlaceNotifyTo(),
         replyTo: email || undefined,
-        subject: `Nuevo lead — ${nombre} · ${plan}`,
-        html: adminHtml({ nombre, whatsapp, email, plan, objetivo, edad, dependientes, capacidad, ocupacion, origen }),
+        subject: `${repetido ? 'Lead repetido' : 'Nuevo lead'} — ${nombre} · ${plan}`,
+        html: adminHtml({
+          nombre, whatsapp, email, plan, objetivo, edad, dependientes, capacidad, ocupacion, origen,
+          repetido: repetido
+            ? `Ya estaba registrado; es su envío #${repetido.veces + 1}. No se creó otro lead.`
+            : '',
+          estadoPrevio: repetido?.status ?? '',
+        }),
       })
       if (mailErr) console.error('[demo/enlace-lead] email error:', mailErr)
 
       // 3) Acuse de recibo al PROSPECTO. Solo si dejó correo — en el formulario
       //    es opcional, así que esto NO cubre a todos. Falla en silencio: si el
       //    acuse rebota, el lead ya quedó guardado y Enlace ya fue avisada.
-      if (email) {
+      if (email && !repetido) {
         const wa = `https://wa.me/5215516859769?text=${encodeURIComponent(
           `Hola, soy ${nombre}. Acabo de llenar el cuestionario y me interesa el ${plan}.`
         )}`
