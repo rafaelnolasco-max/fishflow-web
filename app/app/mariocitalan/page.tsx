@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Panel de prospectos — Mario Citalán · Arquitectura del Criterio
+ * Panel de prospectos — Mario Citalán · DERVIAC
  *
  * Fuente: tabla genérica `leads` filtrada por CRITERIO_CLIENT_ID (RLS ya lo
  * limita; el filtro explícito es defensa en profundidad).
@@ -314,6 +314,20 @@ const GRUPO_META: Record<Grupo, { label: string; corto: string; bg: string; fg: 
 
 function priorityOf(profile: string | null) {
   return PROFILE_PRIORITY[profile || ""] ?? { nivel: 3, grupo: "seguimiento" as Grupo };
+}
+
+/**
+ * Prioridad de un registro completo. Igual que priorityOf, salvo un caso:
+ * en el Test DERVIAC ("decisiones") la persona puede indicar una afectación
+ * importante o una posible necesidad de atención psicológica o psiquiátrica.
+ * Ese registro va hasta arriba de "Atención prioritaria" (nivel 0), sin
+ * importar sus territorios. La API lo deja marcado en `problem`.
+ */
+function prioridad(l: { profile: string | null; source?: string | null; problem?: string | null }) {
+  if (l.source === "decisiones" && /valoración profesional/.test(l.problem || "")) {
+    return { nivel: 0, grupo: "atencion" as Grupo };
+  }
+  return priorityOf(l.profile);
 }
 
 const SOURCE_LABEL: Record<string, string> = {
@@ -702,20 +716,20 @@ export default function MarioCitalanPanel() {
       if (fOptIn && (l.newsletter || "pendiente") !== "suscrito") return false;
       // Sin perfil no hay grupo: quien solo se suscribió no debe colarse en el
       // filtro por grupo (priorityOf lo mandaría a "seguimiento" por defecto).
-      if (fGrupo !== "todo" && (!l.profile || priorityOf(l.profile).grupo !== fGrupo)) return false;
+      if (fGrupo !== "todo" && (!l.profile || prioridad(l).grupo !== fGrupo)) return false;
       if (!q) return true;
       return [l.name, l.email, l.phone, l.profile].some((v) => (v || "").toLowerCase().includes(q));
     });
     if (orden === "necesidad") {
       // nivel 1 primero: quien peor está, arriba
       return [...out].sort((a, b) =>
-        priorityOf(a.profile).nivel - priorityOf(b.profile).nivel ||
+        prioridad(a).nivel - prioridad(b).nivel ||
         (a.created_at < b.created_at ? 1 : -1));
     }
     if (orden === "potencial") {
       // nivel 5 primero: perfil de programas ejecutivos
       return [...out].sort((a, b) =>
-        priorityOf(b.profile).nivel - priorityOf(a.profile).nivel ||
+        prioridad(b).nivel - prioridad(a).nivel ||
         (a.created_at < b.created_at ? 1 : -1));
     }
     return out; // ya viene ordenado por fecha desde la consulta
@@ -735,7 +749,7 @@ export default function MarioCitalanPanel() {
     const map = new Map<string, Persona>();
     for (const l of leads) {
       const key = l.email.toLowerCase();
-      const p = priorityOf(l.profile);
+      const p = prioridad(l);
       const esEvaluacion = FUENTES_EVALUACION.has(l.source || "");
       const prev = map.get(key);
       if (!prev) {
@@ -947,7 +961,7 @@ export default function MarioCitalanPanel() {
               Mario Citalán
             </div>
             <div style={{ ...eyebrowStyle, fontSize: 9.5, marginTop: 3 }}>
-              Arquitectura del Criterio
+              DERVIAC
             </div>
           </div>
         </div>
@@ -1822,9 +1836,9 @@ export default function MarioCitalanPanel() {
                             <div>{l.profile || "—"}</div>
                             <div style={{ marginTop: 4 }}>
                               <Chip
-                                label={GRUPO_META[priorityOf(l.profile).grupo].corto}
-                                bg={GRUPO_META[priorityOf(l.profile).grupo].bg}
-                                fg={GRUPO_META[priorityOf(l.profile).grupo].fg}
+                                label={GRUPO_META[prioridad(l).grupo].corto}
+                                bg={GRUPO_META[prioridad(l).grupo].bg}
+                                fg={GRUPO_META[prioridad(l).grupo].fg}
                               />
                             </div>
                           </td>
@@ -1865,9 +1879,9 @@ export default function MarioCitalanPanel() {
             <Chip label={sourceLabel(detail.source)} bg={C.blueSoft} fg={C.blueDark} />
             <Chip label={statusMeta(detail.status).label} bg={statusMeta(detail.status).bg} fg={statusMeta(detail.status).fg} />
             <Chip
-              label={GRUPO_META[priorityOf(detail.profile).grupo].label}
-              bg={GRUPO_META[priorityOf(detail.profile).grupo].bg}
-              fg={GRUPO_META[priorityOf(detail.profile).grupo].fg}
+              label={GRUPO_META[prioridad(detail).grupo].label}
+              bg={GRUPO_META[prioridad(detail).grupo].bg}
+              fg={GRUPO_META[prioridad(detail).grupo].fg}
             />
             <Chip
               label={newsletterMeta(detail.newsletter).label}

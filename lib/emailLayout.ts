@@ -146,7 +146,7 @@ export const EMAIL_BRANDS = {
       height: 48,
       alt: 'Dr. Mente',
     },
-    wordmark: { titulo: 'Mario Citalán', subtitulo: 'Arquitectura del Criterio' },
+    wordmark: { titulo: 'Mario Citalán', subtitulo: 'DERVIAC' },
     encabezado: 'oscuro',
     firma: { nombre: 'Mario Citalán', rol: 'Médico y psicoterapeuta · Ciudad de México' },
     color: {
@@ -169,7 +169,7 @@ export const EMAIL_BRANDS = {
         'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;600&family=JetBrains+Mono:wght@500&display=swap',
     },
     sitio: { url: 'https://mariocitalan.net', etiqueta: 'mariocitalan.net' },
-    pieLegal: 'Mario Citalán · Arquitectura del Criterio · Ciudad de México',
+    pieLegal: 'Mario Citalán · DERVIAC · Ciudad de México',
     privacidad: 'https://mariocitalan.net/aviso-de-privacidad.html',
   },
 } satisfies Record<string, EmailBrand>
