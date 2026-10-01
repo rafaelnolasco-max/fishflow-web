@@ -1,0 +1,29 @@
+{
+  "_origen": "Respuestas reales de Claude (claude-sonnet-4-6, temperature 0) leyendo el documento completo, grabadas de la corrida eba4b05b-8f4c-4eda-bd30-963bf56da89e del 01-oct-2026. Para regrabar: correr una corrida de prueba y copiar los campos de regintel_norm_items.",
+  "5797710": {
+    "incluir": true,
+    "motivo": "Establece lineamientos para vía regulatoria abreviada (reliance) de registros sanitarios de medicamentos reconociendo decisiones de ANVISA Brasil, afectando directamente requisitos, procedimientos y plazos de registro sanitario",
+    "tema": "via_abreviada_reliance",
+    "titulo_breve": "Vía abreviada de registro sanitario por equivalencia con ANVISA Brasil",
+    "resumen": "Crea una vía regulatoria abreviada ante COFEPRIS para obtener registro sanitario de medicamentos aprobados por ANVISA (Brasil), con plazo de resolución de 45 días hábiles y documentación simplificada. El área debe evaluar si productos en portafolio o pipeline aplican a esta nueva vía.",
+    "fecha_vigencia": "2026-09-02", "accion": "Revisar portafolio y pipeline para identificar medicamentos con aprobación ANVISA que puedan tramitarse por esta vía abreviada y actualizar procedimientos internos de registro",
+    "plazo_dias": 30, "prioridad": 1
+  },
+  "5797711": {
+    "incluir": true,
+    "motivo": "Regula lineamientos para autorización, modificación y prórroga de terceros autorizados (laboratorios de prueba, unidades de intercambiabilidad y biocomparabilidad) que dictaminan para trámites de registro sanitario de insumos para la salud, criterio explícito de inclusión",
+    "tema": "terceros_autorizados",
+    "titulo_breve": "Lineamientos para autorización, modificación y prórroga de terceros autorizados",
+    "resumen": "Establece requisitos documentales, procedimiento de evaluación técnica y criterios de resolución para autorizar, modificar y prorrogar terceros autorizados (laboratorios de prueba, unidades de intercambiabilidad y biocomparabilidad) que apoyan trámites de registro sanitario ante COFEPRIS.",
+    "fecha_vigencia": "2026-09-03", "accion": "Revisar los nuevos lineamientos y actualizar los procedimientos internos para gestión de terceros autorizados que dictaminan en trámites de registro sanitario, intercambiabilidad y biocomparabilidad",
+    "plazo_dias": 30, "prioridad": 2
+  },
+  "5800053": {
+    "incluir": false,
+    "motivo": "Norma de salud pública para prevención, control y eliminación de una enfermedad (lepra), sin efecto en registro sanitario; aplica exclusión expresa de normas de prevención o control de enfermedades",
+    "tema": "otro",
+    "titulo_breve": "Proyecto de NOM para prevención y control de lepra",
+    "resumen": "No impacta al área de registro sanitario; regula criterios clínicos y epidemiológicos para prestadores de servicios de salud, sin tocar requisitos de registro, modificaciones ni trámites regulatorios de productos.",
+    "fecha_vigencia": null, "accion": null, "plazo_dias": null, "prioridad": 3
+  }
+}

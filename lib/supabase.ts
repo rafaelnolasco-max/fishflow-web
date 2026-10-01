@@ -746,5 +746,81 @@ export interface RegIntelConsulta {
   consultado_en: string | null;
   storage_path: string | null;
   nombre_archivo: string | null;
+  origen: "registros" | "normativo";
+  url: string | null;
   created_at: string;
+}
+
+// ─── regintel — Monitor normativo (DOF · COFEPRIS · ARCSA) ────────────────────
+export type RegIntelOrganismo = "DOF" | "COFEPRIS" | "ARCSA";
+
+export interface RegIntelNormFuente {
+  id: string;
+  client_id: string;
+  clave: string;
+  pais: "MX" | "EC";
+  organismo: RegIntelOrganismo;
+  nombre: string;
+  url: string;
+  tipo: "por_fecha" | "inventario" | "noticias";
+  activo: boolean;
+  last_checked: string | null;        // última lectura exitosa real
+  last_check_attempt: string | null;
+  last_check_error: string | null;
+  consecutive_failures: number;
+  verificacion: "sin_leer" | "verificada" | "no_verificada";
+  linea_base_en: string | null;       // desde cuándo hay cobertura real
+  documentos: number | null;
+  nota: string | null;
+}
+
+export interface RegIntelNormItem {
+  id: string;
+  client_id: string;
+  fuente_id: string | null;
+  organismo: RegIntelOrganismo;
+  doc_ref: string;
+  titulo_oficial: string;
+  titulo_breve: string | null;
+  resumen: string | null;
+  fecha_publicacion: string | null;
+  fecha_vigencia: string | null;
+  url: string | null;
+  dependencia: string | null;
+  decision: "incluir" | "descartar" | "por_clasificar";
+  etapa: "prefiltro" | "clasificador" | "manual";
+  motivo: string | null;
+  tema: string | null;
+  verificacion: "documento_completo" | "resumen_automatico" | "pista_no_verificada";
+  accion: string | null;
+  plazo: string | null;
+  prioridad: 1 | 2 | 3 | null;
+  portafolio: string | null;
+  reemplaza_a: string | null;
+  estado: RegIntelEstado;
+  accion_estado: "abierta" | "cerrada";
+  origen: "diario" | "revision_inicial" | "manual";
+  avisado_en: string | null;
+  intentos: number;
+  ultimo_error: string | null;
+  created_at: string;
+}
+
+export interface RegIntelNormCorrida {
+  id: string;
+  inicio: string;
+  fin: string | null;
+  disparo: "cron" | "manual" | "prueba";
+  fuentes_ok: number;
+  fuentes_fallidas: number;
+  nuevos: number;
+  descartados: number;
+  aviso: "enviado" | "sin_novedad" | "bloqueo" | "omitido" | null;
+}
+
+export interface RegIntelNormDia {
+  fecha: string;
+  edicion: "MAT" | "VES" | "EXT";
+  estado: "ok" | "sin_datos" | "error";
+  error: string | null;
 }

@@ -7,6 +7,7 @@ import { supabase, REGINTEL_CLIENT_ID } from "@/lib/supabase";
 import type {
   RegIntelSource, RegIntelWatchlist, RegIntelRegistro,
   RegIntelHallazgo, RegIntelConsulta, RegIntelEstado, RegIntelClasificacion,
+  RegIntelNormFuente, RegIntelNormItem, RegIntelNormCorrida, RegIntelNormDia,
 } from "@/lib/supabase";
 import {
   DashboardHeader, StatGrid, TabBar, Toast, Chip,
@@ -113,11 +114,42 @@ const PRINT_CSS = `
 }
 `;
 
+// PostgREST regresa máximo 1000 filas por request: paginar todo lo que crece.
+async function todas<T>(q: (desde: number, hasta: number) => PromiseLike<{ data: T[] | null; error: unknown }>): Promise<T[]> {
+  const out: T[] = [];
+  for (let desde = 0; ; desde += 1000) {
+    const { data, error } = await q(desde, desde + 999);
+    if (error || !data) return out;
+    out.push(...data);
+    if (data.length < 1000) return out;
+  }
+}
+
+const ORG_COLOR: Record<string, { bg: string; fg: string }> = {
+  DOF:      { bg: "#EEF0F8", fg: "#3B4A8C" },
+  COFEPRIS: { bg: C.sky,     fg: C.navy },
+  ARCSA:    { bg: "#E9F5F1", fg: "#1F6B57" },
+};
+const VERIF_LABEL: Record<string, { t: string; bg: string; fg: string }> = {
+  documento_completo:  { t: "Documento leído completo", bg: "#E6F6EC", fg: C.green },
+  resumen_automatico:  { t: "Solo resumen automático",  bg: "#FFF3E0", fg: C.amber },
+  pista_no_verificada: { t: "Pista no verificada",      bg: "#FDECEC", fg: C.alert },
+};
+const PRIO_LABEL: Record<number, { t: string; bg: string; fg: string }> = {
+  1: { t: "Urgente",     bg: "#FDECEC", fg: C.alert },
+  2: { t: "Relevante",   bg: "#FFF3E0", fg: C.amber },
+  3: { t: "Informativo", bg: "#EDEFF0", fg: C.muted },
+};
+const puntoCiego = (f: RegIntelNormFuente) => !f.last_checked || Date.now() - new Date(f.last_checked).getTime() > 7 * 86_400_000;
+const fechaHora = (d: string | null) => d
+  ? new Date(d).toLocaleString("es-MX", { timeZone: "America/Mexico_City", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })
+  : "—";
+
 function hoyLargo() {
   return new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
 }
 
-type Tab = "bandeja" | "panorama" | "vigencias" | "fuentes" | "consultas";
+type Tab = "bandeja" | "normativo" | "panorama" | "vigencias" | "fuentes" | "consultas";
 
 type HallazgoFull = RegIntelHallazgo & {
   registro: RegIntelRegistro | null;
@@ -142,6 +174,16 @@ export default function RegIntelPage() {
   const [consultaAbierta, setConsultaAbierta] = useState<string | null>(null);
   const [textoConsulta, setTextoConsulta] = useState("");
 
+  // Monitor normativo
+  const [normFuentes, setNormFuentes] = useState<RegIntelNormFuente[]>([]);
+  const [normItems, setNormItems] = useState<RegIntelNormItem[]>([]);
+  const [normCorridas, setNormCorridas] = useState<RegIntelNormCorrida[]>([]);
+  const [normDiasError, setNormDiasError] = useState<RegIntelNormDia[]>([]);
+  const [prefiltrados, setPrefiltrados] = useState<number>(0);
+  const [verPrefiltro, setVerPrefiltro] = useState<RegIntelNormItem[] | null>(null);
+  const [tipoBandeja, setTipoBandeja] = useState<"competidores" | "normativo">("competidores");
+  const [revisando, setRevisando] = useState(false);
+
   function flash(m: string) {
     setToast(m);
     setTimeout(() => setToast(null), 2600);
@@ -159,18 +201,31 @@ export default function RegIntelPage() {
 
   async function cargar() {
     const cid = REGINTEL_CLIENT_ID;
-    const [s, w, r, h, c] = await Promise.all([
+    const [s, w, r, h, c, nf, ni, nc, nd, np] = await Promise.all([
       supabase.from("regintel_sources").select("*").eq("client_id", cid).order("canal").order("anio", { ascending: false }),
       supabase.from("regintel_watchlist").select("*").eq("client_id", cid).eq("activo", true).order("molecula"),
-      supabase.from("regintel_registros").select("*").eq("client_id", cid).order("vigencia", { nullsFirst: false }),
-      supabase.from("regintel_hallazgos").select("*").eq("client_id", cid).order("created_at"),
+      todas<RegIntelRegistro>((a, b) => supabase.from("regintel_registros").select("*").eq("client_id", cid).order("vigencia", { nullsFirst: false }).order("id").range(a, b)),
+      todas<RegIntelHallazgo>((a, b) => supabase.from("regintel_hallazgos").select("*").eq("client_id", cid).order("created_at").order("id").range(a, b)),
       supabase.from("regintel_consultas_manuales").select("*").eq("client_id", cid).order("created_at"),
+      supabase.from("regintel_norm_fuentes").select("*").eq("client_id", cid).eq("activo", true),
+      // Lo descartado por el prefiltro (otras dependencias, convenios) se cuenta aparte y se carga a pedido.
+      todas<RegIntelNormItem>((a, b) => supabase.from("regintel_norm_items").select("*").eq("client_id", cid)
+        .or("etapa.neq.prefiltro,decision.neq.descartar").order("fecha_publicacion", { ascending: false, nullsFirst: false }).order("id").range(a, b)),
+      supabase.from("regintel_norm_corridas").select("id,inicio,fin,disparo,fuentes_ok,fuentes_fallidas,nuevos,descartados,aviso").eq("client_id", cid).order("inicio", { ascending: false }).limit(10),
+      supabase.from("regintel_norm_dias").select("fecha,edicion,estado,error").eq("client_id", cid).eq("estado", "error").order("fecha", { ascending: false }).limit(30),
+      supabase.from("regintel_norm_items").select("id", { count: "exact", head: true }).eq("client_id", cid).eq("etapa", "prefiltro").eq("decision", "descartar"),
     ]);
     if (s.data) setSources(s.data as RegIntelSource[]);
     if (w.data) setWatch(w.data as RegIntelWatchlist[]);
-    if (r.data) setRegistros(r.data as RegIntelRegistro[]);
-    if (h.data) setHallazgos(h.data as RegIntelHallazgo[]);
+    setRegistros(r);
+    setHallazgos(h);
     if (c.data) setConsultas(c.data as RegIntelConsulta[]);
+    const orden = ["dof", "cofepris_portada", "cofepris_docs_med", "cofepris_formatos", "arcsa_docs", "arcsa_noticias"];
+    if (nf.data) setNormFuentes((nf.data as RegIntelNormFuente[]).sort((x, y) => orden.indexOf(x.clave) - orden.indexOf(y.clave)));
+    setNormItems(ni);
+    if (nc.data) setNormCorridas(nc.data as RegIntelNormCorrida[]);
+    if (nd.data) setNormDiasError(nd.data as RegIntelNormDia[]);
+    setPrefiltrados(np.count ?? 0);
   }
 
   // ─── Derivados ──────────────────────────────────────────────────────────────
@@ -245,6 +300,27 @@ export default function RegIntelPage() {
 
   const maxErosion = erosion[0]?.regs.length ?? 1;
 
+  // ─── Derivados del monitor normativo ────────────────────────────────────────
+  const hoyIso = new Date().toISOString().slice(0, 10);
+  const normIncluidos = useMemo(() => normItems.filter((i) => i.decision === "incluir"), [normItems]);
+  const normPend = useMemo(() => normIncluidos.filter((i) => i.estado === "pendiente").length, [normIncluidos]);
+  const ordenNorm = (a: RegIntelNormItem, b: RegIntelNormItem) =>
+    (a.prioridad ?? 2) - (b.prioridad ?? 2) || (b.fecha_publicacion ?? "").localeCompare(a.fecha_publicacion ?? "");
+  const normVisibles = useMemo(() => {
+    let v = normIncluidos;
+    if (filtro === "pendiente") v = v.filter((i) => i.estado === "pendiente");
+    if (portafolio !== "todos") v = v.filter((i) => i.portafolio === portafolio);
+    return [...v].sort(ordenNorm);
+  }, [normIncluidos, filtro, portafolio]);
+  // Qué hacer: acciones vivas hasta que se cierren o venza su plazo; las ya avisadas se marcan.
+  const acciones = useMemo(() => normIncluidos
+    .filter((i) => i.accion && i.estado !== "descartado" && i.accion_estado === "abierta" && (!i.plazo || i.plazo >= hoyIso))
+    .sort((a, b) => (a.prioridad ?? 2) - (b.prioridad ?? 2) || (a.plazo ?? "9999").localeCompare(b.plazo ?? "9999")), [normIncluidos, hoyIso]);
+  const descartadosClasif = useMemo(() => normItems.filter((i) => i.decision === "descartar"), [normItems]);
+  const atorados = useMemo(() => normItems.filter((i) => i.decision === "por_clasificar" && i.intentos >= 3), [normItems]);
+  const ciegas = useMemo(() => normFuentes.filter(puntoCiego), [normFuentes]);
+  const fuentesConFalla = useMemo(() => normFuentes.filter((f) => f.consecutive_failures > 0 || f.verificacion === "no_verificada"), [normFuentes]);
+
   // ─── Acciones ───────────────────────────────────────────────────────────────
   async function decidir(id: string, estado: RegIntelEstado) {
     setBusy(id);
@@ -272,6 +348,131 @@ export default function RegIntelPage() {
     flash("Consulta marcada como resuelta");
   }
 
+
+  // ─── Acciones del monitor normativo ─────────────────────────────────────────
+  async function decidirNorm(id: string, estado: RegIntelEstado) {
+    setBusy(id);
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from("regintel_norm_items")
+      .update({ estado, revisado_en: new Date().toISOString(), revisado_por: user?.id ?? null }).eq("id", id);
+    setBusy(null);
+    if (error) { flash("No se pudo guardar: " + error.message); return; }
+    setNormItems((prev) => prev.map((i) => (i.id === id ? { ...i, estado } : i)));
+    flash(estado === "aprobado" ? "Hallazgo normativo aprobado" : "Hallazgo normativo descartado");
+  }
+
+  async function cerrarAccion(id: string) {
+    setBusy(id);
+    const { error } = await supabase.from("regintel_norm_items").update({ accion_estado: "cerrada" }).eq("id", id);
+    setBusy(null);
+    if (error) { flash("No se pudo guardar: " + error.message); return; }
+    setNormItems((prev) => prev.map((i) => (i.id === id ? { ...i, accion_estado: "cerrada" } : i)));
+    flash("Acción cerrada");
+  }
+
+  async function llamarMonitor(body: Record<string, unknown>) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const r = await fetch("/api/regintel/normativo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token ?? ""}` },
+      body: JSON.stringify(body),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error ?? `HTTP ${r.status}`);
+    return j;
+  }
+
+  async function revisarAhora() {
+    setRevisando(true);
+    try {
+      await llamarMonitor({ fase: "inicio" });
+      flash("Revisión en curso. Tarda unos minutos; los resultados aparecen solos.");
+      // La corrida va por fases encadenadas: refrescamos unas veces mientras termina.
+      for (const s of [45, 90, 150, 240]) setTimeout(() => { void cargar(); }, s * 1000);
+    } catch (e) {
+      flash("No se pudo iniciar: " + (e as Error).message);
+    } finally {
+      setTimeout(() => setRevisando(false), 30_000);
+    }
+  }
+
+  async function subirPagina(clave: string, file: File) {
+    setBusy(clave);
+    try {
+      const html = await file.text();
+      if (!/<html|<body|<div/i.test(html)) { flash("El archivo no parece una página web guardada (.html)"); return; }
+      const j = await llamarMonitor({ fase: "subir", clave, html });
+      await cargar();
+      flash(j.ok ? "Página leída. Si trae novedades, se clasifican en unos minutos." : `No se pudo leer: ${j.resultado?.error ?? "formato no reconocido"}`);
+    } catch (e) {
+      flash("No se pudo subir: " + (e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function cargarPrefiltro() {
+    const { data } = await supabase.from("regintel_norm_items").select("*").eq("client_id", REGINTEL_CLIENT_ID)
+      .eq("etapa", "prefiltro").eq("decision", "descartar").order("fecha_publicacion", { ascending: false }).limit(300);
+    setVerPrefiltro((data ?? []) as RegIntelNormItem[]);
+  }
+
+  // Tarjeta de un hallazgo normativo (Bandeja y pestaña Normativo).
+  function NormCard({ it }: { it: RegIntelNormItem }) {
+    const oc = ORG_COLOR[it.organismo] ?? ORG_COLOR.COFEPRIS;
+    const ve = VERIF_LABEL[it.verificacion];
+    const pr = it.prioridad ? PRIO_LABEL[it.prioridad] : null;
+    return (
+      <div style={{ ...cardStyle, padding: 14 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 8 }}>
+          <Chip label="Normativo" bg="#F1ECFA" fg="#5B3E96" />
+          <Chip label={it.organismo} bg={oc.bg} fg={oc.fg} />
+          {pr && <Chip label={pr.t} bg={pr.bg} fg={pr.fg} />}
+          {it.portafolio && <Chip label={it.portafolio} bg={C.sky} fg={C.navy} />}
+          {it.origen === "revision_inicial" && <Chip label="Revisión inicial" bg="#EDEFF0" fg={C.muted} />}
+          {it.origen === "manual" && <Chip label="Página subida a mano" bg="#EDEFF0" fg={C.muted} />}
+          {it.estado !== "pendiente" && <Chip label={it.estado} bg="#EDEFF0" fg={C.muted} />}
+          <span style={{ marginLeft: "auto", fontSize: 12, color: T.muted }}>{fecha(it.fecha_publicacion)}</span>
+        </div>
+        <div style={{ fontWeight: 700, fontSize: 15, lineHeight: 1.35 }}>{it.titulo_breve ?? it.titulo_oficial}</div>
+        {it.resumen
+          ? <div style={{ fontSize: 13.5, marginTop: 5, lineHeight: 1.5 }}>{it.resumen}</div>
+          : <div style={{ fontSize: 12.5, marginTop: 5, color: C.amber }}>Sin resumen automático confiable: revisar el documento.</div>}
+        <div style={{ fontSize: 12, color: T.muted, marginTop: 7, lineHeight: 1.5 }}>
+          {it.titulo_oficial}
+        </div>
+        <div style={{ fontSize: 12, color: T.muted, marginTop: 4 }}>
+          {it.dependencia ?? "—"}
+          {it.fecha_vigencia ? ` · vigente desde ${fecha(it.fecha_vigencia)}` : ""}
+          {it.reemplaza_a ? ` · reemplaza al documento ${it.reemplaza_a.split(":").pop()}` : ""}
+        </div>
+        {it.accion && (
+          <div style={{ marginTop: 9, padding: "8px 11px", background: C.cool, borderLeft: `3px solid ${C.navy}`, borderRadius: 6, fontSize: 12.5, lineHeight: 1.45 }}>
+            <strong>Qué hacer:</strong> {it.accion}{it.plazo ? ` · antes del ${fecha(it.plazo)}` : ""}
+          </div>
+        )}
+        {it.motivo && <div style={{ fontSize: 11.5, color: T.muted, marginTop: 7 }}>Por qué entra: {it.motivo}</div>}
+        <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center", flexWrap: "wrap" }}>
+          <Chip label={ve.t} bg={ve.bg} fg={ve.fg} />
+          {it.url
+            ? <a href={it.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, color: C.navy, textDecoration: "underline" }}>Abrir en la fuente oficial</a>
+            : <span style={{ fontSize: 12, color: C.alert }}>Sin enlace confirmado</span>}
+          {it.estado === "pendiente" && (
+            <span style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+              <button onClick={() => decidirNorm(it.id, "aprobado")} disabled={busy === it.id}
+                style={{ padding: "7px 16px", borderRadius: 8, border: "none", cursor: "pointer", background: busy === it.id ? T.disabled : T.accent, color: "#fff", fontSize: 13, fontWeight: 600 }}>
+                Aprobar
+              </button>
+              <button onClick={() => decidirNorm(it.id, "descartado")} disabled={busy === it.id}
+                style={{ padding: "7px 16px", borderRadius: 8, cursor: "pointer", border: `1px solid ${T.border}`, background: "#fff", color: T.muted, fontSize: 13 }}>
+                Descartar
+              </button>
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // ─── Export a Excel ─────────────────────────────────────────────────────────
   function exportarExcel() {
@@ -326,6 +527,25 @@ export default function RegIntelPage() {
       "URL": s.url,
     }));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(src), "Fuentes");
+
+    const norm = normIncluidos.map((i) => ({
+      "Estado": i.estado,
+      "Fuente": i.organismo,
+      "Título breve": i.titulo_breve ?? "",
+      "Resumen": i.resumen ?? "",
+      "Título oficial": i.titulo_oficial,
+      "Dependencia / sección": i.dependencia ?? "",
+      "Publicación": i.fecha_publicacion ?? "",
+      "Vigencia": i.fecha_vigencia ?? "",
+      "Prioridad": i.prioridad ? PRIO_LABEL[i.prioridad].t : "",
+      "Acción recomendada": i.accion ?? "",
+      "Plazo": i.plazo ?? "",
+      "Portafolio": i.portafolio ?? "",
+      "Verificación": VERIF_LABEL[i.verificacion].t,
+      "Motivo de inclusión": i.motivo ?? "",
+      "Enlace oficial": i.url ?? "",
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(norm), "Normativo");
 
     XLSX.writeFile(wb, `Inteligencia-Regulatoria-${new Date().toISOString().slice(0, 10)}.xlsx`);
     flash("Excel descargado");
@@ -447,6 +667,7 @@ export default function RegIntelPage() {
           <StatCard label="Registros revisados" value={revisados.toLocaleString("es-MX")} icon="📄" sub="en listados COFEPRIS" />
           <StatCard label="Moléculas vigiladas" value={watch.length} icon="🔬" />
           <StatCard label="Hallazgos pendientes" value={pendientes} icon="📥" highlight={pendientes > 0} />
+          <StatCard label="Normativo por revisar" value={normPend} icon="⚖️" highlight={normPend > 0} sub={ciegas.length ? `${ciegas.length} fuente(s) en punto ciego` : "DOF · COFEPRIS · ARCSA"} />
           <StatCard label="Consultas con CAPTCHA" value={captchaPend} icon="🔐" sub="requieren captura manual" />
           <StatCard label="Fuentes sin cuadrar" value={sinCuadrar} icon="⚠️" highlight={sinCuadrar > 0} />
           <StatCard label="Fuentes estancadas" value={estancadas} icon="⏳" highlight={estancadas > 0} sub="más de 45 días" />
@@ -458,7 +679,8 @@ export default function RegIntelPage() {
             active={tab}
             onChange={setTab}
             tabs={[
-              { id: "bandeja",   label: `Bandeja (${pendientes})`, icon: "📥" },
+              { id: "bandeja",   label: `Bandeja (${pendientes + normPend})`, icon: "📥" },
+              { id: "normativo", label: "Normativo", icon: "⚖️" },
               { id: "panorama",  label: "Panorama", icon: "📊" },
               { id: "vigencias", label: "Vigencias", icon: "📅" },
               { id: "fuentes",   label: "Fuentes", icon: "🗂️" },
@@ -468,6 +690,18 @@ export default function RegIntelPage() {
         </div>
 
         {/* Filtro de portafolio, común a bandeja y panorama */}
+        {tab === "bandeja" && (
+          <div style={{ display: "flex", gap: 0, margin: "16px 0 0", border: `1px solid ${T.border}`, borderRadius: 10, overflow: "hidden", width: "fit-content" }}>
+            {([["competidores", `Competidores (${pendientes})`], ["normativo", `Normativo (${normPend})`]] as const).map(([k, l]) => (
+              <button key={k} onClick={() => setTipoBandeja(k)}
+                style={{ padding: "7px 16px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", border: "none",
+                  background: tipoBandeja === k ? T.accent : "#fff", color: tipoBandeja === k ? "#fff" : T.muted }}>
+                {l}
+              </button>
+            ))}
+          </div>
+        )}
+
         {(tab === "bandeja" || tab === "panorama") && (
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "16px 0 4px", alignItems: "center" }}>
             <span style={{ fontSize: 12, color: T.muted, marginRight: 4 }}>Portafolio</span>
@@ -500,7 +734,19 @@ export default function RegIntelPage() {
         )}
 
         {/* ─── BANDEJA ─────────────────────────────────────────────────────── */}
-        {tab === "bandeja" && (
+        {tab === "bandeja" && tipoBandeja === "normativo" && (
+          <Section title="Cambios normativos por revisar">
+            {normVisibles.length === 0 ? (
+              <Empty msg="No hay hallazgos normativos con estos filtros." />
+            ) : (
+              <div style={{ display: "grid", gap: 10 }}>
+                {normVisibles.map((it) => <NormCard key={it.id} it={it} />)}
+              </div>
+            )}
+          </Section>
+        )}
+
+        {tab === "bandeja" && tipoBandeja === "competidores" && (
           <Section title="Hallazgos por revisar">
             {visibles.length === 0 ? (
               <Empty msg="No hay hallazgos con estos filtros." />
@@ -583,6 +829,149 @@ export default function RegIntelPage() {
           </Section>
         )}
 
+        {/* ─── NORMATIVO (vista consolidada) ───────────────────────────────── */}
+        {tab === "normativo" && (
+          <div style={{ display: "grid", gap: 4 }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", margin: "16px 0 0" }}>
+              <div style={{ fontSize: 12.5, color: T.muted }}>
+                Revisa DOF, COFEPRIS y ARCSA de lunes a viernes a las 21:15.
+                {normCorridas[0] ? ` Última corrida: ${fechaHora(normCorridas[0].inicio)}${normCorridas[0].fin ? "" : " (en curso)"}.` : ""}
+              </div>
+              <button onClick={revisarAhora} disabled={revisando}
+                style={{ marginLeft: "auto", padding: "7px 14px", borderRadius: 8, border: "none", cursor: revisando ? "default" : "pointer",
+                  background: revisando ? T.disabled : T.accent, color: "#fff", fontSize: 12.5, fontWeight: 600 }}>
+                {revisando ? "Revisando…" : "Revisar ahora"}
+              </button>
+            </div>
+
+            <Section title={`Lo que cambia el trabajo (${normIncluidos.filter((i) => i.estado === "pendiente").length})`}>
+              {normIncluidos.filter((i) => i.estado === "pendiente").length === 0 ? (
+                <Empty msg="Sin cambios nuevos dentro de criterios." />
+              ) : (
+                <div style={{ display: "grid", gap: 10 }}>
+                  {[...normIncluidos.filter((i) => i.estado === "pendiente")].sort(ordenNorm).map((it) => <NormCard key={it.id} it={it} />)}
+                </div>
+              )}
+            </Section>
+
+            <Section title={`Qué hacer (${acciones.length})`}>
+              {acciones.length === 0 ? (
+                <Empty msg="Sin acciones abiertas." />
+              ) : (
+                <div style={{ display: "grid", gap: 8 }}>
+                  {acciones.map((a) => {
+                    const pr = a.prioridad ? PRIO_LABEL[a.prioridad] : null;
+                    return (
+                      <div key={a.id} style={rowStyle}>
+                        {pr && <Chip label={pr.t} bg={pr.bg} fg={pr.fg} />}
+                        <div style={{ flex: 1, minWidth: 220 }}>
+                          <div style={{ fontSize: 13.5, fontWeight: 600 }}>{a.accion}</div>
+                          <div style={{ fontSize: 12, color: T.muted, marginTop: 2 }}>{a.titulo_breve ?? a.titulo_oficial} · {a.organismo}</div>
+                        </div>
+                        <div style={{ fontSize: 12.5 }}>{a.plazo ? `antes del ${fecha(a.plazo)}` : "sin plazo"}</div>
+                        {a.avisado_en && <Chip label="Ya reportado" bg="#EDEFF0" fg={C.muted} />}
+                        <button onClick={() => cerrarAccion(a.id)} disabled={busy === a.id}
+                          style={{ padding: "6px 12px", borderRadius: 8, cursor: "pointer", border: `1px solid ${T.border}`, background: "#fff", color: T.muted, fontSize: 12.5 }}>
+                          Cerrar
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </Section>
+
+            <Section title="Estado de las fuentes">
+              <div style={{ display: "grid", gap: 8 }}>
+                {normFuentes.map((f) => {
+                  const ciega = puntoCiego(f);
+                  return (
+                    <div key={f.id} style={rowStyle}>
+                      <Chip label={f.organismo} bg={(ORG_COLOR[f.organismo] ?? ORG_COLOR.COFEPRIS).bg} fg={(ORG_COLOR[f.organismo] ?? ORG_COLOR.COFEPRIS).fg} />
+                      <div style={{ flex: 1, minWidth: 200, fontSize: 13.5, fontWeight: 600 }}>{f.nombre}</div>
+                      <div style={{ fontSize: 12, color: T.muted }}>lectura buena: {fechaHora(f.last_checked)}</div>
+                      {ciega
+                        ? <Chip label="Punto ciego" bg="#FDECEC" fg={C.alert} />
+                        : f.consecutive_failures > 0
+                          ? <Chip label={`Falló ${f.consecutive_failures} vez(es)`} bg="#FFF3E0" fg={C.amber} />
+                          : <Chip label="Al día" bg="#E6F6EC" fg={C.green} />}
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ fontSize: 12, color: T.muted, marginTop: 8 }}>Detalle, línea base y carga manual en la pestaña Fuentes.</div>
+            </Section>
+
+            <Section title={`Revisado y descartado (${descartadosClasif.length + prefiltrados})`}>
+              <p style={{ fontSize: 12.5, color: T.muted, marginTop: -4, marginBottom: 10 }}>
+                Nada se pierde: todo lo que se leyó y no entró queda aquí con su motivo.
+                {` ${descartadosClasif.length} descartados tras leer el documento y ${prefiltrados} por el filtro inicial (otras dependencias, convenios de recursos, avisos administrativos).`}
+              </p>
+              <div style={{ display: "grid", gap: 6 }}>
+                {descartadosClasif.slice(0, 40).map((d) => (
+                  <div key={d.id} style={{ ...rowStyle, alignItems: "flex-start" }}>
+                    <Chip label={d.organismo} bg={(ORG_COLOR[d.organismo] ?? ORG_COLOR.COFEPRIS).bg} fg={(ORG_COLOR[d.organismo] ?? ORG_COLOR.COFEPRIS).fg} />
+                    <div style={{ flex: 1, minWidth: 220 }}>
+                      <div style={{ fontSize: 13 }}>{d.titulo_breve ?? d.titulo_oficial}</div>
+                      <div style={{ fontSize: 11.5, color: T.muted, marginTop: 2 }}>{d.motivo}</div>
+                    </div>
+                    <div style={{ fontSize: 12, color: T.muted }}>{fecha(d.fecha_publicacion)}</div>
+                    {d.url && <a href={d.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: C.navy }}>Ver</a>}
+                  </div>
+                ))}
+              </div>
+              {verPrefiltro === null ? (
+                prefiltrados > 0 && (
+                  <button onClick={cargarPrefiltro}
+                    style={{ marginTop: 10, padding: "6px 12px", borderRadius: 8, cursor: "pointer", border: `1px solid ${T.border}`, background: "#fff", color: T.muted, fontSize: 12.5 }}>
+                    Ver también los {prefiltrados} del filtro inicial
+                  </button>
+                )
+              ) : (
+                <div style={{ display: "grid", gap: 4, marginTop: 10 }}>
+                  {verPrefiltro.map((d) => (
+                    <div key={d.id} style={{ fontSize: 12, color: T.muted, lineHeight: 1.45 }}>
+                      <span style={{ color: T.text }}>{fecha(d.fecha_publicacion)} · {d.dependencia ?? d.organismo}</span> — {d.titulo_oficial}
+                      <span style={{ color: C.muted }}> · {d.motivo}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Section>
+
+            <Section title="Bloqueos técnicos">
+              {fuentesConFalla.length === 0 && atorados.length === 0 && normDiasError.length === 0 ? (
+                <Empty msg="Sin bloqueos." />
+              ) : (
+                <div style={{ display: "grid", gap: 8 }}>
+                  {fuentesConFalla.map((f) => (
+                    <div key={f.id} style={{ ...cardStyle, padding: 12, borderLeft: `3px solid ${C.alert}` }}>
+                      <div style={{ fontWeight: 650, fontSize: 13.5 }}>{f.nombre}</div>
+                      <div style={{ fontSize: 12.5, color: T.muted, marginTop: 3 }}>
+                        {f.last_check_error ?? "Contenido no verificado"} · {f.consecutive_failures} falla(s) seguida(s) · último intento {fechaHora(f.last_check_attempt)}
+                      </div>
+                      <div style={{ fontSize: 12, marginTop: 4 }}>
+                        Una falla de lectura no es "sin novedades": mientras dure, esta fuente no está cubierta.
+                        {f.organismo === "COFEPRIS" ? " Se puede cubrir subiendo la página guardada desde Fuentes." : ""}
+                      </div>
+                    </div>
+                  ))}
+                  {normDiasError.map((d) => (
+                    <div key={d.fecha + d.edicion} style={{ fontSize: 12.5, color: T.muted }}>
+                      DOF {fecha(d.fecha)} edición {d.edicion}: {d.error} (se reintenta en la siguiente corrida)
+                    </div>
+                  ))}
+                  {atorados.map((a) => (
+                    <div key={a.id} style={{ fontSize: 12.5, color: T.muted }}>
+                      No se pudo clasificar "{a.titulo_oficial.slice(0, 120)}": {a.ultimo_error}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Section>
+          </div>
+        )}
+
         {/* ─── PANORAMA ────────────────────────────────────────────────────── */}
         {tab === "panorama" && (
           <Section title="Erosión por competidores con registro otorgado">
@@ -642,6 +1031,54 @@ export default function RegIntelPage() {
         )}
 
         {/* ─── FUENTES ─────────────────────────────────────────────────────── */}
+        {tab === "fuentes" && (
+          <Section title="Monitor normativo · DOF, COFEPRIS y ARCSA">
+            <p style={{ fontSize: 13, color: T.muted, marginTop: -4, marginBottom: 12 }}>
+              Cada fuente guarda su última lectura buena. Si lleva más de 7 días sin una, es un punto ciego: no significa que no haya novedades.
+              La línea base es la fecha desde la que hay cobertura real; lo publicado antes de esa fecha no se reporta como nuevo.
+            </p>
+            <div style={{ display: "grid", gap: 8 }}>
+              {normFuentes.map((f) => {
+                const ciega = puntoCiego(f);
+                const oc = ORG_COLOR[f.organismo] ?? ORG_COLOR.COFEPRIS;
+                return (
+                  <div key={f.id} style={{ ...cardStyle, padding: 13 }}>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                      <div style={{ fontWeight: 650, fontSize: 14 }}>{f.nombre}</div>
+                      <Chip label={f.organismo} bg={oc.bg} fg={oc.fg} />
+                      <Chip label={f.pais === "EC" ? "Ecuador" : "México"} bg="#EDEFF0" fg={C.muted} />
+                      {ciega && <Chip label={f.last_checked ? `Punto ciego · ${diasDesde(f.last_checked)} días` : "Punto ciego · nunca leída"} bg="#FDECEC" fg={C.alert} />}
+                      {f.verificacion === "no_verificada" && <Chip label="No verificada" bg="#FDECEC" fg={C.alert} />}
+                      {!ciega && f.consecutive_failures === 0 && <Chip label="Al día" bg="#E6F6EC" fg={C.green} />}
+                      {f.consecutive_failures > 0 && <Chip label={`${f.consecutive_failures} falla(s) seguidas`} bg="#FFF3E0" fg={C.amber} />}
+                    </div>
+                    <div style={{ fontSize: 12.5, color: T.muted, marginTop: 6 }}>
+                      {f.linea_base_en ? `Cobertura real desde ${fecha(f.linea_base_en.slice(0, 10))}` : "Sin línea base todavía"}
+                      {` · última lectura buena ${fechaHora(f.last_checked)} · último intento ${fechaHora(f.last_check_attempt)}`}
+                      {f.documentos !== null ? ` · ${f.documentos} documentos en el inventario` : ""}
+                    </div>
+                    {f.last_check_error && <div style={{ fontSize: 12.5, color: C.alert, marginTop: 5 }}>{f.last_check_error}</div>}
+                    {f.nota && <div style={{ fontSize: 12.5, marginTop: 5 }}>{f.nota}</div>}
+                    {f.tipo !== "por_fecha" && (f.consecutive_failures > 0 || ciega) && (
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginTop: 9, padding: 10, background: C.sky, borderRadius: 8 }}>
+                        <span style={{ fontSize: 12.5 }}>
+                          Ábrela en tu navegador, guárdala (Cmd+S, “Página web, solo HTML”) y súbela aquí:
+                        </span>
+                        <input type="file" accept=".html,.htm" disabled={busy === f.clave}
+                          onChange={(e) => { const x = e.target.files?.[0]; if (x) void subirPagina(f.clave, x); e.target.value = ""; }}
+                          style={{ fontSize: 12.5 }} />
+                        {busy === f.clave && <span style={{ fontSize: 12.5, color: T.muted }}>Leyendo…</span>}
+                        <a href={f.url} target="_blank" rel="noopener noreferrer" style={{ marginLeft: "auto", fontSize: 12.5, color: C.navy }}>Abrir la página</a>
+                      </div>
+                    )}
+                    <div style={{ fontSize: 11, color: T.muted, marginTop: 4, fontFamily: "ui-monospace, monospace", wordBreak: "break-all" }}>{f.url}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </Section>
+        )}
+
         {tab === "fuentes" && (
           <Section title="Fuentes monitoreadas y control de calidad">
             <p style={{ fontSize: 13, color: T.muted, marginTop: -4, marginBottom: 12 }}>
@@ -729,9 +1166,9 @@ export default function RegIntelPage() {
 
         {/* ─── CONSULTAS CON CAPTCHA ───────────────────────────────────────── */}
         {tab === "consultas" && (
-          <Section title="Consultas que requieren CAPTCHA">
+          <Section title="Consultas manuales">
             <p style={{ fontSize: 13, color: T.muted, marginTop: -4, marginBottom: 12 }}>
-              El buscador de registros sanitarios de COFEPRIS requiere CAPTCHA y no se automatiza. Aquí queda la cola de lo que sí hay que consultar a mano, con registro de quién y cuándo.
+              El buscador de registros sanitarios de COFEPRIS requiere CAPTCHA y no se automatiza, y algunas páginas de gob.mx bloquean la lectura automática. Aquí queda la cola de lo que sí hay que consultar a mano, con registro de quién y cuándo.
             </p>
             {consultas.length === 0 ? (
               <Empty msg="Sin consultas en cola." />
@@ -746,13 +1183,14 @@ export default function RegIntelPage() {
                         bg={c.estado === "pendiente" ? "#FFF3E0" : "#E6F6EC"}
                         fg={c.estado === "pendiente" ? C.amber : C.green}
                       />
+                      {c.origen === "normativo" && <Chip label="Monitor normativo" bg="#F1ECFA" fg="#5B3E96" />}
                       <a
-                        href="https://www.gob.mx/cofepris"
+                        href={c.url ?? "https://www.gob.mx/cofepris"}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ marginLeft: "auto", fontSize: 12.5, color: C.navy, textDecoration: "underline" }}
                       >
-                        Abrir COFEPRIS
+                        {c.origen === "normativo" ? "Abrir la página" : "Abrir COFEPRIS"}
                       </a>
                     </div>
                     {c.motivo && <div style={{ fontSize: 12.5, color: T.muted, marginTop: 6 }}>{c.motivo}</div>}
@@ -903,6 +1341,27 @@ export default function RegIntelPage() {
                     <td>{r.denominacion_generica}</td>
                     <td>{fecha(r.vigencia)}</td>
                     <td>{m} meses</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {normIncluidos.filter((i) => i.estado !== "descartado").length > 0 && (
+          <div className="sec">
+            <h2>Cambios normativos (DOF · COFEPRIS · ARCSA)</h2>
+            <table>
+              <colgroup><col style={{ width: "18mm" }} /><col style={{ width: "22mm" }} /><col style={{ width: "62mm" }} /><col /><col style={{ width: "40mm" }} /></colgroup>
+              <thead><tr><th>Fuente</th><th>Publicación</th><th>Qué cambia</th><th>Implicación</th><th>Qué hacer</th></tr></thead>
+              <tbody>
+                {[...normIncluidos.filter((i) => i.estado !== "descartado")].sort(ordenNorm).map((i) => (
+                  <tr key={i.id} className={i.prioridad === 1 ? "acc" : ""}>
+                    <td>{i.organismo}</td>
+                    <td>{fecha(i.fecha_publicacion)}</td>
+                    <td><strong>{i.titulo_breve ?? i.titulo_oficial}</strong></td>
+                    <td>{i.resumen ?? "—"}</td>
+                    <td>{i.accion ?? "—"}{i.plazo ? ` (antes del ${fecha(i.plazo)})` : ""}</td>
                   </tr>
                 ))}
               </tbody>
