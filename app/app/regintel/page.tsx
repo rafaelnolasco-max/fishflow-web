@@ -93,6 +93,25 @@ const TIPO_COLOR: Record<string, { bg: string; fg: string }> = {
 // ─── CSS de impresión ─────────────────────────────────────────────────────────
 // Mismo criterio que el reporte de marca: A4 horizontal, tablas con anchos fijos,
 // filas que no se parten y encabezado repetido en cada página.
+// Móvil (≤600 px): el header y las filas se acomodan en varias líneas.
+const RESPONSIVE_CSS = `
+@media (max-width: 600px) {
+  .ri-app > header { padding: 12px 14px !important; flex-wrap: wrap; }
+  .ri-app > header > div:last-child { flex-wrap: wrap; justify-content: flex-end; }
+  .ri-app > header h1, .ri-app > header [data-title] { font-size: 16px !important; }
+  .ri-main { padding: 14px 12px 48px !important; }
+  .ri-main > div:first-child { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; }
+  .ri-row { flex-wrap: wrap !important; gap: 8px !important; padding: 12px !important; }
+  .ri-row > * { min-width: 0 !important; }
+  .ri-row .ri-grow { flex-basis: 100% !important; order: -1; }
+  .ri-card { padding: 12px !important; }
+  .ri-botones { margin-left: 0 !important; width: 100%; }
+  .ri-botones > button { flex: 1; padding: 10px 12px !important; }
+  .ri-seg { width: 100% !important; }
+  .ri-seg > button { flex: 1; }
+}
+`;
+
 const PRINT_CSS = `
 @media screen { .ri-print { display: none; } }
 @media print {
@@ -332,7 +351,8 @@ export default function RegIntelPage() {
     setBusy(null);
     if (error) { flash("No se pudo guardar: " + error.message); return; }
     setHallazgos((prev) => prev.map((h) => (h.id === id ? { ...h, estado } : h)));
-    flash(estado === "aprobado" ? "Hallazgo aprobado" : "Hallazgo descartado");
+    flash(estado === "pendiente" ? "Regresó a pendientes"
+      : `${estado === "aprobado" ? "Aprobado" : "Descartado"}. Sale de pendientes; lo ves con “Ver todos”.`);
   }
 
   async function resolverConsulta(id: string) {
@@ -358,7 +378,8 @@ export default function RegIntelPage() {
     setBusy(null);
     if (error) { flash("No se pudo guardar: " + error.message); return; }
     setNormItems((prev) => prev.map((i) => (i.id === id ? { ...i, estado } : i)));
-    flash(estado === "aprobado" ? "Hallazgo normativo aprobado" : "Hallazgo normativo descartado");
+    flash(estado === "pendiente" ? "Regresó a pendientes"
+      : `${estado === "aprobado" ? "Aprobado" : "Descartado"}. Sale de pendientes; lo ves con “Ver todos”${estado === "aprobado" ? " y su acción queda en “Qué hacer”" : ""}.`);
   }
 
   async function cerrarAccion(id: string) {
@@ -423,7 +444,7 @@ export default function RegIntelPage() {
     const ve = VERIF_LABEL[it.verificacion];
     const pr = it.prioridad ? PRIO_LABEL[it.prioridad] : null;
     return (
-      <div style={{ ...cardStyle, padding: 14 }}>
+      <div className="ri-card" style={{ ...cardStyle, padding: 14 }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 8 }}>
           <Chip label="Normativo" bg="#F1ECFA" fg="#5B3E96" />
           <Chip label={it.organismo} bg={oc.bg} fg={oc.fg} />
@@ -457,8 +478,14 @@ export default function RegIntelPage() {
           {it.url
             ? <a href={it.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, color: C.navy, textDecoration: "underline" }}>Abrir en la fuente oficial</a>
             : <span style={{ fontSize: 12, color: C.alert }}>Sin enlace confirmado</span>}
+          {it.estado !== "pendiente" && (
+            <button onClick={() => decidirNorm(it.id, "pendiente")} disabled={busy === it.id}
+              style={{ marginLeft: "auto", padding: "6px 12px", borderRadius: 8, cursor: "pointer", border: `1px solid ${T.border}`, background: "#fff", color: T.muted, fontSize: 12.5 }}>
+              Regresar a pendiente
+            </button>
+          )}
           {it.estado === "pendiente" && (
-            <span style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+            <span className="ri-botones" style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
               <button onClick={() => decidirNorm(it.id, "aprobado")} disabled={busy === it.id}
                 style={{ padding: "7px 16px", borderRadius: 8, border: "none", cursor: "pointer", background: busy === it.id ? T.disabled : T.accent, color: "#fff", fontSize: 13, fontWeight: 600 }}>
                 Aprobar
@@ -628,7 +655,7 @@ export default function RegIntelPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: "Inter, system-ui, sans-serif" }}>
-      <style dangerouslySetInnerHTML={{ __html: PRINT_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: RESPONSIVE_CSS + PRINT_CSS }} />
 
       <div className="ri-app">
       <DashboardHeader
@@ -662,7 +689,7 @@ export default function RegIntelPage() {
         }
       />
 
-      <main style={{ maxWidth: 1180, margin: "0 auto", padding: "22px 20px 64px" }}>
+      <main className="ri-main" style={{ maxWidth: 1180, margin: "0 auto", padding: "22px 20px 64px" }}>
         <StatGrid>
           <StatCard label="Registros revisados" value={revisados.toLocaleString("es-MX")} icon="📄" sub="en listados COFEPRIS" />
           <StatCard label="Moléculas vigiladas" value={watch.length} icon="🔬" />
@@ -691,7 +718,7 @@ export default function RegIntelPage() {
 
         {/* Filtro de portafolio, común a bandeja y panorama */}
         {tab === "bandeja" && (
-          <div style={{ display: "flex", gap: 0, margin: "16px 0 0", border: `1px solid ${T.border}`, borderRadius: 10, overflow: "hidden", width: "fit-content" }}>
+          <div className="ri-seg" style={{ display: "flex", gap: 0, margin: "16px 0 0", border: `1px solid ${T.border}`, borderRadius: 10, overflow: "hidden", width: "fit-content" }}>
             {([["competidores", `Competidores (${pendientes})`], ["normativo", `Normativo (${normPend})`]] as const).map(([k, l]) => (
               <button key={k} onClick={() => setTipoBandeja(k)}
                 style={{ padding: "7px 16px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", border: "none",
@@ -727,7 +754,11 @@ export default function RegIntelPage() {
                   border: `1px solid ${T.border}`, background: "#fff", color: T.muted,
                 }}
               >
-                {filtro === "pendiente" ? "Ver todos" : "Solo pendientes"}
+                {filtro === "pendiente"
+                  ? `Ver todos (${tipoBandeja === "normativo"
+                      ? normIncluidos.filter((i) => i.estado !== "pendiente").length
+                      : hallazgos.filter((h) => h.estado !== "pendiente").length} ya revisados)`
+                  : "Solo pendientes"}
               </button>
             )}
           </div>
@@ -797,8 +828,14 @@ export default function RegIntelPage() {
                         </div>
                       )}
 
+                      {h.estado !== "pendiente" && (
+                        <button onClick={() => decidir(h.id, "pendiente")} disabled={busy === h.id}
+                          style={{ marginTop: 10, padding: "6px 12px", borderRadius: 8, cursor: "pointer", border: `1px solid ${T.border}`, background: "#fff", color: T.muted, fontSize: 12.5 }}>
+                          Regresar a pendiente
+                        </button>
+                      )}
                       {h.estado === "pendiente" && (
-                        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                        <div className="ri-botones" style={{ display: "flex", gap: 8, marginTop: 12 }}>
                           <button
                             onClick={() => decidir(h.id, "aprobado")}
                             disabled={busy === h.id}
@@ -862,9 +899,9 @@ export default function RegIntelPage() {
                   {acciones.map((a) => {
                     const pr = a.prioridad ? PRIO_LABEL[a.prioridad] : null;
                     return (
-                      <div key={a.id} style={rowStyle}>
+                      <div key={a.id} className="ri-row" style={rowStyle}>
                         {pr && <Chip label={pr.t} bg={pr.bg} fg={pr.fg} />}
-                        <div style={{ flex: 1, minWidth: 220 }}>
+                        <div className="ri-grow" style={{ flex: 1, minWidth: 220 }}>
                           <div style={{ fontSize: 13.5, fontWeight: 600 }}>{a.accion}</div>
                           <div style={{ fontSize: 12, color: T.muted, marginTop: 2 }}>{a.titulo_breve ?? a.titulo_oficial} · {a.organismo}</div>
                         </div>
@@ -886,9 +923,9 @@ export default function RegIntelPage() {
                 {normFuentes.map((f) => {
                   const ciega = puntoCiego(f);
                   return (
-                    <div key={f.id} style={rowStyle}>
+                    <div key={f.id} className="ri-row" style={rowStyle}>
                       <Chip label={f.organismo} bg={(ORG_COLOR[f.organismo] ?? ORG_COLOR.COFEPRIS).bg} fg={(ORG_COLOR[f.organismo] ?? ORG_COLOR.COFEPRIS).fg} />
-                      <div style={{ flex: 1, minWidth: 200, fontSize: 13.5, fontWeight: 600 }}>{f.nombre}</div>
+                      <div className="ri-grow" style={{ flex: 1, minWidth: 200, fontSize: 13.5, fontWeight: 600 }}>{f.nombre}</div>
                       <div style={{ fontSize: 12, color: T.muted }}>lectura buena: {fechaHora(f.last_checked)}</div>
                       {ciega
                         ? <Chip label="Punto ciego" bg="#FDECEC" fg={C.alert} />
@@ -909,9 +946,9 @@ export default function RegIntelPage() {
               </p>
               <div style={{ display: "grid", gap: 6 }}>
                 {descartadosClasif.slice(0, 40).map((d) => (
-                  <div key={d.id} style={{ ...rowStyle, alignItems: "flex-start" }}>
+                  <div key={d.id} className="ri-row" style={{ ...rowStyle, alignItems: "flex-start" }}>
                     <Chip label={d.organismo} bg={(ORG_COLOR[d.organismo] ?? ORG_COLOR.COFEPRIS).bg} fg={(ORG_COLOR[d.organismo] ?? ORG_COLOR.COFEPRIS).fg} />
-                    <div style={{ flex: 1, minWidth: 220 }}>
+                    <div className="ri-grow" style={{ flex: 1, minWidth: 220 }}>
                       <div style={{ fontSize: 13 }}>{d.titulo_breve ?? d.titulo_oficial}</div>
                       <div style={{ fontSize: 11.5, color: T.muted, marginTop: 2 }}>{d.motivo}</div>
                     </div>
@@ -1013,7 +1050,7 @@ export default function RegIntelPage() {
             ) : (
               <div style={{ display: "grid", gap: 8 }}>
                 {porVencer.map(({ r, m }) => (
-                  <div key={r.id} style={rowStyle}>
+                  <div key={r.id} className="ri-row" style={rowStyle}>
                     <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 12, color: T.muted, minWidth: 110 }}>{r.folio}</div>
                     <div style={{ fontWeight: 600, minWidth: 130 }}>{r.denominacion_distintiva}</div>
                     <div style={{ fontSize: 13, color: T.muted, flex: 1 }}>{r.denominacion_generica}</div>
