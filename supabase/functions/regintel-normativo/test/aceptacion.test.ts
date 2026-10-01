@@ -186,3 +186,31 @@ Deno.test("Clasificador: el resumen nunca es el título copiado y el JSON se val
   assertEquals(c.prioridad, 2);
   for (const [cod, g] of Object.entries(grabado).filter(([k]) => !k.startsWith("_"))) assert(g.incluir ? g.titulo_breve.split(" ").length <= 14 : true, cod);
 });
+
+// ── A prueba de fallas ────────────────────────────────────────────────────────
+Deno.test("Errores de ZenRows salen con causa accionable", () => {
+  assertMatch(L.errorDesbloqueo(402, '{"title":"Usage limit reached"}'), /créditos agotados/);
+  assertMatch(L.errorDesbloqueo(401, '{"title":"API key is not valid"}'), /llave inválida/);
+  assertMatch(L.errorDesbloqueo(429, "Too Many Requests"), /límite de peticiones/);
+  assertMatch(L.errorDesbloqueo(422, '{"title":"Could not get content. Request blocked"}'), /no logró pasar el filtro/);
+});
+
+Deno.test("Aviso a Rafa: tras 2 fallas seguidas, una sola vez, y otro al recuperarse", () => {
+  const base = { nombre: "x", last_check_error: "e", last_checked: null };
+  const r = L.alertasOperativas([
+    { ...base, clave: "una_falla", consecutive_failures: 1, alerta_enviada_en: null },
+    { ...base, clave: "caida", consecutive_failures: 2, alerta_enviada_en: null },
+    { ...base, clave: "ya_avisada", consecutive_failures: 5, alerta_enviada_en: "2026-10-01T03:20:00Z" },
+    { ...base, clave: "recuperada", consecutive_failures: 0, alerta_enviada_en: "2026-10-01T03:20:00Z" },
+    { ...base, clave: "sana", consecutive_failures: 0, alerta_enviada_en: null },
+  ]);
+  assertEquals(r.caidas.map((f) => f.clave), ["caida"]);
+  assertEquals(r.recuperadas.map((f) => f.clave), ["recuperada"]);
+});
+
+Deno.test("Vigilante: la última corrida programada respeta lun-vie 21:15 CDMX", () => {
+  // Martes 6-oct 09:00 CDMX → lunes 5-oct 21:15 CDMX (06-oct 03:15 UTC)
+  assertEquals(L.ultimaCorridaProgramada(new Date("2026-10-06T15:00:00Z")).toISOString(), "2026-10-06T03:15:00.000Z");
+  // Lunes 5-oct 09:00 CDMX → viernes 2-oct 21:15 CDMX (03-oct 03:15 UTC), no el fin de semana
+  assertEquals(L.ultimaCorridaProgramada(new Date("2026-10-05T15:00:00Z")).toISOString(), "2026-10-03T03:15:00.000Z");
+});

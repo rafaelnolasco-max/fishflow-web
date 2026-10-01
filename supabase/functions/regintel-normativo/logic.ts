@@ -459,3 +459,46 @@ export function debeAvisarBloqueo(corridas: { organismosOk: number; aviso: strin
 export function ordenarParaAviso<T extends { prioridad: number | null; plazo: string | null }>(xs: T[]): T[] {
   return [...xs].sort((a, b) => (a.prioridad ?? 2) - (b.prioridad ?? 2) || (a.plazo ?? "9999").localeCompare(b.plazo ?? "9999"));
 }
+
+// ─── Alertas operativas (solo a Rafa) ──────────────────────────────────────────
+/** Traduce la respuesta del servicio de desbloqueo (ZenRows) a una causa accionable. */
+export function errorDesbloqueo(status: number, cuerpo: string): string {
+  const c = norm(cuerpo.slice(0, 600));
+  if (status === 402 || /credit|usage limit|quota|subscription|plan/.test(c)) return `ZenRows: créditos agotados o plan vencido (HTTP ${status}). Hay que recargar o contratar el plan.`;
+  if (status === 401 || /api ?key|unauthori[sz]ed|invalid key/.test(c)) return `ZenRows: llave inválida o revocada (HTTP ${status}). Revisar el secreto GOBMX_FETCH_TEMPLATE en Supabase.`;
+  if (status === 429 || /too many|rate limit|concurren/.test(c)) return `ZenRows: límite de peticiones (HTTP ${status}). Se reintenta en la siguiente corrida.`;
+  if (status === 422 || /blocked|could not|failed to|antibot|captcha/.test(c)) return `ZenRows no logró pasar el filtro de gob.mx (HTTP ${status}). Si se repite, subir la página a mano mientras se ajusta.`;
+  return `ZenRows respondió HTTP ${status}${cuerpo ? `: ${cuerpo.replace(/\s+/g, " ").slice(0, 160)}` : ""}`;
+}
+
+export const FALLAS_PARA_AVISAR = 2;
+
+export interface FuenteAlerta { clave: string; nombre: string; consecutive_failures: number; last_check_error: string | null; last_checked: string | null; alerta_enviada_en: string | null }
+
+/**
+ * Qué avisarle a Rafa al cerrar una corrida:
+ *  - caídas: fuentes con 2+ fallas seguidas que aún no tienen aviso abierto.
+ *  - recuperadas: fuentes con aviso abierto que ya leyeron bien.
+ * Una fuente caída se avisa una sola vez hasta que se recupere.
+ */
+export function alertasOperativas(fuentes: FuenteAlerta[]): { caidas: FuenteAlerta[]; recuperadas: FuenteAlerta[] } {
+  return {
+    caidas: fuentes.filter((f) => f.consecutive_failures >= FALLAS_PARA_AVISAR && !f.alerta_enviada_en),
+    recuperadas: fuentes.filter((f) => f.consecutive_failures === 0 && !!f.alerta_enviada_en),
+  };
+}
+
+/**
+ * Vigilante externo: la última corrida programada (lun-vie 21:15 CDMX) anterior a `ahora`.
+ * Si no hay una corrida terminada desde entonces (con margen), el monitor no corrió.
+ */
+export function ultimaCorridaProgramada(ahora: Date): Date {
+  // CDMX es UTC-6 fijo desde 2022: 21:15 CDMX = 03:15 UTC del día siguiente.
+  const t = new Date(ahora.getTime());
+  for (let i = 0; i < 8; i++) {
+    const c = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate() - i, 3, 15));
+    const diaCdmx = new Date(c.getTime() - 6 * 3600_000).getUTCDay(); // día de la semana en CDMX
+    if (c <= ahora && diaCdmx >= 1 && diaCdmx <= 5) return c;
+  }
+  throw new Error("sin corrida programada en 8 días");
+}

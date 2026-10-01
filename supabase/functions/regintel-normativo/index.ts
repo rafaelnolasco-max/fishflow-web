@@ -37,6 +37,7 @@ type Fuente = {
   id: string; clave: string; pais: string; organismo: L.Organismo; nombre: string; url: string; tipo: string;
   last_checked: string | null; last_check_attempt: string | null; last_check_error: string | null;
   consecutive_failures: number; verificacion: "sin_leer" | "verificada" | "no_verificada"; linea_base_en: string | null;
+  alerta_enviada_en: string | null;
 };
 type Resultado = { ok: boolean; error?: string; candidatos: number; descartados: number; lineaBase?: number; nuevos?: number; reemplazos?: number; bajas?: number };
 
@@ -45,13 +46,21 @@ const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { sta
 // ─── Red ───────────────────────────────────────────────────────────────────────
 /** gob.mx bloquea servidores con un desafío anti-bot. Si hay un servicio de desbloqueo
  *  configurado (GOBMX_FETCH_TEMPLATE con {url}), se usa; si no, fetch directo. */
-async function traerHtml(url: string): Promise<{ status: number; html: string; redirect: string | null }> {
+async function traerHtml(url: string): Promise<{ status: number; html: string; redirect: string | null; error?: string }> {
   const plantilla = Deno.env.get("GOBMX_FETCH_TEMPLATE");
   const viaProxy = plantilla && /(^|\.)gob\.mx\//.test(new URL(url).host + "/") && !/dof\.gob\.mx|sidof\.segob/.test(url);
   const destino = viaProxy ? plantilla!.replace("{url}", encodeURIComponent(url)) : url;
-  const r = await fetch(destino, { headers: viaProxy ? {} : UA, redirect: "manual", signal: AbortSignal.timeout(viaProxy ? 90_000 : 40_000) });
+  let r: Response;
+  try {
+    r = await fetch(destino, { headers: viaProxy ? {} : UA, redirect: "manual", signal: AbortSignal.timeout(viaProxy ? 120_000 : 40_000) });
+  } catch (e) {
+    const msg = String(e).slice(0, 160);
+    return { status: 0, html: "", redirect: null, error: viaProxy ? `ZenRows no respondió a tiempo (${msg})` : `sin respuesta (${msg})` };
+  }
   const html = r.status >= 300 && r.status < 400 ? "" : await r.text();
-  return { status: r.status, html, redirect: r.headers.get("location") };
+  // Si el servicio de desbloqueo falla, se nombra la causa (créditos, llave, límite, filtro).
+  const error = r.status === 200 ? undefined : viaProxy ? L.errorDesbloqueo(r.status, html) : `HTTP ${r.status}`;
+  return { status: r.status, html, redirect: r.headers.get("location"), error };
 }
 
 async function textoDePdf(url: string): Promise<string | null> {
@@ -101,6 +110,11 @@ async function todas<T>(q: () => any): Promise<T[]> {
 async function guardarSalud(sb: SupabaseClient, f: Fuente, ok: boolean, ahora: string, error?: string, verif?: "verificada" | "no_verificada", extra: Record<string, unknown> = {}) {
   const e = L.aplicarLectura(f, ok, ahora, error, verif);
   await sb.from("regintel_norm_fuentes").update({ ...e, ...extra }).eq("id", f.id);
+  // Respaldo: una fuente de gob.mx que lleva 2 fallas seguidas abre la tarea manual en Consultas.
+  if (!ok && f.organismo === "COFEPRIS" && e.consecutive_failures >= L.FALLAS_PARA_AVISAR) {
+    await encolarConsulta(sb, f, `${f.nombre}: ${error ?? "no se pudo leer"} (${e.consecutive_failures} fallas seguidas)`);
+  }
+  return e;
 }
 
 /** Bloqueo que una persona puede resolver (anti-bot, CAPTCHA) → cola de Consultas, sin duplicar. */
@@ -137,7 +151,7 @@ async function leerDof(sb: SupabaseClient, f: Fuente, corrida: string, ahora: st
       let r: ReturnType<typeof L.parseIndiceDof>;
       try {
         const h = await traerHtml(L.urlIndiceDof(fecha, ed));
-        r = L.parseIndiceDof(h.html, fecha, ed, h.status, h.redirect);
+        r = h.status === 0 ? { estado: "error", notas: [], error: h.error } : L.parseIndiceDof(h.html, fecha, ed, h.status, h.redirect);
       } catch (e) { r = { estado: "error", notas: [], error: String(e).slice(0, 160) }; }
       if (r.estado === "error") errores.push(`${fecha} ${ed}: ${r.error}`); else lecturas++;
       notas.push(...r.notas);
@@ -186,7 +200,7 @@ async function leerInventario(sb: SupabaseClient, f: Fuente, corrida: string, ah
     if (html === undefined) {
       const h = await traerHtml(f.url);
       if (h.status !== 200) {
-        const e = `HTTP ${h.status}`;
+        const e = h.error ?? `HTTP ${h.status}`;
         await guardarSalud(sb, f, false, ahora, e);
         return { ok: false, error: e, candidatos: 0, descartados: 0 };
       }
@@ -198,7 +212,6 @@ async function leerInventario(sb: SupabaseClient, f: Fuente, corrida: string, ah
   }
   if (!lectura.ok) {
     await guardarSalud(sb, f, false, ahora, lectura.error);
-    if (/desaf[ií]o|captcha/i.test(lectura.error ?? "")) await encolarConsulta(sb, f, `${f.nombre}: ${lectura.error}`);
     return { ok: false, error: lectura.error, candidatos: 0, descartados: 0 };
   }
 
@@ -269,14 +282,13 @@ async function leerNoticias(sb: SupabaseClient, f: Fuente, corrida: string, ahor
     let html = htmlManual;
     if (html === undefined) {
       const h = await traerHtml(f.url);
-      if (h.status !== 200) { await guardarSalud(sb, f, false, ahora, `HTTP ${h.status}`); return { ok: false, error: `HTTP ${h.status}`, candidatos: 0, descartados: 0 }; }
+      if (h.status !== 200) { const e = h.error ?? `HTTP ${h.status}`; await guardarSalud(sb, f, false, ahora, e); return { ok: false, error: e, candidatos: 0, descartados: 0 }; }
       html = h.html;
     }
     lectura = f.clave === "cofepris_portada" ? L.parsePortadaCofepris(html, hoy) : L.parseArcsaNoticias(html);
   } catch (e) { lectura = { ok: false, datos: [], error: String(e).slice(0, 200) }; }
   if (!lectura.ok) {
     await guardarSalud(sb, f, false, ahora, lectura.error, lectura.verificacion);
-    if (/desaf[ií]o|captcha/i.test(lectura.error ?? "")) await encolarConsulta(sb, f, `${f.nombre}: ${lectura.error}`);
     return { ok: false, error: lectura.error, candidatos: 0, descartados: 0 };
   }
   const desde = L.sumarDias(hoy, -3);
@@ -389,10 +401,10 @@ function correoHallazgos(items: L.ItemAviso[], inicial: boolean): { asunto: stri
   </table></td></tr></table></body></html>` };
 }
 
-async function enviar(sb: SupabaseClient, asunto: string, html: string): Promise<boolean> {
+async function enviar(sb: SupabaseClient, asunto: string, html: string, soloRafa = false): Promise<boolean> {
   const key = Deno.env.get("RESEND_API_KEY");
   if (!key) { console.warn("[regintel-normativo] sin RESEND_API_KEY"); return false; }
-  const { data: av } = await sb.from("regintel_avisos").select("email").eq("client_id", CLIENT_ID).eq("activo", true);
+  const { data: av } = soloRafa ? { data: [] as { email: string }[] } : await sb.from("regintel_avisos").select("email").eq("client_id", CLIENT_ID).eq("activo", true);
   const to = [...new Set([AVISO_RAFA, ...(av ?? []).map((a) => a.email as string).filter(Boolean)])];
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
@@ -435,12 +447,36 @@ async function cerrar(sb: SupabaseClient, corrida: string, ahora: string, enviar
         `<p style="font-family:Inter,sans-serif;font-size:14px">Llevamos tres corridas seguidas sin poder leer DOF, COFEPRIS ni ARCSA. Esto <b>no</b> significa que no haya novedades: el monitor está ciego hasta que se resuelva.</p><p style="font-family:Inter,sans-serif;font-size:13px">Causa probable por fuente:</p><ol style="font-family:Inter,sans-serif;font-size:13px">${causas}</ol><p style="font-family:Inter,sans-serif;font-size:13px"><a href="${PANEL_URL}">Abrir Fuentes</a></p>`)) aviso = "bloqueo";
     }
   }
+  // Alertas operativas: solo a Rafa, una vez por caída y otra al recuperarse.
+  let operativo: string | null = null;
+  if (enviarCorreos) {
+    const { data: fs } = await sb.from("regintel_norm_fuentes").select("id,clave,nombre,consecutive_failures,last_check_error,last_checked,alerta_enviada_en").eq("client_id", CLIENT_ID).eq("activo", true);
+    const { caidas, recuperadas } = L.alertasOperativas((fs ?? []) as (L.FuenteAlerta & { id: string })[]);
+    if (caidas.length || recuperadas.length) {
+      const li = (f: L.FuenteAlerta) => `<li style="margin-bottom:8px"><b>${esc(f.nombre)}</b> — ${esc(f.last_check_error ?? "falla de lectura")}<br><span style="color:#65798A;font-size:12px">${f.consecutive_failures} falla(s) seguidas · última lectura buena: ${esc(f.last_checked ? new Date(f.last_checked).toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) : "nunca")}</span></li>`;
+      const asunto = caidas.length
+        ? `Alerta técnica · Monitor normativo: ${caidas.length} fuente(s) sin leer — ${caidas.map((f) => f.nombre).join(", ")}`
+        : `Resuelto · Monitor normativo: se recuperó ${recuperadas.map((f) => f.nombre).join(", ")}`;
+      const html = `<div style="font-family:Inter,Arial,sans-serif;font-size:14px;color:#152430;line-height:1.5">
+        <p>Aviso técnico (solo para ti; Yaz no lo recibe).</p>
+        ${caidas.length ? `<p><b>No se pudieron leer en ${L.FALLAS_PARA_AVISAR} corridas seguidas:</b></p><ol>${caidas.map(li).join("")}</ol>
+        <p>Mientras dure, esas fuentes no están cubiertas: una falla de lectura no es "sin novedades". Si es COFEPRIS, ya quedó la tarea en Consultas para subir la página a mano.</p>` : ""}
+        ${recuperadas.length ? `<p><b>Ya se leen otra vez:</b> ${recuperadas.map((f) => esc(f.nombre)).join(", ")}.</p>` : ""}
+        <p><a href="${PANEL_URL}">Abrir Fuentes en el panel</a></p></div>`;
+      if (await enviar(sb, asunto, html, true)) {
+        operativo = caidas.length ? "caida" : "recuperada";
+        if (caidas.length) await sb.from("regintel_norm_fuentes").update({ alerta_enviada_en: ahora }).in("clave", caidas.map((f) => f.clave)).eq("client_id", CLIENT_ID);
+        if (recuperadas.length) await sb.from("regintel_norm_fuentes").update({ alerta_enviada_en: null }).in("clave", recuperadas.map((f) => f.clave)).eq("client_id", CLIENT_ID);
+      }
+    }
+  }
+
   const { count: desc } = await sb.from("regintel_norm_items").select("id", { count: "exact", head: true }).eq("corrida_id", corrida).eq("decision", "descartar");
   await sb.from("regintel_norm_corridas").update({
     fin: new Date().toISOString(), fuentes_ok: fuentes.filter((r) => r.ok).length, fuentes_fallidas: fuentes.filter((r) => !r.ok).length,
-    nuevos: pendientes.length, descartados: desc ?? 0, aviso, resumen: { ...resumen, organismosOk },
+    nuevos: pendientes.length, descartados: desc ?? 0, aviso, resumen: { ...resumen, organismosOk, operativo },
   }).eq("id", corrida);
-  return { aviso, nuevos: pendientes.length, organismosOk };
+  return { aviso, nuevos: pendientes.length, organismosOk, operativo };
 }
 
 // ─── Servidor ──────────────────────────────────────────────────────────────────
