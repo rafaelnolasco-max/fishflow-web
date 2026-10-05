@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 import PublicacionesTab from './PublicacionesTab'
 import WhatsAppTab, { useWhatsAppPending } from './WhatsAppTab'
 import ResenasTab from './ResenasTab'
+import FacturacionTab from './FacturacionTab'
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -139,7 +140,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 
 export default function CRMPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads' | 'publicaciones' | 'whatsapp' | 'resenas'>('crm')
+  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads' | 'publicaciones' | 'whatsapp' | 'resenas' | 'facturacion'>('crm')
   const waPending = useWhatsAppPending()
 
   // ── CRM state ──────────────────────────────────────────────────────────────
@@ -455,6 +456,9 @@ export default function CRMPage() {
           </button>
           <button className={`ff-tab ${activeTab === 'resenas' ? 'active' : ''}`} onClick={() => setActiveTab('resenas')}>
             ⭐ Reseñas
+          </button>
+          <button className={`ff-tab ${activeTab === 'facturacion' ? 'active' : ''}`} onClick={() => setActiveTab('facturacion')}>
+            🧾 Facturación
           </button>
         </div>
         {activeTab === 'crm' && (
@@ -851,6 +855,7 @@ export default function CRMPage() {
       {activeTab === 'publicaciones' && <PublicacionesTab />}
       {activeTab === 'whatsapp' && <WhatsAppTab />}
       {activeTab === 'resenas' && <ResenasTab />}
+      {activeTab === 'facturacion' && <FacturacionTab />}
 
       {/* ── Modal CRM ─────────────────────────────────────────────────────── */}
       {modal.open && (

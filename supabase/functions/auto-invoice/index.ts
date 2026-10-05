@@ -4,12 +4,11 @@
 //
 // Payload: { record: { id, client_id, amount, currency, service, provider, payment_method, metadata } }
 //
-// MODO ACTUAL (Opción A):
-//   Envía un email con el link al recibo usando Resend.
-//   Destinatarios: payer_email (del metadata) + raf@fishflow.mx
-//
-// FUTURO (Opción B):
-//   Agregar emisión de CFDI via Facturapi cuando factura_auto esté activo.
+// 1. Envía el recibo de pago (Resend) a payer_email + raf@fishflow.mx.
+// 2. Pide el CFDI a la web: POST {APP_URL}/api/invoices/auto. La web (lib/cfdi.ts)
+//    decide si aplica — emisor activo con auto_al_pagar y datos fiscales del
+//    receptor — y es la única que conoce las llaves de Facturapi. Si no aplica,
+//    responde con el motivo y aquí solo queda el recibo.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -207,6 +206,28 @@ async function sendReceiptEmails(params: {
   return { ok: allOk, results, errors }
 }
 
+// ─── CFDI: lo decide y lo timbra la web (lib/cfdi.ts) ────────────────────────
+
+async function solicitarCfdi(transactionId: string): Promise<Record<string, unknown>> {
+  try {
+    const resp = await fetch(`${APP_URL}/api/invoices/auto`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+      },
+      body: JSON.stringify({ transaction_id: transactionId }),
+      signal: AbortSignal.timeout(55_000),
+    })
+    const data = await resp.json().catch(() => ({}))
+    console.log(`[auto-invoice] CFDI ${transactionId}:`, data.ok ? data.uuid_sat : data.code)
+    return data
+  } catch (err) {
+    console.error('[auto-invoice] CFDI error:', err)
+    return { ok: false, code: 'LLAMADA_FALLIDA', error: String(err) }
+  }
+}
+
 // ─── Serve ────────────────────────────────────────────────────────────────────
 
 serve(async (req: Request) => {
@@ -276,6 +297,9 @@ serve(async (req: Request) => {
 
     const hasErrors = Object.keys(errors).length > 0
 
+    // ── 5. CFDI automático ──────────────────────────────────────────────────
+    const cfdi = await solicitarCfdi(record.id)
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -284,6 +308,7 @@ serve(async (req: Request) => {
         recipients,
         emailResults: results,
         emailErrors: hasErrors ? errors : undefined,
+        cfdi,
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     )

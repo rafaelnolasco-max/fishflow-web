@@ -24,6 +24,8 @@ export const SENDERS = {
   fishflow: 'FishFlow <recibos@fishflow.mx>',
   /** Genérico FishFlow — notificaciones automáticas sin respuesta esperada. */
   fishflowNoreply: 'FishFlow <noreply@fishflow.mx>',
+  /** CFDI que emite FishFlow como empresa (lib/cfdi.ts). */
+  fishflowFacturacion: 'FishFlow <facturacion@fishflow.mx>',
 
   /** Mario Citalán — cuestionarios, resultados y newsletter. */
   marioCitalan: 'Mario Citalán <mariocitalan@fishflow.mx>',

@@ -281,6 +281,10 @@ function LukonDashboard() {
         return;
       }
       setInvResult(data);
+      if (data.modo === "test") {
+        showToast("🧪 Factura de PRUEBA timbrada — sin validez fiscal", true);
+        return;
+      }
       // El timbrado y el envío son independientes: la factura puede existir
       // ante el SAT aunque el correo haya fallado. Hay que distinguirlos.
       if (data.email?.enviado) {

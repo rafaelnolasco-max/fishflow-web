@@ -30,14 +30,18 @@ export async function GET(req: NextRequest) {
       .from('pos_transactions')
       .select('id, amount, currency, status, service, provider, external_id, metadata, created_at')
       .eq('client_id', LUKON_CLIENT_ID)
+      // Los cobros de FishFlow a Lukon (admin_panel) no son ventas de Lukon.
+      .or('metadata->>created_from.is.null,metadata->>created_from.neq.admin_panel')
       .order('created_at', { ascending: false })
       .limit(50)
 
     // ── Obtener facturas recientes ─────────────────────────────────────────────
     const { data: invoices } = await supabaseAdmin
       .from('invoices')
-      .select('id, facturapi_id, uuid_sat, status, amount, currency, pdf_url, xml_url, created_at')
+      .select('id, facturapi_id, uuid_sat, status, amount, total, modo, currency, pdf_url, xml_url, created_at')
       .eq('client_id', LUKON_CLIENT_ID)
+      // Solo las que Lukon emite; las que FishFlow le factura a Lukon van aparte.
+      .eq('invoice_layer', 'client')
       .order('created_at', { ascending: false })
       .limit(50)
 

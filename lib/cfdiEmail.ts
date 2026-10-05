@@ -1,9 +1,8 @@
 /**
  * Plantilla del correo con el CFDI (PDF + XML adjuntos).
  *
- * Parametrizada por marca desde el arranque: el pie y los colores NO son de
- * FishFlow. El cliente que recibe la factura es cliente de Lukon, no de
- * FishFlow — el correo tiene que verse de su proveedor.
+ * Parametrizada por marca: el correo se ve del EMISOR (FishFlow, Lukon o el
+ * cliente que sea). `marcaPorClave()` resuelve `invoice_orgs.marca_correo`.
  */
 
 export type MarcaCorreo = {
@@ -25,6 +24,32 @@ export const MARCA_LUKON: MarcaCorreo = {
   acento: '#C8FF3D',
   textoSobreFondo: '#F2EEE6',
   pie: 'Lukon Telemática · Monte Ararat 48, Ecatepec, Estado de México',
+}
+
+/** FishFlow como emisor — paleta oficial (naranja + navy). */
+export const MARCA_FISHFLOW: MarcaCorreo = {
+  nombre: 'FISHFLOW',
+  fondo: '#0D1B2A',
+  acento: '#FF8C35',
+  textoSobreFondo: '#FFFFFF',
+  pie: 'FISHFLOW, S.A.P.I. de C.V. · RFC FIS260702QH6 · Ciudad de México · raf@fishflow.mx',
+}
+
+/**
+ * Marca del correo según `invoice_orgs.marca_correo`. Un emisor nuevo sin
+ * marca propia sale con su nombre en un encabezado neutro — nunca con la de
+ * FishFlow, porque quien recibe la factura es cliente de ese emisor.
+ */
+export function marcaPorClave(clave: string, nombreEmisor = ''): MarcaCorreo {
+  if (clave === 'fishflow') return MARCA_FISHFLOW
+  if (clave === 'lukon') return MARCA_LUKON
+  return {
+    nombre: (nombreEmisor || 'Factura').toUpperCase(),
+    fondo: '#111827',
+    acento: '#9CA3AF',
+    textoSobreFondo: '#FFFFFF',
+    pie: nombreEmisor,
+  }
 }
 
 export type DatosCfdi = {
