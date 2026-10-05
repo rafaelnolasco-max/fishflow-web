@@ -5,7 +5,7 @@
 // Payload: { record: { id, client_id, amount, currency, service, provider, payment_method, metadata } }
 //
 // 1. Envía el recibo de pago (Resend) a payer_email + raf@fishflow.mx.
-// 2. Pide el CFDI a la web: POST {APP_URL}/api/invoices/auto. La web (lib/cfdi.ts)
+// 2. Pide el CFDI a la web: POST CFDI_AUTO_URL (www.fishflow.mx/api/invoices/auto/). La web (lib/cfdi.ts)
 //    decide si aplica — emisor activo con auto_al_pagar y datos fiscales del
 //    receptor — y es la única que conoce las llaves de Facturapi. Si no aplica,
 //    responde con el motivo y aquí solo queda el recibo.
@@ -19,6 +19,9 @@ const RAFA_EMAIL   = 'raf@fishflow.mx'
 const APP_URL      = Deno.env.get('APP_URL') ?? 'https://fishflow.mx'
 const RESEND_URL   = 'https://api.resend.com/emails'
 const FROM_ADDRESS = 'FishFlow <recibos@fishflow.mx>'
+// URL FINAL, sin redirecciones: fishflow.mx → www (cambio de dominio) hace que
+// fetch tire el header Authorization, y Next agrega la diagonal final (308).
+const CFDI_AUTO_URL = 'https://www.fishflow.mx/api/invoices/auto/'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -210,7 +213,7 @@ async function sendReceiptEmails(params: {
 
 async function solicitarCfdi(transactionId: string): Promise<Record<string, unknown>> {
   try {
-    const resp = await fetch(`${APP_URL}/api/invoices/auto`, {
+    const resp = await fetch(CFDI_AUTO_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
