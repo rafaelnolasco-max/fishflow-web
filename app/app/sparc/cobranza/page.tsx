@@ -22,8 +22,9 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import SparcHeader, { SPARC, SparcFonts } from "../_components/SparcHeader";
 import {
-  COLOR, GRUPO, antiguedad, card, compacto, diasAtraso, fechaLarga, grupo, jost, mxn, n, nombre, useTip,
-  type Adeudo, type Grupo,
+  COLOR, GRUPO, antiguedad, card, compacto, diasAtraso, fechaLarga, grupo, jost, mxn, n, nombre,
+  soloActivos, useTip,
+  type Adeudo, type CondoEstado, type Grupo,
 } from "../_components/sparcData";
 
 const { AZUL, AZUL_050, AZUL_900, TINTA, GRIS, LINEA, PAPEL, CLIENT_ID } = SPARC;
@@ -50,11 +51,15 @@ export default function SparcCobranza() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
       setUserEmail(user.email ?? "");
-      const { data, error } = await supabase.from("sparc_delinquencies")
-        .select("snapshot_date,condominio,unidad,saldo,saldo_inicial,vencimiento_mas_antiguo,num_adeudos,con_convenio")
-        .eq("client_id", CLIENT_ID).order("snapshot_date", { ascending: false }).range(0, 999);
-      if (error) setError(error.message);
-      else setFilas((data ?? []) as Adeudo[]);
+      const [a, b] = await Promise.all([
+        supabase.from("sparc_delinquencies")
+          .select("snapshot_date,condominio,unidad,saldo,saldo_inicial,vencimiento_mas_antiguo,num_adeudos,con_convenio")
+          .eq("client_id", CLIENT_ID).order("snapshot_date", { ascending: false }).range(0, 999),
+        supabase.from("sparc_condominios").select("condominio,estado").eq("client_id", CLIENT_ID),
+      ]);
+      if (a.error) setError(a.error.message);
+      /* Solo condominios activos: los que están por confirmar no se cobran. */
+      else setFilas(soloActivos((a.data ?? []) as Adeudo[], b.error ? null : (b.data as CondoEstado[])));
       setLoading(false);
     }
     load();

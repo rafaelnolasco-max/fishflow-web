@@ -5,6 +5,7 @@
  * navegacion entre secciones. Compartido por /app/sparc y /app/sparc/cartera.
  */
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -25,6 +26,7 @@ const SECCIONES = [
   { href: "/app/sparc", label: "Prospectos" },
   { href: "/app/sparc/cartera", label: "Cartera" },
   { href: "/app/sparc/cobranza", label: "Cobranza" },
+  { href: "/app/sparc/por-confirmar", label: "Por confirmar" },
 ];
 
 export function SparcFonts() {
@@ -39,6 +41,14 @@ export function SparcFonts() {
 export default function SparcHeader({ userEmail }: { userEmail: string }) {
   const router = useRouter();
   const pathname = usePathname();
+  /* Aviso de condominios que salieron de Vivook y siguen sin confirmarse. */
+  const [pendientes, setPendientes] = useState(0);
+
+  useEffect(() => {
+    supabase.from("sparc_condominios").select("condominio", { count: "exact", head: true })
+      .eq("client_id", SPARC.CLIENT_ID).eq("estado", "por_confirmar")
+      .then(({ count }) => setPendientes(count ?? 0));
+  }, []);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -54,7 +64,7 @@ export default function SparcHeader({ userEmail }: { userEmail: string }) {
         <nav style={{ display: "flex", gap: 4, flexWrap: "wrap", borderLeft: `1px solid ${SPARC.LINEA}`, paddingLeft: 14 }}>
           {SECCIONES.map((s) => {
             const ruta = (pathname ?? "").replace(/\/$/, "");
-            const seccion = ruta.match(/\/(cartera|cobranza)$/)?.[1] ?? "";
+            const seccion = ruta.match(/\/(cartera|cobranza|por-confirmar)$/)?.[1] ?? "";
             const activo = s.href === "/app/sparc" ? seccion === "" : s.href.endsWith("/" + seccion) && seccion !== "";
             return (
               <Link key={s.href} href={s.href}
@@ -64,6 +74,13 @@ export default function SparcHeader({ userEmail }: { userEmail: string }) {
                   background: activo ? SPARC.AZUL_050 : "transparent",
                   fontWeight: activo ? 600 : 400 }}>
                 {s.label}
+                {s.href.endsWith("/por-confirmar") && pendientes > 0 && (
+                  <span style={{ marginLeft: 7, display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    minWidth: 19, height: 19, padding: "0 5px", borderRadius: 999, background: "#B7791F", color: "#fff",
+                    fontSize: 11.5, fontWeight: 700, fontFamily: "'Inter', system-ui, sans-serif", verticalAlign: "middle" }}>
+                    {pendientes}
+                  </span>
+                )}
               </Link>
             );
           })}

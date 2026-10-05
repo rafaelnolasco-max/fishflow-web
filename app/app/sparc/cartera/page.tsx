@@ -24,8 +24,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import SparcHeader, { SPARC, SparcFonts } from "../_components/SparcHeader";
 import {
-  COLOR, NIVEL, Chip, card, compacto, fechaCorta, fechaLarga, jost, mxn, n, nombre, useTip,
-  type Nivel,
+  COLOR, NIVEL, Chip, card, compacto, fechaCorta, fechaLarga, jost, mxn, n, nombre, soloActivos, useTip,
+  type CondoEstado, type Nivel,
 } from "../_components/sparcData";
 
 const { AZUL, AZUL_900, TINTA, GRIS, LINEA, PAPEL, CLIENT_ID } = SPARC;
@@ -57,6 +57,7 @@ export default function SparcCartera() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [verTabla, setVerTabla] = useState(false);
+  const [pendientes, setPendientes] = useState(0);
   const tip = useTip();
 
   useEffect(() => {
@@ -64,19 +65,26 @@ export default function SparcCartera() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
       setUserEmail(user.email ?? "");
-      const [a, b] = await Promise.all([
+      const [a, b, c] = await Promise.all([
         supabase.from("sparc_portfolio_snapshots")
           .select("snapshot_date,condominio,viviendas,cxc,cxp,bancos,morosidad_pct")
           .eq("client_id", CLIENT_ID).order("snapshot_date", { ascending: false }).range(0, 999),
         supabase.from("sparc_delinquencies")
           .select("snapshot_date,condominio,saldo,saldo_inicial")
           .eq("client_id", CLIENT_ID).order("snapshot_date", { ascending: false }).range(0, 999),
+        supabase.from("sparc_condominios")
+          .select("condominio,estado,visto_hasta,motivo,resuelto_por,resuelto_en")
+          .eq("client_id", CLIENT_ID),
       ]);
       if (a.error || b.error) setError((a.error ?? b.error)!.message);
       else {
-        const filas = (a.data ?? []) as Corte[];
+        /* El consolidado solo cuenta condominios activos; los que están por
+           confirmar viven en /app/sparc/por-confirmar y no mueven ninguna cifra. */
+        const catalogo = (c.error ? null : (c.data as CondoEstado[])) ?? null;
+        const filas = soloActivos((a.data ?? []) as Corte[], catalogo);
+        setPendientes((catalogo ?? []).filter((x) => x.estado === "por_confirmar").length);
         setCortes(filas);
-        setVencidos((b.data ?? []) as Vencido[]);
+        setVencidos(soloActivos((b.data ?? []) as Vencido[], catalogo));
         if (filas.length) setFecha(filas[0].snapshot_date);
       }
       setLoading(false);
@@ -177,6 +185,24 @@ export default function SparcCartera() {
             </label>
           )}
         </div>
+
+        {/* Condominios que salieron de Vivook: fuera de todas las cifras de abajo. */}
+        {!loading && pendientes > 0 && (
+          <div style={{ ...card, display: "flex", gap: 14, alignItems: "center", justifyContent: "space-between",
+            flexWrap: "wrap", borderLeft: `3px solid ${COLOR.vigilar}`, marginBottom: 16, padding: "14px 18px" }}>
+            <div style={{ fontSize: 14.5, lineHeight: 1.6 }}>
+              <strong>{pendientes === 1 ? "Un condominio salió" : `${pendientes} condominios salieron`} de Vivook</strong>{" "}
+              <span style={{ color: GRIS }}>
+                y {pendientes === 1 ? "no está contado" : "no están contados"} en ninguna cifra de esta pantalla.
+              </span>
+            </div>
+            <Link href="/app/sparc/por-confirmar"
+              style={{ textDecoration: "none", color: AZUL, border: `1px solid ${LINEA}`, borderRadius: 9,
+                padding: "8px 14px", fontSize: 14, fontWeight: 600, whiteSpace: "nowrap" }}>
+              Revisar y confirmar
+            </Link>
+          </div>
+        )}
 
         {loading && <p style={{ color: GRIS }}>Cargando cartera…</p>}
         {error && <p style={{ color: COLOR.negativo }}>Error: {error}</p>}

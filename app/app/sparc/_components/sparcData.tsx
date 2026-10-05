@@ -152,3 +152,24 @@ export function antiguedad(dias: number) {
   if (m < 24) return `${m} meses`;
   return `${(dias / 365).toFixed(1).replace(".0", "")} años`;
 }
+
+/* ── Catálogo de condominios (estado de administración) ─────────────── */
+
+export interface CondoEstado {
+  condominio: string;
+  estado: "activo" | "por_confirmar" | "baja";
+  visto_hasta: string | null;
+  motivo: string | null;
+  resuelto_por: string | null;
+  resuelto_en: string | null;
+}
+
+/**
+ * Condominios que sí entran al consolidado. Devuelve null cuando el catálogo
+ * aún no existe o viene vacío, para no esconder cartera por un error de datos.
+ */
+export function soloActivos<T extends { condominio: string }>(filas: T[], catalogo: CondoEstado[] | null) {
+  if (!catalogo || catalogo.length === 0) return filas;
+  const activos = new Set(catalogo.filter((c) => c.estado === "activo").map((c) => c.condominio));
+  return filas.filter((f) => activos.has(f.condominio));
+}
