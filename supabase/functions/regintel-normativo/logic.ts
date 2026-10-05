@@ -274,15 +274,18 @@ export interface Diff {
   sospechosa?: string;          // lectura que no se acepta (se cae medio inventario)
 }
 
-const CODIGO_DOC = /\b([A-Z]{1,3}-[A-Z](?:\.\d+)+-[A-Z]{1,6}-\d{2})\b/;
+// Código de documento ARCSA (IE-B.3.4.2-LF-01). Ojo: suele ir pegado a "_", que \b no separa.
+const CODIGO_DOC = /(?<![A-Za-z0-9])([A-Z]{1,3}-[A-Z](?:\.\d+)+-[A-Z]{1,6}-\d{2})(?![0-9])/;
 const tokens = (s: string) => new Set(norm(s).replace(/\bv\d+(\.\d+)?\b|\b\d{4}\b|\b\d+\b|[^a-z0-9 ]/g, " ").split(" ").filter((t) => t.length > 2));
 export function similitud(a: string, b: string): number {
   const ca = a.match(CODIGO_DOC)?.[1], cb = b.match(CODIGO_DOC)?.[1];
-  if (ca && cb) return ca === cb ? 1 : 0.1;
+  if (ca && cb && ca === cb) return 1;
   const A = tokens(a), B = tokens(b);
   if (!A.size || !B.size) return 0;
   let inter = 0; for (const t of A) if (B.has(t)) inter++;
-  return inter / (A.size + B.size - inter);
+  const j = inter / (A.size + B.size - inter);
+  // Códigos distintos: la autoridad a veces recodifica el mismo documento; se compara por título con castigo.
+  return ca && cb ? j * 0.85 : j;
 }
 
 /**
@@ -304,9 +307,12 @@ export function diffInventario(prev: PrevDoc[] | null, actual: DocInventario[], 
   const bajas = vigentesPrev.filter((p) => !idsActual.has(p.id) && catsActual.has(seccion(p)));
   const reemplazos: { de: string; a: string }[] = [];
   const usados = new Set<string>();
+  // Candidatos a "reemplazado": lo que se cae en esta lectura y lo que ya se había
+  // caído antes (la autoridad a veces quita un documento un día y sube el nuevo al siguiente).
+  const yaCaidos = prev.filter((p) => p.estado === "desaparecido");
   for (const n of nuevos) {
     let mejor: { id: string; s: number } | null = null;
-    for (const b of bajas) {
+    for (const b of [...bajas, ...yaCaidos]) {
       if (usados.has(b.id) || seccion(b) !== seccion(n)) continue;
       const s = similitud(b.titulo ?? "", n.titulo);
       if (s >= umbral && (!mejor || s > mejor.s)) mejor = { id: b.id, s };
@@ -501,4 +507,23 @@ export function ultimaCorridaProgramada(ahora: Date): Date {
     if (c <= ahora && diaCdmx >= 1 && diaCdmx <= 5) return c;
   }
   throw new Error("sin corrida programada en 8 días");
+}
+
+// ─── Revisión retroactiva de inventarios ───────────────────────────────────────
+/**
+ * Cuando una fuente con inventario toma su línea base, lo que ya estaba
+ * publicado no es "nuevo"... salvo que se haya publicado en los últimos días.
+ * Las páginas de ARCSA y COFEPRIS no muestran fecha, pero el servidor sí la da
+ * (Last-Modified del archivo). Sus IDs son consecutivos: basta revisar los más altos.
+ */
+export function candidatosRetro(docs: { id: string }[], n = 40): string[] {
+  return docs.map((d) => d.id).filter((id) => /^\d+$/.test(id)).sort((a, b) => Number(b) - Number(a)).slice(0, n);
+}
+/** Mes de carga según la ruta de WordPress (/uploads/downloads/2026/10/...): respaldo cuando no hay Last-Modified. */
+export function mesDeRuta(url: string): string | null {
+  const m = url.match(/\/uploads\/(?:downloads\/)?(20\d{2})\/(0[1-9]|1[0-2])\//);
+  return m ? `${m[1]}-${m[2]}-01T12:00:00.000Z` : null;
+}
+export function dentroDeVentana(fechaIso: string | null, hoy: string, dias = 30): boolean {
+  return !!fechaIso && diasEntre(fechaIso.slice(0, 10), hoy) <= dias && diasEntre(fechaIso.slice(0, 10), hoy) >= 0;
 }

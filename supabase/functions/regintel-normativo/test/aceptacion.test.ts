@@ -214,3 +214,30 @@ Deno.test("Vigilante: la última corrida programada respeta lun-vie 21:15 CDMX",
   // Lunes 5-oct 09:00 CDMX → viernes 2-oct 21:15 CDMX (03-oct 03:15 UTC), no el fin de semana
   assertEquals(L.ultimaCorridaProgramada(new Date("2026-10-05T15:00:00Z")).toISOString(), "2026-10-03T03:15:00.000Z");
 });
+
+Deno.test("ARCSA: un documento que se cae un día y su versión nueva que sube al siguiente cuentan como REEMPLAZO", () => {
+  const prev = [
+    { id: "14441", titulo: "IE-B.3.4.2-LF-01_BPM Lab. Farma. V5.0", categoria: "BPM", subcategoria: "Instructivos", estado: "desaparecido" },
+    { id: "9000", titulo: "Otro instructivo", categoria: "BPM", subcategoria: "Instructivos", estado: "linea_base" },
+  ];
+  const actual = [
+    { id: "9000", titulo: "Otro instructivo", url: "", categoria: "BPM", subcategoria: "Instructivos" },
+    { id: "16102", titulo: "IE-B.3.4.2-LF-01 Certificación de BPM Laboratorios Farmacéuticos Nacionales", url: "", categoria: "BPM", subcategoria: "Instructivos" },
+  ];
+  assertEquals(L.diffInventario(prev, actual).reemplazos, [{ de: "14441", a: "16102" }]);
+});
+
+Deno.test("Línea base: lo publicado en los últimos 30 días se revisa igual (caso 16080, subido 3 h antes de la línea base)", () => {
+  const b = L.parseArcsaDocumentos(F("arcsa_docs_B.html")).datos;
+  const top = L.candidatosRetro(b, 40);
+  assert(top.includes("16080"), "16080 está entre los IDs más recientes");
+  assertEquals(top.length, 40);
+  assert(L.dentroDeVentana("2026-10-01T16:54:20Z", "2026-10-01"));
+  assert(L.dentroDeVentana("2026-09-25T22:10:07Z", "2026-10-01"));
+  assertFalse(L.dentroDeVentana("2026-07-01T00:00:00Z", "2026-10-01"));
+});
+
+Deno.test("retro: mes de carga desde la ruta de WordPress", () => {
+  assertEquals(L.mesDeRuta("https://www.controlsanitario.gob.ec/wp-content/uploads/downloads/2026/10/IE-B.3.4.2-LF-02.pdf"), "2026-10-01T12:00:00.000Z");
+  assertEquals(L.mesDeRuta("https://x/download.php?id=1"), null);
+});

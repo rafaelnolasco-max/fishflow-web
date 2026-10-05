@@ -96,6 +96,70 @@ async function textoDof(codigo: string, fecha: string | null): Promise<{ texto: 
   return { texto: null, url: fecha ? L.urlNotaDof(codigo, fecha) : L.urlSidof(codigo) };
 }
 
+/** Fecha real de publicación de un documento: el Last-Modified del archivo en el servidor.
+ *  ARCSA entrega el archivo por una redirección de download.php; gob.mx lo sirve directo. */
+async function fechaDoc(url: string): Promise<{ fecha: string | null; nota: string }> {
+  let destino = url;
+  try {
+    if (/download\.php/.test(url)) {
+      const r = await fetch(url, { headers: UA, redirect: "manual", signal: AbortSignal.timeout(55_000) });
+      await r.body?.cancel();
+      destino = r.headers.get("location") ?? url;
+      if (destino === url) return { fecha: null, nota: `sin redirección (${r.status})` };
+    }
+    const r = await fetch(destino, { headers: { ...UA, Range: "bytes=0-0" }, signal: AbortSignal.timeout(25_000) });
+    await r.body?.cancel();
+    const lm = r.headers.get("last-modified");
+    if (lm && r.status < 400) return { fecha: new Date(lm).toISOString(), nota: "last-modified" };
+    const m = L.mesDeRuta(destino);
+    return { fecha: m, nota: m ? `ruta (${r.status})` : `sin fecha (${r.status})` };
+  } catch (e) {
+    const m = destino !== url ? L.mesDeRuta(destino) : null;
+    return { fecha: m, nota: `${m ? "ruta" : "error"}: ${String(e).slice(0, 80)}` };
+  }
+}
+
+/**
+ * Revisión retroactiva de una fuente con inventario: de los documentos que ya
+ * estaban publicados al tomar la línea base, los de los últimos `dias` días se
+ * mandan a clasificar como "revisión inicial". Evita que lo publicado justo
+ * antes de la línea base quede invisible (caso ARCSA 16080, 1-oct-2026).
+ */
+async function retroInventario(sb: SupabaseClient, f: Fuente, corrida: string, ahora: string, docs: L.DocInventario[], dias = 30, desde = 0): Promise<{ revisados: number; recientes: number; candidatos: number; siguiente: number | null; fechas: Record<string, string> }> {
+  const hoy = L.hoyCdmx(new Date(ahora));
+  const porId = new Map(docs.map((d) => [d.id, d]));
+  const todos = L.candidatosRetro(docs, RETRO_MAX);
+  // download.php de ARCSA tarda 13-20 s por documento y desde el edge puede tardar más:
+  // se revisan RETRO_LOTE por invocación (en paralelo) y la fase se encadena a sí misma.
+  const ids = todos.slice(desde, desde + RETRO_LOTE);
+  const res = await Promise.all(ids.map((id) => fechaDoc(porId.get(id)!.url)));
+  const filas: Record<string, unknown>[] = [];
+  const fechas: Record<string, string> = {};
+  let cand = 0, viejos = 0;
+  ids.forEach((id, k) => {
+    const { fecha, nota } = res[k];
+    fechas[id] = `${fecha?.slice(0, 10) ?? "?"} · ${nota}`;
+    if (fecha && !L.dentroDeVentana(fecha, hoy, dias)) viejos++;
+    if (!L.dentroDeVentana(fecha, hoy, dias)) return;
+    const d = porId.get(id)!;
+    const p = L.prefiltroInventario(f.organismo, d);
+    if (p.pasa) cand++;
+    filas.push({
+      client_id: CLIENT_ID, fuente_id: f.id, corrida_id: corrida, organismo: f.organismo,
+      doc_ref: `${f.clave}:${d.id}`, titulo_oficial: d.titulo, url: d.url,
+      dependencia: [d.categoria, d.subcategoria].filter(Boolean).join(" › ") || f.nombre,
+      fecha_publicacion: fecha!.slice(0, 10), decision: p.pasa ? "por_clasificar" : "descartar", etapa: p.pasa ? "clasificador" : "prefiltro",
+      motivo: p.motivo ?? null, verificacion: "resumen_automatico", origen: "revision_inicial",
+      portafolio: L.portafolioDe(`${d.titulo} ${d.categoria ?? ""}`),
+    });
+  });
+  await insertarItems(sb, filas);
+  // Los IDs crecen con la fecha de carga: si todo el lote ya quedó fuera de la ventana, no hay que seguir.
+  const siguiente = desde + RETRO_LOTE < todos.length && viejos < ids.length ? desde + RETRO_LOTE : null;
+  return { revisados: ids.length, recientes: filas.length, candidatos: cand, siguiente, fechas };
+}
+const RETRO_MAX = 40, RETRO_LOTE = 5;
+
 // ─── Base de datos ─────────────────────────────────────────────────────────────
 async function todas<T>(q: () => any): Promise<T[]> {
   const out: T[] = [];
@@ -251,6 +315,7 @@ async function leerInventario(sb: SupabaseClient, f: Fuente, corrida: string, ah
   }
 
   let cand = 0, desc = 0;
+  // Con línea base nueva, la fase "leer" encadena la revisión retroactiva (fase "retro").
   if (!diff.lineaBase && diff.nuevos.length) {
     const { data: inv } = await sb.from("regintel_norm_inventario").select("id,doc_id").eq("fuente_id", f.id).in("doc_id", diff.nuevos.map((n) => n.id));
     const invId = new Map((inv ?? []).map((x) => [x.doc_id, x.id]));
@@ -373,7 +438,7 @@ function correoHallazgos(items: L.ItemAviso[], inicial: boolean): { asunto: stri
   const orden = L.ordenarParaAviso(items);
   const top = orden[0];
   const asunto = inicial
-    ? `Monitor normativo · Revisión inicial: ${items.length} documento(s) dentro de criterios`
+    ? `Monitor normativo · Revisión de 30 días: ${items.length} documento(s) dentro de criterios`
     : `Monitor normativo · ${top.titulo_breve ?? top.titulo_oficial}${items.length > 1 ? ` (+${items.length - 1})` : ""}`;
   const fila = (i: L.ItemAviso) => `
     <tr><td style="padding:14px 0;border-bottom:1px solid #DCE5EC">
@@ -385,7 +450,7 @@ function correoHallazgos(items: L.ItemAviso[], inicial: boolean): { asunto: stri
       ${i.url ? `<div style="margin-top:6px"><a href="${esc(i.url)}" style="font-size:12.5px;color:#12395C">Abrir en la fuente oficial</a></div>` : ""}
     </td></tr>`;
   const primera = inicial
-    ? `Primera corrida del monitor: revisé los últimos 30 días del DOF con los criterios del área. Esto es lo que entra; desde mañana solo verás lo nuevo.`
+    ? `Revisión de los últimos 30 días (${[...new Set(items.filter((i) => i.origen === "revision_inicial").map((i) => i.organismo))].join(", ")}) con los criterios del área. Esto es lo que entra; en adelante solo verás lo nuevo.`
     : `Lo más importante: ${esc(top.titulo_breve ?? top.titulo_oficial)}.`;
   return { asunto, html: `<!DOCTYPE html><html lang="es"><body style="margin:0;background:#F4F7FA;font-family:Inter,system-ui,sans-serif;color:#152430">
   <table width="100%" cellpadding="0" cellspacing="0" style="padding:28px 0"><tr><td align="center">
@@ -480,7 +545,7 @@ async function cerrar(sb: SupabaseClient, corrida: string, ahora: string, enviar
 }
 
 // ─── Servidor ──────────────────────────────────────────────────────────────────
-type Body = { fase?: string; corrida?: string; i?: number; disparo?: "cron" | "manual" | "prueba"; clave?: string; html?: string; saltos?: number; noCorreo?: boolean; prueba?: Record<string, unknown> };
+type Body = { fase?: string; corrida?: string; i?: number; disparo?: "cron" | "manual" | "prueba"; clave?: string; html?: string; saltos?: number; noCorreo?: boolean; prueba?: Record<string, unknown>; dias?: number; desde?: number; sigueLeer?: number };
 
 async function encadenar(token: string, body: Body) {
   const p = fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/regintel-normativo`, {
@@ -536,6 +601,42 @@ Deno.serve(async (req) => {
       return json({ ok: r.ok, resultado: r });
     }
 
+    // Revisión retroactiva de una fuente que ya tiene línea base (recuperar lo publicado justo antes).
+    if (b.fase === "retro") {
+      const f = fuentes.find((x) => x.clave === b.clave);
+      if (!f || f.tipo !== "inventario") return json({ error: "fuente inválida" }, 400);
+      const inv = await todas<{ doc_id: string; titulo: string | null; url: string | null; categoria: string | null; subcategoria: string | null }>(
+        () => sb.from("regintel_norm_inventario").select("doc_id,titulo,url,categoria,subcategoria").eq("fuente_id", f.id).neq("estado", "desaparecido").order("doc_id"));
+      const docs = inv.map((x) => ({ id: x.doc_id, titulo: x.titulo ?? "", url: x.url ?? "", categoria: x.categoria, subcategoria: x.subcategoria }));
+      let corr = b.corrida;
+      if (!corr) {
+        const { data: c } = await sb.from("regintel_norm_corridas").insert({ client_id: CLIENT_ID, disparo: b.disparo ?? "manual", resumen: {} }).select("id").single();
+        corr = c!.id as string;
+      }
+      const desde = b.desde ?? 0;
+      const r = await retroInventario(sb, f, corr, ahora, docs, b.dias ?? 30, desde);
+      // Acumula en el resumen de la corrida (clave "<fuente>:retro").
+      const { data: cr } = await sb.from("regintel_norm_corridas").select("resumen").eq("id", corr).single();
+      const resumen = (cr?.resumen ?? {}) as { fuentes?: Record<string, any> };
+      const k = `${f.clave}:retro`;
+      const prev = resumen.fuentes?.[k] ?? { ok: true, candidatos: 0, descartados: 0, revisados: 0, fechas: {} };
+      resumen.fuentes = { ...(resumen.fuentes ?? {}), [k]: {
+        ok: true, organismo: f.organismo, nombre: `${f.nombre} · revisión inicial`,
+        candidatos: prev.candidatos + r.candidatos, descartados: prev.descartados + r.recientes - r.candidatos,
+        revisados: prev.revisados + r.revisados, fechas: { ...prev.fechas, ...r.fechas },
+      } };
+      await sb.from("regintel_norm_corridas").update({ resumen }).eq("id", corr);
+      const base = { disparo: b.disparo ?? "manual", noCorreo: b.noCorreo, corrida: corr, saltos: saltos + 1 };
+      if (r.siguiente !== null && saltos < 60) {
+        await encadenar(token, { ...base, fase: "retro", clave: f.clave, dias: b.dias, desde: r.siguiente, sigueLeer: b.sigueLeer });
+      } else if (b.sigueLeer !== undefined) {
+        await encadenar(token, { ...base, fase: "leer", i: b.sigueLeer });
+      } else {
+        await encadenar(token, { ...base, fase: "clasificar" });
+      }
+      return json({ ok: true, corrida: corr, ...r });
+    }
+
     if (!b.fase || b.fase === "inicio") {
       const { data: c, error } = await sb.from("regintel_norm_corridas").insert({ client_id: CLIENT_ID, disparo: b.disparo ?? "cron", resumen: {} }).select("id").single();
       if (error) throw new Error(error.message);
@@ -552,6 +653,10 @@ Deno.serve(async (req) => {
         try { r = await leerFuente(sb, f, corrida, ahora); }
         catch (e) { r = { ok: false, error: String(e).slice(0, 300), candidatos: 0, descartados: 0 }; await guardarSalud(sb, f, false, ahora, r.error); }
         await anotar(sb, corrida, f, r);
+        if (r.ok && r.lineaBase && f.tipo === "inventario") {
+          await encadenar(token, { ...b, fase: "retro", clave: f.clave, desde: 0, sigueLeer: i + 1, saltos: saltos + 1 });
+          return json({ ok: true, fuente: f.clave, resultado: r, retro: true });
+        }
         await encadenar(token, { ...b, fase: "leer", i: i + 1, saltos: saltos + 1 });
         return json({ ok: true, fuente: f.clave, resultado: r });
       }
