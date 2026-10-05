@@ -487,7 +487,7 @@ export default function MarioCitalanPanel() {
       for (let from = 0; ; from += PAGE) {
         const { data, error } = await supabase
           .from("leads")
-          .select("id,name,email,phone,problem,ai_response,profile,route,answers,notes,opt_in,newsletter,newsletter_at,newsletter_note,libro_at,source,status,created_at")
+          .select("id,name,email,phone,problem,ai_response,profile,route,answers,notes,opt_in,newsletter,newsletter_at,newsletter_note,libro_at,source,status,created_at,reply_draft,reply_sent_at,reply_sent_via")
           .eq("client_id", CRITERIO_CLIENT_ID)
           .order("created_at", { ascending: false })
           .range(from, from + PAGE - 1);
@@ -589,6 +589,12 @@ export default function MarioCitalanPanel() {
     if (error) { console.error(error); flash("No se pudo actualizar: " + error.message); return; }
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
     setDetail((d) => (d && d.id === id ? { ...d, status } : d));
+  }
+
+  /** Cambios locales a un lead (lo que ya se guardó en el servidor). */
+  function patchLead(id: string, patch: Partial<CriterioLead>) {
+    setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+    setDetail((d) => (d && d.id === id ? { ...d, ...patch } : d));
   }
 
   // Suscripción al newsletter: la marca Mario después de preguntarle a la persona.
@@ -784,6 +790,26 @@ export default function MarioCitalanPanel() {
     () => solicitudes.filter((l) => (l.status || "nuevo") === "nuevo").length,
     [solicitudes]
   );
+
+  // Al abrir la pestaña, las solicitudes nuevas sin borrador se redactan solas
+  // (una por una, para no saturar). Las que llegan del sitio ya traen el suyo.
+  const [autoDraft, setAutoDraft] = useState<string | null>(null);
+  const autoIntentadas = React.useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (tab !== "solicitudes" || autoDraft) return;
+    const sig = solicitudes.find((l) =>
+      (l.status || "nuevo") === "nuevo" && !l.reply_draft && !autoIntentadas.current.has(l.id));
+    if (!sig) return;
+    autoIntentadas.current.add(sig.id);
+    setAutoDraft(sig.id);
+    fetch("/api/mario/solicitud/draft", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadId: sig.id }),
+    })
+      .then((r) => r.json().catch(() => ({})).then((j) => (r.ok && j.draft ? patchLead(sig.id, { reply_draft: j.draft }) : null)))
+      .catch(() => null)
+      .finally(() => setAutoDraft(null));
+  }, [tab, solicitudes, autoDraft]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const stats = useMemo(() => {
     const desde = periodo === "todo" ? null : daysAgo(Number(periodo));
@@ -1173,6 +1199,13 @@ export default function MarioCitalanPanel() {
                                 ))}
                               </div>
                             )}
+                            <RespuestaSugerida
+                              lead={l}
+                              onPatch={(patch) => patchLead(l.id, patch)}
+                              onStatus={(st) => changeStatus(l.id, st)}
+                              flash={flash}
+                              generandoAuto={autoDraft === l.id}
+                            />
                           </div>
 
                           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -2061,6 +2094,223 @@ export default function MarioCitalanPanel() {
       })()}
 
       <Toast msg={toast} theme={T} />
+    </div>
+  );
+}
+
+// ─── Respuesta sugerida (pestaña Solicitudes) ──────────────────────────────────
+// La IA propone con la voz de Mario (lib/marioRespuesta.ts); Mario revisa,
+// edita y decide por dónde sale. Nada se envía solo.
+
+const CLASIF_META: Record<string, { label: string; bg: string; fg: string; borde: string }> = {
+  normal: { label: "Respuesta sugerida", bg: "#F7FAFD", fg: C.blueDark, borde: C.border },
+  crisis: { label: "Atención prioritaria", bg: "#FDF1F1", fg: "#B42318", borde: "#F3C4C4" },
+  spam:   { label: "Parece spam", bg: "#F6F7F8", fg: "#5D7080", borde: C.border },
+};
+
+function RespuestaSugerida({
+  lead, onPatch, onStatus, flash, generandoAuto,
+}: {
+  lead: CriterioLead;
+  onPatch: (patch: Partial<CriterioLead>) => void;
+  onStatus: (status: string) => void;
+  flash: (msg: string) => void;
+  generandoAuto: boolean;
+}) {
+  const d = lead.reply_draft ?? null;
+  const respondida = !!lead.reply_sent_at;
+  const [abierto, setAbierto] = useState(!respondida && (lead.status || "nuevo") === "nuevo");
+  const [canal, setCanal] = useState<"email" | "whatsapp">("email");
+  const [asunto, setAsunto] = useState(d?.asunto ?? "");
+  const [correo, setCorreo] = useState(d?.correo ?? "");
+  const [wa, setWa] = useState(d?.whatsapp ?? "");
+  const [generando, setGenerando] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [confirmar, setConfirmar] = useState(false);
+  const [verSpam, setVerSpam] = useState(false);
+
+  // Si llega un borrador nuevo (regenerado o auto), se cargan sus textos.
+  useEffect(() => {
+    setAsunto(d?.asunto ?? "");
+    setCorreo(d?.correo ?? "");
+    setWa(d?.whatsapp ?? "");
+    setConfirmar(false);
+  }, [d?.generado_at]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function generar() {
+    setGenerando(true);
+    try {
+      const r = await fetch("/api/mario/solicitud/draft", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: lead.id }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { flash(j.error || "No se pudo generar"); return; }
+      onPatch({ reply_draft: j.draft });
+      setAbierto(true);
+    } finally { setGenerando(false); }
+  }
+
+  async function enviarCorreo() {
+    if (!confirmar) { setConfirmar(true); return; }
+    setEnviando(true);
+    try {
+      const r = await fetch("/api/mario/solicitud/reply", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: lead.id, asunto, cuerpo: correo }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { flash(j.error || "No se pudo enviar"); setConfirmar(false); return; }
+      onPatch({
+        reply_sent_at: j.sent_at, reply_sent_via: "email", status: j.status,
+        reply_draft: d ? { ...d, enviado: { via: "email", asunto, texto: correo, at: j.sent_at } } : d,
+      });
+      setAbierto(false);
+      flash(`Correo enviado a ${lead.email}`);
+    } finally { setEnviando(false); setConfirmar(false); }
+  }
+
+  async function abrirWhatsApp() {
+    if (!lead.phone) return;
+    window.open(`${waLink(lead.phone)}?text=${encodeURIComponent(wa)}`, "_blank", "noopener,noreferrer");
+    const at = new Date().toISOString();
+    const status = (lead.status || "nuevo") === "nuevo" ? "contactado" : lead.status;
+    const reply_draft = d ? { ...d, enviado: { via: "whatsapp", texto: wa, at } } : d;
+    const { error } = await supabase.from("leads")
+      .update({ reply_sent_at: at, reply_sent_via: "whatsapp", status, reply_draft })
+      .eq("id", lead.id);
+    if (error) { console.error(error); flash("Se abrió WhatsApp, pero no se pudo marcar como respondida"); return; }
+    onPatch({ reply_sent_at: at, reply_sent_via: "whatsapp", status, reply_draft });
+    setAbierto(false);
+  }
+
+  const btn = (bg: string, fg = "#fff"): React.CSSProperties => ({
+    fontSize: 12.5, color: fg, background: bg, border: "none", borderRadius: 8,
+    padding: "8px 14px", fontWeight: 600, cursor: "pointer",
+  });
+  const linkBtn: React.CSSProperties = {
+    background: "none", border: "none", padding: 0, fontSize: 12.5, color: C.blueDark,
+    cursor: "pointer", textDecoration: "underline",
+  };
+
+  // Ya respondida: una línea con el resumen y opción de ver lo que se mandó.
+  if (respondida && !abierto) {
+    return (
+      <div style={{ marginTop: 10, fontSize: 12.5, color: C.muted, display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <span>✓ Respondida por {lead.reply_sent_via === "whatsapp" ? "WhatsApp" : "correo"} · {fmtDateTime(lead.reply_sent_at!)}</span>
+        {d?.enviado && <button style={linkBtn} onClick={() => setAbierto(true)}>Ver lo que se envió</button>}
+      </div>
+    );
+  }
+  if (respondida && abierto && d?.enviado) {
+    return (
+      <div style={{ marginTop: 10, background: C.bg, borderRadius: 8, padding: "10px 12px", fontSize: 13.5 }}>
+        <div style={{ ...eyebrowStyle, marginBottom: 6 }}>Enviado por {d.enviado.via === "whatsapp" ? "WhatsApp" : "correo"}</div>
+        {d.enviado.asunto && <div style={{ fontWeight: 600, marginBottom: 6 }}>{d.enviado.asunto}</div>}
+        <div style={{ whiteSpace: "pre-wrap", color: C.ink2 }}>{d.enviado.texto}</div>
+        <button style={{ ...linkBtn, marginTop: 8 }} onClick={() => setAbierto(false)}>Cerrar</button>
+      </div>
+    );
+  }
+
+  if (!d) {
+    return (
+      <div style={{ marginTop: 10 }}>
+        <button style={btn(C.steel)} onClick={generar} disabled={generando || generandoAuto}>
+          {generando || generandoAuto ? "Escribiendo respuesta…" : "✨ Sugerir respuesta"}
+        </button>
+      </div>
+    );
+  }
+
+  if (!abierto) {
+    return (
+      <div style={{ marginTop: 10 }}>
+        <button style={linkBtn} onClick={() => setAbierto(true)}>
+          {d.clasificacion === "crisis" ? "⚠ Ver respuesta sugerida (atención prioritaria)" : "Ver respuesta sugerida"}
+        </button>
+      </div>
+    );
+  }
+
+  const meta = CLASIF_META[d.clasificacion] ?? CLASIF_META.normal;
+
+  if (d.clasificacion === "spam" && !verSpam) {
+    return (
+      <div style={{ marginTop: 10, background: meta.bg, border: `1px solid ${meta.borde}`, borderRadius: 8, padding: "10px 12px" }}>
+        <div style={{ fontSize: 13.5, color: meta.fg, fontWeight: 600 }}>{meta.label}</div>
+        {d.motivo && <div style={{ fontSize: 13, color: C.muted, marginTop: 3 }}>{d.motivo}</div>}
+        <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
+          {(lead.status || "nuevo") !== "descartado" && (
+            <button style={btn(C.gray)} onClick={() => onStatus("descartado")}>Descartar</button>
+          )}
+          <button style={linkBtn} onClick={() => setVerSpam(true)}>No es spam, escribir respuesta</button>
+        </div>
+      </div>
+    );
+  }
+
+  const texto = canal === "email" ? correo : wa;
+  const filas = Math.min(14, Math.max(5, Math.ceil(texto.length / 70) + texto.split("\n").length));
+
+  return (
+    <div style={{ marginTop: 12, background: meta.bg, border: `1px solid ${meta.borde}`, borderRadius: 10, padding: "12px 14px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ ...eyebrowStyle, color: meta.fg, margin: 0 }}>{meta.label}</div>
+        <div style={{ display: "flex", gap: 4, background: C.white, borderRadius: 8, padding: 3, border: `1px solid ${C.border}` }}>
+          {(["email", "whatsapp"] as const).map((c) => (
+            <button key={c} onClick={() => { setCanal(c); setConfirmar(false); }}
+              disabled={c === "whatsapp" && !lead.phone}
+              style={{ border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 12, cursor: "pointer",
+                background: canal === c ? C.blueDark : "transparent", color: canal === c ? "#fff" : C.ink2,
+                opacity: c === "whatsapp" && !lead.phone ? 0.4 : 1 }}>
+              {c === "email" ? "Correo" : "WhatsApp"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {d.clasificacion === "crisis" && (
+        <div style={{ fontSize: 13.5, color: meta.fg, marginTop: 8, lineHeight: 1.5 }}>
+          {d.motivo || "La persona describe una situación de crisis."} <strong>Lo recomendable es llamarle hoy</strong>
+          {lead.phone && <> — <a href={`tel:${lead.phone.replace(/[^\d+]/g, "")}`} style={{ color: meta.fg, fontWeight: 600 }}>{lead.phone}</a></>}.
+          {" "}El mensaje de abajo es solo para pedirle un horario.
+        </div>
+      )}
+
+      {canal === "email" && (
+        <input value={asunto} onChange={(e) => { setAsunto(e.target.value); setConfirmar(false); }}
+          placeholder="Asunto" style={{ ...inputStyle, marginTop: 10, fontWeight: 600 }} />
+      )}
+      <textarea
+        value={texto}
+        onChange={(e) => { (canal === "email" ? setCorreo : setWa)(e.target.value); setConfirmar(false); }}
+        rows={filas}
+        style={{ ...inputStyle, marginTop: 8, lineHeight: 1.55, resize: "vertical", fontFamily: FONT_BODY }}
+      />
+      {canal === "email" && (
+        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>
+          Sale con tu firma y tu marca desde mariocitalan@fishflow.mx. Si responde, te llega a tu Gmail.
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
+        {canal === "email" ? (
+          <button style={btn(confirmar ? "#B42318" : C.blueDark)} onClick={enviarCorreo}
+            disabled={enviando || !asunto.trim() || correo.trim().length < 10}>
+            {enviando ? "Enviando…" : confirmar ? `Confirmar envío a ${lead.email}` : "Enviar correo"}
+          </button>
+        ) : (
+          <button style={btn("#25D366")} onClick={abrirWhatsApp} disabled={!lead.phone || wa.trim().length < 5}>
+            Abrir en WhatsApp
+          </button>
+        )}
+        {confirmar && <button style={linkBtn} onClick={() => setConfirmar(false)}>Cancelar</button>}
+        <button style={{ ...btn(C.white, C.blueDark), border: `1px solid ${C.border}` }} onClick={generar} disabled={generando}>
+          {generando ? "Reescribiendo…" : "Regenerar"}
+        </button>
+        <button style={linkBtn} onClick={() => setAbierto(false)}>Ocultar</button>
+      </div>
     </div>
   );
 }

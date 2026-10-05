@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { CRITERIO_CLIENT_ID } from '@/lib/supabase'
 import { SENDERS, getResend } from '@/lib/email'
 import { emailUI, escHtml } from '@/lib/emailLayout'
 import { revisarAntibot, logDescarte } from '@/lib/antibot'
+import { sugerirRespuesta } from '@/lib/marioRespuesta'
 
 export const runtime = 'nodejs'
 
@@ -156,7 +157,7 @@ export async function POST(req: Request) {
     // A diferencia del newsletter, aquí SIEMPRE se inserta fila nueva aunque el
     // correo ya exista: dos solicitudes de la misma persona en momentos
     // distintos son dos asuntos que atender, no un duplicado.
-    const { error: insErr } = await supabase.from('leads').insert({
+    const { data: insertado, error: insErr } = await supabase.from('leads').insert({
       name: nombre,
       email,
       phone: tel || null,
@@ -167,8 +168,8 @@ export async function POST(req: Request) {
       status: 'nuevo',
       source: origen,
       client_id: CRITERIO_CLIENT_ID,
-    })
-    if (insErr) {
+    }).select('id,name,source,answers,created_at').single()
+    if (insErr || !insertado) {
       console.error('[mario/solicitud] insert error:', insErr)
       return NextResponse.json({ error: 'No se pudo registrar la solicitud.' }, { status: 500, headers: CORS_HEADERS })
     }
@@ -198,6 +199,38 @@ export async function POST(req: Request) {
     } else {
       console.error('[mario/solicitud] RESEND_API_KEY no configurada')
     }
+
+    // Respuesta sugerida, en segundo plano para no hacer esperar al formulario.
+    // Si la IA la clasifica como crisis, Mario y Rafa reciben un aviso aparte:
+    // esa solicitud no puede quedarse esperando en el panel.
+    after(async () => {
+      try {
+        const draft = await sugerirRespuesta(insertado)
+        await supabase.from('leads').update({ reply_draft: draft }).eq('id', insertado.id)
+        if (draft.clasificacion === 'crisis' && resend) {
+          const ui = emailUI('mario')
+          await resend.emails.send({
+            from: SENDERS.fishflow,
+            to: AVISO_A,
+            replyTo: email,
+            subject: `Atención prioritaria — ${nombre}`,
+            html: ui.layout({
+              audiencia: 'interno',
+              preheader: 'Esta solicitud parece una situación de crisis.',
+              etiqueta: servicio,
+              titulo: 'Esta solicitud necesita respuesta hoy',
+              cuerpo:
+                ui.bloque(ui.p(escHtml(draft.motivo || 'La persona describe una situación de crisis.')), 'aviso') +
+                ui.tabla([['Nombre', nombre], ['Correo', email], ['Teléfono', tel]]) +
+                ui.p('Recomendación: llamarle personalmente. En el panel hay un mensaje breve sugerido.') +
+                ui.botones([{ texto: 'Ver en el panel', href: 'https://www.fishflow.mx/app/mariocitalan' }]),
+            }),
+          })
+        }
+      } catch (e) {
+        console.error('[mario/solicitud] borrador IA:', e instanceof Error ? e.message : e)
+      }
+    })
 
     return NextResponse.json({ ok: true }, { headers: CORS_HEADERS })
   } catch (err: unknown) {

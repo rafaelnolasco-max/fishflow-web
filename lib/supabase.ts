@@ -603,6 +603,20 @@ export interface CriterioLead {
   source:      string | null;
   status:      string | null;
   created_at:  string;
+  /** Respuesta sugerida por IA a una solicitud de servicio (lib/marioRespuesta.ts). */
+  reply_draft?:    RespuestaSugeridaLead | null;
+  reply_sent_at?:  string | null;
+  reply_sent_via?: string | null;
+}
+
+export type RespuestaSugeridaLead = {
+  clasificacion: "normal" | "crisis" | "spam";
+  motivo: string;
+  asunto: string;
+  correo: string;
+  whatsapp: string;
+  generado_at: string;
+  enviado?: { via: string; asunto?: string; texto: string; at: string };
 }
 
 // ─── Enlace Integral Seguros ───────────────────────────────────────────────────
