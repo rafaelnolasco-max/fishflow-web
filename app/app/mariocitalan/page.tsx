@@ -782,10 +782,24 @@ export default function MarioCitalanPanel() {
   // ─── Solicitudes de servicio ─────────────────────────────────────────────────
   // Sin agrupar por persona: dos solicitudes del mismo correo en momentos
   // distintos son dos asuntos que atender, no un duplicado.
-  const solicitudes = useMemo(
-    () => leads.filter((l) => FUENTES_SOLICITUD.has(l.source || "")),
-    [leads]
-  );
+  // Orden por urgencia, no solo por fecha:
+  //   0. crisis sin responder  1. nuevas  2. ya en proceso  3. spam / descartadas
+  // Dentro de cada grupo, la más reciente primero (el orden de `leads`).
+  const solicitudes = useMemo(() => {
+    const rango = (l: CriterioLead) => {
+      const st = l.status || "nuevo";
+      const c = l.reply_draft?.clasificacion;
+      if (st === "descartado" || c === "spam") return 3;
+      if (c === "crisis" && !l.reply_sent_at) return 0;
+      if (st === "nuevo") return 1;
+      return 2;
+    };
+    return leads
+      .filter((l) => FUENTES_SOLICITUD.has(l.source || ""))
+      .map((l, i) => ({ l, i, r: rango(l) }))
+      .sort((a, b) => a.r - b.r || a.i - b.i)
+      .map((x) => x.l);
+  }, [leads]);
   const solicitudesAbiertas = useMemo(
     () => solicitudes.filter((l) => (l.status || "nuevo") === "nuevo").length,
     [solicitudes]
@@ -1177,8 +1191,11 @@ export default function MarioCitalanPanel() {
                     return (
                       <div key={l.id} style={{ ...cardStyle,
                         // Lo nuevo se distingue de un vistazo sin tener que leer el chip.
-                        borderLeft: (l.status || "nuevo") === "nuevo"
-                          ? `3px solid ${C.blueDark}` : `3px solid transparent` }}>
+                        // Crisis sin responder: rojo. Nueva: azul.
+                        borderLeft: l.reply_draft?.clasificacion === "crisis" && !l.reply_sent_at
+                          ? "3px solid #B42318"
+                          : (l.status || "nuevo") === "nuevo"
+                            ? `3px solid ${C.blueDark}` : `3px solid transparent` }}>
                         <div style={{ display: "flex", gap: 12, alignItems: "flex-start",
                           justifyContent: "space-between", flexWrap: "wrap" }}>
                           <div style={{ minWidth: 220, flex: 1 }}>
@@ -1186,6 +1203,9 @@ export default function MarioCitalanPanel() {
                               <span style={{ fontWeight: 600 }}>{l.name}</span>
                               <Chip label={meta.corto} bg={meta.bg} fg={meta.fg} />
                               <Chip label={sm.label} bg={sm.bg} fg={sm.fg} />
+                              {l.reply_draft?.clasificacion === "crisis" && !l.reply_sent_at && (
+                                <Chip label="⚠ Atención prioritaria" bg="#FDF1F1" fg="#B42318" />
+                              )}
                             </div>
                             <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4 }}>
                               {l.email}{l.phone ? ` · ${l.phone}` : ""} · {fmtDateTime(l.created_at)}
