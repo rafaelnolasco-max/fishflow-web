@@ -2,7 +2,8 @@
 -- notify_auto_invoice(): la service role key estaba escrita en el cuerpo de la
 -- función (visible para cualquiera que lea pg_proc). Ahora se lee de Vault.
 --
--- PRERREQUISITO (una vez, fuera del repo — el secreto NUNCA va en git):
+-- PRERREQUISITO (hecho el 5-oct-2026, leyendo la llave del cuerpo viejo de la
+-- función para que no pasara por ningún chat ni archivo). Para recrearlo:
 --   select vault.create_secret('<service_role_key>', 'auto_invoice_service_key',
 --          'Bearer para que notify_auto_invoice llame a la Edge Function auto-invoice');
 --

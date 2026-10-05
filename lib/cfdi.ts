@@ -308,6 +308,7 @@ export async function emitirCfdi(args: EmitirArgs): Promise<ResultadoCfdi> {
         .from('invoices')
         .select('id')
         .eq('transaction_id', args.transactionId!)
+        .not('emisor_org_id', 'is', null)
         .in('status', ['pending', 'valid'])
         .maybeSingle()
       return falla('YA_FACTURADA', 'Este pago ya tiene factura', 409, { invoice_id: previa?.id })
@@ -617,6 +618,18 @@ export async function facturarTransaccion(
   if (t.status !== 'paid') return falla('TRANSACCION_NO_PAGADA', 'El pago aún no está confirmado', 409)
   if ((t.currency ?? 'MXN').toUpperCase() !== 'MXN') {
     return falla('DATOS_INVALIDOS', 'Solo se factura en MXN', 400)
+  }
+
+  // Facturas de antes del motor (sin emisor_org_id) no entran al índice único
+  // —hay duplicados históricos de mayo-2026— pero sí cuentan como facturado.
+  const { data: previa } = await admin()
+    .from('invoices')
+    .select('id')
+    .eq('transaction_id', t.id)
+    .in('status', ['pending', 'valid'])
+    .limit(1)
+  if (previa?.length) {
+    return falla('YA_FACTURADA', 'Este pago ya tiene factura', 409, { invoice_id: previa[0].id })
   }
 
   const { emisorClientId, receptorClientId } = resolverPartes(t)

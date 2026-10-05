@@ -14,6 +14,9 @@
 --   5. Alta de los emisores FishFlow (datos de su constancia) y Lukon, inactivos.
 --   (La service key de notify_auto_invoice() se mueve a Vault en la migración
 --    20261005130100, sin escribir el secreto en el repo.)
+--
+-- Aplicada en producción el 5-oct-2026 en 5 tramos (cfdi_motor_final_1..5) porque
+-- el conector MCP se cae con payloads largos. El contenido es este archivo.
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- 1. invoice_orgs ─────────────────────────────────────────────────────────────
@@ -62,9 +65,12 @@ comment on column public.invoices.amount is
 
 -- Un pago se timbra una sola vez. 'pending' es el candado que se toma ANTES de
 -- llamar a Facturapi: si dos disparos llegan juntos, el segundo choca aquí.
+-- Solo facturas del motor nuevo (emisor_org_id): las de mayo-2026 tienen
+-- duplicados históricos del recibo sin candado y se conservan como están
+-- (lib/cfdi.ts igual las cuenta como "ya facturado").
 create unique index if not exists invoices_una_por_transaccion
   on public.invoices (transaction_id)
-  where transaction_id is not null and status in ('pending','valid');
+  where transaction_id is not null and emisor_org_id is not null and status in ('pending','valid');
 
 create index if not exists idx_invoices_emisor_org on public.invoices (emisor_org_id);
 
@@ -118,7 +124,7 @@ update public.clients
    set rfc            = 'FIS260702QH6',
        razon_social   = 'FISHFLOW',
        regimen_fiscal = '601',
-       cp           = '08840'
+       cp             = '08840'
  where id = 'b0d1a4f6-3c58-4a7e-9d21-7fe6c0a13b42';
 
 insert into public.invoice_orgs
