@@ -347,11 +347,21 @@ table.t td.m{font-family:var(--f-mono);}
 .seg button{border:0;background:transparent;color:var(--muted);padding:7px 12px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;}
 .seg button.on{background:var(--text);color:var(--bg);}
 .priv{font-size:11.5px;color:var(--muted);margin-top:10px;}
+.coachbar{background:linear-gradient(90deg,#FF4D2E,#B8239A);color:#fff;font-size:13px;font-weight:600;text-align:center;padding:8px 14px;display:none;}
+.coachbar.on{display:block;}
+.coach-ok{font-size:12.5px;margin:-6px 0 12px;min-height:1em;}
+.coach-ok.y{color:#117A43;} .coach-ok.n{color:#C4252F;}
+.rank td.n{font-family:var(--f-display);color:var(--accent);width:28px;}
+.rank .barc{height:6px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden;min-width:80px;}
+.rank .barc i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));}
+.lnk{background:none;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer;}
 </style>
 </head>
 <body>
 
 <div class="demo-band no-print">Demo para revisión de Alan y Rodrigo · fotos y video de muestra · el pago está en modo prueba, no se cobra nada</div>
+
+<div class="coachbar" id="coachbar"></div>
 
 <!-- NAV -->
 <header class="nav">
@@ -647,15 +657,29 @@ table.t td.m{font-family:var(--f-mono);}
 
     <div class="box">
       <div class="tbar">
+        <h3 style="margin:0">Ventas por coach</h3>
+        <span style="font-size:12.5px;color:var(--muted)">Cada coach comparte su liga o su código. La compra queda ligada a él.</span>
+      </div>
+      <div class="ff-tablewrap" style="--ff-tablemin:720px">
+        <table class="t rank">
+          <thead><tr><th>#</th><th>Coach</th><th>Código</th><th>Boletos</th><th></th><th>Venta</th><th>Su liga</th></tr></thead>
+          <tbody id="coachRows"></tbody>
+        </table>
+      </div>
+      <p class="priv" id="coachNote"></p>
+    </div>
+
+    <div class="box">
+      <div class="tbar">
         <h3 style="margin:0">Asistentes</h3>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <input id="q" placeholder="Buscar nombre, correo o folio">
           <button class="btn btn--ghost btn--sm" id="csvBtn">Exportar a Excel (CSV)</button>
         </div>
       </div>
-      <div class="ff-tablewrap" style="--ff-tablemin:820px">
+      <div class="ff-tablewrap" style="--ff-tablemin:900px">
         <table class="t">
-          <thead><tr><th>Folio</th><th>Asistente</th><th>Comprador</th><th>Tipo</th><th>Pago</th><th>Monto</th><th>Fecha</th><th>Acceso</th></tr></thead>
+          <thead><tr><th>Folio</th><th>Asistente</th><th>Comprador</th><th>Tipo</th><th>Coach</th><th>Pago</th><th>Monto</th><th>Fecha</th><th>Acceso</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -712,6 +736,9 @@ const TYPES = {
   ymca:    { label: "Usuario YMCA",     short: "Usuario YMCA", price: 500 }
 };
 const STORE_KEY = "ff_vibramx_v1";
+// 15 coaches: nombres y códigos de muestra hasta que la organización mande los reales
+const COACHES = Array.from({length:15}, (_,i) => ({ code: "COACH" + String(i+1).padStart(2,"0"), name: "Coach " + (i+1) }));
+const coachBy = c => COACHES.find(x => x.code === String(c||"").trim().toUpperCase()) || null;
 const fmt = n => "$" + Math.round(n).toLocaleString("es-MX");
 
 /* ---------------- Datos de ejemplo (deterministas) ---------------- */
@@ -728,12 +755,13 @@ function seedTickets(){
     const ts = now - daysAgo*864e5 - Math.floor(r()*864e5*.6);
     const roll = r(); const pay = roll < .68 ? "tarjeta" : (roll < .86 ? "saldo" : "oxxo");
     const type = r() < .3 ? "ymca" : "general";
+    const coach = r() < .62 ? COACHES[Math.min(14, Math.floor(Math.pow(r(),1.7)*15))].code : "";
     const order = "ORD-" + String(500+n);
     for (let i=0;i<qty && out.length<SEED_N;i++){
       const att = i===0 ? buyer : NOMBRES[Math.floor(r()*NOMBRES.length)] + " " + APELL[Math.floor(r()*APELL.length)];
       out.push({ folio: "VMX-" + String(out.length+1).padStart(4,"0"), order, buyer, attendee: att,
         email: buyer.split(" ")[0].toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"") + n + "@correo.com",
-        type, pay, price: TYPES[type].price, ts, demo: true });
+        type, coach, pay, price: TYPES[type].price, ts, demo: true });
     }
     n++;
   }
@@ -791,11 +819,15 @@ function renderCupo(){
 }
 
 /* ---------------- Checkout ---------------- */
-const ck = { step:1, type:"general", qty:1, name:"", email:"", phone:"", socio:"", attendees:[], pay:"tarjeta" };
+const ck = { step:1, type:"general", qty:1, name:"", email:"", phone:"", socio:"", coach:"", attendees:[], pay:"tarjeta" };
+// Liga del coach: ?c=COACH03 (también acepta ?coach=)
+let refCoach = "";
+try { const u = new URLSearchParams(location.search); const c = coachBy(u.get("c") || u.get("coach")); if (c) refCoach = c.code; } catch(e){}
 function openCheckout(type){
   if (left() <= 0){ toast("Boletos agotados"); return; }
   closeMenu();
   Object.assign(ck, {step:1, qty:1, attendees:[], pay:"tarjeta", type: TYPES[type] ? type : "general"});
+  if (!ck.coach && refCoach) ck.coach = refCoach;
   drawSheet(); $("#sheetBg").classList.add("on"); document.body.style.overflow = "hidden";
 }
 function closeCheckout(){ $("#sheetBg").classList.remove("on"); document.body.style.overflow = ""; }
@@ -825,6 +857,8 @@ function drawSheet(){
       '<label class="fld"><span>Correo (ahí llega tu boleto)</span><input id="fEmail" type="email" value="'+esc(ck.email)+'" autocomplete="email"></label>'+
       '<label class="fld"><span>WhatsApp</span><input id="fPhone" type="tel" value="'+esc(ck.phone)+'" inputmode="tel" placeholder="10 dígitos"></label>'+
       (ck.type==="ymca" ? '<label class="fld"><span>Número de usuario YMCA</span><input id="fSocio" value="'+esc(ck.socio)+'" placeholder="Como aparece en tu credencial"></label><div class="note-ymca">Cada asistente con precio YMCA presenta su credencial vigente en la entrada.</div>' : '')+
+      '<label class="fld"><span>Código de tu coach (opcional)</span><input id="fCoach" value="'+esc(ck.coach)+'" placeholder="Ej. COACH03" style="text-transform:uppercase"></label>'+
+      '<div class="coach-ok '+(ck.coach ? (coachBy(ck.coach)?"y":"n") : "")+'" id="coachOk">'+(ck.coach ? (coachBy(ck.coach) ? "✓ Tu compra cuenta para "+esc(coachBy(ck.coach).name) : "Ese código no existe. Revísalo o déjalo vacío.") : "")+'</div>'+
       (ck.qty>1 ? '<div class="att"><div class="h">Nombre de cada persona (cada quien recibe su QR)</div>'+atts+'</div>' : '')+
       '<div class="err" id="err"></div>'+
       '<button class="btn btn--primary btn--block" data-next>Continuar · '+fmt(total())+'</button>';
@@ -870,6 +904,7 @@ function readStep1(){
   if (v("fEmail") !== null) ck.email = v("fEmail");
   if (v("fPhone") !== null) ck.phone = v("fPhone");
   if (v("fSocio") !== null) ck.socio = v("fSocio");
+  if (v("fCoach") !== null) ck.coach = v("fCoach").toUpperCase();
   $$("[data-att]").forEach(i => { ck.attendees[+i.dataset.att] = i.value.trim(); });
 }
 function validStep1(){
@@ -877,6 +912,7 @@ function validStep1(){
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ck.email)) return "Revisa tu correo: ahí te llega el boleto.";
   if (ck.phone.replace(/\D/g,"").length < 10) return "Escribe tu WhatsApp a 10 dígitos.";
   if (ck.type==="ymca" && ck.socio.length < 3) return "Escribe tu número de usuario YMCA.";
+  if (ck.coach && !coachBy(ck.coach)) return "El código de coach no existe. Revísalo o déjalo vacío.";
   for (let i=1;i<ck.qty;i++) if (!(ck.attendees[i]||"").trim()) return "Falta el nombre de la persona " + (i+1) + ".";
   return "";
 }
@@ -886,7 +922,7 @@ function completePurchase(){
   const order = "ORD-" + String(900 + mine.length + 1), ts = Date.now(); let n = 0;
   for (let i=0;i<ck.qty;i++){
     mine.push({ folio: nextFolio(), order, buyer: ck.name, attendee: i===0 ? ck.name : ck.attendees[i], email: ck.email, phone: ck.phone,
-      type: ck.type, socio: ck.type==="ymca" ? ck.socio : "", pay: ck.pay, price: unit(), ts, mine: true });
+      type: ck.type, socio: ck.type==="ymca" ? ck.socio : "", coach: coachBy(ck.coach) ? coachBy(ck.coach).code : "", pay: ck.pay, price: unit(), ts, mine: true });
     n++;
   }
   save(); closeCheckout(); location.hash = "#boleto";
@@ -909,8 +945,17 @@ document.addEventListener("click", e => {
   if (go){ e.preventDefault(); closeMenu(); const id = go.dataset.go; if (location.hash && location.hash!=="#evento"){ location.hash = "#evento"; setTimeout(()=>scrollToId(id), 60); } else scrollToId(id); return; }
   const m = e.target.closest("[data-model]");
   if (m){ model = m.dataset.model; renderPanel(); return; }
+  const cp = e.target.closest("[data-copy]");
+  if (cp){ const l = coachLink(cp.dataset.copy); try { navigator.clipboard.writeText(l); } catch(err){} toast("Liga copiada: " + l.replace(/^https?:\/\//,"")); return; }
   const s = e.target.closest("[data-scan]");
   if (s){ validate(s.dataset.scan); return; }
+});
+document.addEventListener("input", e => {
+  if (e.target.id === "fCoach"){
+    const v = e.target.value.trim(), c = coachBy(v), el = $("#coachOk");
+    el.className = "coach-ok " + (v ? (c ? "y" : "n") : "");
+    el.textContent = v ? (c ? "✓ Tu compra cuenta para " + c.name : "Ese código no existe. Revísalo o déjalo vacío.") : "";
+  }
 });
 document.addEventListener("change", e => {
   if (e.target.name === "pay"){ ck.pay = e.target.value; drawSheet(); }
@@ -1098,15 +1143,30 @@ function renderPanel(){
     '<div><span>Usuario YMCA</span><b>'+by("type","ymca")+' · '+pct(by("type","ymca"))+'</b></div>'+
     Object.keys(PAY_LBL).map(k => '<div><span>'+PAY_LBL[k]+'</span><b>'+by("pay",k)+' · '+pct(by("pay",k))+'</b></div>').join("");
 
+  drawCoaches(tks);
   drawRows();
+}
+function coachLink(code){ return location.origin + location.pathname + "?c=" + code; }
+function drawCoaches(tks){
+  const rows = COACHES.map(c => { const t = tks.filter(x => x.coach === c.code); return { c, n: t.length, v: t.reduce((a,x)=>a+x.price,0) }; })
+    .sort((a,b) => b.n - a.n || a.c.code.localeCompare(b.c.code));
+  const max = Math.max(1, ...rows.map(r=>r.n));
+  const none = tks.filter(x => !x.coach).length;
+  $("#coachRows").innerHTML = rows.map((r,i) =>
+    '<tr><td class="n">'+(i+1)+'</td><td>'+esc(r.c.name)+'</td><td class="m">'+r.c.code+'</td><td><b>'+r.n+'</b></td>'+
+    '<td><div class="barc"><i style="width:'+(r.n/max*100)+'%"></i></div></td><td>'+fmt(r.v)+'</td>'+
+    '<td><button class="lnk" data-copy="'+r.c.code+'">Copiar liga</button></td></tr>').join("");
+  const withCoach = tks.length - none;
+  $("#coachNote").textContent = withCoach + " de " + tks.length + " boletos (" + Math.round(withCoach/Math.max(1,tks.length)*100) + "%) llegaron por un coach · " + none + " sin código. Liga de ejemplo: " + coachLink("COACH03");
 }
 function drawRows(){
   const q = ($("#q").value||"").trim().toLowerCase();
   const tks = all().slice().sort((a,b)=>b.ts-a.ts);
-  const f = q ? tks.filter(t => (t.folio+" "+t.attendee+" "+t.buyer+" "+t.email).toLowerCase().includes(q)) : tks;
+  const f = q ? tks.filter(t => (t.folio+" "+t.attendee+" "+t.buyer+" "+t.email+" "+(t.coach||"")).toLowerCase().includes(q)) : tks;
   $("#rows").innerHTML = f.slice(0,25).map(t =>
     '<tr><td class="m">'+t.folio+(t.mine?' <span class="chip me">tú</span>':'')+'</td><td>'+esc(t.attendee)+'</td><td>'+esc(t.buyer)+'</td>'+
     '<td><span class="chip '+(t.type==="ymca"?"ymca":"gen")+'">'+TYPES[t.type].short+'</span></td>'+
+    '<td class="m">'+(t.coach || "—")+'</td>'+
     '<td><span class="chip no">'+PAY_LBL[t.pay]+'</span></td><td>'+fmt(t.price)+'</td>'+
     '<td>'+new Date(t.ts).toLocaleDateString("es-MX",{day:"2-digit",month:"short"})+'</td>'+
     '<td>'+(t.checkedIn ? '<span class="chip in">Entró '+hhmm(t.checkedIn)+'</span>' : '<span class="chip no">Pendiente</span>')+'</td></tr>').join("");
@@ -1114,7 +1174,7 @@ function drawRows(){
 }
 $("#q").addEventListener("input", drawRows);
 $("#csvBtn").addEventListener("click", () => {
-  const rows = [["Folio","Asistente","Comprador","Correo","Tipo","Usuario YMCA","Pago","Monto","Fecha","Acceso"]].concat(all().map(t => [t.folio,t.attendee,t.buyer,t.email,TYPES[t.type].label,t.socio||"",PAY_LBL[t.pay],t.price,new Date(t.ts).toISOString().slice(0,10),t.checkedIn?new Date(t.checkedIn).toISOString():""]));
+  const rows = [["Folio","Asistente","Comprador","Correo","Tipo","Usuario YMCA","Coach","Pago","Monto","Fecha","Acceso"]].concat(all().map(t => [t.folio,t.attendee,t.buyer,t.email,TYPES[t.type].label,t.socio||"",t.coach||"",PAY_LBL[t.pay],t.price,new Date(t.ts).toISOString().slice(0,10),t.checkedIn?new Date(t.checkedIn).toISOString():""]));
   const csv = "﻿" + rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download = "asistentes-vibra-mx.csv"; document.body.appendChild(a); a.click(); a.remove();
 });
@@ -1122,6 +1182,7 @@ $("#resetBtn").addEventListener("click", () => { mine = []; checkins = {}; sessi
 
 /* ---------------- Arranque ---------------- */
 $("#y").textContent = new Date().getFullYear();
+if (refCoach){ const cb = $("#coachbar"); cb.textContent = "Vienes de parte de " + coachBy(refCoach).name + " · tu compra cuenta para su equipo"; cb.classList.add("on"); }
 load();
 window.addEventListener("hashchange", () => { route(); window.scrollTo(0,0); });
 route();
