@@ -16,6 +16,8 @@ const SITIOS = [
   'https://cane-neurofeedback.com.mx',
   'https://studiojomay.com.mx',
   'https://mariocitalan.net',
+  'https://enlaceintegralseguros.com',
+  'https://www.sparcgroup.mx',
 ]
 
 const FALLAS_PARA_AVISAR = 2
