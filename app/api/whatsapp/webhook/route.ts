@@ -4,8 +4,8 @@
  *  GET  → verificación de Meta (hub.challenge) con WHATSAPP_VERIFY_TOKEN.
  *  POST → mensajes entrantes y estados de entrega. Se valida la firma
  *         X-Hub-Signature-256 con WHATSAPP_APP_SECRET, se guarda todo en
- *         public.whatsapp_messages y se avisa por correo a Rafa cuando
- *         alguien escribe.
+ *         public.whatsapp_messages y se avisa por correo a Rafa y a #leads
+ *         en Slack cuando alguien escribe.
  *
  * Meta reintenta si no recibe 200, así que el POST siempre responde 200 una
  * vez validada la firma, aunque falle algo interno (queda en logs).
@@ -16,6 +16,7 @@ import { NextRequest, NextResponse, after } from 'next/server'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email'
+import { notifySlack, slackEscape } from '@/lib/slack'
 import { handleInbound, isReviewContact } from '@/lib/whatsappBot'
 
 export const runtime = 'nodejs'
@@ -212,6 +213,13 @@ export async function POST(req: NextRequest) {
 <blockquote style="border-left:3px solid #FF8C35;padding-left:12px;margin:12px 0">${escapeHtml(body ?? '')}</blockquote>
 <p style="color:#666;font-size:13px">Los siguientes mensajes de esta conversación no te llegan por correo: están en <a href="https://www.fishflow.mx/admin">/admin → WhatsApp</a> y en el resumen de las 9:00. Tienes 24 h para contestar con texto libre.</p>`,
           tag: 'wa-webhook',
+        })
+
+        // Mismo aviso al canal #leads de Slack (equipo FishFlow).
+        await notifySlack('leads', {
+          text: `WhatsApp: nueva conversación con ${quien}`,
+          body: `>${slackEscape(body ?? '').replace(/\n/g, '\n>')}`,
+          button: { label: 'Abrir en /admin', url: 'https://www.fishflow.mx/admin' },
         })
       }
 

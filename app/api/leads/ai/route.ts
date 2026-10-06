@@ -5,6 +5,7 @@ import { Resend } from 'resend'
 import { SENDERS } from '@/lib/email'
 import { revisarAntibot, logDescarte } from '@/lib/antibot'
 import { sendTemplate } from '@/lib/whatsapp'
+import { notifySlack, slackEscape } from '@/lib/slack'
 
 // ─── Clientes ────────────────────────────────────────────────────────────────
 
@@ -186,6 +187,15 @@ export async function POST(req: NextRequest) {
       })
       if (!wa.ok) console.error('[leads/ai] WhatsApp no salió:', wa.error)
     }
+
+    // ── 5. Aviso al canal #leads de Slack (equipo FishFlow) ──────────────────
+    await notifySlack('leads', {
+      text: `Nuevo diagnóstico en la landing: ${name.trim()}`,
+      body:
+        `${slackEscape(email.trim().toLowerCase())}${phone ? ` · WhatsApp +${phone}` : ''}\n` +
+        `>${slackEscape(problem.trim().slice(0, 1500)).replace(/\n/g, '\n>')}`,
+      button: { label: 'Ver en /admin', url: 'https://www.fishflow.mx/admin' },
+    })
 
     return NextResponse.json({ response: aiResponse })
 
