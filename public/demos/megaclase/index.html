@@ -354,6 +354,8 @@ table.t td.m{font-family:var(--f-mono);}
 .rank td.n{font-family:var(--f-display);color:var(--accent);width:28px;}
 .rank .barc{height:6px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden;min-width:80px;}
 .rank .barc i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));}
+.cname{background:transparent;border:1px dashed transparent;color:var(--text);font:inherit;font-size:13.5px;padding:4px 6px;border-radius:6px;width:150px;}
+.cname:hover,.cname:focus{border-color:var(--line);outline:none;background:var(--bg);}
 .lnk{background:none;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer;}
 </style>
 </head>
@@ -660,9 +662,9 @@ table.t td.m{font-family:var(--f-mono);}
         <h3 style="margin:0">Ventas por coach</h3>
         <span style="font-size:12.5px;color:var(--muted)">Cada coach comparte su liga o su código. La compra queda ligada a él.</span>
       </div>
-      <div class="ff-tablewrap" style="--ff-tablemin:720px">
+      <div class="ff-tablewrap" style="--ff-tablemin:820px">
         <table class="t rank">
-          <thead><tr><th>#</th><th>Coach</th><th>Código</th><th>Boletos</th><th></th><th>Venta</th><th>Su liga</th></tr></thead>
+          <thead><tr><th>#</th><th>Coach</th><th>Código</th><th>Boletos</th><th></th><th>Venta</th><th>Comisión 12.5%</th><th>Su liga</th></tr></thead>
           <tbody id="coachRows"></tbody>
         </table>
       </div>
@@ -729,7 +731,8 @@ const EVENT = {
   startUTC: "20261219T020000Z",  // 20:00 CDMX
   endUTC:   "20261219T040000Z",  // 22:00 CDMX
   feePct: 0.04, feeFix: 4,       // comisión estimada de Mercado Pago (confirmar en su cuenta)
-  ymcaPct: 0.20                  // modelo Alianza: 20% de cada boleto para YMCA
+  ymcaPct: 0.20,                 // modelo Alianza: 20% de cada boleto para YMCA
+  coachPct: 0.125                // comisión del coach: 12.5% de cada boleto que entra con su código
 };
 const TYPES = {
   general: { label: "Entrada general", short: "General", price: 600 },
@@ -738,6 +741,9 @@ const TYPES = {
 const STORE_KEY = "ff_vibramx_v1";
 // 15 coaches: nombres y códigos de muestra hasta que la organización mande los reales
 const COACHES = Array.from({length:15}, (_,i) => ({ code: "COACH" + String(i+1).padStart(2,"0"), name: "Coach " + (i+1) }));
+// Los nombres llegan "sobre la marcha": se editan en el panel sin cambiar el código, así las ligas ya compartidas siguen sirviendo
+try { const nm = JSON.parse(localStorage.getItem("ff_vibramx_coaches") || "{}"); COACHES.forEach(c => { if (nm[c.code]) c.name = nm[c.code]; }); } catch(e){}
+function saveCoachNames(){ try { const o = {}; COACHES.forEach(c => { if (c.name !== "Coach " + (+c.code.slice(5))) o[c.code] = c.name; }); localStorage.setItem("ff_vibramx_coaches", JSON.stringify(o)); } catch(e){} }
 const coachBy = c => COACHES.find(x => x.code === String(c||"").trim().toUpperCase()) || null;
 const fmt = n => "$" + Math.round(n).toLocaleString("es-MX");
 
@@ -958,6 +964,7 @@ document.addEventListener("input", e => {
   }
 });
 document.addEventListener("change", e => {
+  if (e.target.dataset && e.target.dataset.cname){ const c = coachBy(e.target.dataset.cname); const v = e.target.value.trim(); if (c){ c.name = v || ("Coach " + (+c.code.slice(5))); saveCoachNames(); toast("Nombre guardado: " + c.name); renderPanel(); } return; }
   if (e.target.name === "pay"){ ck.pay = e.target.value; drawSheet(); }
   if (e.target.name === "type"){ readStep1(); ck.type = e.target.value; drawSheet(); }
 });
@@ -1098,7 +1105,8 @@ function money(tks){
   const gross = tks.reduce((a,t)=>a+t.price,0);
   const mp = tks.reduce((a,t)=>a+fee(t),0);
   const ymca = model==="alianza" ? gross*EVENT.ymcaPct : null;
-  return { gross, mp, ymca, net: gross - mp - (ymca||0) };
+  const coach = tks.filter(t=>t.coach).reduce((a,t)=>a+t.price*EVENT.coachPct,0);
+  return { gross, mp, ymca, coach, net: gross - mp - (ymca||0) - coach };
 }
 function renderPanel(){
   const tks = all(), n = tks.length;
@@ -1107,13 +1115,14 @@ function renderPanel(){
   const avg = n ? now.gross/n : 600, avgFee = n ? now.mp/n : 0;
   const fullGross = avg*EVENT.capacity, fullMp = avgFee*EVENT.capacity;
   const fullYmca = model==="alianza" ? fullGross*EVENT.ymcaPct : null;
-  const fullNet = fullGross - fullMp - (fullYmca||0);
+  const fullCoach = n ? now.coach/n*EVENT.capacity : 0;   // misma proporción de boletos con coach
+  const fullNet = fullGross - fullMp - (fullYmca||0) - fullCoach;
 
   $("#kSold").textContent = n + " / " + EVENT.capacity;
   $("#kLeft").textContent = "Quedan " + left() + " lugares";
   $("#kGross").textContent = fmt(now.gross);
   $("#kNet").textContent = fmt(now.net);
-  $("#kNetNote").textContent = model==="alianza" ? "Después de MP y 20% YMCA" : "Antes de la renta YMCA";
+  $("#kNetNote").textContent = model==="alianza" ? "Después de MP, YMCA y coaches" : "Antes de la renta YMCA";
   $("#kYmcaU").textContent = tks.filter(t=>t.type==="ymca").length;
   $("#kIn").textContent = tks.filter(t=>t.checkedIn).length;
   $$("[data-model]").forEach(b => b.classList.toggle("on", b.dataset.model===model));
@@ -1125,6 +1134,7 @@ function renderPanel(){
     (model==="alianza"
       ? row("Participación YMCA (20% del boletaje)", "−"+fmt(now.ymca), "−"+fmt(fullYmca), "neg")
       : row("Renta fija YMCA", "por cotizar", "por cotizar", "neg"))+
+    row("Comisiones a coaches (12.5%)", "−"+fmt(now.coach), "−"+fmt(fullCoach), "neg")+
     row(model==="alianza" ? "Neto para la organización" : "Neto antes de renta", fmt(now.net), fmt(fullNet), "tot");
   $("#repNote").textContent = (model==="alianza"
       ? "Alianza comercial propuesta a YMCA: 20% de cada boleto + 100% del estacionamiento (el estacionamiento no pasa por esta venta)."
@@ -1153,11 +1163,12 @@ function drawCoaches(tks){
   const max = Math.max(1, ...rows.map(r=>r.n));
   const none = tks.filter(x => !x.coach).length;
   $("#coachRows").innerHTML = rows.map((r,i) =>
-    '<tr><td class="n">'+(i+1)+'</td><td>'+esc(r.c.name)+'</td><td class="m">'+r.c.code+'</td><td><b>'+r.n+'</b></td>'+
-    '<td><div class="barc"><i style="width:'+(r.n/max*100)+'%"></i></div></td><td>'+fmt(r.v)+'</td>'+
+    '<tr><td class="n">'+(i+1)+'</td><td><input class="cname" data-cname="'+r.c.code+'" value="'+esc(r.c.name)+'" aria-label="Nombre del coach '+r.c.code+'"></td><td class="m">'+r.c.code+'</td><td><b>'+r.n+'</b></td>'+
+    '<td><div class="barc"><i style="width:'+(r.n/max*100)+'%"></i></div></td><td>'+fmt(r.v)+'</td><td><b>'+fmt(r.v*EVENT.coachPct)+'</b></td>'+
     '<td><button class="lnk" data-copy="'+r.c.code+'">Copiar liga</button></td></tr>').join("");
   const withCoach = tks.length - none;
-  $("#coachNote").textContent = withCoach + " de " + tks.length + " boletos (" + Math.round(withCoach/Math.max(1,tks.length)*100) + "%) llegaron por un coach · " + none + " sin código. Liga de ejemplo: " + coachLink("COACH03");
+  const totC = rows.reduce((a,r)=>a+r.v*EVENT.coachPct,0);
+  $("#coachNote").textContent = withCoach + " de " + tks.length + " boletos (" + Math.round(withCoach/Math.max(1,tks.length)*100) + "%) entraron con código de coach · " + none + " sin código · comisiones acumuladas " + fmt(totC) + " (12.5% del precio de cada boleto). Los nombres se escriben aquí mismo cuando lleguen; el código y la liga no cambian.";
 }
 function drawRows(){
   const q = ($("#q").value||"").trim().toLowerCase();
@@ -1174,7 +1185,7 @@ function drawRows(){
 }
 $("#q").addEventListener("input", drawRows);
 $("#csvBtn").addEventListener("click", () => {
-  const rows = [["Folio","Asistente","Comprador","Correo","Tipo","Usuario YMCA","Coach","Pago","Monto","Fecha","Acceso"]].concat(all().map(t => [t.folio,t.attendee,t.buyer,t.email,TYPES[t.type].label,t.socio||"",t.coach||"",PAY_LBL[t.pay],t.price,new Date(t.ts).toISOString().slice(0,10),t.checkedIn?new Date(t.checkedIn).toISOString():""]));
+  const rows = [["Folio","Asistente","Comprador","Correo","Tipo","Usuario YMCA","Código coach","Coach","Comisión coach","Pago","Monto","Fecha","Acceso"]].concat(all().map(t => [t.folio,t.attendee,t.buyer,t.email,TYPES[t.type].label,t.socio||"",t.coach||"",t.coach?coachBy(t.coach).name:"",t.coach?t.price*EVENT.coachPct:"",PAY_LBL[t.pay],t.price,new Date(t.ts).toISOString().slice(0,10),t.checkedIn?new Date(t.checkedIn).toISOString():""]));
   const csv = "﻿" + rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download = "asistentes-vibra-mx.csv"; document.body.appendChild(a); a.click(); a.remove();
 });
