@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Soluciones Fotográficas — Insumos para minilab en toda la República</title>
+<meta name="description" content="Papel de halogenuro de plata, texturas, adhesivos, químicos y refacciones para minilabs Noritsu y Fujifilm. Cotiza y te contactamos en 24 horas." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B1014'/%3E%3Ccircle cx='32' cy='32' r='19' fill='none' stroke='%2319BFEB' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23FF6A1A'/%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230B1014'/%3E%3Ccircle cx='32' cy='32' r='19' fill='none' stroke='%2319BFEB' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23FF6A1A'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   1) RESPONSIVE BASE  ·  pegar SIEMPRE este bloque primero
+   (copia idéntica de demos/_template/responsive-base.css)
+   ============================================================ */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1280px);margin-inline:auto;padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-tablewrap > table{min-width:var(--ff-tablemin,520px);}
+.ff-shell{display:grid;gap:var(--ff-gap,24px);align-items:start;grid-template-columns:var(--ff-side,260px) minmax(0,1fr);}
+.ff-shell--3{grid-template-columns:var(--ff-side,260px) minmax(0,1fr) var(--ff-right,300px);}
+.ff-h1{font-size:clamp(32px,5vw,64px);line-height:1.02;letter-spacing:-.02em;}
+.ff-h2{font-size:clamp(26px,3.6vw,46px);line-height:1.06;letter-spacing:-.02em;}
+.ff-lede{font-size:clamp(15px,1.4vw,19px);line-height:1.55;}
+@media(max-width:900px){ .ff-shell,.ff-shell--3{grid-template-columns:1fr;} }
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}
+
+/* ============================================================
+   2) TOKENS DE MARCA · Soluciones Fotográficas
+   ============================================================ */
+:root{
+  --ink:#0B1014; --ink-2:#11181D; --ink-3:#1A242B; --line-dark:#243038;
+  --paper:#F5F1EA; --paper-2:#EAE3D6; --line:#D8CEBB;
+  --cyan:#19BFEB; --cyan-deep:#0A7FA8; --orange:#FF6A1A; --orange-deep:#D94E0E;
+  --green:#1FAE6C; --warn:#E08A1C; --red:#D6453D;
+  --muted-d:#8FA4AC; --muted:#6A6256;
+  --f-display:"Bricolage Grotesque",system-ui,sans-serif;
+  --f-body:"Manrope",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,monospace;
+  --ff-max:1280px;
+}
+body{font-family:var(--f-body);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;}
+a{color:inherit;text-decoration:none;cursor:pointer;}
+button{font-family:inherit;cursor:pointer;}
+h1,h2,h3,h4{font-family:var(--f-display);margin:0;}
+.mono{font-family:var(--f-mono);}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan-deep);display:inline-flex;align-items:center;gap:10px;}
+.eyebrow::before{content:"";width:8px;height:8px;background:var(--cyan);border-radius:999px;}
+.eyebrow--light{color:var(--cyan);}
+.btn{font-family:var(--f-body);font-weight:700;font-size:15px;padding:13px 20px;border-radius:999px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:transform .15s,background .15s;}
+.btn:hover{transform:translateY(-1px);}
+.btn--primary{background:var(--orange);color:#fff;}
+.btn--primary:hover{background:var(--orange-deep);}
+.btn--ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+.btn--ghost-light{background:transparent;color:#fff;border-color:rgba(255,255,255,.25);}
+.btn--sm{padding:9px 14px;font-size:13.5px;}
+
+/* ---- barra de demo ---- */
+.demobar{background:#000;color:#cfd8dc;font-size:12.5px;}
+.demobar__in{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:7px;flex-wrap:wrap;}
+.demobar b{color:#fff;}
+.demobar .seg{display:inline-flex;border:1px solid #333;border-radius:999px;overflow:hidden;}
+.demobar .seg button{background:transparent;border:0;color:#cfd8dc;padding:5px 12px;font-size:12.5px;font-weight:600;}
+.demobar .seg button.on{background:var(--cyan);color:#000;}
+
+/* ---- nav ---- */
+.nav{position:sticky;top:0;z-index:30;background:color-mix(in oklab,var(--paper) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.nav__in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px;position:relative;}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:18px;line-height:1.05;}
+.brand small{display:block;font-family:var(--f-mono);font-weight:500;font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+.brand__mark{width:34px;height:34px;flex:none;}
+.nav__links{display:flex;gap:22px;font-size:14.5px;font-weight:600;}
+.nav__links a{color:var(--muted);}
+.nav__links a:hover{color:var(--ink);}
+.nav__right{display:flex;align-items:center;gap:10px;}
+.qbadge{position:relative;white-space:nowrap;}
+.qbadge svg{width:18px;height:18px;display:none;}
+@media(max-width:600px){.qbadge .qlbl{display:none;}.qbadge svg{display:block;}.qbadge{width:42px;height:42px;padding:0;}}
+.qbadge .n{position:absolute;top:-6px;right:-6px;background:var(--cyan);color:#000;font-size:11px;font-weight:800;border-radius:999px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px;}
+.burger{display:none;background:transparent;border:1px solid var(--line);border-radius:10px;width:42px;height:42px;font-size:20px;}
+.mmenu{display:none;}
+@media(max-width:860px){
+  .nav__links{display:none;}
+  .burger{display:grid;place-items:center;}
+  .nav__right .btn--cta{display:none;}
+  .mmenu.open{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--paper);border-bottom:1px solid var(--line);padding:10px var(--ff-pad,18px) 18px;gap:4px;box-shadow:0 12px 24px rgba(0,0,0,.08);}
+  .mmenu a{padding:12px 4px;font-weight:600;border-bottom:1px solid var(--line);}
+  .mmenu .btn{margin-top:10px;}
+}
+
+/* ---- hero ---- */
+.hero{background:var(--ink);color:#fff;position:relative;overflow:hidden;}
+.hero__in{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(28px,4vw,56px);align-items:center;padding-block:clamp(52px,7vw,100px);}
+@media(max-width:900px){ .hero__in{grid-template-columns:1fr;} }
+.hero h1{margin:18px 0;color:#fff;}
+.hero h1 em{color:var(--orange);font-style:normal;}
+.hero p{color:#AFC0CC;max-width:54ch;margin:0 0 26px;}
+.hero__cta{display:flex;flex-wrap:wrap;gap:12px;}
+.hero__facts{display:flex;flex-wrap:wrap;gap:22px;margin-top:34px;font-size:13px;color:var(--muted-d);}
+.hero__facts b{display:block;font-family:var(--f-display);font-size:22px;color:#fff;}
+.hero__vis{aspect-ratio:1/1;border-radius:22px;background:radial-gradient(120% 120% at 20% 10%,rgba(25,191,235,.28),transparent 55%),linear-gradient(135deg,#13232d,#0a1218);border:1px solid rgba(255,255,255,.08);display:grid;place-items:center;padding:12%;}
+
+/* ---- marcas ---- */
+.brands{background:var(--ink-2);color:var(--muted-d);border-top:1px solid var(--line-dark);}
+.brands__in{display:flex;flex-wrap:wrap;gap:12px 34px;justify-content:center;align-items:center;padding-block:20px;font-family:var(--f-display);font-weight:700;font-size:18px;letter-spacing:.02em;}
+.brands__in span.lbl{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;}
+
+.section{padding-block:clamp(52px,7vw,96px);}
+.section h2{margin:12px 0 10px;}
+.section .sub{color:var(--muted);margin:0 0 32px;max-width:56ch;}
+.section--dark{background:var(--ink);color:#fff;}
+.section--dark .sub{color:var(--muted-d);}
+
+/* ---- categorías ---- */
+.catcard{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .15s, box-shadow .15s;}
+.catcard:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.07);}
+.catcard__img{aspect-ratio:16/10;background:var(--ink-2);}
+.catcard__img svg{width:100%;height:100%;}
+.catcard__body{padding:18px;}
+.catcard h3{font-size:19px;margin-bottom:6px;}
+.catcard p{margin:0;color:var(--muted);font-size:14px;}
+
+/* ---- pasos ---- */
+.step{border:1px solid var(--line-dark);border-radius:18px;padding:22px;background:var(--ink-2);}
+.step .k{font-family:var(--f-mono);color:var(--cyan);font-size:12px;letter-spacing:.14em;}
+.step h3{font-size:20px;margin:10px 0 6px;color:#fff;}
+.step p{margin:0;color:var(--muted-d);font-size:14.5px;}
+
+/* ---- catálogo ---- */
+.cattools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:22px;}
+.search{flex:1 1 260px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:12px 18px;font:inherit;font-size:15px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:600;color:var(--muted);}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}
+.pcard__img{aspect-ratio:4/3;}
+.pcard__img svg{width:100%;height:100%;}
+.pcard__body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1;}
+.pcard__meta{font-family:var(--f-mono);font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+.pcard h4{font-family:var(--f-body);font-size:15px;font-weight:700;line-height:1.3;}
+.pcard .fit{font-size:12.5px;color:var(--cyan-deep);font-weight:600;}
+.pcard .btn{margin-top:auto;width:100%;}
+.pcard .btn.added{background:var(--ink);color:#fff;}
+.empty{padding:40px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px;}
+
+/* ---- cotizador ---- */
+.quote{background:#fff;border:1px solid var(--line);border-radius:22px;padding:clamp(20px,3vw,36px);}
+.qsteps{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+.qsteps span{flex:1 1 120px;font-size:12.5px;font-weight:700;color:var(--muted);border-top:3px solid var(--line);padding-top:8px;}
+.qsteps span.on{color:var(--ink);border-color:var(--orange);}
+.qsteps span.done{color:var(--ink);border-color:var(--ink);}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;}
+.field label,.field .lbl{font-weight:700;font-size:14px;}
+.field small{color:var(--muted);font-size:12.5px;}
+.field input,.field select,.field textarea{font:inherit;font-size:15px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper);width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--cyan);border-color:transparent;}
+.opts{display:flex;flex-wrap:wrap;gap:8px;}
+.opt{border:1px solid var(--line);background:var(--paper);border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600;}
+.opt.on{background:var(--ink);border-color:var(--ink);color:#fff;}
+.qnav{display:flex;justify-content:space-between;gap:12px;margin-top:8px;flex-wrap:wrap;}
+.err{color:var(--red);font-size:13px;font-weight:600;min-height:18px;}
+.qlist{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14px;}
+.qlist li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);}
+.qlist li:last-child{border-bottom:0;}
+.qlist ul{list-style:none;margin:0;padding:0;}
+.qlist button{background:none;border:0;color:var(--red);font-weight:700;}
+.done-box{text-align:center;padding:24px 8px;}
+.done-box .ok{width:64px;height:64px;border-radius:999px;background:var(--green);color:#fff;display:grid;place-items:center;font-size:32px;margin:0 auto 16px;}
+.side-note{background:var(--ink);color:#fff;border-radius:22px;padding:28px;}
+.side-note h3{font-size:22px;margin-bottom:10px;}
+.side-note p,.side-note li{color:var(--muted-d);font-size:14.5px;}
+.side-note ul{padding-left:18px;margin:0;}
+.side-note li{margin-bottom:8px;}
+
+.qshell{display:grid;gap:24px;align-items:start;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);}
+@media(max-width:900px){.qshell{grid-template-columns:1fr;}}
+/* ---- footer ---- */
+.foot{background:var(--ink);color:var(--muted-d);}
+.foot__in{padding-block:36px;display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;font-size:13px;}
+
+/* ---- panel ---- */
+#view-panel{background:#EEF1F3;min-height:100vh;}
+.ptop{background:var(--ink);color:#fff;}
+.ptop__in{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:14px;flex-wrap:wrap;}
+.ptop .who{font-size:13px;color:var(--muted-d);}
+.kpi{background:#fff;border:1px solid #DCE2E6;border-radius:14px;padding:16px 18px;}
+.kpi .v{font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1;}
+.kpi .l{font-size:12.5px;color:#5B6B78;margin-top:6px;}
+.kpi.hot .v{color:var(--orange-deep);}
+.pbox{background:#fff;border:1px solid #DCE2E6;border-radius:16px;padding:18px;}
+.pbox h4{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#5B6B78;margin:0 0 12px;font-family:var(--f-mono);font-weight:500;}
+.bar{display:flex;align-items:center;gap:10px;font-size:13.5px;margin-bottom:8px;}
+.bar .nm{width:110px;flex:none;}
+.bar .tr{flex:1;height:8px;background:#EEF1F3;border-radius:999px;overflow:hidden;}
+.bar .tr i{display:block;height:100%;background:var(--cyan-deep);border-radius:999px;}
+.bar .ct{width:24px;text-align:right;font-weight:700;}
+table.t{width:100%;border-collapse:collapse;}
+table.t th,table.t td{text-align:left;padding:11px 12px;border-bottom:1px solid #E6EAED;font-size:13.5px;vertical-align:top;}
+table.t th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#5B6B78;font-family:var(--f-mono);font-weight:500;}
+table.t tbody tr{cursor:pointer;}
+table.t tbody tr:hover{background:#F6F8F9;}
+table.t tr.new td:first-child{box-shadow:inset 3px 0 0 var(--orange);}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px;background:#EEF1F3;color:#33434F;margin:0 4px 4px 0;white-space:nowrap;}
+.tag--hot{background:#FFE3D3;color:var(--orange-deep);}
+.tag--warm{background:#FFF1D6;color:#9A5B00;}
+.tag--cold{background:#E3F4FA;color:var(--cyan-deep);}
+.tag--st{background:var(--ink);color:#fff;}
+.pfilters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.pfilters .chip{background:#fff;}
+.pfilters .chip.on{background:var(--ink);color:#fff;}
+.drawer{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:60;}
+.drawer.open{display:block;}
+.drawer__p{position:absolute;top:0;right:0;bottom:0;width:min(440px,100%);background:#fff;padding:24px;overflow:auto;}
+.drawer__p h3{font-size:22px;margin-bottom:4px;}
+.dl{display:grid;grid-template-columns:130px 1fr;gap:8px 12px;font-size:14px;margin:18px 0;}
+.dl dt{color:#5B6B78;}
+.dl dd{margin:0;font-weight:600;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;z-index:80;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px);}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- BARRA DE DEMO (solo para la presentación) -->
+<div class="demobar">
+  <div class="demobar__in ff-container">
+    <span><b>Demo FishFlow</b> · propuesta para Soluciones Fotográficas</span>
+    <span class="seg" role="tablist" aria-label="Vista">
+      <button id="seg-sitio" class="on" onclick="go('')">Página pública</button>
+      <button id="seg-panel" onclick="go('panel')">Panel de prospectos</button>
+    </span>
+  </div>
+</div>
+
+<!-- ======================= VISTA PÚBLICA ======================= -->
+<div id="view-sitio">
+<header class="nav">
+  <div class="nav__in ff-container">
+    <a class="brand" onclick="toTop()">
+      <svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0B1014"/><circle cx="32" cy="32" r="19" fill="none" stroke="#19BFEB" stroke-width="4"/><circle cx="32" cy="32" r="8" fill="#FF6A1A"/></svg>
+      <span>Soluciones Fotográficas<small>Insumos para minilab</small></span>
+    </a>
+    <nav class="nav__links" aria-label="Principal">
+      <a onclick="anchor('categorias')">Productos</a>
+      <a onclick="anchor('catalogo')">Catálogo</a>
+      <a onclick="anchor('como')">Cómo funciona</a>
+      <a onclick="anchor('cotizar')">Cotizar</a>
+    </nav>
+    <div class="nav__right">
+      <a class="btn btn--ghost btn--sm qbadge" onclick="anchor('cotizar')" aria-label="Mi cotización"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 4h6v3H9z"/><path d="M7 5H5v16h14V5h-2"/><path d="M8 12h8M8 16h5"/></svg><span class="qlbl">Mi cotización</span><span class="n" id="qcount">0</span></a>
+      <a class="btn btn--primary btn--sm btn--cta" onclick="anchor('cotizar')">Cotizar</a>
+      <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="mmenu" onclick="toggleMenu()">☰</button>
+    </div>
+    <div class="mmenu" id="mmenu">
+      <a onclick="anchor('categorias')">Productos</a>
+      <a onclick="anchor('catalogo')">Catálogo</a>
+      <a onclick="anchor('como')">Cómo funciona</a>
+      <a class="btn btn--primary" onclick="anchor('cotizar')">Solicitar cotización</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero__in ff-container">
+    <div>
+      <span class="eyebrow eyebrow--light">Envíos a toda la República</span>
+      <h1 class="ff-h1">Tu minilab no se detiene. <em>Nosotros lo surtimos.</em></h1>
+      <p class="ff-lede">Papel de halogenuro de plata, texturas, adhesivos, químicos y refacciones para equipos Noritsu y Fujifilm. Cuéntanos qué equipo tienes y te mandamos una cotización a la medida.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary" onclick="anchor('cotizar')">Solicitar cotización <span>→</span></a>
+        <a class="btn btn--ghost-light" onclick="anchor('catalogo')">Ver catálogo</a>
+      </div>
+      <div class="hero__facts">
+        <div><b>24 h</b>Respuesta a tu cotización</div>
+        <div><b>32 estados</b>Envío a toda la República</div>
+        <div><b>Noritsu · Fuji</b>Asesoría por modelo</div>
+      </div>
+    </div>
+    <div class="hero__vis ff-hide-mobile" aria-hidden="true">
+      <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="88" fill="none" stroke="#19BFEB" stroke-width="1.2" opacity=".35"/><circle cx="100" cy="100" r="74" fill="#19BFEB" opacity=".07"/><circle cx="100" cy="100" r="62" fill="none" stroke="#fff" stroke-width="1" opacity=".25"/><circle cx="100" cy="100" r="44" fill="#FF6A1A"/><circle cx="100" cy="100" r="30" fill="#0a1218"/><circle cx="100" cy="100" r="10" fill="#19BFEB"/><path d="M100 12 L190 30 L190 60 L100 40 Z" fill="#fff" opacity=".9"/></svg>
+    </div>
+  </div>
+</section>
+
+<div class="brands">
+  <div class="brands__in ff-container">
+    <span class="lbl">Trabajamos con</span>
+    <span>Fujifilm</span><span>Noritsu</span><span>Kodak</span><span>Lucky</span><span>Eurolight</span>
+  </div>
+</div>
+
+<section class="section ff-container" id="categorias">
+  <span class="eyebrow">Línea de productos</span>
+  <h2 class="ff-h2">Todo lo que tu laboratorio consume</h2>
+  <p class="sub">Elige una línea para ver los productos. Si no encuentras lo que buscas, pídelo en la cotización: lo conseguimos.</p>
+  <div class="ff-grid ff-grid--md" id="catgrid"></div>
+</section>
+
+<section class="section section--dark" id="como">
+  <div class="ff-container">
+    <span class="eyebrow eyebrow--light">Cómo funciona</span>
+    <h2 class="ff-h2">Tres pasos, sin vueltas</h2>
+    <p class="sub">No publicamos precios porque cada laboratorio es distinto: el precio depende de tu equipo, tu volumen y tu ciudad.</p>
+    <div class="ff-grid ff-grid--md">
+      <div class="step"><span class="k">01</span><h3>Cuéntanos de tu equipo</h3><p>Marca y modelo de tu minilab, química que usas y cuánto produces al mes. Toma dos minutos.</p></div>
+      <div class="step"><span class="k">02</span><h3>Arma tu lista</h3><p>Agrega del catálogo lo que necesitas, o simplemente descríbelo.</p></div>
+      <div class="step"><span class="k">03</span><h3>Te contactamos en 24 horas</h3><p>Recibes tu cotización con precio por volumen y tiempo de entrega a tu ciudad.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section ff-container" id="catalogo">
+  <span class="eyebrow">Catálogo</span>
+  <h2 class="ff-h2">Agrega productos a tu cotización</h2>
+  <p class="sub">Precios por volumen y disponibilidad se confirman en tu cotización.</p>
+  <div class="cattools">
+    <input class="search" id="q" type="search" placeholder="Buscar: bobina 12.7, CP-49, rodillo QSS…" aria-label="Buscar productos" />
+  </div>
+  <div class="chips" id="catchips" style="margin-bottom:22px"></div>
+  <div class="ff-grid ff-grid--sm" id="pgrid" style="--ff-min:210px"></div>
+</section>
+
+<section class="section ff-container" id="cotizar" style="padding-top:0">
+  <span class="eyebrow">Cotización</span>
+  <h2 class="ff-h2">Solicita tu cotización</h2>
+  <p class="sub">Con estos datos te mandamos precios para tu equipo y tu volumen. Te contactamos en menos de 24 horas hábiles.</p>
+  <div class="qshell">
+    <div class="quote" id="quote"></div>
+    <aside class="side-note">
+      <h3>¿Por qué te preguntamos esto?</h3>
+      <ul>
+        <li>El papel y la química cambian según el modelo de tu minilab.</li>
+        <li>Con tu producción mensual te damos precio de volumen desde la primera compra.</li>
+        <li>Con tu estado calculamos envío y tiempo de entrega reales.</li>
+      </ul>
+      <p style="margin-top:18px">Tus datos solo se usan para contactarte sobre tu cotización.</p>
+    </aside>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="foot__in ff-container">
+    <span>© <span id="y"></span> Soluciones Fotográficas · Insumos para minilab en toda la República</span>
+    <span>Aviso de privacidad</span>
+  </div>
+</footer>
+</div>
+
+<!-- ======================= VISTA PANEL ======================= -->
+<div id="view-panel" style="display:none">
+  <div class="ptop">
+    <div class="ptop__in ff-container">
+      <div class="brand" style="color:#fff">
+        <svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#1A242B"/><circle cx="32" cy="32" r="19" fill="none" stroke="#19BFEB" stroke-width="4"/><circle cx="32" cy="32" r="8" fill="#FF6A1A"/></svg>
+        <span>Panel de prospectos<small style="color:#8FA4AC">Soluciones Fotográficas</small></span>
+      </div>
+      <span class="who">Datos de ejemplo · los prospectos reales llegan desde la página</span>
+    </div>
+  </div>
+  <div class="ff-container" style="padding-block:24px 48px">
+    <div class="ff-grid ff-grid--sm" style="margin-bottom:18px">
+      <div class="kpi"><div class="v" id="k-total">0</div><div class="l">Prospectos totales</div></div>
+      <div class="kpi hot"><div class="v" id="k-hot">0</div><div class="l">Compran ya · llamar hoy</div></div>
+      <div class="kpi"><div class="v" id="k-new">0</div><div class="l">Sin contactar</div></div>
+      <div class="kpi"><div class="v" id="k-states">0</div><div class="l">Estados alcanzados</div></div>
+    </div>
+    <div class="ff-shell" style="--ff-side:300px">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="pbox"><h4>Por estado</h4><div id="b-state"></div></div>
+        <div class="pbox"><h4>Por equipo</h4><div id="b-equipo"></div></div>
+        <div class="pbox"><h4>Por química</h4><div id="b-quim"></div></div>
+      </div>
+      <div class="pbox">
+        <div class="pfilters" id="pfilters"></div>
+        <div class="ff-tablewrap" style="--ff-tablemin:720px">
+          <table class="t">
+            <thead><tr><th>Prospecto</th><th>Estado</th><th>Equipo</th><th>Necesita</th><th>Urgencia</th><th>Seguimiento</th></tr></thead>
+            <tbody id="ptbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="drawer" id="drawer" onclick="if(event.target===this)closeDrawer()">
+  <div class="drawer__p" id="drawerp"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+// ---------------- DATOS ----------------
+const CATS = [
+  {k:'Papel',     t:'Papel de halogenuro de plata', d:'Bobinas brillante, mate y lustre en todos los anchos, para RA-4 y CP.'},
+  {k:'Texturas',  t:'Texturas',                     d:'Perla, seda, lino y metálico para dar acabado premium a tus impresiones.'},
+  {k:'Adhesivos', t:'Adhesivos',                    d:'Laminado en frío, montaje y foam board para enmarcado y exhibición.'},
+  {k:'Químicos',  t:'Químicos',                     d:'Kits CP y RA-4: revelador, blanqueador-fijador y estabilizador.'},
+  {k:'Refacciones',t:'Refacciones',                 d:'Rodillos, lámparas, bandas y filtros para Noritsu QSS y Fuji Frontier.'}
+];
+const PRODUCTS = [
+  {id:'P01',c:'Papel',m:'Fujifilm',n:'Bobina Crystal Archive brillante 12.7 cm × 186 m',f:'Frontier / Noritsu'},
+  {id:'P02',c:'Papel',m:'Fujifilm',n:'Bobina Crystal Archive lustre 15.2 cm × 186 m',f:'Frontier / Noritsu'},
+  {id:'P03',c:'Papel',m:'Fujifilm',n:'Bobina Crystal Archive mate 20.3 cm × 93 m',f:'Frontier / Noritsu'},
+  {id:'P04',c:'Papel',m:'Kodak',n:'Bobina Endura Premier brillante 10.2 cm × 186 m',f:'RA-4'},
+  {id:'P05',c:'Papel',m:'Lucky',n:'Bobina Lucky brillante 8.9 cm × 100 m',f:'RA-4'},
+  {id:'P06',c:'Papel',m:'Eurolight',n:'Bobina Eurolight lustre 30.5 cm × 93 m',f:'Gran formato'},
+  {id:'T01',c:'Texturas',m:'Fujifilm',n:'Papel perla Crystal Archive 20.3 cm',f:'Acabado premium'},
+  {id:'T02',c:'Texturas',m:'Eurolight',n:'Textura seda 15.2 cm × 93 m',f:'Retrato y boda'},
+  {id:'T03',c:'Texturas',m:'Eurolight',n:'Textura lino 20.3 cm × 93 m',f:'Retrato y boda'},
+  {id:'T04',c:'Texturas',m:'Kodak',n:'Endura metálico 25.4 cm × 61 m',f:'Exhibición'},
+  {id:'A01',c:'Adhesivos',m:'Genérico',n:'Laminado en frío brillante 33 cm × 50 m',f:'Protección de impresión'},
+  {id:'A02',c:'Adhesivos',m:'Genérico',n:'Laminado en frío mate 63 cm × 50 m',f:'Protección de impresión'},
+  {id:'A03',c:'Adhesivos',m:'Genérico',n:'Foam board autoadherible 5 mm · paquete 10 hojas',f:'Montaje'},
+  {id:'A04',c:'Adhesivos',m:'Genérico',n:'Cinta doble cara para montaje · 12 rollos',f:'Enmarcado'},
+  {id:'Q01',c:'Químicos',m:'Fujifilm',n:'Kit CP-49E revelador de color',f:'Química CP'},
+  {id:'Q02',c:'Químicos',m:'Fujifilm',n:'Kit CP-49E blanqueador-fijador',f:'Química CP'},
+  {id:'Q03',c:'Químicos',m:'Kodak',n:'Kit RA-4 revelador Prime',f:'Química RA-4'},
+  {id:'Q04',c:'Químicos',m:'Kodak',n:'Kit RA-4 blanqueador-fijador',f:'Química RA-4'},
+  {id:'Q05',c:'Químicos',m:'Fujifilm',n:'Estabilizador para minilab · 10 L',f:'CP y RA-4'},
+  {id:'R01',c:'Refacciones',m:'Noritsu',n:'Rodillo de transporte QSS-32 / 33',f:'Noritsu QSS'},
+  {id:'R02',c:'Refacciones',m:'Noritsu',n:'Lámpara halógena QSS-32 / 34',f:'Noritsu QSS'},
+  {id:'R03',c:'Refacciones',m:'Noritsu',n:'Banda de transmisión QSS-34 / 37',f:'Noritsu QSS'},
+  {id:'R04',c:'Refacciones',m:'Fujifilm',n:'Filtro UV Frontier 350 / 370',f:'Fuji Frontier'},
+  {id:'R05',c:'Refacciones',m:'Fujifilm',n:'Rack de procesador Frontier 500 / 550',f:'Fuji Frontier'}
+];
+const ESTADOS = ['Aguascalientes','Baja California','Baja California Sur','Campeche','Chiapas','Chihuahua','Ciudad de México','Coahuila','Colima','Durango','Estado de México','Guanajuato','Guerrero','Hidalgo','Jalisco','Michoacán','Morelos','Nayarit','Nuevo León','Oaxaca','Puebla','Querétaro','Quintana Roo','San Luis Potosí','Sinaloa','Sonora','Tabasco','Tamaulipas','Tlaxcala','Veracruz','Yucatán','Zacatecas'];
+
+const Q = {
+  negocio:{t:'¿Qué tipo de negocio tienes?',o:['Estudio fotográfico','Laboratorio','Fotografía de eventos','Escuela o institución','Otro']},
+  equipo:{t:'¿Qué minilab tienes?',o:['Noritsu','Fujifilm Frontier','Otro','Todavía no tengo']},
+  quimica:{t:'¿Qué química usas?',o:['CP','RA-4','Equipo seco (sin química)','No sé']},
+  produccion:{t:'¿Cuánto produces al mes?',o:['Menos de 2,000 impresiones','2,000 a 10,000','Más de 10,000','No sé']},
+  necesita:{t:'¿Qué necesitas?',o:['Papel','Texturas','Adhesivos','Químicos','Refacciones'],multi:true},
+  urgencia:{t:'¿Para cuándo lo necesitas?',o:['Lo necesito ya','Este mes','Solo estoy cotizando']}
+};
+
+// prospectos de ejemplo (ficticios)
+const SEED = [
+  {n:'Laboratorio Fotográfico del Valle',ct:'Arturo Garza',e:'Nuevo León',neg:'Laboratorio',eq:'Noritsu',mod:'QSS-37',q:'CP',p:'Más de 10,000',nec:['Papel','Químicos'],u:'Lo necesito ya',s:'Sin contactar',h:'Hoy 09:12'},
+  {n:'Foto Estudio Caribe',ct:'Mariana Pech',e:'Quintana Roo',neg:'Estudio fotográfico',eq:'Fujifilm Frontier',mod:'Frontier 350',q:'CP',p:'2,000 a 10,000',nec:['Papel','Texturas'],u:'Este mes',s:'Sin contactar',h:'Hoy 08:40'},
+  {n:'Digital Foto Mérida',ct:'José Canul',e:'Yucatán',neg:'Laboratorio',eq:'Noritsu',mod:'QSS-33',q:'RA-4',p:'2,000 a 10,000',nec:['Refacciones'],u:'Lo necesito ya',s:'Contactado',h:'Ayer 17:05'},
+  {n:'Eventos Lumière',ct:'Paola Ruiz',e:'Chihuahua',neg:'Fotografía de eventos',eq:'Fujifilm Frontier',mod:'Frontier 500',q:'Equipo seco (sin química)',p:'Menos de 2,000',nec:['Texturas','Adhesivos'],u:'Solo estoy cotizando',s:'Contactado',h:'Ayer 12:30'},
+  {n:'Foto Sonora Express',ct:'Raúl Valenzuela',e:'Sonora',neg:'Laboratorio',eq:'Noritsu',mod:'QSS-32',q:'CP',p:'Más de 10,000',nec:['Papel','Químicos','Refacciones'],u:'Lo necesito ya',s:'Cotización enviada',h:'Lun 10:18'},
+  {n:'Estudio Baja Retratos',ct:'Daniela Soto',e:'Baja California',neg:'Estudio fotográfico',eq:'Fujifilm Frontier',mod:'Frontier 370',q:'CP',p:'2,000 a 10,000',nec:['Papel'],u:'Este mes',s:'Cotización enviada',h:'Lun 09:02'},
+  {n:'Colegio Fotográfico Tampico',ct:'Luis Herrera',e:'Tamaulipas',neg:'Escuela o institución',eq:'Todavía no tengo',mod:'—',q:'No sé',p:'No sé',nec:['Papel','Químicos'],u:'Solo estoy cotizando',s:'Sin contactar',h:'Dom 19:44'},
+  {n:'Foto Laguna',ct:'Ernesto Ríos',e:'Coahuila',neg:'Laboratorio',eq:'Noritsu',mod:'QSS-34',q:'RA-4',p:'2,000 a 10,000',nec:['Químicos'],u:'Este mes',s:'Ganado',h:'Sáb 11:20'},
+  {n:'Impresiones Culiacán',ct:'Karla Félix',e:'Sinaloa',neg:'Laboratorio',eq:'Fujifilm Frontier',mod:'Frontier 550',q:'CP',p:'Más de 10,000',nec:['Refacciones','Papel'],u:'Lo necesito ya',s:'Contactado',h:'Vie 16:10'},
+  {n:'Foto Boda Querétaro',ct:'Andrea Luna',e:'Querétaro',neg:'Fotografía de eventos',eq:'Otro',mod:'Epson D700',q:'Equipo seco (sin química)',p:'Menos de 2,000',nec:['Texturas'],u:'Solo estoy cotizando',s:'Contactado',h:'Vie 10:05'},
+  {n:'Laboratorio Campeche Color',ct:'Miguel Chablé',e:'Campeche',neg:'Laboratorio',eq:'Noritsu',mod:'QSS-37',q:'CP',p:'2,000 a 10,000',nec:['Papel','Químicos'],u:'Este mes',s:'Sin contactar',h:'Jue 13:47'},
+  {n:'Foto Estudio Tijuana Centro',ct:'Rocío Medina',e:'Baja California',neg:'Estudio fotográfico',eq:'Noritsu',mod:'QSS-32',q:'RA-4',p:'Menos de 2,000',nec:['Refacciones'],u:'Lo necesito ya',s:'Cotización enviada',h:'Jue 09:31'}
+];
+
+// ---------------- ESTADO ----------------
+const state = {cat:'Todos', search:'', list:[], step:0, ans:{necesita:[]}, leads:SEED.map(x=>Object.assign({},x)), pf:'Todos'};
+
+// ---------------- UTIL ----------------
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2200);}
+
+const CAT_COLORS = {Papel:['#11181D','#F5F1EA','#19BFEB'],Texturas:['#EAE3D6','#0B1014','#FF6A1A'],Adhesivos:['#1A242B','#F5F1EA','#FF6A1A'],'Químicos':['#0A7FA8','#B8E9F8','#FF6A1A'],Refacciones:['#11181D','#8FA4AC','#19BFEB']};
+function thumb(cat, seed){
+  const c = CAT_COLORS[cat] || CAT_COLORS.Papel; const bg=c[0], fg=c[1], acc=c[2];
+  let h=0; for(let i=0;i<seed.length;i++) h=(h*31+seed.charCodeAt(i))|0; h=Math.abs(h);
+  let inner='';
+  if(cat==='Papel'){
+    inner=`<circle cx="50" cy="50" r="34" fill="none" stroke="${fg}" stroke-width=".8" opacity=".4"/><circle cx="50" cy="50" r="24" fill="${acc}"/><circle cx="50" cy="50" r="15" fill="${bg}"/><circle cx="50" cy="50" r="5" fill="${fg}"/><path d="M50 16 L92 24 L92 38 L50 30Z" fill="${fg}" opacity=".9"/>`;
+  } else if(cat==='Texturas'){
+    let lines=''; for(let i=0;i<9;i++){lines+=`<line x1="${22+i*7}" y1="28" x2="${16+i*7}" y2="76" stroke="${acc}" stroke-width=".6" opacity=".55"/>`;}
+    inner=`<rect x="18" y="26" width="64" height="52" fill="#fff" transform="rotate(${(h%5)-2} 50 52)"/>${lines}`;
+  } else if(cat==='Adhesivos'){
+    inner=`<rect x="22" y="30" width="56" height="42" rx="3" fill="${fg}" opacity=".95"/><path d="M78 30 L78 52 L60 72 L22 72" fill="none" stroke="${acc}" stroke-width="2"/><path d="M60 72 L78 52 L66 54Z" fill="${acc}"/>`;
+  } else if(cat==='Químicos'){
+    const lvl=26+(h%30);
+    inner=`<path d="M38 22 h24 v8 l8 12 v38 a6 6 0 0 1-6 6 h-28 a6 6 0 0 1-6-6 v-38 l8-12z" fill="${fg}" opacity=".95"/><rect x="41" y="14" width="18" height="10" rx="2" fill="${acc}"/><rect x="34" y="${80-lvl}" width="32" height="${lvl}" fill="${acc}" opacity=".85"/>`;
+  } else {
+    let g=''; for(let i=0;i<12;i++){g+=`<rect x="49" y="16" width="2" height="7" fill="${acc}" transform="rotate(${i*30} 50 50)"/>`;}
+    inner=`${g}<circle cx="50" cy="50" r="24" fill="none" stroke="${acc}" stroke-width="1.6"/><circle cx="50" cy="50" r="9" fill="${acc}"/>`;
+  }
+  return `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="${bg}"/>${inner}</svg>`;
+}
+
+// ---------------- NAVEGACIÓN ----------------
+window.toggleMenu = function(force){
+  const m=$('mmenu'), b=$('burger');
+  const open = typeof force==='boolean' ? force : !m.classList.contains('open');
+  m.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open)); b.textContent = open ? '✕' : '☰';
+};
+window.anchor = function(id){
+  toggleMenu(false);
+  if(location.hash.replace('#','')==='panel'){ go(''); }
+  const el=$(id); if(el){ const y=el.getBoundingClientRect().top+window.scrollY-70; window.scrollTo({top:y,behavior:'smooth'}); }
+};
+window.toTop = function(){ toggleMenu(false); window.scrollTo({top:0,behavior:'smooth'}); };
+window.go = function(view){
+  if(view==='panel'){ history.replaceState(null,'','#panel'); } else { history.replaceState(null,'',location.pathname); }
+  route();
+};
+function route(){
+  const panel = location.hash==='#panel';
+  $('drawer').classList.remove('open');
+  $('view-sitio').style.display = panel ? 'none' : '';
+  $('view-panel').style.display = panel ? '' : 'none';
+  $('seg-sitio').classList.toggle('on', !panel);
+  $('seg-panel').classList.toggle('on', panel);
+  if(panel){ renderPanel(); window.scrollTo(0,0); }
+}
+
+// ---------------- SITIO ----------------
+function renderCats(){
+  $('catgrid').innerHTML = CATS.map(c => `
+    <article class="catcard" onclick="pickCat('${c.k}')">
+      <div class="catcard__img">${thumb(c.k,c.k)}</div>
+      <div class="catcard__body"><h3>${esc(c.t)}</h3><p>${esc(c.d)}</p></div>
+    </article>`).join('');
+}
+window.pickCat = function(k){ state.cat=k; renderChips(); renderProducts(); anchor('catalogo'); };
+function renderChips(){
+  const all=['Todos'].concat(CATS.map(c=>c.k));
+  $('catchips').innerHTML = all.map(k=>`<button class="chip ${state.cat===k?'on':''}" onclick="setCat('${k}')">${esc(k)}</button>`).join('');
+}
+window.setCat = function(k){ state.cat=k; renderChips(); renderProducts(); };
+function renderProducts(){
+  const s=state.search.trim().toLowerCase();
+  const list = PRODUCTS.filter(p => (state.cat==='Todos'||p.c===state.cat) && (!s || (p.n+' '+p.m+' '+p.f+' '+p.c).toLowerCase().includes(s)));
+  $('pgrid').innerHTML = list.length ? list.map(p => {
+    const inQ = state.list.includes(p.id);
+    return `<article class="pcard">
+      <div class="pcard__img">${thumb(p.c,p.id)}</div>
+      <div class="pcard__body">
+        <span class="pcard__meta">${esc(p.c)} · ${esc(p.m)}</span>
+        <h4>${esc(p.n)}</h4>
+        <span class="fit">${esc(p.f)}</span>
+        <button class="btn btn--sm ${inQ?'added':'btn--primary'}" onclick="toggleItem('${p.id}')">${inQ?'✓ En tu cotización':'Agregar a cotización'}</button>
+      </div></article>`;
+  }).join('') : `<div class="empty" style="grid-column:1/-1">No lo encontramos en el catálogo. Pídelo en la cotización y lo conseguimos.</div>`;
+}
+window.toggleItem = function(id){
+  const i=state.list.indexOf(id);
+  if(i>=0){ state.list.splice(i,1); toast('Quitado de tu cotización'); }
+  else { state.list.push(id); toast('Agregado a tu cotización'); }
+  const p=PRODUCTS.find(x=>x.id===id);
+  if(p && !state.ans.necesita.includes(p.c)) state.ans.necesita.push(p.c);
+  $('qcount').textContent=state.list.length;
+  renderProducts(); if(state.step===1) renderQuote();
+};
+
+// ---------------- COTIZADOR (3 pasos) ----------------
+const STEPS=['Tu equipo','Qué necesitas','Tus datos'];
+function optsHtml(key){
+  const q=Q[key]; const v=state.ans[key];
+  return `<div class="field"><span class="lbl">${esc(q.t)}</span><div class="opts">${q.o.map(o=>{
+    const on = q.multi ? (v||[]).includes(o) : v===o;
+    return `<button type="button" class="opt ${on?'on':''}" onclick="pick('${key}',this.dataset.v)" data-v="${esc(o)}">${esc(o)}</button>`;
+  }).join('')}</div></div>`;
+}
+window.pick = function(key,val){
+  if(Q[key].multi){ const a=state.ans[key]||(state.ans[key]=[]); const i=a.indexOf(val); if(i>=0)a.splice(i,1); else a.push(val); }
+  else state.ans[key]=val;
+  renderQuote();
+};
+function saveInputs(){
+  ['modelo','nota','nombre','negocioNombre','correo','tel','estado'].forEach(k=>{ const el=$('f-'+k); if(el) state.ans[k]=el.value; });
+}
+function renderQuote(){
+  const st=state.step;
+  const head=`<div class="qsteps">${STEPS.map((s,i)=>`<span class="${i===st?'on':i<st?'done':''}">${i+1}. ${s}</span>`).join('')}</div>`;
+  let body='';
+  if(st===0){
+    body = optsHtml('negocio') + optsHtml('equipo') +
+      `<div class="field"><label for="f-modelo">Modelo de tu equipo</label><input id="f-modelo" placeholder="Ej. QSS-37, Frontier 350" value="${esc(state.ans.modelo||'')}"/><small>Si no lo sabes, déjalo en blanco.</small></div>` +
+      optsHtml('quimica') + optsHtml('produccion');
+  } else if(st===1){
+    const items = state.list.map(id=>PRODUCTS.find(p=>p.id===id)).filter(Boolean);
+    body = optsHtml('necesita') +
+      `<div class="field"><span class="lbl">Productos del catálogo</span>${items.length?`<div class="qlist"><ul>${items.map(p=>`<li><span>${esc(p.n)}</span><button type="button" onclick="toggleItem('${p.id}')" aria-label="Quitar">✕</button></li>`).join('')}</ul></div>`:`<small>No has agregado productos. Puedes <a style="color:var(--cyan-deep);font-weight:700" onclick="anchor('catalogo')">elegirlos del catálogo</a> o describirlos abajo.</small>`}</div>` +
+      `<div class="field"><label for="f-nota">¿Algo más que necesites?</label><textarea id="f-nota" rows="3" placeholder="Ej. 10 bobinas de 12.7 brillante al mes">${esc(state.ans.nota||'')}</textarea></div>` +
+      optsHtml('urgencia');
+  } else if(st===2){
+    body = `<div class="ff-grid" style="--ff-min:220px;--ff-gap:0 16px">
+      <div class="field"><label for="f-nombre">Tu nombre *</label><input id="f-nombre" autocomplete="name" value="${esc(state.ans.nombre||'')}"/></div>
+      <div class="field"><label for="f-negocioNombre">Nombre de tu negocio</label><input id="f-negocioNombre" autocomplete="organization" value="${esc(state.ans.negocioNombre||'')}"/></div>
+      <div class="field"><label for="f-correo">Correo *</label><input id="f-correo" type="email" autocomplete="email" value="${esc(state.ans.correo||'')}"/></div>
+      <div class="field"><label for="f-tel">Teléfono / WhatsApp *</label><input id="f-tel" type="tel" autocomplete="tel" inputmode="tel" placeholder="10 dígitos" value="${esc(state.ans.tel||'')}"/></div>
+      </div>
+      <div class="field"><label for="f-estado">Estado *</label><select id="f-estado"><option value="">Selecciona tu estado</option>${ESTADOS.map(e=>`<option ${state.ans.estado===e?'selected':''}>${e}</option>`).join('')}</select></div>`;
+  } else {
+    $('quote').innerHTML = `<div class="done-box"><div class="ok">✓</div><h3 style="font-size:26px;margin-bottom:8px">Recibimos tu solicitud, ${esc((state.ans.nombre||'').split(' ')[0])}.</h3><p style="color:var(--muted);max-width:44ch;margin:0 auto 20px">Te contactamos en menos de 24 horas hábiles con tu cotización. Te mandamos una copia de tu solicitud a ${esc(state.ans.correo||'tu correo')}.</p><button class="btn btn--ghost" onclick="go('panel')">Ver cómo le llega al panel →</button></div>`;
+    return;
+  }
+  const nav = `<div class="err" id="qerr"></div><div class="qnav">${st>0?`<button class="btn btn--ghost" onclick="qBack()">← Atrás</button>`:'<span></span>'}<button class="btn btn--primary" onclick="qNext()">${st===2?'Enviar solicitud':'Continuar →'}</button></div>`;
+  $('quote').innerHTML = head + body + nav;
+}
+window.qBack = function(){ saveInputs(); state.step=Math.max(0,state.step-1); renderQuote(); };
+window.qNext = function(){
+  saveInputs();
+  const a=state.ans; let err='';
+  if(state.step===0 && (!a.negocio||!a.equipo)) err='Elige tu tipo de negocio y tu equipo.';
+  if(state.step===1 && !(a.necesita&&a.necesita.length) && !state.list.length && !(a.nota||'').trim()) err='Dinos qué necesitas: elige una línea, agrega productos o descríbelo.';
+  if(state.step===1 && !err && !a.urgencia) err='Elige para cuándo lo necesitas.';
+  if(state.step===2){
+    if(!(a.nombre||'').trim()) err='Escribe tu nombre.';
+    else if(!/^\S+@\S+\.\S+$/.test(a.correo||'')) err='Revisa tu correo.';
+    else if((a.tel||'').replace(/\D/g,'').length<10) err='El teléfono debe tener 10 dígitos.';
+    else if(!a.estado) err='Selecciona tu estado.';
+  }
+  if(err){ $('qerr').textContent=err; return; }
+  if(state.step===2){
+    state.leads.unshift({n:a.negocioNombre||a.nombre,ct:a.nombre,e:a.estado,neg:a.negocio,eq:a.equipo,mod:a.modelo||'—',q:a.quimica||'No sé',p:a.produccion||'No sé',nec:(a.necesita||[]).slice(),u:a.urgencia,s:'Sin contactar',h:'Justo ahora',isNew:true,items:state.list.map(id=>PRODUCTS.find(p=>p.id===id).n),nota:a.nota||'',correo:a.correo,tel:a.tel});
+  }
+  state.step++; renderQuote();
+  const el=$('cotizar'); window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-70,behavior:'smooth'});
+};
+
+// ---------------- PANEL ----------------
+const UCLS = {'Lo necesito ya':'tag--hot','Este mes':'tag--warm','Solo estoy cotizando':'tag--cold'};
+const STATUSES = ['Sin contactar','Contactado','Cotización enviada','Ganado','Perdido'];
+function bars(el, counts){
+  const arr=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,7); const max=Math.max(1,...arr.map(x=>x[1]));
+  $(el).innerHTML = arr.map(([k,v])=>`<div class="bar"><span class="nm">${esc(k)}</span><span class="tr"><i style="width:${v/max*100}%"></i></span><span class="ct">${v}</span></div>`).join('');
+}
+function count(fn){ const o={}; state.leads.forEach(l=>{ const k=fn(l); o[k]=(o[k]||0)+1; }); return o; }
+function renderPanel(){
+  const L=state.leads;
+  $('k-total').textContent=L.length;
+  $('k-hot').textContent=L.filter(l=>l.u==='Lo necesito ya'&&l.s==='Sin contactar').length || L.filter(l=>l.u==='Lo necesito ya').length;
+  $('k-new').textContent=L.filter(l=>l.s==='Sin contactar').length;
+  $('k-states').textContent=new Set(L.map(l=>l.e)).size;
+  bars('b-state', count(l=>l.e));
+  bars('b-equipo', count(l=>l.eq));
+  bars('b-quim', count(l=>l.q));
+  const F=['Todos','Lo necesito ya','Este mes','Solo estoy cotizando','Sin contactar'];
+  $('pfilters').innerHTML = F.map(f=>`<button class="chip ${state.pf===f?'on':''}" onclick="setPf(this.dataset.f)" data-f="${f}">${f}</button>`).join('');
+  const rows = L.map((l,i)=>({l,i})).filter(({l})=> state.pf==='Todos' || l.u===state.pf || l.s===state.pf);
+  $('ptbody').innerHTML = rows.map(({l,i})=>`<tr class="${l.isNew?'new':''}" onclick="openLead(${i})">
+    <td><b>${esc(l.n)}</b><br><span style="color:#5B6B78;font-size:12.5px">${esc(l.ct)} · ${esc(l.h)}</span></td>
+    <td>${esc(l.e)}</td>
+    <td>${esc(l.eq)}<br><span style="color:#5B6B78;font-size:12.5px">${esc(l.mod)} · ${esc(l.q)}</span></td>
+    <td>${l.nec.map(n=>`<span class="tag">${esc(n)}</span>`).join('')||'—'}</td>
+    <td><span class="tag ${UCLS[l.u]||''}">${esc(l.u)}</span></td>
+    <td><span class="tag ${l.s==='Sin contactar'?'tag--hot':'tag--st'}">${esc(l.s)}</span></td></tr>`).join('') || `<tr><td colspan="6" style="color:#5B6B78">Sin prospectos en este filtro.</td></tr>`;
+}
+window.setPf = function(f){ state.pf=f; renderPanel(); };
+window.openLead = function(i){
+  const l=state.leads[i];
+  $('drawerp').innerHTML = `<button class="btn btn--ghost btn--sm" onclick="closeDrawer()" style="float:right">✕</button>
+    <span class="tag ${UCLS[l.u]||''}">${esc(l.u)}</span>
+    <h3 style="margin-top:8px">${esc(l.n)}</h3><div style="color:#5B6B78">${esc(l.ct)} · ${esc(l.e)}</div>
+    <dl class="dl">
+      <dt>Negocio</dt><dd>${esc(l.neg)}</dd>
+      <dt>Minilab</dt><dd>${esc(l.eq)} · ${esc(l.mod)}</dd>
+      <dt>Química</dt><dd>${esc(l.q)}</dd>
+      <dt>Producción</dt><dd>${esc(l.p)}</dd>
+      <dt>Necesita</dt><dd>${esc(l.nec.join(', ')||'—')}</dd>
+      ${l.items&&l.items.length?`<dt>Productos</dt><dd>${l.items.map(esc).join('<br>')}</dd>`:''}
+      ${l.nota?`<dt>Nota</dt><dd>${esc(l.nota)}</dd>`:''}
+      <dt>Contacto</dt><dd>${esc(l.correo||'correo@ejemplo.com')}<br>${esc(l.tel||'55 0000 0000')}</dd>
+      <dt>Llegó</dt><dd>${esc(l.h)} · anuncio Facebook / Instagram</dd>
+    </dl>
+    <div class="field"><label for="d-st">Seguimiento</label><select id="d-st" onchange="setSt(${i},this.value)">${STATUSES.map(s=>`<option ${s===l.s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn--primary" onclick="toast('En producción abre WhatsApp con el prospecto')">Escribir por WhatsApp</button><button class="btn btn--ghost" onclick="toast('En producción abre tu correo con la cotización')">Enviar cotización</button></div>`;
+  $('drawer').classList.add('open');
+};
+window.setSt = function(i,v){ state.leads[i].s=v; state.leads[i].isNew=false; renderPanel(); toast('Seguimiento actualizado'); };
+window.closeDrawer = function(){ $('drawer').classList.remove('open'); };
+window.toast = toast;
+
+// ---------------- INIT ----------------
+$('y').textContent=new Date().getFullYear();
+$('q').addEventListener('input', e=>{ state.search=e.target.value; renderProducts(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeDrawer(); toggleMenu(false); } });
+window.addEventListener('hashchange', route);
+renderCats(); renderChips(); renderProducts(); renderQuote(); route();
+})();
+</script>
+</body>
+</html>
