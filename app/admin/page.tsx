@@ -1259,6 +1259,8 @@ const CSS = `
     .ld-wrap .mb-cards { background:#0C2232; border:1px solid rgba(255,255,255,0.08); border-radius:14px; }
     .mb-card { background:#11313f; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:7px; color:#e8f4f8; font-size:13px; }
     .mb-card-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .mb-card-top > :first-child { white-space:normal; min-width:0; overflow-wrap:anywhere; }
+    .mb-card-top .co-td-date, .mb-card-top .co-status { flex-shrink:0; }
     .mb-card-service { color:#a8cdd8; font-size:12px; }
     .mb-card-row { display:flex; align-items:center; justify-content:space-between; }
     .mb-card-bottom { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:3px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.08); }
