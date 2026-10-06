@@ -146,10 +146,10 @@ export default function WhatsAppTab() {
   if (loading) return <div style={{ color: C.muted, padding: 24 }}>Cargando conversaciones…</div>;
 
   return (
-    <div className="wa-grid" data-sel={sel ? "1" : "0"} style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 12, minHeight: 520 }}>
+    <div className="wa-grid" data-sel={sel ? "1" : "0"} style={{ display: "grid", gridTemplateColumns: "300px minmax(0, 1fr)", gap: 12, minHeight: 520 }}>
       <style>{`
         @media (max-width: 760px) {
-          .wa-grid { grid-template-columns: 1fr !important; }
+          .wa-grid { grid-template-columns: minmax(0, 1fr) !important; }
           .wa-grid[data-sel="1"] .wa-list { display: none; }
           .wa-grid[data-sel="0"] .wa-thread { display: none; }
         }

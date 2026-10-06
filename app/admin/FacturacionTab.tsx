@@ -203,9 +203,9 @@ export default function FacturacionTab() {
   if (cargando && !orgs.length) return <div style={{ color: C.muted, padding: 24 }}>Cargando facturación…</div>;
 
   return (
-    <div style={{ display: "grid", gap: 16, color: C.text }}>
+    <div style={{ display: "grid", gap: 16, color: C.text, gridTemplateColumns: "minmax(0, 1fr)" }}>
       {/* Emisores */}
-      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
+      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))" }}>
         {orgs.map((o) => {
           const llave = o.modo === "live" ? o.tiene_llave_live : o.tiene_llave_test;
           return (
@@ -234,7 +234,7 @@ export default function FacturacionTab() {
       {/* Nueva factura */}
       <form onSubmit={timbrar} style={card}>
         <h3 style={{ margin: "0 0 14px", fontSize: 16 }}>Nueva factura</h3>
-        <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
+        <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))" }}>
           <div>
             <span style={label}>Emisor</span>
             <select style={input} value={emisor} onChange={(e) => setEmisor(e.target.value)}>
@@ -277,7 +277,7 @@ export default function FacturacionTab() {
         <div style={{ marginTop: 18 }}>
           <span style={label}>Conceptos</span>
           {lineas.map((l, i) => (
-            <div key={i} style={{ display: "grid", gap: 8, gridTemplateColumns: "minmax(0,1fr) 70px 130px 32px", marginBottom: 8 }}>
+            <div key={i} className="ff-cfdi-line">
               <input style={input} placeholder="Descripción" value={l.descripcion}
                 onChange={(e) => setLineas((ls) => ls.map((x, j) => j === i ? { ...x, descripcion: e.target.value } : x))} />
               <input style={input} placeholder="Cant." inputMode="decimal" value={l.cantidad}

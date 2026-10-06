@@ -853,9 +853,9 @@ export default function CRMPage() {
       {/* Mismo módulo que el tablero de CANE, apuntado a las cuentas de FishFlow.
           Vive en su propio archivo porque trae su tema oscuro y nada más. */}
       {activeTab === 'publicaciones' && <PublicacionesTab />}
-      {activeTab === 'whatsapp' && <WhatsAppTab />}
+      {activeTab === 'whatsapp' && <div className="ff-tab-pane"><WhatsAppTab /></div>}
       {activeTab === 'resenas' && <ResenasTab />}
-      {activeTab === 'facturacion' && <FacturacionTab />}
+      {activeTab === 'facturacion' && <div className="ff-tab-pane"><FacturacionTab /></div>}
 
       {/* ── Modal CRM ─────────────────────────────────────────────────────── */}
       {modal.open && (
@@ -1170,17 +1170,36 @@ const CSS = `
   .ff-swipe-hint { display:none; }
   .mb-cards { display:none; }
 
+  /* ── Contenedor de las pestañas que no traen padding propio ── */
+  .ff-tab-pane { padding:20px 24px 48px; max-width:1240px; margin:0 auto; }
+  .ff-cfdi-line { display:grid; gap:8px; grid-template-columns:minmax(0,1fr) 70px 130px 32px; margin-bottom:8px; }
+
+  /* ════════════════════════════════════════════════════════════════════════
+     HEADER EN DOS FILAS (≤1400px)
+     Con 7 pestañas + buscador + botón ya no caben en una sola fila de 60px:
+     el logo y Salir arriba, las pestañas en una tira deslizable abajo.
+     ════════════════════════════════════════════════════════════════════════ */
+  @media (max-width: 1400px) {
+    .ff-header { flex-wrap:wrap; height:auto; padding:10px 24px; gap:10px; }
+    .ff-header-row1 { display:flex; width:100%; align-items:center; justify-content:space-between; }
+    .ff-header-actions { order:2; margin-left:0; }
+    .ff-tabs { order:1; max-width:100%; min-width:0; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    .ff-tabs::-webkit-scrollbar { display:none; }
+    .ff-tab { flex:0 0 auto; white-space:nowrap; }
+    .ff-header:has(.ff-header-actions) .ff-tabs { flex:1 1 auto; }
+  }
+
   /* ════════════════════════════════════════════════════════════════════════
      MÓVIL (≤768px)
      ════════════════════════════════════════════════════════════════════════ */
   @media (max-width: 768px) {
 
     /* ── Header: 3 filas ── */
-    .ff-header { flex-wrap:wrap; height:auto; padding:10px 12px; gap:10px; }
-    .ff-header-row1 { display:flex; width:100%; align-items:center; justify-content:space-between; }
+    .ff-header { padding:10px 12px; }
     .ff-logo { font-size:16px; }
-    .ff-tabs { width:100%; order:1; }
-    .ff-tab { flex:1; padding:9px 4px; font-size:12px; text-align:center; }
+    .ff-tabs { width:100%; flex:none; order:1; }
+    /* 7 pestañas no caben a lo ancho: tira deslizable, cada una de su tamaño */
+    .ff-tab { flex:0 0 auto; padding:9px 12px; font-size:12px; text-align:center; white-space:nowrap; }
     .ff-header-actions { width:100%; order:2; margin-left:0; }
     .ff-search-wrap { flex:1; }
     .ff-search { width:100%; font-size:16px; padding:9px 12px 9px 32px; }
@@ -1227,6 +1246,12 @@ const CSS = `
     /* ── Leads ── */
     .ld-wrap { padding:12px; }
     .ld-table-wrap { display:none; }
+
+    /* ── WhatsApp + Facturación ── */
+    .ff-tab-pane { padding:12px 12px 32px; }
+    .ff-cfdi-line { grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px; }
+    .ff-cfdi-line > :first-child { grid-column:1 / -1; }
+    .ff-cfdi-line input { font-size:16px !important; }
 
     /* ── Cards móviles (Cobros + Leads) ── */
     .mb-cards { display:flex; flex-direction:column; gap:10px; padding:14px; }
