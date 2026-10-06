@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email'
 import { escHtml } from '@/lib/emailLayout'
+import { withSlackAlert } from '@/lib/slack'
 
 export const runtime = 'nodejs'
 
@@ -34,7 +35,7 @@ function ultimaCorridaProgramada(ahora: Date): Date {
 
 const hora = (d: string | Date) => new Date(d).toLocaleString('es-MX', { timeZone: TZ, dateStyle: 'medium', timeStyle: 'short' })
 
-export async function GET(req: Request) {
+async function handler(req: Request) {
   const secret = process.env.CRON_SECRET
   if (secret && req.headers.get('authorization') !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -94,3 +95,5 @@ export async function GET(req: Request) {
   })
   return NextResponse.json({ ok: r.ok, corrio: false, causa, programada: programada.toISOString() }, { status: 200 })
 }
+
+export const GET = withSlackAlert('cron/regintel-vigilante', handler)

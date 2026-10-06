@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { syncFailedPosts } from '@/lib/failedPostsSync'
+import { withSlackAlert } from '@/lib/slack'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -10,7 +11,7 @@ export const maxDuration = 60
 // Mismo candado que /api/cron/enlace-digest: si CRON_SECRET está configurado,
 // se exige el header Authorization que Vercel manda solo.
 
-export async function GET(req: Request) {
+async function handler(req: Request) {
   const secret = process.env.CRON_SECRET
   if (secret) {
     const auth = req.headers.get('authorization')
@@ -22,3 +23,5 @@ export async function GET(req: Request) {
   const resultado = await syncFailedPosts()
   return NextResponse.json(resultado, { status: resultado.ok ? 200 : 500 })
 }
+
+export const GET = withSlackAlert('cron/blotato-failures', handler)

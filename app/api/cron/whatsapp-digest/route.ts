@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email'
 import { escHtml } from '@/lib/emailLayout'
+import { withSlackAlert } from '@/lib/slack'
 
 export const runtime = 'nodejs'
 
@@ -47,7 +48,7 @@ function tabla(filas: string[][]) {
     .join('')}</table>`
 }
 
-export async function GET(req: Request) {
+async function handler(req: Request) {
   const secret = process.env.CRON_SECRET
   if (secret && req.headers.get('authorization') !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -151,3 +152,5 @@ export async function GET(req: Request) {
   })
   return NextResponse.json({ ok: r.ok, sent: r.ok, pendientes: nPend, fuego: nFuego, resenas: nRes })
 }
+
+export const GET = withSlackAlert('cron/whatsapp-digest', handler)

@@ -3,6 +3,7 @@ import { createHmac } from 'crypto'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
 import { createClient } from '@supabase/supabase-js'
 import { markStoreOrderPaidByTxn } from '@/lib/storeRmz'
+import { withSlackAlert } from '@/lib/slack'
 
 // Admin client — server-side only
 const supabaseAdmin = createClient(
@@ -60,7 +61,7 @@ function mapMpStatus(mpStatus: string | undefined): 'paid' | 'failed' | 'pending
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handler(req: NextRequest) {
   try {
     const rawBody = await req.text()
     const url = new URL(req.url)
@@ -142,3 +143,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+export const POST = withSlackAlert('webhook Mercado Pago', handler)

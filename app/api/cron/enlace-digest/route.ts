@@ -4,6 +4,7 @@ import { Resend } from 'resend'
 import { ENLACE_CLIENT_ID } from '@/lib/supabase'
 import { SENDERS } from '@/lib/email'
 import { emailUI, escHtml } from '@/lib/emailLayout'
+import { withSlackAlert } from '@/lib/slack'
 
 export const runtime = 'nodejs'
 
@@ -27,7 +28,7 @@ type Row = {
   created_at: string
 }
 
-export async function GET(req: Request) {
+async function handler(req: Request) {
   // El cron de Vercel manda el header Authorization con CRON_SECRET.
   // Si la variable existe, se exige; así el endpoint no queda abierto.
   const secret = process.env.CRON_SECRET
@@ -117,3 +118,5 @@ export async function GET(req: Request) {
 
   return NextResponse.json({ ok: true, sent: true, capturas: rows.length, vendedoras: ranking.length })
 }
+
+export const GET = withSlackAlert('cron/enlace-digest', handler)

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { markStoreOrderPaidByTxn } from '@/lib/storeRmz'
+import { withSlackAlert } from '@/lib/slack'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,7 +27,7 @@ async function markTransaction(txnId: string, status: string, session: Stripe.Ch
   return error
 }
 
-export async function POST(req: NextRequest) {
+async function handler(req: NextRequest) {
   const body = await req.text()
   const sig  = req.headers.get('stripe-signature')
 
@@ -102,3 +103,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ received: true })
 }
+
+export const POST = withSlackAlert('webhook Stripe', handler)

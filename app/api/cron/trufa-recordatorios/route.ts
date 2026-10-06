@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { correrRecordatorios } from "@/lib/trufaRecordatorios";
+import { withSlackAlert } from '@/lib/slack'
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -16,7 +17,7 @@ export const maxDuration = 120;
 // ?dry=1 corre todo sin mandar nada ni marcar nada. Es la forma de ver a quién
 // le tocaría hoy sin gastarle un correo a nadie.
 
-export async function GET(req: Request) {
+async function handler(req: Request) {
   // Falla CERRADO, a diferencia de los otros dos crons. Ahí un `if (secret)`
   // solo deja la ruta abierta; aquí la ruta MANDA CORREOS a clientes finales,
   // así que sin llave configurada no corre. Verificado el 15-sep-2026: en
@@ -36,3 +37,5 @@ export async function GET(req: Request) {
   const resultado = await correrRecordatorios({ dryRun });
   return NextResponse.json({ ...resultado, dryRun }, { status: resultado.ok ? 200 : 500 });
 }
+
+export const GET = withSlackAlert('cron/trufa-recordatorios', handler)
