@@ -17,6 +17,7 @@ const SITIOS = [
   'https://studiojomay.com.mx',
   'https://mariocitalan.net',
   'https://enlaceintegralseguros.com',
+  'https://enlaceintegralseguros.com.mx', // redirige al .com; vigila que la redirección siga viva
   'https://www.sparcgroup.mx',
 ]
 
