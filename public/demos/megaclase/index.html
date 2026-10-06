@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mega Clase Flow · Diciembre 2026 · YMCA Mallorca</title>
-<meta name="description" content="400 personas, un instructor internacional, 2 horas de flujo. Compra tu boleto en línea y recibe tu acceso con código QR." />
-<meta property="og:title" content="Mega Clase Flow · Diciembre 2026" />
-<meta property="og:description" content="400 lugares. 2 horas. Un instructor internacional. Compra tu boleto en línea." />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FF4D2E'/%3E%3Cpath d='M12 40c8-14 16-14 20 0s12 14 20 0' fill='none' stroke='%23fff' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FF4D2E'/%3E%3Cpath d='M12 40c8-14 16-14 20 0s12 14 20 0' fill='none' stroke='%23fff' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+<title>VIBRA MX · Baile fitness con Mike Gavilán · 18 dic · YMCA Mallorca</title>
+<meta name="description" content="VIBRA MX: dos horas de baile fitness con Mike Gavilán y 15 coaches. Viernes 18 de diciembre de 2026, YMCA Mallorca, CDMX. Compra tu boleto en línea y entra con tu QR." />
+<meta property="og:title" content="VIBRA MX · Mike Gavilán en CDMX" />
+<meta property="og:description" content="Viernes 18 de diciembre · 8:00 p. m. · YMCA Mallorca. Boletos en línea con acceso QR." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FF4D2E'/%3E%3Cpath d='M14 18l18 30 18-30' fill='none' stroke='%23fff' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FF4D2E'/%3E%3Cpath d='M14 18l18 30 18-30' fill='none' stroke='%23fff' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
+
 /* ============================================================
    1) RESPONSIVE BASE  ·  copia de demos/_template/responsive-base.css
    ============================================================ */
@@ -315,24 +316,55 @@ table.t td.m{font-family:var(--f-mono);}
   .nav,.tour,.demo-band,.tkt-actions,.mailprev,.foot,.no-print{display:none !important;}
   body{background:#fff;}
 }
+
+/* ===== Ajustes VIBRA MX ===== */
+.chip.ymca{background:rgba(103,212,232,.14);color:#7FDCEC;}
+.chip.gen{background:rgba(255,77,46,.16);color:#FF8A73;}
+.prog{border:1px solid var(--line);border-radius:18px;overflow:hidden;}
+.prog .r{display:grid;grid-template-columns:120px 70px 1fr;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--bg-3);font-size:14.5px;align-items:center;}
+.prog .r:last-child{border-bottom:0;}
+.prog .r.hi{background:rgba(255,77,46,.10);}
+.prog time{font-family:var(--f-mono);font-weight:700;color:var(--accent-2);font-size:13.5px;}
+.prog .d{color:var(--muted);font-size:12.5px;}
+@media(max-width:600px){ .prog .r{grid-template-columns:96px 1fr;} .prog .d{display:none;} }
+.policy{background:var(--bg-3);border:1px solid var(--line);border-radius:18px;padding:22px;}
+.policy h3{font-size:15px;margin:0 0 8px;}
+.policy ul{margin:0 0 14px;padding-left:18px;color:var(--muted);font-size:14px;}
+.policy p{color:var(--muted);font-size:14px;margin:0 0 10px;}
+.contact{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.sede{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 6px;font-size:13px;color:var(--muted);margin-top:22px;}
+.sede b{display:grid;place-items:center;background:var(--text);color:var(--bg);border-radius:999px;padding:5px 10px;font-size:11px;letter-spacing:.06em;}
+.note-ymca{background:rgba(103,212,232,.10);border:1px dashed rgba(103,212,232,.5);color:#BFEFF7;border-radius:12px;padding:10px 12px;font-size:12.5px;margin:-4px 0 12px;}
+.sheet .note-ymca{background:#EAF9FC;border-color:#8ED9E6;color:#145868;}
+.rep{width:100%;border-collapse:collapse;font-size:14px;}
+.rep td{padding:9px 0;border-bottom:1px solid var(--line);color:var(--muted);}
+.rep td.v{text-align:right;color:var(--text);font-family:var(--f-mono);white-space:nowrap;padding-left:12px;}
+.rep tr.tot td{color:var(--text);font-weight:700;border-bottom:0;padding-top:12px;}
+.rep tr.neg td.v{color:#FF8A73;}
+.rep th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:right;padding-bottom:6px;font-weight:600;}
+.rep th:first-child{text-align:left;}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px;gap:3px;margin-bottom:12px;}
+.seg button{border:0;background:transparent;color:var(--muted);padding:7px 12px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;}
+.seg button.on{background:var(--text);color:var(--bg);}
+.priv{font-size:11.5px;color:var(--muted);margin-top:10px;}
 </style>
 </head>
 <body>
 
-<div class="demo-band no-print">Demo de flujo · fotos, fechas y textos son de muestra · el pago está en modo prueba, no se cobra nada</div>
+<div class="demo-band no-print">Demo para revisión de Alan y Rodrigo · fotos y video de muestra · el pago está en modo prueba, no se cobra nada</div>
 
 <!-- NAV -->
 <header class="nav">
   <div class="ff-container">
     <div class="nav__in">
       <a class="brand" href="#evento">
-        <span class="mk"><svg width="18" height="18" viewBox="0 0 64 64"><path d="M8 40c9-16 18-16 24 0s15 16 24 0" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg></span>
-        MEGA CLASE FLOW
+        <span class="mk"><svg width="18" height="18" viewBox="0 0 64 64"><path d="M12 14l20 34 20-34" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        VIBRA MX
       </a>
       <nav class="nav__links" aria-label="Secciones">
         <a href="#evento" data-go="sobre">El evento</a>
-        <a href="#evento" data-go="instructor">Instructor</a>
-        <a href="#evento" data-go="agenda">Agenda</a>
+        <a href="#evento" data-go="instructor">Mike Gavilán</a>
+        <a href="#evento" data-go="programa">Programa</a>
         <a href="#evento" data-go="boletos">Boletos</a>
         <a href="#evento" data-go="faq">Preguntas</a>
       </nav>
@@ -343,8 +375,8 @@ table.t td.m{font-family:var(--f-mono);}
     </div>
     <nav class="mnav" id="mnav" aria-label="Menú móvil">
       <a href="#evento" data-go="sobre">El evento</a>
-      <a href="#evento" data-go="instructor">Instructor</a>
-      <a href="#evento" data-go="agenda">Agenda</a>
+      <a href="#evento" data-go="instructor">Mike Gavilán</a>
+      <a href="#evento" data-go="programa">Programa</a>
       <a href="#evento" data-go="boletos">Boletos</a>
       <a href="#evento" data-go="faq">Preguntas</a>
       <a href="#boleto">Mis boletos</a>
@@ -361,17 +393,17 @@ table.t td.m{font-family:var(--f-mono);}
   <section class="hero">
     <div class="hero__in ff-container">
       <div>
-        <span class="eyebrow">Diciembre 2026 · YMCA Mallorca</span>
-        <h1>400 personas.<br>2 horas.<br><span>Un solo flow.</span></h1>
-        <p class="ff-lede">La mega clase del año con un instructor internacional, en vivo y en el gimnasio principal de la YMCA Mallorca. Compra en línea, recibe tu boleto con QR en tu correo y entra directo.</p>
+        <span class="eyebrow">Baile fitness · Invitado internacional</span>
+        <h1>VIBRA MX<br><span>con Mike Gavilán</span></h1>
+        <p class="ff-lede">Dos horas de baile fitness con el creador de "Muévelo y Gózalo" y 15 coaches en el escenario. Compra en línea, recibe tu boleto con QR en tu correo y entra directo.</p>
         <div class="facts">
-          <div class="fact"><b>Sáb 12 dic</b>Fecha de muestra</div>
-          <div class="fact"><b>18:00 h</b>Acceso desde 17:30</div>
-          <div class="fact"><b>400</b>Lugares en total</div>
+          <div class="fact"><b>Vie 18 dic</b>2026</div>
+          <div class="fact"><b>8:00 p. m.</b>Acceso desde 7:00 p. m.</div>
+          <div class="fact"><b>YMCA Mallorca</b>Ciudad de México</div>
         </div>
         <div class="hero__cta">
           <button class="btn btn--primary" data-buy>Comprar mi boleto →</button>
-          <span class="price-hint">Desde <b>$650</b> · o <b>3 pagos de $216.67</b> sin intereses</span>
+          <span class="price-hint">General <b>$600</b> · Usuarios YMCA <b>$500</b></span>
         </div>
         <div class="cupo">
           <div class="cupo__row"><span>Lugares vendidos</span><span><b id="cupoTxt">—</b></span></div>
@@ -380,7 +412,7 @@ table.t td.m{font-family:var(--f-mono);}
       </div>
       <div class="video" aria-label="Video promocional (muestra)">
         <div class="play"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#16121E"/></svg></div>
-        <div class="cap"><span>Aquí va el video del instructor</span><span class="tag-demo">muestra</span></div>
+        <div class="cap"><span>Aquí va el video de Mike Gavilán</span><span class="tag-demo">muestra</span></div>
       </div>
     </div>
   </section>
@@ -388,42 +420,46 @@ table.t td.m{font-family:var(--f-mono);}
   <section class="section section--alt" id="sobre">
     <div class="ff-container">
       <span class="eyebrow">El evento</span>
-      <h2 class="ff-h2" style="margin-top:10px">Una clase que no vas a repetir</h2>
-      <p class="sub">Texto de muestra: aquí va la descripción real que nos manden Alan y Rodrigo (el plan presentado a la YMCA).</p>
+      <h2 class="ff-h2" style="margin-top:10px">Una noche para moverte con todo</h2>
+      <p class="sub">VIBRA MX junta ejercicio, música y comunidad en una sola clase gigante. Llegas, te registras con tu QR y bailas dos horas seguidas.</p>
       <div class="ff-grid ff-grid--md">
-        <div class="card"><div class="num">01</div><h3>Instructor internacional</h3><p>Dos horas guiadas por un referente del flow, por primera vez en la YMCA Mallorca.</p></div>
-        <div class="card"><div class="num">02</div><h3>Monitores en sala</h3><p>Un equipo de monitores repartido en el gimnasio para que nadie se quede atrás.</p></div>
-        <div class="card"><div class="num">03</div><h3>Para todos los niveles</h3><p>Si te mueves, puedes estar. Cada bloque trae opción más suave y más intensa.</p></div>
-        <div class="card"><div class="num">04</div><h3>Cupo real de 400</h3><p>Es el límite del gimnasio. Cuando se acaban los lugares, la venta se cierra sola.</p></div>
+        <div class="card"><div class="num">2 h</div><h3>De baile continuo</h3><p>De 8:00 a 10:00 p. m., con dos pausas de hidratación.</p></div>
+        <div class="card"><div class="num">15</div><h3>Coaches en el escenario</h3><p>Acompañan a Mike en bloques de tres durante toda la clase.</p></div>
+        <div class="card"><div class="num">1</div><h3>Invitado internacional</h3><p>Mike Gavilán viene de Paraguay a dar la clase en vivo.</p></div>
+        <div class="card"><div class="num">QR</div><h3>Acceso sin filas eternas</h3><p>Tu boleto llega a tu correo. Lo enseñas en la puerta y listo.</p></div>
       </div>
     </div>
   </section>
 
   <section class="section" id="instructor">
     <div class="ff-container instr">
-      <div class="instr__ph">Foto del instructor<br><span class="tag-demo" style="margin-top:10px">muestra</span></div>
+      <div class="instr__ph">Foto de Mike Gavilán<br><span class="tag-demo" style="margin-top:10px">muestra</span></div>
       <div>
-        <span class="eyebrow">Instructor invitado</span>
-        <h2 class="ff-h2" style="margin:10px 0 14px">Nombre del instructor</h2>
-        <p class="ff-lede" style="color:var(--muted);margin:0 0 18px">Semblanza de muestra: país de origen, trayectoria, en dónde ha dado clases y por qué esta clase es distinta. Aquí entra el texto real del material de Rodrigo.</p>
-        <div class="ff-grid ff-grid--sm">
-          <div class="card"><h3>+10 años</h3><p>de experiencia (dato de muestra)</p></div>
-          <div class="card"><h3>3 países</h3><p>donde ha dado mega clases</p></div>
-        </div>
+        <span class="eyebrow">Invitado internacional</span>
+        <h2 class="ff-h2" style="margin:10px 0 14px">Mike Gavilán</h2>
+        <p class="ff-lede" style="color:var(--muted);margin:0 0 14px">Bailarín, coreógrafo e influencer paraguayo, conocido por sus clases de baile fitness y por su concepto <b style="color:var(--text)">"Muévelo y Gózalo"</b>. Ha dado masterclasses en distintos países de Latinoamérica.</p>
+        <p class="ff-lede" style="color:var(--muted);margin:0">El 18 de diciembre llega a la Ciudad de México para encabezar VIBRA MX junto con 15 coaches.</p>
       </div>
     </div>
   </section>
 
-  <section class="section section--alt" id="agenda">
+  <section class="section section--alt" id="programa">
     <div class="ff-container">
-      <span class="eyebrow">Agenda</span>
-      <h2 class="ff-h2" style="margin:10px 0 24px">Así van las 2 horas</h2>
-      <div class="agenda">
-        <div class="ag"><time>17:30</time><div><b>Acceso con QR</b><span>Llega con tu boleto en el celular. Los monitores lo escanean en la puerta.</span></div></div>
-        <div class="ag"><time>18:00</time><div><b>Bienvenida y calentamiento</b><span>Activación guiada por el equipo de monitores.</span></div></div>
-        <div class="ag"><time>18:20</time><div><b>Clase principal</b><span>El instructor internacional toma el escenario.</span></div></div>
-        <div class="ag"><time>19:40</time><div><b>Cierre y estiramiento</b><span>Bajamos el ritmo juntos.</span></div></div>
-        <div class="ag"><time>20:00</time><div><b>Foto grupal</b><span>Los 400 en una sola foto.</span></div></div>
+      <span class="eyebrow">Programa</span>
+      <h2 class="ff-h2" style="margin:10px 0 8px">Así van las 2 horas</h2>
+      <p class="sub">Acceso del público desde las 7:00 p. m.</p>
+      <div class="prog">
+        <div class="r"><time>8:00 – 8:05</time><span class="d">5 min</span><span>Bienvenida VIBRA y presentación</span></div>
+        <div class="r"><time>8:05 – 8:15</time><span class="d">10 min</span><span>Calentamiento con los 15 coaches</span></div>
+        <div class="r hi"><time>8:15 – 8:20</time><span class="d">5 min</span><span><b>Entrada especial de Mike Gavilán</b></span></div>
+        <div class="r"><time>8:20 – 8:35</time><span class="d">15 min</span><span>Mike solo · primer bloque</span></div>
+        <div class="r"><time>8:35 – 8:55</time><span class="d">20 min</span><span>Mike con los coaches 1 al 6</span></div>
+        <div class="r"><time>8:55 – 9:00</time><span class="d">5 min</span><span>Hidratación e interacción</span></div>
+        <div class="r"><time>9:00 – 9:30</time><span class="d">30 min</span><span>Mike con los coaches 7 al 15</span></div>
+        <div class="r"><time>9:30 – 9:35</time><span class="d">5 min</span><span>Segunda hidratación</span></div>
+        <div class="r hi"><time>9:35 – 9:50</time><span class="d">15 min</span><span><b>Mike protagonista · bloque final</b></span></div>
+        <div class="r"><time>9:50 – 9:57</time><span class="d">7 min</span><span>Gran cierre: Mike y los 15 coaches</span></div>
+        <div class="r"><time>9:57 – 10:00</time><span class="d">3 min</span><span>Agradecimiento y foto oficial</span></div>
       </div>
     </div>
   </section>
@@ -431,7 +467,7 @@ table.t td.m{font-family:var(--f-mono);}
   <section class="section">
     <div class="ff-container">
       <span class="eyebrow">Galería</span>
-      <h2 class="ff-h2" style="margin:10px 0 24px">Ediciones anteriores</h2>
+      <h2 class="ff-h2" style="margin:10px 0 24px">Así se vive una clase de Mike</h2>
       <div class="gal"><div>Foto 1</div><div>Foto 2</div><div>Foto 3</div><div>Foto 4</div></div>
     </div>
   </section>
@@ -440,33 +476,33 @@ table.t td.m{font-family:var(--f-mono);}
     <div class="ff-container">
       <span class="eyebrow">Boletos</span>
       <h2 class="ff-h2" style="margin:10px 0 12px">Aparta tu lugar</h2>
-      <p class="sub">Pagas con tarjeta, saldo de Mercado Pago u OXXO. Tu boleto llega al instante a tu correo con un código QR por persona.</p>
+      <p class="sub">Pagas con tarjeta de crédito o débito, saldo de Mercado Pago u OXXO. Tu boleto llega al instante a tu correo, con un QR por persona.</p>
       <div class="tickets">
         <div class="tk on">
           <span class="pill">Disponible</span>
-          <h3>Preventa</h3>
-          <div class="p">$650 <small>MXN</small></div>
-          <div class="msi">o 3 pagos de $216.67 sin intereses</div>
-          <ul><li>Acceso general a la clase</li><li>Boleto digital con QR</li><li>Hasta 10 boletos por compra</li></ul>
-          <button class="btn btn--primary btn--block" data-buy>Comprar preventa</button>
+          <h3>Entrada general</h3>
+          <div class="p">$600 <small>MXN</small></div>
+          <div class="msi">Pago en una sola exhibición</div>
+          <ul><li>Acceso a las 2 horas de clase</li><li>Boleto digital con QR</li><li>Hasta 10 boletos por compra</li></ul>
+          <button class="btn btn--primary btn--block" data-buy="general">Comprar entrada general</button>
         </div>
         <div class="tk">
-          <span class="pill off">Desde 1 dic</span>
-          <h3>General</h3>
-          <div class="p">$700 <small>MXN</small></div>
-          <div class="msi">o 3 pagos de $233.33 sin intereses</div>
-          <ul><li>Acceso general a la clase</li><li>Boleto digital con QR</li><li>Sujeto a disponibilidad</li></ul>
-          <button class="btn btn--ghost btn--block" disabled>Aún no disponible</button>
+          <span class="pill">Usuarios YMCA</span>
+          <h3>Precio usuario YMCA</h3>
+          <div class="p">$500 <small>MXN</small></div>
+          <div class="msi" style="color:#7FDCEC">Presenta tu credencial YMCA en la entrada</div>
+          <ul><li>Mismo acceso que la entrada general</li><li>Pide tu número de usuario al comprar</li><li>Se valida en la puerta con tu credencial</li></ul>
+          <button class="btn btn--ghost btn--block" data-buy="ymca">Comprar como usuario YMCA</button>
         </div>
       </div>
-      <p style="font-size:12.5px;color:var(--muted);margin-top:14px"><span class="tag-demo">por definir</span>&nbsp; Precios y fechas de corte de muestra. Se ajustan desde el panel.</p>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:14px"><span class="tag-demo">por confirmar</span>&nbsp; El precio para usuarios YMCA está sujeto a confirmación de la organización.</p>
     </div>
   </section>
 
   <section class="section">
     <div class="ff-container">
-      <span class="eyebrow">Ubicación</span>
-      <h2 class="ff-h2" style="margin:10px 0 24px">Gimnasio principal · YMCA Mallorca</h2>
+      <span class="eyebrow">Sede</span>
+      <h2 class="ff-h2" style="margin:10px 0 24px">YMCA Mallorca · Ciudad de México</h2>
       <div class="map"><div style="text-align:center"><span class="pin">📍 YMCA Mallorca · Ciudad de México</span><br><a class="btn btn--light btn--sm" style="margin-top:14px" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=YMCA+Mallorca+Ciudad+de+Mexico">Cómo llegar</a></div></div>
     </div>
   </section>
@@ -476,19 +512,36 @@ table.t td.m{font-family:var(--f-mono);}
       <span class="eyebrow">Preguntas frecuentes</span>
       <h2 class="ff-h2" style="margin:10px 0 18px">Lo que todos preguntan</h2>
       <details><summary>¿Cómo recibo mi boleto?</summary><p>Al pagar te llega un correo con tu boleto y un código QR por cada persona. También lo puedes abrir desde esta página en "Mis boletos".</p></details>
-      <details><summary>¿Puedo pagar en meses?</summary><p>Sí. Con tarjeta de crédito participante puedes pagar en 3 meses sin intereses. Con débito, saldo de Mercado Pago u OXXO el pago es en una sola exhibición.</p></details>
+      <details><summary>¿A qué hora llego?</summary><p>El acceso abre a las 7:00 p. m. y la clase empieza a las 8:00 p. m. en punto.</p></details>
+      <details><summary>¿Puedo pagar a meses?</summary><p>No. El pago es en una sola exhibición con tarjeta de crédito o débito, saldo de Mercado Pago u OXXO.</p></details>
+      <details><summary>¿Cómo aplica el precio de usuario YMCA?</summary><p>Al comprar eliges "Usuario YMCA" y escribes tu número de usuario. En la entrada te pedimos tu credencial YMCA vigente junto con tu QR.</p></details>
       <details><summary>¿Puedo comprar para mis amigos?</summary><p>Sí, hasta 10 boletos por compra. Cada boleto tiene su propio QR, así cada quien entra con el suyo.</p></details>
-      <details><summary>¿Qué pasa si alguien copia mi QR?</summary><p>Cada QR se puede usar una sola vez. Si alguien intenta entrar con un QR ya usado, el sistema lo marca en la puerta.</p></details>
-      <details><summary>¿Hay reembolsos?</summary><p>Política de muestra: los boletos no son reembolsables, pero sí transferibles. Aquí va la política real del evento.</p></details>
-      <details><summary>¿Qué llevo?</summary><p>Ropa cómoda, agua y tu boleto en el celular. Texto de muestra.</p></details>
+      <details><summary>¿Hay reembolsos?</summary><p>Una vez adquirido el boleto no se hacen cancelaciones ni reembolsos por causas personales del asistente (cambio de planes, imposibilidad de asistir, enfermedad, transporte u otras ajenas a la organización), salvo los derechos que correspondan conforme a la legislación aplicable.</p></details>
+      <details><summary>¿Puedo transferir mi boleto?</summary><p>Sí. Al transferirlo, el boleto anterior queda invalidado y solo vale el boleto o registro actualizado por VIBRA.</p></details>
+      <details><summary>¿Qué pasa con boletos duplicados o de reventa?</summary><p>Cada boleto permite un solo acceso. No se permite el ingreso con boletos duplicados, alterados o reportados como transferidos, y VIBRA no se hace responsable por boletos comprados en reventa o canales no autorizados.</p></details>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="politicas">
+    <div class="ff-container" style="max-width:820px">
+      <div class="policy">
+        <h3>Aviso de privacidad</h3>
+        <p>VIBRA Fitness Events, como responsable, recaba, usa, almacena y protege los datos personales de participantes, compradores y asistentes conforme a la legislación aplicable en materia de protección de datos personales. Para dudas o para ejercer tus derechos de acceso, rectificación, cancelación u oposición, escribe a <b style="color:var(--text)">c.vibra_fitness.events@outlook.com</b>.</p>
+        <h3 style="margin-top:14px">Condiciones de compra</h3>
+        <p style="margin:0">La compra del boleto implica la aceptación de la política de reembolsos y transferencias, y de las condiciones generales del evento.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
     <div class="ff-container" style="text-align:center">
       <h2 class="ff-h2">Quedan <span id="leftBig" style="color:var(--accent)">—</span> lugares</h2>
-      <p class="sub" style="margin:12px auto 24px">Cuando se acaban, se acaban. La venta en línea se cierra sola al llegar a 400.</p>
+      <p class="sub" style="margin:12px auto 24px">Cuando se acaban, se acaban. La venta en línea se cierra sola al llenarse la sede.</p>
       <button class="btn btn--primary" data-buy>Comprar mi boleto →</button>
+      <div class="contact" style="justify-content:center">
+        <a class="btn btn--ghost btn--sm" href="mailto:c.vibra_fitness.events@outlook.com">c.vibra_fitness.events@outlook.com</a>
+        <a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" href="https://wa.me/525666239358">WhatsApp 56 6623 9358</a>
+      </div>
     </div>
   </section>
 </main>
@@ -506,13 +559,13 @@ table.t td.m{font-family:var(--f-mono);}
 </main>
 
 <!-- =========================================================
-     VISTA 3 · PUERTA (monitores)
+     VISTA 3 · PUERTA (staff)
      ========================================================= -->
 <main class="view" id="v-puerta">
   <section class="door ff-container">
-    <span class="eyebrow">Acceso · uso de monitores</span>
+    <span class="eyebrow">Acceso · uso del staff</span>
     <h2 class="ff-h2" style="margin:10px 0 6px">Escáner de puerta</h2>
-    <p class="sub">Cada monitor abre esta página en su celular. El QR se valida contra la lista de boletos pagados y no se puede usar dos veces.</p>
+    <p class="sub">Cada persona del staff abre esta página en su celular. El QR se valida contra la lista de boletos pagados y no se puede usar dos veces. Si el boleto es de usuario YMCA, el sistema avisa que hay que pedir credencial.</p>
     <div class="door__grid">
       <div>
         <div class="cam" id="cam">
@@ -526,7 +579,7 @@ table.t td.m{font-family:var(--f-mono);}
           <button class="btn btn--ghost" id="camStop" style="display:none">Detener</button>
         </div>
         <div class="manual">
-          <input id="manualIn" placeholder="Folio, ej. MCF-0012" aria-label="Folio del boleto">
+          <input id="manualIn" placeholder="Folio, ej. VMX-0012" aria-label="Folio del boleto">
           <button class="btn btn--light" id="manualBtn">Validar</button>
         </div>
         <div class="result" id="result"></div>
@@ -551,14 +604,14 @@ table.t td.m{font-family:var(--f-mono);}
 </main>
 
 <!-- =========================================================
-     VISTA 4 · PANEL DEL ORGANIZADOR
+     VISTA 4 · PANEL DEL ORGANIZADOR (en producción va con login)
      ========================================================= -->
 <main class="view" id="v-panel">
   <section class="panel ff-container">
     <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-end">
       <div>
-        <span class="eyebrow">Panel del organizador · Alan y Rodrigo</span>
-        <h2 class="ff-h2" style="margin-top:10px">Mega Clase Flow</h2>
+        <span class="eyebrow">Panel privado · Alan y Rodrigo</span>
+        <h2 class="ff-h2" style="margin-top:10px">VIBRA MX · 18 dic</h2>
       </div>
       <span class="tag-demo">ventas de ejemplo + las tuyas</span>
     </div>
@@ -566,21 +619,29 @@ table.t td.m{font-family:var(--f-mono);}
     <div class="ff-grid ff-grid--sm" style="margin-top:22px">
       <div class="kpi"><div class="v" id="kSold">—</div><div class="l">Boletos vendidos</div><div class="s" id="kLeft">—</div></div>
       <div class="kpi"><div class="v" id="kGross">—</div><div class="l">Venta bruta</div></div>
-      <div class="kpi"><div class="v" id="kFee">—</div><div class="l">Comisión estimada</div><div class="s">Mercado Pago, incluye MSI</div></div>
-      <div class="kpi"><div class="v" id="kNet">—</div><div class="l">Neto estimado</div></div>
+      <div class="kpi"><div class="v" id="kNet">—</div><div class="l">Neto para la organización</div><div class="s" id="kNetNote">—</div></div>
+      <div class="kpi"><div class="v" id="kYmcaU">—</div><div class="l">Boletos de usuarios YMCA</div></div>
       <div class="kpi"><div class="v" id="kIn">—</div><div class="l">Ya entraron</div></div>
     </div>
 
     <div class="split">
       <div class="box">
-        <h3>Boletos vendidos por día · últimos 14 días</h3>
-        <div class="bars" id="bars"></div>
-        <div style="height:22px"></div>
+        <h3>Reparto del ingreso con YMCA</h3>
+        <div class="seg" role="tablist" aria-label="Modelo con YMCA">
+          <button class="on" data-model="alianza">Alianza 20%</button>
+          <button data-model="renta">Renta fija</button>
+        </div>
+        <div class="ff-tablewrap" style="--ff-tablemin:420px">
+          <table class="rep" id="rep"></table>
+        </div>
+        <p class="priv" id="repNote"></p>
       </div>
       <div class="box">
-        <h3>Cómo están pagando</h3>
+        <h3>Cómo están comprando</h3>
         <div class="mix" id="mix"></div>
-        <p style="font-size:12px;color:var(--muted);margin:12px 0 0">La comisión se estima con 4% + $4 por cobro y 5% extra en 3 MSI. Se reemplaza por la comisión real del panel de Mercado Pago al integrarlo.</p>
+        <h3 style="margin-top:18px">Boletos vendidos por día</h3>
+        <div class="bars" id="bars" style="height:110px"></div>
+        <div style="height:22px"></div>
       </div>
     </div>
 
@@ -592,9 +653,9 @@ table.t td.m{font-family:var(--f-mono);}
           <button class="btn btn--ghost btn--sm" id="csvBtn">Exportar a Excel (CSV)</button>
         </div>
       </div>
-      <div class="ff-tablewrap" style="--ff-tablemin:760px">
+      <div class="ff-tablewrap" style="--ff-tablemin:820px">
         <table class="t">
-          <thead><tr><th>Folio</th><th>Asistente</th><th>Comprador</th><th>Pago</th><th>Monto</th><th>Fecha</th><th>Acceso</th></tr></thead>
+          <thead><tr><th>Folio</th><th>Asistente</th><th>Comprador</th><th>Tipo</th><th>Pago</th><th>Monto</th><th>Fecha</th><th>Acceso</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -603,12 +664,13 @@ table.t td.m{font-family:var(--f-mono);}
         <a id="resetBtn" style="text-decoration:underline">Reiniciar demo</a>
       </div>
     </div>
+    <p class="priv">En producción este panel entra con usuario y contraseña, solo para Alan y Rodrigo. Los compradores nunca lo ven.</p>
   </section>
 </main>
 
 <footer class="foot">
   <div class="foot__in ff-container">
-    <span>© <span id="y"></span> Mega Clase Flow · Alan &amp; Rodrigo</span>
+    <span>© <span id="y"></span> VIBRA Fitness Events · VIBRA MX</span>
     <span>Boletos y acceso con tecnología de FishFlow</span>
   </div>
 </footer>
@@ -635,38 +697,43 @@ table.t td.m{font-family:var(--f-mono);}
 
 /* ---------------- Configuración del evento ---------------- */
 const EVENT = {
-  name: "Mega Clase Flow",
-  capacity: 400,
-  price: 650,
+  name: "VIBRA MX",
+  capacity: 300,                 // propuesta a YMCA: ~300 participantes (confirmar con la sede)
   maxPerOrder: 10,
-  venue: "YMCA Mallorca",
-  dateLabel: "Sáb 12 dic 2026 · 18:00 h",
-  startUTC: "20261213T000000Z",   // 18:00 CDMX
-  endUTC:   "20261213T020000Z",
-  feePct: 0.04, feeFix: 4, msiPct: 0.05
+  venue: "YMCA Mallorca, Ciudad de México",
+  dateLabel: "Vie 18 dic 2026 · 8:00 p. m.",
+  startUTC: "20261219T020000Z",  // 20:00 CDMX
+  endUTC:   "20261219T040000Z",  // 22:00 CDMX
+  feePct: 0.04, feeFix: 4,       // comisión estimada de Mercado Pago (confirmar en su cuenta)
+  ymcaPct: 0.20                  // modelo Alianza: 20% de cada boleto para YMCA
 };
-const STORE_KEY = "ff_megaclase_v1";
-const fmt = n => "$" + n.toLocaleString("es-MX",{minimumFractionDigits:0,maximumFractionDigits:0});
-const fmt2 = n => "$" + n.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const TYPES = {
+  general: { label: "Entrada general", short: "General", price: 600 },
+  ymca:    { label: "Usuario YMCA",     short: "Usuario YMCA", price: 500 }
+};
+const STORE_KEY = "ff_vibramx_v1";
+const fmt = n => "$" + Math.round(n).toLocaleString("es-MX");
 
 /* ---------------- Datos de ejemplo (deterministas) ---------------- */
 function rng(seed){ let s = seed; return () => { s = (s*16807) % 2147483647; return (s-1)/2147483646; }; }
-const NOMBRES = ["Ana","Luis","María","Jorge","Fernanda","Diego","Sofía","Carlos","Valeria","Andrés","Paola","Miguel","Daniela","Ricardo","Lucía","Emilio","Regina","Pablo","Ximena","Santiago","Camila","Héctor","Mariana","Óscar"];
+const NOMBRES = ["Ana","Luis","María","Jorge","Fernanda","Diego","Sofía","Carlos","Valeria","Andrés","Paola","Miguel","Daniela","Ricardo","Lucía","Emilio","Regina","Pablo","Ximena","Santiago","Camila","Héctor","Mariana","Óscar","Guadalupe","Verónica","Alejandra","Patricia"];
 const APELL = ["García","Hernández","López","Martínez","Ramírez","Flores","Torres","Cruz","Morales","Reyes","Ortiz","Vargas","Castillo","Jiménez","Ruiz","Mendoza"];
+const SEED_N = 72;
 function seedTickets(){
-  const r = rng(2026), out = []; let n = 1; const now = Date.now();
-  while (out.length < 88){
-    const qty = r() < .62 ? 1 : (r() < .7 ? 2 : (r() < .6 ? 3 : 4));
+  const r = rng(1812), out = []; let n = 1; const now = Date.now();
+  while (out.length < SEED_N){
+    const qty = r() < .55 ? 1 : (r() < .7 ? 2 : (r() < .6 ? 3 : 4));
     const buyer = NOMBRES[Math.floor(r()*NOMBRES.length)] + " " + APELL[Math.floor(r()*APELL.length)];
     const daysAgo = Math.floor(Math.pow(r(),1.6)*14);
     const ts = now - daysAgo*864e5 - Math.floor(r()*864e5*.6);
-    const roll = r(); const pay = roll < .38 ? "msi3" : (roll < .82 ? "tarjeta" : (roll < .93 ? "saldo" : "oxxo"));
+    const roll = r(); const pay = roll < .68 ? "tarjeta" : (roll < .86 ? "saldo" : "oxxo");
+    const type = r() < .3 ? "ymca" : "general";
     const order = "ORD-" + String(500+n);
-    for (let i=0;i<qty && out.length<88;i++){
+    for (let i=0;i<qty && out.length<SEED_N;i++){
       const att = i===0 ? buyer : NOMBRES[Math.floor(r()*NOMBRES.length)] + " " + APELL[Math.floor(r()*APELL.length)];
-      out.push({ folio: "MCF-" + String(out.length+1).padStart(4,"0"), order, buyer, attendee: att,
+      out.push({ folio: "VMX-" + String(out.length+1).padStart(4,"0"), order, buyer, attendee: att,
         email: buyer.split(" ")[0].toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"") + n + "@correo.com",
-        pay, price: EVENT.price, ts, checkedIn: null, demo: true });
+        type, pay, price: TYPES[type].price, ts, demo: true });
     }
     n++;
   }
@@ -674,8 +741,7 @@ function seedTickets(){
 }
 
 /* ---------------- Estado (localStorage con try/catch) ---------------- */
-let mine = [];        // boletos comprados en este navegador
-let checkins = {};    // folio -> timestamp
+let mine = [], checkins = {}, model = "alianza";
 function load(){
   try { const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null"); if (s){ mine = s.mine || []; checkins = s.checkins || {}; } } catch(e){}
 }
@@ -684,9 +750,9 @@ const SEED = seedTickets();
 function all(){ return SEED.concat(mine).map(t => Object.assign({}, t, {checkedIn: checkins[t.folio] || null})); }
 function sold(){ return SEED.length + mine.length; }
 function left(){ return Math.max(0, EVENT.capacity - sold()); }
-function nextFolio(){ return "MCF-" + String(sold()+1).padStart(4,"0"); }
-function code4(f){ let h = 7; for (const c of f + "megaclase") h = (h*31 + c.charCodeAt(0)) >>> 0; return h.toString(36).toUpperCase().slice(-4); }
-function qrPayload(f){ return "MCF26|" + f + "|" + code4(f); }
+function nextFolio(){ return "VMX-" + String(sold()+1).padStart(4,"0"); }
+function code4(f){ let h = 7; for (const c of f + "vibramx") h = (h*31 + c.charCodeAt(0)) >>> 0; return h.toString(36).toUpperCase().slice(-4); }
+function qrPayload(f){ return "VMX26|" + f + "|" + code4(f); }
 
 /* ---------------- Utilidades ---------------- */
 const $ = s => document.querySelector(s);
@@ -698,8 +764,9 @@ function qrSVG(text){
   const q = qrcode(0, "M"); q.addData(text); q.make();
   return q.createSvgTag({cellSize:4, margin:2, scalable:true});
 }
-function fee(t){ return t.price*EVENT.feePct + EVENT.feeFix + (t.pay==="msi3" ? t.price*EVENT.msiPct : 0); }
-const PAY_LBL = {msi3:"3 MSI", tarjeta:"Tarjeta", saldo:"Saldo MP", oxxo:"OXXO"};
+function fee(t){ return t.price*EVENT.feePct + EVENT.feeFix; }
+const PAY_LBL = {tarjeta:"Tarjeta", saldo:"Saldo MP", oxxo:"OXXO"};
+const hhmm = ts => new Date(ts).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
 
 /* ---------------- Router ---------------- */
 const VIEWS = ["evento","boleto","puerta","panel"];
@@ -709,9 +776,6 @@ function route(){
   VIEWS.forEach(x => $("#v-"+x).classList.toggle("on", x===v));
   $$(".tour a").forEach(a => a.classList.toggle("on", a.dataset.v===v));
   if (v !== "puerta") stopCam();
-  render(v);
-}
-function render(v){
   renderCupo();
   if (v==="boleto") renderTickets();
   if (v==="puerta") renderDoor();
@@ -727,17 +791,21 @@ function renderCupo(){
 }
 
 /* ---------------- Checkout ---------------- */
-const ck = { step:1, qty:1, name:"", email:"", phone:"", attendees:[], pay:"msi3" };
-function openCheckout(){
+const ck = { step:1, type:"general", qty:1, name:"", email:"", phone:"", socio:"", attendees:[], pay:"tarjeta" };
+function openCheckout(type){
   if (left() <= 0){ toast("Boletos agotados"); return; }
   closeMenu();
-  Object.assign(ck, {step:1, qty:1, attendees:[], pay:"msi3"});
+  Object.assign(ck, {step:1, qty:1, attendees:[], pay:"tarjeta", type: TYPES[type] ? type : "general"});
   drawSheet(); $("#sheetBg").classList.add("on"); document.body.style.overflow = "hidden";
 }
 function closeCheckout(){ $("#sheetBg").classList.remove("on"); document.body.style.overflow = ""; }
-function total(){ return ck.qty * EVENT.price; }
+function unit(){ return TYPES[ck.type].price; }
+function total(){ return ck.qty * unit(); }
 function stepsBar(n){ return '<div class="steps">' + [1,2,3].map(i => '<i class="'+(i<=n?"on":"")+'"></i>').join("") + '</div>'; }
 function hd(title){ return '<div class="sheet__hd"><h3 id="shTitle">'+title+'</h3><button class="x" data-close aria-label="Cerrar">×</button></div>'; }
+function opt(name, v, cur, t, s, amt){
+  return '<label class="opt'+(cur===v?" on":"")+'"><input type="radio" name="'+name+'" value="'+v+'"'+(cur===v?" checked":"")+'><div><b>'+t+'</b><small>'+s+'</small></div><span class="big">'+amt+'</span></label>';
+}
 
 function drawSheet(){
   const el = $("#sheet");
@@ -747,87 +815,87 @@ function drawSheet(){
       atts += '<label class="fld"><span>Persona '+(i+1)+'</span><input data-att="'+i+'" value="'+esc(ck.attendees[i]||"")+'" placeholder="Nombre completo"></label>';
     }
     el.innerHTML = hd("Tus boletos") + stepsBar(1) +
-      '<div class="qty"><div><b>Preventa</b><small>'+fmt(EVENT.price)+' por persona · quedan '+left()+'</small></div>'+
+      '<div class="paym" style="margin-top:0">'+
+        opt("type","general",ck.type,"Entrada general","Acceso a las 2 horas de clase", "$600")+
+        opt("type","ymca",ck.type,"Usuario YMCA","Presentas credencial en la entrada", "$500")+
+      '</div>'+
+      '<div class="qty"><div><b>Boletos</b><small>'+fmt(unit())+' por persona · quedan '+left()+'</small></div>'+
       '<div class="ctl"><button data-q="-1" aria-label="Menos">−</button><output>'+ck.qty+'</output><button data-q="1" aria-label="Más">+</button></div></div>'+
       '<label class="fld"><span>Tu nombre completo</span><input id="fName" value="'+esc(ck.name)+'" autocomplete="name"></label>'+
       '<label class="fld"><span>Correo (ahí llega tu boleto)</span><input id="fEmail" type="email" value="'+esc(ck.email)+'" autocomplete="email"></label>'+
       '<label class="fld"><span>WhatsApp</span><input id="fPhone" type="tel" value="'+esc(ck.phone)+'" inputmode="tel" placeholder="10 dígitos"></label>'+
+      (ck.type==="ymca" ? '<label class="fld"><span>Número de usuario YMCA</span><input id="fSocio" value="'+esc(ck.socio)+'" placeholder="Como aparece en tu credencial"></label><div class="note-ymca">Cada asistente con precio YMCA presenta su credencial vigente en la entrada.</div>' : '')+
       (ck.qty>1 ? '<div class="att"><div class="h">Nombre de cada persona (cada quien recibe su QR)</div>'+atts+'</div>' : '')+
       '<div class="err" id="err"></div>'+
       '<button class="btn btn--primary btn--block" data-next>Continuar · '+fmt(total())+'</button>';
   }
   else if (ck.step === 2){
-    const t = total(), m = t/3;
+    const t = fmt(total());
     el.innerHTML = hd("Forma de pago") + stepsBar(2) +
       '<div class="paym">'+
-        opt("msi3","3 meses sin intereses","Tarjeta de crédito participante", "3 × "+fmt2(m))+
-        opt("tarjeta","Pago de contado","Crédito o débito", fmt(t))+
-        opt("saldo","Saldo de Mercado Pago","Entras con tu cuenta MP", fmt(t))+
-        opt("oxxo","Efectivo en OXXO","Tu boleto llega cuando se acredite el pago", fmt(t))+
+        opt("pay","tarjeta",ck.pay,"Tarjeta de crédito o débito","Pago en una sola exhibición", t)+
+        opt("pay","saldo",ck.pay,"Saldo de Mercado Pago","Entras con tu cuenta MP", t)+
+        opt("pay","oxxo",ck.pay,"Efectivo en OXXO","Tu boleto llega cuando se acredite el pago", t)+
       '</div>'+
-      '<div class="sum"><div><span>'+ck.qty+' × Preventa</span><span>'+fmt(t)+'</span></div>'+
+      '<div class="sum"><div><span>'+ck.qty+' × '+TYPES[ck.type].label+'</span><span>'+t+'</span></div>'+
       '<div><span>Cargo por servicio</span><span>Incluido</span></div>'+
-      '<div class="t"><span>Total</span><span>'+(ck.pay==="msi3" ? "3 × "+fmt2(m) : fmt(t))+'</span></div></div>'+
+      '<div class="t"><span>Total</span><span>'+t+'</span></div></div>'+
       '<button class="btn btn--primary btn--block" style="margin-top:14px" data-next>Pagar con Mercado Pago</button>'+
       '<button class="btn btn--ghost btn--block" style="margin-top:8px;color:var(--paper-ink);border-color:var(--paper-line)" data-back>Atrás</button>'+
-      '<p class="legal">Al pagar aceptas los términos del evento y el aviso de privacidad. Tus datos solo se usan para tu acceso.</p>';
+      '<p class="legal">Al pagar aceptas la política de reembolsos y transferencias de VIBRA y su aviso de privacidad. Responsable de tus datos: VIBRA Fitness Events.</p>';
   }
   else if (ck.step === 3){
-    const t = total();
-    const isOxxo = ck.pay==="oxxo";
+    const t = fmt(total()), isOxxo = ck.pay==="oxxo";
     el.innerHTML = hd("Mercado Pago") + stepsBar(3) +
       '<div class="testnote"><b>Modo prueba.</b> Así se verá la pantalla de cobro. No se cobra nada: toca "Pagar" para simular un pago aprobado.</div>'+
-      '<div class="mp"><div class="mp__hd"><span>Mercado Pago</span><span>'+(ck.pay==="msi3" ? "3 × "+fmt2(t/3) : fmt(t))+'</span></div><div class="mp__bd">'+
+      '<div class="mp"><div class="mp__hd"><span>Mercado Pago</span><span>'+t+'</span></div><div class="mp__bd">'+
       (isOxxo
-        ? '<p style="margin:0 0 10px;font-size:14px">Se genera una ficha de pago con referencia para pagar en cualquier OXXO. El boleto se emite al acreditarse.</p><div style="font-family:var(--f-mono);font-size:18px;text-align:center;background:#F3F0F6;border-radius:10px;padding:14px">9300 0000 1234 5678</div>'
+        ? '<p style="margin:0 0 10px;font-size:14px">Se genera una ficha con referencia para pagar en cualquier OXXO. El boleto se emite al acreditarse.</p><div style="font-family:var(--f-mono);font-size:18px;text-align:center;background:#F3F0F6;border-radius:10px;padding:14px">9300 0000 1234 5678</div>'
         : (ck.pay==="saldo"
           ? '<p style="margin:0;font-size:14px">Entrarías con tu cuenta de Mercado Pago y pagarías con tu saldo disponible.</p>'
           : '<label class="fld"><span>Número de tarjeta</span><input value="5474 9254 3267 0366" readonly></label>'+
             '<div class="row2"><label class="fld"><span>Vencimiento</span><input value="11/30" readonly></label><label class="fld"><span>CVV</span><input value="123" readonly></label></div>'+
-            '<label class="fld"><span>Titular</span><input value="'+esc(ck.name||"APRO")+'" readonly></label>'+
-            (ck.pay==="msi3" ? '<label class="fld"><span>Cuotas</span><select disabled><option>3 meses sin intereses de '+fmt2(t/3)+'</option></select></label>' : '')
-          ))+
+            '<label class="fld"><span>Titular</span><input value="'+esc(ck.name||"APRO")+'" readonly></label>'))+
       '</div></div>'+
-      '<button class="btn btn--primary btn--block" style="margin-top:14px" data-pay>'+(isOxxo ? "Simular pago en OXXO" : "Pagar")+'</button>'+
+      '<button class="btn btn--primary btn--block" style="margin-top:14px" data-pay>'+(isOxxo ? "Simular pago en OXXO" : "Pagar "+t)+'</button>'+
       '<button class="btn btn--ghost btn--block" style="margin-top:8px;color:var(--paper-ink);border-color:var(--paper-line)" data-back>Atrás</button>';
   }
   else if (ck.step === 4){
     el.innerHTML = hd("Procesando") + '<div class="spin"></div><p style="text-align:center;color:var(--paper-muted);margin:0 0 20px">Confirmando tu pago y apartando tus lugares…</p>';
   }
 }
-function opt(v, t, s, amt){
-  return '<label class="opt'+(ck.pay===v?" on":"")+'"><input type="radio" name="pay" value="'+v+'"'+(ck.pay===v?" checked":"")+'><div><b>'+t+'</b><small>'+s+'</small></div><span class="big">'+amt+'</span></label>';
-}
 function readStep1(){
-  ck.name = ($("#fName")||{}).value?.trim() || "";
-  ck.email = ($("#fEmail")||{}).value?.trim() || "";
-  ck.phone = ($("#fPhone")||{}).value?.trim() || "";
+  const v = id => { const e = document.getElementById(id); return e ? e.value.trim() : null; };
+  if (v("fName") !== null) ck.name = v("fName");
+  if (v("fEmail") !== null) ck.email = v("fEmail");
+  if (v("fPhone") !== null) ck.phone = v("fPhone");
+  if (v("fSocio") !== null) ck.socio = v("fSocio");
   $$("[data-att]").forEach(i => { ck.attendees[+i.dataset.att] = i.value.trim(); });
 }
 function validStep1(){
   if (ck.name.length < 3) return "Escribe tu nombre completo.";
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ck.email)) return "Revisa tu correo: ahí te llega el boleto.";
   if (ck.phone.replace(/\D/g,"").length < 10) return "Escribe tu WhatsApp a 10 dígitos.";
+  if (ck.type==="ymca" && ck.socio.length < 3) return "Escribe tu número de usuario YMCA.";
   for (let i=1;i<ck.qty;i++) if (!(ck.attendees[i]||"").trim()) return "Falta el nombre de la persona " + (i+1) + ".";
   return "";
 }
 function completePurchase(){
   // En producción: el webhook de Mercado Pago confirma el pago y una función de BD aparta el cupo de forma atómica.
   if (ck.qty > left()){ ck.step = 1; drawSheet(); $("#err").textContent = "Solo quedan " + left() + " lugares."; return; }
-  const order = "ORD-" + String(900 + mine.length + 1);
-  const ts = Date.now(); const created = [];
+  const order = "ORD-" + String(900 + mine.length + 1), ts = Date.now(); let n = 0;
   for (let i=0;i<ck.qty;i++){
-    const t = { folio: nextFolio(), order, buyer: ck.name, attendee: i===0 ? ck.name : ck.attendees[i], email: ck.email, phone: ck.phone, pay: ck.pay, price: EVENT.price, ts, checkedIn: null, mine: true };
-    mine.push(t); created.push(t.folio);
+    mine.push({ folio: nextFolio(), order, buyer: ck.name, attendee: i===0 ? ck.name : ck.attendees[i], email: ck.email, phone: ck.phone,
+      type: ck.type, socio: ck.type==="ymca" ? ck.socio : "", pay: ck.pay, price: unit(), ts, mine: true });
+    n++;
   }
-  save();
-  closeCheckout();
-  location.hash = "#boleto";
-  toast("Pago aprobado · " + created.length + (created.length>1 ? " boletos emitidos" : " boleto emitido"));
+  save(); closeCheckout(); location.hash = "#boleto";
+  toast("Pago aprobado · " + n + (n>1 ? " boletos emitidos" : " boleto emitido"));
 }
 
 document.addEventListener("click", e => {
-  const b = e.target.closest("[data-buy]"); if (b){ e.preventDefault(); if (location.hash && location.hash!=="#evento") location.hash = "#evento"; openCheckout(); return; }
+  const b = e.target.closest("[data-buy]");
+  if (b){ e.preventDefault(); if (location.hash && location.hash!=="#evento") location.hash = "#evento"; openCheckout(b.dataset.buy); return; }
   if (e.target.closest("[data-close]") || e.target.id === "sheetBg"){ closeCheckout(); return; }
   const q = e.target.closest("[data-q]");
   if (q){ readStep1(); ck.qty = Math.min(EVENT.maxPerOrder, Math.min(left(), Math.max(1, ck.qty + (+q.dataset.q)))); drawSheet(); return; }
@@ -839,9 +907,14 @@ document.addEventListener("click", e => {
   if (e.target.closest("[data-pay]")){ ck.step = 4; drawSheet(); setTimeout(completePurchase, 1400); return; }
   const go = e.target.closest("[data-go]");
   if (go){ e.preventDefault(); closeMenu(); const id = go.dataset.go; if (location.hash && location.hash!=="#evento"){ location.hash = "#evento"; setTimeout(()=>scrollToId(id), 60); } else scrollToId(id); return; }
+  const m = e.target.closest("[data-model]");
+  if (m){ model = m.dataset.model; renderPanel(); return; }
+  const s = e.target.closest("[data-scan]");
+  if (s){ validate(s.dataset.scan); return; }
 });
 document.addEventListener("change", e => {
   if (e.target.name === "pay"){ ck.pay = e.target.value; drawSheet(); }
+  if (e.target.name === "type"){ readStep1(); ck.type = e.target.value; drawSheet(); }
 });
 function scrollToId(id){ const el = document.getElementById(id); if (el) window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - 70, behavior:"smooth"}); }
 
@@ -866,33 +939,33 @@ function renderTickets(){
   const last = mineNow[mineNow.length-1];
   list.innerHTML = '<div class="tkt-grid">' + mineNow.map(t =>
     '<article class="tkt">'+
-      '<div class="tkt__top"><div class="ev">MEGA CLASE FLOW</div><div class="meta">'+EVENT.dateLabel+' · '+EVENT.venue+'</div></div>'+
+      '<div class="tkt__top"><div class="ev">VIBRA MX · Mike Gavilán</div><div class="meta">'+EVENT.dateLabel+' · YMCA Mallorca</div></div>'+
       '<div class="tkt__bd"><div>'+
         '<div class="k">Asistente</div><div class="v">'+esc(t.attendee)+'</div>'+
-        '<div class="k">Boleto</div><div class="v">Preventa · acceso general</div>'+
+        '<div class="k">Boleto</div><div class="v">'+TYPES[t.type].label+'</div>'+
         '<div class="k">Folio</div><div class="folio">'+t.folio+'</div>'+
       '</div><div class="qr">'+qrSVG(qrPayload(t.folio))+'</div></div>'+
       '<div class="tkt__cut"></div>'+
-      '<div class="tkt__st'+(t.checkedIn?" in":"")+'"><span>'+(t.checkedIn ? "Ya entró · " + new Date(t.checkedIn).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}) : "Válido para 1 acceso")+'</span><span>'+PAY_LBL[t.pay]+'</span></div>'+
+      '<div class="tkt__st'+(t.checkedIn?" in":"")+'"><span>'+(t.checkedIn ? "Ya entró · " + hhmm(t.checkedIn) : (t.type==="ymca" ? "1 acceso · lleva tu credencial YMCA" : "Válido para 1 acceso"))+'</span><span>Acceso 7:00 p. m.</span></div>'+
     '</article>').join("") + '</div>'+
     '<div class="tkt-actions">'+
       '<button class="btn btn--primary" id="icsBtn">Agregar a mi calendario</button>'+
       '<a class="btn btn--ghost" id="waBtn" target="_blank" rel="noopener">Enviarme por WhatsApp</a>'+
       '<button class="btn btn--ghost" onclick="window.print()">Imprimir / PDF</button>'+
     '</div>'+
-    '<div class="mailprev"><b>Correo enviado a '+esc(last.email)+'</b><br>Asunto: "Tu boleto para Mega Clase Flow · '+last.folio+'". Lleva el QR de cada persona y la liga a esta página. En producción sale por Resend con la marca del evento.</div>';
+    '<div class="mailprev"><b>Correo enviado a '+esc(last.email)+'</b><br>Asunto: "Tu boleto para VIBRA MX · '+last.folio+'". Lleva el QR de cada persona y la liga a esta página. En producción sale con la marca de VIBRA.</div>';
   $("#icsBtn").addEventListener("click", downloadICS);
-  const txt = "Mis boletos para Mega Clase Flow (" + EVENT.dateLabel + "): " + mineNow.map(t=>t.folio).join(", ") + " · " + location.href.split("#")[0] + "#boleto";
+  const txt = "Mis boletos para VIBRA MX con Mike Gavilán (" + EVENT.dateLabel + ", YMCA Mallorca): " + mineNow.map(t=>t.folio).join(", ") + " · " + location.href.split("#")[0] + "#boleto";
   $("#waBtn").href = "https://wa.me/?text=" + encodeURIComponent(txt);
 }
 function downloadICS(){
-  const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//FishFlow//Mega Clase//ES","BEGIN:VEVENT",
-    "UID:megaclase-2026@fishflow.mx","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z",
-    "DTSTART:"+EVENT.startUTC,"DTEND:"+EVENT.endUTC,"SUMMARY:Mega Clase Flow","LOCATION:"+EVENT.venue,
-    "DESCRIPTION:Lleva tu boleto con QR en el celular. Acceso desde 17:30.","BEGIN:VALARM","TRIGGER:-PT3H","ACTION:DISPLAY","DESCRIPTION:Hoy es la Mega Clase Flow","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
+  const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//FishFlow//VIBRA MX//ES","BEGIN:VEVENT",
+    "UID:vibramx-2026@fishflow.mx","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z",
+    "DTSTART:"+EVENT.startUTC,"DTEND:"+EVENT.endUTC,"SUMMARY:VIBRA MX con Mike Gavilán","LOCATION:"+EVENT.venue,
+    "DESCRIPTION:Acceso desde las 7:00 p. m. Lleva tu boleto con QR en el celular.","BEGIN:VALARM","TRIGGER:-PT3H","ACTION:DISPLAY","DESCRIPTION:Hoy es VIBRA MX","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([ics],{type:"text/calendar"}));
-  a.download = "mega-clase-flow.ics"; document.body.appendChild(a); a.click(); a.remove();
+  a.download = "vibra-mx.ics"; document.body.appendChild(a); a.click(); a.remove();
 }
 
 /* ---------------- Puerta ---------------- */
@@ -903,43 +976,42 @@ function renderDoor(){
   $("#inBar").style.width = (inN/Math.max(1,tks.length)*100).toFixed(1) + "%";
   const m = tks.filter(t=>t.mine);
   $("#quickWrap").style.display = "block";
-  const sample = m.length ? m : tks.slice(0,3);
-  $("#quick").innerHTML = sample.map(t => '<button data-scan="'+t.folio+'">'+t.folio+'</button>').join("") + '<button data-scan="MCF-9999">Boleto falso</button>';
+  const sample = m.length ? m : [tks.find(t=>t.type==="general"), tks.find(t=>t.type==="ymca")].filter(Boolean);
+  $("#quick").innerHTML = sample.map(t => '<button data-scan="'+t.folio+'">'+t.folio+(t.type==="ymca"?" · YMCA":"")+'</button>').join("") + '<button data-scan="VMX-9999">Boleto falso</button>';
   $("#log").innerHTML = sessionLog.length ? sessionLog.slice(-6).reverse().map(l => '<div><span>'+esc(l.who)+'</span><b>'+l.folio+' · '+l.time+'</b></div>').join("") : '<div><span>Aún no hay accesos en esta sesión.</span></div>';
 }
 function validate(raw){
   let folio = String(raw||"").trim().toUpperCase(), sigOk = true;
-  if (folio.startsWith("MCF26|")){ const p = folio.split("|"); folio = p[1]; sigOk = p[2] === code4(folio); }
+  if (folio.startsWith("VMX26|")){ const p = folio.split("|"); folio = p[1]; sigOk = p[2] === code4(folio); }
   const t = all().find(x => x.folio === folio);
   const box = $("#result"); box.className = "result on";
   if (!t || !sigOk){
     box.classList.add("bad");
-    box.innerHTML = '<div class="big">No válido</div><p>El folio '+esc(folio||"(vacío)")+' no corresponde a ningún boleto pagado. No dejar pasar; mandar a taquilla.</p>';
+    box.innerHTML = '<div class="big">No válido</div><p>El folio '+esc(folio||"(vacío)")+' no corresponde a ningún boleto pagado. No dejar pasar; mandar a registro.</p>';
     beep(220); return;
   }
   if (t.checkedIn){
     box.classList.add("dup");
-    box.innerHTML = '<div class="big">YA ENTRÓ</div><p><b>'+esc(t.attendee)+'</b> · '+t.folio+'<br>Este QR se usó a las '+new Date(t.checkedIn).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"})+'. Posible copia.</p>';
+    box.innerHTML = '<div class="big">YA ENTRÓ</div><p><b>'+esc(t.attendee)+'</b> · '+t.folio+'<br>Este QR se usó a las '+hhmm(t.checkedIn)+'. Posible boleto duplicado.</p>';
     beep(180); return;
   }
   checkins[t.folio] = Date.now(); save();
   box.classList.add("ok");
-  box.innerHTML = '<div class="big">ADELANTE</div><p><b>'+esc(t.attendee)+'</b> · '+t.folio+'<br>Preventa · pagado con '+PAY_LBL[t.pay]+'</p>';
-  sessionLog.push({who:t.attendee, folio:t.folio, time:new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"})});
+  box.innerHTML = '<div class="big">ADELANTE</div><p><b>'+esc(t.attendee)+'</b> · '+t.folio+'<br>'+TYPES[t.type].label+' · pagado con '+PAY_LBL[t.pay]+'</p>'+
+    (t.type==="ymca" ? '<p style="margin-top:10px;color:#7FDCEC"><b>Pide su credencial YMCA vigente.</b>'+(t.socio ? ' Usuario: '+esc(t.socio) : '')+'</p>' : '');
+  sessionLog.push({who:t.attendee, folio:t.folio, time:hhmm(Date.now())});
   beep(880); if (navigator.vibrate) navigator.vibrate(80);
   renderDoor();
 }
 function beep(f){ try { const c = new (window.AudioContext||window.webkitAudioContext)(); const o = c.createOscillator(); o.frequency.value = f; o.connect(c.destination); o.start(); setTimeout(()=>{o.stop(); c.close();}, 140); } catch(e){} }
-document.addEventListener("click", e => { const s = e.target.closest("[data-scan]"); if (s) validate(s.dataset.scan); });
 $("#manualBtn").addEventListener("click", () => { validate($("#manualIn").value); $("#manualIn").value = ""; });
 $("#manualIn").addEventListener("keydown", e => { if (e.key==="Enter"){ validate(e.target.value); e.target.value = ""; } });
 
 /* Cámara: BarcodeDetector si existe; si no, jsQR bajo demanda */
 let stream = null, raf = 0, lastScan = "", lastAt = 0;
 async function startCam(){
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
-  } catch(err){ toast("No se pudo abrir la cámara. Usa el folio manual."); return; }
+  try { stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}); }
+  catch(err){ toast("No se pudo abrir la cámara. Usa el folio manual."); return; }
   const cam = $("#cam"); $("#camIdle").style.display = "none";
   const v = document.createElement("video"); v.setAttribute("playsinline",""); v.muted = true; v.srcObject = stream; cam.appendChild(v);
   const fr = document.createElement("div"); fr.className = "frame"; cam.appendChild(fr);
@@ -977,27 +1049,54 @@ $("#camBtn").addEventListener("click", startCam);
 $("#camStop").addEventListener("click", stopCam);
 
 /* ---------------- Panel ---------------- */
-function renderPanel(){
-  const tks = all();
+function money(tks){
   const gross = tks.reduce((a,t)=>a+t.price,0);
-  const f = tks.reduce((a,t)=>a+fee(t),0);
-  $("#kSold").textContent = tks.length + " / " + EVENT.capacity;
-  $("#kLeft").textContent = "Quedan " + left() + " lugares";
-  $("#kGross").textContent = fmt(gross);
-  $("#kFee").textContent = fmt(f);
-  $("#kNet").textContent = fmt(gross - f);
-  $("#kIn").textContent = tks.filter(t=>t.checkedIn).length;
+  const mp = tks.reduce((a,t)=>a+fee(t),0);
+  const ymca = model==="alianza" ? gross*EVENT.ymcaPct : null;
+  return { gross, mp, ymca, net: gross - mp - (ymca||0) };
+}
+function renderPanel(){
+  const tks = all(), n = tks.length;
+  const now = money(tks);
+  // Proyección si se llena la sede, con el mismo promedio por boleto
+  const avg = n ? now.gross/n : 600, avgFee = n ? now.mp/n : 0;
+  const fullGross = avg*EVENT.capacity, fullMp = avgFee*EVENT.capacity;
+  const fullYmca = model==="alianza" ? fullGross*EVENT.ymcaPct : null;
+  const fullNet = fullGross - fullMp - (fullYmca||0);
 
-  // Barras por día
+  $("#kSold").textContent = n + " / " + EVENT.capacity;
+  $("#kLeft").textContent = "Quedan " + left() + " lugares";
+  $("#kGross").textContent = fmt(now.gross);
+  $("#kNet").textContent = fmt(now.net);
+  $("#kNetNote").textContent = model==="alianza" ? "Después de MP y 20% YMCA" : "Antes de la renta YMCA";
+  $("#kYmcaU").textContent = tks.filter(t=>t.type==="ymca").length;
+  $("#kIn").textContent = tks.filter(t=>t.checkedIn).length;
+  $$("[data-model]").forEach(b => b.classList.toggle("on", b.dataset.model===model));
+
+  const row = (l, a, b, cls) => '<tr class="'+(cls||"")+'"><td>'+l+'</td><td class="v">'+a+'</td><td class="v">'+b+'</td></tr>';
+  $("#rep").innerHTML = '<tr><th></th><th>Hoy ('+n+')</th><th>Sede llena ('+EVENT.capacity+')</th></tr>'+
+    row("Venta de boletos", fmt(now.gross), fmt(fullGross))+
+    row("Comisión Mercado Pago (estimada)", "−"+fmt(now.mp), "−"+fmt(fullMp), "neg")+
+    (model==="alianza"
+      ? row("Participación YMCA (20% del boletaje)", "−"+fmt(now.ymca), "−"+fmt(fullYmca), "neg")
+      : row("Renta fija YMCA", "por cotizar", "por cotizar", "neg"))+
+    row(model==="alianza" ? "Neto para la organización" : "Neto antes de renta", fmt(now.net), fmt(fullNet), "tot");
+  $("#repNote").textContent = (model==="alianza"
+      ? "Alianza comercial propuesta a YMCA: 20% de cada boleto + 100% del estacionamiento (el estacionamiento no pasa por esta venta)."
+      : "Renta fija propuesta a YMCA: la organización conserva el 100% del boletaje y paga la renta que cotice la sede.")
+    + " La comisión de Mercado Pago se estima en 4% + $4 por cobro; se reemplaza por la real al conectar la cuenta.";
+
   const days = []; const today = new Date(); today.setHours(0,0,0,0);
-  for (let i=13;i>=0;i--){ const d = new Date(today.getTime() - i*864e5); days.push({d, n:0}); }
+  for (let i=13;i>=0;i--){ days.push({d:new Date(today.getTime() - i*864e5), n:0}); }
   tks.forEach(t => { const d = new Date(t.ts); d.setHours(0,0,0,0); const k = days.find(x => x.d.getTime()===d.getTime()); if (k) k.n++; });
   const max = Math.max(1, ...days.map(x=>x.n));
-  $("#bars").innerHTML = days.map((x,i) => '<div style="height:'+(x.n/max*100)+'%"><em>'+(x.n||"")+'</em>'+(i%2===1||i===13 ? '<span>'+x.d.getDate()+'/'+(x.d.getMonth()+1)+'</span>' : '')+'</div>').join("");
+  $("#bars").innerHTML = days.map((x,i) => '<div style="height:'+(x.n/max*100)+'%"><em>'+(x.n||"")+'</em>'+(i%3===1||i===13 ? '<span>'+x.d.getDate()+'/'+(x.d.getMonth()+1)+'</span>' : '')+'</div>').join("");
 
-  // Mezcla de pagos
-  const cnt = {msi3:0,tarjeta:0,saldo:0,oxxo:0}; tks.forEach(t => cnt[t.pay]++);
-  $("#mix").innerHTML = Object.keys(cnt).map(k => '<div><span>'+PAY_LBL[k]+'</span><b>'+cnt[k]+' · '+Math.round(cnt[k]/tks.length*100)+'%</b></div>').join("");
+  const by = (k,v) => tks.filter(t=>t[k]===v).length, pct = x => Math.round(x/Math.max(1,n)*100) + "%";
+  $("#mix").innerHTML =
+    '<div><span>Entrada general</span><b>'+by("type","general")+' · '+pct(by("type","general"))+'</b></div>'+
+    '<div><span>Usuario YMCA</span><b>'+by("type","ymca")+' · '+pct(by("type","ymca"))+'</b></div>'+
+    Object.keys(PAY_LBL).map(k => '<div><span>'+PAY_LBL[k]+'</span><b>'+by("pay",k)+' · '+pct(by("pay",k))+'</b></div>').join("");
 
   drawRows();
 }
@@ -1007,16 +1106,17 @@ function drawRows(){
   const f = q ? tks.filter(t => (t.folio+" "+t.attendee+" "+t.buyer+" "+t.email).toLowerCase().includes(q)) : tks;
   $("#rows").innerHTML = f.slice(0,25).map(t =>
     '<tr><td class="m">'+t.folio+(t.mine?' <span class="chip me">tú</span>':'')+'</td><td>'+esc(t.attendee)+'</td><td>'+esc(t.buyer)+'</td>'+
-    '<td><span class="chip '+(t.pay==="msi3"?"msi":"no")+'">'+PAY_LBL[t.pay]+'</span></td><td>'+fmt(t.price)+'</td>'+
+    '<td><span class="chip '+(t.type==="ymca"?"ymca":"gen")+'">'+TYPES[t.type].short+'</span></td>'+
+    '<td><span class="chip no">'+PAY_LBL[t.pay]+'</span></td><td>'+fmt(t.price)+'</td>'+
     '<td>'+new Date(t.ts).toLocaleDateString("es-MX",{day:"2-digit",month:"short"})+'</td>'+
-    '<td>'+(t.checkedIn ? '<span class="chip in">Entró '+new Date(t.checkedIn).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"})+'</span>' : '<span class="chip no">Pendiente</span>')+'</td></tr>').join("");
+    '<td>'+(t.checkedIn ? '<span class="chip in">Entró '+hhmm(t.checkedIn)+'</span>' : '<span class="chip no">Pendiente</span>')+'</td></tr>').join("");
   $("#rowsInfo").textContent = "Mostrando " + Math.min(25,f.length) + " de " + f.length + " boletos";
 }
 $("#q").addEventListener("input", drawRows);
 $("#csvBtn").addEventListener("click", () => {
-  const rows = [["Folio","Asistente","Comprador","Correo","Pago","Monto","Fecha","Acceso"]].concat(all().map(t => [t.folio,t.attendee,t.buyer,t.email,PAY_LBL[t.pay],t.price,new Date(t.ts).toISOString().slice(0,10),t.checkedIn?new Date(t.checkedIn).toISOString():""]));
+  const rows = [["Folio","Asistente","Comprador","Correo","Tipo","Usuario YMCA","Pago","Monto","Fecha","Acceso"]].concat(all().map(t => [t.folio,t.attendee,t.buyer,t.email,TYPES[t.type].label,t.socio||"",PAY_LBL[t.pay],t.price,new Date(t.ts).toISOString().slice(0,10),t.checkedIn?new Date(t.checkedIn).toISOString():""]));
   const csv = "﻿" + rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(",")).join("\n");
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download = "asistentes-mega-clase.csv"; document.body.appendChild(a); a.click(); a.remove();
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download = "asistentes-vibra-mx.csv"; document.body.appendChild(a); a.click(); a.remove();
 });
 $("#resetBtn").addEventListener("click", () => { mine = []; checkins = {}; sessionLog.length = 0; save(); toast("Demo reiniciado"); route(); });
 
