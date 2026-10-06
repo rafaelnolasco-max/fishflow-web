@@ -415,7 +415,7 @@ table.t td.m{font-family:var(--f-mono);}
         </div>
         <div class="hero__cta">
           <button class="btn btn--primary" data-buy>Comprar mi boleto →</button>
-          <span class="price-hint">General <b>$600</b> · Usuarios YMCA <b>$500</b></span>
+          <span class="price-hint">General <b>$600</b> · Usuarios YMCA <b>$500</b> · más cargo por servicio</span>
         </div>
         <div class="cupo">
           <div class="cupo__row"><span>Lugares vendidos</span><span><b id="cupoTxt">—</b></span></div>
@@ -494,7 +494,7 @@ table.t td.m{font-family:var(--f-mono);}
           <span class="pill">Disponible</span>
           <h3>Entrada general</h3>
           <div class="p">$600 <small>MXN</small></div>
-          <div class="msi">Pago en una sola exhibición</div>
+          <div class="msi">+ $<span data-svc="600"></span> de cargo por servicio · total $<span data-tot="600"></span></div>
           <ul><li>Acceso a las 2 horas de clase</li><li>Boleto digital con QR</li><li>Hasta 10 boletos por compra</li></ul>
           <button class="btn btn--primary btn--block" data-buy="general">Comprar entrada general</button>
         </div>
@@ -502,8 +502,8 @@ table.t td.m{font-family:var(--f-mono);}
           <span class="pill">Usuarios YMCA</span>
           <h3>Precio usuario YMCA</h3>
           <div class="p">$500 <small>MXN</small></div>
-          <div class="msi" style="color:#7FDCEC">Presenta tu credencial YMCA en la entrada</div>
-          <ul><li>Mismo acceso que la entrada general</li><li>Pide tu número de usuario al comprar</li><li>Se valida en la puerta con tu credencial</li></ul>
+          <div class="msi" style="color:#7FDCEC">+ $<span data-svc="500"></span> de cargo por servicio · total $<span data-tot="500"></span></div>
+          <ul><li>Presenta tu credencial YMCA en la entrada</li><li>Mismo acceso que la entrada general</li><li>Pide tu número de usuario al comprar</li><li>Se valida en la puerta con tu credencial</li></ul>
           <button class="btn btn--ghost btn--block" data-buy="ymca">Comprar como usuario YMCA</button>
         </div>
       </div>
@@ -525,6 +525,7 @@ table.t td.m{font-family:var(--f-mono);}
       <h2 class="ff-h2" style="margin:10px 0 18px">Lo que todos preguntan</h2>
       <details><summary>¿Cómo recibo mi boleto?</summary><p>Al pagar te llega un correo con tu boleto y un código QR por cada persona. También lo puedes abrir desde esta página en "Mis boletos".</p></details>
       <details><summary>¿A qué hora llego?</summary><p>El acceso abre a las 7:00 p. m. y la clase empieza a las 8:00 p. m. en punto.</p></details>
+      <details><summary>¿Qué es el cargo por servicio?</summary><p>Es lo que cobra la plataforma de pago por procesar tu compra en línea. Lo ves desglosado antes de pagar: entrada general $600 + $<span data-svc="600"></span>, usuario YMCA $500 + $<span data-svc="500"></span>.</p></details>
       <details><summary>¿Puedo pagar a meses?</summary><p>No. El pago es en una sola exhibición con tarjeta de crédito o débito, saldo de Mercado Pago u OXXO.</p></details>
       <details><summary>¿Cómo aplica el precio de usuario YMCA?</summary><p>Al comprar eliges "Usuario YMCA" y escribes tu número de usuario. En la entrada te pedimos tu credencial YMCA vigente junto con tu QR.</p></details>
       <details><summary>¿Puedo comprar para mis amigos?</summary><p>Sí, hasta 10 boletos por compra. Cada boleto tiene su propio QR, así cada quien entra con el suyo.</p></details>
@@ -681,7 +682,7 @@ table.t td.m{font-family:var(--f-mono);}
       </div>
       <div class="ff-tablewrap" style="--ff-tablemin:900px">
         <table class="t">
-          <thead><tr><th>Folio</th><th>Asistente</th><th>Comprador</th><th>Tipo</th><th>Coach</th><th>Pago</th><th>Monto</th><th>Fecha</th><th>Acceso</th></tr></thead>
+          <thead><tr><th>Folio</th><th>Asistente</th><th>Comprador</th><th>Tipo</th><th>Coach</th><th>Pago</th><th>Boleto</th><th>Fecha</th><th>Acceso</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -767,7 +768,7 @@ function seedTickets(){
       const att = i===0 ? buyer : NOMBRES[Math.floor(r()*NOMBRES.length)] + " " + APELL[Math.floor(r()*APELL.length)];
       out.push({ folio: "VMX-" + String(out.length+1).padStart(4,"0"), order, buyer, attendee: att,
         email: buyer.split(" ")[0].toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"") + n + "@correo.com",
-        type, coach, pay, price: TYPES[type].price, ts, demo: true });
+        type, coach, pay, price: TYPES[type].price, svc: svcFor(TYPES[type].price), ts, demo: true });
     }
     n++;
   }
@@ -798,7 +799,10 @@ function qrSVG(text){
   const q = qrcode(0, "M"); q.addData(text); q.make();
   return q.createSvgTag({cellSize:4, margin:2, scalable:true});
 }
-function fee(t){ return t.price*EVENT.feePct + EVENT.feeFix; }
+// Cargo por servicio: lo paga el comprador y cubre la comisión de Mercado Pago, así la organización recibe el precio completo del boleto
+function svcFor(price){ return Math.ceil((price + EVENT.feeFix) / (1 - EVENT.feePct)) - price; }
+function paid(t){ return t.price + (t.svc != null ? t.svc : svcFor(t.price)); }
+function fee(t){ return paid(t)*EVENT.feePct + EVENT.feeFix; }
 const PAY_LBL = {tarjeta:"Tarjeta", saldo:"Saldo MP", oxxo:"OXXO"};
 const hhmm = ts => new Date(ts).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
 
@@ -838,7 +842,8 @@ function openCheckout(type){
 }
 function closeCheckout(){ $("#sheetBg").classList.remove("on"); document.body.style.overflow = ""; }
 function unit(){ return TYPES[ck.type].price; }
-function total(){ return ck.qty * unit(); }
+function unitSvc(){ return svcFor(unit()); }
+function total(){ return ck.qty * (unit() + unitSvc()); }
 function stepsBar(n){ return '<div class="steps">' + [1,2,3].map(i => '<i class="'+(i<=n?"on":"")+'"></i>').join("") + '</div>'; }
 function hd(title){ return '<div class="sheet__hd"><h3 id="shTitle">'+title+'</h3><button class="x" data-close aria-label="Cerrar">×</button></div>'; }
 function opt(name, v, cur, t, s, amt){
@@ -854,10 +859,10 @@ function drawSheet(){
     }
     el.innerHTML = hd("Tus boletos") + stepsBar(1) +
       '<div class="paym" style="margin-top:0">'+
-        opt("type","general",ck.type,"Entrada general","Acceso a las 2 horas de clase", "$600")+
-        opt("type","ymca",ck.type,"Usuario YMCA","Presentas credencial en la entrada", "$500")+
+        opt("type","general",ck.type,"Entrada general","$600 + $"+svcFor(600)+" cargo por servicio", fmt(600+svcFor(600)))+
+        opt("type","ymca",ck.type,"Usuario YMCA","$500 + $"+svcFor(500)+" cargo · presentas credencial", fmt(500+svcFor(500)))+
       '</div>'+
-      '<div class="qty"><div><b>Boletos</b><small>'+fmt(unit())+' por persona · quedan '+left()+'</small></div>'+
+      '<div class="qty"><div><b>Boletos</b><small>'+fmt(unit()+unitSvc())+' por persona · quedan '+left()+'</small></div>'+
       '<div class="ctl"><button data-q="-1" aria-label="Menos">−</button><output>'+ck.qty+'</output><button data-q="1" aria-label="Más">+</button></div></div>'+
       '<label class="fld"><span>Tu nombre completo</span><input id="fName" value="'+esc(ck.name)+'" autocomplete="name"></label>'+
       '<label class="fld"><span>Correo (ahí llega tu boleto)</span><input id="fEmail" type="email" value="'+esc(ck.email)+'" autocomplete="email"></label>'+
@@ -877,8 +882,8 @@ function drawSheet(){
         opt("pay","saldo",ck.pay,"Saldo de Mercado Pago","Entras con tu cuenta MP", t)+
         opt("pay","oxxo",ck.pay,"Efectivo en OXXO","Tu boleto llega cuando se acredite el pago", t)+
       '</div>'+
-      '<div class="sum"><div><span>'+ck.qty+' × '+TYPES[ck.type].label+'</span><span>'+t+'</span></div>'+
-      '<div><span>Cargo por servicio</span><span>Incluido</span></div>'+
+      '<div class="sum"><div><span>'+ck.qty+' × '+TYPES[ck.type].label+'</span><span>'+fmt(ck.qty*unit())+'</span></div>'+
+      '<div><span>Cargo por servicio</span><span>'+fmt(ck.qty*unitSvc())+'</span></div>'+
       '<div class="t"><span>Total</span><span>'+t+'</span></div></div>'+
       '<button class="btn btn--primary btn--block" style="margin-top:14px" data-next>Pagar con Mercado Pago</button>'+
       '<button class="btn btn--ghost btn--block" style="margin-top:8px;color:var(--paper-ink);border-color:var(--paper-line)" data-back>Atrás</button>'+
@@ -928,7 +933,7 @@ function completePurchase(){
   const order = "ORD-" + String(900 + mine.length + 1), ts = Date.now(); let n = 0;
   for (let i=0;i<ck.qty;i++){
     mine.push({ folio: nextFolio(), order, buyer: ck.name, attendee: i===0 ? ck.name : ck.attendees[i], email: ck.email, phone: ck.phone,
-      type: ck.type, socio: ck.type==="ymca" ? ck.socio : "", coach: coachBy(ck.coach) ? coachBy(ck.coach).code : "", pay: ck.pay, price: unit(), ts, mine: true });
+      type: ck.type, socio: ck.type==="ymca" ? ck.socio : "", coach: coachBy(ck.coach) ? coachBy(ck.coach).code : "", pay: ck.pay, price: unit(), svc: unitSvc(), ts, mine: true });
     n++;
   }
   save(); closeCheckout(); location.hash = "#boleto";
@@ -1103,20 +1108,21 @@ $("#camStop").addEventListener("click", stopCam);
 /* ---------------- Panel ---------------- */
 function money(tks){
   const gross = tks.reduce((a,t)=>a+t.price,0);
+  const svc = tks.reduce((a,t)=>a+paid(t)-t.price,0);
   const mp = tks.reduce((a,t)=>a+fee(t),0);
   const ymca = model==="alianza" ? gross*EVENT.ymcaPct : null;
   const coach = tks.filter(t=>t.coach).reduce((a,t)=>a+t.price*EVENT.coachPct,0);
-  return { gross, mp, ymca, coach, net: gross - mp - (ymca||0) - coach };
+  return { gross, svc, mp, ymca, coach, net: gross + svc - mp - (ymca||0) - coach };
 }
 function renderPanel(){
   const tks = all(), n = tks.length;
   const now = money(tks);
   // Proyección si se llena la sede, con el mismo promedio por boleto
   const avg = n ? now.gross/n : 600, avgFee = n ? now.mp/n : 0;
-  const fullGross = avg*EVENT.capacity, fullMp = avgFee*EVENT.capacity;
+  const fullGross = avg*EVENT.capacity, fullMp = avgFee*EVENT.capacity, fullSvc = n ? now.svc/n*EVENT.capacity : 0;
   const fullYmca = model==="alianza" ? fullGross*EVENT.ymcaPct : null;
   const fullCoach = n ? now.coach/n*EVENT.capacity : 0;   // misma proporción de boletos con coach
-  const fullNet = fullGross - fullMp - (fullYmca||0) - fullCoach;
+  const fullNet = fullGross + fullSvc - fullMp - (fullYmca||0) - fullCoach;
 
   $("#kSold").textContent = n + " / " + EVENT.capacity;
   $("#kLeft").textContent = "Quedan " + left() + " lugares";
@@ -1129,7 +1135,8 @@ function renderPanel(){
 
   const row = (l, a, b, cls) => '<tr class="'+(cls||"")+'"><td>'+l+'</td><td class="v">'+a+'</td><td class="v">'+b+'</td></tr>';
   $("#rep").innerHTML = '<tr><th></th><th>Hoy ('+n+')</th><th>Sede llena ('+EVENT.capacity+')</th></tr>'+
-    row("Venta de boletos", fmt(now.gross), fmt(fullGross))+
+    row("Venta de boletos (precio del boleto)", fmt(now.gross), fmt(fullGross))+
+    row("Cargo por servicio (lo paga el comprador)", "+"+fmt(now.svc), "+"+fmt(fullSvc))+
     row("Comisión Mercado Pago (estimada)", "−"+fmt(now.mp), "−"+fmt(fullMp), "neg")+
     (model==="alianza"
       ? row("Participación YMCA (20% del boletaje)", "−"+fmt(now.ymca), "−"+fmt(fullYmca), "neg")
@@ -1139,7 +1146,7 @@ function renderPanel(){
   $("#repNote").textContent = (model==="alianza"
       ? "Alianza comercial propuesta a YMCA: 20% de cada boleto + 100% del estacionamiento (el estacionamiento no pasa por esta venta)."
       : "Renta fija propuesta a YMCA: la organización conserva el 100% del boletaje y paga la renta que cotice la sede.")
-    + " La comisión de Mercado Pago se estima en 4% + $4 por cobro; se reemplaza por la real al conectar la cuenta.";
+    + " El cargo por servicio cubre la comisión de Mercado Pago (estimada en 4% + $4 por cobro; se ajusta a la real al conectar la cuenta). YMCA y coaches se calculan sobre el precio completo del boleto.";
 
   const days = []; const today = new Date(); today.setHours(0,0,0,0);
   for (let i=13;i>=0;i--){ days.push({d:new Date(today.getTime() - i*864e5), n:0}); }
@@ -1185,7 +1192,7 @@ function drawRows(){
 }
 $("#q").addEventListener("input", drawRows);
 $("#csvBtn").addEventListener("click", () => {
-  const rows = [["Folio","Asistente","Comprador","Correo","Tipo","Usuario YMCA","Código coach","Coach","Comisión coach","Pago","Monto","Fecha","Acceso"]].concat(all().map(t => [t.folio,t.attendee,t.buyer,t.email,TYPES[t.type].label,t.socio||"",t.coach||"",t.coach?coachBy(t.coach).name:"",t.coach?t.price*EVENT.coachPct:"",PAY_LBL[t.pay],t.price,new Date(t.ts).toISOString().slice(0,10),t.checkedIn?new Date(t.checkedIn).toISOString():""]));
+  const rows = [["Folio","Asistente","Comprador","Correo","Tipo","Usuario YMCA","Código coach","Coach","Comisión coach","Pago","Precio boleto","Cargo por servicio","Total cobrado","Fecha","Acceso"]].concat(all().map(t => [t.folio,t.attendee,t.buyer,t.email,TYPES[t.type].label,t.socio||"",t.coach||"",t.coach?coachBy(t.coach).name:"",t.coach?t.price*EVENT.coachPct:"",PAY_LBL[t.pay],t.price,paid(t)-t.price,paid(t),new Date(t.ts).toISOString().slice(0,10),t.checkedIn?new Date(t.checkedIn).toISOString():""]));
   const csv = "﻿" + rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download = "asistentes-vibra-mx.csv"; document.body.appendChild(a); a.click(); a.remove();
 });
@@ -1193,6 +1200,8 @@ $("#resetBtn").addEventListener("click", () => { mine = []; checkins = {}; sessi
 
 /* ---------------- Arranque ---------------- */
 $("#y").textContent = new Date().getFullYear();
+$$("[data-svc]").forEach(el => el.textContent = svcFor(+el.dataset.svc));
+$$("[data-tot]").forEach(el => el.textContent = (+el.dataset.tot + svcFor(+el.dataset.tot)).toLocaleString("es-MX"));
 if (refCoach){ const cb = $("#coachbar"); cb.textContent = "Vienes de parte de " + coachBy(refCoach).name + " · tu compra cuenta para su equipo"; cb.classList.add("on"); }
 load();
 window.addEventListener("hashchange", () => { route(); window.scrollTo(0,0); });
