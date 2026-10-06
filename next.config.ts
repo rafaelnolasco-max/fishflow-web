@@ -9,6 +9,22 @@ const nextConfig: NextConfig = {
     // Comodín: empata la ruta con o sin diagonal final (trailingSlash: true).
     "/api/therapyos/**": ["./node_modules/ffmpeg-static/ffmpeg"],
   },
+  // Venta de boletos: megaclase.fishflow.mx sirve la página del evento; /api
+  // y el resto de rutas pasan igual (mismo proyecto de Vercel).
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/",
+          has: [{ type: "host", value: "megaclase.fishflow.mx" }],
+          destination: "/eventos/megaclase/index.html",
+        },
+        { source: "/eventos/:slug/", destination: "/eventos/:slug/index.html" },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
   images: {
     // Allow SVG logos from /public to render without optimization restrictions
     dangerouslyAllowSVG: true,

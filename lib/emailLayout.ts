@@ -172,6 +172,42 @@ export const EMAIL_BRANDS = {
     pieLegal: 'Mario Citalán · DERVIAC · Ciudad de México',
     privacidad: 'https://mariocitalan.net/aviso-de-privacidad.html',
   },
+
+  /**
+   * VIBRA MX — megaclase de baile fitness (venta de boletos, módulo eventos).
+   * Misma paleta que megaclase.fishflow.mx: coral #FF4D2E sobre tinta morada.
+   * Isotipo "V" sin nombre: el nombre va en texto (wordmark).
+   */
+  vibramx: {
+    nombre: 'VIBRA MX',
+    logo: {
+      src: `${ORIGIN}/clients/vibramx/email-isotipo.png`,
+      width: 48,
+      height: 48,
+      alt: '',
+    },
+    wordmark: { titulo: 'VIBRA MX', subtitulo: 'Fitness Events' },
+    color: {
+      primario: '#FF4D2E',
+      acento: '#FFC93C',
+      acentoTexto: '#C23A20',
+      tinta: '#16121E',
+      gris: '#6B6475',
+      linea: '#E7E2EC',
+      papel: '#F7F5F9',
+      suave: '#FFF1EC',
+      boton: '#16121E',
+    },
+    fuente: {
+      titulos: "'Unbounded', 'Helvetica Neue', Arial, sans-serif",
+      cuerpo: "'Inter', -apple-system, 'Segoe UI', Arial, sans-serif",
+      detalle: "'JetBrains Mono', ui-monospace, 'Courier New', monospace",
+      googleFonts:
+        'https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Inter:wght@400;600&family=JetBrains+Mono:wght@500&display=swap',
+    },
+    sitio: { url: 'https://megaclase.fishflow.mx', etiqueta: 'megaclase.fishflow.mx' },
+    pieLegal: 'VIBRA Fitness Events · Ciudad de México',
+  },
 } satisfies Record<string, EmailBrand>
 
 export type EmailBrandKey = keyof typeof EMAIL_BRANDS

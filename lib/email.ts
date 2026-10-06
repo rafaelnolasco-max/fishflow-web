@@ -58,6 +58,8 @@ export const SENDERS = {
   rmz: 'Cocinas y Closets RMZ <recibos@fishflow.mx>',
   /** Los Aguachiles (Chiva) — aviso interno de pedido nuevo. Sin dominio propio aún. */
   aguachiles: 'Los Aguachiles <noreply@fishflow.mx>',
+  /** VIBRA MX (megaclase) — boletos al comprador. Sin dominio propio. */
+  vibramx: 'VIBRA MX <boletos@fishflow.mx>',
 
   /**
    * Lukon — único cliente con dominio propio verificado en Resend
