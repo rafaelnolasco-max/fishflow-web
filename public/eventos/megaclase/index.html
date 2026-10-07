@@ -736,7 +736,7 @@ let COACHES = [];
 let INFO = null;                 // respuesta de /info
 const ORDERS_KEY = "ff_evt_" + SLUG + "_orders";
 const coachBy = c => COACHES.find(x => x.code === String(c||"").trim().toUpperCase()) || null;
-const fmt = n => "$" + Math.round(n).toLocaleString("es-MX");
+const fmt = n => (n < 0 ? "−$" : "$") + Math.abs(Math.round(n)).toLocaleString("es-MX");
 
 /* ---------------- Utilidades ---------------- */
 const $ = s => document.querySelector(s);
