@@ -6,6 +6,10 @@
 <title>VIBRA MX · Baile fitness con Mike Gavilán · 18 dic · YMCA Mallorca</title>
 <meta name="description" content="VIBRA MX: dos horas de baile fitness con Mike Gavilán y 15 coaches. Viernes 18 de diciembre de 2026, YMCA Mallorca, CDMX. Compra tu boleto en línea y entra con tu QR." />
 <meta property="og:title" content="VIBRA MX · Mike Gavilán en CDMX" />
+<meta property="og:image" content="https://megaclase.fishflow.mx/eventos/megaclase/img/og.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta property="og:description" content="Viernes 18 de diciembre · 8:00 p. m. · YMCA Mallorca. Boletos en línea con acceso QR." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FF4D2E'/%3E%3Cpath d='M14 18l18 30 18-30' fill='none' stroke='%23fff' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FF4D2E'/%3E%3Cpath d='M14 18l18 30 18-30' fill='none' stroke='%23fff' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
@@ -142,6 +146,10 @@ button{font:inherit;}
 .ag span{color:var(--muted);font-size:14px;}
 @media(max-width:600px){ .ag{grid-template-columns:1fr;gap:4px;} }
 
+.video img,.instr__ph img,.gal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.video .cap{z-index:1;text-shadow:0 1px 8px rgba(0,0,0,.6);}
+.instr__ph,.gal div{position:relative;overflow:hidden;}
+.instr__ph:has(img){padding:0;}
 .gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;}
 .gal div{aspect-ratio:1/1;border-radius:16px;border:1px solid var(--line);display:grid;place-items:center;font-size:12px;color:rgba(255,255,255,.4);}
 .gal div:nth-child(1){background:linear-gradient(135deg,#FF4D2E55,#16121E);}
@@ -428,9 +436,9 @@ table.t td.m{font-family:var(--f-mono);}
           <div class="bar"><i id="cupoBar" style="width:0%"></i></div>
         </div>
       </div>
-      <div class="video" aria-label="Video promocional (muestra)">
-        <div class="play"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#16121E"/></svg></div>
-        <div class="cap"><span>Aquí va el video de Mike Gavilán</span><span class="tag-demo">muestra</span></div>
+      <div class="video">
+        <img src="/eventos/megaclase/img/hero.jpg" alt="Mike Gavilán en el escenario frente a cientos de personas" width="960" height="1200" fetchpriority="high">
+        <div class="cap"><span>Mike Gavilán en vivo</span></div>
       </div>
     </div>
   </section>
@@ -451,7 +459,7 @@ table.t td.m{font-family:var(--f-mono);}
 
   <section class="section" id="instructor">
     <div class="ff-container instr">
-      <div class="instr__ph">Foto de Mike Gavilán<br><span class="tag-demo" style="margin-top:10px">muestra</span></div>
+      <div class="instr__ph"><img src="/eventos/megaclase/img/mike.jpg" alt="Mike Gavilán" width="900" height="900" loading="lazy"></div>
       <div>
         <span class="eyebrow">Invitado internacional</span>
         <h2 class="ff-h2" style="margin:10px 0 14px">Mike Gavilán</h2>
@@ -486,7 +494,7 @@ table.t td.m{font-family:var(--f-mono);}
     <div class="ff-container">
       <span class="eyebrow">Galería</span>
       <h2 class="ff-h2" style="margin:10px 0 24px">Así se vive una clase de Mike</h2>
-      <div class="gal"><div>Foto 1</div><div>Foto 2</div><div>Foto 3</div><div>Foto 4</div></div>
+      <div class="gal"><div><img src="/eventos/megaclase/img/clase-1.jpg" alt="Mike Gavilán dando clase de baile fitness" width="720" height="720" loading="lazy"></div><div><img src="/eventos/megaclase/img/clase-2.jpg" alt="Mike Gavilán dando clase de baile fitness" width="720" height="720" loading="lazy"></div><div><img src="/eventos/megaclase/img/clase-3.jpg" alt="Mike Gavilán dando clase de baile fitness" width="720" height="720" loading="lazy"></div><div><img src="/eventos/megaclase/img/clase-4.jpg" alt="Mike Gavilán dando clase de baile fitness" width="720" height="720" loading="lazy"></div></div>
     </div>
   </section>
 
