@@ -23,6 +23,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
     return NextResponse.json({ ok: true })
   }
 
+  // Última oportunidad: abre los lugares extra (una sola vez)
+  if (b.action === 'last_chance') {
+    if (ev.last_chance_open || ev.last_chance_extra <= 0) return NextResponse.json({ error: 'No hay lugares extra por abrir' }, { status: 400 })
+    const { error } = await sbAdmin.from('evt_events').update({ last_chance_open: true }).eq('id', ev.id)
+    if (error) return NextResponse.json({ error: 'No se guardó' }, { status: 500 })
+    return NextResponse.json({ ok: true, capacity: ev.capacity + ev.last_chance_extra })
+  }
+
   const [{ data: tickets }, { data: orders }, { data: coaches }] = await Promise.all([
     sbAdmin.from('evt_tickets').select('folio, attendee, ticket_type, price, svc, coach_code, checked_in_at, created_at, order_id')
       .eq('event_id', ev.id).order('seq'),
@@ -44,5 +52,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
     }
   })
   const pendientes = (orders ?? []).filter((o) => o.status === 'pending').length
-  return NextResponse.json({ tickets: rows, coaches: coaches ?? [], pending_orders: pendientes, capacity: ev.capacity })
+  return NextResponse.json({ tickets: rows, coaches: coaches ?? [], pending_orders: pendientes, capacity: ev.capacity,
+    base_capacity: ev.base_capacity, last_chance_extra: ev.last_chance_extra, last_chance_open: ev.last_chance_open,
+    platform_fee: ev.platform_fee, coach_pct: ev.coach_pct,
+  })
 }

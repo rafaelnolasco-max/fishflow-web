@@ -28,6 +28,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
       fee_fix: ev.fee_fix,
       coach_pct: ev.coach_pct,
       installments: ev.installments,
+      excluded_payment_types: ev.excluded_payment_types,
+      last_chance: ev.last_chance_open,
       coaches: coaches ?? [],
       // La venta solo abre cuando el organizador conectó su Mercado Pago
       sales_open: ev.sales_open && !!mpToken(ev),

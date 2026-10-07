@@ -7,8 +7,11 @@
 //   - Cobro con Mercado Pago Checkout Pro en la cuenta DEL ORGANIZADOR: sus
 //     llaves viven en env como MP_<mp_env>_ACCESS_TOKEN / MP_<mp_env>_WEBHOOK_SECRET.
 //     No pasan por pos_transactions (ese hub es de FishFlow y factura solo).
-//   - El cargo por servicio lo paga el comprador y cubre la comisión de MP:
-//     el organizador recibe el precio completo del boleto.
+//   - Cargo por servicio opcional (fee_pct/fee_fix): si es 0 el precio es todo
+//     incluido y el organizador absorbe la comisión de MP (VIBRA MX, 7-oct-2026).
+//   - platform_fee: lo que cobra FishFlow por boleto (solo se reporta en el panel).
+//   - Última oportunidad: last_chance_extra lugares que el organizador abre desde
+//     el panel; getEvent() ya devuelve `capacity` con ese extra sumado.
 //   - Boleto = folio + QR firmado con HMAC. La puerta valida contra la BD y
 //     marca la entrada de forma atómica (un QR, un acceso).
 
@@ -43,6 +46,12 @@ export type EvtEvent = {
   panel_pin_hash: string | null
   notify_emails: string[]
   sales_open: boolean
+  platform_fee: number
+  excluded_payment_types: string[]
+  last_chance_extra: number
+  last_chance_open: boolean
+  /** Cupo base, sin la última oportunidad */
+  base_capacity: number
 }
 export type EvtOrder = {
   id: string
@@ -98,11 +107,21 @@ export async function getEvent(slug: string): Promise<EvtEvent | null> {
   const { data, error } = await sbAdmin.from('evt_events').select('*').eq('slug', slug).maybeSingle()
   if (error) console.error('[eventos] getEvent:', error)
   if (!data) return null
-  return { ...data, fee_pct: Number(data.fee_pct), fee_fix: Number(data.fee_fix), coach_pct: Number(data.coach_pct) } as EvtEvent
+  const extra = data.last_chance_open ? Number(data.last_chance_extra ?? 0) : 0
+  return {
+    ...data,
+    fee_pct: Number(data.fee_pct), fee_fix: Number(data.fee_fix), coach_pct: Number(data.coach_pct),
+    platform_fee: Number(data.platform_fee ?? 0),
+    excluded_payment_types: data.excluded_payment_types ?? [],
+    last_chance_extra: Number(data.last_chance_extra ?? 0),
+    base_capacity: data.capacity,
+    capacity: data.capacity + extra,
+  } as EvtEvent
 }
 
 /** Cargo por servicio: cubre la comisión de MP para que el organizador reciba `price` completo. */
 export function svcFor(price: number, ev: Pick<EvtEvent, 'fee_pct' | 'fee_fix'>): number {
+  if (!ev.fee_pct && !ev.fee_fix) return 0
   return Math.ceil((price + ev.fee_fix) / (1 - ev.fee_pct)) - price
 }
 

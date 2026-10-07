@@ -95,7 +95,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
       body: {
         items: [
           { id: `${slug}-${type}`, title: `${ev.name} · ${tt.label}`, quantity: qty, unit_price: tt.price, currency_id: 'MXN', category_id: 'tickets' },
-          { id: `${slug}-svc`, title: 'Cargo por servicio', quantity: qty, unit_price: svc, currency_id: 'MXN' },
+          // Sin cargo por servicio (precio todo incluido) no se manda la línea: MP rechaza montos en 0
+          ...(svc > 0 ? [{ id: `${slug}-svc`, title: 'Cargo por servicio', quantity: qty, unit_price: svc, currency_id: 'MXN' }] : []),
         ],
         payer: { email, name: first, surname: rest.join(' ') || undefined },
         external_reference: order.id,
@@ -103,7 +104,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
         back_urls: { success: back, pending: back, failure: back },
         auto_return: 'approved',
         statement_descriptor: ev.name.slice(0, 22),
-        payment_methods: { installments: Math.max(1, ev.installments) },
+        payment_methods: {
+          installments: Math.max(1, ev.installments),
+          excluded_payment_types: ev.excluded_payment_types.map((id) => ({ id })),
+        },
         metadata: { evento: slug, orden: order.id },
       },
     })
