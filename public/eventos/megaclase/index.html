@@ -152,6 +152,9 @@ button{font:inherit;}
 .instr__ph:has(img){padding:0;}
 .socials{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;}
 .socials a{display:inline-flex;align-items:center;gap:8px;}
+.map.map--live{background:none;padding:0;display:block;overflow:hidden;}
+.map--live iframe{width:100%;height:100%;border:0;display:block;}
+@media(max-width:600px){.map.map--live{aspect-ratio:4/3;}}
 .gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;}
 .gal div{aspect-ratio:1/1;border-radius:16px;border:1px solid var(--line);display:grid;place-items:center;font-size:12px;color:rgba(255,255,255,.4);}
 .gal div:nth-child(1){background:linear-gradient(135deg,#FF4D2E55,#16121E);}
@@ -529,7 +532,12 @@ table.t td.m{font-family:var(--f-mono);}
     <div class="ff-container">
       <span class="eyebrow">Sede</span>
       <h2 class="ff-h2" style="margin:10px 0 24px">YMCA Mallorca · Ciudad de México</h2>
-      <div class="map"><div style="text-align:center"><span class="pin">📍 YMCA Mallorca · Ciudad de México</span><br><a class="btn btn--light btn--sm" style="margin-top:14px" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=YMCA+Mallorca+Ciudad+de+Mexico">Cómo llegar</a></div></div>
+      <p class="sub" style="margin:-12px 0 16px">C. Laboristas 49, Col. Zacahuitzco, Iztapalapa, 09440 CDMX · cancha / gimnasio del club</p>
+      <div class="map map--live"><iframe title="Mapa de la YMCA Mallorca" src="https://maps.google.com/maps?q=Club+Deportivo+Mallorca,+C.+Laboristas+49,+Zacahuitzco,+Iztapalapa,+CDMX&z=16&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
+      <div class="socials">
+        <a class="btn btn--primary btn--sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Club+Deportivo+Mallorca+YMCA&query_place_id=ChIJAXy93Vr-0YURNco7B69g-bU">Cómo llegar · Google Maps</a>
+        <a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" href="https://waze.com/ul?ll=19.3759117,-99.1321258&navigate=yes">Abrir en Waze</a>
+      </div>
     </div>
   </section>
 
@@ -734,7 +742,7 @@ const EVENT = {
   name: "VIBRA MX",
   capacity: 500,
   maxPerOrder: 10,
-  venue: "YMCA Mallorca, Ciudad de México",
+  venue: "YMCA Mallorca (Club Deportivo Mallorca), C. Laboristas 49, Zacahuitzco, Iztapalapa, CDMX",
   dateLabel: "Vie 18 dic 2026 · 8:00 p. m.",
   startUTC: "20261219T020000Z",  // 20:00 CDMX
   endUTC:   "20261219T040000Z",  // 22:00 CDMX
