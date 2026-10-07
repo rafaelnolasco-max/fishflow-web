@@ -4,6 +4,19 @@ import { getEvent, sbAdmin, soldAndHeld, svcFor, mpToken } from '@/lib/eventos'
 
 export const dynamic = 'force-dynamic'
 
+/** Etapa de venta para mensajes de urgencia verídicos, sin revelar el conteo. */
+function publicStock(ev: { capacity: number; base_capacity: number; last_chance_open: boolean; max_per_order: number }, sold: number, held: number) {
+  const left = Math.max(0, ev.capacity - sold - held)
+  const pct = sold / Math.max(1, ev.base_capacity)
+  const stage =
+    left <= 0 ? 'sold_out'
+    : ev.last_chance_open ? 'last_chance'
+    : pct >= 0.8 ? 'last'
+    : pct >= 0.5 ? 'half'
+    : 'open'
+  return { stage, sold_out: left <= 0, max_qty: Math.min(ev.max_per_order, left) }
+}
+
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const ev = await getEvent(slug)
@@ -21,8 +34,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
       name: ev.name,
       capacity: ev.capacity,
       max_per_order: ev.max_per_order,
-      sold,
-      left: Math.max(0, ev.capacity - sold - held),
+      // Sin cifras públicas de venta (decisión VIBRA 7-oct-2026): solo la etapa y el máximo comprable.
+      ...publicStock(ev, sold, held),
       types,
       fee_pct: ev.fee_pct,
       fee_fix: ev.fee_fix,

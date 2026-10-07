@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>VIBRA MX · Baile fitness con Mike Gavilán · 18 dic · YMCA Mallorca</title>
-<meta name="description" content="VIBRA MX: dos horas de baile fitness con Mike Gavilán y 15 coaches. Viernes 18 de diciembre de 2026, YMCA Mallorca, CDMX. Compra tu boleto en línea y entra con tu QR." />
+<meta name="description" content="VIBRA MX: dos horas de baile fitness con Mike Gavilán e instructores invitados. Viernes 18 de diciembre de 2026, YMCA Mallorca, CDMX. Compra tu boleto en línea y entra con tu QR." />
 <meta property="og:title" content="VIBRA MX · Mike Gavilán en CDMX" />
 <meta property="og:image" content="https://megaclase.fishflow.mx/eventos/megaclase/img/og.jpg" />
 <meta property="og:image:width" content="1200" />
@@ -112,6 +112,11 @@ button{font:inherit;}
 .price-hint{font-size:13px;color:var(--muted);}
 .price-hint b{color:var(--text);}
 
+.urg{margin-top:22px;max-width:460px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.urg .pill{background:linear-gradient(90deg,#FF4D2E,#B8239A);color:#fff;border-radius:999px;padding:8px 14px;font-weight:700;font-size:13.5px;}
+.urg .pill.soft{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line);font-weight:600;}
+.urg .cd{font-size:13px;color:var(--muted);}
+.urg .cd b{color:var(--text);font-family:var(--f-display);}
 .cupo{margin-top:26px;max-width:460px;}
 .cupo__row{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:8px;}
 .cupo__row b{color:var(--text);font-family:var(--f-display);}
@@ -425,7 +430,7 @@ table.t td.m{font-family:var(--f-mono);}
       <div>
         <span class="eyebrow">Baile fitness · Invitado internacional</span>
         <h1>VIBRA MX<br><span>con Mike Gavilán</span></h1>
-        <p class="ff-lede">Dos horas de baile fitness con el creador de "Muévelo y Gózalo" y 15 coaches en el escenario. Compra en línea, recibe tu boleto con QR en tu correo y entra directo.</p>
+        <p class="ff-lede">Dos horas de baile fitness con el creador de "Muévelo y Gózalo" y sus instructores invitados en el escenario. Compra en línea, recibe tu boleto con QR en tu correo y entra directo.</p>
         <div class="facts">
           <div class="fact"><b>Vie 18 dic</b>2026</div>
           <div class="fact"><b>8:00 p. m.</b>Acceso desde 7:00 p. m.</div>
@@ -435,11 +440,7 @@ table.t td.m{font-family:var(--f-mono);}
           <button class="btn btn--primary" data-buy>Comprar mi boleto →</button>
           <span class="price-hint">Boleto <b>$600</b> · precio final, sin cargos extra</span>
         </div>
-        <div class="lc" id="lcHero">🔥 Última oportunidad: abrimos <span data-lcn>100</span> lugares más</div>
-        <div class="cupo">
-          <div class="cupo__row"><span>Lugares vendidos</span><span><b id="cupoTxt">—</b></span></div>
-          <div class="bar"><i id="cupoBar" style="width:0%"></i></div>
-        </div>
+        <div class="urg" id="urg"><span class="pill soft">Cupo limitado</span><span class="cd" id="cd"></span></div>
       </div>
       <div class="video">
         <video id="heroVid" autoplay muted loop playsinline preload="metadata" poster="/eventos/megaclase/img/hero-poster.jpg" width="720" height="900" aria-label="Mike Gavilán en vivo en el escenario">
@@ -458,7 +459,7 @@ table.t td.m{font-family:var(--f-mono);}
       <p class="sub">VIBRA MX junta ejercicio, música y comunidad en una sola clase gigante. Llegas, te registras con tu QR y bailas dos horas seguidas.</p>
       <div class="ff-grid ff-grid--md">
         <div class="card"><div class="num">2 h</div><h3>De baile continuo</h3><p>De 8:00 a 10:00 p. m., con dos pausas de hidratación.</p></div>
-        <div class="card"><div class="num">15</div><h3>Coaches en el escenario</h3><p>Acompañan a Mike en bloques de tres durante toda la clase.</p></div>
+        <div class="card"><div class="num">+</div><h3>Instructores invitados</h3><p>Acompañan a Mike en el escenario durante toda la clase.</p></div>
         <div class="card"><div class="num">1</div><h3>Invitado internacional</h3><p>Mike Gavilán viene de Paraguay a dar la clase en vivo.</p></div>
         <div class="card"><div class="num">QR</div><h3>Acceso sin filas eternas</h3><p>Tu boleto llega a tu correo. Lo enseñas en la puerta y listo.</p></div>
       </div>
@@ -472,7 +473,7 @@ table.t td.m{font-family:var(--f-mono);}
         <span class="eyebrow">Invitado internacional</span>
         <h2 class="ff-h2" style="margin:10px 0 14px">Mike Gavilán</h2>
         <p class="ff-lede" style="color:var(--muted);margin:0 0 14px">Bailarín, coreógrafo e influencer paraguayo, conocido por sus clases de baile fitness y por su concepto <b style="color:var(--text)">"Muévelo y Gózalo"</b>. Ha dado masterclasses en distintos países de Latinoamérica.</p>
-        <p class="ff-lede" style="color:var(--muted);margin:0">El 18 de diciembre llega a la Ciudad de México para encabezar VIBRA MX junto con 15 coaches.</p>
+        <p class="ff-lede" style="color:var(--muted);margin:0">El 18 de diciembre llega a la Ciudad de México para encabezar VIBRA MX junto con instructores invitados.</p>
         <div class="socials">
           <a class="btn btn--ghost btn--sm" href="https://www.instagram.com/mikegavilan/" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>@mikegavilan · 1.4 M</a>
           <a class="btn btn--ghost btn--sm" href="https://www.youtube.com/@mikegavilanpy" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.7 15.1V8.9L15.5 12z"/></svg>YouTube</a>
@@ -488,15 +489,15 @@ table.t td.m{font-family:var(--f-mono);}
       <p class="sub">Acceso del público desde las 7:00 p. m.</p>
       <div class="prog">
         <div class="r"><time>8:00 – 8:05</time><span class="d">5 min</span><span>Bienvenida VIBRA y presentación</span></div>
-        <div class="r"><time>8:05 – 8:15</time><span class="d">10 min</span><span>Calentamiento con los 15 coaches</span></div>
+        <div class="r"><time>8:05 – 8:15</time><span class="d">10 min</span><span>Calentamiento con los instructores invitados</span></div>
         <div class="r hi"><time>8:15 – 8:20</time><span class="d">5 min</span><span><b>Entrada especial de Mike Gavilán</b></span></div>
         <div class="r"><time>8:20 – 8:35</time><span class="d">15 min</span><span>Mike solo · primer bloque</span></div>
-        <div class="r"><time>8:35 – 8:55</time><span class="d">20 min</span><span>Mike con los coaches 1 al 6</span></div>
+        <div class="r"><time>8:35 – 8:55</time><span class="d">20 min</span><span>Mike con instructores invitados · primer grupo</span></div>
         <div class="r"><time>8:55 – 9:00</time><span class="d">5 min</span><span>Hidratación e interacción</span></div>
-        <div class="r"><time>9:00 – 9:30</time><span class="d">30 min</span><span>Mike con los coaches 7 al 15</span></div>
+        <div class="r"><time>9:00 – 9:30</time><span class="d">30 min</span><span>Mike con instructores invitados · segundo grupo</span></div>
         <div class="r"><time>9:30 – 9:35</time><span class="d">5 min</span><span>Segunda hidratación</span></div>
         <div class="r hi"><time>9:35 – 9:50</time><span class="d">15 min</span><span><b>Mike protagonista · bloque final</b></span></div>
-        <div class="r"><time>9:50 – 9:57</time><span class="d">7 min</span><span>Gran cierre: Mike y los 15 coaches</span></div>
+        <div class="r"><time>9:50 – 9:57</time><span class="d">7 min</span><span>Gran cierre: Mike y todos los instructores</span></div>
         <div class="r"><time>9:57 – 10:00</time><span class="d">3 min</span><span>Agradecimiento y foto oficial</span></div>
       </div>
     </div>
@@ -569,8 +570,8 @@ table.t td.m{font-family:var(--f-mono);}
 
   <section class="section section--alt">
     <div class="ff-container" style="text-align:center">
-      <h2 class="ff-h2">Quedan <span id="leftBig" style="color:var(--accent)">—</span> lugares</h2>
-      <p class="sub" style="margin:12px auto 24px"><span id="lcEnd">Cuando se acaban, se acaban.</span> La venta en línea se cierra sola al llenarse la sede.</p>
+      <h2 class="ff-h2" id="urgBig">Cupo limitado</h2>
+      <p class="sub" style="margin:12px auto 24px"><span id="urgSub">Cuando se acaban, se acaban.</span> La venta en línea se cierra sola al llenarse la sede.</p>
       <button class="btn btn--primary" data-buy>Comprar mi boleto →</button>
       <div class="contact" style="justify-content:center">
         <a class="btn btn--ghost btn--sm" href="mailto:c.vibra_fitness.events@outlook.com">c.vibra_fitness.events@outlook.com</a>
@@ -812,8 +813,7 @@ async function loadInfo(){
   } catch(e){ INFO = null; }
   paintPrices(); renderCupo(); paintCoachbar();
 }
-function sold(){ return INFO ? INFO.sold : 0; }
-function left(){ return INFO ? INFO.left : EVENT.capacity; }
+function left(){ return INFO ? INFO.max_qty : EVENT.maxPerOrder; }   // máximo comprable ahora (no el cupo real)
 function paintPrices(){
   $$("[data-svc]").forEach(el => el.textContent = svcFor(+el.dataset.svc));
   $$("[data-tot]").forEach(el => el.textContent = (+el.dataset.tot + svcFor(+el.dataset.tot)).toLocaleString("es-MX"));
@@ -834,15 +834,23 @@ function route(){
 }
 
 /* ---------------- Página del evento ---------------- */
-function renderCupo(){
-  if (!INFO){ $("#cupoTxt").textContent = "—"; $("#leftBig").textContent = "—"; return; }
-  const s = sold();
-  $("#cupoTxt").textContent = s + " de " + EVENT.capacity;
-  $("#cupoBar").style.width = Math.min(100, s/EVENT.capacity*100).toFixed(1) + "%";
-  $("#leftBig").textContent = left();
-  $("#lcHero").classList.toggle("on", !!EVENT.lastChance);
-  $("#lcEnd").textContent = EVENT.lastChance ? "Última oportunidad: son los últimos lugares." : "Cuando se acaban, se acaban.";
+
+/* ---------------- Urgencia sin cifras ---------------- */
+const STAGE_TXT = {
+  open:        { pill: "Cupo limitado", soft: true,  big: "Cupo limitado", sub: "Cuando se acaban, se acaban." },
+  half:        { pill: "🔥 Más de la mitad de los lugares ya se vendieron", big: "Más de la mitad ya se vendió", sub: "No lo dejes para el final." },
+  last:        { pill: "⚠️ Últimos lugares disponibles", big: "Últimos lugares", sub: "La sede está por llenarse." },
+  last_chance: { pill: "🔥 Última oportunidad: abrimos lugares extra", big: "Última oportunidad", sub: "Abrimos unos lugares extra y no habrá más." },
+  sold_out:    { pill: "Boletos agotados", big: "Boletos agotados", sub: "Gracias por llenar la sede." }
+};
+function daysLeft(){ const ev = Date.UTC(2026,11,19,2,0); return Math.max(0, Math.ceil((ev - Date.now())/864e5)); }
+function renderUrg(stage){
+  const t = STAGE_TXT[stage] || STAGE_TXT.open, d = daysLeft();
+  const u = $("#urg"); if (u) u.innerHTML = '<span class="pill'+(t.soft?' soft':'')+'">'+t.pill+'</span><span class="cd">'+(d>0 ? 'Faltan <b>'+d+'</b> días · 18 de diciembre' : '¡Es hoy!')+'</span>';
+  const b = $("#urgBig"); if (b) b.textContent = t.big;
+  const s = $("#urgSub"); if (s) s.textContent = t.sub;
 }
+function renderCupo(){ renderUrg(INFO ? INFO.stage : "open"); }
 function paintCoachbar(){
   const c = coachBy(refCoach);
   if (c){ const cb = $("#coachbar"); cb.textContent = "Vienes de parte de " + c.name + " · tu compra cuenta para su equipo"; cb.classList.add("on"); }
@@ -888,13 +896,13 @@ function drawSheet(){
       (keys.length > 1 ? '<div class="paym" style="margin-top:0">'+
         keys.map(k => opt("type",k,ck.type,TYPES[k].label,svcTxt(TYPES[k].price), fmt(TYPES[k].price+svcFor(TYPES[k].price)))).join("")+
       '</div>' : '')+
-      '<div class="qty"><div><b>Boletos</b><small>'+fmt(unit()+unitSvc())+' por persona'+(unitSvc() ? '' : ' · precio final')+' · quedan '+left()+'</small></div>'+
+      '<div class="qty"><div><b>Boletos</b><small>'+fmt(unit()+unitSvc())+' por persona'+(unitSvc() ? '' : ' · precio final')+'</small></div>'+
       '<div class="ctl"><button data-q="-1" aria-label="Menos">−</button><output>'+ck.qty+'</output><button data-q="1" aria-label="Más">+</button></div></div>'+
       '<label class="fld"><span>Tu nombre completo</span><input id="fName" value="'+esc(ck.name)+'" autocomplete="name"></label>'+
       '<label class="fld"><span>Correo (ahí llega tu boleto)</span><input id="fEmail" type="email" value="'+esc(ck.email)+'" autocomplete="email"></label>'+
       '<label class="fld"><span>WhatsApp</span><input id="fPhone" type="tel" value="'+esc(ck.phone)+'" inputmode="tel" placeholder="10 dígitos"></label>'+
       (ck.type==="ymca" ? '<label class="fld"><span>Número de usuario YMCA</span><input id="fSocio" value="'+esc(ck.socio)+'" placeholder="Como aparece en tu credencial"></label><div class="note-ymca">Cada asistente con precio YMCA presenta su credencial vigente en la entrada.</div>' : '')+
-      '<label class="fld"><span>Código de tu coach (opcional)</span><input id="fCoach" value="'+esc(ck.coach)+'" placeholder="Ej. COACH03" style="text-transform:uppercase"></label>'+
+      '<label class="fld"><span>Código de tu instructor (opcional)</span><input id="fCoach" value="'+esc(ck.coach)+'" placeholder="Ej. COACH03" style="text-transform:uppercase"></label>'+
       '<div class="coach-ok '+(ck.coach ? (coachBy(ck.coach)?"y":"n") : "")+'" id="coachOk">'+(ck.coach ? (coachBy(ck.coach) ? "✓ Tu compra cuenta para "+esc(coachBy(ck.coach).name) : "Ese código no existe. Revísalo o déjalo vacío.") : "")+'</div>'+
       (ck.qty>1 ? '<div class="att"><div class="h">Nombre de cada persona (cada quien recibe su QR)</div>'+atts+'</div>' : '')+
       '<div class="err" id="err"></div>'+
@@ -940,7 +948,7 @@ function validStep1(){
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ck.email)) return "Revisa tu correo: ahí te llega el boleto.";
   if (ck.phone.replace(/\D/g,"").length < 10) return "Escribe tu WhatsApp a 10 dígitos.";
   if (ck.type==="ymca" && ck.socio.length < 3) return "Escribe tu número de usuario YMCA.";
-  if (ck.coach && !coachBy(ck.coach)) return "El código de coach no existe. Revísalo o déjalo vacío.";
+  if (ck.coach && !coachBy(ck.coach)) return "El código de instructor no existe. Revísalo o déjalo vacío.";
   for (let i=1;i<ck.qty;i++) if (!(ck.attendees[i]||"").trim()) return "Falta el nombre de la persona " + (i+1) + ".";
   return "";
 }

@@ -53,14 +53,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
     let coach: string | null = null
     if (coachRaw) {
       const { data: c } = await sbAdmin.from('evt_coaches').select('code').eq('event_id', ev.id).eq('code', coachRaw).maybeSingle()
-      if (!c) return NextResponse.json({ error: 'El código de coach no existe. Revísalo o déjalo vacío.' }, { status: 400 })
+      if (!c) return NextResponse.json({ error: 'El código de instructor no existe. Revísalo o déjalo vacío.' }, { status: 400 })
       coach = c.code
     }
 
     const { sold, held } = await soldAndHeld(ev)
     const left = ev.capacity - sold - held
     if (qty > left)
-      return NextResponse.json({ error: left > 0 ? `Solo quedan ${left} lugares.` : 'Boletos agotados.' }, { status: 409 })
+      return NextResponse.json({ error: left > 0 ? `Ya no hay lugares suficientes para ${qty} boletos. Prueba con menos.` : 'Boletos agotados.' }, { status: 409 })
 
     const svc = svcFor(tt.price, ev)
     const total = qty * (tt.price + svc)
