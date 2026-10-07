@@ -146,10 +146,12 @@ button{font:inherit;}
 .ag span{color:var(--muted);font-size:14px;}
 @media(max-width:600px){ .ag{grid-template-columns:1fr;gap:4px;} }
 
-.video img,.instr__ph img,.gal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.video video,.video img,.instr__ph img,.gal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .video .cap{z-index:1;text-shadow:0 1px 8px rgba(0,0,0,.6);}
 .instr__ph,.gal div{position:relative;overflow:hidden;}
 .instr__ph:has(img){padding:0;}
+.socials{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;}
+.socials a{display:inline-flex;align-items:center;gap:8px;}
 .gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;}
 .gal div{aspect-ratio:1/1;border-radius:16px;border:1px solid var(--line);display:grid;place-items:center;font-size:12px;color:rgba(255,255,255,.4);}
 .gal div:nth-child(1){background:linear-gradient(135deg,#FF4D2E55,#16121E);}
@@ -437,7 +439,10 @@ table.t td.m{font-family:var(--f-mono);}
         </div>
       </div>
       <div class="video">
-        <img src="/eventos/megaclase/img/hero.jpg" alt="Mike Gavilán en el escenario frente a cientos de personas" width="960" height="1200" fetchpriority="high">
+        <video id="heroVid" autoplay muted loop playsinline preload="metadata" poster="/eventos/megaclase/img/hero-poster.jpg" width="720" height="900" aria-label="Mike Gavilán en vivo en el escenario">
+          <source src="/eventos/megaclase/img/hero.mp4" type="video/mp4">
+          <img src="/eventos/megaclase/img/hero.jpg" alt="Mike Gavilán en el escenario frente a cientos de personas">
+        </video>
         <div class="cap"><span>Mike Gavilán en vivo</span></div>
       </div>
     </div>
@@ -465,6 +470,10 @@ table.t td.m{font-family:var(--f-mono);}
         <h2 class="ff-h2" style="margin:10px 0 14px">Mike Gavilán</h2>
         <p class="ff-lede" style="color:var(--muted);margin:0 0 14px">Bailarín, coreógrafo e influencer paraguayo, conocido por sus clases de baile fitness y por su concepto <b style="color:var(--text)">"Muévelo y Gózalo"</b>. Ha dado masterclasses en distintos países de Latinoamérica.</p>
         <p class="ff-lede" style="color:var(--muted);margin:0">El 18 de diciembre llega a la Ciudad de México para encabezar VIBRA MX junto con 15 coaches.</p>
+        <div class="socials">
+          <a class="btn btn--ghost btn--sm" href="https://www.instagram.com/mikegavilan/" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>@mikegavilan · 1.4 M</a>
+          <a class="btn btn--ghost btn--sm" href="https://www.youtube.com/@mikegavilanpy" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.7 15.1V8.9L15.5 12z"/></svg>YouTube</a>
+        </div>
       </div>
     </div>
   </section>
@@ -1328,6 +1337,12 @@ try {
 window.addEventListener("hashchange", () => { route(); window.scrollTo(0,0); });
 loadInfo().then(() => { if (refCoach && !coachBy(refCoach)) refCoach = ""; });
 route();
+})();
+</script>
+<script>
+(function(){var v=document.getElementById("heroVid");if(!v)return;
+var c=navigator.connection||{};
+if((window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)||c.saveData){v.removeAttribute("autoplay");v.preload="none";try{v.pause();}catch(e){}}
 })();
 </script>
 </body>
