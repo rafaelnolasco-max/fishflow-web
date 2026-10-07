@@ -627,7 +627,7 @@ table.t td.m{font-family:var(--f-mono);}
     <div class="ff-grid ff-grid--sm" style="margin-top:22px">
       <div class="kpi"><div class="v" id="kSold">—</div><div class="l">Boletos vendidos</div><div class="s" id="kLeft">—</div></div>
       <div class="kpi"><div class="v" id="kGross">—</div><div class="l">Venta bruta</div></div>
-      <div class="kpi"><div class="v" id="kNet">—</div><div class="l">Neto para la organización</div><div class="s" id="kNetNote">—</div></div>
+      <div class="kpi"><div class="v" id="kNet">—</div><div class="l">Ganancia de la organización</div><div class="s" id="kNetNote">—</div></div>
       <div class="kpi"><div class="v" id="kLc">—</div><div class="l">Última oportunidad</div><div class="s" id="kLcNote">—</div><button class="btn btn--primary btn--sm lcbtn" id="lcBtn" style="display:none">Abrir lugares extra</button></div>
       <div class="kpi"><div class="v" id="kIn">—</div><div class="l">Ya entraron</div></div>
     </div>
@@ -725,6 +725,7 @@ const EVENT = {
   mpPct: 0.04, mpFix: 4,         // estimado de comisión MP hasta que llegue la real del webhook
   ymcaPct: 0.20,                 // YMCA: 20% de cada boleto (+100% del estacionamiento, fuera de esta venta)
   ffFee: 30,                     // FishFlow: $30 por boleto vendido
+  fixedCosts: [],                // costos fijos (artista…) desde la BD; se restan al final
   coachPct: 0.125,
   installments: 1
 };
@@ -1177,6 +1178,7 @@ async function loadPanel(){
     const r = await api("panel/", { body: { pin: ss.get("ff_evt_pin_panel"), action: "data" } });
     PANEL = { tickets: r.tickets || [], pending: r.pending_orders || 0, lc: { base: r.base_capacity, extra: r.last_chance_extra || 0, open: !!r.last_chance_open } };
     if (r.platform_fee != null) EVENT.ffFee = Number(r.platform_fee);
+    if (Array.isArray(r.fixed_costs)) EVENT.fixedCosts = r.fixed_costs.map(c => ({ label: String(c.label||""), amount: Number(c.amount)||0 }));
     if (r.coach_pct != null) EVENT.coachPct = Number(r.coach_pct);
     if (r.coaches) COACHES = r.coaches;
     if (r.capacity) EVENT.capacity = r.capacity;
@@ -1207,8 +1209,10 @@ function drawPanel(){
   $("#kSold").textContent = n + " / " + cap;
   $("#kLeft").textContent = "Quedan " + Math.max(0, cap - n) + " lugares" + (PANEL.pending ? " · " + PANEL.pending + " pago(s) en proceso" : "");
   $("#kGross").textContent = fmt(now.gross);
-  $("#kNet").textContent = fmt(now.net);
-  $("#kNetNote").textContent = "Después de MP, YMCA, FishFlow y coaches";
+  const fixedTot = EVENT.fixedCosts.reduce((a,c)=>a+c.amount,0);
+  const perTk = n ? now.net/n : 0;
+  $("#kNet").textContent = fmt(now.net - fixedTot);
+  $("#kNetNote").textContent = fixedTot ? "Ganancia después de costos fijos" + (perTk>0 ? " · equilibrio en " + Math.ceil(fixedTot/perTk) + " boletos" : "") : "Después de MP, YMCA, FishFlow y coaches";
   const lc = PANEL.lc || {};
   if (lc.extra > 0){
     $("#kLc").textContent = lc.open ? "Abierta" : "+" + lc.extra;
@@ -1226,7 +1230,9 @@ function drawPanel(){
     row("YMCA (20% de cada boleto)", "−"+fmt(now.ymca), "−"+fmt(fullYmca), "neg")+
     row("FishFlow ("+fmt(EVENT.ffFee)+" por boleto)", "−"+fmt(now.ff), "−"+fmt(fullFf), "neg")+
     row("Comisiones a coaches ("+(EVENT.coachPct*100).toLocaleString("es-MX")+"%)", "−"+fmt(now.coach), "−"+fmt(fullCoach), "neg")+
-    row("Neto para la organización", fmt(now.net), fmt(fullNet), "tot");
+    row("Neto de boletaje", fmt(now.net), fmt(fullNet), fixedTot ? "" : "tot")+
+    EVENT.fixedCosts.map(c => row(esc(c.label), "−"+fmt(c.amount), "−"+fmt(c.amount), "neg")).join("")+
+    (fixedTot ? row("Ganancia bruta para la organización", fmt(now.net - fixedTot), fmt(fullNet - fixedTot), "tot") : "");
   $("#repNote").textContent = "Boleto de $600 todo incluido: la comisión de Mercado Pago sale del precio. YMCA cobra además el 100% del estacionamiento (no pasa por esta venta). La implementación de FishFlow ($2,500, pago único) no está en esta tabla."
     + (realFee ? " La comisión de Mercado Pago es la real de cada cobro." : " La comisión de Mercado Pago se estima hasta que entren ventas reales.")
     + " YMCA y coaches se calculan sobre el precio completo del boleto.";

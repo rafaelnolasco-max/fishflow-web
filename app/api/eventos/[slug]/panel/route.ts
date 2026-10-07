@@ -55,5 +55,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
   return NextResponse.json({ tickets: rows, coaches: coaches ?? [], pending_orders: pendientes, capacity: ev.capacity,
     base_capacity: ev.base_capacity, last_chance_extra: ev.last_chance_extra, last_chance_open: ev.last_chance_open,
     platform_fee: ev.platform_fee, coach_pct: ev.coach_pct,
+    fixed_costs: ev.fixed_costs ?? [],
   })
 }

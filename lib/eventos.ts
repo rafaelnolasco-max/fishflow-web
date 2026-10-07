@@ -50,6 +50,8 @@ export type EvtEvent = {
   excluded_payment_types: string[]
   last_chance_extra: number
   last_chance_open: boolean
+  /** Costos fijos del organizador (artista, renta…) que el panel resta al final */
+  fixed_costs: { label: string; amount: number }[]
   /** Cupo base, sin la última oportunidad */
   base_capacity: number
 }
