@@ -635,7 +635,7 @@ table.t td.m{font-family:var(--f-mono);}
     <div class="split">
       <div class="box">
         <h3>Reparto del ingreso</h3>
-        <div class="ff-tablewrap" style="--ff-tablemin:420px">
+        <div class="ff-tablewrap" style="--ff-tablemin:600px">
           <table class="rep" id="rep"></table>
         </div>
         <p class="priv" id="repNote"></p>
@@ -1132,17 +1132,22 @@ function renderPanel(){
   $("#lcBtn").style.display = lcOpen ? "none" : "";
   $("#kIn").textContent = tks.filter(t=>t.checkedIn).length;
 
-  const row = (l, a, b, cls) => '<tr class="'+(cls||"")+'"><td>'+l+'</td><td class="v">'+a+'</td><td class="v">'+b+'</td></tr>';
-  $("#rep").innerHTML = '<tr><th></th><th>Hoy ('+n+')</th><th>Sede llena ('+EVENT.capacity+')</th></tr>'+
-    row("Venta de boletos (precio del boleto)", fmt(now.gross), fmt(fullGross))+
-    (now.svc || fullSvc ? row("Cargo por servicio (lo paga el comprador)", "+"+fmt(now.svc), "+"+fmt(fullSvc)) : '')+
-    row("Comisión Mercado Pago (estimada)", "−"+fmt(now.mp), "−"+fmt(fullMp), "neg")+
-    row("YMCA (20% de cada boleto)", "−"+fmt(now.ymca), "−"+fmt(fullYmca), "neg")+
-    row("FishFlow ("+fmt(EVENT.ffFee)+" por boleto)", "−"+fmt(now.ff), "−"+fmt(fullFf), "neg")+
-    row("Comisiones a coaches (12.5%)", "−"+fmt(now.coach), "−"+fmt(fullCoach), "neg")+
-    row("Neto de boletaje", fmt(now.net), fmt(fullNet))+
-    EVENT.fixedCosts.map(c => row(esc(c.label), "−"+fmt(c.amount), "−"+fmt(c.amount), "neg")).join("")+
-    row("Ganancia bruta para la organización", fmt(now.net - fixedTot), fmt(fullNet - fixedTot), "tot");
+  // Proyección por tamaño de sede, con el mismo promedio por boleto (precio, comisión MP y % con coach)
+  const proj = N => { const g = avg*N, s = n ? now.svc/n*N : svcFor(TYPES.general.price)*N, mp = avgFee*N, y = g*EVENT.ymcaPct, f = N*EVENT.ffFee, c = n ? now.coach/n*N : 0;
+    return { gross: g, svc: s, mp, ymca: y, ff: f, coach: c, net: g + s - mp - y - f - c }; };
+  const cols = [{ h: "Hoy ("+n+")", v: now }, { h: "Sede llena ("+BASE_CAP+")", v: proj(BASE_CAP) }];
+  if (EVENT.extra > 0) cols.push({ h: "Con última oportunidad ("+(BASE_CAP+EVENT.extra)+")", v: proj(BASE_CAP+EVENT.extra) });
+  const row = (l, f, cls, sign) => '<tr class="'+(cls||"")+'"><td>'+l+'</td>'+cols.map(c => '<td class="v">'+(sign||"")+f(c.v)+'</td>').join("")+'</tr>';
+  $("#rep").innerHTML = '<tr><th></th>'+cols.map(c => '<th>'+c.h+'</th>').join("")+'</tr>'+
+    row("Venta de boletos (precio del boleto)", v => fmt(v.gross))+
+    (cols.some(c => c.v.svc) ? row("Cargo por servicio (lo paga el comprador)", v => fmt(v.svc), "", "+") : '')+
+    row("Comisión Mercado Pago" + " (estimada)", v => fmt(v.mp), "neg", "−")+
+    row("YMCA (20% de cada boleto)", v => fmt(v.ymca), "neg", "−")+
+    row("FishFlow ("+fmt(EVENT.ffFee)+" por boleto)", v => fmt(v.ff), "neg", "−")+
+    row("Comisiones a coaches ("+(EVENT.coachPct*100).toLocaleString("es-MX")+"%)", v => fmt(v.coach), "neg", "−")+
+    row("Neto de boletaje", v => fmt(v.net), fixedTot ? "" : "tot")+
+    EVENT.fixedCosts.map(c => row(esc(c.label), () => fmt(c.amount), "neg", "−")).join("")+
+    (fixedTot ? row("Ganancia bruta para la organización", v => fmt(v.net - fixedTot), "tot") : "");
   $("#repNote").textContent = "Boleto de $600 todo incluido: la comisión de Mercado Pago sale del precio (aquí estimada en 4% + $4; en producción es la real de cada cobro). YMCA cobra además el 100% del estacionamiento (no pasa por esta venta). La implementación de FishFlow ($2,500, pago único) no está en esta tabla. YMCA y coaches se calculan sobre el precio completo del boleto.";
 
   const days = []; const today = new Date(); today.setHours(0,0,0,0);
