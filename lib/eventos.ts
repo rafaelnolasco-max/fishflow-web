@@ -98,7 +98,7 @@ const EVENT_COPY: Record<string, { titulo: string; fecha: string; lugar: string;
   megaclase: {
     titulo: 'VIBRA MX con Mike Gavilán',
     fecha: 'Viernes 18 de diciembre de 2026 · 8:00 p. m.',
-    lugar: 'YMCA Mallorca · C. Laboristas 49, Zacahuitzco, Iztapalapa, CDMX',
+    lugar: 'Y Mallorca · C. Laboristas 49, Zacahuitzco, Iztapalapa, CDMX',
     acceso: 'Acceso desde las 7:00 p. m.',
     pagina: 'https://megaclase.fishflow.mx/',
     marca: 'vibramx',
