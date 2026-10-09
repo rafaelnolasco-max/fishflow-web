@@ -50,6 +50,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
   const [busy, setBusy] = useState<"" | "leyendo" | "subiendo">("");
   const [error, setError] = useState("");
   const [view, setView] = useState<"mapa" | "cargar">("mapa");
+  const [dragOver, setDragOver] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -170,17 +171,28 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
 
       {view === "cargar" && (<>
       {/* Archivos */}
-      <label style={{
-        display: "block", border: `1.5px dashed ${t.lineL}`, borderRadius: 10, padding: "28px 20px",
-        textAlign: "center", cursor: fleetId && !busy ? "pointer" : "not-allowed", background: "#FBF9F3", marginBottom: 20,
-        opacity: fleetId ? 1 : 0.5,
-      }}>
+      <label
+        onDragOver={e => { e.preventDefault(); if (fleetId && !busy) setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={e => {
+          e.preventDefault(); setDragOver(false);
+          if (!fleetId || busy) return;
+          const fs = Array.from(e.dataTransfer.files).filter(f => /\.(csv|xlsx|xls)$/i.test(f.name));
+          if (fs.length) onFiles(fs);
+          else setError("Arrastra archivos .csv o .xlsx del Sistema de Monitoreo Vehicular.");
+        }}
+        style={{
+          display: "block", border: `1.5px dashed ${dragOver ? t.ink : t.lineL}`, borderRadius: 10, padding: "36px 20px",
+          textAlign: "center", cursor: fleetId && !busy ? "pointer" : "not-allowed",
+          background: dragOver ? t.paper2 : "#FBF9F3", marginBottom: 20, opacity: fleetId ? 1 : 0.5,
+          transition: "background .15s, border-color .15s",
+        }}>
         <input type="file" accept=".csv,.xlsx,.xls" multiple disabled={!fleetId || !!busy}
           style={{ display: "none" }}
           onChange={e => { const fs = Array.from(e.target.files ?? []); if (fs.length) onFiles(fs); e.target.value = ""; }} />
-        <div style={{ fontFamily: t.fBody, fontWeight: 600, fontSize: 15, color: t.ink }}>Subir exports CSV o XLSX</div>
+        <div style={{ fontFamily: t.fBody, fontWeight: 600, fontSize: 15, color: t.ink }}>{dragOver ? "Suelta los archivos aquí" : "Arrastra aquí los exports CSV o XLSX, o haz clic para escogerlos"}</div>
         <div style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, marginTop: 6 }}>
-          Puedes escoger varios archivos a la vez; cada unidad se separa sola. Volver a subir un archivo no duplica datos.
+          Todos los archivos de la flotilla de un jalón; cada unidad se separa sola. Volver a subir un archivo no duplica datos.
         </div>
       </label>
 

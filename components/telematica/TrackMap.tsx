@@ -3,10 +3,13 @@
 
 // ─── Telemática · Recorridos — mapa con reproducción ─────────────────────────
 // Escoges unidad y rango de días; se dibuja el recorrido y se puede reproducir
-// (play, velocidad, barra para adelantar/regresar). Leaflet se carga desde
-// cdnjs al abrir el mapa, igual que en la hoja de pedido de Los Aguachiles: sin
-// dependencia nueva en package.json. Teselas de OpenStreetMap (sin llave)
-// oscurecidas con CSS para que el trazo lima de Lukon se lea bien.
+// (play, velocidad, barra para adelantar/regresar).
+//
+// Mapa base: OpenFreeMap (tiles.openfreemap.org) — vectorial, gratis, sin llave
+// y con uso comercial permitido. Estilos "dark" (Oscuro, default) y "positron"
+// (Claro). Se dibuja con MapLibre GL, que se carga desde cdnjs al abrir el mapa:
+// sin dependencia nueva en package.json. (Antes: Leaflet + teselas de
+// tile.openstreetmap.org, cuya política no garantiza servicio a usos comerciales.)
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RecorridosTokens } from "./RecorridosTab";
@@ -19,19 +22,27 @@ const SPEEDS = [
   { label: "Normal", pps: 30 },
   { label: "Rápido", pps: 120 },
 ];
-const LEAFLET = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/";
+const MAPLIBRE = "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/";
+const BASEMAPS = {
+  oscuro: "https://tiles.openfreemap.org/styles/dark",
+  claro: "https://tiles.openfreemap.org/styles/positron",
+} as const;
+type Basemap = keyof typeof BASEMAPS;
 
-/** Cortes del trazo: arreglos de [lat, lon] separados donde el equipo dejó de reportar. */
+/** Cortes del trazo en [lon, lat] (GeoJSON), separados donde el equipo dejó de reportar. */
 function segments(pts: TP[]) {
   const out: [number, number][][] = [];
   let cur: [number, number][] = [];
   pts.forEach((p, i) => {
-    if (i > 0 && isGap(pts[i - 1], p)) { if (cur.length) out.push(cur); cur = []; }
-    cur.push([p.lat, p.lon]);
+    if (i > 0 && isGap(pts[i - 1], p)) { if (cur.length > 1) out.push(cur); cur = []; }
+    cur.push([p.lon, p.lat]);
   });
-  if (cur.length) out.push(cur);
+  if (cur.length > 1) out.push(cur);
   return out;
 }
+const lineFeature = (segs: [number, number][][]) => ({
+  type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: segs },
+});
 
 function fmtTs(ts: string) {
   return new Date(ts).toLocaleString("es-MX", {
@@ -39,21 +50,28 @@ function fmtTs(ts: string) {
   });
 }
 
-function loadLeaflet(): Promise<any> {
+function loadMapLibre(): Promise<any> {
   const w = window as any;
-  if (w.L) return Promise.resolve(w.L);
-  if (w.__leafletLoading) return w.__leafletLoading;
-  w.__leafletLoading = new Promise((resolve, reject) => {
+  if (w.maplibregl) return Promise.resolve(w.maplibregl);
+  if (w.__maplibreLoading) return w.__maplibreLoading;
+  w.__maplibreLoading = new Promise((resolve, reject) => {
     const css = document.createElement("link");
-    css.rel = "stylesheet"; css.href = LEAFLET + "leaflet.min.css";
+    css.rel = "stylesheet"; css.href = MAPLIBRE + "maplibre-gl.css";
     document.head.appendChild(css);
     const js = document.createElement("script");
-    js.src = LEAFLET + "leaflet.min.js";
-    js.onload = () => resolve(w.L);
-    js.onerror = () => reject(new Error("No se pudo cargar el mapa (Leaflet)."));
+    js.src = MAPLIBRE + "maplibre-gl.js";
+    js.onload = () => resolve(w.maplibregl);
+    js.onerror = () => reject(new Error("No se pudo cargar el mapa (MapLibre)."));
     document.head.appendChild(js);
   });
-  return w.__leafletLoading;
+  return w.__maplibreLoading;
+}
+
+function markerEl(html: string, title?: string) {
+  const el = document.createElement("div");
+  el.innerHTML = html;
+  if (title) el.title = title;
+  return el;
 }
 
 export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: RecorridosTokens }) {
@@ -66,10 +84,13 @@ export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: R
   const [idx, setIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
+  const [base, setBase] = useState<Basemap>("oscuro");
+  const [styleVersion, setStyleVersion] = useState(0);   // sube cada vez que el estilo termina de cargar
 
   const mapEl = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
-  const layers = useRef<any>({});
+  const markers = useRef<{ head?: any; others: any[] }>({ others: [] });
+  const fittedFor = useRef<TP[] | null>(null);
   const idxRef = useRef(0);
 
   const withData = useMemo(() => vehicles.filter(v => v.points > 0), [vehicles]);
@@ -101,71 +122,104 @@ export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: R
   // Al cambiar de unidad: últimos 7 días con datos
   useEffect(() => { if (vehicleId) fetchTrack(vehicleId); }, [vehicleId, fetchTrack]);
 
+  // Colores del trazo según el mapa base: lima sobre oscuro, tinta sobre claro
+  const pal = base === "oscuro"
+    ? { trail: t.signal, full: t.signal, fullOp: 0.3, ring: "#0B0F14" }
+    : { trail: t.ink, full: t.ink, fullOp: 0.22, ring: "#FFFFFF" };
+
   // Crear el mapa una vez
   useEffect(() => {
     let cancelled = false;
-    loadLeaflet().then(L => {
+    loadMapLibre().then(ml => {
       if (cancelled || !mapEl.current || map.current) return;
-      map.current = L.map(mapEl.current, { zoomControl: true, attributionControl: true }).setView([19.38, -99.14], 11);
-      // Teselas estándar de OpenStreetMap (sin llave), oscurecidas con un filtro CSS
-      // (.lk-darktiles) para que el trazo lima se lea. CARTO pide llave desde 2026.
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19, className: "lk-darktiles",
-        attribution: "© OpenStreetMap",
-      }).addTo(map.current);
-      setTimeout(() => map.current?.invalidateSize(), 50);
+      const m = new ml.Map({
+        container: mapEl.current, style: BASEMAPS.oscuro,
+        center: [-99.14, 19.38], zoom: 10.5, attributionControl: { compact: true },
+      });
+      m.addControl(new ml.NavigationControl({ showCompass: false }), "top-left");
+      m.on("style.load", () => setStyleVersion(v => v + 1));
+      // Ventanita con velocidad y hora al pasar sobre un exceso
+      const popup = new ml.Popup({ closeButton: false, closeOnClick: false, offset: 10 });
+      m.on("mouseenter", "lk-excesos", (e: any) => {
+        m.getCanvas().style.cursor = "pointer";
+        const f = e.features?.[0];
+        if (f) popup.setLngLat(f.geometry.coordinates).setText(f.properties.label).addTo(m);
+      });
+      m.on("mouseleave", "lk-excesos", () => { m.getCanvas().style.cursor = ""; popup.remove(); });
+      map.current = m;
     }).catch(e => setErr((e as Error).message));
     return () => { cancelled = true; map.current?.remove(); map.current = null; };
   }, []);
 
-  // Dibujar el recorrido completo cuando llegan puntos
+  // Cambiar mapa base: setStyle borra las capas propias; se vuelven a poner en style.load
   useEffect(() => {
-    const L = (window as any).L;
-    if (!L || !map.current) {
-      if (pts.length) { const id = setTimeout(() => setPts(p => [...p]), 300); return () => clearTimeout(id); }
-      return;
-    }
-    const m = map.current, ly = layers.current;
-    Object.values(ly).forEach((l: any) => l && m.removeLayer(l));
-    layers.current = {};
+    const m = map.current;
+    if (m && styleVersion > 0) m.setStyle(BASEMAPS[base]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [base]);
+
+  // Dibujar recorrido, excesos y marcadores
+  useEffect(() => {
+    const m = map.current, ml = (window as any).maplibregl;
+    if (!m || !ml || styleVersion === 0) return;
+
+    for (const id of ["lk-done", "lk-full", "lk-excesos"]) if (m.getLayer(id)) m.removeLayer(id);
+    for (const id of ["lk-done", "lk-full", "lk-excesos"]) if (m.getSource(id)) m.removeSource(id);
+    markers.current.head?.remove();
+    markers.current.others.forEach(mk => mk.remove());
+    markers.current = { others: [] };
     if (!pts.length) return;
 
     const segs = segments(pts);
-    const lime = t.signal;
-    layers.current.full = L.polyline(segs, { color: lime, weight: 3, opacity: 0.28 }).addTo(m);
-    layers.current.done = L.polyline([], { color: lime, weight: 4, opacity: 0.95 }).addTo(m);
-    layers.current.excesos = L.layerGroup(
-      pts.filter(p => (p.speed_kmh ?? 0) >= SPEEDING_KMH).map(p =>
-        L.circleMarker([p.lat, p.lon], { radius: 6, color: t.crimson, fillColor: t.crimson, fillOpacity: 0.9, weight: 2 })
-          .bindTooltip(`${p.speed_kmh} km/h · ${fmtTs(p.ts)}`)),
-    ).addTo(m);
+    m.addSource("lk-full", { type: "geojson", data: lineFeature(segs) });
+    m.addSource("lk-done", { type: "geojson", data: lineFeature([]) });
+    m.addSource("lk-excesos", {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: pts.filter(p => (p.speed_kmh ?? 0) >= SPEEDING_KMH).map(p => ({
+          type: "Feature", properties: { label: `${p.speed_kmh} km/h · ${fmtTs(p.ts)}` },
+          geometry: { type: "Point", coordinates: [p.lon, p.lat] },
+        })),
+      },
+    });
+    const lineLayout = { "line-join": "round", "line-cap": "round" };
+    m.addLayer({ id: "lk-full", type: "line", source: "lk-full", layout: lineLayout, paint: { "line-color": pal.full, "line-width": 3, "line-opacity": pal.fullOp } });
+    m.addLayer({ id: "lk-done", type: "line", source: "lk-done", layout: lineLayout, paint: { "line-color": pal.trail, "line-width": 4 } });
+    m.addLayer({ id: "lk-excesos", type: "circle", source: "lk-excesos", paint: { "circle-radius": 6, "circle-color": t.crimson, "circle-stroke-color": pal.ring, "circle-stroke-width": 2 } });
+
     // Lugares donde más tiempo se queda detenido, numerados como en el tablero
-    layers.current.stays = L.layerGroup(stays(pts).map((st, i) =>
-      L.marker([st.lat, st.lon], {
-        icon: L.divIcon({
-          className: "", iconSize: [24, 24], iconAnchor: [12, 12],
-          html: `<div style="width:24px;height:24px;border-radius:12px;background:#0B0F14;border:2px solid ${lime};color:${lime};font:700 12px ui-monospace,monospace;display:grid;place-items:center">${i + 1}</div>`,
-        }),
-      }).bindTooltip(`${i + 1}. ${(st.address ?? "").split(",").slice(0, 2).join(",")} · ${Math.round(st.minutes / 60)} h detenido`)),
-    ).addTo(m);
-    layers.current.start = L.circleMarker([pts[0].lat, pts[0].lon], { radius: 6, color: "#F2EEE6", fillColor: "#0B0F14", fillOpacity: 1, weight: 3 })
-      .bindTooltip("Inicio · " + fmtTs(pts[0].ts)).addTo(m);
-    layers.current.head = L.circleMarker([pts[0].lat, pts[0].lon], { radius: 9, color: "#0B0F14", fillColor: lime, fillOpacity: 1, weight: 3 }).addTo(m);
-    // El tablero de arriba cambia de alto al llegar los datos: recalcular el tamaño
-    // del mapa antes de encuadrar, o quedan teselas sin cargar (cuadros negros).
-    m.invalidateSize();
-    m.fitBounds(layers.current.full.getBounds(), { padding: [30, 30] });
-    setTimeout(() => m.invalidateSize(), 250);
+    stays(pts).forEach((st, i) => {
+      const el = markerEl(
+        `<div style="width:24px;height:24px;border-radius:12px;background:#0B0F14;border:2px solid ${t.signal};color:${t.signal};font:700 12px ui-monospace,monospace;display:grid;place-items:center">${i + 1}</div>`,
+        `${i + 1}. ${(st.address ?? "").split(",").slice(0, 2).join(",")} · ${Math.round(st.minutes / 60)} h detenido`,
+      );
+      markers.current.others.push(new ml.Marker({ element: el }).setLngLat([st.lon, st.lat]).addTo(m));
+    });
+    const startEl = markerEl(`<div style="width:12px;height:12px;border-radius:6px;background:#0B0F14;border:3px solid #F2EEE6"></div>`, "Inicio · " + fmtTs(pts[0].ts));
+    markers.current.others.push(new ml.Marker({ element: startEl }).setLngLat([pts[0].lon, pts[0].lat]).addTo(m));
+    const headEl = markerEl(`<div style="width:18px;height:18px;border-radius:9px;background:${t.signal};border:3px solid #0B0F14;box-shadow:0 0 0 6px rgba(200,255,61,.25)"></div>`);
+    markers.current.head = new ml.Marker({ element: headEl }).setLngLat([pts[0].lon, pts[0].lat]).addTo(m);
+
+    // Encuadrar solo cuando cambian los puntos, no al cambiar de mapa base
+    if (fittedFor.current !== pts) {
+      fittedFor.current = pts;
+      let w = 180, e = -180, so = 90, n = -90;
+      for (const p of pts) { w = Math.min(w, p.lon); e = Math.max(e, p.lon); so = Math.min(so, p.lat); n = Math.max(n, p.lat); }
+      m.resize();
+      m.fitBounds([[w, so], [e, n]], { padding: 40, duration: 0, maxZoom: 16 });
+    }
     drawTo(idxRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pts]);
+  }, [pts, styleVersion]);
 
   const drawTo = useCallback((i: number) => {
-    const ly = layers.current;
-    if (!ly.done || !pts.length) return;
+    const m = map.current;
+    const src = m?.getSource?.("lk-done");
+    if (!src || !pts.length) return;
     const k = Math.max(0, Math.min(pts.length - 1, Math.floor(i)));
-    ly.done.setLatLngs(segments(pts.slice(0, k + 1)));
-    ly.head.setLatLng([pts[k].lat, pts[k].lon]);
+    src.setData(lineFeature(segments(pts.slice(0, k + 1))));
+    markers.current.head?.setLngLat([pts[k].lon, pts[k].lat]);
   }, [pts]);
 
   // Reproducción
@@ -232,9 +286,16 @@ export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: R
       {loading ? null : <VehicleDashboard pts={pts} t={t} />}
 
       {/* Mapa */}
-      <style>{`.lk-darktiles{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}`}</style>
       <div style={{ position: "relative", isolation: "isolate", borderRadius: 10, overflow: "hidden", border: `1px solid ${t.ink}` }}>
-        <div ref={mapEl} style={{ height: "min(62vh, 560px)", minHeight: 320, background: t.ink }} />
+        <div ref={mapEl} style={{ height: "min(62vh, 560px)", minHeight: 320, background: base === "oscuro" ? t.ink : "#F2F2F0" }} />
+        <div style={{ position: "absolute", top: 10, right: 10, zIndex: 2, display: "flex", background: "#0B0F14", borderRadius: 6, padding: 3, gap: 2 }}>
+          {(["oscuro", "claro"] as Basemap[]).map(b => (
+            <button key={b} onClick={() => setBase(b)} aria-pressed={base === b} style={{
+              background: base === b ? t.signal : "transparent", color: base === b ? t.ink : "#F2EEE6",
+              border: "none", borderRadius: 4, padding: "5px 10px", fontFamily: t.fMono, fontSize: 11, cursor: "pointer",
+            }}>{b === "oscuro" ? "Oscuro" : "Claro"}</button>
+          ))}
+        </div>
         {!pts.length && !loading && (
           <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#F2EEE6", fontFamily: t.fBody, fontSize: 14, zIndex: 500, pointerEvents: "none" }}>
             Sin puntos en ese rango
