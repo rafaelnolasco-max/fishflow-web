@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
   const points: unknown[] = [];
   for (let off = 0; off < MAX_POINTS; off += PAGE) {
     const { data, error } = await db.from("telematica_points")
-      .select("ts, lat, lon, speed_kmh, heading, ignition, event_code, address")
+      .select("ts, lat, lon, speed_kmh, heading, ignition, event_code, address, sats, batt_gps_pct, batt_vehicle_v, odometer_m")
       .eq("vehicle_id", v.id).gte("ts", fromTs).lte("ts", toTs)
       .order("ts", { ascending: true }).range(off, off + PAGE - 1);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

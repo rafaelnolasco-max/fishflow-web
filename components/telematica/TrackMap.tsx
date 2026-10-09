@@ -10,30 +10,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RecorridosTokens } from "./RecorridosTab";
+import VehicleDashboard, { isGap, SPEEDING_KMH, type TP } from "./VehicleDashboard";
 
 interface VehicleOpt { id: string; alias: string | null; plate: string | null; device_id: string; points: number }
-interface TP {
-  ts: string; lat: number; lon: number; speed_kmh: number | null; heading: number | null;
-  ignition: boolean | null; event_code: number | null; address: string | null;
-}
 
-const SPEEDING_KMH = 80;     // umbral de exceso para marcar en el mapa
-const GAP_MIN = 20;          // un hueco de más de 20 min y 0.8 km corta el trazo
 const SPEEDS = [
   { label: "Lento", pps: 8 },
   { label: "Normal", pps: 30 },
   { label: "Rápido", pps: 120 },
 ];
 const LEAFLET = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/";
-
-function km(a: TP, b: TP) {
-  const R = 6371, r = Math.PI / 180;
-  const dLat = (b.lat - a.lat) * r, dLon = (b.lon - a.lon) * r;
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
-const mins = (a: TP, b: TP) => (new Date(b.ts).getTime() - new Date(a.ts).getTime()) / 60000;
-const isGap = (a: TP, b: TP) => mins(a, b) > GAP_MIN && km(a, b) > 0.8;
 
 /** Cortes del trazo: arreglos de [lat, lon] separados donde el equipo dejó de reportar. */
 function segments(pts: TP[]) {
@@ -47,32 +33,11 @@ function segments(pts: TP[]) {
   return out;
 }
 
-function stats(pts: TP[]) {
-  let dist = 0, moving = 0, vmax = 0, excesos = 0;
-  const days = new Set<string>();
-  for (let i = 1; i < pts.length; i++) {
-    const a = pts[i - 1], b = pts[i];
-    const d = km(a, b), m = mins(a, b);
-    if (!isGap(a, b) && d < 5) dist += d;
-    if ((b.speed_kmh ?? 0) > 3 && m < 10) { moving += m; days.add(dayKey(b.ts)); }
-    else if (d > 0.15 && m < 10) days.add(dayKey(b.ts));
-  }
-  for (const p of pts) {
-    vmax = Math.max(vmax, p.speed_kmh ?? 0);
-    if ((p.speed_kmh ?? 0) >= SPEEDING_KMH) excesos++;
-  }
-  return { dist, moving, vmax, excesos, days: days.size };
-}
-
-function dayKey(ts: string) {
-  return new Date(ts).toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
-}
 function fmtTs(ts: string) {
   return new Date(ts).toLocaleString("es-MX", {
     timeZone: "America/Mexico_City", weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
   });
 }
-const nf1 = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 1 });
 
 function loadLeaflet(): Promise<any> {
   const w = window as any;
@@ -214,7 +179,6 @@ export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: R
     setPlaying(p => !p);
   };
 
-  const s = useMemo(() => stats(pts), [pts]);
   const cur = pts[idx];
 
   const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
@@ -251,21 +215,8 @@ export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: R
 
       {err && <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.crimson, marginBottom: 14 }}>{err}</p>}
 
-      {/* Cifras del rango */}
-      <div className="lk-grid-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", marginBottom: 16 }}>
-        {[
-          ["Kilómetros", nf1.format(s.dist)],
-          ["En movimiento", `${Math.floor(s.moving / 60)} h ${Math.round(s.moving % 60)} min`],
-          ["Vel. máxima", `${s.vmax} km/h`],
-          [`Excesos ≥${SPEEDING_KMH}`, String(s.excesos)],
-          ["Días con uso", String(s.days)],
-        ].map(([k, v]) => (
-          <div key={k} style={{ background: "#FBF9F3", border: `1px solid ${t.lineL}`, borderRadius: 8, padding: "12px 14px" }}>
-            <div style={label}>{k}</div>
-            <div style={{ fontFamily: t.fMono, fontSize: 18, fontWeight: 700, color: k.startsWith("Excesos") && s.excesos ? t.crimson : t.ink, marginTop: 6 }}>{v}</div>
-          </div>
-        ))}
-      </div>
+      {/* Tablero de la unidad */}
+      {loading ? null : <VehicleDashboard pts={pts} t={t} />}
 
       {/* Mapa */}
       <style>{`.lk-darktiles{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}`}</style>
