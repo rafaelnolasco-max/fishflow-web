@@ -40,6 +40,8 @@ export interface ParsedExport {
   groups: DeviceGroup[];    // uno por equipo: un archivo puede traer varias unidades
   total: number;            // puntos válidos en todo el archivo
   skipped: number;          // filas sin coordenadas, fecha o equipo válidos
+  missing: string[];        // columnas esperadas que el archivo no trae (para avisar en pantalla)
+  header: string[];         // encabezados tal como vienen, para diagnosticar formatos nuevos
 }
 
 // Mexico (CDMX) no tiene horario de verano desde 2022: UTC-6 fijo.
@@ -143,7 +145,12 @@ export function parseLukonRows(rows: unknown[][]): ParsedExport {
     return { device_id, points, ts_min: points[0]?.ts ?? null, ts_max: points[points.length - 1]?.ts ?? null };
   }).sort((a, b) => a.device_id.localeCompare(b.device_id));
 
-  return { groups, total, skipped };
+  const LABELS: Partial<Record<keyof typeof HEADERS, string>> = {
+    vel: "velocidad", ign: "ignición", odo: "odómetro", evento: "tipo de evento",
+    batVeh: "batería del vehículo", batGps: "batería del GPS", sat: "satélites", domicilio: "domicilio",
+  };
+  const missing = (Object.keys(LABELS) as (keyof typeof HEADERS)[]).filter(k => c[k] < 0).map(k => LABELS[k]!);
+  return { groups, total, skipped, missing, header: rows[hIdx].map(x => String(x).trim()) };
 }
 
 /** Puntos por petición al API de importación (≈200 KB de JSON). */

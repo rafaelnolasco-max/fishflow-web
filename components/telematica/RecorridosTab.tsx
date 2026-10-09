@@ -9,6 +9,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { parseLukonRows, IMPORT_CHUNK, type TelematicaPoint } from "@/lib/telematica";
 import TrackMap from "./TrackMap";
+import FleetDashboard from "./FleetDashboard";
+
+// Con 3 o más unidades con datos, la flotilla abre en el tablero del dueño.
+const FLEET_VIEW_MIN = 3;
 
 export interface RecorridosTokens {
   ink: string; ink3: string; paper: string; paper2: string; lineL: string;
@@ -30,6 +34,7 @@ interface Item {
   ts_min: string | null;
   ts_max: string | null;
   skipped: number;
+  missing: string[];
   status: "pendiente" | "subiendo" | "listo" | "error";
   sent: number;
   inserted: number;
@@ -49,7 +54,8 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
   const [items, setItems] = useState<Item[]>([]);
   const [busy, setBusy] = useState<"" | "leyendo" | "subiendo">("");
   const [error, setError] = useState("");
-  const [view, setView] = useState<"mapa" | "cargar">("mapa");
+  const [view, setView] = useState<"flotilla" | "mapa" | "cargar">("mapa");
+  const [focusVehicle, setFocusVehicle] = useState<string | undefined>(undefined);
   const [dragOver, setDragOver] = useState(false);
 
   const load = useCallback(async () => {
@@ -89,6 +95,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
             key: `${file.name}·${g.device_id}·${file.lastModified}`, filename: file.name,
             device_id: g.device_id, points: g.points, ts_min: g.ts_min, ts_max: g.ts_max,
             skipped: parsed.groups.length === 1 ? parsed.skipped : 0,
+            missing: parsed.missing,
             status: "pendiente", sent: 0, inserted: 0,
           });
         }
@@ -138,6 +145,11 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
   }
 
   const fleet = fleets.find(f => f.id === fleetId);
+  const fleetReady = (fleet?.vehicles.filter(v => v.points > 0).length ?? 0) >= FLEET_VIEW_MIN;
+  const openVehicle = useCallback((id: string) => { setFocusVehicle(id); setView("mapa"); }, []);
+  // Al cambiar de flotilla: tablero del dueño si tiene 3+ unidades con datos, si no el mapa.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (fleetId) { setView(fleetReady ? "flotilla" : "mapa"); setFocusVehicle(undefined); } }, [fleetId]);
   const h2 = { fontFamily: t.fMono, fontSize: 13, fontWeight: 500, color: t.mutedL, letterSpacing: "0.2em", textTransform: "uppercase" as const, margin: "0 0 28px" };
   const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
   const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "12px 22px", fontFamily: t.fBody, fontWeight: 700, fontSize: 14, cursor: "pointer" };
@@ -157,17 +169,20 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
       </div>
 
       {/* Vista */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 22 }}>
-        {(["mapa", "cargar"] as const).map(v => (
+      <div style={{ display: "flex", gap: 6, marginBottom: 22, flexWrap: "wrap" }}>
+        {((fleetReady ? ["flotilla", "mapa", "cargar"] : ["mapa", "cargar"]) as ("flotilla" | "mapa" | "cargar")[]).map(v => (
           <button key={v} onClick={() => setView(v)} style={{
             background: view === v ? t.ink : "transparent", color: view === v ? t.signal : t.mutedL,
             border: `1px solid ${view === v ? t.ink : t.lineL}`, borderRadius: 6, padding: "8px 16px",
             fontFamily: t.fBody, fontWeight: 600, fontSize: 13, cursor: "pointer",
-          }}>{v === "mapa" ? "Mapa" : "Cargar datos"}</button>
+          }}>{v === "flotilla" ? "Flotilla" : v === "mapa" ? "Mapa por unidad" : "Cargar datos"}</button>
         ))}
       </div>
 
-      {view === "mapa" && fleet && <TrackMap key={fleet.id} vehicles={fleet.vehicles} t={t} />}
+      {view === "flotilla" && fleet && fleetReady && (
+        <FleetDashboard key={fleet.id} clientId={fleet.id} fleetName={fleet.name} t={t} onOpenVehicle={openVehicle} />
+      )}
+      {view === "mapa" && fleet && <TrackMap key={`${fleet.id}-${focusVehicle ?? ""}`} vehicles={fleet.vehicles} t={t} initialVehicleId={focusVehicle} />}
 
       {view === "cargar" && (<>
       {/* Archivos */}
@@ -212,7 +227,14 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
               <tbody>
                 {items.map(it => (
                   <tr key={it.key} style={{ borderBottom: `1px solid ${t.paper2}` }}>
-                    <td style={{ padding: 10, color: t.ink3, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.filename}</td>
+                    <td style={{ padding: 10, color: t.ink3, maxWidth: 260 }}>
+                      <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.filename}</div>
+                      {it.missing.length > 0 && (
+                        <div style={{ fontFamily: t.fMono, fontSize: 10, color: "#B87500", marginTop: 2, whiteSpace: "normal" }}>
+                          No trae: {it.missing.join(", ")}
+                        </div>
+                      )}
+                    </td>
                     <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 11 }}>{it.device_id}</td>
                     <td style={{ padding: 10, fontFamily: t.fMono }}>{nf.format(it.points.length)}</td>
                     <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 11, color: t.mutedL }}>{fmtDay(it.ts_min)} – {fmtDay(it.ts_max)}</td>

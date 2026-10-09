@@ -262,7 +262,7 @@ export default function VehicleDashboard({ pts, t }: { pts: TP[]; t: RecorridosT
 }
 
 /** Barras verticales de una sola serie, con tooltip al pasar el mouse. */
-function Bars({ data, t, every }: {
+export function Bars({ data, t, every }: {
   data: { key: string; label: string; value: number; tip: string; night?: boolean }[];
   t: RecorridosTokens; every: number;
 }) {

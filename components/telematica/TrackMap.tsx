@@ -13,6 +13,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RecorridosTokens } from "./RecorridosTab";
+import { BASEMAPS, loadMapLibre, type Basemap } from "./maplibre";
 import VehicleDashboard, { isGap, stays, SPEEDING_KMH, type TP } from "./VehicleDashboard";
 
 interface VehicleOpt { id: string; alias: string | null; plate: string | null; device_id: string; points: number }
@@ -22,13 +23,6 @@ const SPEEDS = [
   { label: "Normal", pps: 30 },
   { label: "Rápido", pps: 120 },
 ];
-const MAPLIBRE = "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/";
-const BASEMAPS = {
-  oscuro: "https://tiles.openfreemap.org/styles/dark",
-  claro: "https://tiles.openfreemap.org/styles/positron",
-} as const;
-type Basemap = keyof typeof BASEMAPS;
-
 /** Cortes del trazo en [lon, lat] (GeoJSON), separados donde el equipo dejó de reportar. */
 function segments(pts: TP[]) {
   const out: [number, number][][] = [];
@@ -50,23 +44,6 @@ function fmtTs(ts: string) {
   });
 }
 
-function loadMapLibre(): Promise<any> {
-  const w = window as any;
-  if (w.maplibregl) return Promise.resolve(w.maplibregl);
-  if (w.__maplibreLoading) return w.__maplibreLoading;
-  w.__maplibreLoading = new Promise((resolve, reject) => {
-    const css = document.createElement("link");
-    css.rel = "stylesheet"; css.href = MAPLIBRE + "maplibre-gl.css";
-    document.head.appendChild(css);
-    const js = document.createElement("script");
-    js.src = MAPLIBRE + "maplibre-gl.js";
-    js.onload = () => resolve(w.maplibregl);
-    js.onerror = () => reject(new Error("No se pudo cargar el mapa (MapLibre)."));
-    document.head.appendChild(js);
-  });
-  return w.__maplibreLoading;
-}
-
 function markerEl(html: string, title?: string) {
   const el = document.createElement("div");
   el.innerHTML = html;
@@ -74,8 +51,8 @@ function markerEl(html: string, title?: string) {
   return el;
 }
 
-export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: RecorridosTokens }) {
-  const [vehicleId, setVehicleId] = useState("");
+export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: VehicleOpt[]; t: RecorridosTokens; initialVehicleId?: string }) {
+  const [vehicleId, setVehicleId] = useState(initialVehicleId ?? "");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [pts, setPts] = useState<TP[]>([]);
