@@ -154,7 +154,9 @@ export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: R
   // Cambiar mapa base: setStyle borra las capas propias; se vuelven a poner en style.load
   useEffect(() => {
     const m = map.current;
-    if (m && styleVersion > 0) m.setStyle(BASEMAPS[base]);
+    // diff:false fuerza recarga completa para que dispare "style.load" (con diff,
+    // MapLibre aplica el cambio sin ese evento y las capas propias no regresan)
+    if (m && styleVersion > 0) m.setStyle(BASEMAPS[base], { diff: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [base]);
 
