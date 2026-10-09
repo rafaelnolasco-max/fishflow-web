@@ -28,13 +28,18 @@ export interface TelematicaPoint {
   address: string | null;
 }
 
-export interface ParsedExport {
+/** Puntos de un equipo dentro de un archivo. */
+export interface DeviceGroup {
   device_id: string;
-  devices: string[];        // si el archivo trae más de un equipo, aquí aparecen todos
   points: TelematicaPoint[];
-  skipped: number;          // filas sin coordenadas o fecha válidas
   ts_min: string | null;
   ts_max: string | null;
+}
+
+export interface ParsedExport {
+  groups: DeviceGroup[];    // uno por equipo: un archivo puede traer varias unidades
+  total: number;            // puntos válidos en todo el archivo
+  skipped: number;          // filas sin coordenadas, fecha o equipo válidos
 }
 
 // Mexico (CDMX) no tiene horario de verano desde 2022: UTC-6 fijo.
@@ -99,9 +104,8 @@ export function parseLukonRows(rows: unknown[][]): ParsedExport {
   const c = Object.fromEntries(Object.entries(HEADERS).map(([k, v]) => [k, col(v)])) as Record<keyof typeof HEADERS, number>;
   if (c.latlon < 0) throw new Error('Falta la columna "Latitud-Longitud".');
 
-  const points: TelematicaPoint[] = [];
-  const deviceCount = new Map<string, number>();
-  let skipped = 0;
+  const byDevice = new Map<string, TelematicaPoint[]>();
+  let skipped = 0, total = 0;
 
   for (let i = hIdx + 1; i < rows.length; i++) {
     const r = rows[i];
@@ -112,7 +116,9 @@ export function parseLukonRows(rows: unknown[][]): ParsedExport {
     if (!ts || lat === null || lon === null || (lat === 0 && lon === 0)) { skipped++; continue; }
 
     const dev = String(r[c.device] ?? "").trim();
-    if (dev) deviceCount.set(dev, (deviceCount.get(dev) ?? 0) + 1);
+    if (!dev) { skipped++; continue; }
+    let points = byDevice.get(dev);
+    if (!points) { points = []; byDevice.set(dev, points); }
 
     const sats = c.sat >= 0 ? int(r[c.sat]) : null;
     const ign = c.ign >= 0 ? int(r[c.ign]) : null;
@@ -131,16 +137,13 @@ export function parseLukonRows(rows: unknown[][]): ParsedExport {
     });
   }
 
-  points.sort((a, b) => a.ts.localeCompare(b.ts));
-  const devices = [...deviceCount.entries()].sort((a, b) => b[1] - a[1]).map(([d]) => d);
-  return {
-    device_id: devices[0] ?? "",
-    devices,
-    points,
-    skipped,
-    ts_min: points[0]?.ts ?? null,
-    ts_max: points[points.length - 1]?.ts ?? null,
-  };
+  const groups: DeviceGroup[] = [...byDevice.entries()].map(([device_id, points]) => {
+    points.sort((a, b) => a.ts.localeCompare(b.ts));
+    total += points.length;
+    return { device_id, points, ts_min: points[0]?.ts ?? null, ts_max: points[points.length - 1]?.ts ?? null };
+  }).sort((a, b) => a.device_id.localeCompare(b.device_id));
+
+  return { groups, total, skipped };
 }
 
 /** Puntos por petición al API de importación (≈200 KB de JSON). */

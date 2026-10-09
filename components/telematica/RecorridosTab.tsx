@@ -1,13 +1,13 @@
 "use client";
 
 // ─── Telemática · Recorridos — carga de logs GPS ─────────────────────────────
-// Tab del panel /app/lukon. Alex escoge la flotilla (cliente de Lukon), sube el
-// export CSV/XLSX del Sistema de Monitoreo Vehicular y se guarda en
-// telematica_points. El archivo se parsea aquí, en el navegador, y se manda en
+// Tab del panel /app/lukon. Alex escoge la flotilla (cliente de Lukon), sube uno
+// o varios exports CSV/XLSX del Sistema de Monitoreo Vehicular (uno por unidad,
+// o un archivo con varias) y se guardan en telematica_points. El archivo se parsea aquí, en el navegador, y se manda en
 // bloques de IMPORT_CHUNK puntos (el body de Vercel topa en 4.5 MB).
 
 import { useCallback, useEffect, useState } from "react";
-import { parseLukonRows, IMPORT_CHUNK, type ParsedExport } from "@/lib/telematica";
+import { parseLukonRows, IMPORT_CHUNK, type TelematicaPoint } from "@/lib/telematica";
 
 export interface RecorridosTokens {
   ink: string; ink3: string; paper: string; paper2: string; lineL: string;
@@ -20,13 +20,20 @@ interface Vehicle {
 }
 interface Fleet { id: string; name: string; slug: string; vehicles: Vehicle[] }
 
-type Stage =
-  | { kind: "idle" }
-  | { kind: "parsing"; filename: string }
-  | { kind: "ready"; filename: string; parsed: ParsedExport }
-  | { kind: "uploading"; filename: string; parsed: ParsedExport; sent: number }
-  | { kind: "done"; filename: string; read: number; inserted: number }
-  | { kind: "error"; msg: string };
+/** Una unidad lista para subir: un equipo de un archivo. */
+interface Item {
+  key: string;
+  filename: string;
+  device_id: string;
+  points: TelematicaPoint[];
+  ts_min: string | null;
+  ts_max: string | null;
+  skipped: number;
+  status: "pendiente" | "subiendo" | "listo" | "error";
+  sent: number;
+  inserted: number;
+  msg?: string;
+}
 
 function fmtDay(iso: string | null) {
   if (!iso) return "—";
@@ -38,7 +45,9 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
   const [fleets, setFleets] = useState<Fleet[]>([]);
   const [fleetId, setFleetId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [stage, setStage] = useState<Stage>({ kind: "idle" });
+  const [items, setItems] = useState<Item[]>([]);
+  const [busy, setBusy] = useState<"" | "leyendo" | "subiendo">("");
+  const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -49,7 +58,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
       setFleets(data.fleets ?? []);
       setFleetId(prev => prev || data.fleets?.[0]?.id || "");
     } catch (e) {
-      setStage({ kind: "error", msg: (e as Error).message });
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -57,55 +66,72 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
 
   useEffect(() => { load(); }, [load]);
 
-  async function onFile(file: File) {
-    setStage({ kind: "parsing", filename: file.name });
-    try {
-      const XLSX = await import("xlsx");
-      // CSV: se lee como texto UTF-8 (leerlo como binario rompe acentos: "Odómetro").
-      // raw:true conserva "0560024837" como texto (sin perder el cero inicial).
-      const isCsv = /\.csv$/i.test(file.name);
-      const wb = isCsv
-        ? XLSX.read(await file.text(), { type: "string", raw: true })
-        : XLSX.read(await file.arrayBuffer(), { type: "array", raw: true });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, raw: false, defval: "" });
-      const parsed = parseLukonRows(rows);
-      if (parsed.devices.length > 1) throw new Error(`El archivo trae ${parsed.devices.length} equipos (${parsed.devices.join(", ")}). Sube un archivo por unidad.`);
-      if (!parsed.points.length) throw new Error("El archivo no trae puntos con coordenadas válidas.");
-      setStage({ kind: "ready", filename: file.name, parsed });
-    } catch (e) {
-      setStage({ kind: "error", msg: (e as Error).message });
+  async function onFiles(files: File[]) {
+    setBusy("leyendo"); setError("");
+    const XLSX = await import("xlsx");
+    const next: Item[] = [];
+    const errs: string[] = [];
+    for (const file of files) {
+      try {
+        // CSV: se lee como texto UTF-8 (leerlo como binario rompe acentos: "Odómetro").
+        // raw:true conserva "0560024837" como texto (sin perder el cero inicial).
+        const wb = /\.csv$/i.test(file.name)
+          ? XLSX.read(await file.text(), { type: "string", raw: true })
+          : XLSX.read(await file.arrayBuffer(), { type: "array", raw: true });
+        const rows = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false, defval: "" });
+        const parsed = parseLukonRows(rows);
+        if (!parsed.groups.length) throw new Error("no trae puntos con coordenadas válidas");
+        for (const g of parsed.groups) {
+          next.push({
+            key: `${file.name}·${g.device_id}·${file.lastModified}`, filename: file.name,
+            device_id: g.device_id, points: g.points, ts_min: g.ts_min, ts_max: g.ts_max,
+            skipped: parsed.groups.length === 1 ? parsed.skipped : 0,
+            status: "pendiente", sent: 0, inserted: 0,
+          });
+        }
+      } catch (e) {
+        errs.push(`${file.name}: ${(e as Error).message}`);
+      }
     }
+    // Un archivo repetido reemplaza al anterior en la lista, no se suma
+    setItems(prev => [...prev.filter(p => p.status !== "pendiente" || !next.some(n => n.key === p.key)), ...next]);
+    if (errs.length) setError(errs.join(" · "));
+    setBusy("");
   }
 
-  async function upload() {
-    if (stage.kind !== "ready" || !fleetId) return;
-    const { parsed, filename } = stage;
-    let importId: string | undefined;
-    let inserted = 0;
-    try {
-      for (let i = 0; i < parsed.points.length; i += IMPORT_CHUNK) {
-        setStage({ kind: "uploading", filename, parsed, sent: i });
-        const chunk = parsed.points.slice(i, i + IMPORT_CHUNK);
-        const res = await fetch("/api/telematica/import", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            client_id: fleetId, device_id: parsed.device_id, filename,
-            points: chunk, import_id: importId,
-            done: i + IMPORT_CHUNK >= parsed.points.length,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? `Error en el bloque ${i / IMPORT_CHUNK + 1}`);
-        importId = data.import_id;
-        inserted += data.inserted ?? 0;
+  const patch = (key: string, p: Partial<Item>) =>
+    setItems(prev => prev.map(it => (it.key === key ? { ...it, ...p } : it)));
+
+  async function uploadAll() {
+    if (!fleetId) return;
+    setBusy("subiendo"); setError("");
+    for (const it of items.filter(i => i.status === "pendiente" || i.status === "error")) {
+      let importId: string | undefined;
+      let inserted = 0;
+      try {
+        for (let i = 0; i < it.points.length; i += IMPORT_CHUNK) {
+          patch(it.key, { status: "subiendo", sent: i });
+          const res = await fetch("/api/telematica/import", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              client_id: fleetId, device_id: it.device_id, filename: it.filename,
+              points: it.points.slice(i, i + IMPORT_CHUNK), import_id: importId,
+              done: i + IMPORT_CHUNK >= it.points.length,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error ?? `Error en el bloque ${i / IMPORT_CHUNK + 1}`);
+          importId = data.import_id;
+          inserted += data.inserted ?? 0;
+        }
+        patch(it.key, { status: "listo", sent: it.points.length, inserted });
+      } catch (e) {
+        patch(it.key, { status: "error", msg: (e as Error).message });
       }
-      setStage({ kind: "done", filename, read: parsed.points.length, inserted });
-      load();
-    } catch (e) {
-      setStage({ kind: "error", msg: (e as Error).message });
     }
+    setBusy("");
+    load();
   }
 
   const fleet = fleets.find(f => f.id === fleetId);
@@ -127,59 +153,68 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
         </select>
       </div>
 
-      {/* Archivo */}
+      {/* Archivos */}
       <label style={{
         display: "block", border: `1.5px dashed ${t.lineL}`, borderRadius: 10, padding: "28px 20px",
-        textAlign: "center", cursor: fleetId ? "pointer" : "not-allowed", background: "#FBF9F3", marginBottom: 20,
+        textAlign: "center", cursor: fleetId && !busy ? "pointer" : "not-allowed", background: "#FBF9F3", marginBottom: 20,
         opacity: fleetId ? 1 : 0.5,
       }}>
-        <input type="file" accept=".csv,.xlsx,.xls" disabled={!fleetId || stage.kind === "uploading"}
+        <input type="file" accept=".csv,.xlsx,.xls" multiple disabled={!fleetId || !!busy}
           style={{ display: "none" }}
-          onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = ""; }} />
-        <div style={{ fontFamily: t.fBody, fontWeight: 600, fontSize: 15, color: t.ink }}>Subir export CSV o XLSX</div>
+          onChange={e => { const fs = Array.from(e.target.files ?? []); if (fs.length) onFiles(fs); e.target.value = ""; }} />
+        <div style={{ fontFamily: t.fBody, fontWeight: 600, fontSize: 15, color: t.ink }}>Subir exports CSV o XLSX</div>
         <div style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, marginTop: 6 }}>
-          Un archivo por unidad, tal como sale del Sistema de Monitoreo Vehicular. Volver a subirlo no duplica datos.
+          Puedes escoger varios archivos a la vez; cada unidad se separa sola. Volver a subir un archivo no duplica datos.
         </div>
       </label>
 
-      {stage.kind === "parsing" && <p style={{ fontFamily: t.fMono, fontSize: 12, color: t.mutedL }}>Leyendo {stage.filename}…</p>}
+      {busy === "leyendo" && <p style={{ fontFamily: t.fMono, fontSize: 12, color: t.mutedL }}>Leyendo archivos…</p>}
 
-      {(stage.kind === "ready" || stage.kind === "uploading") && (
+      {items.length > 0 && (
         <div style={{ border: `1px solid ${t.lineL}`, borderRadius: 10, padding: 20, marginBottom: 24, background: "#FBF9F3" }}>
-          <div className="lk-grid-3" style={{ marginBottom: 18 }}>
-            <Stat t={t} k="Equipo" v={stage.parsed.device_id} />
-            <Stat t={t} k="Registros" v={nf.format(stage.parsed.points.length)} />
-            <Stat t={t} k="Periodo" v={`${fmtDay(stage.parsed.ts_min)} – ${fmtDay(stage.parsed.ts_max)}`} />
+          <div className="lk-tablewrap">
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
+                  {["Archivo", "Equipo", "Registros", "Periodo", "Estado"].map(h => (
+                    <th key={h} style={{ ...label, textAlign: "left", padding: "6px 10px", fontWeight: 500 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {items.map(it => (
+                  <tr key={it.key} style={{ borderBottom: `1px solid ${t.paper2}` }}>
+                    <td style={{ padding: 10, color: t.ink3, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.filename}</td>
+                    <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 11 }}>{it.device_id}</td>
+                    <td style={{ padding: 10, fontFamily: t.fMono }}>{nf.format(it.points.length)}</td>
+                    <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 11, color: t.mutedL }}>{fmtDay(it.ts_min)} – {fmtDay(it.ts_max)}</td>
+                    <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 11, color: it.status === "error" ? t.crimson : t.ink }}>
+                      {it.status === "pendiente" && "Por subir"}
+                      {it.status === "subiendo" && `${Math.round((it.sent / it.points.length) * 100)}%`}
+                      {it.status === "listo" && `${nf.format(it.inserted)} nuevos`}
+                      {it.status === "error" && (it.msg ?? "Error")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          {stage.parsed.skipped > 0 && (
-            <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, margin: "0 0 14px" }}>
-              {nf.format(stage.parsed.skipped)} filas sin fecha o coordenadas se omiten.
-            </p>
-          )}
-          {stage.kind === "ready" ? (
-            <button style={btn} onClick={upload}>Guardar en {fleet?.name ?? "la flotilla"}</button>
-          ) : (
-            <div>
-              <div style={{ height: 6, borderRadius: 3, background: t.paper2, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.round((stage.sent / stage.parsed.points.length) * 100)}%`, background: t.ink }} />
-              </div>
-              <p style={{ fontFamily: t.fMono, fontSize: 11, color: t.mutedL, marginTop: 8 }}>
-                Guardando… {nf.format(stage.sent)} / {nf.format(stage.parsed.points.length)}
-              </p>
-            </div>
-          )}
+          <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 16, flexWrap: "wrap" }}>
+            <button style={{ ...btn, opacity: busy ? 0.6 : 1 }} disabled={!!busy || !items.some(i => i.status === "pendiente" || i.status === "error")} onClick={uploadAll}>
+              {busy === "subiendo" ? "Guardando…" : `Guardar ${items.filter(i => i.status === "pendiente" || i.status === "error").length} unidad(es) en ${fleet?.name ?? "la flotilla"}`}
+            </button>
+            {!busy && (
+              <button onClick={() => setItems([])} style={{ background: "none", border: "none", color: t.mutedL, fontFamily: t.fBody, fontSize: 13, cursor: "pointer", textDecoration: "underline" }}>
+                Limpiar lista
+              </button>
+            )}
+          </div>
         </div>
       )}
 
-      {stage.kind === "done" && (
-        <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.ink, background: t.paper2, borderRadius: 8, padding: "12px 16px", marginBottom: 24 }}>
-          {stage.filename}: {nf.format(stage.inserted)} registros nuevos de {nf.format(stage.read)}
-          {stage.inserted < stage.read ? " (el resto ya estaba cargado)." : "."}
-        </p>
-      )}
-      {stage.kind === "error" && (
+      {error && (
         <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.crimson, border: `1px solid ${t.crimson}44`, borderRadius: 8, padding: "12px 16px", marginBottom: 24 }}>
-          {stage.msg}
+          {error}
         </p>
       )}
 
@@ -210,15 +245,6 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
           </tbody>
         </table>
       </div>
-    </div>
-  );
-}
-
-function Stat({ t, k, v }: { t: RecorridosTokens; k: string; v: string }) {
-  return (
-    <div>
-      <div style={{ fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" }}>{k}</div>
-      <div style={{ fontFamily: t.fMono, fontSize: 16, fontWeight: 600, color: t.ink, marginTop: 6 }}>{v}</div>
     </div>
   );
 }
