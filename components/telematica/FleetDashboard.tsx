@@ -111,7 +111,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
     if (!rows.length || tot.km <= 0) return out;
     const byKm = [...rows].sort((a, b) => b.km - a.km);
     const top = byKm[0];
-    out.push({ tone: "info", vehicleId: top.id, text: `${name(top)} es la que más trabaja: ${nf0.format(top.km)} km, el ${nf0.format((top.km / tot.km) * 100)}% de toda la flotilla.` });
+    out.push({ tone: "info", vehicleId: top.id, text: `${name(top)} es la unidad que más trabaja: ${nf0.format(top.km)} km, el ${nf0.format((top.km / tot.km) * 100)}% de toda la flotilla.` });
     const idle = byKm.filter(v => v.km < tot.avgKm * 0.4);
     if (idle.length) out.push({ tone: "warn", vehicleId: idle[idle.length - 1].id, text: `${idle.length === 1 ? name(idle[0]) + " casi no se usa" : idle.length + " unidades casi no se usan"}: menos del 40% del promedio (${nf0.format(tot.avgKm)} km). ¿Se puede reasignar, rentar o vender?` });
     const ah = [...rows].filter(v => v.km > 20).sort((a, b) => b.km_after_hours / b.km - a.km_after_hours / a.km)[0];
