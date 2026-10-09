@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { parseLukonRows, IMPORT_CHUNK, type TelematicaPoint } from "@/lib/telematica";
+import TrackMap from "./TrackMap";
 
 export interface RecorridosTokens {
   ink: string; ink3: string; paper: string; paper2: string; lineL: string;
@@ -48,6 +49,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
   const [items, setItems] = useState<Item[]>([]);
   const [busy, setBusy] = useState<"" | "leyendo" | "subiendo">("");
   const [error, setError] = useState("");
+  const [view, setView] = useState<"mapa" | "cargar">("mapa");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -141,7 +143,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
 
   return (
     <div>
-      <h2 style={h2}>— Recorridos · carga de logs GPS</h2>
+      <h2 style={h2}>— Recorridos</h2>
 
       {/* Flotilla */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
@@ -153,6 +155,20 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
         </select>
       </div>
 
+      {/* Vista */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 22 }}>
+        {(["mapa", "cargar"] as const).map(v => (
+          <button key={v} onClick={() => setView(v)} style={{
+            background: view === v ? t.ink : "transparent", color: view === v ? t.signal : t.mutedL,
+            border: `1px solid ${view === v ? t.ink : t.lineL}`, borderRadius: 6, padding: "8px 16px",
+            fontFamily: t.fBody, fontWeight: 600, fontSize: 13, cursor: "pointer",
+          }}>{v === "mapa" ? "Mapa" : "Cargar datos"}</button>
+        ))}
+      </div>
+
+      {view === "mapa" && fleet && <TrackMap key={fleet.id} vehicles={fleet.vehicles} t={t} />}
+
+      {view === "cargar" && (<>
       {/* Archivos */}
       <label style={{
         display: "block", border: `1.5px dashed ${t.lineL}`, borderRadius: 10, padding: "28px 20px",
@@ -245,6 +261,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
           </tbody>
         </table>
       </div>
+      </>)}
     </div>
   );
 }

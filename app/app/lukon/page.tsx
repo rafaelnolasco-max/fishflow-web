@@ -420,7 +420,7 @@ function LukonDashboard() {
       </div>
 
       {/* ── Contenido ─────────────────────────────────────────────────────────── */}
-      <main className="lk-main" style={{ maxWidth: 800, margin: "0 auto" }}>
+      <main className="lk-main" style={{ maxWidth: tab === "recorridos" ? 1200 : 800, margin: "0 auto" }}>
 
         {/* ════ TAB: COBRAR ════════════════════════════════════════════════════ */}
         {tab === "cobrar" && (
