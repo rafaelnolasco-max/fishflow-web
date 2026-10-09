@@ -5,8 +5,8 @@
 // Escoges unidad y rango de días; se dibuja el recorrido y se puede reproducir
 // (play, velocidad, barra para adelantar/regresar). Leaflet se carga desde
 // cdnjs al abrir el mapa, igual que en la hoja de pedido de Los Aguachiles: sin
-// dependencia nueva en package.json. Teselas oscuras de CARTO sobre datos de
-// OpenStreetMap, sin llave, para que el trazo lima de Lukon se lea bien.
+// dependencia nueva en package.json. Teselas de OpenStreetMap (sin llave)
+// oscurecidas con CSS para que el trazo lima de Lukon se lea bien.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RecorridosTokens } from "./RecorridosTab";
@@ -142,9 +142,11 @@ export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: R
     loadLeaflet().then(L => {
       if (cancelled || !mapEl.current || map.current) return;
       map.current = L.map(mapEl.current, { zoomControl: true, attributionControl: true }).setView([19.38, -99.14], 11);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-        maxZoom: 19, subdomains: "abcd",
-        attribution: "© OpenStreetMap · © CARTO",
+      // Teselas estándar de OpenStreetMap (sin llave), oscurecidas con un filtro CSS
+      // (.lk-darktiles) para que el trazo lima se lea. CARTO pide llave desde 2026.
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19, className: "lk-darktiles",
+        attribution: "© OpenStreetMap",
       }).addTo(map.current);
       setTimeout(() => map.current?.invalidateSize(), 50);
     }).catch(e => setErr((e as Error).message));
@@ -266,6 +268,7 @@ export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: R
       </div>
 
       {/* Mapa */}
+      <style>{`.lk-darktiles{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}`}</style>
       <div style={{ position: "relative", isolation: "isolate", borderRadius: 10, overflow: "hidden", border: `1px solid ${t.ink}` }}>
         <div ref={mapEl} style={{ height: "min(62vh, 560px)", minHeight: 320, background: t.ink }} />
         {!pts.length && !loading && (
