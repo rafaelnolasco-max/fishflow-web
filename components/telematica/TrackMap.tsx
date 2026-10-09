@@ -142,7 +142,11 @@ export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: R
     layers.current.start = L.circleMarker([pts[0].lat, pts[0].lon], { radius: 6, color: "#F2EEE6", fillColor: "#0B0F14", fillOpacity: 1, weight: 3 })
       .bindTooltip("Inicio · " + fmtTs(pts[0].ts)).addTo(m);
     layers.current.head = L.circleMarker([pts[0].lat, pts[0].lon], { radius: 9, color: "#0B0F14", fillColor: lime, fillOpacity: 1, weight: 3 }).addTo(m);
+    // El tablero de arriba cambia de alto al llegar los datos: recalcular el tamaño
+    // del mapa antes de encuadrar, o quedan teselas sin cargar (cuadros negros).
+    m.invalidateSize();
     m.fitBounds(layers.current.full.getBounds(), { padding: [30, 30] });
+    setTimeout(() => m.invalidateSize(), 250);
     drawTo(idxRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pts]);
