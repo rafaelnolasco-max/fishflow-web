@@ -20,7 +20,7 @@ export interface RecorridosTokens {
 }
 
 interface Vehicle {
-  id: string; device_id: string; plate: string | null; alias: string | null;
+  id: string; device_id: string; plate: string | null; alias: string | null; photo_url?: string | null;
   points: number; ts_min: string | null; ts_max: string | null;
 }
 interface Fleet { id: string; name: string; slug: string; vehicles: Vehicle[] }

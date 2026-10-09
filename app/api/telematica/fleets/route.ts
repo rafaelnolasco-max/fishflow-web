@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   const ids = (fleets ?? []).map(f => f.id);
   const { data: vehicles, error: vErr } = ids.length
     ? await db.from("telematica_vehicles")
-        .select("id, client_id, device_id, plate, alias, active").in("client_id", ids).order("alias")
+        .select("id, client_id, device_id, plate, alias, photo_url, active").in("client_id", ids).order("alias")
     : { data: [], error: null };
   if (vErr) return NextResponse.json({ error: vErr.message }, { status: 500 });
 

@@ -18,7 +18,7 @@ import { Bars } from "./VehicleDashboard";
 import { BASEMAPS, loadMapLibre } from "./maplibre";
 
 interface FV {
-  id: string; device_id: string; alias: string | null; plate: string | null; fuel_km_per_l: number | null;
+  id: string; device_id: string; alias: string | null; plate: string | null; photo_url?: string | null; fuel_km_per_l: number | null;
   km: number; moving_min: number; active_days: number; vmax: number; speeding: number;
   km_after_hours: number; night_starts: number; ign_reported: boolean; speed_reported: boolean; odo_frozen: boolean;
   last_ts: string | null; last_lat: number | null; last_lon: number | null; last_address: string | null;
@@ -292,12 +292,19 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
                             <input aria-label="Placa" placeholder="Placa" value={d.plate} onChange={e => setDraft(p => ({ ...p, [r.id]: { ...d, plate: e.target.value } }))} style={{ ...input, width: 90, padding: "6px 8px" }} />
                           </div>
                         ) : (
-                          <>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            {r.photo_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={r.photo_url} alt="" width={64} height={48} loading="lazy"
+                                style={{ width: 64, height: 48, objectFit: "cover", borderRadius: 6, background: "#E9E7E2", flex: "0 0 auto" }} />
+                            ) : null}
+                            <div>
                             <div style={{ fontWeight: 700, color: t.ink }}>{name(r)}{r.alias && r.plate ? <span style={{ fontWeight: 400, color: t.mutedL }}> · {r.plate}</span> : null}</div>
                             <div style={{ fontFamily: t.fMono, fontSize: 10, color: t.mutedL, marginTop: 2 }}>
                               {r.device_id}{idle ? " · poco uso" : ""}{!r.ign_reported ? " · sin ignición" : ""}{!r.speed_reported ? " · vel. calculada" : ""}
                             </div>
-                          </>
+                            </div>
+                          </div>
                         )}
                       </td>
                       <td style={{ padding: 10, textAlign: "right", minWidth: 120 }}>

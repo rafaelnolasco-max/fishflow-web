@@ -16,7 +16,7 @@ import type { RecorridosTokens } from "./RecorridosTab";
 import { BASEMAPS, loadMapLibre, type Basemap } from "./maplibre";
 import VehicleDashboard, { isGap, stays, SPEEDING_KMH, type TP } from "./VehicleDashboard";
 
-interface VehicleOpt { id: string; alias: string | null; plate: string | null; device_id: string; points: number }
+interface VehicleOpt { id: string; alias: string | null; plate: string | null; device_id: string; points: number; photo_url?: string | null }
 
 const SPEEDS = [
   { label: "Lento", pps: 8 },
@@ -226,6 +226,7 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
   };
 
   const cur = pts[idx];
+  const selPhoto = withData.find(v => v.id === vehicleId)?.photo_url ?? null;
 
   const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
   const input = { padding: "10px 12px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#FBF9F3", fontFamily: t.fBody, fontSize: 14, color: t.ink };
@@ -239,6 +240,11 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
     <div>
       {/* Filtros */}
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end", marginBottom: 18 }}>
+        {selPhoto && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={selPhoto} alt="" width={120} height={90}
+            style={{ width: 120, height: 90, objectFit: "cover", borderRadius: 8, border: `1px solid ${t.lineL}`, background: "#E9E7E2", flex: "0 0 auto" }} />
+        )}
         <label style={{ display: "flex", flexDirection: "column", gap: 6, flex: "1 1 200px" }}>
           <span style={label}>Unidad</span>
           <select value={vehicleId} onChange={e => setVehicleId(e.target.value)} style={input}>
