@@ -10,7 +10,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RecorridosTokens } from "./RecorridosTab";
-import VehicleDashboard, { isGap, SPEEDING_KMH, type TP } from "./VehicleDashboard";
+import VehicleDashboard, { isGap, stays, SPEEDING_KMH, type TP } from "./VehicleDashboard";
 
 interface VehicleOpt { id: string; alias: string | null; plate: string | null; device_id: string; points: number }
 
@@ -138,6 +138,15 @@ export default function TrackMap({ vehicles, t }: { vehicles: VehicleOpt[]; t: R
       pts.filter(p => (p.speed_kmh ?? 0) >= SPEEDING_KMH).map(p =>
         L.circleMarker([p.lat, p.lon], { radius: 6, color: t.crimson, fillColor: t.crimson, fillOpacity: 0.9, weight: 2 })
           .bindTooltip(`${p.speed_kmh} km/h · ${fmtTs(p.ts)}`)),
+    ).addTo(m);
+    // Lugares donde más tiempo se queda detenido, numerados como en el tablero
+    layers.current.stays = L.layerGroup(stays(pts).map((st, i) =>
+      L.marker([st.lat, st.lon], {
+        icon: L.divIcon({
+          className: "", iconSize: [24, 24], iconAnchor: [12, 12],
+          html: `<div style="width:24px;height:24px;border-radius:12px;background:#0B0F14;border:2px solid ${lime};color:${lime};font:700 12px ui-monospace,monospace;display:grid;place-items:center">${i + 1}</div>`,
+        }),
+      }).bindTooltip(`${i + 1}. ${(st.address ?? "").split(",").slice(0, 2).join(",")} · ${Math.round(st.minutes / 60)} h detenido`)),
     ).addTo(m);
     layers.current.start = L.circleMarker([pts[0].lat, pts[0].lon], { radius: 6, color: "#F2EEE6", fillColor: "#0B0F14", fillOpacity: 1, weight: 3 })
       .bindTooltip("Inicio · " + fmtTs(pts[0].ts)).addTo(m);

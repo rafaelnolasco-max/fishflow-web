@@ -43,6 +43,49 @@ const fmtDayShort = (d: string) => new Date(d + "T12:00:00-06:00").toLocaleDateS
 const nf1 = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 1 });
 const hm = (m: number) => `${Math.floor(m / 60)} h ${String(Math.round(m % 60)).padStart(2, "0")} min`;
 
+export interface Stay {
+  lat: number; lon: number; address: string | null;
+  minutes: number;      // tiempo total detenido ahí en el rango
+  visits: number;       // llegadas con al menos 10 min de estancia
+  nights: number;       // noches distintas en que estuvo ahí a las 3 a.m.
+}
+
+/**
+ * Lugares donde la unidad pasa más tiempo detenida. Entre dos reportes seguidos
+ * que casi no se movieron (<300 m) y sin velocidad, el tiempo se suma al lugar
+ * del primero, aunque el equipo haya dejado de reportar un rato (de noche suele
+ * mandar un latido por hora). Los lugares a menos de 200 m se juntan en uno.
+ */
+export function stays(pts: TP[], top = 5): Stay[] {
+  const R = 0.2;
+  const cl: (Stay & { n: number; lastIdx: number; nightKeys: Set<string>; curStart: number })[] = [];
+  const find = (p: TP) => cl.find(c => km(c as unknown as TP, p) < R);
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i];
+    const d = km(a, b), m = mins(a, b);
+    if (d >= 0.3 || (b.speed_kmh ?? 0) > 3 || m <= 0 || m > 24 * 60) continue;
+    let c = find(a);
+    if (!c) {
+      c = { lat: a.lat, lon: a.lon, address: a.address, minutes: 0, visits: 0, nights: 0, n: 0, lastIdx: -10, nightKeys: new Set(), curStart: 0 };
+      cl.push(c);
+    }
+    // centroide móvil para que el lugar no se "arrastre"
+    c.lat = (c.lat * c.n + a.lat) / (c.n + 1); c.lon = (c.lon * c.n + a.lon) / (c.n + 1); c.n++;
+    if (!c.address && a.address) c.address = a.address;
+    if (c.lastIdx !== i - 1) { if (c.curStart >= 10) c.visits++; c.curStart = 0; }
+    c.curStart += m; c.minutes += m; c.lastIdx = i;
+    // ¿cubre las 3 a.m. (hora CDMX)?
+    const t0 = new Date(a.ts).getTime(), t1 = new Date(b.ts).getTime();
+    for (let t = Math.ceil((t0 - 9 * 3600e3) / 86400e3) * 86400e3 + 9 * 3600e3; t <= t1; t += 86400e3) {
+      if (t >= t0) c.nightKeys.add(new Date(t).toISOString().slice(0, 10));
+    }
+  }
+  for (const c of cl) { if (c.curStart >= 10) c.visits++; c.nights = c.nightKeys.size; }
+  return cl.filter(c => c.minutes >= 15)
+    .sort((x, y) => y.minutes - x.minutes).slice(0, top)
+    .map(({ lat, lon, address, minutes, visits, nights }) => ({ lat, lon, address, minutes, visits: Math.max(1, visits), nights }));
+}
+
 function analyze(pts: TP[]) {
   let dist = 0, moving = 0, vmax = 0, vmaxAt: TP | null = null, trips = 0;
   const kmDay = new Map<string, number>();
@@ -107,6 +150,7 @@ function analyze(pts: TP[]) {
 
 export default function VehicleDashboard({ pts, t }: { pts: TP[]; t: RecorridosTokens }) {
   const a = useMemo(() => analyze(pts), [pts]);
+  const top = useMemo(() => stays(pts), [pts]);
   const last = pts[pts.length - 1];
 
   const card = { background: "#FBF9F3", border: `1px solid ${t.lineL}`, borderRadius: 10, padding: "16px 18px" };
@@ -179,6 +223,26 @@ export default function VehicleDashboard({ pts, t }: { pts: TP[]; t: RecorridosT
               </div>
             </div>
           ))}
+        </div>
+        {/* Dónde se estaciona */}
+        <div style={card}>
+          <div style={label}>Dónde pasa más tiempo detenido</div>
+          {!top.length && <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.mutedL, margin: "10px 0 0" }}>Sin paradas largas en este rango.</p>}
+          <ol style={{ listStyle: "none", padding: 0, margin: "10px 0 0", display: "flex", flexDirection: "column", gap: 10 }}>
+            {top.map((st, i) => (
+              <li key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <span style={{ flex: "0 0 auto", width: 22, height: 22, borderRadius: 11, background: t.ink, color: t.signal, fontFamily: t.fMono, fontSize: 12, fontWeight: 700, display: "grid", placeItems: "center" }}>{i + 1}</span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontFamily: t.fBody, fontSize: 14, color: t.ink, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {st.address?.split(",").slice(0, 2).join(",") ?? `${st.lat.toFixed(4)}, ${st.lon.toFixed(4)}`}
+                  </div>
+                  <div style={{ fontFamily: t.fMono, fontSize: 11, color: t.mutedL, marginTop: 2 }}>
+                    {hm(st.minutes)} · {st.visits} {st.visits === 1 ? "visita" : "visitas"}{st.nights ? ` · ${st.nights} ${st.nights === 1 ? "noche" : "noches"}` : ""}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
         {/* Estado del equipo */}
         <div style={card}>
