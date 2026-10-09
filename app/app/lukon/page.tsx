@@ -7,6 +7,7 @@ import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, LUKON_CLIENT_ID } from "@/lib/supabase";
 import ReviewsTab from "@/components/reviews/ReviewsTab";
+import RecorridosTab from "@/components/telematica/RecorridosTab";
 import type { DashTheme } from "@/components/dashboard";
 
 // ─── Brand tokens de Lukon ────────────────────────────────────────────────────
@@ -105,7 +106,7 @@ function statusLabel(s: string) {
 }
 
 // ─── Componente principal ─────────────────────────────────────────────────────
-type Tab = "cobrar" | "facturar" | "historial" | "resenas";
+type Tab = "cobrar" | "facturar" | "historial" | "resenas" | "recorridos";
 
 // Tema para el módulo compartido de Reseñas, en clave Lukon (página crema, ink)
 const REVIEWS_THEME: DashTheme = {
@@ -391,12 +392,13 @@ function LukonDashboard() {
         display: "flex", gap: 4,
         borderBottom: `1px solid ${L.lineL}`,
       }}>
-        {(["cobrar", "facturar", "historial", "resenas"] as Tab[]).map(t => {
+        {(["cobrar", "facturar", "historial", "resenas", "recorridos"] as Tab[]).map(t => {
           const labels: Record<Tab, string> = {
             cobrar:    "💳  Cobrar",
             facturar:  "🧾  Facturar",
             historial: "📋  Historial",
             resenas:   "⭐  Reseñas",
+            recorridos:"🛰  Recorridos",
           };
           const active = tab === t;
           return (
@@ -790,6 +792,9 @@ function LukonDashboard() {
             )}
           </div>
         )}
+
+        {/* ════ TAB: RECORRIDOS (telemática, add-on) ═══════════════════════════ */}
+        {tab === "recorridos" && <RecorridosTab parentId={LUKON_CLIENT_ID} t={L} />}
 
         {/* ════ TAB: RESEÑAS ═══════════════════════════════════════════════════ */}
         {tab === "resenas" && (
