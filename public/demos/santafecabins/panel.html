@@ -70,6 +70,13 @@ body{background:#0B1A14;color:var(--cream);}
 .pane{display:none;}
 .pane.on{display:block;}
 </style>
+<style id="ff-credit-css">
+.ff-credit-wrap{display:block;flex-basis:100%;width:100%;box-sizing:border-box;text-align:center;font-size:12px;line-height:1.4;padding:12px 16px 10px;margin:0;}
+.ff-credit{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:none;opacity:.6;transition:opacity .2s;}
+.ff-credit:hover,.ff-credit:focus-visible{opacity:1;}
+.ff-credit__logo{width:22px;height:12px;flex:none;}
+.ff-credit b{font-weight:600;}
+</style>
 </head>
 <body>
 
@@ -263,6 +270,7 @@ body{background:#0B1A14;color:var(--cream);}
       <span>Demo construido por FishFlow · fishflow.mx</span>
     </div>
   </div>
+<p class="ff-credit-wrap"><a class="ff-credit" href="https://fishflow.mx/?utm_source=demo-santafecabins&amp;utm_medium=credito-footer&amp;utm_campaign=sitios-clientes" target="_blank" rel="noopener" title="Sitio hecho por FishFlow">Hecho con <svg class="ff-credit__logo" viewBox="170 70 860 460" aria-hidden="true"><path d="M600 300C760 100 1000 90 1000 300C1000 510 760 500 600 300C440 100 200 90 200 300C200 510 440 500 600 300Z" fill="none" stroke="currentColor" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/></svg><b>FishFlow</b></a></p>
 </footer>
 
 <script src="sfc.js"></script>
