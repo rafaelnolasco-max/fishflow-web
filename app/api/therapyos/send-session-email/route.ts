@@ -42,10 +42,10 @@ export async function POST(req: NextRequest) {
     if (sErr || !session) return NextResponse.json({ error: "Sesión no encontrada" }, { status: 404 });
     if (pErr || !patient) return NextResponse.json({ error: "Paciente no encontrado" }, { status: 404 });
 
-    // Sin email del paciente → enviamos a Rafa para revisión. Con email → copia a Rafa.
+    // Sin email del paciente → enviamos a Rafa para revisión. Con email → solo al
+    // paciente (sin copia a Rafa desde el 12-oct-2026: son notas clínicas).
     const FALLBACK_EMAIL = "raf@fishflow.mx";
     const recipient = patient.email ?? FALLBACK_EMAIL;
-    const bcc = recipient === FALLBACK_EMAIL ? undefined : FALLBACK_EMAIL;
     const noPatientEmail = !patient.email;
 
     const sessionDateFormatted = new Date(session.session_date).toLocaleDateString("es-MX", {
@@ -90,7 +90,6 @@ Psicólogo`.trim();
         const { error: rErr } = await resend.emails.send({
           from: SENDERS.therapyos,
           to: [recipient],
-          ...(bcc ? { bcc: [bcc] } : {}),
           subject,
           text,
           html: adminNote + html,

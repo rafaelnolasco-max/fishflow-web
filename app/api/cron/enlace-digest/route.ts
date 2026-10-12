@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { Resend } from 'resend'
 import { ENLACE_CLIENT_ID } from '@/lib/supabase'
-import { SENDERS } from '@/lib/email'
-import { emailUI, escHtml } from '@/lib/emailLayout'
-import { withSlackAlert } from '@/lib/slack'
+import { withSlackAlert, notifySlack, slackEscape } from '@/lib/slack'
 
 export const runtime = 'nodejs'
 
@@ -12,12 +9,12 @@ export const runtime = 'nodejs'
 //
 // Antes cada contacto capturado disparaba su propio correo: las vendedoras llenan
 // el formulario cliente por cliente, así que llegaron 89 avisos el 16-jul y 81 el
-// 17-jul. Ahora sale un solo correo al final del día con el conteo por vendedora.
+// 17-jul. Ahora sale un solo resumen al final del día con el conteo por vendedora.
+// Desde el 12-oct-2026 va a Slack (#cli-enlace), ya no al correo de Rafa.
 //
 // Lo dispara el cron de Vercel (ver vercel.json) a las 02:00 UTC = 20:00 CDMX.
 // Si no hubo capturas, no manda nada.
 
-const ADMIN_TO = ['raf@fishflow.mx']
 const TZ = 'America/Mexico_City'
 
 type Row = {
@@ -85,35 +82,16 @@ async function handler(req: Request) {
     weekday: 'long', day: 'numeric', month: 'long', timeZone: TZ,
   })
 
-  const ui = emailUI('enlace')
-  const html = ui.layout({
-    audiencia: 'interno',
-    preheader: `${rows.length} contactos capturados hoy · base total ${total ?? '—'}`,
-    etiqueta: 'Resumen diario',
-    titulo: `${rows.length} contactos capturados hoy`,
-    subtitulo: fecha.charAt(0).toUpperCase() + fecha.slice(1),
-    cuerpo:
-      ui.tabla(ranking.map(([v, n]) => [v, String(n)] as [string, string])) +
-      ui.p(`Base total acumulada: <strong>${escHtml(total ?? '—')}</strong> contactos.`) +
-      ui.botones([{ texto: 'Ver el panel', href: 'https://www.fishflow.mx/app/enlace' }]),
+  const ok = await notifySlack('enlace', {
+    text: `Enlace — ${rows.length} contactos capturados hoy`,
+    body:
+      `_${fecha.charAt(0).toUpperCase() + fecha.slice(1)}_\n` +
+      ranking.map(([v, n]) => `• ${slackEscape(v)}: *${n}*`).join('\n') +
+      `\nBase total acumulada: *${total ?? '—'}* contactos.`,
+    button: { label: 'Ver el panel', url: 'https://www.fishflow.mx/app/enlace' },
   })
-
-  const resendKey = process.env.RESEND_API_KEY
-  if (!resendKey) {
-    console.error('[cron/enlace-digest] RESEND_API_KEY no configurada')
-    return NextResponse.json({ ok: false, note: 'email no configurado', capturas: rows.length })
-  }
-
-  const resend = new Resend(resendKey)
-  const { error: mailErr } = await resend.emails.send({
-    from: SENDERS.enlace,
-    to: ADMIN_TO,
-    subject: `Enlace — ${rows.length} contactos capturados hoy`,
-    html,
-  })
-  if (mailErr) {
-    console.error('[cron/enlace-digest] email error:', mailErr)
-    return NextResponse.json({ ok: false, error: 'Error al enviar' }, { status: 500 })
+  if (!ok) {
+    return NextResponse.json({ ok: false, error: 'No se pudo avisar a Slack' }, { status: 500 })
   }
 
   return NextResponse.json({ ok: true, sent: true, capturas: rows.length, vendedoras: ranking.length })

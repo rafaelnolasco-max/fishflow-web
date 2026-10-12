@@ -4,6 +4,7 @@ import { Resend } from 'resend'
 import { SENDERS } from '@/lib/email'
 import { emailUI, escHtml } from '@/lib/emailLayout'
 import { revisarAntibot, logDescarte } from '@/lib/antibot'
+import { notifySlack } from '@/lib/slack'
 
 export const runtime = 'nodejs'
 
@@ -25,9 +26,10 @@ export async function OPTIONS() {
 
 // Al completar la Evaluación de Actitud o de Arquitectura Mental y del Criterio:
 //   1) Se guarda el prospecto en Supabase (tabla `leads`) → panel /app/mariocitalan.
-//   2) Aviso interno → Mario + Rafa con los datos del prospecto.
+//   2) Aviso interno → Mario por correo; a Rafa por Slack (#cli-mario), sin datos sensibles.
 //   3) Al prospecto → su resultado (perfil + ruta recomendada).
-const ADMIN_TO = ['mariocitalan@gmail.com', 'raf@fishflow.mx']
+const ADMIN_TO = ['mariocitalan@gmail.com']
+const PANEL = 'https://www.fishflow.mx/app/mariocitalan'
 
 const DISCLAIMER =
   'Esta evaluación es una herramienta de desarrollo humano y autoconocimiento. ' +
@@ -280,6 +282,14 @@ async function manejarDecisiones(req: Request, body: Record<string, unknown>, d:
   })
   if (adminErr) console.error('[demo/mario-criterio] decisiones admin email error:', adminErr)
 
+  // Slack sin respuestas del test: la afectación y la atención psicológica son
+  // datos de salud y se quedan en el panel.
+  await notifySlack('mario', {
+    text: `${alerta ? '⚠ ' : ''}Test DERVIAC completado — ${d.nombre}`,
+    body: alerta ? '_Requiere atención: revisa el detalle en el panel._' : undefined,
+    button: { label: 'Ver en el panel', url: PANEL },
+  })
+
   const { error: leadErr } = await resend.emails.send({
     from: SENDERS.marioCitalan,
     to: [d.email],
@@ -405,6 +415,11 @@ export async function POST(req: Request) {
       html: adminHtml({ nombre, email, tel, perfil, ruta, test: testLabel }),
     })
     if (adminErr) console.error('[demo/mario-criterio] admin email error:', adminErr)
+
+    await notifySlack('mario', {
+      text: `Evaluación de ${testLabel} completada — ${nombre}`,
+      button: { label: 'Ver en el panel', url: PANEL },
+    })
 
     // 3) Resultado → prospecto
     const { error: leadErr } = await resend.emails.send({

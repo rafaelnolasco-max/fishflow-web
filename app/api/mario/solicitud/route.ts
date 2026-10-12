@@ -5,6 +5,7 @@ import { SENDERS, getResend } from '@/lib/email'
 import { emailUI, escHtml } from '@/lib/emailLayout'
 import { revisarAntibot, logDescarte } from '@/lib/antibot'
 import { sugerirRespuesta } from '@/lib/marioRespuesta'
+import { notifySlack, slackEscape } from '@/lib/slack'
 
 export const runtime = 'nodejs'
 
@@ -44,7 +45,9 @@ const SERVICIOS: Record<string, string> = {
   'conferencias-y-talleres': 'Conferencias y Talleres DERVIAC',
 }
 
-const AVISO_A = ['mariocitalan@gmail.com', 'raf@fishflow.mx']
+// Rafa ya no va en copia (12-oct-2026): a él le avisa #cli-mario en Slack.
+const AVISO_A = ['mariocitalan@gmail.com']
+const PANEL = 'https://www.fishflow.mx/app/mariocitalan'
 
 /**
  * Campos extra del formulario, normalizados.
@@ -200,6 +203,14 @@ export async function POST(req: Request) {
       console.error('[mario/solicitud] RESEND_API_KEY no configurada')
     }
 
+    // Slack: solo nombre y servicio. Lo que escribió la persona puede traer
+    // datos de salud y se queda en el panel.
+    await notifySlack('mario', {
+      text: `Solicitud de ${servicio} — ${nombre}`,
+      body: '_Mario ya recibió el aviso por correo._',
+      button: { label: 'Ver en el panel', url: PANEL },
+    })
+
     // Respuesta sugerida, en segundo plano para no hacer esperar al formulario.
     // Si la IA la clasifica como crisis, Mario y Rafa reciben un aviso aparte:
     // esa solicitud no puede quedarse esperando en el panel.
@@ -225,6 +236,13 @@ export async function POST(req: Request) {
                 ui.p('Recomendación: llamarle personalmente. En el panel hay un mensaje breve sugerido.') +
                 ui.botones([{ texto: 'Ver en el panel', href: 'https://www.fishflow.mx/app/mariocitalan' }]),
             }),
+          })
+        }
+        if (draft.clasificacion === 'crisis') {
+          await notifySlack('mario', {
+            text: `⚠ Atención prioritaria — ${nombre}`,
+            body: `La IA marcó esta solicitud de ${slackEscape(servicio)} como prioritaria. El detalle está en el panel; Mario ya recibió el aviso.`,
+            button: { label: 'Ver en el panel', url: PANEL },
           })
         }
       } catch (e) {

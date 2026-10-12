@@ -5,6 +5,13 @@
  * (app de Slack "FishFlow Avisos", api.slack.com/apps):
  *   leads   → SLACK_WEBHOOK_LEADS   (#leads: WhatsApp nuevo + diagnóstico de la landing)
  *   alertas → SLACK_WEBHOOK_ALERTAS (#alertas: crons y webhooks de pago que truenan)
+ *   enlace  → SLACK_WEBHOOK_ENLACE  (#cli-enlace: leads, candidatas, top clientes, resumen diario)
+ *   mario   → SLACK_WEBHOOK_MARIO   (#cli-mario: solicitudes y tests de mariocitalan.net)
+ *
+ * Desde el 12-oct-2026 los avisos internos de Enlace y Mario le llegan a Rafa
+ * aquí y ya no por correo. Los clientes (Enlace, Mario) siguen recibiendo sus
+ * correos igual. En #cli-mario NUNCA van datos de salud (crisis, afectación,
+ * atención psicológica): solo nombre, tipo de aviso y liga al panel.
  *
  * #pagos no pasa por aquí: lo avisan triggers de Postgres (pos_transactions e
  * invoices) con pg_net, para cubrir todos los caminos de cobro y facturación.
@@ -17,6 +24,8 @@
 const WEBHOOKS = {
   leads: 'SLACK_WEBHOOK_LEADS',
   alertas: 'SLACK_WEBHOOK_ALERTAS',
+  enlace: 'SLACK_WEBHOOK_ENLACE',
+  mario: 'SLACK_WEBHOOK_MARIO',
 } as const
 
 export type SlackChannel = keyof typeof WEBHOOKS

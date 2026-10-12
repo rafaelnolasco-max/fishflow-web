@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 import { sendEmail, REPLY_TO, enlaceNotifyTo } from '@/lib/email'
+import { notifySlack, slackEscape } from '@/lib/slack'
 import { emailUI, escHtml } from '@/lib/emailLayout'
 import { corsHeaders, preflight } from '@/lib/cors'
 
@@ -305,6 +306,16 @@ export async function POST(req: Request) {
         cvUrl
       ),
       tag: 'demo/enlace-candidata',
+    })
+
+    await notifySlack('enlace', {
+      text: `Nueva candidatura en Enlace — ${nombre}${scoring ? ` · ${scoring.score}/100 (${scoring.veredicto})` : ''}`,
+      body: [
+        `*Ciudad:* ${slackEscape(ciudad || '—')}`,
+        `*WhatsApp:* ${slackEscape(whatsapp || '—')}`,
+        scoring ? slackEscape(scoring.resumen) : '_El filtro automático no pudo evaluar el CV._',
+      ].join('\n'),
+      button: { label: 'Ver en el panel', url: 'https://www.fishflow.mx/app/enlace' },
     })
 
     return NextResponse.json({ ok: true }, { headers: cors })

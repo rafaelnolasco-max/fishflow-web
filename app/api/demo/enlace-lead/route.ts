@@ -5,6 +5,7 @@ import { SENDERS, enlaceNotifyTo, ENLACE_DEFAULT_TO } from '@/lib/email'
 import { emailUI, escHtml } from '@/lib/emailLayout'
 import { corsHeaders, preflight } from '@/lib/cors'
 import { revisarAntibot, logDescarte } from '@/lib/antibot'
+import { notifySlack, slackEscape } from '@/lib/slack'
 
 export const runtime = 'nodejs'
 
@@ -16,7 +17,7 @@ export async function OPTIONS(req: Request) {
 
 // Captura de leads de la landing de Enlace Integral Seguros (/demos/enlaceintegral).
 // 1) Guarda el lead en Supabase (tabla `leads`, visible en /admin → Leads).
-// 2) Envía aviso inmediato por Resend a Rafa (y opcionalmente al asesor).
+// 2) Envía aviso inmediato por Resend a Enlace y por Slack (#cli-enlace) a Rafa.
 // Reutiliza la infraestructura existente; no requiere migración.
 
 // client_id de Enlace Integral en la tabla `clients` (multi-tenant).
@@ -280,6 +281,18 @@ export async function POST(req: Request) {
         }),
       })
       if (mailErr) console.error('[demo/enlace-lead] email error:', mailErr)
+
+      await notifySlack('enlace', {
+        text: `${repetido ? 'Lead repetido' : 'Nuevo lead'} de Enlace — ${nombre}`,
+        body: [
+          `*Plan:* ${slackEscape(plan)}`,
+          `*WhatsApp:* ${slackEscape(whatsapp || '—')}`,
+          email ? `*Correo:* ${slackEscape(email)}` : '',
+          origen ? `*Origen:* ${slackEscape(origen)}` : '',
+          repetido ? `_Ya estaba registrado; es su envío #${repetido.veces + 1}._` : '',
+        ].filter(Boolean).join('\n'),
+        button: { label: 'Ver en el panel', url: 'https://www.fishflow.mx/app/enlace' },
+      })
 
       // 3) Acuse de recibo al PROSPECTO. Solo si dejó correo — en el formulario
       //    es opcional, así que esto NO cubre a todos. Falla en silencio: si el

@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { Resend } from 'resend'
 import * as XLSX from 'xlsx'
 import { ENLACE_CLIENT_ID } from '@/lib/supabase'
-import { SENDERS } from '@/lib/email'
-import { emailUI } from '@/lib/emailLayout'
+import { notifySlack } from '@/lib/slack'
 
 export const runtime = 'nodejs'
 
@@ -12,7 +10,6 @@ export const runtime = 'nodejs'
 // insurance_vendor_top_clients. Acepta ligeras variaciones de formato:
 // busca la fila del vendedor y el encabezado por texto, no por posición fija.
 
-const ADMIN_TO = ['raf@fishflow.mx']
 const MAX_CLIENTS = 50
 
 const HEADER_MAP: { match: RegExp; key: string }[] = [
@@ -61,23 +58,6 @@ function findHeaderRow(rows: unknown[][]): number {
     }
   }
   return -1
-}
-
-/** Aviso de carga de Excel, con la marca de Enlace. */
-function excelHtml(vendedor: string, nuevos: number, duplicados: number) {
-  const ui = emailUI('enlace')
-  return ui.layout({
-    audiencia: 'interno',
-    preheader: `${vendedor} subió ${nuevos} clientes nuevos.`,
-    etiqueta: 'Top clientes · Excel',
-    titulo: `${vendedor} subió ${nuevos} clientes nuevos`,
-    cuerpo:
-      ui.tabla([
-        ['Vendedor', vendedor],
-        ['Clientes nuevos', String(nuevos)],
-        ['Duplicados ignorados', String(duplicados)],
-      ]) + ui.botones([{ texto: 'Ver en el panel', href: 'https://www.fishflow.mx/app/enlace' }]),
-  })
 }
 
 export async function POST(req: Request) {
@@ -196,20 +176,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Error al guardar. Intenta de nuevo.' }, { status: 500 })
     }
 
-    const resendKey = process.env.RESEND_API_KEY
-    if (resendKey) {
-      try {
-        const resend = new Resend(resendKey)
-        await resend.emails.send({
-          from: SENDERS.enlace,
-          to: ADMIN_TO,
-          subject: `Top clientes recibido (Excel) — ${vendorName} (${newRows.length})`,
-          html: excelHtml(vendorName, newRows.length, duplicates),
-        })
-      } catch (e) {
-        console.error('[demo/enlace-top-clientes/upload] email error:', e)
-      }
-    }
+    await notifySlack('enlace', {
+      text: `${vendorName} subió ${newRows.length} top clientes (Excel)`,
+      body: duplicates ? `${duplicates} duplicados ignorados.` : undefined,
+      button: { label: 'Ver en el panel', url: 'https://www.fishflow.mx/app/enlace' },
+    })
 
     return NextResponse.json({ ok: true, saved: newRows.length, duplicates, vendor: vendorName })
   } catch (err: unknown) {

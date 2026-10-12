@@ -108,13 +108,18 @@ export function sparcNotifyTo(): string[] {
   return [REPLY_TO, ...sparc]
 }
 
-/** Rafa siempre + Enlace (salvo que se apague por env). */
+/**
+ * Buzones de Enlace que reciben sus avisos (leads, candidatas).
+ * Rafa ya no va en copia desde el 12-oct-2026: a él le llegan a #cli-enlace
+ * en Slack (lib/slack.ts). Si la env quedara vacía, cae a Rafa para no perder
+ * el aviso.
+ */
 export function enlaceNotifyTo(): string[] {
   const enlace = (process.env.ENLACE_LEAD_TO ?? ENLACE_DEFAULT_TO)
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
-  return [REPLY_TO, ...enlace]
+  return enlace.length ? enlace : [REPLY_TO]
 }
 
 /**
