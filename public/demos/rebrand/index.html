@@ -108,25 +108,55 @@ section{scroll-margin-top:80px;}
 .center{text-align:center;margin-inline:auto;}
 .center .eyebrow{justify-content:center;}
 
-/* Cinta de ondas (03_Brand_Elements/FishFlow_waves_blue_orange.svg) */
-.ribbon{position:absolute;left:-4%;right:-4%;bottom:-2px;pointer-events:none;}
-.ribbon svg{width:108%;height:auto;animation:drift 14s ease-in-out infinite alternate;}
-@keyframes drift{from{transform:translateX(-3%)}to{transform:translateX(0)}}
-@media(prefers-reduced-motion:reduce){.ribbon svg{animation:none;}}
+/* Ondas animadas (03_Brand_Elements/FishFlow_waves_blue_orange.svg)
+   Cada capa es una onda periódica que se desplaza en loop sin costura;
+   velocidades y direcciones distintas dan la sensación de agua en movimiento. */
+.waves{position:absolute;left:0;right:0;bottom:-1px;height:var(--wh,clamp(110px,13vw,190px));pointer-events:none;z-index:3;overflow:hidden;}
+.wave{position:absolute;left:0;right:0;bottom:0;background-repeat:repeat-x;background-position:0 100%;will-change:background-position;}
+.wave--cyan{height:100%;background-size:var(--w1,1400px) 100%;animation:wave-x 16s linear infinite, wave-y 7s ease-in-out infinite alternate;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2342C7E8'/%3E%3Cstop offset='1' stop-color='%2394E2F3'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 70 C400 0 400 0 800 70 C1200 140 1200 140 1600 70 L1600 200 L0 200Z' fill='url(%23g)'/%3E%3C/svg%3E");}
+.wave--orange{height:82%;background-size:var(--w2,1100px) 100%;animation:wave-x-rev 11s linear infinite, wave-y 5.5s ease-in-out -2s infinite alternate;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FF8A2A'/%3E%3Cstop offset='1' stop-color='%23FFB36B'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 80 C400 10 400 10 800 80 C1200 150 1200 150 1600 80 L1600 200 L0 200Z' fill='url(%23g)'/%3E%3C/svg%3E");}
+.wave--line{height:70%;background-size:var(--w3,1700px) 100%;animation:wave-x 22s linear infinite;opacity:.9;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cpath d='M0 60 C400 0 400 0 800 60 C1200 120 1200 120 1600 60' fill='none' stroke='%23FFFFFF' stroke-width='5'/%3E%3C/svg%3E");}
+.wave--front{height:52%;background-size:var(--w4,1600px) 100%;animation:wave-x-rev 26s linear infinite;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cpath d='M0 90 C400 30 400 30 800 90 C1200 150 1200 150 1600 90 L1600 200 L0 200Z' fill='%23FFFFFF'/%3E%3C/svg%3E");}
+.waves--dark .wave--front{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cpath d='M0 90 C400 30 400 30 800 90 C1200 150 1200 150 1600 90 L1600 200 L0 200Z' fill='%23162632'/%3E%3C/svg%3E");}
+.waves--dark .wave--line{opacity:.35;}
+@keyframes wave-x{from{background-position-x:0}to{background-position-x:calc(-1 * var(--ww,1400px))}}
+@keyframes wave-x-rev{from{background-position-x:0}to{background-position-x:var(--ww,1100px)}}
+.wave--cyan{--ww:var(--w1,1400px);} .wave--orange{--ww:var(--w2,1100px);} .wave--line{--ww:var(--w3,1700px);} .wave--front{--ww:var(--w4,1600px);}
+@keyframes wave-y{from{transform:translateY(0)}to{transform:translateY(9%)}}
+@media(max-width:600px){.waves{--w1:700px;--w2:560px;--w3:850px;--w4:800px;}}
+@media(max-width:600px){.hero .waves{height:64px;}.hero .eyebrow::before{display:none;}}
+@media(prefers-reduced-motion:reduce){.wave{animation:none !important;}}
 
 /* Tarjetas (08_UI_Style) */
 .card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--ff-radius-md);box-shadow:var(--ff-shadow);padding:clamp(22px,3vw,32px);}
 
 /* Hero */
-.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#fff 55%,var(--ff-ice) 100%);}
-.hero__in{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,4vw,60px);align-items:center;padding-top:clamp(52px,7vw,92px);padding-bottom:clamp(120px,15vw,200px);}
-.hero h1{font-size:clamp(46px,7.6vw,96px);line-height:.96;letter-spacing:-.03em;font-weight:800;margin-top:20px;}
+/* Hero estilo Apple: texto centrado arriba y la escena de ondas a todo lo ancho
+   detrás, completa (sin recorte), que flota sola y se acerca al hacer scroll. */
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#F4FBFE 100%);--p:0;}
+.hero__in{position:relative;z-index:2;text-align:center;padding-top:clamp(56px,8vw,104px);max-width:920px;margin-inline:auto;}
+.hero .eyebrow{justify-content:center;}
+.hero h1{font-size:clamp(50px,8.4vw,112px);line-height:.95;letter-spacing:-.035em;font-weight:800;margin-top:20px;}
 .hero__value{font-family:var(--f-display);font-weight:600;font-size:clamp(21px,2.3vw,28px);line-height:1.3;color:var(--ff-navy);margin:24px 0 14px;}
-.hero__lede{color:var(--muted);max-width:560px;font-size:clamp(17px,1.5vw,20px);}
-.hero__ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px;}
-.hero__visual{border-radius:var(--ff-radius-lg);overflow:hidden;box-shadow:var(--ff-shadow);aspect-ratio:16/10;background:var(--ff-ice);}
-.hero__visual img{width:100%;height:100%;object-fit:cover;}
-@media(max-width:900px){.hero__in{grid-template-columns:1fr;}}
+.hero__lede{color:var(--muted);max-width:620px;margin-inline:auto;font-size:clamp(17px,1.5vw,20px);}
+.hero__ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px;justify-content:center;}
+.hero__stage{position:relative;z-index:1;margin-top:calc(-1 * clamp(20px,9vw,150px));width:100%;}
+.hero__scene{position:relative;width:100%;aspect-ratio:16/9;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 26%,#000 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 26%,#000 100%);
+  transform:translateY(calc(var(--p) * -60px)) scale(calc(1 + var(--p) * .07));transform-origin:50% 60%;transition:transform .08s linear;}
+.hero__scene img{width:100%;height:100%;animation:float-scene 9s ease-in-out infinite alternate;}
+@keyframes float-scene{from{transform:translateY(0) scale(1)}to{transform:translateY(-14px) scale(1.025)}}
+.bub{position:absolute;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95),rgba(255,255,255,.25) 38%,rgba(66,199,232,.35) 70%,rgba(66,199,232,.08));
+  box-shadow:inset -4px -6px 12px rgba(66,199,232,.25);animation:bub 8s ease-in-out infinite alternate;}
+.bub--o{background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95),rgba(255,255,255,.25) 38%,rgba(255,138,42,.35) 70%,rgba(255,138,42,.08));box-shadow:inset -4px -6px 12px rgba(255,138,42,.25);}
+@keyframes bub{0%{transform:translate(0,0)}50%{transform:translate(8px,-22px)}100%{transform:translate(-6px,-40px)}}
+@media(max-width:600px){.hero__stage{margin-top:8px;}.hero__scene{-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 14%);mask-image:linear-gradient(180deg,transparent 0%,#000 14%);}.bub{display:none;}}
+@media(prefers-reduced-motion:reduce){.hero__scene,.hero__scene img,.bub{animation:none !important;transform:none !important;}}
 
 /* Clientes */
 .clients{background:#fff;padding:28px 0;border-bottom:1px solid var(--line);}
@@ -135,25 +165,28 @@ section{scroll-margin-top:80px;}
 .clients__name{font-family:var(--f-display);font-weight:600;color:var(--ff-navy);font-size:15px;opacity:.85;}
 
 /* Núcleo */
-.core{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,60px);align-items:center;}
-.core__img{border-radius:var(--ff-radius-lg);overflow:hidden;box-shadow:var(--ff-shadow);}
-.core__img img{width:100%;}
-.core__cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px;}
-.core__box{border-radius:var(--ff-radius-sm);padding:18px 18px 16px;}
+/* Núcleo: la balanza al centro y dos columnas gemelas a los lados */
+.core{display:grid;grid-template-columns:1fr minmax(0,1.45fr) 1fr;gap:clamp(18px,2.6vw,36px);align-items:stretch;}
+.core__img{border-radius:var(--ff-radius-lg);overflow:hidden;box-shadow:var(--ff-shadow);align-self:center;background:#fff;}
+.core__img img{width:100%;height:auto;}
+.core__box{border-radius:var(--ff-radius-md);padding:clamp(22px,2.6vw,30px);display:flex;flex-direction:column;align-items:center;text-align:center;}
 .core__box--a{background:var(--ff-ice);}
 .core__box--b{background:var(--ff-cream);}
-.core__box h3{font-size:16px;margin-bottom:10px;}
-.core__box li{font-size:15px;padding:4px 0;color:var(--ff-ink);}
-.core__box li b{font-weight:600;color:var(--ff-navy);}
-.tags{display:flex;flex-wrap:wrap;gap:7px;}
-.tag{font-size:13px;font-weight:600;padding:6px 11px;border-radius:999px;background:#fff;color:var(--orange-text);border:1px solid #FFDDBF;}
-.pain{margin-top:clamp(36px,5vw,64px);display:grid;grid-template-columns:1fr 1fr;border-radius:var(--ff-radius-lg);overflow:hidden;background:var(--ff-navy);box-shadow:var(--ff-shadow);}
-.pain img{width:100%;height:100%;object-fit:cover;min-height:280px;}
+.core__kicker{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.core__box--a .core__kicker{color:var(--cyan-text);} .core__box--b .core__kicker{color:var(--orange-text);}
+.core__box h3{font-size:clamp(19px,1.8vw,22px);line-height:1.2;margin:6px 0 18px;min-height:2.4em;display:flex;align-items:center;justify-content:center;}
+.core__list{display:flex;flex-direction:column;gap:9px;width:100%;}
+.core__list li{background:#fff;border-radius:999px;padding:10px 14px;font-size:15px;font-weight:500;color:var(--ff-navy);border:1px solid transparent;}
+.core__box--a .core__list li{border-color:#CDEFF8;} .core__box--b .core__list li{border-color:#FFDDBF;}
+.core__foot{margin-top:auto;padding-top:16px;font-size:14px;color:var(--muted);}
+.pain{margin-top:clamp(36px,5vw,64px);display:grid;grid-template-columns:1fr 1fr;align-items:center;border-radius:var(--ff-radius-lg);overflow:hidden;background:var(--ff-navy);box-shadow:var(--ff-shadow);}
+.pain img{width:calc(100% - clamp(14px,2vw,24px));height:auto;margin:clamp(14px,2vw,24px) 0 clamp(14px,2vw,24px) clamp(14px,2vw,24px);border-radius:calc(var(--ff-radius-lg) - 12px);}
+@media(max-width:900px){.pain img{width:calc(100% - 2*clamp(14px,2vw,24px));margin:clamp(14px,2vw,24px) clamp(14px,2vw,24px) 0;}}
 .pain__txt{padding:clamp(28px,4vw,56px);display:flex;flex-direction:column;justify-content:center;gap:16px;}
 .pain__txt h3{color:#fff;font-size:clamp(24px,2.6vw,34px);line-height:1.15;font-weight:700;}
 .pain__txt p{color:rgba(255,255,255,.82);}
-@media(max-width:900px){.core,.pain{grid-template-columns:1fr;}}
-@media(max-width:520px){.core__cols{grid-template-columns:1fr;}}
+@media(max-width:900px){.core{grid-template-columns:1fr 1fr;}.core__img{grid-column:1/-1;order:-1;max-width:520px;justify-self:center;}.pain{grid-template-columns:1fr;}}
+@media(max-width:560px){.core{grid-template-columns:1fr;}}
 
 /* Soluciones */
 .sol{display:flex;flex-direction:column;gap:10px;transition:transform .2s;}
@@ -163,21 +196,35 @@ section{scroll-margin-top:80px;}
 .sol__tag{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
 .sol h3{font-size:21px;line-height:1.22;}
 .sol p{color:var(--muted);font-size:15px;}
-.sol--cta{background:var(--ff-navy);color:#fff;border:0;justify-content:center;}
+.sol--cta{background:var(--ff-navy);color:#fff;border:0;justify-content:center;align-items:center;text-align:center;}
 .sol--cta h3{color:#fff;}
 .sol--cta p{color:rgba(255,255,255,.78);}
-.sol--cta .btn{align-self:flex-start;margin-top:8px;}
+.sol--cta{padding-inline:clamp(16px,1.6vw,24px);}
+.sol--cta .btn{align-self:center;margin-top:8px;font-size:15px;padding:.8rem 1.05rem;max-width:100%;}
+@media(max-width:1100px) and (min-width:601px){.sol--cta .btn{white-space:normal;}}
 
 /* Industrias */
-.stories{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
-.story{border-radius:var(--ff-radius-md);overflow:hidden;background:#fff;box-shadow:var(--ff-shadow);display:flex;flex-direction:column;}
-.story__img{aspect-ratio:4/3.2;overflow:hidden;}
-.story__img img{width:100%;height:100%;object-fit:cover;transition:transform .7s;}
-.story:hover .story__img img{transform:scale(1.04);}
-.story__txt{padding:22px 24px 26px;}
+/* Campaña Camino 1: cinco piezas completas (2:3, sin recorte) con el titular entre ellas */
+.camp{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px);align-items:center;}
+.camp__head{text-align:center;padding:clamp(10px,2vw,28px);}
+.camp__head .eyebrow{justify-content:center;}
+.camp__head h2{margin:16px 0 16px;}
+.camp__head p{color:var(--muted);font-size:clamp(16px,1.4vw,19px);}
+.poster{margin:0;border-radius:var(--ff-radius-md);overflow:hidden;background:#fff;box-shadow:var(--ff-shadow);}
+.poster img{width:100%;height:auto;aspect-ratio:2/3;transition:transform .8s ease;}
+.poster:hover img{transform:scale(1.03);}
+.poster figcaption{padding:12px 16px 14px;text-align:center;}
 .giro{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan-text);}
-.story h3{font-size:22px;line-height:1.2;margin:8px 0 4px;}
-.story p{color:var(--orange-text);font-family:var(--f-display);font-weight:600;font-size:17px;}
+@media(max-width:900px){
+  .camp{display:block;}
+  .camp__head{max-width:640px;margin:0 auto 26px;padding:0;}
+  .camp__rail{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px var(--ff-pad,18px) 18px;margin-inline:calc(-1 * var(--ff-pad,18px));-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .camp__rail::-webkit-scrollbar{display:none;}
+  .camp__rail .poster{flex:0 0 min(72vw,340px);scroll-snap-align:center;}
+}
+@media(min-width:901px){.camp__rail{display:contents;}}
+.rail-hint{display:none;text-align:center;font-size:13px;color:var(--muted);}
+@media(max-width:900px){.rail-hint{display:block;}}
 .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:22px;}
 .mini .card{display:flex;gap:16px;align-items:flex-start;padding:22px;}
 .mini__ico{width:46px;height:46px;border-radius:14px;background:var(--ff-cream);color:var(--orange-text);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -186,8 +233,9 @@ section{scroll-margin-top:80px;}
 .formula{margin-top:30px;text-align:center;}
 .formula q{font-family:var(--f-display);font-weight:700;font-size:clamp(20px,2.4vw,28px);color:var(--ff-navy);quotes:"“" "”";}
 .formula small{display:block;margin-top:10px;color:var(--muted);font-size:13px;}
-@media(max-width:900px){.stories,.mini{grid-template-columns:1fr 1fr;}}
-@media(max-width:600px){.stories,.mini{grid-template-columns:1fr;}}
+.mini{margin-top:clamp(26px,3vw,40px);}
+@media(max-width:900px){.mini{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.mini{grid-template-columns:1fr;}}
 
 /* Cómo funciona (3 pasos) */
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;counter-reset:s;position:relative;}
@@ -221,17 +269,26 @@ section{scroll-margin-top:80px;}
 .case__link{font-weight:600;color:var(--cyan-text);font-size:14px;display:inline-flex;gap:6px;align-items:center;}
 .case__link .ico{width:16px;height:16px;}
 
-/* Paquetes */
+.cases{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;}
+@media(max-width:760px){.cases{grid-template-columns:1fr;}}
+
+/* Inversión: implementación (pago único) + suscripción mensual */
+.invest{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(14px,2vw,24px);align-items:stretch;max-width:1000px;margin-inline:auto;}
 .plan{display:flex;flex-direction:column;gap:14px;position:relative;}
-.plan--hi{border:2px solid var(--ff-orange);}
-.plan__badge{position:absolute;top:-13px;left:26px;background:var(--ff-orange);color:#fff;font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;}
-.plan__lvl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
-.plan h3{font-size:26px;font-weight:700;}
+.plan__lvl{display:inline-flex;align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:999px;}
+.plan--a .plan__lvl{background:var(--ff-ice);color:var(--cyan-text);}
+.plan--b .plan__lvl{background:var(--ff-cream);color:var(--orange-text);}
+.plan h3{font-size:clamp(23px,2.2vw,28px);font-weight:700;}
 .plan p{color:var(--muted);font-size:15px;}
 .checks{flex:1;}
 .checks li{display:flex;gap:9px;font-size:15px;color:var(--ff-ink);padding:4px 0;}
 .checks .ico{width:18px;height:18px;color:var(--ff-orange);margin-top:3px;}
-.plans__note{text-align:center;color:var(--muted);font-size:15px;margin-top:24px;}
+.plan--a .checks .ico{color:var(--cyan-text);}
+.invest__plus{align-self:center;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--ff-gradient);color:#fff;font-family:var(--f-display);font-weight:800;font-size:28px;box-shadow:var(--ff-shadow);}
+.invest__note{max-width:1000px;margin:24px auto 0;display:flex;flex-wrap:wrap;gap:18px 28px;align-items:center;justify-content:space-between;background:var(--ff-navy);color:#fff;border-radius:var(--ff-radius-md);padding:clamp(22px,3vw,32px);}
+.invest__note b{font-family:var(--f-display);font-size:19px;display:block;margin-bottom:6px;}
+.invest__note p{color:rgba(255,255,255,.8);font-size:15px;max-width:600px;}
+@media(max-width:820px){.invest{grid-template-columns:1fr;}.invest__plus{margin:-6px auto;}}
 
 /* FAQ */
 .faq{max-width:840px;margin-inline:auto;}
@@ -294,7 +351,7 @@ section{scroll-margin-top:80px;}
   <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/></symbol>
 </svg>
 
-<div class="draft">Vista previa <b>Siempre Adelante</b> · v2 con el Web Brand Kit de Al · borrador interno</div>
+<div class="draft">Vista previa <b>Siempre Adelante</b> · v3 con la campaña Camino 1 · borrador interno</div>
 
 <header class="nav">
   <div class="ff-container nav__in">
@@ -326,29 +383,28 @@ section{scroll-margin-top:80px;}
 <main id="top">
 
 <!-- 1 · HERO -->
-<section class="hero">
+<section class="hero" id="hero">
   <div class="ff-container hero__in">
-    <div>
-      <span class="eyebrow">Soluciones digitales y de IA para negocios locales</span>
-      <h1><span class="c">Siempre</span><br><span class="o">Adelante</span></h1>
-      <p class="hero__value">Tú enfócate en tu negocio.<br>FishFlow se encarga de lo demás.</p>
-      <p class="hero__lede">Tu sitio, tus redes, tus citas y tu inventario trabajando solos, con inteligencia artificial, para que vuelvas a lo que mejor sabes hacer.</p>
-      <div class="hero__ctas">
-        <a class="btn btn--primary" href="#empezar">Soluciónalo hoy con IA <svg class="ico"><use href="#i-arrow"/></svg></a>
-        <a class="btn btn--ghost" href="#soluciones">Ver soluciones</a>
-      </div>
-    </div>
-    <div class="hero__visual">
-      <img src="img/hero-flujo.webp" alt="Ondas cyan y naranja que mueven citas, mensajes, inventario y ventas de un negocio" width="1600" height="900" fetchpriority="high">
+    <span class="eyebrow">Soluciones digitales y de IA para negocios locales</span>
+    <h1><span class="c">Siempre</span> <span class="o">Adelante</span></h1>
+    <p class="hero__value">Tú enfócate en tu negocio.<br>FishFlow se encarga de lo demás.</p>
+    <p class="hero__lede">Tu sitio, tus redes, tus citas y tu inventario trabajando solos, con inteligencia artificial, para que vuelvas a lo que mejor sabes hacer.</p>
+    <div class="hero__ctas">
+      <a class="btn btn--primary" href="#empezar">Soluciónalo hoy con IA <svg class="ico"><use href="#i-arrow"/></svg></a>
+      <a class="btn btn--ghost" href="#soluciones">Ver soluciones</a>
     </div>
   </div>
-  <div class="ribbon" aria-hidden="true">
-    <svg viewBox="0 0 1600 500" preserveAspectRatio="none" style="height:clamp(110px,14vw,200px)">
-      <path d="M0 310 C250 150 420 420 720 280 S1180 120 1600 260 L1600 500 L0 500Z" fill="#42C7E8" opacity=".78"/>
-      <path d="M0 390 C300 250 520 480 830 350 S1260 180 1600 320 L1600 500 L0 500Z" fill="#FF8A2A" opacity=".72"/>
-      <path d="M0 350 C280 210 510 440 790 320 S1250 150 1600 290" fill="none" stroke="#FFFFFF" stroke-width="8" opacity=".8"/>
-    </svg>
+  <div class="hero__stage" aria-hidden="true">
+    <div class="hero__scene" id="heroScene">
+      <img src="img/hero-flujo.webp" alt="" width="1600" height="900" fetchpriority="high">
+      <span class="bub" style="width:22px;height:22px;left:18%;top:38%;animation-duration:7s"></span>
+      <span class="bub bub--o" style="width:16px;height:16px;left:46%;top:30%;animation-duration:9s;animation-delay:-3s"></span>
+      <span class="bub" style="width:30px;height:30px;left:63%;top:58%;animation-duration:10s;animation-delay:-5s"></span>
+      <span class="bub bub--o" style="width:20px;height:20px;left:84%;top:26%;animation-duration:8s;animation-delay:-2s"></span>
+      <span class="bub" style="width:12px;height:12px;left:31%;top:62%;animation-duration:6s;animation-delay:-1s"></span>
+    </div>
   </div>
+  <div class="waves" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
 </section>
 
 <div class="clients">
@@ -366,32 +422,40 @@ section{scroll-margin-top:80px;}
 <!-- 2 · ENFÓCATE EN TU NÚCLEO -->
 <section class="sec" id="enfoque">
   <div class="ff-container">
+    <div class="sec__head center reveal">
+      <span class="eyebrow">Enfócate en tu núcleo</span>
+      <h2 class="h2">Tu negocio es lo que haces mejor. <span class="o">Lo demás también pesa.</span></h2>
+      <p>Todo negocio tiene un núcleo: lo que sabe hacer y por lo que sus clientes regresan. Alrededor hay un trabajo diario que, si no se optimiza, se vuelve una carga de tiempo y de dinero. Nosotros equilibramos la balanza.</p>
+    </div>
     <div class="core">
-      <div class="reveal">
-        <span class="eyebrow">Enfócate en tu núcleo</span>
-        <h2 class="h2" style="margin:16px 0 18px">Tu negocio es lo que haces mejor. <span class="o">Lo demás también pesa.</span></h2>
-        <p style="color:var(--muted)">Todo negocio tiene un núcleo: lo que sabe hacer y por lo que sus clientes regresan. Alrededor hay un trabajo diario que, si no se optimiza, se vuelve una carga de tiempo y de dinero. Nosotros equilibramos la balanza.</p>
-        <div class="core__cols">
-          <div class="core__box core__box--a">
-            <h3>Núcleo de negocio</h3>
-            <ul class="clean">
-              <li><b>Psicólogo:</b> dar terapia</li>
-              <li><b>Muebles:</b> vender y diseñar</li>
-              <li><b>Restaurante:</b> cocinar</li>
-              <li><b>Taller:</b> reparar autos</li>
-              <li><b>Veterinario:</b> curar animales</li>
-            </ul>
-          </div>
-          <div class="core__box core__box--b">
-            <h3>Responsabilidades secundarias</h3>
-            <div class="tags">
-              <span class="tag">Sitio web</span><span class="tag">Redes</span><span class="tag">Contabilidad</span><span class="tag">Citas</span><span class="tag">Calendario</span><span class="tag">Inventario</span><span class="tag">Compras</span><span class="tag">Atención</span><span class="tag">Tienda digital</span>
-            </div>
-          </div>
-        </div>
+      <div class="core__box core__box--a reveal">
+        <span class="core__kicker">Lo haces tú</span>
+        <h3>Núcleo de negocio</h3>
+        <ul class="clean core__list">
+          <li>Psicólogo · dar terapia</li>
+          <li>Muebles · diseñar y vender</li>
+          <li>Restaurante · cocinar</li>
+          <li>Taller · reparar autos</li>
+          <li>Veterinaria · curar animales</li>
+          <li>Barbería · el corte perfecto</li>
+        </ul>
+        <p class="core__foot">Por esto te eligen tus clientes.</p>
       </div>
       <div class="core__img reveal">
         <img src="img/balanza.webp" alt="Balanza: de un lado una pila de pendientes administrativos, del otro el núcleo del negocio con el símbolo de FishFlow" width="970" height="941" loading="lazy">
+      </div>
+      <div class="core__box core__box--b reveal">
+        <span class="core__kicker">Lo hace FishFlow</span>
+        <h3>Responsabilidades secundarias</h3>
+        <ul class="clean core__list">
+          <li>Sitio web y redes sociales</li>
+          <li>Citas y calendario</li>
+          <li>Inventario y compras</li>
+          <li>Contabilidad y facturas</li>
+          <li>Atención a clientes</li>
+          <li>Tienda digital y cobros</li>
+        </ul>
+        <p class="core__foot">Esto lo automatizamos con IA.</p>
       </div>
     </div>
 
@@ -430,20 +494,25 @@ section{scroll-margin-top:80px;}
 <!-- 4 · INDUSTRIAS -->
 <section class="sec" id="industrias">
   <div class="ff-container">
-    <div class="sec__head reveal">
-      <span class="eyebrow">Historias por industria</span>
-      <h2 class="h2">El talento al frente. <span class="o">La IA, detrás.</span></h2>
-      <p>FishFlow no es el protagonista de tu negocio: eres tú. Nosotros nos encargamos de que lo operativo deje de estorbar.</p>
-    </div>
-    <div class="stories">
-      <article class="story reveal"><div class="story__img"><img src="img/muebles.webp" alt="Diseñadora mostrando un catálogo a una pareja en su boutique de muebles" width="900" height="715" loading="lazy"></div><div class="story__txt"><span class="giro">Boutique de muebles</span><h3>Tus citas se confirman solas.</h3><p>Tú muestra tu pasión por el diseño.</p></div></article>
-      <article class="story reveal"><div class="story__img"><img src="img/veterinaria.webp" alt="Veterinario revisando a un perro salchicha" width="900" height="715" loading="lazy"></div><div class="story__txt"><span class="giro">Veterinaria</span><h3>El inventario se hace solo.</h3><p>Tú atiende al perrijo.</p></div></article>
-      <article class="story reveal"><div class="story__img"><img src="img/barberia.webp" alt="Barbero cortando el cabello a un cliente" width="900" height="715" loading="lazy"></div><div class="story__txt"><span class="giro">Barbería</span><h3>Tus redes hacen su contenido.</h3><p>Tú enfócate en el corte perfecto.</p></div></article>
+    <div class="camp">
+      <div class="camp__head reveal">
+        <span class="eyebrow">Historias por industria</span>
+        <h2 class="h2">El talento al frente. <span class="o">La IA, detrás.</span></h2>
+        <p>FishFlow no es el protagonista de tu negocio: eres tú. Nosotros nos encargamos de que lo operativo deje de estorbar.</p>
+      </div>
+      <div class="camp__rail">
+        <figure class="poster reveal" style="order:-1"><img src="img/campana-muebles.webp" alt="Boutique de muebles. Tus citas se confirman solas. Tú muestra tu pasión por el diseño. Hagámoslo con IA." width="591" height="887" loading="lazy"><figcaption><span class="giro">Boutique de muebles</span></figcaption></figure>
+        <figure class="poster reveal"><img src="img/campana-barberia.webp" alt="Barbería. Tus redes sociales hacen su contenido. Tú enfócate en el corte perfecto. Hagámoslo con IA." width="592" height="887" loading="lazy"><figcaption><span class="giro">Barbería</span></figcaption></figure>
+        <figure class="poster reveal"><img src="img/campana-veterinaria.webp" alt="Veterinaria. El inventario se hace solo. Tú atiende al perrijo. Hagámoslo con IA." width="591" height="887" loading="lazy"><figcaption><span class="giro">Veterinaria</span></figcaption></figure>
+        <figure class="poster reveal"><img src="img/campana-psicologo.webp" alt="Psicólogo. Tu contabilidad se hace sola. Tú enfócate en el paciente. Hagámoslo con IA." width="800" height="1200" loading="lazy"><figcaption><span class="giro">Psicología</span></figcaption></figure>
+        <figure class="poster reveal"><img src="img/campana-seguros.webp" alt="Agente de seguros. Tu sitio web prospecta al cliente. Tú véndele los beneficios del seguro. Hagámoslo con IA." width="800" height="1200" loading="lazy"><figcaption><span class="giro">Seguros</span></figcaption></figure>
+      </div>
+      <p class="rail-hint">Desliza para ver los cinco giros →</p>
     </div>
     <div class="mini">
       <div class="card reveal"><div class="mini__ico"><svg class="ico"><use href="#i-fork"/></svg></div><div><span class="giro">Restaurantes</span><h3>Tus reservas se ordenan solas.</h3><p>Tú enfócate en el sabor.</p></div></div>
       <div class="card reveal"><div class="mini__ico"><svg class="ico"><use href="#i-wrench"/></svg></div><div><span class="giro">Talleres automotrices</span><h3>Tus clientes saben cuándo está su auto.</h3><p>Tú enfócate en repararlo bien.</p></div></div>
-      <div class="card reveal"><div class="mini__ico"><svg class="ico"><use href="#i-heart"/></svg></div><div><span class="giro">Bienestar y servicios</span><h3>Tu agenda y tus notas se organizan solas.</h3><p>Tú enfócate en tus pacientes.</p></div></div>
+      <div class="card reveal"><div class="mini__ico"><svg class="ico"><use href="#i-heart"/></svg></div><div><span class="giro">Estéticas y spas</span><h3>Tu agenda y tu inventario se ordenan solos.</h3><p>Tú enfócate en consentir a tus clientes.</p></div></div>
     </div>
     <div class="formula reveal">
       <q>Tus pendientes se resuelven solos. Tú enfócate en lo que te hace distinto.</q>
@@ -482,7 +551,7 @@ section{scroll-margin-top:80px;}
       <div class="benefit reveal"><svg class="ico"><use href="#i-trend"/></svg><b>Crecimiento</b><p>Más visibilidad, más prospectos y decisiones con datos.</p></div>
     </div>
     <h3 class="cases-title reveal">Casos reales</h3>
-    <div class="ff-grid ff-grid--lg">
+    <div class="cases">
       <a class="card case reveal" href="/casos/cane-neurofeedback"><span class="case__ang">Presencia digital y reputación</span><h3>CANE · Neurofeedback</h3><p class="case__meta">Salud mental · Narvarte, CDMX</p><p class="case__sum">De no controlar ni su propia ficha de Google a tener sitio propio, tablero de reseñas y contenido publicándose solo.</p><div class="case__nums"><div><b>34</b><span>pacientes en cola de reseñas</span></div><div><b>12</b><span>posts programados</span></div><div><b>1</b><span>ficha de Google recuperada</span></div></div><span class="case__link">Ver el caso <svg class="ico"><use href="#i-arrow"/></svg></span></a>
       <a class="card case reveal" href="/casos/mario-citalan"><span class="case__ang">IA que te devuelve horas</span><h3>Mario Citalán</h3><p class="case__meta">Formación y terapia · CDMX</p><p class="case__sum">Un WordPress viejo se convirtió en un ecosistema de captación completo, con la IA transcribiendo y resumiendo cada sesión.</p><div class="case__nums"><div><b>7</b><span>páginas del embudo</span></div><div><b>4</b><span>formularios con respuesta automática</span></div><div><b>0</b><span>notas de sesión a mano</span></div></div><span class="case__link">Ver el caso <svg class="ico"><use href="#i-arrow"/></svg></span></a>
       <a class="card case reveal" href="/casos/enlace-integral"><span class="case__ang">Escala comercial</span><h3>Enlace Integral Seguros</h3><p class="case__meta">Agencia de seguros · Coyoacán, CDMX</p><p class="case__sum">Cuarenta vendedoras, una cartera de cientos de clientes y tres dominios peleándose entre sí, ordenados en una sola operación.</p><div class="case__nums"><div><b>405</b><span>clientes en cola de reseñas</span></div><div><b>432</b><span>personas en público propio</span></div><div><b>3→1</b><span>dominios consolidados</span></div></div><span class="case__link">Ver el caso <svg class="ico"><use href="#i-arrow"/></svg></span></a>
@@ -491,18 +560,45 @@ section{scroll-margin-top:80px;}
   </div>
 </section>
 
-<!-- PAQUETES -->
-<section class="sec sec--ice" id="paquetes">
+<!-- INVERSIÓN -->
+<section class="sec sec--ice" id="inversion">
   <div class="ff-container">
     <div class="sec__head center reveal">
-      <span class="eyebrow">Paquetes</span>
-      <h2 class="h2">Tres niveles para avanzar a tu ritmo</h2>
-      <p>Cotización a la medida después del diagnóstico.</p>
+      <span class="eyebrow">Inversión</span>
+      <h2 class="h2">Sin paquetes. <span class="o">Pagas por lo que automatizamos.</span></h2>
+      <p>Cada negocio es distinto, así que no te encajamos en un plan. Tu cotización tiene solo dos partes.</p>
     </div>
-    <div class="ff-grid ff-grid--lg">
-      <div class="card plan reveal"><span class="plan__lvl">Básico</span><h3>Flow Básico</h3><p>Presencia digital profesional para tu primer paso.</p><ul class="clean checks"><li><svg class="ico"><use href="#i-check"/></svg>Página web administrada por nosotros</li><li><svg class="ico"><use href="#i-check"/></svg>Formulario de contacto directo</li><li><svg class="ico"><use href="#i-check"/></svg>Hasta 4 actualizaciones al año</li><li><svg class="ico"><use href="#i-check"/></svg>Capacitación inicial en vivo</li></ul><a class="btn btn--ghost" href="mailto:raf@fishflow.mx?subject=Cotizaci%C3%B3n%20Flow%20B%C3%A1sico">Cotizar Flow Básico</a></div>
-      <div class="card plan plan--hi reveal"><span class="plan__badge">Más elegido</span><span class="plan__lvl">Intermedio</span><h3>Flow Pro</h3><p>Ventas, clientes y pagos en un solo lugar.</p><ul class="clean checks"><li><svg class="ico"><use href="#i-check"/></svg>Sitio web + aparecer en Google</li><li><svg class="ico"><use href="#i-check"/></svg>Tablero con tus números clave</li><li><svg class="ico"><use href="#i-check"/></svg>Control de clientes, hasta 3 usuarios</li><li><svg class="ico"><use href="#i-check"/></svg>Avisos por WhatsApp y correo</li><li><svg class="ico"><use href="#i-check"/></svg>Sesión mensual de mejora</li></ul><a class="btn btn--primary" href="mailto:raf@fishflow.mx?subject=Cotizaci%C3%B3n%20Flow%20Pro">Cotizar Flow Pro</a></div>
-      <div class="card plan reveal"><span class="plan__lvl">Avanzado</span><h3>Flow IA</h3><p>Automatización completa con IA aplicada a tu operación.</p><ul class="clean checks"><li><svg class="ico"><use href="#i-check"/></svg>Todo Flow Pro + mejora continua</li><li><svg class="ico"><use href="#i-check"/></svg>IA: resúmenes, prioridades y respuestas</li><li><svg class="ico"><use href="#i-check"/></svg>Cobros y facturación conectados</li><li><svg class="ico"><use href="#i-check"/></svg>Posteos programados a redes</li><li><svg class="ico"><use href="#i-check"/></svg>Usuarios ilimitados</li></ul><a class="btn btn--ghost" href="mailto:raf@fishflow.mx?subject=Cotizaci%C3%B3n%20Flow%20IA">Cotizar Flow IA</a></div>
+    <div class="invest">
+      <div class="card plan plan--a reveal">
+        <span class="plan__lvl">Pago único</span>
+        <h3>Implementación</h3>
+        <p>Construimos tu solución y la dejamos funcionando en tu negocio.</p>
+        <ul class="clean checks">
+          <li><svg class="ico"><use href="#i-check"/></svg>Diseño a la medida de tu giro</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Conexión con tus herramientas: WhatsApp, pagos, facturación</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Carga de tus clientes, productos y citas</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Capacitación para ti y tu equipo</li>
+        </ul>
+      </div>
+      <div class="invest__plus" aria-hidden="true">+</div>
+      <div class="card plan plan--b reveal">
+        <span class="plan__lvl">Mes con mes</span>
+        <h3>Suscripción mensual</h3>
+        <p>La mantenemos trabajando sola y mejorando contigo.</p>
+        <ul class="clean checks">
+          <li><svg class="ico"><use href="#i-check"/></svg>Hospedaje, seguridad y respaldos</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>La IA y los servicios conectados funcionando</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Soporte y ajustes cuando los necesites</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Reporte y sesión de mejora</li>
+        </ul>
+      </div>
+    </div>
+    <div class="invest__note reveal">
+      <div>
+        <b>¿De qué depende el monto?</b>
+        <p>De lo que automaticemos: cuántos procesos, cuántas conexiones y cuántos usuarios. En el diagnóstico gratis te damos la cotización exacta de las dos partes.</p>
+      </div>
+      <a class="btn btn--primary" href="#empezar">Cotizar mi proyecto <svg class="ico"><use href="#i-arrow"/></svg></a>
     </div>
   </div>
 </section>
@@ -515,10 +611,10 @@ section{scroll-margin-top:80px;}
       <h2 class="h2">Lo que casi todos preguntan</h2>
     </div>
     <div class="faq reveal">
-      <details><summary>¿Cuánto cuesta FishFlow?</summary><p>No publicamos un precio fijo porque cada negocio es distinto. En la llamada de diagnóstico (gratis) te damos una propuesta puntual con alcance y precio mensual.</p></details>
+      <details><summary>¿Cuánto cuesta FishFlow?</summary><p>No manejamos paquetes. Cotizamos en dos partes: un pago único de implementación y una suscripción mensual. Las dos dependen de lo que automaticemos, y en el diagnóstico gratis te damos la propuesta exacta.</p></details>
       <details><summary>¿Cuánto tarda en estar listo?</summary><p>Para giros que ya conocemos, tu sistema suele estar listo en 2 a 4 semanas. Si tu caso necesita conexiones especiales, te lo decimos antes de empezar.</p></details>
       <details><summary>¿Necesito saber de tecnología?</summary><p>No. Te capacitamos a ti y a tu equipo en sesiones cortas. Todo está pensado para que cualquier persona del negocio lo use.</p></details>
-      <details><summary>¿Hay contrato a plazos largos?</summary><p>No. Trabajamos mes con mes: si no ves valor, lo cancelas. Queremos que te quedes por resultados, no por letras chiquitas.</p></details>
+      <details><summary>¿Hay contrato a plazos largos?</summary><p>No. La implementación se paga una sola vez y la suscripción es mes con mes: si no ves valor, la cancelas. Queremos que te quedes por resultados, no por letras chiquitas.</p></details>
       <details><summary>¿Y si mi giro no aparece aquí?</summary><p>Si tu negocio maneja clientes y comunicación, lo podemos automatizar: consultorios, talleres, escuelas, distribuidoras y más. Cuéntanos tu caso.</p></details>
       <details><summary>¿Quién está detrás de FishFlow?</summary><p>FishFlow nace con Rafa Fish, con más de una década vendiendo tecnología a operadores de telecomunicaciones, y un equipo con la misma idea: soluciones digitales y de IA accesibles para todo negocio.</p></details>
     </div>
@@ -543,13 +639,7 @@ section{scroll-margin-top:80px;}
       <span><span class="c">Siempre</span> <span class="o">Adelante</span></span>
     </div>
   </div>
-  <div class="ribbon" aria-hidden="true">
-    <svg viewBox="0 0 1600 500" preserveAspectRatio="none" style="height:clamp(100px,12vw,170px)">
-      <path d="M0 310 C250 150 420 420 720 280 S1180 120 1600 260 L1600 500 L0 500Z" fill="#42C7E8" opacity=".78"/>
-      <path d="M0 390 C300 250 520 480 830 350 S1260 180 1600 320 L1600 500 L0 500Z" fill="#FF8A2A" opacity=".72"/>
-      <path d="M0 350 C280 210 510 440 790 320 S1250 150 1600 290" fill="none" stroke="#FFFFFF" stroke-width="8" opacity=".8"/>
-    </svg>
-  </div>
+  <div class="waves waves--dark" style="--wh:clamp(90px,11vw,160px)" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
 </section>
 
 </main>
@@ -559,7 +649,7 @@ section{scroll-margin-top:80px;}
     <div class="foot__in">
       <img src="/logo-horizontal.svg" alt="FishFlow" width="143" height="30" style="filter:brightness(0) invert(1);opacity:.92">
       <nav class="foot__links" aria-label="Pie de página">
-        <a href="#soluciones">Soluciones</a><a href="#industrias">Industrias</a><a href="#resultados">Resultados</a><a href="#paquetes">Paquetes</a><a href="/aviso-de-privacidad">Privacidad</a>
+        <a href="#soluciones">Soluciones</a><a href="#industrias">Industrias</a><a href="#resultados">Resultados</a><a href="#inversion">Inversión</a><a href="/aviso-de-privacidad">Privacidad</a>
       </nav>
     </div>
     <div class="foot__bottom">
@@ -576,6 +666,12 @@ section{scroll-margin-top:80px;}
   b.addEventListener('click',function(){set(!m.classList.contains('open'));});
   m.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){set(false);});});
   window.addEventListener('resize',function(){if(window.innerWidth>980)set(false);});
+  var hero=document.getElementById('hero');
+  if(hero && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    var tick=false;
+    function upd(){var r=hero.getBoundingClientRect();var p=Math.min(1,Math.max(0,-r.top/Math.max(1,r.height)));hero.style.setProperty('--p',p.toFixed(3));tick=false;}
+    window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(upd);}},{passive:true});upd();
+  }
   var els=document.querySelectorAll('.reveal');
   if('IntersectionObserver' in window){
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{rootMargin:'0px 0px -8% 0px'});
