@@ -226,6 +226,69 @@ section{scroll-margin-top:80px;}
 @media(max-width:900px){.pain{grid-template-columns:1fr;}}
 @media(max-width:600px){.core{grid-template-columns:1fr;margin-top:8px;}}
 
+
+/* Comparativo: etiquetas internas de opción A / B */
+.cmp-tag{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--ff-navy);color:#fff;padding:7px 14px;border-radius:999px;box-shadow:var(--ff-shadow);}
+.cmp-tag b{color:var(--ff-orange);}
+.stage .cmp-tag{position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:5;}
+
+/* Opción B · Slide 6: núcleo (lista con fotos) + órbita de responsabilidades alrededor de FishFlow */
+.orb-sec{position:relative;overflow:hidden;background:linear-gradient(110deg,#F2FBFE 0%,#FFFFFF 48%,#FFF4EA 100%);padding:clamp(70px,8vw,110px) 0 clamp(130px,14vw,190px);}
+.orb-sec::before{content:"";position:absolute;width:60vw;height:60vw;max-width:820px;max-height:820px;left:28%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(66,199,232,.22),transparent);animation:glow 9s ease-in-out infinite alternate;pointer-events:none;}
+.orb-sec::after{content:"";position:absolute;width:50vw;height:50vw;max-width:700px;max-height:700px;right:-6%;top:42%;transform:translate(0,-50%);background:radial-gradient(closest-side,rgba(255,138,42,.18),transparent);animation:glow 11s ease-in-out -3s infinite alternate;pointer-events:none;}
+@keyframes glow{from{opacity:.6;scale:1}to{opacity:1;scale:1.12}}
+.orb-sec .cmp-tag{position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:5;}
+.orb-grid{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,4vw,64px);align-items:center;}
+.big2{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,3.8vw,52px);line-height:1;letter-spacing:-.02em;text-transform:uppercase;margin-bottom:clamp(18px,2.4vw,28px);}
+.big2--r{text-align:right;}
+.nrow{display:flex;flex-direction:column;gap:12px;}
+.nrow li{display:grid;grid-template-columns:clamp(96px,11vw,140px) 52px 1fr;align-items:center;gap:14px;background:rgba(255,255,255,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px -18px rgba(8,59,76,.45);transition:transform .25s;}
+.nrow li:hover{transform:translateX(6px);}
+.nrow li:nth-child(even){background:rgba(255,246,236,.9);}
+.nrow img{width:100%;height:100%;aspect-ratio:234/101;object-fit:cover;}
+.nrow .ico{width:34px;height:34px;color:var(--cyan-text);stroke-width:1.7;justify-self:center;}
+.nrow li:nth-child(even) .ico{color:var(--ff-orange);}
+.nrow b{display:block;font-family:var(--f-display);font-weight:700;font-size:17px;color:var(--cyan-text);}
+.nrow li:nth-child(even) b{color:var(--orange-text);}
+.nrow span{font-size:15px;color:var(--ff-ink);}
+.orbit{--R:clamp(150px,17vw,230px);position:relative;width:calc(var(--R) * 2 + 120px);max-width:100%;aspect-ratio:1;margin-inline:auto;}
+.orbit__track{position:absolute;inset:60px;border-radius:50%;border:2px dashed rgba(255,138,42,.45);}
+.orbit__loop{position:absolute;inset:18%;pointer-events:none;opacity:.9;}
+.orbit__core{position:absolute;left:50%;top:50%;width:calc(var(--R) * .95);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff 0%,#fff 55%,#F3FBFE 100%);box-shadow:0 0 0 10px rgba(255,255,255,.55),0 30px 60px -20px rgba(8,59,76,.35);display:flex;align-items:center;justify-content:center;z-index:2;animation:pulse 5s ease-in-out infinite;}
+.orbit__core img{width:68%;height:auto;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 10px rgba(255,255,255,.55),0 30px 60px -20px rgba(8,59,76,.35)}50%{box-shadow:0 0 0 22px rgba(66,199,232,.12),0 30px 60px -20px rgba(8,59,76,.35)}}
+.orbit__ring{position:absolute;inset:0;animation:spin 70s linear infinite;z-index:3;}
+.sat{position:absolute;left:50%;top:50%;width:104px;margin:-46px 0 0 -52px;transform:rotate(var(--a)) translateY(calc(-1 * var(--R))) rotate(calc(-1 * var(--a)));}
+.sat__in{display:flex;flex-direction:column;align-items:center;gap:6px;animation:spin 70s linear infinite reverse;}
+.sat__ico{width:58px;height:58px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px -12px rgba(8,59,76,.5);color:var(--cyan-text);}
+.sat:nth-child(even) .sat__ico{color:var(--ff-orange);}
+.sat__ico .ico{width:28px;height:28px;}
+.sat__lbl{font-size:12.5px;font-weight:600;color:var(--ff-navy);background:#fff;padding:4px 10px;border-radius:999px;box-shadow:0 6px 16px -10px rgba(8,59,76,.5);white-space:nowrap;}
+.orb-flow{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:visible;}
+.orb-flow path{fill:none;stroke:url(#flowGrad);stroke-linecap:round;}
+.orb-flow .f-base{stroke-width:10;opacity:.28;}
+.orb-flow .f-run{stroke-width:3;stroke-dasharray:14 22;animation:flow 2.4s linear infinite;opacity:.9;}
+@keyframes flow{to{stroke-dashoffset:-72}}
+.orb-left,.orb-grid > .reveal{position:relative;z-index:2;}
+@media(max-width:980px){.orb-flow{display:none;}}
+@media(prefers-reduced-motion:reduce){.orb-flow .f-run{animation:none;}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orbit:hover .orbit__ring,.orbit:hover .sat__in{animation-play-state:paused;}
+@media(max-width:980px){.orb-grid{grid-template-columns:1fr;}.big2--r{text-align:center;}.orb-left .big2{text-align:center;}.orb-left{max-width:620px;margin-inline:auto;width:100%;}}
+@media(max-width:600px){
+  .orbit{width:100%;aspect-ratio:auto;}
+  .orbit__track,.orbit__loop{display:none;}
+  .orbit__core{position:relative;left:auto;top:auto;transform:none;width:170px;margin:0 auto 20px;}
+  .orbit__ring{position:static;animation:none;display:grid;grid-template-columns:repeat(3,1fr);gap:16px 8px;}
+  .sat{position:static;width:auto;margin:0;transform:none;}
+  .sat__in{animation:none;}
+  .sat__lbl{white-space:normal;text-align:center;font-size:12px;}
+  .nrow li{grid-template-columns:92px 36px 1fr;gap:10px;}
+  .nrow .ico{width:26px;height:26px;}
+  .nrow b{font-size:15px;} .nrow span{font-size:14px;}
+}
+@media(prefers-reduced-motion:reduce){.orbit__ring,.sat__in,.orbit__core,.orb-sec::before,.orb-sec::after{animation:none !important;}}
+
 /* Soluciones */
 .sol{display:flex;flex-direction:column;gap:10px;transition:transform .2s;}
 .sol:hover{transform:translateY(-3px);}
@@ -386,6 +449,11 @@ section{scroll-margin-top:80px;}
   <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
   <symbol id="i-fork" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2V2M6 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></symbol>
   <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></symbol>
+  <symbol id="i-brain" viewBox="0 0 24 24"><path d="M12 5a3 3 0 0 0-5.6-1.5A3 3 0 0 0 4 8a3 3 0 0 0-1 5.5A3.5 3.5 0 0 0 7 19a3 3 0 0 0 5 1.5z"/><path d="M12 5a3 3 0 0 1 5.6-1.5A3 3 0 0 1 20 8a3 3 0 0 1 1 5.5A3.5 3.5 0 0 1 17 19a3 3 0 0 1-5 1.5z"/><path d="M12 5v15.5"/></symbol>
+  <symbol id="i-sofa" viewBox="0 0 24 24"><path d="M4 11V8a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v3"/><path d="M2 13a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/><path d="M5 19v2M19 19v2"/></symbol>
+  <symbol id="i-paw" viewBox="0 0 24 24"><circle cx="5.5" cy="10" r="2"/><circle cx="9.5" cy="5.5" r="2"/><circle cx="14.5" cy="5.5" r="2"/><circle cx="18.5" cy="10" r="2"/><path d="M12 12c-3 0-6 4-6 6.5 0 1.5 1.2 2.5 2.7 2.5 1.3 0 2.1-.8 3.3-.8s2 .8 3.3.8c1.5 0 2.7-1 2.7-2.5C18 16 15 12 12 12z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></symbol>
+  <symbol id="i-shop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20M8 8h8l-1 4H9z"/></symbol>
   <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/></symbol>
 </svg>
 
@@ -462,6 +530,7 @@ section{scroll-margin-top:80px;}
 <!-- 2 · ENFÓCATE EN TU NÚCLEO -->
 <section class="sec sec--stage" id="enfoque">
   <div class="stage" id="stage">
+    <span class="cmp-tag">Opción <b>A</b> · Balanza</span>
     <div class="stage__scene" aria-hidden="true"><img src="img/balanza-escena.webp" alt="" width="978" height="941" loading="lazy"></div>
     <div class="ff-container stage__in">
       <div class="stage__txt reveal">
@@ -502,6 +571,48 @@ section{scroll-margin-top:80px;}
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- 2B · OPCIÓN B (slide 6 de la propuesta): para comparar con la balanza -->
+<section class="orb-sec" id="enfoque-b" aria-label="Núcleo de negocio y responsabilidades secundarias">
+  <span class="cmp-tag">Opción <b>B</b> · Slide 6</span>
+  <div class="ff-container orb-grid">
+    <svg class="orb-flow" id="orbFlow" aria-hidden="true"><defs><linearGradient id="flowGrad" x1="0" x2="1"><stop offset="0" stop-color="#42C7E8"/><stop offset=".75" stop-color="#42C7E8"/><stop offset="1" stop-color="#FF8A2A"/></linearGradient></defs></svg>
+    <div class="orb-left reveal">
+      <h2 class="big2"><span class="c">Núcleo de</span><br><span class="o">negocio:</span></h2>
+      <ul class="clean nrow">
+          <li><img src="img/nucleo-psicologo.webp" alt="" width="234" height="101" loading="lazy"><svg class="ico"><use href="#i-brain"/></svg><div><b>Psicólogo:</b><span>Dar terapia.</span></div></li>
+          <li><img src="img/nucleo-muebles.webp" alt="" width="234" height="101" loading="lazy"><svg class="ico"><use href="#i-sofa"/></svg><div><b>Tienda de muebles:</b><span>Vender a los clientes.</span></div></li>
+          <li><img src="img/nucleo-restaurante.webp" alt="" width="234" height="101" loading="lazy"><svg class="ico"><use href="#i-fork"/></svg><div><b>Restaurante:</b><span>Hacer los platillos.</span></div></li>
+          <li><img src="img/nucleo-taller.webp" alt="" width="234" height="101" loading="lazy"><svg class="ico"><use href="#i-wrench"/></svg><div><b>Taller:</b><span>Reparar los autos.</span></div></li>
+          <li><img src="img/nucleo-veterinaria.webp" alt="" width="234" height="101" loading="lazy"><svg class="ico"><use href="#i-paw"/></svg><div><b>Veterinario:</b><span>Curar a los animales.</span></div></li>
+      </ul>
+    </div>
+    <div class="reveal">
+      <h2 class="big2 big2--r"><span class="c">Responsabilidades</span><br><span class="o">secundarias:</span></h2>
+      <div class="orbit">
+        <div class="orbit__track" aria-hidden="true"></div>
+        <div class="orbit__core"><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"></div>
+        <div class="orbit__ring">
+          <div class="sat" style="--a:0deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-globe"/></svg></span><span class="sat__lbl">Sitio web</span></div></div>
+          <div class="sat" style="--a:40deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-mega"/></svg></span><span class="sat__lbl">Redes sociales</span></div></div>
+          <div class="sat" style="--a:80deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-calc"/></svg></span><span class="sat__lbl">Contabilidad</span></div></div>
+          <div class="sat" style="--a:120deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-cal"/></svg></span><span class="sat__lbl">Citas</span></div></div>
+          <div class="sat" style="--a:160deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-calendar"/></svg></span><span class="sat__lbl">Calendario</span></div></div>
+          <div class="sat" style="--a:200deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-box"/></svg></span><span class="sat__lbl">Inventario</span></div></div>
+          <div class="sat" style="--a:240deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-cart"/></svg></span><span class="sat__lbl">Compras</span></div></div>
+          <div class="sat" style="--a:280deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-head"/></svg></span><span class="sat__lbl">Atención al cliente</span></div></div>
+          <div class="sat" style="--a:320deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-shop"/></svg></span><span class="sat__lbl">Tienda digital</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="waves" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
+</section>
+
+<section class="sec" style="padding-top:clamp(30px,4vw,50px)">
+  <div class="ff-container">
     <div class="pain reveal">
       <img src="img/dolor.webp" alt="Dueña de una tienda revisando a mano recibos e inventario entre cajas" width="1400" height="787" loading="lazy">
       <div class="pain__txt">
@@ -719,6 +830,16 @@ section{scroll-margin-top:80px;}
   if(location.hash){history.replaceState(null,'',location.pathname+location.search);window.scrollTo(0,0);}
   if('scrollRestoration' in history){history.scrollRestoration='manual';}
   document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var id=a.getAttribute('href').slice(1);var t=id?document.getElementById(id):document.body;if(!t)return;e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});});});
+  // Opción B: listones que fluyen de cada giro hacia FishFlow
+  (function(){var svg=document.getElementById('orbFlow');if(!svg)return;var grid=svg.parentNode;
+    function draw(){[].slice.call(svg.querySelectorAll('path')).forEach(function(n){n.remove();});
+      if(window.innerWidth<=980)return;var g=grid.getBoundingClientRect();var core=grid.querySelector('.orbit__core').getBoundingClientRect();
+      var tx=core.left-g.left+core.width*0.12,ty=core.top-g.top+core.height/2;
+      grid.querySelectorAll('.nrow li').forEach(function(li,i){var r=li.getBoundingClientRect();var x=r.right-g.left-6,y=r.top-g.top+r.height/2;var ey=ty+(i-2)*14;var dx=(tx-x)*0.55;
+        var d='M'+x+' '+y+' C'+(x+dx)+' '+y+' '+(tx-dx)+' '+ey+' '+tx+' '+ey;
+        ['f-base','f-run'].forEach(function(c){var pth=document.createElementNS('http://www.w3.org/2000/svg','path');pth.setAttribute('d',d);pth.setAttribute('class',c);if(c==='f-run')pth.style.animationDelay=(-i*0.4)+'s';svg.appendChild(pth);});});}
+    var t;window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(draw,120);});window.addEventListener('load',draw);setTimeout(draw,300);grid.addEventListener('transitionend',function(e){if(e.target.classList.contains('reveal'))draw();});
+  })();
   var els=document.querySelectorAll('.reveal');
   if('IntersectionObserver' in window){
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{rootMargin:'0px 0px -8% 0px'});
