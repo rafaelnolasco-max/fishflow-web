@@ -59,46 +59,57 @@ Reglas de tono:
 
 // ─── Email HTML ───────────────────────────────────────────────────────────────
 
+function escHtml(t: string): string {
+  return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+/** La IA a veces responde con **negritas** de Markdown: en el correo se ven como <b>. */
+function iaToHtml(t: string): string {
+  return escHtml(t.trim())
+    .replace(/\*\*(.+?)\*\*/g, '<b style="color:#083B4C;">$1</b>')
+    .replace(/\n{2,}/g, '<br><br>')
+    .replace(/\n/g, '<br>')
+}
+
+// Identidad del rebranding "Siempre Adelante" (oct-2026): fondo claro, logo
+// vertical, cyan #42C7E8 + naranja #FF8A2A, firma con el slogan.
 function buildEmailHtml(name: string, aiResponse: string): string {
+  const nombre = escHtml(name.split(/\s+/)[0] || name)
   return `
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:Inter,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="color-scheme" content="light only"></head>
+<body style="margin:0;padding:0;background:#EEF9FC;font-family:Inter,Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#EEF9FC;padding:32px 12px;">
     <tr><td align="center">
-      <table width="560" cellpadding="0" cellspacing="0" style="background:#0D1B2A;border-radius:12px;overflow:hidden;">
-        <!-- Header -->
+      <table width="560" cellpadding="0" cellspacing="0" role="presentation" style="max-width:560px;width:100%;background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 18px 50px rgba(8,59,76,.12);">
+        <tr><td style="height:6px;background:linear-gradient(90deg,#42C7E8 0%,#42C7E8 50%,#FF8A2A 50%,#FF8A2A 100%);background-color:#42C7E8;font-size:0;line-height:0;">&nbsp;</td></tr>
         <tr>
-          <td style="padding:28px 32px;border-bottom:1px solid rgba(255,255,255,0.08);">
-            <span style="font-size:22px;font-weight:800;color:#FF8C35;letter-spacing:-0.5px;">FishFlow</span>
+          <td align="center" style="padding:30px 32px 6px;">
+            <img src="https://www.fishflow.mx/email/fishflow-logo.png" width="132" alt="FishFlow" style="display:block;width:132px;height:auto;border:0;">
           </td>
         </tr>
-        <!-- Body -->
         <tr>
-          <td style="padding:32px;">
-            <p style="margin:0 0 16px;font-size:16px;color:#e2e8f0;">Hola ${name},</p>
-            <p style="margin:0 0 24px;font-size:14px;color:#94a3b8;line-height:1.6;">
-              Aquí está tu diagnóstico personalizado de FishFlow:
-            </p>
-            <div style="background:rgba(103,212,232,0.08);border-left:3px solid #67D4E8;border-radius:4px;padding:20px 24px;margin-bottom:28px;">
-              <p style="margin:0;font-size:15px;color:#e2e8f0;line-height:1.7;">${aiResponse}</p>
+          <td style="padding:22px 36px 8px;">
+            <p style="margin:0 0 8px;font-size:22px;font-weight:800;color:#083B4C;">Hola ${nombre},</p>
+            <p style="margin:0 0 22px;font-size:15px;color:#4F6672;line-height:1.6;">Gracias por contarnos tu caso. Esto es lo que vemos para tu negocio:</p>
+            <div style="background:#EEF9FC;border-left:4px solid #42C7E8;border-radius:10px;padding:20px 22px;margin-bottom:24px;">
+              <p style="margin:0;font-size:15px;color:#162632;line-height:1.7;">${iaToHtml(aiResponse)}</p>
             </div>
+            <p style="margin:0 0 22px;font-size:15px;color:#162632;line-height:1.6;">Te estaremos contactando muy pronto para programar una reunión y aterrizarlo juntos.</p>
             <a href="https://wa.me/525610597851?text=Hola%20FishFlow%2C%20ya%20recib%C3%AD%20mi%20diagn%C3%B3stico"
-               style="display:inline-block;background:#FF8C35;color:#fff;font-weight:700;font-size:14px;padding:12px 28px;border-radius:8px;text-decoration:none;">
+               style="display:inline-block;background:#FF8A2A;color:#FFFFFF;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;text-decoration:none;">
               Escríbenos por WhatsApp
             </a>
-            <p style="margin:12px 0 0;font-size:12px;color:#475569;">
-              O escríbeme directo: <a href="mailto:raf@fishflow.mx" style="color:#67D4E8;">raf@fishflow.mx</a>
+            <p style="margin:14px 0 0;font-size:13px;color:#4F6672;">
+              O responde este correo: <a href="mailto:raf@fishflow.mx" style="color:#0A7EA3;font-weight:600;">raf@fishflow.mx</a>
             </p>
           </td>
         </tr>
-        <!-- Footer -->
         <tr>
-          <td style="padding:20px 32px;border-top:1px solid rgba(255,255,255,0.08);">
-            <p style="margin:0;font-size:12px;color:#475569;">
-              FishFlow — Automatización inteligente para tu negocio · fishflow.mx
-            </p>
+          <td align="center" style="padding:30px 32px 26px;">
+            <p style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.1;"><span style="color:#42C7E8;">Siempre</span> <span style="color:#FF8A2A;">Adelante</span></p>
+            <p style="margin:10px 0 0;font-size:12px;color:#7B8E98;">FishFlow · Soluciones digitales y de IA para negocios locales · <a href="https://www.fishflow.mx" style="color:#7B8E98;">fishflow.mx</a></p>
           </td>
         </tr>
       </table>

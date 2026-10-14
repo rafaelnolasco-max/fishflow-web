@@ -880,7 +880,7 @@ section{scroll-margin-top:80px;}
       fetch('/api/leads/ai/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:d.get('name'),email:d.get('email'),phone:d.get('phone')||'',problem:d.get('problem'),_ts:t0,_hp:d.get('website')||''})})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});})
       .then(function(x){btn.disabled=false;if(!x.ok){msg.className='lead__msg err';msg.textContent=x.j.error||'Algo salió mal. Intenta de nuevo.';return;}
-        msg.className='lead__msg ok';msg.textContent=(x.j.response||'¡Gracias!')+'\n\nTe mandamos una copia a tu correo y te estaremos contactando para programar una reunión.';f.querySelectorAll('input,textarea').forEach(function(el){if(el.type!=='checkbox')el.value='';});
+        msg.className='lead__msg ok';msg.textContent=(x.j.response||'¡Gracias!').replace(/\*\*/g,'')+'\n\nTe mandamos una copia a tu correo y te estaremos contactando para programar una reunión.';f.querySelectorAll('input,textarea').forEach(function(el){if(el.type!=='checkbox')el.value='';});
         if(window.fbq)try{fbq('track','Lead',{content_name:'Diagnóstico IA FishFlow · rebrand'});}catch(_){}})
       .catch(function(){btn.disabled=false;msg.className='lead__msg err';msg.textContent='No pudimos enviar tu mensaje. Revisa tu conexión o escríbenos por WhatsApp.';});
     });
