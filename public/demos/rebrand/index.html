@@ -167,9 +167,32 @@ section{scroll-margin-top:80px;}
 
 /* Núcleo */
 /* Núcleo: la balanza al centro y dos columnas gemelas a los lados */
-.core{display:grid;grid-template-columns:1fr minmax(0,1.45fr) 1fr;gap:clamp(18px,2.6vw,36px);align-items:stretch;}
-.core__img{border-radius:var(--ff-radius-lg);overflow:hidden;box-shadow:var(--ff-shadow);align-self:center;background:#fff;}
-.core__img img{width:100%;height:auto;}
+/* Escena de la balanza: a todo lo ancho, de fondo, como el hero */
+.sec--stage{padding-top:0;}
+.stage{position:relative;overflow:hidden;min-height:clamp(560px,52vw,780px);display:flex;align-items:center;background:linear-gradient(180deg,#fff 0%,#FFFBF6 100%);--p:0;}
+.stage__scene{position:absolute;top:0;bottom:0;right:0;width:58%;z-index:0;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 14%,#000 34%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 14%,#000 34%);
+  transform:translateY(calc(var(--p) * -40px)) scale(calc(1.02 + var(--p) * .06));transform-origin:60% 60%;transition:transform .08s linear;}
+.stage__scene img{width:100%;height:100%;object-fit:cover;object-position:50% 70%;animation:float-scene 10s ease-in-out infinite alternate;}
+.stage__in{position:relative;z-index:2;width:100%;padding-block:clamp(60px,7vw,100px) clamp(110px,12vw,170px);}
+.stage__txt{max-width:min(470px,40vw);}
+.stage__txt .h2{font-size:clamp(30px,3.7vw,48px);}
+.stage__txt h2{margin:16px 0 18px;}
+.stage__txt p{color:var(--muted);font-size:clamp(17px,1.5vw,20px);}
+.core{position:relative;z-index:4;display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2.4vw,30px);max-width:960px;margin:calc(-1 * clamp(30px,4vw,60px)) auto 0;align-items:stretch;}
+.core .core__box{box-shadow:var(--ff-shadow);}
+@media(max-width:900px){
+  .stage{display:flex;flex-direction:column;min-height:0;}
+  .stage__txt{max-width:640px !important;}
+  .stage__scene{order:2;}
+  .stage__in{padding-block:clamp(48px,8vw,72px) 0;}
+  .stage__txt{max-width:640px;margin-inline:auto;text-align:center;}
+  .stage__txt .eyebrow{justify-content:center;}
+  .stage__scene{position:relative;width:100%;aspect-ratio:978/941;margin-top:-10px;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 16%);mask-image:linear-gradient(180deg,transparent 0%,#000 16%);}
+  .stage .waves{height:70px;}
+}
+@media(prefers-reduced-motion:reduce){.stage__scene,.stage__scene img{animation:none !important;transform:none !important;}}
 .core__box{border-radius:var(--ff-radius-md);padding:clamp(22px,2.6vw,30px);display:flex;flex-direction:column;align-items:center;text-align:center;}
 .core__box--a{background:var(--ff-ice);}
 .core__box--b{background:var(--ff-cream);}
@@ -186,8 +209,8 @@ section{scroll-margin-top:80px;}
 .pain__txt{padding:clamp(28px,4vw,56px);display:flex;flex-direction:column;justify-content:center;gap:16px;}
 .pain__txt h3{color:#fff;font-size:clamp(24px,2.6vw,34px);line-height:1.15;font-weight:700;}
 .pain__txt p{color:rgba(255,255,255,.82);}
-@media(max-width:900px){.core{grid-template-columns:1fr 1fr;}.core__img{grid-column:1/-1;order:-1;max-width:520px;justify-self:center;}.pain{grid-template-columns:1fr;}}
-@media(max-width:560px){.core{grid-template-columns:1fr;}}
+@media(max-width:900px){.pain{grid-template-columns:1fr;}}
+@media(max-width:600px){.core{grid-template-columns:1fr;margin-top:8px;}}
 
 /* Soluciones */
 .sol{display:flex;flex-direction:column;gap:10px;transition:transform .2s;}
@@ -422,30 +445,20 @@ section{scroll-margin-top:80px;}
 </div>
 
 <!-- 2 · ENFÓCATE EN TU NÚCLEO -->
-<section class="sec" id="enfoque">
-  <div class="ff-container">
-    <div class="sec__head center reveal">
-      <span class="eyebrow">Enfócate en tu núcleo</span>
-      <h2 class="h2">Tu negocio es lo que haces mejor. <span class="o">Lo demás también pesa.</span></h2>
-      <p>Todo negocio tiene un núcleo: lo que sabe hacer y por lo que sus clientes regresan. Alrededor hay un trabajo diario que, si no se optimiza, se vuelve una carga de tiempo y de dinero. Nosotros equilibramos la balanza.</p>
+<section class="sec sec--stage" id="enfoque">
+  <div class="stage" id="stage">
+    <div class="stage__scene" aria-hidden="true"><img src="img/balanza-escena.webp" alt="" width="978" height="941" loading="lazy"></div>
+    <div class="ff-container stage__in">
+      <div class="stage__txt reveal">
+        <span class="eyebrow">Enfócate en tu núcleo</span>
+        <h2 class="h2">Tu negocio es lo que haces mejor. <span class="o">Lo demás también pesa.</span></h2>
+        <p>Todo negocio tiene un núcleo: lo que sabe hacer y por lo que sus clientes regresan. Alrededor hay un trabajo diario que, si no se optimiza, se vuelve una carga de tiempo y de dinero. Nosotros equilibramos la balanza.</p>
+      </div>
     </div>
+    <div class="waves" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
+  </div>
+  <div class="ff-container">
     <div class="core">
-      <div class="core__box core__box--a reveal">
-        <span class="core__kicker">Lo haces tú</span>
-        <h3>Núcleo de negocio</h3>
-        <ul class="clean core__list">
-          <li>Psicólogo · dar terapia</li>
-          <li>Muebles · diseñar y vender</li>
-          <li>Restaurante · cocinar</li>
-          <li>Taller · reparar autos</li>
-          <li>Veterinaria · curar animales</li>
-          <li>Barbería · el corte perfecto</li>
-        </ul>
-        <p class="core__foot">Por esto te eligen tus clientes.</p>
-      </div>
-      <div class="core__img reveal">
-        <img src="img/balanza.webp" alt="Balanza: de un lado una pila de pendientes administrativos, del otro el núcleo del negocio con el símbolo de FishFlow" width="970" height="941" loading="lazy">
-      </div>
       <div class="core__box core__box--b reveal">
         <span class="core__kicker">Lo hace FishFlow</span>
         <h3>Responsabilidades secundarias</h3>
@@ -458,6 +471,19 @@ section{scroll-margin-top:80px;}
           <li>Tienda digital y cobros</li>
         </ul>
         <p class="core__foot">Esto lo automatizamos con IA.</p>
+      </div>
+      <div class="core__box core__box--a reveal">
+        <span class="core__kicker">Lo haces tú</span>
+        <h3>Núcleo de negocio</h3>
+        <ul class="clean core__list">
+          <li>Psicólogo · dar terapia</li>
+          <li>Muebles · diseñar y vender</li>
+          <li>Restaurante · cocinar</li>
+          <li>Taller · reparar autos</li>
+          <li>Veterinaria · curar animales</li>
+          <li>Barbería · el corte perfecto</li>
+        </ul>
+        <p class="core__foot">Por esto te eligen tus clientes.</p>
       </div>
     </div>
 
@@ -668,10 +694,10 @@ section{scroll-margin-top:80px;}
   b.addEventListener('click',function(){set(!m.classList.contains('open'));});
   m.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){set(false);});});
   window.addEventListener('resize',function(){if(window.innerWidth>980)set(false);});
-  var hero=document.getElementById('hero');
-  if(hero && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  var px=[document.getElementById('hero'),document.getElementById('stage')].filter(Boolean);
+  if(px.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
     var tick=false;
-    function upd(){var r=hero.getBoundingClientRect();var p=Math.min(1,Math.max(0,-r.top/Math.max(1,r.height)));hero.style.setProperty('--p',p.toFixed(3));tick=false;}
+    function upd(){var vh=window.innerHeight;px.forEach(function(el){var r=el.getBoundingClientRect();var p=el.id==='hero'?-r.top/Math.max(1,r.height):(vh-r.top)/(vh+r.height);p=Math.min(1,Math.max(0,p));el.style.setProperty('--p',p.toFixed(3));});tick=false;}
     window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(upd);}},{passive:true});upd();
   }
   var els=document.querySelectorAll('.reveal');
