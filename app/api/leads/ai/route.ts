@@ -180,13 +180,14 @@ export async function POST(req: NextRequest) {
       // Igual devolvemos la respuesta aunque falle el email
     }
 
-    // ── 4. WhatsApp inmediato (plantilla diagnostico_recibido) ───────────────
+    // ── 4. WhatsApp inmediato (plantilla diagnostico_recibido_v2) ───────────────
     // No bloquea: si la plantilla no está aprobada o Meta falla, queda en logs
     // y en whatsapp_messages con status 'failed'.
     if (phone) {
       const wa = await sendTemplate({
         to: phone,
-        name: 'diagnostico_recibido',
+        // v2 (oct-2026): sin liga de agenda. "Te estaremos contactando para programar una reunión".
+        name: 'diagnostico_recibido_v2',
         params: [name.trim().split(/\s+/)[0]],
         ref: leadRow?.id ?? null,
       })

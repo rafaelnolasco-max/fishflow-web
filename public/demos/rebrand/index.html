@@ -242,6 +242,7 @@ section{scroll-margin-top:80px;}
 .orb-sec::after{content:"";position:absolute;width:50vw;height:50vw;max-width:700px;max-height:700px;right:-6%;top:42%;transform:translate(0,-50%);background:radial-gradient(closest-side,rgba(255,138,42,.18),transparent);animation:glow 11s ease-in-out -3s infinite alternate;pointer-events:none;}
 @keyframes glow{from{opacity:.6;scale:1}to{opacity:1;scale:1.12}}
 .orb-sec .cmp-tag{position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:5;}
+.orb-head{position:relative;z-index:2;}
 .orb-grid{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,4vw,64px);align-items:center;}
 .big2{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,3.8vw,52px);line-height:1;letter-spacing:-.02em;text-transform:uppercase;margin-bottom:clamp(18px,2.4vw,28px);}
 .big2--r{text-align:right;}
@@ -430,6 +431,15 @@ section{scroll-margin-top:80px;}
  .hub__line--l{bottom:100%;background-image:linear-gradient(180deg,#42C7E8 0 60%,transparent 60% 100%);} .hub__line--r{top:100%;background-image:linear-gradient(180deg,#FF8A2A 0 60%,transparent 60% 100%);}}
 @keyframes hubFlowV{to{background-position-y:18px}}
 @media(prefers-reduced-motion:reduce){.hub__core,.hub__line{animation:none;}}
+.howto{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(28px,4vw,60px);align-items:center;}
+.steps--v{grid-template-columns:1fr !important;gap:16px;}
+.steps--v .step{display:grid;grid-template-columns:54px 1fr;column-gap:18px;align-items:start;}
+.steps--v .step__n{grid-row:span 2;margin:0;}
+.steps--v .step h3{margin:6px 0 4px;}
+.hub--light .hub__core{box-shadow:0 0 0 10px rgba(255,255,255,.7),0 24px 50px -22px rgba(8,59,76,.45);animation-name:hubPulseL;}
+@keyframes hubPulseL{0%,100%{box-shadow:0 0 0 10px rgba(255,255,255,.7),0 24px 50px -22px rgba(8,59,76,.45)}50%{box-shadow:0 0 0 22px rgba(66,199,232,.18),0 24px 50px -22px rgba(8,59,76,.45)}}
+.sec--cream .lead{box-shadow:var(--ff-shadow);}
+@media(max-width:900px){.howto{grid-template-columns:1fr;}}
 .lead{background:#fff;color:var(--ff-ink);border-radius:var(--ff-radius-md);padding:clamp(22px,3vw,32px);box-shadow:0 30px 70px -30px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:14px;}
 .lead h3{font-size:22px;margin-bottom:2px;}
 .lead label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ff-navy);}
@@ -567,55 +577,15 @@ section{scroll-margin-top:80px;}
 </section>
 
 <!-- 2 · ENFÓCATE EN TU NÚCLEO -->
-<section class="sec sec--stage" id="enfoque">
-  <div class="stage" id="stage">
-    <span class="cmp-tag">Opción <b>A</b> · Balanza</span>
-    <div class="stage__scene" aria-hidden="true"><img src="img/balanza-escena.webp" alt="" width="978" height="941" loading="lazy"></div>
-    <div class="ff-container stage__in">
-      <div class="stage__txt reveal">
-        <span class="eyebrow">Enfócate en tu núcleo</span>
-        <h2 class="h2">Tu negocio es lo que haces mejor. <span class="o">Lo demás también pesa.</span></h2>
-        <p>Todo negocio tiene un núcleo: lo que sabe hacer y por lo que sus clientes regresan. Alrededor hay un trabajo diario que, si no se optimiza, se vuelve una carga de tiempo y de dinero. Nosotros equilibramos la balanza.</p>
-      </div>
-    </div>
-    <div class="waves" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
-  </div>
-  <div class="ff-container">
-    <div class="core">
-      <div class="core__box core__box--b reveal">
-        <span class="core__kicker">Lo hace FishFlow</span>
-        <h3>Responsabilidades secundarias</h3>
-        <ul class="clean core__list">
-          <li>Sitio web y redes sociales</li>
-          <li>Citas y calendario</li>
-          <li>Inventario y compras</li>
-          <li>Contabilidad y facturas</li>
-          <li>Atención a clientes</li>
-          <li>Tienda digital y cobros</li>
-        </ul>
-        <p class="core__foot">Esto lo automatizamos con IA.</p>
-      </div>
-      <div class="core__box core__box--a reveal">
-        <span class="core__kicker">Lo haces tú</span>
-        <h3>Núcleo de negocio</h3>
-        <ul class="clean core__list">
-          <li>Psicólogo · dar terapia</li>
-          <li>Muebles · diseñar y vender</li>
-          <li>Restaurante · cocinar</li>
-          <li>Taller · reparar autos</li>
-          <li>Veterinaria · curar animales</li>
-          <li>Barbería · el corte perfecto</li>
-        </ul>
-        <p class="core__foot">Por esto te eligen tus clientes.</p>
-      </div>
-    </div>
 
-  </div>
-</section>
 
-<!-- 2B · OPCIÓN B (slide 6 de la propuesta): para comparar con la balanza -->
-<section class="orb-sec" id="enfoque-b" aria-label="Núcleo de negocio y responsabilidades secundarias">
-  <span class="cmp-tag">Opción <b>B</b> · Slide 6</span>
+<!-- 2 · ENFÓCATE EN TU NÚCLEO (slide 6 de la propuesta) -->
+<section class="orb-sec" id="enfoque" aria-label="Núcleo de negocio y responsabilidades secundarias">
+  <div class="ff-container"><div class="sec__head center reveal orb-head">
+    <span class="eyebrow">Enfócate en tu núcleo</span>
+    <h2 class="h2">Tu negocio es lo que haces mejor. <span class="o">Lo demás también pesa.</span></h2>
+    <p>Todo negocio tiene un núcleo: lo que sabe hacer y por lo que sus clientes regresan. Alrededor hay un trabajo diario que, si no se optimiza, se vuelve una carga de tiempo y de dinero. FishFlow se encarga de ese trabajo.</p>
+  </div></div>
   <div class="ff-container orb-grid">
     <svg class="orb-flow" id="orbFlow" aria-hidden="true"><defs><linearGradient id="flowGrad" x1="0" x2="1"><stop offset="0" stop-color="#42C7E8"/><stop offset=".75" stop-color="#42C7E8"/><stop offset="1" stop-color="#FF8A2A"/></linearGradient></defs></svg>
     <div class="orb-left reveal">
@@ -717,10 +687,26 @@ section{scroll-margin-top:80px;}
       <h2 class="h2">Tres pasos y tu negocio <span class="o">avanza.</span></h2>
       <p>Sin contratos largos ni tecnicismos.</p>
     </div>
-    <div class="steps">
-      <div class="card step reveal"><div class="step__n">1</div><h3>Nos cuentas tu caso</h3><p>Nos escribes qué te quita tiempo y te respondemos con qué automatizar primero.</p></div>
-      <div class="card step reveal"><div class="step__n">2</div><h3>Lo construimos a tu medida</h3><p>Diseñamos la herramienta para tu giro, la aprobamos juntos y capacitamos a tu equipo.</p></div>
-      <div class="card step reveal"><div class="step__n">3</div><h3>Trabaja solo y mejora</h3><p>Funciona en segundo plano y la afinamos mes con mes con reportes claros.</p></div>
+    <div class="howto">
+      <div class="steps steps--v">
+        <div class="card step reveal"><div class="step__n">1</div><h3>Nos cuentas tu caso</h3><p>Nos escribes qué te quita tiempo y te respondemos con qué automatizar primero.</p></div>
+        <div class="card step reveal"><div class="step__n">2</div><h3>Lo construimos a tu medida</h3><p>Diseñamos la herramienta para tu giro, la aprobamos juntos y capacitamos a tu equipo.</p></div>
+        <div class="card step reveal"><div class="step__n">3</div><h3>Trabaja solo y mejora</h3><p>Funciona en segundo plano y la afinamos mes con mes con reportes claros.</p></div>
+      </div>
+      <div class="hub hub--light reveal" aria-hidden="true"><span class="hub__line hub__line--l"></span><div class="hub__core"><img src="/logo-vertical.svg" alt="" width="885" height="640"></div><span class="hub__line hub__line--r"></span></div>
+    <form class="lead js-lead reveal" novalidate>
+      <h3>Paso 1: cuéntanos tu caso</h3>
+      <div class="lead__row">
+        <label>Tu nombre<input name="name" type="text" required autocomplete="name" placeholder="María López"></label>
+        <label>Tu correo<input name="email" type="email" required autocomplete="email" placeholder="maria@minegocio.com"></label>
+      </div>
+      <label><span>WhatsApp <small>(opcional)</small></span><input name="phone" type="tel" autocomplete="tel" placeholder="55 1234 5678"></label>
+      <label>¿Qué te quita tiempo hoy?<textarea name="problem" required rows="4" placeholder="Ej. «Confirmo cada cita a mano por WhatsApp y aun así me fallan»"></textarea></label>
+      <div class="lead__hp" aria-hidden="true"><label>Deja este campo vacío<input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+      <label class="lead__consent"><input name="consent" type="checkbox" required> <span>Acepto el <a href="/aviso-de-privacidad" target="_blank" rel="noopener">Aviso de Privacidad</a>.</span></label>
+      <button class="btn btn--primary" type="submit">Hagámoslo con IA <svg class="ico"><use href="#i-arrow"/></svg></button>
+      <p class="lead__msg" role="status" aria-live="polite"></p>
+    </form>
     </div>
   </div>
 </section>
@@ -824,7 +810,7 @@ section{scroll-margin-top:80px;}
       <p class="final__small">O escribe a <a href="mailto:raf@fishflow.mx">raf@fishflow.mx</a></p>
     </div>
     <div class="hub reveal" aria-hidden="true"><span class="hub__line hub__line--l"></span><div class="hub__core"><img src="/logo-vertical.svg" alt="" width="885" height="640"></div><span class="hub__line hub__line--r"></span></div>
-    <form class="lead reveal" id="leadForm" novalidate>
+    <form class="lead js-lead reveal" novalidate>
       <h3>Cuéntanos tu caso</h3>
       <div class="lead__row">
         <label>Tu nombre<input name="name" type="text" required autocomplete="name" placeholder="María López"></label>
@@ -835,7 +821,7 @@ section{scroll-margin-top:80px;}
       <div class="lead__hp" aria-hidden="true"><label>Deja este campo vacío<input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
       <label class="lead__consent"><input name="consent" type="checkbox" required> <span>Acepto el <a href="/aviso-de-privacidad" target="_blank" rel="noopener">Aviso de Privacidad</a>.</span></label>
       <button class="btn btn--primary" type="submit">Hagámoslo con IA <svg class="ico"><use href="#i-arrow"/></svg></button>
-      <p class="lead__msg" id="leadMsg" role="status" aria-live="polite"></p>
+      <p class="lead__msg" role="status" aria-live="polite"></p>
     </form>
   </div>
   <div class="waves waves--dark" style="--wh:clamp(90px,11vw,160px)" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
@@ -886,7 +872,7 @@ section{scroll-margin-top:80px;}
     var t;window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(draw,120);});window.addEventListener('load',draw);setTimeout(draw,300);grid.addEventListener('transitionend',function(e){if(e.target.classList.contains('reveal'))draw();});
   })();
   // Formulario de contacto: el mismo diagnóstico con IA de fishflow.mx (/api/leads/ai) → tabla leads + Slack #leads + correo
-  (function(){var f=document.getElementById('leadForm');if(!f)return;var t0=Date.now();var msg=document.getElementById('leadMsg');var btn=f.querySelector('button[type=submit]');
+  document.querySelectorAll('.js-lead').forEach(function(f){var t0=Date.now();var msg=f.querySelector('.lead__msg');var btn=f.querySelector('button[type=submit]');
     f.addEventListener('submit',function(e){e.preventDefault();msg.className='lead__msg';
       var d=new FormData(f);if(!d.get('name')||!d.get('email')||!d.get('problem')){msg.className='lead__msg err';msg.textContent='Completa tu nombre, correo y qué te quita tiempo.';return;}
       if(!f.consent.checked){msg.className='lead__msg err';msg.textContent='Necesitamos que aceptes el Aviso de Privacidad.';return;}
@@ -894,11 +880,11 @@ section{scroll-margin-top:80px;}
       fetch('/api/leads/ai/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:d.get('name'),email:d.get('email'),phone:d.get('phone')||'',problem:d.get('problem'),_ts:t0,_hp:d.get('website')||''})})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});})
       .then(function(x){btn.disabled=false;if(!x.ok){msg.className='lead__msg err';msg.textContent=x.j.error||'Algo salió mal. Intenta de nuevo.';return;}
-        msg.className='lead__msg ok';msg.textContent=(x.j.response||'¡Gracias! Te contactamos muy pronto.')+'\n\nTe mandamos una copia a tu correo y te contactamos muy pronto.';f.querySelectorAll('input,textarea').forEach(function(el){if(el.type!=='checkbox')el.value='';});
+        msg.className='lead__msg ok';msg.textContent=(x.j.response||'¡Gracias!')+'\n\nTe mandamos una copia a tu correo y te estaremos contactando para programar una reunión.';f.querySelectorAll('input,textarea').forEach(function(el){if(el.type!=='checkbox')el.value='';});
         if(window.fbq)try{fbq('track','Lead',{content_name:'Diagnóstico IA FishFlow · rebrand'});}catch(_){}})
       .catch(function(){btn.disabled=false;msg.className='lead__msg err';msg.textContent='No pudimos enviar tu mensaje. Revisa tu conexión o escríbenos por WhatsApp.';});
     });
-  })();
+  });
   var els=document.querySelectorAll('.reveal');
   if('IntersectionObserver' in window){
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{rootMargin:'0px 0px -8% 0px'});
