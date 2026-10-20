@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="/icons/icon-fishflow-180.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    1) RESPONSIVE BASE  ·  copia idéntica de demos/_template
@@ -318,7 +318,21 @@ section{scroll-margin-top:80px;}
 .camp__head p{color:var(--muted);font-size:clamp(16px,1.4vw,19px);}
 .poster{margin:0;border-radius:var(--ff-radius-md);overflow:hidden;background:#fff;box-shadow:var(--ff-shadow);}
 .poster img{width:100%;height:auto;aspect-ratio:2/3;transition:transform .8s ease;}
-.poster:hover img{transform:scale(1.03);}
+.poster__art{position:relative;aspect-ratio:2/3;overflow:hidden;container-type:inline-size;}
+.poster__art > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;aspect-ratio:auto;transition:transform .8s ease;}
+.poster:hover .poster__art > img{transform:scale(1.03);}
+.poster__veil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,253,248,.96) 0%,rgba(255,253,248,.9) 19%,rgba(255,253,248,.55) 27%,rgba(255,253,248,0) 35%),radial-gradient(ellipse 58% 38% at 88% 100%,rgba(255,253,248,.97) 0%,rgba(255,253,248,.93) 45%,rgba(255,253,248,0) 100%);}
+.poster__txt{position:absolute;left:7.5cqw;top:7.5cqw;right:5cqw;text-align:left;}
+.poster__acc{display:block;width:10cqw;height:.75cqw;border-radius:99px;background:linear-gradient(90deg,#42C7E8 0 48%,#FF8A2A 52% 100%);margin-bottom:2.6cqw;}
+.poster__txt h3{font-family:Poppins,Arial,sans-serif;font-weight:600;font-size:7.4cqw;line-height:1.06;letter-spacing:-.025em;color:#0B5266;margin:0;}
+.poster__txt p{font-family:Inter,Arial,sans-serif;font-weight:300;font-size:6.3cqw;line-height:1.14;letter-spacing:-.01em;color:#165A6E;margin-top:.6cqw;}
+.poster__close{position:absolute;right:6.5cqw;bottom:6cqw;width:32cqw;display:flex;flex-direction:column;align-items:center;}
+.poster__cta{font-family:Inter,Arial,sans-serif;font-weight:600;font-size:3.1cqw;color:#0B5266;white-space:nowrap;}
+.poster__acc--s{width:12cqw;height:.5cqw;margin:1.4cqw 0 1.7cqw;}
+.poster__close img{width:20cqw;height:auto;aspect-ratio:auto;transition:none;}
+.poster__sa{font-family:Inter,Arial,sans-serif;font-weight:600;font-size:1.75cqw;letter-spacing:.32em;text-transform:uppercase;color:#0B5266;margin:1.4cqw 0 0 .32em;white-space:nowrap;}
+.poster__close .poster__acc--s:last-child{margin:1.3cqw 0 0;}
+
 .poster figcaption{padding:12px 16px 14px;text-align:center;}
 .giro{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan-text);}
 @media(max-width:900px){
@@ -664,11 +678,11 @@ section{scroll-margin-top:80px;}
         <p>FishFlow no es el protagonista de tu negocio: eres tú. Nosotros nos encargamos de que lo operativo deje de estorbar.</p>
       </div>
       <div class="camp__rail">
-        <figure class="poster reveal" style="order:-1"><img src="img/campana-muebles.webp" alt="Boutique de muebles. Tus citas se confirman solas. Tú muestra tu pasión por el diseño. Hagámoslo con IA." width="591" height="887" loading="lazy"><figcaption><span class="giro">Boutique de muebles</span></figcaption></figure>
-        <figure class="poster reveal"><img src="img/campana-barberia.webp" alt="Barbería. Tus redes sociales hacen su contenido. Tú enfócate en el corte perfecto. Hagámoslo con IA." width="592" height="887" loading="lazy"><figcaption><span class="giro">Barbería</span></figcaption></figure>
-        <figure class="poster reveal"><img src="img/campana-veterinaria.webp" alt="Veterinaria. El inventario se hace solo. Tú atiende al perrijo. Hagámoslo con IA." width="591" height="887" loading="lazy"><figcaption><span class="giro">Veterinaria</span></figcaption></figure>
-        <figure class="poster reveal"><img src="img/campana-psicologo.webp" alt="Psicólogo. Tu contabilidad se hace sola. Tú enfócate en el paciente. Hagámoslo con IA." width="800" height="1200" loading="lazy"><figcaption><span class="giro">Psicología</span></figcaption></figure>
-        <figure class="poster reveal"><img src="img/campana-seguros.webp" alt="Agente de seguros. Tu sitio web prospecta al cliente. Tú véndele los beneficios del seguro. Hagámoslo con IA." width="800" height="1200" loading="lazy"><figcaption><span class="giro">Seguros</span></figcaption></figure>
+        <figure class="poster reveal" style="order:-1"><div class="poster__art"><img src="img/foto-muebles.webp" alt="Diseñadora mostrando un catálogo a una pareja en su boutique de muebles" width="800" height="1200" loading="lazy"><div class="poster__veil" aria-hidden="true"></div><div class="poster__txt"><span class="poster__acc"></span><h3>Tus citas se<br>confirman solas.</h3><p>Tú muestra tu pasión<br>por el diseño.</p></div><div class="poster__close"><span class="poster__cta">Hagámoslo con IA</span><span class="poster__acc poster__acc--s"></span><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"><span class="poster__sa">Siempre Adelante</span><span class="poster__acc poster__acc--s"></span></div></div><figcaption><span class="giro">Boutique de muebles</span></figcaption></figure>
+        <figure class="poster reveal"><div class="poster__art"><img src="img/foto-barberia.webp" alt="Barbero cortando el cabello a un cliente" width="800" height="1200" loading="lazy"><div class="poster__veil" aria-hidden="true"></div><div class="poster__txt"><span class="poster__acc"></span><h3>Tus redes sociales<br>hacen su contenido.</h3><p>Tú enfócate en<br>el corte perfecto.</p></div><div class="poster__close"><span class="poster__cta">Hagámoslo con IA</span><span class="poster__acc poster__acc--s"></span><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"><span class="poster__sa">Siempre Adelante</span><span class="poster__acc poster__acc--s"></span></div></div><figcaption><span class="giro">Barbería</span></figcaption></figure>
+        <figure class="poster reveal"><div class="poster__art"><img src="img/foto-veterinaria.webp" alt="Veterinario revisando a un perro salchicha" width="800" height="1200" loading="lazy"><div class="poster__veil" aria-hidden="true"></div><div class="poster__txt"><span class="poster__acc"></span><h3>El inventario<br>se hace solo.</h3><p>Tú atiende<br>al perrijo.</p></div><div class="poster__close"><span class="poster__cta">Hagámoslo con IA</span><span class="poster__acc poster__acc--s"></span><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"><span class="poster__sa">Siempre Adelante</span><span class="poster__acc poster__acc--s"></span></div></div><figcaption><span class="giro">Veterinaria</span></figcaption></figure>
+        <figure class="poster reveal"><div class="poster__art"><img src="img/foto-psicologo.webp" alt="Psicólogo en sesión con un paciente" width="800" height="1200" loading="lazy"><div class="poster__veil" aria-hidden="true"></div><div class="poster__txt"><span class="poster__acc"></span><h3>Tu contabilidad<br>se hace sola.</h3><p>Tú enfócate<br>en el paciente.</p></div><div class="poster__close"><span class="poster__cta">Hagámoslo con IA</span><span class="poster__acc poster__acc--s"></span><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"><span class="poster__sa">Siempre Adelante</span><span class="poster__acc poster__acc--s"></span></div></div><figcaption><span class="giro">Psicología</span></figcaption></figure>
+        <figure class="poster reveal"><div class="poster__art"><img src="img/foto-seguros.webp" alt="Agente de seguros platicando con una clienta en un café" width="800" height="1200" loading="lazy"><div class="poster__veil" aria-hidden="true"></div><div class="poster__txt"><span class="poster__acc"></span><h3>Tu sitio web<br>prospecta al cliente.</h3><p>Tú véndele los<br>beneficios del seguro.</p></div><div class="poster__close"><span class="poster__cta">Hagámoslo con IA</span><span class="poster__acc poster__acc--s"></span><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"><span class="poster__sa">Siempre Adelante</span><span class="poster__acc poster__acc--s"></span></div></div><figcaption><span class="giro">Seguros</span></figcaption></figure>
       </div>
       <p class="rail-hint">Desliza para ver los cinco giros →</p>
     </div>
