@@ -454,7 +454,11 @@ section{scroll-margin-top:80px;}
 @keyframes hubPulseL{0%,100%{box-shadow:0 0 0 10px rgba(255,255,255,.7),0 24px 50px -22px rgba(8,59,76,.45)}50%{box-shadow:0 0 0 22px rgba(66,199,232,.18),0 24px 50px -22px rgba(8,59,76,.45)}}
 .sec--cream .lead{box-shadow:var(--ff-shadow);}
 @media(max-width:900px){.howto{grid-template-columns:1fr;}}
-.lead{background:#fff;color:var(--ff-ink);border-radius:var(--ff-radius-md);padding:clamp(22px,3vw,32px);box-shadow:0 30px 70px -30px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:14px;}
+.final__in--c{display:flex !important;flex-direction:column;align-items:center;text-align:center;gap:26px;}
+.final__in--c p{margin-inline:auto;}
+.final__in--c .final__ctas{justify-content:center;}
+.final .final__slogan{color:#fff;font-family:var(--f-display);font-weight:800;font-size:clamp(24px,2.6vw,34px);margin:26px 0 0 !important;}
+.lead{scroll-margin-top:96px;background:#fff;color:var(--ff-ink);border-radius:var(--ff-radius-md);padding:clamp(22px,3vw,32px);box-shadow:0 30px 70px -30px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:14px;}
 .lead h3{font-size:22px;margin-bottom:2px;}
 .lead label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ff-navy);}
 .lead small{font-weight:500;color:var(--muted);}
@@ -527,7 +531,7 @@ section{scroll-margin-top:80px;}
       <a href="#soluciones">Soluciones</a>
       <a href="#industrias">Industrias</a>
       <a href="#como">Cómo funciona</a>
-      <a href="#resultados">Resultados</a>
+      <a href="#resultados">Casos</a>
       <a href="#faq">Preguntas</a>
     </nav>
     <a class="btn btn--primary nav__cta" href="#empezar">Hagámoslo con IA</a>
@@ -539,7 +543,7 @@ section{scroll-margin-top:80px;}
       <a href="#soluciones">Soluciones</a>
       <a href="#industrias">Industrias</a>
       <a href="#como">Cómo funciona</a>
-      <a href="#resultados">Resultados</a>
+      <a href="#resultados">Casos</a>
       <a href="#faq">Preguntas</a>
       <a class="btn btn--primary" href="#empezar">Hagámoslo con IA</a>
     </div>
@@ -590,9 +594,6 @@ section{scroll-margin-top:80px;}
   </div>
 </section>
 
-<!-- 2 · ENFÓCATE EN TU NÚCLEO -->
-
-
 <!-- 2 · ENFÓCATE EN TU NÚCLEO (slide 6 de la propuesta) -->
 <section class="orb-sec" id="enfoque" aria-label="Núcleo de negocio y responsabilidades secundarias">
   <div class="ff-container"><div class="sec__head center reveal orb-head">
@@ -634,19 +635,6 @@ section{scroll-margin-top:80px;}
   <div class="waves" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
 </section>
 
-<section class="sec" style="padding-top:clamp(30px,4vw,50px)">
-  <div class="ff-container">
-    <div class="pain reveal">
-      <img src="img/dolor.webp" alt="Dueña de una tienda revisando a mano recibos e inventario entre cajas" width="1400" height="787" loading="lazy">
-      <div class="pain__txt">
-        <h3>¿Tu día se va en cuentas, mensajes y pendientes?</h3>
-        <p>No es falta de ganas: el trabajo de fondo crece más rápido que tu negocio. FishFlow lo pone a trabajar en segundo plano para que la tecnología se sienta como lo que es, una ayuda concreta.</p>
-        <a class="btn btn--primary" href="#empezar" style="align-self:flex-start">Quiero recuperar mi tiempo</a>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- 3 · SOLUCIONES -->
 <section class="sec sec--ice" id="soluciones">
   <div class="ff-container">
@@ -657,9 +645,9 @@ section{scroll-margin-top:80px;}
     </div>
     <div class="ff-grid ff-grid--md">
       <article class="card sol reveal"><div class="sol__ico"><svg class="ico"><use href="#i-globe"/></svg></div><span class="sol__tag">Sitio web</span><h3>Tu sitio trae clientes, no solo visitas.</h3><p>A tu marca, en Google y con cada prospecto clasificado por IA en tu panel.</p></article>
-      <article class="card sol reveal"><div class="sol__ico"><svg class="ico"><use href="#i-mega"/></svg></div><span class="sol__tag">Redes sociales</span><h3>Tus redes hacen su contenido.</h3><p>Publicaciones programadas en Facebook e Instagram y reseñas de Google pedidas en automático.</p></article>
-      <article class="card sol reveal"><div class="sol__ico"><svg class="ico"><use href="#i-cal"/></svg></div><span class="sol__tag">Citas y calendario</span><h3>Tus citas se confirman solas.</h3><p>Agenda en línea 24/7, recordatorios por WhatsApp y llamada con voz IA que confirma o reagenda.</p></article>
-      <article class="card sol reveal"><div class="sol__ico"><svg class="ico"><use href="#i-box"/></svg></div><span class="sol__tag">Inventario</span><h3>El inventario se hace solo.</h3><p>Punto de venta, existencias en tiempo real y alertas antes de quedarte sin producto.</p></article>
+      <article class="card sol reveal"><div class="sol__ico"><svg class="ico"><use href="#i-mega"/></svg></div><span class="sol__tag">Redes sociales</span><h3>Publicaciones y reseñas en automático.</h3><p>Publicaciones programadas en Facebook e Instagram y reseñas de Google pedidas en automático.</p></article>
+      <article class="card sol reveal"><div class="sol__ico"><svg class="ico"><use href="#i-cal"/></svg></div><span class="sol__tag">Citas y calendario</span><h3>Agenda y recordatorios por WhatsApp.</h3><p>Agenda en línea 24/7, recordatorios por WhatsApp y llamada con voz IA que confirma o reagenda.</p></article>
+      <article class="card sol reveal"><div class="sol__ico"><svg class="ico"><use href="#i-box"/></svg></div><span class="sol__tag">Inventario</span><h3>Existencias en tiempo real.</h3><p>Punto de venta, existencias en tiempo real y alertas antes de quedarte sin producto.</p></article>
       <article class="card sol reveal"><div class="sol__ico"><svg class="ico"><use href="#i-calc"/></svg></div><span class="sol__tag">Contabilidad y operación</span><h3>Tus números, siempre al día.</h3><p>Facturación CFDI conectada a tus cobros y un tablero con lo que importa.</p></article>
       <article class="card sol reveal"><div class="sol__ico"><svg class="ico"><use href="#i-cart"/></svg></div><span class="sol__tag">Tienda en línea</span><h3>Vende y cobra mientras atiendes.</h3><p>Pagos con tarjeta, OXXO y MercadoPago, con recibo automático al cliente.</p></article>
       <article class="card sol reveal"><div class="sol__ico"><svg class="ico"><use href="#i-head"/></svg></div><span class="sol__tag">Atención al cliente</span><h3>Nadie se queda sin respuesta.</h3><p>Avisos, seguimiento y respuestas sugeridas por IA para contestar en minutos.</p></article>
@@ -686,10 +674,7 @@ section{scroll-margin-top:80px;}
       </div>
       <p class="rail-hint">Desliza para ver los cinco giros →</p>
     </div>
-    <div class="formula reveal">
-      <q>Tus pendientes se resuelven solos. Tú enfócate en lo que te hace distinto.</q>
-      <small>Imágenes ilustrativas</small>
-    </div>
+    <div class="formula"><small>Imágenes ilustrativas</small></div>
   </div>
 </section>
 
@@ -708,7 +693,7 @@ section{scroll-margin-top:80px;}
         <div class="card step reveal"><div class="step__n">3</div><h3>Trabaja solo y mejora</h3><p>Funciona en segundo plano y la afinamos mes con mes con reportes claros.</p></div>
       </div>
       <div class="hub hub--light reveal" aria-hidden="true"><span class="hub__line hub__line--l"></span><div class="hub__core"><img src="/logo-vertical.svg" alt="" width="885" height="640"></div><span class="hub__line hub__line--r"></span></div>
-    <form class="lead js-lead reveal" novalidate>
+    <form class="lead js-lead reveal" id="empezar" novalidate>
       <h3>Paso 1: cuéntanos tu caso</h3>
       <div class="lead__row">
         <label>Tu nombre<input name="name" type="text" required autocomplete="name" placeholder="María López"></label>
@@ -729,16 +714,9 @@ section{scroll-margin-top:80px;}
 <section class="sec" id="resultados">
   <div class="ff-container">
     <div class="sec__head reveal">
-      <span class="eyebrow">Resultados</span>
+      <span class="eyebrow">Casos reales</span>
       <h2 class="h2">Lo que cambia cuando <span class="c">la operación fluye.</span></h2>
     </div>
-    <div class="benefits">
-      <div class="benefit reveal"><svg class="ico"><use href="#i-clock"/></svg><b>Tiempo de vuelta</b><p>Horas a la semana que regresan a tu oficio.</p></div>
-      <div class="benefit reveal"><svg class="ico"><use href="#i-layers"/></svg><b>Todo en orden</b><p>Clientes, citas y números en un solo lugar.</p></div>
-      <div class="benefit reveal"><svg class="ico"><use href="#i-smile"/></svg><b>Mejor experiencia</b><p>Tus clientes reciben respuesta y seguimiento a tiempo.</p></div>
-      <div class="benefit reveal"><svg class="ico"><use href="#i-trend"/></svg><b>Crecimiento</b><p>Más visibilidad, más prospectos y decisiones con datos.</p></div>
-    </div>
-    <h3 class="cases-title reveal">Casos reales</h3>
     <div class="cases">
       <a class="card case reveal" href="/casos/cane-neurofeedback"><span class="case__logo" aria-hidden="true"><img src="img/logo-cane.webp" alt="" width="337" height="165" loading="lazy"></span><span class="case__ang">Presencia digital y reputación</span><h3>CANE · Neurofeedback</h3><p class="case__meta">Salud mental · Narvarte, CDMX</p><p class="case__sum">De no controlar ni su propia ficha de Google a tener sitio propio, tablero de reseñas y contenido publicándose solo.</p><div class="case__nums"><div><b>34</b><span>pacientes en cola de reseñas</span></div><div><b>12</b><span>posts programados</span></div><div><b>1</b><span>ficha de Google recuperada</span></div></div><span class="case__link">Ver el caso <svg class="ico"><use href="#i-arrow"/></svg></span></a>
       <a class="card case reveal" href="/casos/mario-citalan"><span class="case__logo" aria-hidden="true"><img src="img/logo-drmente.webp" alt="" width="134" height="136" loading="lazy"></span><span class="case__ang">IA que te devuelve horas</span><h3>Mario Citalán</h3><p class="case__meta">Formación y terapia · CDMX</p><p class="case__sum">Un WordPress viejo se convirtió en un ecosistema de captación completo, con la IA transcribiendo y resumiendo cada sesión.</p><div class="case__nums"><div><b>7</b><span>páginas del embudo</span></div><div><b>4</b><span>formularios con respuesta automática</span></div><div><b>0</b><span>notas de sesión a mano</span></div></div><span class="case__link">Ver el caso <svg class="ico"><use href="#i-arrow"/></svg></span></a>
@@ -812,31 +790,19 @@ section{scroll-margin-top:80px;}
 </section>
 
 <!-- 7 · CTA FINAL -->
-<section class="final" id="empezar">
-  <div class="ff-container final__in">
+<section class="final" id="cierre">
+  <div class="ff-container final__in final__in--c">
+    <div class="hub reveal" aria-hidden="true"><div class="hub__core"><img src="/logo-vertical.svg" alt="" width="885" height="640"></div></div>
     <div class="reveal">
-      <span class="eyebrow">Contáctanos</span>
       <h2>No lo pospongas.<br><span class="c">Hagámoslo</span> <span class="o">con IA.</span></h2>
-      <p>Cuéntanos qué te quita tiempo en tu negocio. Nuestra IA te responde en segundos con una primera propuesta y nosotros te contactamos para aterrizarla. Sin costo y sin compromiso.</p>
+      <p>Cuéntanos qué te quita tiempo y te respondemos en segundos con una primera propuesta. Sin costo y sin compromiso.</p>
       <div class="final__ctas">
+        <a class="btn btn--primary" href="#empezar">Hagámoslo con IA <svg class="ico"><use href="#i-arrow"/></svg></a>
         <a class="btn btn--light" href="https://wa.me/525610597851?text=Hola%20FishFlow%2C%20quiero%20automatizar%20mi%20negocio" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
       </div>
       <p class="final__small">O escribe a <a href="mailto:raf@fishflow.mx">raf@fishflow.mx</a></p>
+      <p class="final__slogan"><span class="c">Siempre</span> <span class="o">Adelante</span></p>
     </div>
-    <div class="hub reveal" aria-hidden="true"><span class="hub__line hub__line--l"></span><div class="hub__core"><img src="/logo-vertical.svg" alt="" width="885" height="640"></div><span class="hub__line hub__line--r"></span></div>
-    <form class="lead js-lead reveal" novalidate>
-      <h3>Cuéntanos tu caso</h3>
-      <div class="lead__row">
-        <label>Tu nombre<input name="name" type="text" required autocomplete="name" placeholder="María López"></label>
-        <label>Tu correo<input name="email" type="email" required autocomplete="email" placeholder="maria@minegocio.com"></label>
-      </div>
-      <label><span>WhatsApp <small>(opcional)</small></span><input name="phone" type="tel" autocomplete="tel" placeholder="55 1234 5678"></label>
-      <label>¿Qué te quita tiempo hoy?<textarea name="problem" required rows="4" placeholder="Ej. «Confirmo cada cita a mano por WhatsApp y aun así me fallan»"></textarea></label>
-      <div class="lead__hp" aria-hidden="true"><label>Deja este campo vacío<input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
-      <label class="lead__consent"><input name="consent" type="checkbox" required> <span>Acepto el <a href="/aviso-de-privacidad" target="_blank" rel="noopener">Aviso de Privacidad</a>.</span></label>
-      <button class="btn btn--primary" type="submit">Hagámoslo con IA <svg class="ico"><use href="#i-arrow"/></svg></button>
-      <p class="lead__msg" role="status" aria-live="polite"></p>
-    </form>
   </div>
   <div class="waves waves--dark" style="--wh:clamp(90px,11vw,160px)" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
 </section>
@@ -848,7 +814,7 @@ section{scroll-margin-top:80px;}
     <div class="foot__in">
       <img src="/logo-horizontal.svg" alt="FishFlow" width="143" height="30" style="filter:brightness(0) invert(1);opacity:.92">
       <nav class="foot__links" aria-label="Pie de página">
-        <a href="#soluciones">Soluciones</a><a href="#industrias">Industrias</a><a href="#resultados">Resultados</a><a href="#inversion">Inversión</a><a href="/aviso-de-privacidad">Privacidad</a>
+        <a href="#soluciones">Soluciones</a><a href="#industrias">Industrias</a><a href="#resultados">Casos</a><a href="#inversion">Inversión</a><a href="/aviso-de-privacidad">Privacidad</a>
       </nav>
     </div>
     <div class="foot__bottom">
