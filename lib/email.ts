@@ -54,7 +54,14 @@ export const SENDERS = {
 
   cane: 'CANE Neurofeedback <raf@fishflow.mx>',
   sieckvet: 'SieckVet <noreply@fishflow.mx>',
-  enlace: 'Enlace Integral Seguros <recibos@fishflow.mx>',
+  /**
+   * Enlace Integral — dominio propio verificado en Resend
+   * (`enlaceintegralseguros.com`, 18-sep-2026; DMARC p=none desde 20-oct-2026).
+   * El `.com` no tiene buzón (el correo real vive en el `.com.mx`), así que
+   * todas las rutas DEBEN mandar `replyTo` a un buzón real (ENLACE_DEFAULT_TO
+   * o el correo del prospecto).
+   */
+  enlace: 'Enlace Integral Seguros <recibos@enlaceintegralseguros.com>',
   rmz: 'Cocinas y Closets RMZ <recibos@fishflow.mx>',
   /** Los Aguachiles (Chiva) — aviso interno de pedido nuevo. Sin dominio propio aún. */
   aguachiles: 'Los Aguachiles <noreply@fishflow.mx>',
