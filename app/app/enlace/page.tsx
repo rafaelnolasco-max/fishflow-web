@@ -12,6 +12,7 @@ import {
 } from "@/components/dashboard";
 import ReviewsTab from "./ReviewsTab";
 import CandidatasTab from "./CandidatasTab";
+import CampanasTab from "./CampanasTab";
 import { ladaInfo } from "@/lib/ladas";
 
 // ─── Paleta Enlace Integral (verde + carbón) ──────────────────────────────────
@@ -177,7 +178,7 @@ export default function EnlaceDashboardPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"meta" | "avatar">("meta");
-  const [mainTab, setMainTab] = useState<"captura" | "prospectos" | "resenas" | "candidatas">("prospectos");
+  const [mainTab, setMainTab] = useState<"captura" | "prospectos" | "resenas" | "candidatas" | "campanas">("prospectos");
   const [leads, setLeads] = useState<Lead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
 
@@ -432,6 +433,7 @@ export default function EnlaceDashboardPage() {
                 id === "prospectos" ? "prospectos"
                 : id === "resenas" ? "resenas"
                 : id === "candidatas" ? "candidatas"
+                : id === "campanas" ? "campanas"
                 : "captura"
               )
             }
@@ -439,6 +441,7 @@ export default function EnlaceDashboardPage() {
               { id: "prospectos", label: `Prospectos${leads.length ? ` (${leads.length})` : ""}`, icon: "🎯" },
               { id: "captura", label: "Captura Top 20", icon: "📋" },
               { id: "candidatas", label: `Candidatas${candidatasCount ? ` (${candidatasCount})` : ""}`, icon: "👥" },
+              { id: "campanas", label: "Campañas", icon: "✉️" },
               { id: "resenas", label: "Reseñas", icon: "⭐" },
             ]}
           />
@@ -844,6 +847,8 @@ export default function EnlaceDashboardPage() {
       )}
 
       {mainTab === "candidatas" && <CandidatasTab />}
+
+      {mainTab === "campanas" && <CampanasTab />}
 
       {mainTab === "resenas" && <ReviewsTab />}
       </main>

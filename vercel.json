@@ -23,6 +23,10 @@
     {
       "path": "/api/cron/uptime/",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/campanas/",
+      "schedule": "0 16 * * 1-5"
     }
   ]
 }
