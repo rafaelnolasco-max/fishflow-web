@@ -59,6 +59,7 @@ export default async function Page({ params }: { params: Promise<{ token: string
           tag: it.tag,
           asunto: it.asunto,
           nota: it.nota,
+          v: it.v,
           html: renderItemHtml(review, it),
         }))}
         comentariosIniciales={comments}

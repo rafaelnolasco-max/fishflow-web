@@ -6,7 +6,7 @@
 // Marca FishFlow alrededor: barra oscura, papel, naranja y etiquetas en mono.
 
 import { useEffect, useMemo, useState } from "react";
-import type { ReviewComment, Verdict } from "@/lib/contentReview";
+import { itemState, type ReviewComment, type Verdict } from "@/lib/contentReview";
 
 interface Pieza {
   id: string;
@@ -16,6 +16,7 @@ interface Pieza {
   tag?: string;
   asunto?: string;
   nota?: string;
+  v?: number;
   html: string;
 }
 
@@ -43,7 +44,9 @@ const CSS = `
 .rv-t{font-size:17px;font-weight:600;margin:0}.rv-sub{font-size:13px;color:#6B7B82;margin-top:2px}
 .rv-tag{display:inline-block;margin-top:8px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#0E2A36;background:#F4F1EA;padding:4px 8px;border-radius:4px}
 .rv-st{margin-left:auto;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:5px 9px;border-radius:999px;white-space:nowrap}
-.rv-st.ok{background:#E3F5EA;color:#1E7A45}.rv-st.cam{background:#FDEBDD;color:#B4500F}.rv-st.pen{background:#EEF0F1;color:#6B7B82}
+.rv-st.ok{background:#E3F5EA;color:#1E7A45}.rv-st.aj{background:#E2F2F8;color:#0B6E8F}
+.rv-aj{margin-top:6px;font-size:13.5px;color:#0B6E8F;background:#EEF7FA;border-radius:6px;padding:6px 10px}
+.rv-v{display:inline-block;margin-left:8px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#0B6E8F}.rv-st.cam{background:#FDEBDD;color:#B4500F}.rv-st.pen{background:#EEF0F1;color:#6B7B82}
 .rv-nota{margin:0 20px 12px;background:#FFF6E5;border:1px solid #F1DDB3;border-radius:8px;padding:9px 12px;font-size:13.5px}
 .rv-asunto{margin:0 20px;padding:10px 14px;background:#F4F1EA;border-radius:8px 8px 0 0;font-size:13.5px;border:1px solid #E5E1D6;border-bottom:none}
 .rv-asunto b{color:#0E2A36}
@@ -141,10 +144,7 @@ export default function Revision(props: {
     return m;
   }, [comentarios]);
 
-  const estado = (id: string): Verdict | null => {
-    const hilo = (porPieza[id] ?? []).filter((c) => c.verdict !== "comentario");
-    return hilo.length ? hilo[hilo.length - 1].verdict : null;
-  };
+  const estado = (id: string) => itemState(comentarios, id);
   const aprobadas = piezas.filter((p) => estado(p.id) === "aprobado").length;
 
   async function enviar(itemId: string | null, verdict: Verdict) {
@@ -185,6 +185,9 @@ export default function Revision(props: {
             {c.author} · {ETIQ[c.verdict]} · {fecha(c.created_at)}
           </div>
           {c.body}
+          {c.resolved_at ? (
+            <div className="rv-aj">✓ Ajustado{c.resolution_note ? `: ${c.resolution_note}` : ""}</div>
+          ) : null}
         </div>
       ))}
     </div>
@@ -277,12 +280,15 @@ export default function Revision(props: {
               <div className="rv-card-h">
                 <div className="rv-n">{p.n ?? ""}</div>
                 <div style={{ minWidth: 0 }}>
-                  <h3 className="rv-t">{p.titulo}</h3>
+                  <h3 className="rv-t">
+                    {p.titulo}
+                    {p.v && p.v > 1 ? <span className="rv-v rv-mono">Versión {p.v}</span> : null}
+                  </h3>
                   {p.subtitulo ? <div className="rv-sub">{p.subtitulo}</div> : null}
                   {p.tag ? <div className="rv-tag rv-mono">{p.tag}</div> : null}
                 </div>
-                <span className={`rv-st rv-mono ${st === "aprobado" ? "ok" : st === "cambios" ? "cam" : "pen"}`}>
-                  {st === "aprobado" ? "Aprobado" : st === "cambios" ? "Con cambios" : "Pendiente"}
+                <span className={`rv-st rv-mono ${st === "aprobado" ? "ok" : st === "cambios" ? "cam" : st === "ajustado" ? "aj" : "pen"}`}>
+                  {st === "aprobado" ? "Aprobado" : st === "cambios" ? "Con cambios" : st === "ajustado" ? "Ajustado · por aprobar" : "Pendiente"}
                 </span>
               </div>
               {p.nota ? <div className="rv-nota">⚠ {p.nota}</div> : null}

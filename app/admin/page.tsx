@@ -12,6 +12,7 @@ import PublicacionesTab from './PublicacionesTab'
 import WhatsAppTab, { useWhatsAppPending } from './WhatsAppTab'
 import ResenasTab from './ResenasTab'
 import FacturacionTab from './FacturacionTab'
+import RevisionesTab from './RevisionesTab'
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -140,7 +141,15 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 
 export default function CRMPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads' | 'publicaciones' | 'whatsapp' | 'resenas' | 'facturacion'>('crm')
+  const [activeTab, setActiveTab] = useState<'crm' | 'cobros' | 'leads' | 'publicaciones' | 'whatsapp' | 'resenas' | 'facturacion' | 'revisiones'>('crm')
+
+  // ?tab=revisiones: el panel de una revisión regresa directo a su pestaña.
+  useEffect(() => {
+    try {
+      const t = new URLSearchParams(window.location.search).get('tab')
+      if (t === 'revisiones') setActiveTab('revisiones')
+    } catch { /* sin URL */ }
+  }, [])
   const waPending = useWhatsAppPending()
 
   // ── CRM state ──────────────────────────────────────────────────────────────
@@ -459,6 +468,9 @@ export default function CRMPage() {
           </button>
           <button className={`ff-tab ${activeTab === 'facturacion' ? 'active' : ''}`} onClick={() => setActiveTab('facturacion')}>
             🧾 Facturación
+          </button>
+          <button className={`ff-tab ${activeTab === 'revisiones' ? 'active' : ''}`} onClick={() => setActiveTab('revisiones')}>
+            📝 Revisiones
           </button>
         </div>
         {activeTab === 'crm' && (
@@ -856,6 +868,7 @@ export default function CRMPage() {
       {activeTab === 'whatsapp' && <div className="ff-tab-pane"><WhatsAppTab /></div>}
       {activeTab === 'resenas' && <ResenasTab />}
       {activeTab === 'facturacion' && <div className="ff-tab-pane"><FacturacionTab /></div>}
+      {activeTab === 'revisiones' && <RevisionesTab />}
 
       {/* ── Modal CRM ─────────────────────────────────────────────────────── */}
       {modal.open && (

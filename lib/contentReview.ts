@@ -22,6 +22,9 @@ export interface ReviewItem {
   html: string;
   /** Aviso amarillo sobre la pieza (datos por confirmar, etc.). */
   nota?: string;
+  /** Versión de la pieza: sube cada vez que la ajustamos tras comentarios. */
+  v?: number;
+  ajustada_at?: string;
 }
 
 export interface ContentReview {
@@ -38,6 +41,7 @@ export interface ContentReview {
   status: "open" | "closed";
   expires_at: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export type Verdict = "aprobado" | "cambios" | "comentario";
@@ -49,6 +53,13 @@ export interface ReviewComment {
   verdict: Verdict;
   body: string;
   created_at: string;
+  resolved_at: string | null;
+  resolution_note: string | null;
+}
+
+/** Comentario que todavía pide trabajo de nuestro lado. */
+export function isPending(c: Pick<ReviewComment, "verdict" | "resolved_at">): boolean {
+  return c.verdict !== "aprobado" && !c.resolved_at;
 }
 
 /** Tope defensivo por revisión: sin cuenta, nada impide que alguien spamee. */
@@ -83,7 +94,7 @@ export async function loadReviewByToken(supabase: SupabaseClient, token: string)
 export async function loadComments(supabase: SupabaseClient, reviewId: string): Promise<ReviewComment[]> {
   const { data } = await supabase
     .from("content_review_comments")
-    .select("id,item_id,author,verdict,body,created_at")
+    .select("id,item_id,author,verdict,body,created_at,resolved_at,resolution_note")
     .eq("review_id", reviewId)
     .order("created_at", { ascending: true });
   return (data ?? []) as ReviewComment[];
@@ -93,4 +104,29 @@ export async function loadComments(supabase: SupabaseClient, reviewId: string): 
 export function renderItemHtml(review: Pick<ContentReview, "shell_html">, item: ReviewItem): string {
   if (!review.shell_html) return item.html;
   return review.shell_html.replace("{{contenido}}", item.html);
+}
+
+export type ItemState = "aprobado" | "cambios" | "ajustado" | "pendiente";
+
+/**
+ * Estado de cada pieza según su hilo: el último veredicto manda; si pidieron
+ * cambios y ya resolvimos todo lo pendiente, queda "ajustado" (por re-aprobar).
+ */
+export function itemState(comments: Pick<ReviewComment, "item_id" | "verdict" | "resolved_at">[], itemId: string): ItemState {
+  const hilo = comments.filter((c) => c.item_id === itemId);
+  const votos = hilo.filter((c) => c.verdict !== "comentario");
+  const ultimo = votos[votos.length - 1];
+  if (!ultimo) return hilo.some(isPending) ? "cambios" : "pendiente";
+  if (ultimo.verdict === "aprobado") return "aprobado";
+  return hilo.some(isPending) ? "cambios" : "ajustado";
+}
+
+export function reviewStats(
+  items: Pick<ReviewItem, "id">[],
+  comments: Pick<ReviewComment, "item_id" | "verdict" | "resolved_at" | "created_at">[],
+) {
+  const aprobadas = items.filter((i) => itemState(comments, i.id) === "aprobado").length;
+  const pendientes = comments.filter(isPending).length;
+  const ultimo = comments.reduce<string | null>((m, c) => (!m || c.created_at > m ? c.created_at : m), null);
+  return { piezas: items.length, aprobadas, pendientes, comentarios: comments.length, ultimo };
 }
