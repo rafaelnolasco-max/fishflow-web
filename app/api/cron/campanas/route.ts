@@ -1,6 +1,7 @@
 // Cron de campañas: cada día hábil manda la siguiente tanda (daily_limit) de
 // cada campaña en status 'sending'. Cuando ya no queda nadie por enviar, la
 // marca 'done'. Pausar = poner status 'paused' en la base.
+// Tope duro: daily_limit por campaña en cualquier ventana de 20 h.
 //
 // Un correo por destinatario, nunca en copia. Reply-To al buzón real de la
 // asesora; List-Unsubscribe para que Gmail ofrezca la baja de un clic.
@@ -32,6 +33,20 @@ async function handler(req: Request) {
   const resumen: Record<string, { enviados: number; errores: number }> = {};
 
   for (const c of campañas ?? []) {
+    // El ritmo vive en la base, no en quién llama: aunque el endpoint se dispare
+    // varias veces, nunca salen más de daily_limit en 20 horas por campaña.
+    const desde = new Date(Date.now() - 20 * 3600 * 1000).toISOString();
+    const { count: recientes } = await db
+      .from("campaign_recipients")
+      .select("id", { count: "exact", head: true })
+      .eq("campaign_id", c.id)
+      .gte("sent_at", desde);
+    const cupo = Math.max(0, c.daily_limit - (recientes ?? 0));
+    if (cupo === 0) {
+      resumen[c.name] = { enviados: 0, errores: 0 };
+      continue;
+    }
+
     const { data: lote } = await db
       .from("campaign_recipients")
       .select("id,name,email,subject,html,from_name,reply_to,stage")
@@ -40,7 +55,7 @@ async function handler(req: Request) {
       .is("unsubscribed_at", null)
       .neq("stage", "baja")
       .order("created_at", { ascending: true })
-      .limit(c.daily_limit);
+      .limit(cupo);
 
     let enviados = 0;
     let errores = 0;
