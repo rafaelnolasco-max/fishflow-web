@@ -238,6 +238,11 @@ export async function processPayment(ev: EvtEvent, paymentId: string): Promise<{
   const { error: uErr } = await sbAdmin.from('evt_orders').update(upd).eq('id', o.id)
   if (uErr) { console.error('[eventos] update orden:', uErr); return { ok: false, reason: 'db' } }
 
+  // Rechazo nuevo (no el mismo pago reprocesado): aviso por correo al organizador
+  if (status === 'failed' && (o.status !== 'failed' || o.mp_payment_id !== String(paymentId))) {
+    try { await sendRejectionNotice(ev, o, pay.status_detail ?? null) } catch (e) { console.error('[eventos] aviso rechazo:', e) }
+  }
+
   if (status === 'paid') {
     const { data: tickets, error: tErr } = await sbAdmin.rpc('evt_issue_tickets', { p_order: o.id })
     if (tErr) { console.error('[eventos] issue tickets:', tErr); return { ok: false, reason: 'emitir' } }
@@ -344,6 +349,90 @@ async function sendTicketEmails(ev: EvtEvent, o: EvtOrder, tickets: EvtTicket[])
       tag: `eventos/${ev.slug}/aviso`,
     })
   }
+}
+
+// ── Aviso de pago rechazado (organizador) ────────────────────────────────────
+const MOTIVO_RECHAZO: Record<string, string> = {
+  cc_rejected_high_risk: 'Antifraude de Mercado Pago (riesgo alto)',
+  cc_rejected_insufficient_amount: 'Fondos insuficientes',
+  cc_rejected_bad_filled_security_code: 'CVV incorrecto',
+  cc_rejected_bad_filled_date: 'Fecha de vencimiento incorrecta',
+  cc_rejected_bad_filled_card_number: 'Número de tarjeta incorrecto',
+  cc_rejected_bad_filled_other: 'Datos de tarjeta incorrectos',
+  cc_rejected_call_for_authorize: 'El banco pide autorizar el pago',
+  cc_rejected_card_disabled: 'Tarjeta desactivada',
+  cc_rejected_duplicated_payment: 'Pago duplicado',
+  cc_rejected_max_attempts: 'Demasiados intentos con la tarjeta',
+  cc_rejected_blacklist: 'Tarjeta bloqueada por Mercado Pago',
+  cc_rejected_card_error: 'Error de la tarjeta',
+  cc_rejected_other_reason: 'El banco rechazó el pago',
+  rejected_by_bank: 'El banco rechazó el pago',
+}
+
+async function sendRejectionNotice(ev: EvtEvent, o: EvtOrder, detail: string | null) {
+  if (!ev.notify_emails?.length) return
+  const copy = EVENT_COPY[ev.slug]
+  const ui = emailUI(copy?.marca ?? 'vibramx')
+  const motivo = (detail && MOTIVO_RECHAZO[detail]) || detail || 'sin detalle'
+  const sugerencia = detail === 'cc_rejected_high_risk'
+    ? 'Sugerencia: que divida la compra en órdenes más chicas (3 a 5 boletos) y pague el titular de la tarjeta desde su celular, de preferencia con su cuenta de Mercado Pago abierta. No se le cobró nada.'
+    : 'No se le cobró nada. Puede intentar de nuevo con otra tarjeta.'
+  const html = ui.layout({
+    audiencia: 'interno',
+    preheader: `${o.qty} boleto(s) · ${fmt(Number(o.total))} · ${motivo}`,
+    etiqueta: 'Pago rechazado',
+    titulo: `${o.buyer_name} no pudo pagar`,
+    cuerpo: ui.tabla([
+      ['Motivo', motivo],
+      ['Comprador', o.buyer_name],
+      ['Correo', o.buyer_email],
+      ['WhatsApp', o.buyer_phone],
+      ['Boletos', String(o.qty)],
+      ['Total', fmt(Number(o.total))],
+      ['Coach', o.coach_code],
+    ]) + ui.p(sugerencia),
+  })
+  await sendEmail({
+    from: 'vibramx',
+    to: ev.notify_emails,
+    subject: `Pago rechazado ${ev.name}: ${o.buyer_name} · ${o.qty} boleto(s) · ${motivo}`,
+    html,
+    tag: `eventos/${ev.slug}/rechazo`,
+  })
+}
+
+// ── Conciliación con Mercado Pago (red de seguridad del webhook) ─────────────
+/**
+ * Busca en MP los pagos de las órdenes que siguen pendientes o fallidas (48 h) y
+ * de las pagadas a las que no se les mandó correo, y las procesa. Cubre los
+ * webhooks que MP no manda o que se pierden. La corre /api/cron/eventos-conciliar.
+ */
+export async function reconcileEvent(ev: EvtEvent): Promise<{ revisadas: number; corregidas: { orden: string; comprador: string; antes: string; ahora: string; pago: string }[] }> {
+  const mp = mpConfig(ev)
+  if (!mp) return { revisadas: 0, corregidas: [] }
+  const since = new Date(Date.now() - 48 * 3600 * 1000).toISOString()
+  const { data } = await sbAdmin
+    .from('evt_orders').select('*').eq('event_id', ev.id)
+    .or(`and(status.in.(pending,failed),created_at.gte.${since}),and(status.eq.paid,email_sent_at.is.null)`)
+  const orders = (data ?? []) as EvtOrder[]
+  const corregidas: { orden: string; comprador: string; antes: string; ahora: string; pago: string }[] = []
+
+  for (const o of orders) {
+    let results: { id?: string | number; status?: string; date_created?: string }[] = []
+    try {
+      const r = await new Payment(mp).search({ options: { external_reference: o.id, sort: 'date_created', criteria: 'desc' } })
+      results = r.results ?? []
+    } catch (e) { console.error('[eventos/conciliar] search', o.id, e); continue }
+    if (!results.length) continue
+    const best = results.find((p) => p.status === 'approved') ?? results[0]
+    const pid = String(best.id)
+    const yaIgual = o.mp_payment_id === pid && o.status === mapStatus(best.status) && !(o.status === 'paid' && !o.email_sent_at)
+    if (yaIgual) continue
+    const r = await processPayment(ev, pid)
+    if (!r.ok) { console.error('[eventos/conciliar] processPayment', o.id, pid, r); continue }
+    corregidas.push({ orden: o.id, comprador: o.buyer_name, antes: o.status + (o.status === 'paid' && !o.email_sent_at ? ' sin correo' : ''), ahora: r.status ?? '?', pago: pid })
+  }
+  return { revisadas: orders.length, corregidas }
 }
 
 /** Boletos de una orden con su QR, para la página "Mis boletos". */

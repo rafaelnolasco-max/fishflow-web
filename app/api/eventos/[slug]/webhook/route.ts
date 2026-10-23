@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHmac } from 'crypto'
 import { getEvent, mpWebhookSecret, processPayment } from '@/lib/eventos'
-import { withSlackAlert } from '@/lib/slack'
+import { notifySlack, withSlackAlert } from '@/lib/slack'
 
 export const runtime = 'nodejs'
 
@@ -36,10 +36,19 @@ async function handler(req: NextRequest, ctx: { params: Promise<{ slug: string }
     url.searchParams.get('data.id') ?? (body.data as { id?: string } | undefined)?.id ?? url.searchParams.get('id') ?? ''
   )
 
+  // Bitácora de todo lo que llega de MP (para rastrear avisos perdidos)
+  console.log(`[eventos/webhook] ${slug} llegó type=${type ?? '-'} id=${dataId || '-'} sig=${req.headers.get('x-signature') ? 'sí' : 'no'}`)
+
   if (type !== 'payment' || !dataId) return NextResponse.json({ received: true, skipped: true })
 
-  if (!signatureOk(req, url.searchParams.get('data.id') ?? dataId, mpWebhookSecret(ev)))
+  if (!signatureOk(req, url.searchParams.get('data.id') ?? dataId, mpWebhookSecret(ev))) {
+    console.warn(`[eventos/webhook] ${slug} firma inválida pago ${dataId}`)
+    await notifySlack('alertas', {
+      text: `webhook eventos (${slug}): firma inválida de Mercado Pago`,
+      body: `Pago ${dataId}. Se rechazó con 401; la conciliación cada 10 min lo recoge igual. Si se repite, revisar MP_${ev.mp_env}_WEBHOOK_SECRET contra la clave secreta del webhook en el panel de MP.`,
+    })
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+  }
 
   const r = await processPayment(ev, dataId)
   console.log(`[eventos/webhook] ${slug} pago ${dataId} →`, r)
