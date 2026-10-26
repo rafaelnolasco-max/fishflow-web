@@ -1,7 +1,7 @@
 // Cron de campañas: cada día hábil manda la siguiente tanda (daily_limit) de
 // cada campaña en status 'sending'. Cuando ya no queda nadie por enviar, la
 // marca 'done'. Pausar = poner status 'paused' en la base.
-// Tope duro: daily_limit por campaña en cualquier ventana de 20 h.
+// Tope duro: daily_limit por campaña por día calendario de CDMX.
 //
 // Un correo por destinatario, nunca en copia. Reply-To al buzón real de la
 // asesora; List-Unsubscribe para que Gmail ofrezca la baja de un clic.
@@ -16,6 +16,13 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 const pausa = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Medianoche de hoy en Ciudad de México (UTC-6, sin horario de verano desde 2022), en ISO. */
+function inicioDelDiaCDMX(): string {
+  const ahora = new Date(Date.now() - 6 * 3600 * 1000);
+  const d = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate(), 6, 0, 0));
+  return d.toISOString();
+}
 
 async function handler(req: Request) {
   const secret = process.env.CRON_SECRET;
@@ -34,8 +41,8 @@ async function handler(req: Request) {
 
   for (const c of campañas ?? []) {
     // El ritmo vive en la base, no en quién llama: aunque el endpoint se dispare
-    // varias veces, nunca salen más de daily_limit en 20 horas por campaña.
-    const desde = new Date(Date.now() - 20 * 3600 * 1000).toISOString();
+    // varias veces, nunca salen más de daily_limit por día (calendario de CDMX).
+    const desde = inicioDelDiaCDMX();
     const { count: recientes } = await db
       .from("campaign_recipients")
       .select("id", { count: "exact", head: true })
