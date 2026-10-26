@@ -298,7 +298,7 @@ export async function POST(req: Request) {
       //    es opcional, así que esto NO cubre a todos. Falla en silencio: si el
       //    acuse rebota, el lead ya quedó guardado y Enlace ya fue avisada.
       if (email && !repetido) {
-        const wa = `https://wa.me/5215516859769?text=${encodeURIComponent(
+        const wa = `https://wa.me/5215570475147?text=${encodeURIComponent(
           `Hola, soy ${nombre}. Acabo de llenar el cuestionario y me interesa el ${plan}.`
         )}`
         const { error: ackErr } = await resend.emails.send({
