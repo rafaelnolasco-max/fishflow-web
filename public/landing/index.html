@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FishFlow · Siempre Adelante — Automatización con IA para tu negocio</title>
+<meta name="description" content="FishFlow automatiza tu negocio con IA: citas, cobros, seguimiento a clientes y reportes en tiempo real. Diagnóstico con IA sin costo y cotización a la medida." />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<link rel="canonical" href="https://fishflow.mx/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="FishFlow" />
+<meta property="og:locale" content="es_MX" />
+<meta property="og:url" content="https://fishflow.mx/" />
+<meta property="og:title" content="FishFlow · Siempre Adelante" />
+<meta property="og:description" content="FishFlow automatiza tu negocio con IA: citas, cobros, seguimiento a clientes y reportes en tiempo real. Diagnóstico con IA sin costo y cotización a la medida." />
+<meta property="og:image" content="https://fishflow.mx/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="FishFlow · Siempre Adelante" />
+<meta name="twitter:description" content="FishFlow automatiza tu negocio con IA: citas, cobros, seguimiento a clientes y reportes en tiempo real. Diagnóstico con IA sin costo y cotización a la medida." />
+<meta name="twitter:image" content="https://fishflow.mx/og-image.png" />
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ProfessionalService", "name": "FishFlow", "description": "FishFlow automatiza tu negocio con IA: citas, cobros, seguimiento a clientes y reportes en tiempo real. Diagnóstico con IA sin costo y cotización a la medida.", "url": "https://fishflow.mx", "logo": "https://fishflow.mx/logo-horizontal.svg", "image": "https://fishflow.mx/og-image.png", "email": "raf@fishflow.mx", "telephone": "+525610597851", "areaServed": {"@type": "Country", "name": "México"}, "address": {"@type": "PostalAddress", "addressLocality": "Ciudad de México", "addressCountry": "MX"}, "slogan": "Siempre Adelante"}</script>
+<!-- Google Analytics 4 (propiedad FishFlow) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7HET91ETT5"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-7HET91ETT5');</script>
+<!-- Píxel de Meta "FishFlow Web" (portafolio 1380590380604942) -->
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1068939399187107');fbq('track','PageView');</script>
+<link rel="icon" href="/favicon.png" />
+<link rel="apple-touch-icon" href="/icons/icon-fishflow-180.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   1) RESPONSIVE BASE  ·  copia idéntica de demos/_template
+   ============================================================ */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1280px);margin-inline:auto;padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-tablewrap > table{min-width:var(--ff-tablemin,520px);}
+.ff-shell{display:grid;gap:var(--ff-gap,24px);align-items:start;grid-template-columns:var(--ff-side,260px) minmax(0,1fr);}
+.ff-shell--3{grid-template-columns:var(--ff-side,260px) minmax(0,1fr) var(--ff-right,300px);}
+.ff-h1{font-size:clamp(32px,5vw,64px);line-height:1.02;letter-spacing:-.02em;}
+.ff-h2{font-size:clamp(26px,3.6vw,46px);line-height:1.06;letter-spacing:-.02em;}
+.ff-lede{font-size:clamp(15px,1.4vw,19px);line-height:1.55;}
+@media(max-width:900px){ .ff-shell,.ff-shell--3{grid-template-columns:1fr;} }
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}
+
+/* ============================================================
+   2) TOKENS · FishFlow Web Brand Kit (07_Color_System + 08_UI_Style)
+   ============================================================ */
+:root{
+  --ff-cyan:#42C7E8; --ff-orange:#FF8A2A; --ff-navy:#083B4C; --ff-ink:#162632;
+  --ff-ice:#EEF9FC; --ff-cream:#FFF5EA; --ff-white:#FFFFFF;
+  /* derivados para texto pequeño con contraste AA */
+  --cyan-text:#0A7EA3; --orange-text:#C2560A; --muted:#4F6672; --line:rgba(8,59,76,.10);
+  --ff-gradient:linear-gradient(90deg,#42C7E8 0%,#42C7E8 45%,#FF8A2A 55%,#FF8A2A 100%);
+  --ff-radius-sm:14px; --ff-radius-md:24px; --ff-radius-lg:36px;
+  --ff-shadow:0 18px 50px rgba(8,59,76,.12);
+  --f-display:"Poppins",Arial,Helvetica,sans-serif;
+  --f-body:"Inter",Arial,Helvetica,sans-serif;
+  --ff-max:1200px;
+}
+body{font-family:var(--f-body);background:var(--ff-white);color:var(--ff-ink);-webkit-font-smoothing:antialiased;line-height:1.6;font-size:17px;}
+a{color:inherit;text-decoration:none;}
+h1,h2,h3,h4{font-family:var(--f-display);margin:0;color:var(--ff-navy);}
+h2{font-weight:700;} h3{font-weight:600;}
+p{margin:0;}
+ul.clean{list-style:none;margin:0;padding:0;}
+section{scroll-margin-top:80px;}
+.ico{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+:focus-visible{outline:3px solid var(--ff-cyan);outline-offset:3px;border-radius:8px;}
+
+.draft{background:var(--ff-navy);color:#fff;font-size:13px;text-align:center;padding:8px 16px;}
+.draft b{color:var(--ff-orange);}
+
+/* Botones (08_UI_Style) */
+.btn{font-family:var(--f-body);font-weight:600;font-size:16px;padding:.9rem 1.4rem;border-radius:999px;border:1.5px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s,border-color .15s;white-space:nowrap;}
+.btn:hover{transform:translateY(-1px);}
+.btn--primary{background:var(--ff-orange);color:#fff;box-shadow:0 12px 26px -12px rgba(255,138,42,.8);}
+.btn--primary:hover{background:#F57A16;}
+.btn--ghost{background:#fff;color:var(--ff-navy);border-color:rgba(8,59,76,.25);}
+.btn--ghost:hover{border-color:var(--ff-cyan);}
+.btn--light{background:transparent;color:#fff;border-color:rgba(255,255,255,.4);}
+.btn--light:hover{border-color:var(--ff-cyan);}
+.btn .ico{width:18px;height:18px;}
+
+/* Nav */
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.9);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);}
+.nav__in{display:flex;align-items:center;justify-content:space-between;gap:20px;height:70px;}
+.nav__logo img{height:34px;width:auto;}
+.nav__links{display:flex;gap:26px;font-size:15px;font-weight:500;color:var(--ff-ink);}
+.nav__links a:hover{color:var(--cyan-text);}
+.nav__cta{padding:.7rem 1.15rem;font-size:15px;}
+.burger{display:none;background:none;border:1px solid var(--line);border-radius:12px;width:44px;height:44px;align-items:center;justify-content:center;color:var(--ff-navy);cursor:pointer;}
+.mmenu{display:none;border-top:1px solid var(--line);background:#fff;padding:10px 0 18px;}
+.mmenu a{display:block;padding:13px 0;font-weight:600;border-bottom:1px solid var(--line);}
+.mmenu .btn{margin-top:16px;width:100%;}
+.mmenu.open{display:block;}
+@media(max-width:980px){.nav__links,.nav__cta{display:none;}.burger{display:inline-flex;}}
+
+/* Titulares */
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-body);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ff-navy);}
+.eyebrow::before{content:"";width:30px;height:4px;border-radius:4px;background:var(--ff-gradient);}
+.c{color:var(--ff-cyan);} .o{color:var(--ff-orange);}
+.h2{font-size:clamp(32px,4.4vw,54px);line-height:1.06;letter-spacing:-.02em;}
+.sec{position:relative;padding:clamp(72px,9vw,120px) 0;}
+.sec--ice{background:var(--ff-ice);}
+.sec--cream{background:var(--ff-cream);}
+.sec__head{max-width:780px;margin-bottom:clamp(34px,5vw,56px);}
+.sec__head h2{margin:16px 0 16px;}
+.sec__head p{color:var(--muted);font-size:clamp(17px,1.6vw,20px);}
+.center{text-align:center;margin-inline:auto;}
+.center .eyebrow{justify-content:center;}
+
+/* Ondas animadas (03_Brand_Elements/FishFlow_waves_blue_orange.svg)
+   Cada capa es una onda periódica que se desplaza en loop sin costura;
+   velocidades y direcciones distintas dan la sensación de agua en movimiento. */
+.waves{position:absolute;left:0;right:0;bottom:-1px;height:var(--wh,clamp(110px,13vw,190px));pointer-events:none;z-index:3;overflow:hidden;}
+.wave{position:absolute;left:0;right:0;bottom:0;background-repeat:repeat-x;background-position:0 100%;will-change:background-position;}
+.wave--cyan{height:100%;background-size:var(--w1,1400px) 100%;animation:wave-x 16s linear infinite, wave-y 7s ease-in-out infinite alternate;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2342C7E8'/%3E%3Cstop offset='1' stop-color='%2394E2F3'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 70 C400 0 400 0 800 70 C1200 140 1200 140 1600 70 L1600 200 L0 200Z' fill='url(%23g)'/%3E%3C/svg%3E");}
+.wave--orange{height:82%;background-size:var(--w2,1100px) 100%;animation:wave-x-rev 11s linear infinite, wave-y 5.5s ease-in-out -2s infinite alternate;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FF8A2A'/%3E%3Cstop offset='1' stop-color='%23FFB36B'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 80 C400 10 400 10 800 80 C1200 150 1200 150 1600 80 L1600 200 L0 200Z' fill='url(%23g)'/%3E%3C/svg%3E");}
+.wave--line{height:70%;background-size:var(--w3,1700px) 100%;animation:wave-x 22s linear infinite;opacity:.9;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cpath d='M0 60 C400 0 400 0 800 60 C1200 120 1200 120 1600 60' fill='none' stroke='%23FFFFFF' stroke-width='5'/%3E%3C/svg%3E");}
+.wave--front{height:52%;background-size:var(--w4,1600px) 100%;animation:wave-x-rev 26s linear infinite;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cpath d='M0 90 C400 30 400 30 800 90 C1200 150 1200 150 1600 90 L1600 200 L0 200Z' fill='%23FFFFFF'/%3E%3C/svg%3E");}
+.waves--dark .wave--front{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' preserveAspectRatio='none'%3E%3Cpath d='M0 90 C400 30 400 30 800 90 C1200 150 1200 150 1600 90 L1600 200 L0 200Z' fill='%23162632'/%3E%3C/svg%3E");}
+.waves--dark .wave--line{opacity:.35;}
+@keyframes wave-x{from{background-position-x:0}to{background-position-x:calc(-1 * var(--ww,1400px))}}
+@keyframes wave-x-rev{from{background-position-x:0}to{background-position-x:var(--ww,1100px)}}
+.wave--cyan{--ww:var(--w1,1400px);} .wave--orange{--ww:var(--w2,1100px);} .wave--line{--ww:var(--w3,1700px);} .wave--front{--ww:var(--w4,1600px);}
+@keyframes wave-y{from{transform:translateY(0)}to{transform:translateY(9%)}}
+@media(max-width:600px){.waves{--w1:700px;--w2:560px;--w3:850px;--w4:800px;}}
+@media(max-width:600px){.hero .waves{height:64px;}.hero .eyebrow::before{display:none;}}
+@media(prefers-reduced-motion:reduce){.wave{animation:none !important;}}
+
+/* Tarjetas (08_UI_Style) */
+.card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--ff-radius-md);box-shadow:var(--ff-shadow);padding:clamp(22px,3vw,32px);}
+
+/* Hero */
+/* Hero estilo Apple: texto centrado arriba y la escena de ondas a todo lo ancho
+   detrás, completa (sin recorte), que flota sola y se acerca al hacer scroll. */
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#F4FBFE 100%);--p:0;}
+.hero__in{position:relative;z-index:2;text-align:center;padding-top:clamp(56px,8vw,104px);max-width:920px;margin-inline:auto;}
+.hero .eyebrow{justify-content:center;}
+.hero__logo{width:clamp(120px,13vw,180px);height:auto;margin:clamp(22px,3vw,34px) auto 0;}
+.hero h1{font-size:clamp(50px,8.4vw,112px);line-height:.95;letter-spacing:-.035em;font-weight:800;margin-top:clamp(10px,1.4vw,18px);}
+.hero__value{font-family:var(--f-display);font-weight:600;font-size:clamp(21px,2.3vw,28px);line-height:1.3;color:var(--ff-navy);margin:24px 0 14px;}
+.hero__lede{color:var(--muted);max-width:620px;margin-inline:auto;font-size:clamp(17px,1.5vw,20px);}
+.hero__ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px;justify-content:center;}
+.hero__stage{position:relative;z-index:1;margin-top:calc(-1 * clamp(20px,9vw,150px));width:100%;}
+.hero__scene{position:relative;width:100%;aspect-ratio:16/9;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 26%,#000 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 26%,#000 100%);
+  transform:translateY(calc(var(--p) * -60px)) scale(calc(1 + var(--p) * .07));transform-origin:50% 60%;transition:transform .08s linear;}
+.hero__scene img{width:100%;height:100%;animation:float-scene 9s ease-in-out infinite alternate;}
+@keyframes float-scene{from{transform:translateY(0) scale(1)}to{transform:translateY(-14px) scale(1.025)}}
+.bub{position:absolute;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95),rgba(255,255,255,.25) 38%,rgba(66,199,232,.35) 70%,rgba(66,199,232,.08));
+  box-shadow:inset -4px -6px 12px rgba(66,199,232,.25);animation:bub 8s ease-in-out infinite alternate;}
+.bub--o{background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95),rgba(255,255,255,.25) 38%,rgba(255,138,42,.35) 70%,rgba(255,138,42,.08));box-shadow:inset -4px -6px 12px rgba(255,138,42,.25);}
+@keyframes bub{0%{transform:translate(0,0)}50%{transform:translate(8px,-22px)}100%{transform:translate(-6px,-40px)}}
+@media(max-width:600px){.hero__stage{margin-top:8px;}.hero__scene{-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 14%);mask-image:linear-gradient(180deg,transparent 0%,#000 14%);}.bub{display:none;}}
+@media(prefers-reduced-motion:reduce){.hero__scene,.hero__scene img,.bub{animation:none !important;transform:none !important;}}
+
+/* Clientes: logos reales */
+.clients{background:#fff;padding:clamp(34px,4vw,52px) 0 clamp(40px,5vw,64px);}
+.clients__lbl{display:block;text-align:center;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:22px;}
+.logos{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(12px,1.8vw,22px);max-width:1040px;margin-inline:auto;}
+.logos .logo-card{flex:0 1 calc(25% - 17px);}
+.logo-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:var(--ff-radius-md);padding:22px 16px 16px;min-height:150px;transition:transform .2s,box-shadow .2s,border-color .2s;}
+.logo-card:hover{transform:translateY(-3px);box-shadow:var(--ff-shadow);border-color:rgba(66,199,232,.45);}
+.logo-card__mark{height:76px;width:100%;display:flex;align-items:center;justify-content:center;}
+.logo-card__mark img{max-height:76px;width:auto;max-width:min(100%,190px);object-fit:contain;}
+.logo-card__mark img.blend{mix-blend-mode:multiply;}
+.logo-card__mark img.is-wide{max-height:50px;max-width:min(100%,170px);}
+.logo-card__name{font-size:13px;font-weight:600;color:var(--muted);text-align:center;line-height:1.3;}
+.lk-mark{display:inline-flex;align-items:center;gap:10px;font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:600;font-size:24px;letter-spacing:.14em;color:#0B0F14;}
+.lk-mark i{width:11px;height:11px;border-radius:50%;background:#C8FF3D;box-shadow:0 0 0 2px #0B0F14,0 0 0 6px rgba(200,255,61,.35);}
+.clients__more{text-align:center;margin-top:18px;font-size:14px;color:var(--muted);}
+@media(max-width:820px){.logos .logo-card{flex-basis:calc(50% - 8px);}}
+.case__logo{height:54px;display:flex;align-items:center;}
+.case__logo img{max-height:42px;width:auto;max-width:140px;}
+.case__logo img.is-wide{max-height:32px;}
+.case__logo .lk-mark{font-size:17px;}
+.case__logo .lk-mark i{width:8px;height:8px;}
+.vb-mark{white-space:nowrap;display:inline-flex;align-items:center;gap:9px;font-family:var(--f-display);font-weight:800;font-size:18px;letter-spacing:.04em;color:#0B0F14;}
+.vb-mark img{width:34px !important;height:34px !important;max-height:none !important;border-radius:9px;}
+
+/* Núcleo */
+/* Núcleo: la balanza al centro y dos columnas gemelas a los lados */
+/* Escena de la balanza: a todo lo ancho, de fondo, como el hero */
+.sec--stage{padding-top:0;}
+.stage{position:relative;overflow:hidden;min-height:clamp(560px,52vw,780px);display:flex;align-items:center;background:linear-gradient(180deg,#fff 0%,#FFFBF6 100%);--p:0;}
+.stage__scene{position:absolute;top:0;bottom:0;right:0;width:58%;z-index:0;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 14%,#000 34%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 14%,#000 34%);
+  transform:translateY(calc(var(--p) * -40px)) scale(calc(1.02 + var(--p) * .06));transform-origin:60% 60%;transition:transform .08s linear;}
+.stage__scene img{width:100%;height:100%;object-fit:cover;object-position:50% 70%;animation:float-scene 10s ease-in-out infinite alternate;}
+.stage__in{position:relative;z-index:2;width:100%;padding-block:clamp(60px,7vw,100px) clamp(110px,12vw,170px);}
+.stage__txt{max-width:min(470px,40vw);}
+.stage__txt .h2{font-size:clamp(30px,3.7vw,48px);}
+.stage__txt h2{margin:16px 0 18px;}
+.stage__txt p{color:var(--muted);font-size:clamp(17px,1.5vw,20px);}
+.core{position:relative;z-index:4;display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2.4vw,30px);max-width:960px;margin:calc(-1 * clamp(30px,4vw,60px)) auto 0;align-items:stretch;}
+.core .core__box{box-shadow:var(--ff-shadow);}
+@media(max-width:900px){
+  .stage{display:flex;flex-direction:column;min-height:0;}
+  .stage__txt{max-width:640px !important;}
+  .stage__scene{order:2;}
+  .stage__in{padding-block:clamp(48px,8vw,72px) 0;}
+  .stage__txt{max-width:640px;margin-inline:auto;text-align:center;}
+  .stage__txt .eyebrow{justify-content:center;}
+  .stage__scene{position:relative;width:100%;aspect-ratio:978/941;margin-top:-10px;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 16%);mask-image:linear-gradient(180deg,transparent 0%,#000 16%);}
+  .stage .waves{height:70px;}
+}
+@media(prefers-reduced-motion:reduce){.stage__scene,.stage__scene img{animation:none !important;transform:none !important;}}
+.core__box{border-radius:var(--ff-radius-md);padding:clamp(22px,2.6vw,30px);display:flex;flex-direction:column;align-items:center;text-align:center;}
+.core__box--a{background:var(--ff-ice);}
+.core__box--b{background:var(--ff-cream);}
+.core__kicker{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.core__box--a .core__kicker{color:var(--cyan-text);} .core__box--b .core__kicker{color:var(--orange-text);}
+.core__box h3{font-size:clamp(19px,1.8vw,22px);line-height:1.2;margin:6px 0 18px;min-height:2.4em;display:flex;align-items:center;justify-content:center;}
+.core__list{display:flex;flex-direction:column;gap:9px;width:100%;}
+.core__list li{background:#fff;border-radius:999px;padding:10px 14px;font-size:15px;font-weight:500;color:var(--ff-navy);border:1px solid transparent;}
+.core__box--a .core__list li{border-color:#CDEFF8;} .core__box--b .core__list li{border-color:#FFDDBF;}
+.core__foot{margin-top:auto;padding-top:16px;font-size:14px;color:var(--muted);}
+.pain{margin-top:clamp(36px,5vw,64px);display:grid;grid-template-columns:1fr 1fr;align-items:center;border-radius:var(--ff-radius-lg);overflow:hidden;background:var(--ff-navy);box-shadow:var(--ff-shadow);}
+.pain img{width:calc(100% - clamp(14px,2vw,24px));height:auto;margin:clamp(14px,2vw,24px) 0 clamp(14px,2vw,24px) clamp(14px,2vw,24px);border-radius:calc(var(--ff-radius-lg) - 12px);}
+@media(max-width:900px){.pain img{width:calc(100% - 2*clamp(14px,2vw,24px));margin:clamp(14px,2vw,24px) clamp(14px,2vw,24px) 0;}}
+.pain__txt{padding:clamp(28px,4vw,56px);display:flex;flex-direction:column;justify-content:center;gap:16px;}
+.pain__txt h3{color:#fff;font-size:clamp(24px,2.6vw,34px);line-height:1.15;font-weight:700;}
+.pain__txt p{color:rgba(255,255,255,.82);}
+@media(max-width:900px){.pain{grid-template-columns:1fr;}}
+@media(max-width:600px){.core{grid-template-columns:1fr;margin-top:8px;}}
+
+
+/* Comparativo: etiquetas internas de opción A / B */
+.cmp-tag{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--ff-navy);color:#fff;padding:7px 14px;border-radius:999px;box-shadow:var(--ff-shadow);}
+.cmp-tag b{color:var(--ff-orange);}
+.stage .cmp-tag{position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:5;}
+
+/* Opción B · Slide 6: núcleo (lista con fotos) + órbita de responsabilidades alrededor de FishFlow */
+.orb-sec{position:relative;overflow:hidden;background:linear-gradient(110deg,#F2FBFE 0%,#FFFFFF 48%,#FFF4EA 100%);padding:clamp(70px,8vw,110px) 0 clamp(130px,14vw,190px);}
+.orb-sec::before{content:"";position:absolute;width:60vw;height:60vw;max-width:820px;max-height:820px;left:28%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(66,199,232,.22),transparent);animation:glow 9s ease-in-out infinite alternate;pointer-events:none;}
+.orb-sec::after{content:"";position:absolute;width:50vw;height:50vw;max-width:700px;max-height:700px;right:-6%;top:42%;transform:translate(0,-50%);background:radial-gradient(closest-side,rgba(255,138,42,.18),transparent);animation:glow 11s ease-in-out -3s infinite alternate;pointer-events:none;}
+@keyframes glow{from{opacity:.6;scale:1}to{opacity:1;scale:1.12}}
+.orb-sec .cmp-tag{position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:5;}
+.orb-head{position:relative;z-index:2;}
+.orb-grid{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,4vw,64px);align-items:center;}
+.big2{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,3.8vw,52px);line-height:1;letter-spacing:-.02em;text-transform:uppercase;margin-bottom:clamp(18px,2.4vw,28px);}
+.big2--r{text-align:right;}
+.nrow{display:flex;flex-direction:column;gap:12px;}
+.nrow li{display:grid;grid-template-columns:clamp(96px,11vw,140px) 52px 1fr;align-items:center;gap:14px;background:rgba(255,255,255,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px -18px rgba(8,59,76,.45);transition:transform .25s;}
+.nrow li:hover{transform:translateX(6px);}
+.nrow li:nth-child(even){background:rgba(255,246,236,.9);}
+.nrow img{width:100%;height:100%;aspect-ratio:234/101;object-fit:cover;}
+.nrow .ico{width:34px;height:34px;color:var(--cyan-text);stroke-width:1.7;justify-self:center;}
+.nrow li:nth-child(even) .ico{color:var(--ff-orange);}
+.nrow b{display:block;font-family:var(--f-display);font-weight:700;font-size:17px;color:var(--cyan-text);}
+.nrow li:nth-child(even) b{color:var(--orange-text);}
+.nrow span{font-size:15px;color:var(--ff-ink);}
+.orbit{--R:clamp(150px,17vw,230px);position:relative;width:calc(var(--R) * 2 + 120px);max-width:100%;aspect-ratio:1;margin-inline:auto;}
+.orbit__track{position:absolute;inset:60px;border-radius:50%;border:2px dashed rgba(255,138,42,.45);}
+.orbit__loop{position:absolute;inset:18%;pointer-events:none;opacity:.9;}
+.orbit__core{position:absolute;left:50%;top:50%;width:calc(var(--R) * .95);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff 0%,#fff 55%,#F3FBFE 100%);box-shadow:0 0 0 10px rgba(255,255,255,.55),0 30px 60px -20px rgba(8,59,76,.35);display:flex;align-items:center;justify-content:center;z-index:2;animation:pulse 5s ease-in-out infinite;}
+.orbit__core img{width:68%;height:auto;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 10px rgba(255,255,255,.55),0 30px 60px -20px rgba(8,59,76,.35)}50%{box-shadow:0 0 0 22px rgba(66,199,232,.12),0 30px 60px -20px rgba(8,59,76,.35)}}
+.orbit__ring{position:absolute;inset:0;animation:spin 70s linear infinite;z-index:3;}
+.sat{position:absolute;left:50%;top:50%;width:104px;margin:-46px 0 0 -52px;transform:rotate(var(--a)) translateY(calc(-1 * var(--R))) rotate(calc(-1 * var(--a)));}
+.sat__in{display:flex;flex-direction:column;align-items:center;gap:6px;animation:spin 70s linear infinite reverse;}
+.sat__ico{width:58px;height:58px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px -12px rgba(8,59,76,.5);color:var(--cyan-text);}
+.sat:nth-child(even) .sat__ico{color:var(--ff-orange);}
+.sat__ico .ico{width:28px;height:28px;}
+.sat__lbl{font-size:12.5px;font-weight:600;color:var(--ff-navy);background:#fff;padding:4px 10px;border-radius:999px;box-shadow:0 6px 16px -10px rgba(8,59,76,.5);white-space:nowrap;}
+.orb-flow{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:visible;}
+.orb-flow path{fill:none;stroke:url(#flowGrad);stroke-linecap:round;}
+.orb-flow .f-base{stroke-width:10;opacity:.28;}
+.orb-flow .f-run{stroke-width:3;stroke-dasharray:14 22;animation:flow 2.4s linear infinite;opacity:.9;}
+@keyframes flow{to{stroke-dashoffset:-72}}
+.orb-left,.orb-grid > .reveal{position:relative;z-index:2;}
+@media(max-width:980px){.orb-flow{display:none;}}
+@media(prefers-reduced-motion:reduce){.orb-flow .f-run{animation:none;}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orbit:hover .orbit__ring,.orbit:hover .sat__in{animation-play-state:paused;}
+@media(max-width:980px){.orb-grid{grid-template-columns:1fr;}.big2--r{text-align:center;}.orb-left .big2{text-align:center;}.orb-left{max-width:620px;margin-inline:auto;width:100%;}}
+@media(max-width:600px){
+  .orbit{width:100%;aspect-ratio:auto;}
+  .orbit__track,.orbit__loop{display:none;}
+  .orbit__core{position:relative;left:auto;top:auto;transform:none;width:170px;margin:0 auto 20px;}
+  .orbit__ring{position:static;animation:none;display:grid;grid-template-columns:repeat(3,1fr);gap:16px 8px;}
+  .sat{position:static;width:auto;margin:0;transform:none;}
+  .sat__in{animation:none;}
+  .sat__lbl{white-space:normal;text-align:center;font-size:12px;}
+  .nrow li{grid-template-columns:92px 36px 1fr;gap:10px;}
+  .nrow .ico{width:26px;height:26px;}
+  .nrow b{font-size:15px;} .nrow span{font-size:14px;}
+}
+@media(prefers-reduced-motion:reduce){.orbit__ring,.sat__in,.orbit__core,.orb-sec::before,.orb-sec::after{animation:none !important;}}
+
+/* Soluciones */
+.sol{display:flex;flex-direction:column;gap:10px;transition:transform .2s;}
+.sol:hover{transform:translateY(-3px);}
+.sol__ico{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--ff-ice);color:var(--cyan-text);margin-bottom:8px;}
+.sol:nth-child(even) .sol__ico{background:var(--ff-cream);color:var(--orange-text);}
+.sol__tag{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+.sol h3{font-size:21px;line-height:1.22;}
+.sol p{color:var(--muted);font-size:15px;}
+.sol--cta{background:var(--ff-navy);color:#fff;border:0;justify-content:center;align-items:center;text-align:center;}
+.sol--cta h3{color:#fff;}
+.sol--cta p{color:rgba(255,255,255,.78);}
+.sol--cta{padding-inline:clamp(16px,1.6vw,24px);}
+.sol--cta .btn{align-self:center;margin-top:8px;font-size:15px;padding:.8rem 1.05rem;max-width:100%;}
+@media(max-width:1100px) and (min-width:601px){.sol--cta .btn{white-space:normal;}}
+
+/* Industrias */
+/* Campaña Camino 1: cinco piezas completas (2:3, sin recorte) con el titular entre ellas */
+.camp{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px);align-items:center;}
+.camp__head{text-align:center;padding:clamp(10px,2vw,28px);}
+.camp__head .eyebrow{justify-content:center;}
+.camp__head h2{margin:16px 0 16px;}
+.camp__head p{color:var(--muted);font-size:clamp(16px,1.4vw,19px);}
+.poster{margin:0;border-radius:var(--ff-radius-md);overflow:hidden;background:#fff;box-shadow:var(--ff-shadow);}
+.poster img{width:100%;height:auto;aspect-ratio:2/3;transition:transform .8s ease;}
+.poster__art{position:relative;aspect-ratio:2/3;overflow:hidden;container-type:inline-size;}
+.poster__art > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;aspect-ratio:auto;transition:transform .8s ease;}
+.poster:hover .poster__art > img{transform:scale(1.03);}
+.poster__veil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,253,248,.96) 0%,rgba(255,253,248,.9) 19%,rgba(255,253,248,.55) 27%,rgba(255,253,248,0) 35%),radial-gradient(ellipse 58% 38% at 88% 100%,rgba(255,253,248,.97) 0%,rgba(255,253,248,.93) 45%,rgba(255,253,248,0) 100%);}
+.poster__txt{position:absolute;left:7.5cqw;top:7.5cqw;right:5cqw;text-align:left;}
+.poster__acc{display:block;width:10cqw;height:.75cqw;border-radius:99px;background:linear-gradient(90deg,#42C7E8 0 48%,#FF8A2A 52% 100%);margin-bottom:2.6cqw;}
+.poster__txt h3{font-family:Poppins,Arial,sans-serif;font-weight:600;font-size:7.4cqw;line-height:1.06;letter-spacing:-.025em;color:#0B5266;margin:0;}
+.poster__txt p{font-family:Inter,Arial,sans-serif;font-weight:300;font-size:6.3cqw;line-height:1.14;letter-spacing:-.01em;color:#165A6E;margin-top:.6cqw;}
+.poster__close{position:absolute;right:6.5cqw;bottom:6cqw;width:32cqw;display:flex;flex-direction:column;align-items:center;}
+.poster__cta{font-family:Inter,Arial,sans-serif;font-weight:600;font-size:3.1cqw;color:#0B5266;white-space:nowrap;}
+.poster__acc--s{width:12cqw;height:.5cqw;margin:1.4cqw 0 1.7cqw;}
+.poster__close img{width:20cqw;height:auto;aspect-ratio:auto;transition:none;}
+.poster__sa{font-family:Inter,Arial,sans-serif;font-weight:600;font-size:1.75cqw;letter-spacing:.32em;text-transform:uppercase;color:#0B5266;margin:1.4cqw 0 0 .32em;white-space:nowrap;}
+.poster__close .poster__acc--s:last-child{margin:1.3cqw 0 0;}
+
+.poster figcaption{padding:12px 16px 16px;text-align:center;display:flex;flex-direction:column;gap:4px;}
+.camp .poster{align-self:stretch;display:flex;flex-direction:column;}
+.camp .poster figcaption{flex:1;}
+.poster__how{font-size:14px;line-height:1.4;color:var(--muted);}
+.camp__more{text-align:center;margin-top:clamp(24px,3vw,36px);color:var(--muted);font-size:15px;}
+.camp__more b{color:var(--ff-navy);}
+.giro{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan-text);}
+@media(max-width:900px){
+  .camp{display:block;}
+  .camp__head{max-width:640px;margin:0 auto 26px;padding:0;}
+  .camp__rail{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px var(--ff-pad,18px) 18px;margin-inline:calc(-1 * var(--ff-pad,18px));-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .camp__rail::-webkit-scrollbar{display:none;}
+  .camp__rail .poster{flex:0 0 min(72vw,340px);scroll-snap-align:center;}
+}
+@media(min-width:901px){.camp__rail{display:contents;}}
+.rail-hint{display:none;text-align:center;font-size:13px;color:var(--muted);}
+@media(max-width:900px){.rail-hint{display:block;}}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:22px;}
+.mini .card{display:flex;gap:16px;align-items:flex-start;padding:22px;}
+.mini__ico{width:46px;height:46px;border-radius:14px;background:var(--ff-cream);color:var(--orange-text);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mini h3{font-size:17px;line-height:1.25;margin:4px 0 4px;}
+.mini p{font-size:15px;color:var(--muted);}
+.formula{margin-top:30px;text-align:center;}
+.formula q{font-family:var(--f-display);font-weight:700;font-size:clamp(20px,2.4vw,28px);color:var(--ff-navy);quotes:"“" "”";}
+.formula small{display:block;margin-top:10px;color:var(--muted);font-size:13px;}
+.mini{margin-top:clamp(26px,3vw,40px);}
+@media(max-width:900px){.mini{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.mini{grid-template-columns:1fr;}}
+
+/* Cómo funciona (3 pasos) */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;counter-reset:s;position:relative;}
+.step{position:relative;}
+.step__n{position:relative;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin-bottom:18px;background:radial-gradient(circle at 35% 28%,#FFFFFF 0%,#F4FBFE 60%,#E6F6FB 100%);box-shadow:0 16px 30px -14px rgba(8,59,76,.45),inset 0 -4px 10px rgba(8,59,76,.06);isolation:isolate;transition:transform .3s;animation:badgeGlow 3.6s ease-in-out infinite;}
+.step__n::before{content:"";position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from 0deg,#42C7E8,#7FDCEC,#FF8A2A,#FFB36B,#42C7E8);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px));animation:ringSpin 7s linear infinite;z-index:-1;}
+.step__n b{font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1;background:linear-gradient(135deg,#0A7EA3 0%,#42C7E8 45%,#FF8A2A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.step:nth-child(2) .step__n::before{animation-delay:-2.3s;} .step:nth-child(2) .step__n{animation-delay:-1.2s;} .step:nth-child(2) .step:nth-child(3) .step__n::before{animation-delay:-4.6s;} .step:nth-child(3) .step__n{animation-delay:-2.4s;} .step:nth-child(3) .step:hover .step__n{transform:translateY(-3px) scale(1.04);}
+@keyframes ringSpin{to{transform:rotate(360deg)}}
+@keyframes badgeGlow{0%,100%{box-shadow:0 16px 30px -14px rgba(8,59,76,.45),0 0 0 0 rgba(66,199,232,.0)}50%{box-shadow:0 16px 30px -14px rgba(8,59,76,.45),0 0 0 12px rgba(66,199,232,.14)}}
+@media(prefers-reduced-motion:reduce){.step__n,.step__n::before,.invest__plus,.invest__plus::before{animation:none !important;}}
+.step h3{font-size:21px;margin-bottom:8px;}
+.step p{color:var(--muted);font-size:16px;}
+@media(max-width:820px){.steps{grid-template-columns:1fr;}}
+
+/* Beneficios + casos */
+.benefits{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:clamp(40px,5vw,64px);}
+.benefit{border-radius:var(--ff-radius-md);padding:24px;background:#fff;border:1px solid var(--line);}
+.benefit b{display:block;font-family:var(--f-display);font-size:19px;color:var(--ff-navy);margin:12px 0 6px;}
+.benefit p{font-size:15px;color:var(--muted);}
+.benefit .ico{width:28px;height:28px;color:var(--ff-orange);}
+.benefit:nth-child(odd) .ico{color:var(--cyan-text);}
+@media(max-width:900px){.benefits{grid-template-columns:1fr 1fr;}}
+@media(max-width:520px){.benefits{grid-template-columns:1fr;}}
+.cases-title{font-size:clamp(24px,2.6vw,32px);margin-bottom:22px;}
+.case{display:flex;flex-direction:column;gap:12px;transition:transform .2s;}
+.case:hover{transform:translateY(-3px);}
+.case__ang{align-self:flex-start;font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;background:var(--ff-ice);color:var(--cyan-text);}
+.case h3{font-size:21px;}
+.case__meta{font-size:13px;color:var(--muted);margin-top:-6px;}
+.case__sum{color:var(--ff-ink);font-size:15px;}
+.case__nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:auto;padding-top:16px;border-top:1px solid var(--line);}
+.case__nums b{display:block;font-family:var(--f-display);font-size:24px;color:var(--ff-navy);}
+.case__nums span{font-size:12px;color:var(--muted);line-height:1.3;display:block;}
+.case__link{font-weight:600;color:var(--cyan-text);font-size:14px;display:inline-flex;gap:6px;align-items:center;}
+.case__link .ico{width:16px;height:16px;}
+
+.cases{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;}
+@media(max-width:760px){.cases{grid-template-columns:1fr;}}
+
+/* Inversión: implementación (pago único) + suscripción mensual */
+.invest{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(14px,2vw,24px);align-items:stretch;max-width:1000px;margin-inline:auto;}
+.plan{display:flex;flex-direction:column;gap:14px;position:relative;}
+.plan__lvl{display:inline-flex;align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:999px;}
+.plan--a .plan__lvl{background:var(--ff-ice);color:var(--cyan-text);}
+.plan--b .plan__lvl{background:var(--ff-cream);color:var(--orange-text);}
+.plan h3{font-size:clamp(23px,2.2vw,28px);font-weight:700;}
+.plan p{color:var(--muted);font-size:15px;}
+.checks{flex:1;}
+.checks li{display:flex;gap:9px;font-size:15px;color:var(--ff-ink);padding:4px 0;}
+.checks .ico{width:18px;height:18px;color:var(--ff-orange);margin-top:3px;}
+.plan--a .checks .ico{color:var(--cyan-text);}
+.invest__plus{position:relative;align-self:center;width:78px;height:78px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 28%,#FFFFFF 0%,#F4FBFE 60%,#E6F6FB 100%);isolation:isolate;animation:plusGlow 3.8s ease-in-out infinite;}
+@keyframes plusGlow{0%,100%{box-shadow:0 20px 40px -16px rgba(8,59,76,.5),0 0 0 0 rgba(255,138,42,0)}50%{box-shadow:0 20px 40px -16px rgba(8,59,76,.5),0 0 0 16px rgba(255,138,42,.13)}}
+.invest__plus::before{content:"";position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(from 0deg,#42C7E8,#7FDCEC,#FF8A2A,#FFB36B,#42C7E8);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4.5px));animation:ringSpin 8s linear infinite;z-index:-1;}
+.invest__plus svg{width:36px;height:36px;}
+.invest__note{max-width:1000px;margin:24px auto 0;display:flex;flex-wrap:wrap;gap:18px 28px;align-items:center;justify-content:space-between;background:var(--ff-navy);color:#fff;border-radius:var(--ff-radius-md);padding:clamp(22px,3vw,32px);}
+.invest__note b{font-family:var(--f-display);font-size:19px;display:block;margin-bottom:6px;}
+.invest__note p{color:rgba(255,255,255,.8);font-size:15px;max-width:600px;}
+@media(max-width:820px){.invest{grid-template-columns:1fr;}.invest__plus{margin:-6px auto;}}
+
+/* FAQ */
+.faq{max-width:840px;margin-inline:auto;}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:var(--ff-radius-sm);padding:0 22px;margin-bottom:12px;}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:16px;align-items:center;padding:20px 0;font-family:var(--f-display);font-weight:600;font-size:17px;color:var(--ff-navy);}
+.faq summary::-webkit-details-marker{display:none;}
+.faq summary::after{content:"+";font-size:26px;line-height:1;color:var(--ff-orange);transition:transform .2s;flex-shrink:0;}
+.faq details[open] summary::after{transform:rotate(45deg);}
+.faq details p{color:var(--muted);padding:0 0 22px;}
+
+/* CTA final */
+.final{position:relative;overflow:hidden;background:var(--ff-navy);color:#fff;padding:clamp(80px,10vw,130px) 0 clamp(150px,16vw,220px);}
+.final__in{position:relative;z-index:2;display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(28px,4vw,60px);align-items:center;}
+.final .eyebrow{color:#fff;}
+.final h2{color:#fff;font-size:clamp(36px,4.3vw,58px);line-height:1.02;letter-spacing:-.03em;font-weight:800;margin-top:16px;}
+.final p{color:rgba(255,255,255,.82);margin:20px 0 30px;font-size:clamp(17px,1.5vw,20px);max-width:560px;}
+.final__ctas{display:flex;flex-wrap:wrap;gap:12px;}
+.final__small{margin-top:20px;font-size:14px;color:rgba(255,255,255,.7);}
+.final__small a{color:var(--ff-cyan);font-weight:600;}
+.final__sym{display:flex;flex-direction:column;align-items:center;gap:18px;}
+.final__sym img{width:min(100%,420px);filter:drop-shadow(0 20px 40px rgba(66,199,232,.35));}
+.final__sym span{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,2.4vw,30px);letter-spacing:.02em;}
+@media(max-width:900px){.final__in{grid-template-columns:1fr;}}
+
+.hub{position:relative;display:flex;align-items:center;justify-content:center;width:clamp(150px,13vw,190px);align-self:center;}
+.hub__core{position:relative;z-index:2;width:100%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff 0%,#fff 58%,#EAF8FC 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 10px rgba(255,255,255,.08),0 24px 60px -20px rgba(0,0,0,.6);animation:hubPulse 4.5s ease-in-out infinite;}
+.hub__core img{width:72%;height:auto;}
+@keyframes hubPulse{0%,100%{box-shadow:0 0 0 10px rgba(255,255,255,.08),0 24px 60px -20px rgba(0,0,0,.6)}50%{box-shadow:0 0 0 24px rgba(66,199,232,.14),0 24px 60px -20px rgba(0,0,0,.6)}}
+.hub__line{position:absolute;top:50%;height:4px;width:clamp(28px,4vw,60px);margin-top:-2px;border-radius:4px;background-size:22px 4px;animation:hubFlow 1.2s linear infinite;}
+.hub__line--l{right:100%;background-image:linear-gradient(90deg,#42C7E8 0 60%,transparent 60% 100%);}
+.hub__line--r{left:100%;background-image:linear-gradient(90deg,#FF8A2A 0 60%,transparent 60% 100%);}
+@keyframes hubFlow{to{background-position-x:22px}}
+@media(max-width:900px){.hub{width:150px;margin:6px auto;}.hub__line{left:50%;right:auto;width:4px;height:clamp(28px,4vw,60px);margin:0 0 0 -2px;top:auto;background-size:4px 18px;animation-name:hubFlowV;}
+ .hub__line--l{bottom:100%;background-image:linear-gradient(180deg,#42C7E8 0 60%,transparent 60% 100%);} .hub__line--r{top:100%;background-image:linear-gradient(180deg,#FF8A2A 0 60%,transparent 60% 100%);}}
+@keyframes hubFlowV{to{background-position-y:18px}}
+@media(prefers-reduced-motion:reduce){.hub__core,.hub__line{animation:none;}}
+.howto{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(28px,4vw,60px);align-items:center;}
+.steps--v{grid-template-columns:1fr !important;gap:16px;}
+.steps--v .step{display:grid;grid-template-columns:54px 1fr;column-gap:18px;align-items:start;}
+.steps--v .step__n{grid-row:span 2;margin:0;}
+.steps--v .step h3{margin:6px 0 4px;}
+.hub--light .hub__core{box-shadow:0 0 0 10px rgba(255,255,255,.7),0 24px 50px -22px rgba(8,59,76,.45);animation-name:hubPulseL;}
+@keyframes hubPulseL{0%,100%{box-shadow:0 0 0 10px rgba(255,255,255,.7),0 24px 50px -22px rgba(8,59,76,.45)}50%{box-shadow:0 0 0 22px rgba(66,199,232,.18),0 24px 50px -22px rgba(8,59,76,.45)}}
+.sec--cream .lead{box-shadow:var(--ff-shadow);}
+@media(max-width:900px){.howto{grid-template-columns:1fr;}}
+.final__in--c{display:flex !important;flex-direction:column;align-items:center;text-align:center;gap:26px;}
+.final__in--c p{margin-inline:auto;}
+.final__in--c .final__ctas{justify-content:center;}
+.final .final__slogan{color:#fff;font-family:var(--f-display);font-weight:800;font-size:clamp(24px,2.6vw,34px);margin:26px 0 0 !important;}
+.lead{scroll-margin-top:96px;background:#fff;color:var(--ff-ink);border-radius:var(--ff-radius-md);padding:clamp(22px,3vw,32px);box-shadow:0 30px 70px -30px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:14px;}
+.lead h3{font-size:22px;margin-bottom:2px;}
+.lead label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ff-navy);}
+.lead small{font-weight:500;color:var(--muted);}
+.lead input[type=text],.lead input[type=email],.lead input[type=tel],.lead textarea{font:inherit;font-weight:400;font-size:15px;color:var(--ff-ink);border:1.5px solid #D8E6EC;border-radius:12px;padding:11px 13px;background:#FAFDFE;outline:none;transition:border-color .15s;resize:vertical;}
+.lead input:focus,.lead textarea:focus{border-color:var(--ff-cyan);}
+.lead__row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.lead__hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+.lead__consent{flex-direction:row !important;align-items:flex-start;gap:9px !important;font-weight:500 !important;color:var(--muted) !important;}
+.lead__consent input{margin-top:3px;accent-color:var(--ff-orange);}
+.lead__consent a{color:var(--cyan-text);font-weight:600;}
+.lead .btn{align-self:stretch;}
+.lead .btn[disabled]{opacity:.6;cursor:wait;}
+.lead__msg{font-size:14px;color:var(--muted);white-space:pre-line;}
+.lead__msg.ok{background:var(--ff-ice);border-left:3px solid var(--ff-cyan);padding:14px 16px;border-radius:10px;color:var(--ff-ink);font-size:15px;}
+.lead__msg.err{color:#B42318;}
+@media(max-width:600px){.lead__row{grid-template-columns:1fr;}}
+/* Footer */
+.foot{background:var(--ff-ink);color:rgba(255,255,255,.72);padding:44px 0 28px;font-size:14px;}
+.foot__in{display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:center;}
+.foot img{height:30px;width:auto;}
+.foot__links{display:flex;flex-wrap:wrap;gap:18px;}
+.foot__links a:hover{color:#fff;}
+.foot__bottom{margin-top:26px;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13px;}
+.foot__slogan{font-family:var(--f-display);font-weight:800;}
+
+/* Movimiento suave */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.in{opacity:1;transform:none;}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;}}
+.logo-card .vb-mark{font-size:22px;}
+.logo-card .vb-mark img{width:44px !important;height:44px !important;border-radius:11px;}
+@media(max-width:600px){.logo-card .vb-mark{font-size:17px;gap:7px;}.logo-card .vb-mark img{width:34px !important;height:34px !important;}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18M9 15l2 2 4-4"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></symbol>
+  <symbol id="i-mega" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></symbol>
+  <symbol id="i-calc" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="3"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h8"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L22 7H6"/></symbol>
+  <symbol id="i-head" viewBox="0 0 24 24"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><rect x="2" y="14" width="5" height="7" rx="2"/><rect x="17" y="14" width="5" height="7" rx="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></symbol>
+  <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+  <symbol id="i-fork" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2V2M6 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></symbol>
+  <symbol id="i-brain" viewBox="0 0 24 24"><path d="M12 5a3 3 0 0 0-5.6-1.5A3 3 0 0 0 4 8a3 3 0 0 0-1 5.5A3.5 3.5 0 0 0 7 19a3 3 0 0 0 5 1.5z"/><path d="M12 5a3 3 0 0 1 5.6-1.5A3 3 0 0 1 20 8a3 3 0 0 1 1 5.5A3.5 3.5 0 0 1 17 19a3 3 0 0 1-5 1.5z"/><path d="M12 5v15.5"/></symbol>
+  <symbol id="i-sofa" viewBox="0 0 24 24"><path d="M4 11V8a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v3"/><path d="M2 13a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/><path d="M5 19v2M19 19v2"/></symbol>
+  <symbol id="i-paw" viewBox="0 0 24 24"><circle cx="5.5" cy="10" r="2"/><circle cx="9.5" cy="5.5" r="2"/><circle cx="14.5" cy="5.5" r="2"/><circle cx="18.5" cy="10" r="2"/><path d="M12 12c-3 0-6 4-6 6.5 0 1.5 1.2 2.5 2.7 2.5 1.3 0 2.1-.8 3.3-.8s2 .8 3.3.8c1.5 0 2.7-1 2.7-2.5C18 16 15 12 12 12z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></symbol>
+  <symbol id="i-shop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20M8 8h8l-1 4H9z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/></symbol>
+</svg>
+
+
+<header class="nav">
+  <div class="ff-container nav__in">
+    <a class="nav__logo" href="#top" aria-label="FishFlow, inicio"><img src="/logo-horizontal.svg" alt="FishFlow" width="162" height="34"></a>
+    <nav class="nav__links" aria-label="Secciones">
+      <a href="#enfoque">Tu negocio</a>
+      <a href="#industrias">Soluciones</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#resultados">Casos</a>
+      <a href="#faq">Preguntas</a>
+    </nav>
+    <a class="btn btn--primary nav__cta" href="#empezar">Hagámoslo con IA</a>
+    <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="mmenu"><svg class="ico"><use href="#i-menu"/></svg></button>
+  </div>
+  <div class="mmenu" id="mmenu">
+    <div class="ff-container">
+      <a href="#enfoque">Tu negocio</a>
+      <a href="#industrias">Soluciones</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#resultados">Casos</a>
+      <a href="#faq">Preguntas</a>
+      <a class="btn btn--primary" href="#empezar">Hagámoslo con IA</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- 1 · HERO -->
+<section class="hero" id="hero">
+  <div class="ff-container hero__in">
+    <span class="eyebrow">Soluciones digitales y de IA para negocios locales</span>
+    <img class="hero__logo" src="/logo-vertical.svg" alt="FishFlow" width="885" height="640">
+    <h1><span class="c">Siempre</span> <span class="o">Adelante</span></h1>
+    <p class="hero__value">Tú enfócate en tu negocio.<br>FishFlow se encarga de lo demás.</p>
+    <p class="hero__lede">Tu sitio, tus redes, tus citas y tu inventario trabajando solos, con inteligencia artificial, para que vuelvas a lo que mejor sabes hacer.</p>
+    <div class="hero__ctas">
+      <a class="btn btn--primary" href="#empezar">Hagámoslo con IA <svg class="ico"><use href="#i-arrow"/></svg></a>
+      <a class="btn btn--ghost" href="#industrias">Ver soluciones</a>
+    </div>
+  </div>
+  <div class="hero__stage" aria-hidden="true">
+    <div class="hero__scene" id="heroScene">
+      <img src="/landing/img/hero-flujo.webp" alt="" width="1600" height="900" fetchpriority="high">
+      <span class="bub" style="width:22px;height:22px;left:18%;top:38%;animation-duration:7s"></span>
+      <span class="bub bub--o" style="width:16px;height:16px;left:46%;top:30%;animation-duration:9s;animation-delay:-3s"></span>
+      <span class="bub" style="width:30px;height:30px;left:63%;top:58%;animation-duration:10s;animation-delay:-5s"></span>
+      <span class="bub bub--o" style="width:20px;height:20px;left:84%;top:26%;animation-duration:8s;animation-delay:-2s"></span>
+      <span class="bub" style="width:12px;height:12px;left:31%;top:62%;animation-duration:6s;animation-delay:-1s"></span>
+    </div>
+  </div>
+  <div class="waves" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
+</section>
+
+<section class="clients" aria-label="Clientes">
+  <div class="ff-container">
+    <span class="clients__lbl">Ya van adelante con FishFlow</span>
+    <div class="logos">
+      <a class="logo-card" href="/casos/cane-neurofeedback"><span class="logo-card__mark"><img src="/landing/img/logo-cane.webp" alt="CANE Neurofeedback" width="337" height="165" loading="lazy"></span><span class="logo-card__name">CANE Neurofeedback</span></a>
+      <a class="logo-card" href="/casos/mario-citalan"><span class="logo-card__mark"><img src="/landing/img/logo-drmente.webp" alt="Dr. Mente, de Mario Citalán" width="134" height="136" loading="lazy"></span><span class="logo-card__name">Mario Citalán</span></a>
+      <a class="logo-card" href="/casos/enlace-integral"><span class="logo-card__mark"><img class="is-wide" src="/landing/img/logo-enlace.webp" alt="Enlace Integral Seguros" width="600" height="214" loading="lazy"></span><span class="logo-card__name">Enlace Integral Seguros</span></a>
+      <a class="logo-card" href="/casos/lukon"><span class="logo-card__mark" role="img" aria-label="Lukon Telemática"><span class="lk-mark"><i></i>LUKON</span></span><span class="logo-card__name">Lukon Telemática</span></a>
+      <a class="logo-card" href="https://sparcgroup.mx" target="_blank" rel="noopener"><span class="logo-card__mark"><img src="/landing/img/logo-sparc.webp" alt="SPARC Group" width="300" height="352" loading="lazy"></span><span class="logo-card__name">SPARC Group</span></a>
+      <a class="logo-card" href="https://megaclase.fishflow.mx/" target="_blank" rel="noopener"><span class="logo-card__mark" role="img" aria-label="VIBRA MX"><span class="vb-mark"><img src="/landing/img/logo-vibra.webp" alt="" width="192" height="192" loading="lazy">VIBRA MX</span></span><span class="logo-card__name">VIBRA MX · Megaclase</span></a>
+      <a class="logo-card" href="https://studiojomay.com.mx" target="_blank" rel="noopener"><span class="logo-card__mark"><img class="blend" src="/landing/img/logo-jomay.webp" alt="Studio Jomay, Brows &amp; Beauty" width="520" height="310" loading="lazy"></span><span class="logo-card__name">Studio Jomay</span></a>
+    </div>
+    <p class="clients__more">También Estética Belange CDMX y más negocios locales.</p>
+  </div>
+</section>
+
+<!-- 2 · ENFÓCATE EN TU NÚCLEO (slide 6 de la propuesta) -->
+<section class="orb-sec" id="enfoque" aria-label="Núcleo de negocio y responsabilidades secundarias">
+  <div class="ff-container"><div class="sec__head center reveal orb-head">
+    <span class="eyebrow">Enfócate en tu núcleo</span>
+    <h2 class="h2">Tu negocio es lo que haces mejor. <span class="o">Lo demás también pesa.</span></h2>
+    <p>Todo negocio tiene un núcleo: lo que sabe hacer y por lo que sus clientes regresan. Alrededor hay un trabajo diario que, si no se optimiza, se vuelve una carga de tiempo y de dinero. FishFlow se encarga de ese trabajo.</p>
+  </div></div>
+  <div class="ff-container orb-grid">
+    <svg class="orb-flow" id="orbFlow" aria-hidden="true"><defs><linearGradient id="flowGrad" x1="0" x2="1"><stop offset="0" stop-color="#42C7E8"/><stop offset=".75" stop-color="#42C7E8"/><stop offset="1" stop-color="#FF8A2A"/></linearGradient></defs></svg>
+    <div class="orb-left reveal">
+      <h2 class="big2"><span class="c">Núcleo de</span><br><span class="o">negocio:</span></h2>
+      <ul class="clean nrow">
+          <li><img src="/landing/img/nucleo-psicologo.webp" alt="" width="234" height="101" loading="lazy"><svg class="ico"><use href="#i-brain"/></svg><div><b>Psicólogo:</b><span>Dar terapia.</span></div></li>
+          <li><img src="/landing/img/nucleo-muebles.webp" alt="" width="234" height="101" loading="lazy"><svg class="ico"><use href="#i-sofa"/></svg><div><b>Tienda de muebles:</b><span>Vender a los clientes.</span></div></li>
+          <li><img src="/landing/img/nucleo-restaurante.webp" alt="" width="234" height="101" loading="lazy"><svg class="ico"><use href="#i-fork"/></svg><div><b>Restaurante:</b><span>Hacer los platillos.</span></div></li>
+          <li><img src="/landing/img/nucleo-taller.webp" alt="" width="234" height="101" loading="lazy"><svg class="ico"><use href="#i-wrench"/></svg><div><b>Taller:</b><span>Reparar los autos.</span></div></li>
+          <li><img src="/landing/img/nucleo-veterinaria.webp" alt="" width="234" height="101" loading="lazy"><svg class="ico"><use href="#i-paw"/></svg><div><b>Veterinario:</b><span>Curar a los animales.</span></div></li>
+      </ul>
+    </div>
+    <div class="reveal">
+      <h2 class="big2 big2--r"><span class="c">Responsabilidades</span><br><span class="o">secundarias:</span></h2>
+      <div class="orbit">
+        <div class="orbit__track" aria-hidden="true"></div>
+        <div class="orbit__core"><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"></div>
+        <div class="orbit__ring">
+          <div class="sat" style="--a:0deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-globe"/></svg></span><span class="sat__lbl">Sitio web</span></div></div>
+          <div class="sat" style="--a:40deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-mega"/></svg></span><span class="sat__lbl">Redes sociales</span></div></div>
+          <div class="sat" style="--a:80deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-calc"/></svg></span><span class="sat__lbl">Contabilidad</span></div></div>
+          <div class="sat" style="--a:120deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-cal"/></svg></span><span class="sat__lbl">Citas</span></div></div>
+          <div class="sat" style="--a:160deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-calendar"/></svg></span><span class="sat__lbl">Calendario</span></div></div>
+          <div class="sat" style="--a:200deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-box"/></svg></span><span class="sat__lbl">Inventario</span></div></div>
+          <div class="sat" style="--a:240deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-cart"/></svg></span><span class="sat__lbl">Compras</span></div></div>
+          <div class="sat" style="--a:280deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-head"/></svg></span><span class="sat__lbl">Atención al cliente</span></div></div>
+          <div class="sat" style="--a:320deg"><div class="sat__in"><span class="sat__ico"><svg class="ico"><use href="#i-shop"/></svg></span><span class="sat__lbl">Tienda digital</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="waves" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
+</section>
+
+<!-- 4 · INDUSTRIAS -->
+<section class="sec" id="industrias">
+  <div class="ff-container">
+    <div class="camp">
+      <div class="camp__head reveal">
+        <span class="eyebrow">Soluciones por industria</span>
+        <h2 class="h2">El talento al frente. <span class="o">La IA, detrás.</span></h2>
+        <p>FishFlow no es el protagonista de tu negocio: eres tú. Nosotros nos encargamos de que lo operativo deje de estorbar.</p>
+      </div>
+      <div class="camp__rail">
+        <figure class="poster reveal" style="order:-1"><div class="poster__art"><img src="/landing/img/foto-muebles.webp" alt="Diseñadora mostrando un catálogo a una pareja en su boutique de muebles" width="800" height="1200" loading="lazy"><div class="poster__veil" aria-hidden="true"></div><div class="poster__txt"><span class="poster__acc"></span><h3>Tus citas se<br>confirman solas.</h3><p>Tú muestra tu pasión<br>por el diseño.</p></div><div class="poster__close"><span class="poster__cta">Hagámoslo con IA</span><span class="poster__acc poster__acc--s"></span><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"><span class="poster__sa">Siempre Adelante</span><span class="poster__acc poster__acc--s"></span></div></div><figcaption><span class="giro">Boutique de muebles · Citas</span><span class="poster__how">Agenda en línea y confirmación automática por WhatsApp.</span></figcaption></figure>
+        <figure class="poster reveal"><div class="poster__art"><img src="/landing/img/foto-barberia.webp" alt="Barbero cortando el cabello a un cliente" width="800" height="1200" loading="lazy"><div class="poster__veil" aria-hidden="true"></div><div class="poster__txt"><span class="poster__acc"></span><h3>Tus redes sociales<br>hacen su contenido.</h3><p>Tú enfócate en<br>el corte perfecto.</p></div><div class="poster__close"><span class="poster__cta">Hagámoslo con IA</span><span class="poster__acc poster__acc--s"></span><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"><span class="poster__sa">Siempre Adelante</span><span class="poster__acc poster__acc--s"></span></div></div><figcaption><span class="giro">Barbería · Redes sociales</span><span class="poster__how">Publicaciones programadas y reseñas de Google en automático.</span></figcaption></figure>
+        <figure class="poster reveal"><div class="poster__art"><img src="/landing/img/foto-veterinaria.webp" alt="Veterinario revisando a un perro salchicha" width="800" height="1200" loading="lazy"><div class="poster__veil" aria-hidden="true"></div><div class="poster__txt"><span class="poster__acc"></span><h3>El inventario<br>se hace solo.</h3><p>Tú atiende<br>al perrijo.</p></div><div class="poster__close"><span class="poster__cta">Hagámoslo con IA</span><span class="poster__acc poster__acc--s"></span><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"><span class="poster__sa">Siempre Adelante</span><span class="poster__acc poster__acc--s"></span></div></div><figcaption><span class="giro">Veterinaria · Inventario</span><span class="poster__how">Punto de venta y alertas antes de quedarte sin producto.</span></figcaption></figure>
+        <figure class="poster reveal"><div class="poster__art"><img src="/landing/img/foto-psicologo.webp" alt="Psicólogo en sesión con un paciente" width="800" height="1200" loading="lazy"><div class="poster__veil" aria-hidden="true"></div><div class="poster__txt"><span class="poster__acc"></span><h3>Tu contabilidad<br>se hace sola.</h3><p>Tú enfócate<br>en el paciente.</p></div><div class="poster__close"><span class="poster__cta">Hagámoslo con IA</span><span class="poster__acc poster__acc--s"></span><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"><span class="poster__sa">Siempre Adelante</span><span class="poster__acc poster__acc--s"></span></div></div><figcaption><span class="giro">Psicología · Contabilidad</span><span class="poster__how">Facturación CFDI conectada a tus cobros.</span></figcaption></figure>
+        <figure class="poster reveal"><div class="poster__art"><img src="/landing/img/foto-seguros.webp" alt="Agente de seguros platicando con una clienta en un café" width="800" height="1200" loading="lazy"><div class="poster__veil" aria-hidden="true"></div><div class="poster__txt"><span class="poster__acc"></span><h3>Tu sitio web<br>prospecta al cliente.</h3><p>Tú véndele los<br>beneficios del seguro.</p></div><div class="poster__close"><span class="poster__cta">Hagámoslo con IA</span><span class="poster__acc poster__acc--s"></span><img src="/logo-vertical.svg" alt="FishFlow" width="885" height="640"><span class="poster__sa">Siempre Adelante</span><span class="poster__acc poster__acc--s"></span></div></div><figcaption><span class="giro">Seguros · Sitio web</span><span class="poster__how">Cada prospecto llega clasificado por IA a tu panel.</span></figcaption></figure>
+      </div>
+      <p class="rail-hint">Desliza para ver los cinco giros →</p>
+    </div>
+    <p class="camp__more">También: <b>tienda en línea</b> con pagos con tarjeta, OXXO y MercadoPago, y <b>atención al cliente</b> con respuestas sugeridas por IA. <a class="case__link" href="#empezar" style="display:inline-flex">Cuéntanos tu caso <svg class="ico"><use href="#i-arrow"/></svg></a></p>
+    <div class="formula"><small>Imágenes ilustrativas</small></div>
+  </div>
+</section>
+
+<!-- 5 · CÓMO FUNCIONA -->
+<section class="sec sec--cream" id="como">
+  <div class="ff-container">
+    <div class="sec__head center reveal">
+      <span class="eyebrow">Cómo funciona</span>
+      <h2 class="h2">Tres pasos y tu negocio <span class="o">avanza.</span></h2>
+      <p>Sin contratos largos ni tecnicismos.</p>
+    </div>
+    <div class="howto">
+      <div class="steps steps--v">
+        <div class="card step reveal"><div class="step__n"><b>1</b></div><h3>Nos cuentas tu caso</h3><p>Nos escribes qué te quita tiempo y te respondemos con qué automatizar primero.</p></div>
+        <div class="card step reveal"><div class="step__n"><b>2</b></div><h3>Lo construimos a tu medida</h3><p>Diseñamos la herramienta para tu giro, la aprobamos juntos y capacitamos a tu equipo.</p></div>
+        <div class="card step reveal"><div class="step__n"><b>3</b></div><h3>Trabaja solo y mejora</h3><p>Funciona en segundo plano y la afinamos mes con mes con reportes claros.</p></div>
+      </div>
+      <div class="hub hub--light reveal" aria-hidden="true"><span class="hub__line hub__line--l"></span><div class="hub__core"><img src="/logo-vertical.svg" alt="" width="885" height="640"></div><span class="hub__line hub__line--r"></span></div>
+    <form class="lead js-lead reveal" id="empezar" novalidate>
+      <h3>Paso 1: cuéntanos tu caso</h3>
+      <div class="lead__row">
+        <label>Tu nombre<input name="name" type="text" required autocomplete="name" placeholder="María López"></label>
+        <label>Tu correo<input name="email" type="email" required autocomplete="email" placeholder="maria@minegocio.com"></label>
+      </div>
+      <label><span>WhatsApp <small>(opcional)</small></span><input name="phone" type="tel" autocomplete="tel" placeholder="55 1234 5678"></label>
+      <label>¿Qué te quita tiempo hoy?<textarea name="problem" required rows="4" placeholder="Ej. «Confirmo cada cita a mano por WhatsApp y aun así me fallan»"></textarea></label>
+      <div class="lead__hp" aria-hidden="true"><label>Deja este campo vacío<input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+      <label class="lead__consent"><input name="consent" type="checkbox" required> <span>Acepto el <a href="/aviso-de-privacidad" target="_blank" rel="noopener">Aviso de Privacidad</a>.</span></label>
+      <button class="btn btn--primary" type="submit">Hagámoslo con IA <svg class="ico"><use href="#i-arrow"/></svg></button>
+      <p class="lead__msg" role="status" aria-live="polite"></p>
+    </form>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · BENEFICIOS Y CASOS -->
+<section class="sec" id="resultados">
+  <div class="ff-container">
+    <div class="sec__head reveal">
+      <span class="eyebrow">Casos reales</span>
+      <h2 class="h2">Lo que cambia cuando <span class="c">la operación fluye.</span></h2>
+    </div>
+    <div class="cases">
+      <a class="card case reveal" href="/casos/cane-neurofeedback"><span class="case__logo" aria-hidden="true"><img src="/landing/img/logo-cane.webp" alt="" width="337" height="165" loading="lazy"></span><span class="case__ang">Presencia digital y reputación</span><h3>CANE · Neurofeedback</h3><p class="case__meta">Salud mental · Narvarte, CDMX</p><p class="case__sum">De no controlar ni su propia ficha de Google a tener sitio propio, tablero de reseñas y contenido publicándose solo.</p><div class="case__nums"><div><b>34</b><span>pacientes en cola de reseñas</span></div><div><b>12</b><span>posts programados</span></div><div><b>1</b><span>ficha de Google recuperada</span></div></div><span class="case__link">Ver el caso <svg class="ico"><use href="#i-arrow"/></svg></span></a>
+      <a class="card case reveal" href="/casos/mario-citalan"><span class="case__logo" aria-hidden="true"><img src="/landing/img/logo-drmente.webp" alt="" width="134" height="136" loading="lazy"></span><span class="case__ang">IA que te devuelve horas</span><h3>Mario Citalán</h3><p class="case__meta">Formación y terapia · CDMX</p><p class="case__sum">Un WordPress viejo se convirtió en un ecosistema de captación completo, con la IA transcribiendo y resumiendo cada sesión.</p><div class="case__nums"><div><b>7</b><span>páginas del embudo</span></div><div><b>4</b><span>formularios con respuesta automática</span></div><div><b>0</b><span>notas de sesión a mano</span></div></div><span class="case__link">Ver el caso <svg class="ico"><use href="#i-arrow"/></svg></span></a>
+      <a class="card case reveal" href="/casos/enlace-integral"><span class="case__logo" aria-hidden="true"><img class="is-wide" src="/landing/img/logo-enlace.webp" alt="" width="600" height="214" loading="lazy"></span><span class="case__ang">Escala comercial</span><h3>Enlace Integral Seguros</h3><p class="case__meta">Agencia de seguros · Coyoacán, CDMX</p><p class="case__sum">Cuarenta vendedoras, una cartera de cientos de clientes y tres dominios peleándose entre sí, ordenados en una sola operación.</p><div class="case__nums"><div><b>405</b><span>clientes en cola de reseñas</span></div><div><b>432</b><span>personas en público propio</span></div><div><b>3→1</b><span>dominios consolidados</span></div></div><span class="case__link">Ver el caso <svg class="ico"><use href="#i-arrow"/></svg></span></a>
+      <a class="card case reveal" href="/casos/lukon"><span class="case__logo" aria-hidden="true"><span class="lk-mark"><i></i>LUKON</span></span><span class="case__ang">Facturación que se manda sola</span><h3>Lukon Telemática</h3><p class="case__meta">GPS para flotillas · Ecatepec, Edomex</p><p class="case__sum">Timbrar, descargar, adjuntar y redactar el correo era un trámite manual por cada factura. Hoy es un clic.</p><div class="case__nums"><div><b>1 clic</b><span>del timbrado al correo</span></div><div><b>2 de 2</b><span>adjuntos automáticos</span></div><div><b>0</b><span>facturas enviadas a mano</span></div></div><span class="case__link">Ver el caso <svg class="ico"><use href="#i-arrow"/></svg></span></a>
+      <a class="card case reveal" href="https://sparcgroup.mx" target="_blank" rel="noopener"><span class="case__logo" aria-hidden="true"><img src="/landing/img/logo-sparc.webp" alt="" width="300" height="352" loading="lazy" style="max-height:54px"></span><span class="case__ang">Captación + cartera inteligente</span><h3>SPARC Group</h3><p class="case__meta">Administración de condominios · CDMX</p><p class="case__sum">Su sitio sparcgroup.mx capta nuevos clientes con un cuestionario. Y cada administrador ve un resumen inteligente de todos sus edificios: quién debe más, analíticos por edificio y los temas que requieren su atención, conectado a Vivook, la herramienta que ya usaban.</p><div class="case__nums"><div><b>10</b><span>condominios en un solo tablero</span></div><div><b>458</b><span>adeudos ordenados por quién debe más</span></div><div><b>Vivook</b><span>conectado, sin recapturar</span></div></div><span class="case__link">Ver su sitio <svg class="ico"><use href="#i-arrow"/></svg></span></a>
+      <a class="card case reveal" href="https://megaclase.fishflow.mx/" target="_blank" rel="noopener"><span class="case__logo" aria-hidden="true"><span class="vb-mark"><img src="/landing/img/logo-vibra.webp" alt="" width="192" height="192" loading="lazy">VIBRA MX</span></span><span class="case__ang">Venta de boletos en línea</span><h3>VIBRA MX · Megaclase</h3><p class="case__meta">Evento fitness · YMCA Mallorca, CDMX</p><p class="case__sum">Página del evento con pago en línea, boleto digital con QR, ligas de referido para cada coach y un panel para ver ventas y escanear en la puerta.</p><div class="case__nums"><div><b>500</b><span>lugares a la venta</span></div><div><b>15</b><span>coaches con liga propia</span></div><div><b>1 QR</b><span>por boleto, escaneado en puerta</span></div></div><span class="case__link">Ver la venta de boletos <svg class="ico"><use href="#i-arrow"/></svg></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- INVERSIÓN -->
+<section class="sec sec--ice" id="inversion">
+  <div class="ff-container">
+    <div class="sec__head center reveal">
+      <span class="eyebrow">Inversión</span>
+      <h2 class="h2">Sin paquetes. <span class="o">Pagas por lo que automatizamos.</span></h2>
+      <p>Cada negocio es distinto, así que no te encajamos en un plan. Tu cotización tiene solo dos partes.</p>
+    </div>
+    <div class="invest">
+      <div class="card plan plan--a reveal">
+        <span class="plan__lvl">Pago único</span>
+        <h3>Implementación</h3>
+        <p>Construimos tu solución y la dejamos funcionando en tu negocio.</p>
+        <ul class="clean checks">
+          <li><svg class="ico"><use href="#i-check"/></svg>Diseño a la medida de tu giro</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Conexión con tus herramientas: WhatsApp, pagos, facturación</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Carga de tus clientes, productos y citas</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Capacitación para ti y tu equipo</li>
+        </ul>
+      </div>
+      <div class="invest__plus" aria-hidden="true"><svg viewBox="0 0 24 24"><defs><linearGradient id="plusG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#42C7E8"/><stop offset=".5" stop-color="#0A7EA3"/><stop offset="1" stop-color="#FF8A2A"/></linearGradient></defs><path d="M12 4.5v15M4.5 12h15" fill="none" stroke="url(#plusG)" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+      <div class="card plan plan--b reveal">
+        <span class="plan__lvl">Mes con mes</span>
+        <h3>Suscripción mensual</h3>
+        <p>La mantenemos trabajando sola y mejorando contigo.</p>
+        <ul class="clean checks">
+          <li><svg class="ico"><use href="#i-check"/></svg>Hospedaje, seguridad y respaldos</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>La IA y los servicios conectados funcionando</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Soporte y ajustes cuando los necesites</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Reporte y sesión de mejora</li>
+        </ul>
+      </div>
+    </div>
+    <div class="invest__note reveal">
+      <div>
+        <b>¿De qué depende el monto?</b>
+        <p>De lo que automaticemos: cuántos procesos, cuántas conexiones y cuántos usuarios. Cuéntanos tu caso y te damos la cotización exacta de las dos partes.</p>
+      </div>
+      <a class="btn btn--primary" href="#empezar">Cotizar mi proyecto <svg class="ico"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq">
+  <div class="ff-container">
+    <div class="sec__head center reveal">
+      <span class="eyebrow">Preguntas frecuentes</span>
+      <h2 class="h2">Lo que casi todos preguntan</h2>
+    </div>
+    <div class="faq reveal">
+      <details><summary>¿Cuánto cuesta FishFlow?</summary><p>No manejamos paquetes. Cotizamos en dos partes: un pago único de implementación y una suscripción mensual. Las dos dependen de lo que automaticemos, y en cuanto nos cuentas tu caso te damos la propuesta exacta.</p></details>
+      <details><summary>¿Cuánto tarda en estar listo?</summary><p>Para giros que ya conocemos, tu sistema suele estar listo en 2 a 4 semanas. Si tu caso necesita conexiones especiales, te lo decimos antes de empezar.</p></details>
+      <details><summary>¿Necesito saber de tecnología?</summary><p>No. Te capacitamos a ti y a tu equipo en sesiones cortas. Todo está pensado para que cualquier persona del negocio lo use.</p></details>
+      <details><summary>¿Hay contrato a plazos largos?</summary><p>No. La implementación se paga una sola vez y la suscripción es mes con mes: si no ves valor, la cancelas. Queremos que te quedes por resultados, no por letras chiquitas.</p></details>
+      <details><summary>¿Y si mi giro no aparece aquí?</summary><p>Si tu negocio maneja clientes y comunicación, lo podemos automatizar: consultorios, talleres, escuelas, distribuidoras y más. Cuéntanos tu caso.</p></details>
+      <details><summary>¿Quién está detrás de FishFlow?</summary><p>FishFlow nace con Rafa Fish, con más de una década vendiendo tecnología a operadores de telecomunicaciones, y un equipo con la misma idea: soluciones digitales y de IA accesibles para todo negocio.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · CTA FINAL -->
+<section class="final" id="cierre">
+  <div class="ff-container final__in final__in--c">
+    <div class="hub reveal" aria-hidden="true"><div class="hub__core"><img src="/logo-vertical.svg" alt="" width="885" height="640"></div></div>
+    <div class="reveal">
+      <h2>No lo pospongas.<br><span class="c">Hagámoslo</span> <span class="o">con IA.</span></h2>
+      <p>Cuéntanos qué te quita tiempo y te respondemos en segundos con una primera propuesta. Sin costo y sin compromiso.</p>
+      <div class="final__ctas">
+        <a class="btn btn--primary" href="#empezar">Hagámoslo con IA <svg class="ico"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn--light" href="https://wa.me/525610597851?text=Hola%20FishFlow%2C%20quiero%20automatizar%20mi%20negocio" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
+      </div>
+      <p class="final__small">O escribe a <a href="mailto:raf@fishflow.mx">raf@fishflow.mx</a></p>
+      <p class="final__slogan"><span class="c">Siempre</span> <span class="o">Adelante</span></p>
+    </div>
+  </div>
+  <div class="waves waves--dark" style="--wh:clamp(90px,11vw,160px)" aria-hidden="true"><div class="wave wave--cyan"></div><div class="wave wave--orange"></div><div class="wave wave--line"></div><div class="wave wave--front"></div></div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="ff-container">
+    <div class="foot__in">
+      <img src="/logo-horizontal.svg" alt="FishFlow" width="143" height="30" style="filter:brightness(0) invert(1);opacity:.92">
+      <nav class="foot__links" aria-label="Pie de página">
+        <a href="#industrias">Soluciones</a><a href="#resultados">Casos</a><a href="#inversion">Inversión</a><a href="/aviso-de-privacidad">Privacidad</a>
+      </nav>
+    </div>
+    <div class="foot__bottom">
+      <span>© 2026 FishFlow · Hecho en México</span>
+      <span class="foot__slogan"><span class="c">Siempre</span> <span class="o">Adelante</span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var b=document.getElementById('burger'),m=document.getElementById('mmenu');
+  function set(o){m.classList.toggle('open',o);b.setAttribute('aria-expanded',o);b.setAttribute('aria-label',o?'Cerrar menú':'Abrir menú');b.querySelector('use').setAttribute('href',o?'#i-x':'#i-menu');}
+  b.addEventListener('click',function(){set(!m.classList.contains('open'));});
+  m.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){set(false);});});
+  window.addEventListener('resize',function(){if(window.innerWidth>980)set(false);});
+  var px=[document.getElementById('hero'),document.getElementById('stage')].filter(Boolean);
+  if(px.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    var tick=false;
+    function upd(){var vh=window.innerHeight;px.forEach(function(el){var r=el.getBoundingClientRect();var p=el.id==='hero'?-r.top/Math.max(1,r.height):(vh-r.top)/(vh+r.height);p=Math.min(1,Math.max(0,p));el.style.setProperty('--p',p.toFixed(3));});tick=false;}
+    window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(upd);}},{passive:true});upd();
+  }
+  // Los botones internos no dejan #seccion en la dirección: así el link que se copia siempre abre arriba.
+  if(location.hash){history.replaceState(null,'',location.pathname+location.search);window.scrollTo(0,0);}
+  if('scrollRestoration' in history){history.scrollRestoration='manual';}
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var id=a.getAttribute('href').slice(1);var t=id?document.getElementById(id):document.body;if(!t)return;e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});});});
+  // Opción B: listones que fluyen de cada giro hacia FishFlow
+  (function(){var svg=document.getElementById('orbFlow');if(!svg)return;var grid=svg.parentNode;
+    function draw(){[].slice.call(svg.querySelectorAll('path')).forEach(function(n){n.remove();});
+      if(window.innerWidth<=980)return;var g=grid.getBoundingClientRect();var core=grid.querySelector('.orbit__core').getBoundingClientRect();
+      var tx=core.left-g.left+core.width*0.12,ty=core.top-g.top+core.height/2;
+      grid.querySelectorAll('.nrow li').forEach(function(li,i){var r=li.getBoundingClientRect();var x=r.right-g.left-6,y=r.top-g.top+r.height/2;var ey=ty+(i-2)*14;var dx=(tx-x)*0.55;
+        var d='M'+x+' '+y+' C'+(x+dx)+' '+y+' '+(tx-dx)+' '+ey+' '+tx+' '+ey;
+        ['f-base','f-run'].forEach(function(c){var pth=document.createElementNS('http://www.w3.org/2000/svg','path');pth.setAttribute('d',d);pth.setAttribute('class',c);if(c==='f-run')pth.style.animationDelay=(-i*0.4)+'s';svg.appendChild(pth);});});}
+    var t;window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(draw,120);});window.addEventListener('load',draw);setTimeout(draw,300);grid.addEventListener('transitionend',function(e){if(e.target.classList.contains('reveal'))draw();});
+  })();
+  // Formulario de contacto: el mismo diagnóstico con IA de fishflow.mx (/api/leads/ai) → tabla leads + Slack #leads + correo
+  document.querySelectorAll('.js-lead').forEach(function(f){var t0=Date.now();var msg=f.querySelector('.lead__msg');var btn=f.querySelector('button[type=submit]');
+    f.addEventListener('submit',function(e){e.preventDefault();msg.className='lead__msg';
+      var d=new FormData(f);if(!d.get('name')||!d.get('email')||!d.get('problem')){msg.className='lead__msg err';msg.textContent='Completa tu nombre, correo y qué te quita tiempo.';return;}
+      if(!f.consent.checked){msg.className='lead__msg err';msg.textContent='Necesitamos que aceptes el Aviso de Privacidad.';return;}
+      btn.disabled=true;msg.textContent='Nuestra IA está revisando tu caso…';
+      fetch('/api/leads/ai/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:d.get('name'),email:d.get('email'),phone:d.get('phone')||'',problem:d.get('problem'),_ts:t0,_hp:d.get('website')||''})})
+      .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});})
+      .then(function(x){btn.disabled=false;if(!x.ok){msg.className='lead__msg err';msg.textContent=x.j.error||'Algo salió mal. Intenta de nuevo.';return;}
+        msg.className='lead__msg ok';msg.textContent=(x.j.response||'¡Gracias!').replace(/\*\*/g,'')+'\n\nTe mandamos una copia a tu correo y te estaremos contactando para programar una reunión.';f.querySelectorAll('input,textarea').forEach(function(el){if(el.type!=='checkbox')el.value='';});
+        if(window.fbq)try{fbq('track','Lead',{content_name:'Diagnóstico IA FishFlow'});}catch(_){}})
+      .catch(function(){btn.disabled=false;msg.className='lead__msg err';msg.textContent='No pudimos enviar tu mensaje. Revisa tu conexión o escríbenos por WhatsApp.';});
+    });
+  });
+  var els=document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(el){io.observe(el);});
+  } else { els.forEach(function(el){el.classList.add('in');}); }
+})();
+</script>
+<noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1068939399187107&ev=PageView&noscript=1"/></noscript>
+<script>document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a');if(!a||!window.fbq)return;var h=(a.getAttribute('href')||'').toLowerCase();if(h.indexOf('wa.me')>-1||h.indexOf('whatsapp')>-1){fbq('track','Contact',{content_name:'WhatsApp'});}else if(h.indexOf('mailto:')===0){fbq('track','Contact',{content_name:'Correo'});}},true);</script>
+</body>
+</html>

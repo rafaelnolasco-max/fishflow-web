@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
           has: [{ type: "host", value: "megaclase.fishflow.mx" }],
           destination: "/eventos/megaclase/index.html",
         },
+        // Landing pública (rebrand "Siempre Adelante", 27-oct-2026): HTML estático
+        // en public/landing/. La landing anterior sigue en app/page.tsx; para
+        // regresar a ella basta con quitar esta regla.
+        { source: "/", destination: "/landing/index.html" },
         { source: "/eventos/:slug/", destination: "/eventos/:slug/index.html" },
       ],
       afterFiles: [],
