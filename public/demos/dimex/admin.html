@@ -48,7 +48,7 @@ main{padding:20px 0 40px;display:grid;gap:16px}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th{text-align:left;font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:6px 8px;border-bottom:1px solid var(--line)}
 td{padding:8px;border-bottom:1px solid #f1eee7;vertical-align:middle}
-td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .pname{display:flex;align-items:center;gap:10px;min-width:0}
 .pname img{width:34px;height:34px;object-fit:contain;border:1px solid var(--line);border-radius:8px;background:#fff;flex:none}
 .pname span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px}
@@ -95,6 +95,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
     <img src="img/logo-dimex.png" alt="DIMEX">
     <div><h1>Panel del negocio</h1><div class="who">Elizabeth y Roberto · actualizado <span id="now"></span></div></div>
     <div class="sp"></div>
+    <div class="seg" id="chan"><button data-c="todos" aria-pressed="true">Todo</button><button data-c="menudeo">Menudeo</button><button data-c="mayoreo">Mayoreo</button></div>
     <div class="seg" id="range"><button data-d="7">7 días</button><button data-d="30" aria-pressed="true">30 días</button><button data-d="90">90 días</button></div>
     <a href="index.html">Ver tienda →</a>
   </div>
@@ -103,6 +104,17 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 
 <main class="wrap">
   <section class="kpis" id="kpis"></section>
+
+  <section class="row eq">
+    <div class="panel">
+      <div class="ph"><h2>Menudeo vs mayoreo</h2><span>Mismo periodo</span></div>
+      <div id="chanTable"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>Facturación <span class="tag good" style="vertical-align:2px">Módulo opcional</span></h2><span>CFDI 4.0 automático vía Facturapi</span></div>
+      <div id="invPanel"></div>
+    </div>
+  </section>
 
   <section class="row">
     <div class="panel">
@@ -174,6 +186,9 @@ let seed=20261102;const rnd=()=>{seed=(seed*1664525+1013904223)%4294967296;retur
 const pick=(arr,w)=>{let r=rnd()*w.reduce((a,b)=>a+b,0);for(let i=0;i<arr.length;i++){r-=w[i];if(r<=0)return arr[i]}return arr[arr.length-1]};
 
 let P=[],ORDERS=[],range=30;
+const tiersFor=price=>price>=1500?[[3,.08],[10,.15],[30,.22]]:[[6,.10],[24,.18],[100,.25]];
+function unitP(price,q,may){if(!may)return price;let d=0;for(const [m,x] of tiersFor(price))if(q>=m)d=x;return Math.round(price*(1-d))}
+let channel='todos';
 function simulate(){
   // popularity: cheaper & mobiliario sets sell often; a few hero products
   const pop=P.map((p,i)=>{let w=1/Math.sqrt(p.price/150);if(p.cat==='mobiliario')w*=1.6;if(p.before)w*=1.5;if(p.src!=='8connect')w*=.7;if(i%9===0)w*=2.4;return w});
@@ -182,28 +197,30 @@ function simulate(){
     const day=new Date(today-d*864e5);const dow=day.getDay();
     const growth=1+(179-d)/179*.35;const n=Math.round((4+rnd()*4)*growth*(dow===0?.6:dow===6?.8:1)*(d<12?1.15:1));
     for(let k=0;k<n;k++){
-      const lines=[];const nl=1+Math.floor(rnd()*rnd()*4);
-      for(let j=0;j<nl;j++){const p=pick(P,pop);lines.push({p,q:p.price>1500?1:1+Math.floor(rnd()*rnd()*4)})}
-      const sub=lines.reduce((s,l)=>s+l.p.price*l.q,0);
-      ORDERS.push({d:179-d,date:day,lines,sub,ship:sub>=500?0:149,state:pick(STATES,SW),pay:pick(PAYS.map(x=>x[0]),PAYS.map(x=>x[1]))});
+      const may=rnd()<.11;const lines=[];const nl=may?1+Math.floor(rnd()*3):1+Math.floor(rnd()*rnd()*4);
+      for(let j=0;j<nl;j++){const p=pick(P,pop);const q=may?(p.price>=1500?3+Math.floor(rnd()*3):[6,6,12,12,24,48][Math.floor(rnd()*6)]):(p.price>1500?1:1+Math.floor(rnd()*rnd()*4));lines.push({p,q,u:unitP(p.price,q,may)})}
+      let sub=lines.reduce((s,l)=>s+l.u*l.q,0);
+      if(may&&sub<3000){const l=lines[0];l.q=Math.ceil(3000/l.u)+1;l.u=unitP(l.p.price,l.q,true);sub=lines.reduce((s,l)=>s+l.u*l.q,0)}
+      const inv=rnd()<(may?.88:.18);const st=!inv?null:(179-d)>=177&&rnd()<.5?'pendiente':rnd()<.015?'cancelada':'emitida';
+      ORDERS.push({d:179-d,date:day,ch:may?'mayoreo':'menudeo',inv:st,lines,sub,ship:may||sub>=500?0:149,state:pick(STATES,SW),pay:pick(PAYS.map(x=>x[0]),PAYS.map(x=>x[1]))});
     }
   }
   P.forEach((p,i)=>{p.stock=Math.round(2+rnd()*rnd()*70);p.cr=COST[p.cat]*(0.9+rnd()*0.2)});
 }
 function agg(from,to){
-  const o=ORDERS.filter(x=>x.d>=from&&x.d<to);
-  let rev=0,cost=0,ship=0,shipCost=0,units=0;const byP={},byC={},byDay={},bySt={},byPay={};
+  const o=ORDERS.filter(x=>x.d>=from&&x.d<to&&(channel==='todos'||x.ch===channel));
+  let rev=0,cost=0,ship=0,shipCost=0,units=0;const byP={},byC={},byDay={},bySt={},byPay={},byCh={menudeo:{rev:0,n:0,profit:0,units:0},mayoreo:{rev:0,n:0,profit:0,units:0}},inv={emitida:0,emitidaM:0,pendiente:0,cancelada:0,sinM:0,sinN:0};
   for(const x of o){
-    rev+=x.sub;ship+=x.ship;shipCost+=SHIP_COST;bySt[x.state]=(bySt[x.state]||0)+x.sub;byPay[x.pay]=(byPay[x.pay]||0)+1;
+    rev+=x.sub;ship+=x.ship;shipCost+=SHIP_COST;const ch=byCh[x.ch];ch.rev+=x.sub;ch.n++;if(x.inv==='emitida'){inv.emitida++;inv.emitidaM+=x.sub+x.ship}else if(x.inv){inv[x.inv]++}else{inv.sinN++;inv.sinM+=x.sub+x.ship}bySt[x.state]=(bySt[x.state]||0)+x.sub;byPay[x.pay]=(byPay[x.pay]||0)+1;
     const dd=byDay[x.d]||(byDay[x.d]={rev:0,profit:0,date:x.date});
     for(const l of x.lines){
-      const r=l.p.price*l.q,c=r*l.p.cr;cost+=c;units+=l.q;dd.rev+=r;dd.profit+=r-c;
+      const r=l.u*l.q,c=l.p.price*l.q*l.p.cr;ch.profit+=r-c;ch.units+=l.q;cost+=c;units+=l.q;dd.rev+=r;dd.profit+=r-c;
       const bp=byP[l.p.id]||(byP[l.p.id]={p:l.p,rev:0,units:0,profit:0});bp.rev+=r;bp.units+=l.q;bp.profit+=r-c;
       const bc=byC[l.p.cat]||(byC[l.p.cat]={rev:0,profit:0,units:0});bc.rev+=r;bc.profit+=r-c;bc.units+=l.q;
     }
   }
   const fees=(rev+ship)*MP_FEE;
-  return {o,n:o.length,rev,cost,gross:rev-cost,ship,shipCost,fees,net:rev-cost+ship-shipCost-fees,units,byP,byC,byDay,bySt,byPay};
+  return {o,n:o.length,rev,cost,gross:rev-cost,ship,shipCost,fees,net:rev-cost+ship-shipCost-fees,units,byP,byC,byDay,bySt,byPay,byCh,inv};
 }
 function delta(a,b){if(!b)return '';const v=(a-b)/b;return `<div class="d ${v>=0?'up':'down'}">${v>=0?'▲':'▼'} ${Math.abs(v*100).toFixed(1)}% vs periodo anterior</div>`}
 
@@ -216,9 +233,29 @@ function render(){
   $('#trendNote').textContent=`Últimos ${range} días`;
   trend(cur);catTable(cur);topTable(cur);waterfall(cur);stock(cur);hbars('#states',Object.entries(cur.bySt).sort((a,b)=>b[1]-a[1]).filter(x=>x[0]!=='Otros').slice(0,8),fmtK,'var(--s1)');
   const pay=Object.entries(cur.byPay).sort((a,b)=>b[1]-a[1]);hbars('#payments',pay,v=>Math.round(v/cur.n*100)+'%',  'var(--s1)');
-  recs(cur,prev);
+  recs(cur,prev);chanTable(cur);invPanel(cur);
 }
 
+function chanTable(cur){
+  const all=channel==='todos'?cur:(()=>{const c=channel;channel='todos';const a=agg(180-range,180);channel=c;return a})();
+  const rows=[['menudeo','🛍️ Menudeo','Familias y compras sueltas'],['mayoreo','🏫 Mayoreo','Escuelas, guarderías y negocios']];
+  $('#chanTable').innerHTML=`<table><thead><tr><th>Canal</th><th class="n">Ventas</th><th class="n">Pedidos</th><th class="n">Ticket</th><th class="n hide-sm">Margen</th></tr></thead><tbody>${rows.map(([k,n,sub])=>{const v=all.byCh[k];return `<tr><td><b>${n}</b><div style="font-size:12px;color:var(--muted)">${sub} · ${pct(v.rev/all.rev)} de la venta</div></td><td class="n">${fmtK(v.rev)}</td><td class="n">${v.n}</td><td class="n">${fmt(v.n?v.rev/v.n:0)}</td><td class="n hide-sm">${pct(v.rev?v.profit/v.rev:0)}</td></tr>`}).join('')}</tbody></table>
+  <p style="font-size:13px;color:var(--ink-2);margin:10px 0 0">El mayoreo tiene ${(all.byCh.mayoreo.rev/all.byCh.mayoreo.n/(all.byCh.menudeo.rev/all.byCh.menudeo.n)).toFixed(0)}× el ticket del menudeo con menos margen por pieza (descuentos por volumen de 10% a 25%).</p>`;
+}
+function invPanel(cur){
+  const i=cur.inv;const req=i.emitida+i.pendiente+i.cancelada;
+  $('#invPanel').innerHTML=`<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">
+    <div class="kpi"><div class="l">Facturas emitidas</div><div class="v">${i.emitida}</div><div class="d" style="color:var(--muted)">${pct(req/cur.n)} de los pedidos</div></div>
+    <div class="kpi"><div class="l">Monto facturado</div><div class="v">${fmtK(i.emitidaM)}</div><div class="d" style="color:var(--muted)">automático al pagar</div></div>
+    <div class="kpi"><div class="l">Factura global</div><div class="v">${fmtK(i.sinM)}</div><div class="d" style="color:var(--muted)">${i.sinN} ventas al público en general</div></div></div>
+  <table><tbody>
+    <tr><td>Timbradas y enviadas al cliente</td><td class="n"><span class="tag good">✓ ${i.emitida}</span></td></tr>
+    <tr><td>Pendientes de confirmar el pago</td><td class="n"><span class="tag warn">◔ ${i.pendiente}</span></td></tr>
+    <tr><td>Canceladas ante el SAT</td><td class="n"><span class="tag bad">✕ ${i.cancelada}</span></td></tr>
+    <tr><td>Factura global del mes (público en general)</td><td class="n"><span class="tag warn">Se emite el último día</span></td></tr>
+  </tbody></table>
+  <p style="font-size:12px;color:var(--muted);margin:10px 0 0">Horas de captura ahorradas en el periodo: ~${Math.round(req*6/60)} h (≈6 min por factura hecha a mano).</p>`;
+}
 /* charts */
 function tipOn(el,html,x,y){let t=el.querySelector('.tip');if(!t){t=document.createElement('div');t.className='tip';el.appendChild(t)}t.innerHTML=html;t.style.left=x+'px';t.style.top=y+'px';t.style.opacity=1}
 function tipOff(el){const t=el.querySelector('.tip');if(t)t.style.opacity=0}
@@ -289,12 +326,14 @@ function recs(cur,prev){
     lowStock?['📦',`${lowStock} producto${lowStock===1?'':'s'} se agota${lowStock===1?'':'n'} en menos de una semana`,`Programen producción o reabasto antes de perder ventas. La tabla de inventario muestra cuáles.`]:['📦','Ningún producto se agota esta semana','Revisen la tabla de inventario: los que alcanzan menos de 15 días conviene producirlos ya.'],
     ['🚚',`${pct(smallOrders)} de los pedidos no llega a $500`,`Esos pedidos pagan envío y bajan la conversión. Sugerencia: mostrar "complementa tu pedido" con productos de $100–$250 del catálogo didáctico.`],
     ['🧩',`Los catálogos DIMEX y Melewi ya aportan ${pct(dimexRev/cur.rev)} de la venta`,`Son ${dimex.length} productos nuevos con venta. Fotos propias y descripciones por edad/uso (preescolar, primaria) subirían esa cifra.`],
+    ['🏫',`El mayoreo deja ${pct(cur.byCh.mayoreo.rev/(cur.rev||1))} de la venta${channel!=='todos'?' (filtro activo)':''}`,`Las escuelas compran en junio–agosto y enero. Conviene una campaña de "Equipa tu salón" con cotización en 24 h y la factura automática como gancho.`],
     ['📈',`Las ventas ${growth>=0?'crecieron':'bajaron'} ${pct(Math.abs(growth))} contra el periodo anterior`,growth>=0?'Buen momento para invertir en pauta en Meta durante el regreso a clases y diciembre.':'Revisen precios de la competencia y activen una promoción por tiempo limitado.']
   ];
   $('#recs').innerHTML=R.map(([i,t,p])=>`<div class="rec"><div class="i">${i}</div><div><b>${t}</b><p>${p}</p></div></div>`).join('');
 }
 
 $('#now').textContent=new Date().toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+$('#chan').onclick=e=>{const b=e.target.closest('button');if(!b)return;channel=b.dataset.c;$('#chan').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()};
 $('#range').onclick=e=>{const b=e.target.closest('button');if(!b)return;range=+b.dataset.d;$('#range').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()};
 $('#topTabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;topKey=b.dataset.k;$('#topTabs').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));topTable(agg(180-range,180))};
 Promise.resolve(window.PRODUCTS).then(d=>{P=d;simulate();render()});

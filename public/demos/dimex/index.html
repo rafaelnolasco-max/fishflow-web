@@ -173,6 +173,57 @@ footer a:hover{color:#fff}
 .notice.err{background:#fdecea;color:#8a1c14}
 .notice.ok{background:#e5f6ea;color:#185c2d}
 .ff-credit{display:inline-flex !important;align-items:center;gap:6px;color:inherit;text-decoration:none;opacity:.6;transition:opacity .2s;padding:0 !important}.ff-credit:hover,.ff-credit:focus-visible{opacity:1}.ff-credit__logo{width:22px;height:12px;flex:none}.ff-credit b{font-weight:600}
+/* modo menudeo / mayoreo */
+.mode{display:inline-flex;background:var(--soft);border-radius:999px;padding:4px;flex:none}
+.mode button{border:0;background:transparent;border-radius:999px;padding:8px 14px;font-weight:800;color:var(--ink-2);font-size:14px}
+.mode button[aria-pressed=true]{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(20,40,80,.12)}
+body.may .mode button[aria-pressed=true]{background:var(--blue);color:#fff}
+body.may .promo{background:var(--blue);color:#fff}
+body.may .h1{background:linear-gradient(135deg,#143a75 0%,#1d4f9c 60%,#2e9e4f 140%)}
+.maybar{display:none;background:#eaf6ee;border-bottom:1px solid #cfe9d8;color:#185c2d;font-size:14px}
+body.may .maybar{display:block}
+.maybar .wrap{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+.maybar b{color:#0f4a22}
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tier{border:2px solid var(--line);border-radius:12px;padding:8px;text-align:center;background:#fff}
+.tier small{display:block;color:var(--ink-2);font-weight:700;font-size:12px}
+.tier b{font-family:Fredoka,sans-serif;font-size:17px}
+.tier i{display:block;font-style:normal;color:var(--green);font-size:12px;font-weight:800}
+.tier.on{border-color:var(--green);background:#eaf6ee}
+.wprice{font-size:12px;color:var(--ink-2);width:100%}
+.wprice b{font-size:12px;font-family:Nunito,sans-serif;color:var(--green)}
+.save{color:var(--green);font-weight:800;font-size:12px}
+.check{display:flex;gap:10px;align-items:flex-start;background:var(--soft);border-radius:12px;padding:12px;font-weight:700;font-size:14px;cursor:pointer}
+.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--blue)}
+.fiscal{display:grid;gap:10px;border:2px dashed #d6e2f5;border-radius:14px;padding:12px}
+.fiscal[hidden]{display:none}
+.field select{border:2px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;color:var(--ink);background:#fff}
+.mp[disabled]{background:#9aa1ad}
+/* factura */
+.inv{background:#fff;color:#1b2333;font-size:12px;line-height:1.4;position:relative;padding:22px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.inv:before{content:"DEMO · SIN VALIDEZ FISCAL";position:absolute;left:-10%;right:-10%;top:42%;transform:rotate(-18deg);text-align:center;font:700 38px Fredoka,sans-serif;color:rgba(226,55,43,.12);pointer-events:none;white-space:nowrap}
+.inv h4{margin:0;font:600 18px Fredoka,sans-serif}
+.inv .ih{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid var(--blue);padding-bottom:10px;margin-bottom:10px;flex-wrap:wrap}
+.inv .ig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.inv .ig div{background:var(--soft);border-radius:8px;padding:8px}
+.inv .lab{color:#6b7385;font-size:10px;text-transform:uppercase;letter-spacing:.04em;font-weight:800}
+.inv .tw{overflow-x:auto}
+.inv table{width:100%;border-collapse:collapse;margin:8px 0;min-width:460px}
+.inv th{background:var(--blue);color:#fff;text-align:left;padding:5px 6px;font-size:10px}
+.inv td{border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:top}
+.inv .n{text-align:right;white-space:nowrap}
+.inv .tt{margin-left:auto;width:min(240px,100%)}
+.inv .tt div{display:flex;justify-content:space-between;padding:2px 0}
+.inv .tt .g{font-weight:800;font-size:14px;border-top:2px solid var(--ink);padding-top:4px}
+.inv .seal{display:grid;grid-template-columns:84px 1fr;gap:10px;margin-top:12px;font-size:9px;color:#6b7385;word-break:break-all}
+.inv .qr{width:84px;height:84px;background:repeating-conic-gradient(#1b2333 0 25%,#fff 0 50%) 0 0/12px 12px;border:4px solid #fff;outline:1px solid var(--line)}
+.modal .box.ivbox{max-width:780px;grid-template-columns:minmax(0,1fr)}
+.ivbox .info,.ivbox .info>*{min-width:0;max-width:100%}
+.ivbox .info{padding:22px}
+.ivact{display:flex;gap:10px;flex-wrap:wrap}
+@media print{body *{visibility:hidden}#invPrint,#invPrint *{visibility:visible}#invPrint{position:absolute;left:0;top:0;width:100%;border:0}.modal .box{max-height:none;overflow:visible}}
+@media (max-width:600px){.mode button{padding:7px 10px;font-size:13px}.tiers{grid-template-columns:repeat(2,1fr)}.inv .ig{grid-template-columns:1fr}.inv:before{font-size:24px}.inv{padding:14px}}
+
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media (max-width:900px){
   .herogrid{grid-template-columns:1fr}
@@ -204,8 +255,8 @@ footer a:hover{color:#fff}
 </style>
 </head>
 <body>
-<div class="demo">Sitio <b>DEMO</b> · los pagos usan el entorno de <b>prueba</b> de Mercado Pago, no se cobra dinero real.</div>
-<div class="promo"><span>🚚 Envío GRATIS en compras desde $500 · 💳 3 MSI desde $2,999 y 6 MSI desde $4,000 · 🏫 Precios de mayoreo para escuelas y guarderías · 🇲🇽 Fabricantes mexicanos</span></div>
+<div class="demo">Sitio <b>DEMO</b> · los pagos usan el entorno de <b>prueba</b> de Mercado Pago, no se cobra dinero real. · <a href="#" data-invdemo style="color:#ffc629">Ver ejemplo de factura</a></div>
+<div class="promo"><span id="promoTxt">🚚 Envío GRATIS en compras desde $500 · 💳 3 MSI desde $2,999 y 6 MSI desde $4,000 · 🏫 Precios de mayoreo para escuelas y guarderías · 🇲🇽 Fabricantes mexicanos</span></div>
 
 <header class="top">
   <div class="wrap hrow">
@@ -215,7 +266,7 @@ footer a:hover{color:#fff}
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#566074" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
     </label>
     <div class="hlinks">
-      <a class="iconbtn" href="#mayoreo"><span aria-hidden="true">🏫</span><span class="lbl">Mayoreo</span></a>
+      <div class="mode" role="group" aria-label="Tipo de compra"><button data-mode="menudeo" aria-pressed="true">Menudeo</button><button data-mode="mayoreo" aria-pressed="false">Mayoreo</button></div>
       <button class="iconbtn cartbtn" id="openCart" aria-label="Abrir carrito">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1.3"/><circle cx="17" cy="20.5" r="1.3"/></svg>
         <span class="lbl">Carrito</span><span class="n" id="cartN">0</span>
@@ -225,6 +276,7 @@ footer a:hover{color:#fff}
   <nav class="cats" aria-label="Secciones">
     <div class="wrap tabs" id="tabs"></div>
   </nav>
+  <div class="maybar"><div class="wrap"><span>🏫 <b>Modo mayoreo:</b> precios por volumen desde 6 piezas · pedido mínimo <b>$3,000</b> · envío gratis · factura automática</span><a href="#mayoreo" style="font-weight:800">¿Pedido especial? Cotiza aquí →</a></div></div>
 </header>
 
 <main>
@@ -232,10 +284,10 @@ footer a:hover{color:#fff}
     <section class="hero" id="hero">
       <div class="herogrid">
         <div class="hcard h1">
-          <div class="art"><img src="img/abaco-10-metalico.webp" alt=""></div>
-          <h1>Aprender jugando, hecho en México</h1>
-          <p>Material didáctico, mobiliario infantil y soluciones para el hogar. Más de 170 productos para escuelas, guarderías y familias.</p>
-          <div><button class="btn y" data-go="didacticos">Ver material didáctico →</button></div>
+          <div class="art"><img id="heroImg" src="img/abaco-10-metalico.webp" alt=""></div>
+          <h1 id="heroH">Aprender jugando, hecho en México</h1>
+          <p id="heroP">Material didáctico, mobiliario infantil y soluciones para el hogar. Más de 170 productos para escuelas, guarderías y familias.</p>
+          <div id="heroCta"><button class="btn y" data-go="didacticos">Ver material didáctico →</button></div>
         </div>
         <div class="hstack">
           <button class="hmini m1" data-go="mobiliario">
@@ -248,7 +300,7 @@ footer a:hover{color:#fff}
           </button>
         </div>
       </div>
-      <div class="benefits">
+      <div class="benefits" id="benefits">
         <div class="ben"><div class="ic" style="background:#fff3cf">🚚</div><div><b>Envío gratis</b><span>En compras desde $500 a todo México</span></div></div>
         <div class="ben"><div class="ic" style="background:#e1f1ff">💳</div><div><b>Pago seguro</b><span>Tarjeta, OXXO y saldo con Mercado Pago</span></div></div>
         <div class="ben"><div class="ic" style="background:#e3f6e8">🏭</div><div><b>Somos fabricantes</b><span>Plástico de primera calidad</span></div></div>
@@ -289,7 +341,8 @@ footer a:hover{color:#fff}
         <details open><summary>¿Qué métodos de pago aceptan?</summary><p>Pagas con Mercado Pago: tarjetas de crédito y débito (Visa, Mastercard, American Express), efectivo en OXXO, transferencia SPEI y saldo Mercado Pago. Meses sin intereses con tarjetas participantes.</p></details>
         <details><summary>¿El envío es gratis?</summary><p>Sí, en compras desde $500 MXN. Algunos productos voluminosos o zonas extendidas pueden tener condiciones especiales.</p></details>
         <details><summary>¿Cuánto tarda mi pedido?</summary><p>Procesamos en 1 a 2 días hábiles. CDMX y área metropolitana 1–3 días; Centro 2–4; Norte y Bajío 3–6; Sur y Sureste 4–8 días hábiles.</p></details>
-        <details><summary>¿Emiten factura?</summary><p>Sí. Al terminar tu compra recibirás el enlace de facturación con tu número de pedido.</p></details>
+        <details><summary>¿Emiten factura?</summary><p>Sí, en automático. Marca “Necesito factura” al pagar y tu CFDI 4.0 (PDF y XML) llega a tu correo en cuanto se confirma el pago. Si se te pasó, puedes <a href="#" data-invlater>facturar tu compra después</a> con tu número de pedido.</p></details>
+        <details><summary>¿Cómo funciona el mayoreo?</summary><p>Activa el modo <b>Mayoreo</b> arriba. Verás precios por volumen: desde 6 piezas −10%, desde 24 −18% y desde 100 −25% (en mesas y sets: desde 3, 10 y 30 piezas). El pedido mínimo es de $3,000 con envío gratis y factura incluida.</p></details>
         <details><summary>¿Los productos didácticos están avalados?</summary><p>Varios productos del catálogo DIMEX están integrados en el programa de la SEP, como los Discos de 6 cm.</p></details>
       </div>
     </section>
@@ -302,7 +355,7 @@ footer a:hover{color:#fff}
       <div><h4>DIMEX · Didácticos México</h4><p>Fabricantes mexicanos de material didáctico, mobiliario infantil y productos de plástico para el hogar. Empresa familiar.</p>
         <div class="pays"><span>Mercado Pago</span><span>Visa</span><span>Mastercard</span><span>AMEX</span><span>OXXO</span><span>SPEI</span></div></div>
       <div><h4>Tienda</h4><a href="#" data-go="mobiliario">Mobiliario infantil</a><a href="#" data-go="didacticos">Material didáctico</a><a href="#" data-go="hogar">Hogar y organización</a><a href="#" data-go="fiestas">Fiestas y eventos</a><a href="#" data-go="ofertas">Ofertas</a></div>
-      <div><h4>Ayuda</h4><a href="#faq">Preguntas frecuentes</a><a href="#mayoreo">Pedidos de mayoreo</a><a href="#faq">Envíos</a><a href="#faq">Facturación</a></div>
+      <div><h4>Ayuda</h4><a href="#faq">Preguntas frecuentes</a><a href="#" data-setmode="mayoreo">Comprar por mayoreo</a><a href="#faq">Envíos</a><a href="#" data-invlater>Facturar mi compra</a></div>
       <div><h4>Empresas hermanas</h4><a href="https://8connectgroup.com.mx" target="_blank" rel="noopener">8 Connect Group</a><a href="#" data-go="hogar">Melewi</a><a href="#">ELIROB</a></div>
     </div>
     <div class="credit"><span>© 2026 DIMEX Didácticos México · Sitio de demostración</span><span><a href="admin.html" style="display:inline">Panel privado</a> · <a class="ff-credit" href="https://fishflow.mx/?utm_source=demo-dimex&amp;utm_medium=credito-footer&amp;utm_campaign=sitios-clientes" target="_blank" rel="noopener" title="Sitio hecho por FishFlow">Hecho con <svg class="ff-credit__logo" viewBox="170 70 860 460" aria-hidden="true"><path d="M600 300C760 100 1000 90 1000 300C1000 510 760 500 600 300C440 100 200 90 200 300C200 510 440 500 600 300Z" fill="none" stroke="currentColor" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/></svg><b>FishFlow</b></a></span></div>
@@ -341,142 +394,257 @@ const SUBS={
   hogar:[['hermeticos','Herméticos Melewi'],['organizacion','Organización y limpieza']],
   didacticos:[['matematicas','Matemáticas y lógica'],['construccion','Construcción y ensamble'],['dominos','Dominós'],['motricidad','Motricidad fina y gruesa'],['simbolico','Juego simbólico'],['musica','Música'],['gran-formato','Gran formato']]
 };
-const fmt=n=>'$'+n.toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:0});
+/* ---- reglas de precio (las mismas que valida el servidor) ---- */
+const MAY_MIN=3000, SHIP_FREE=500, SHIP=149;
+const tiersFor=price=>price>=1500?[[3,.08],[10,.15],[30,.22]]:[[6,.10],[24,.18],[100,.25]];
+function unit(p,qty,mode){if(mode!=='mayoreo')return p.price;let d=0;for(const [m,x] of tiersFor(p.price))if(qty>=m)d=x;return Math.round(p.price*(1-d))}
+const minQty=p=>tiersFor(p.price)[0][0];
+
+const fmt=n=>'$'+Math.round(n).toLocaleString('es-MX');
 const $=s=>document.querySelector(s);
-let PRODUCTS=[],state={cat:'todo',sub:null,q:'',sort:'rel',limit:24};
-let cart=[];try{cart=JSON.parse(localStorage.getItem('dimex-cart')||'[]')}catch(e){}
-const save=()=>{try{localStorage.setItem('dimex-cart',JSON.stringify(cart))}catch(e){}};
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let PRODUCTS=[],state={cat:'todo',sub:null,q:'',sort:'rel',limit:24,mode:'menudeo'};
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let cart=LS.get('dimex-cart',[]);const save=()=>LS.set('dimex-cart',cart);
 
-function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('on'),2600)}
+function toast(t,ms=2800){const el=$('#toast');el.innerHTML=t;el.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('on'),ms)}
 
-function renderTabs(){
-  $('#tabs').innerHTML=CATS.map(c=>`<button class="tab" data-cat="${c.id}" aria-pressed="${state.cat===c.id}"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`).join('');
+/* ---- modo menudeo / mayoreo ---- */
+const COPY={
+  menudeo:{h:'Aprender jugando, hecho en México',p:'Material didáctico, mobiliario infantil y soluciones para el hogar. Más de 170 productos para escuelas, guarderías y familias.',img:'img/abaco-10-metalico.webp',
+    cta:'<button class="btn y" data-go="didacticos">Ver material didáctico →</button>',
+    promo:'🚚 Envío GRATIS en compras desde $500 · 💳 3 MSI desde $2,999 y 6 MSI desde $4,000 · 🧾 Factura automática al pagar · 🇲🇽 Fabricantes mexicanos',
+    ben:[['#fff3cf','🚚','Envío gratis','En compras desde $500 a todo México'],['#e1f1ff','💳','Pago seguro','Tarjeta, OXXO y saldo con Mercado Pago'],['#e3f6e8','🏭','Somos fabricantes','Plástico de primera calidad'],['#ffe6e3','🧾','Factura automática','Tu CFDI llega al correo al pagar']]},
+  mayoreo:{h:'Equipa tu escuela, guardería o negocio',p:'Precios por volumen desde 6 piezas, factura automática y entrega programada a todo México. Directo de fábrica.',img:'img/set-sillas-mini.webp',
+    cta:'<button class="btn y" data-go="mobiliario">Ver mobiliario para aula →</button> <a class="btn o" style="background:transparent;color:#fff;border-color:#fff" href="#mayoreo">Cotizar pedido especial</a>',
+    promo:'🏫 Mayoreo: −10% desde 6 pzs · −18% desde 24 · −25% desde 100 · 🚚 Envío gratis en pedidos desde $3,000 · 🧾 Factura incluida · 📦 Entrega programada',
+    ben:[['#e3f6e8','📉','Precio por volumen','Hasta 25% menos en piezas sueltas'],['#e1f1ff','🧾','Factura automática','CFDI 4.0 a nombre de tu escuela o empresa'],['#fff3cf','📦','Entrega programada','Envío gratis desde $3,000'],['#ffe6e3','🤝','Asesor de mayoreo','Cotizaciones especiales por WhatsApp']]}
+};
+function setMode(m,announce=true){
+  state.mode=m;LS.set('dimex-mode',m);document.body.classList.toggle('may',m==='mayoreo');
+  document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===m));
+  const c=COPY[m];$('#heroH').textContent=c.h;$('#heroP').textContent=c.p;$('#heroImg').src=c.img;$('#heroCta').innerHTML=c.cta;$('#promoTxt').textContent=c.promo;
+  $('#benefits').innerHTML=c.ben.map(([bg,ic,t,s])=>`<div class="ben"><div class="ic" style="background:${bg}">${ic}</div><div><b>${t}</b><span>${s}</span></div></div>`).join('');
+  renderGrid();renderCart();
+  if(announce)toast(m==='mayoreo'?'🏫 Modo mayoreo: verás precios por volumen':'🛍️ Modo menudeo: precios por pieza');
 }
+
+function renderTabs(){$('#tabs').innerHTML=CATS.map(c=>`<button class="tab" data-cat="${c.id}" aria-pressed="${state.cat===c.id}"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`).join('')}
 function renderChips(){
   const s=SUBS[state.cat];const el=$('#chips');
   if(!s){el.innerHTML='';return}
   el.innerHTML=[['',`Todo ${CATS.find(c=>c.id===state.cat).name.toLowerCase()}`],...s].map(([id,n])=>`<button class="chip" data-sub="${id}" aria-pressed="${(state.sub||'')===id}">${n}</button>`).join('');
 }
+const norm=t=>t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 function filtered(){
   let l=PRODUCTS.filter(p=>{
     if(state.cat==='ofertas') return p.before;
     if(state.cat!=='todo'&&p.cat!==state.cat) return false;
     if(state.sub&&p.sub!==state.sub) return false;
     return true});
-  if(state.q){const q=state.q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');l=PRODUCTS.filter(p=>(p.name+' '+p.desc).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q))}
+  if(state.q){const q=norm(state.q);l=PRODUCTS.filter(p=>norm(p.name+' '+p.desc).includes(q))}
   if(state.sort==='asc')l=[...l].sort((a,b)=>a.price-b.price);
   if(state.sort==='desc')l=[...l].sort((a,b)=>b.price-a.price);
   if(state.sort==='az')l=[...l].sort((a,b)=>a.name.localeCompare(b.name,'es'));
   return l;
 }
-function card(p){
-  const off=p.before?Math.round((1-p.price/p.before)*100):0;
+function badge(p){const off=p.before?Math.round((1-p.price/p.before)*100):0;
+  return `${off&&state.mode==='menudeo'?`<span class="bdg sale">-${off}%</span>`:''}${state.mode==='mayoreo'?'<span class="bdg new">Mayoreo</span>':''}${p.src==='dimex'?'<span class="bdg cat">Catálogo DIMEX</span>':p.src==='melewi'?'<span class="bdg cat" style="color:#d8262e;background:#fdecec;border-color:#f6cfd0">Melewi</span>':p.new&&state.mode==='menudeo'?'<span class="bdg new">Nuevo</span>':''}`}
+function priceBlock(p){
+  if(state.mode==='mayoreo'){const t=tiersFor(p.price),best=t[t.length-1];
+    return `<div class="price"><b>${fmt(unit(p,t[0][0],'mayoreo'))}</b><s>${fmt(p.price)}</s><span class="wprice">c/u desde ${t[0][0]} pzs · <b>${fmt(unit(p,best[0],'mayoreo'))} desde ${best[0]}</b></span></div>`}
   const msi=p.price>=4000?'6 MSI de '+fmt(Math.ceil(p.price/6)):p.price>=2999?'3 MSI de '+fmt(Math.ceil(p.price/3)):'';
+  return `<div class="price"><b>${fmt(p.price)}</b>${p.before?`<s>${fmt(p.before)}</s>`:''}${msi?`<span class="msi">${msi}</span>`:''}</div>`;
+}
+function card(p){
+  const may=state.mode==='mayoreo';
   return `<article class="card">
-    <button class="pimg" data-open="${p.id}" aria-label="Ver ${p.name}"><img loading="lazy" src="${p.img}" alt="${p.name}">
-      <span class="badges">${off?`<span class="bdg sale">-${off}%</span>`:''}${p.src==='dimex'?'<span class="bdg cat">Catálogo DIMEX</span>':p.src==='melewi'?'<span class="bdg cat" style="color:#d8262e;background:#fdecec;border-color:#f6cfd0">Melewi</span>':p.new?'<span class="bdg new">Nuevo</span>':''}</span></button>
+    <button class="pimg" data-open="${p.id}" aria-label="Ver ${esc(p.name)}"><img loading="lazy" src="${p.img}" alt="${esc(p.name)}"><span class="badges">${badge(p)}</span></button>
     <div class="pbody">
       <div class="pname" data-open="${p.id}">${p.name}</div>
       <div class="pdesc">${p.src!=='8connect'?p.desc:(p.opts.length?p.opts.length+' opciones de color':'&nbsp;')}</div>
-      <div class="price"><b>${fmt(p.price)}</b>${p.before?`<s>${fmt(p.before)}</s>`:''}${msi?`<span class="msi">${msi}</span>`:''}</div>
-      <button class="add" data-add="${p.id}">${p.opts.length?'Elegir opción':'Agregar al carrito'}</button>
+      ${priceBlock(p)}
+      <button class="add" data-add="${p.id}">${p.opts.length?'Elegir opción':may?`Agregar ${minQty(p)} piezas`:'Agregar al carrito'}</button>
     </div></article>`;
 }
 function renderGrid(){
   const l=filtered();const c=CATS.find(x=>x.id===state.cat);
-  $('#secTitle').textContent=state.q?`Resultados para “${state.q}”`:(state.sub?SUBS[state.cat].find(s=>s[0]===state.sub)[1]:(state.cat==='todo'?'Todos los productos':c.name.replace('✦ ','')));
-  $('#secSub').textContent=state.q?'Buscando en todo el catálogo':c.sub;
+  $('#secTitle').textContent=state.q?`Resultados para “${state.q}”`:(state.sub?SUBS[state.cat].find(s=>s[0]===state.sub)[1]:(state.cat==='todo'?(state.mode==='mayoreo'?'Catálogo de mayoreo':'Todos los productos'):c.name.replace('✦ ','')));
+  $('#secSub').textContent=state.q?'Buscando en todo el catálogo':(state.mode==='mayoreo'&&state.cat==='todo'?'Precios por volumen para escuelas, guarderías, tiendas y distribuidores':c.sub);
   $('#count').textContent=l.length+' productos';
   $('#grid').innerHTML=l.length?l.slice(0,state.limit).map(card).join(''):'<div class="empty">No encontramos productos con esa búsqueda.</div>';
   $('#moreBtn').style.display=l.length>state.limit?'':'none';
 }
 function go(cat,sub=null,scroll=true){state.cat=cat;state.sub=sub;state.q='';$('#q').value='';state.limit=24;renderTabs();renderChips();renderGrid();if(scroll)document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})}
 
-/* product modal */
+/* ---- ficha de producto ---- */
 let mState={};
 function openProduct(id){
   const p=PRODUCTS.find(x=>x.id===id);if(!p)return;
-  mState={p,img:0,opt:p.opts[0]||null,qty:1};drawModal();
+  mState={p,img:0,opt:p.opts[0]||null,qty:state.mode==='mayoreo'?minQty(p):1};drawModal();
   $('#modal').classList.add('on');$('#scrim').classList.add('on');
 }
 function drawModal(){
-  const {p}=mState;
-  $('#mBox').innerHTML=`<div class="gal"><img class="main" src="${p.imgs[mState.img]}" alt="${p.name}">
+  const {p}=mState;const may=state.mode==='mayoreo';const u=unit(p,mState.qty,state.mode);
+  const t=tiersFor(p.price);
+  $('#mBox').className='box';
+  $('#mBox').innerHTML=`<div class="gal"><img class="main" src="${p.imgs[mState.img]}" alt="${esc(p.name)}">
     ${p.imgs.length>1?`<div class="thumbs">${p.imgs.map((s,i)=>`<img src="${s}" data-thumb="${i}" class="${i===mState.img?'on':''}" alt="">`).join('')}</div>`:''}</div>
     <div class="info">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:start"><span class="bdg cat">${CATS.find(c=>c.id===p.cat).name}</span><button class="x" data-close aria-label="Cerrar">✕</button></div>
       <h3 id="mTitle">${p.name}</h3>
-      <div class="price"><b style="font-size:28px">${fmt(p.price)}</b>${p.before?`<s>${fmt(p.before)}</s>`:''}</div>
-      <p style="margin:0;color:var(--ink-2)">${p.desc||''}</p>
-      ${p.opts.length?`<div><div class="field" style="margin-bottom:6px">Opción</div><div class="opts">${p.opts.map(o=>`<button class="opt" data-opt="${o.replace(/"/g,'&quot;')}" aria-pressed="${o===mState.opt}">${o}</button>`).join('')}</div></div>`:''}
-      <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
+      <div class="price"><b style="font-size:28px">${fmt(u)}</b>${may?`<span style="color:var(--ink-2)">c/u</span>${u<p.price?`<s>${fmt(p.price)}</s>`:''}`:(p.before?`<s>${fmt(p.before)}</s>`:'')}</div>
+      ${may?`<div><div class="field" style="margin-bottom:6px">Precio por volumen</div><div class="tiers">
+        <div class="tier ${mState.qty<t[0][0]?'on':''}"><small>1–${t[0][0]-1} pzs</small><b>${fmt(p.price)}</b><i>&nbsp;</i></div>
+        ${t.map(([m,d],i)=>{const nx=t[i+1];const on=mState.qty>=m&&(!nx||mState.qty<nx[0]);return `<div class="tier ${on?'on':''}"><small>${m}${nx?'–'+(nx[0]-1):'+'} pzs</small><b>${fmt(Math.round(p.price*(1-d)))}</b><i>−${Math.round(d*100)}%</i></div>`}).join('')}
+      </div></div>`:`<p style="margin:0;color:var(--ink-2)">${p.desc||''}</p>`}
+      ${p.opts.length?`<div><div class="field" style="margin-bottom:6px">Opción</div><div class="opts">${p.opts.map(o=>`<button class="opt" data-opt="${esc(o)}" aria-pressed="${o===mState.opt}">${o}</button>`).join('')}</div></div>`:''}
+      <div style="display:flex;gap:10px;align-items:center;margin-top:4px;flex-wrap:wrap">
         <div class="qty" style="margin:0"><button data-mq="-1" aria-label="Menos">−</button><span>${mState.qty}</span><button data-mq="1" aria-label="Más">+</button></div>
-        <button class="add" style="flex:1;margin:0" data-madd>Agregar al carrito · ${fmt(p.price*mState.qty)}</button>
+        ${may?`<button class="opt" data-mqset="${t[1][0]}">${t[1][0]} pzs</button><button class="opt" data-mqset="${t[2][0]}">${t[2][0]} pzs</button>`:''}
+        <button class="add" style="flex:1;margin:0;min-width:200px" data-madd>Agregar · ${fmt(u*mState.qty)}</button>
       </div>
-      <div class="ship">🚚 ${p.price>=500?'Este producto tiene <b>envío gratis</b>.':'Envío gratis al sumar $500 en tu carrito.'}<br>🔒 Pago protegido con Mercado Pago.</div>
+      ${may&&u<p.price?`<div class="save">Ahorras ${fmt((p.price-u)*mState.qty)} contra precio de menudeo</div>`:''}
+      <div class="ship">${may?'🏫 Pedido mínimo de mayoreo $3,000 · envío gratis · factura incluida.':p.price>=500?'🚚 Este producto tiene <b>envío gratis</b>.':'🚚 Envío gratis al sumar $500 en tu carrito.'}<br>🔒 Pago protegido con Mercado Pago · 🧾 Factura automática.</div>
     </div>`;
 }
 function closeAll(){$('#modal').classList.remove('on');$('#drawer').classList.remove('on');$('#drawer').setAttribute('aria-hidden','true');$('#scrim').classList.remove('on')}
 
-/* cart */
-function addToCart(id,opt,qty=1){
+/* ---- carrito ---- */
+function addToCart(id,opt,qty){
+  const p=PRODUCTS.find(x=>x.id===id);qty=qty||(state.mode==='mayoreo'?minQty(p):1);
   const k=id+'|'+(opt||'');const l=cart.find(x=>x.k===k);
   if(l)l.qty+=qty;else cart.push({k,id,opt,qty});save();renderCart();
-  const p=PRODUCTS.find(x=>x.id===id);toast('Agregado: '+p.name.slice(0,48));
+  toast(`Agregado: ${qty>1?qty+' × ':''}${esc(p.name.slice(0,44))}`);
 }
-const subtotal=()=>cart.reduce((s,l)=>{const p=PRODUCTS.find(x=>x.id===l.id);return s+(p?p.price*l.qty:0)},0);
-const SHIP_FREE=500,SHIP=149;
+function totals(){
+  let st=0,full=0;for(const l of cart){const p=PRODUCTS.find(x=>x.id===l.id);if(!p)continue;st+=unit(p,l.qty,state.mode)*l.qty;full+=p.price*l.qty}
+  const may=state.mode==='mayoreo';const ship=st===0||(may?st>=MAY_MIN:st>=SHIP_FREE)?0:SHIP;
+  return {st,full,ship,total:st+ship,save:full-st,may,okMin:!may||st>=MAY_MIN};
+}
 let step='cart';
 function renderCart(){
   cart=cart.filter(l=>PRODUCTS.find(x=>x.id===l.id));
-  const n=cart.reduce((s,l)=>s+l.qty,0);$('#cartN').textContent=n;
-  const st=subtotal(),ship=st===0||st>=SHIP_FREE?0:SHIP;
+  $('#cartN').textContent=cart.reduce((s,l)=>s+l.qty,0);
+  const T=totals();
   if(step==='cart'){
-    $('#dTitle').textContent='Tu carrito';
-    $('#dBody').innerHTML=cart.length?cart.map(l=>{const p=PRODUCTS.find(x=>x.id===l.id);return `<div class="line"><img src="${p.img}" alt=""><div><div class="t">${p.name}</div>${l.opt?`<div class="o">${l.opt}</div>`:''}<div class="qty"><button data-q="-1" data-k="${l.k}" aria-label="Menos">−</button><span>${l.qty}</span><button data-q="1" data-k="${l.k}" aria-label="Más">+</button></div></div><div style="text-align:right"><b>${fmt(p.price*l.qty)}</b><br><button class="rm" data-rm="${l.k}">Quitar</button></div></div>`}).join(''):'<div class="empty" style="margin-top:20px">Tu carrito está vacío.<br><br><button class="btn b" data-close>Seguir comprando</button></div>';
+    $('#dTitle').textContent=T.may?'Tu pedido de mayoreo':'Tu carrito';
+    $('#dBody').innerHTML=cart.length?cart.map(l=>{const p=PRODUCTS.find(x=>x.id===l.id);const u=unit(p,l.qty,state.mode);
+      const nx=T.may?tiersFor(p.price).find(([m])=>l.qty<m):null;
+      return `<div class="line"><img src="${p.img}" alt=""><div><div class="t">${p.name}</div>${l.opt?`<div class="o">${esc(l.opt)}</div>`:''}<div class="o">${fmt(u)} c/u${u<p.price?` <span class="save">(−${Math.round((1-u/p.price)*100)}%)</span>`:''}</div>${nx?`<div class="o" style="color:var(--blue)">Agrega ${nx[0]-l.qty} más y paga ${fmt(Math.round(p.price*(1-nx[1])))} c/u</div>`:''}<div class="qty"><button data-q="-1" data-k="${esc(l.k)}" aria-label="Menos">−</button><span>${l.qty}</span><button data-q="1" data-k="${esc(l.k)}" aria-label="Más">+</button></div></div><div style="text-align:right"><b>${fmt(u*l.qty)}</b><br><button class="rm" data-rm="${esc(l.k)}">Quitar</button></div></div>`}).join(''):'<div class="empty" style="margin-top:20px">Tu carrito está vacío.<br><br><button class="btn b" data-close>Seguir comprando</button></div>';
     $('#dFoot').innerHTML=cart.length?`
-      <div class="ship">${st>=SHIP_FREE?'🎉 ¡Tienes <b>envío gratis</b>!':`Te faltan <b>${fmt(SHIP_FREE-st)}</b> para envío gratis`}<div class="bar"><i style="width:${Math.min(100,st/SHIP_FREE*100)}%"></i></div></div>
-      <div class="tot"><span>Subtotal</span><span>${fmt(st)}</span></div>
-      <div class="tot"><span>Envío</span><span>${ship?fmt(ship):'Gratis'}</span></div>
-      <div class="tot big"><span>Total</span><span>${fmt(st+ship)}</span></div>
-      <button class="mp" data-step="checkout">Continuar al pago</button>`:'';
+      ${T.may?`<div class="ship">${T.okMin?'✅ Cumples el pedido mínimo de mayoreo · <b>envío gratis</b>':`Pedido mínimo de mayoreo: te faltan <b>${fmt(MAY_MIN-T.st)}</b>`}<div class="bar"><i style="width:${Math.min(100,T.st/MAY_MIN*100)}%"></i></div></div>`
+      :`<div class="ship">${T.st>=SHIP_FREE?'🎉 ¡Tienes <b>envío gratis</b>!':`Te faltan <b>${fmt(SHIP_FREE-T.st)}</b> para envío gratis`}<div class="bar"><i style="width:${Math.min(100,T.st/SHIP_FREE*100)}%"></i></div></div>`}
+      ${T.save>0?`<div class="tot save"><span>Ahorro por volumen</span><span>−${fmt(T.save)}</span></div>`:''}
+      <div class="tot"><span>Subtotal</span><span>${fmt(T.st)}</span></div>
+      <div class="tot"><span>Envío</span><span>${T.ship?fmt(T.ship):'Gratis'}</span></div>
+      <div class="tot big"><span>Total</span><span>${fmt(T.total)}</span></div>
+      <button class="mp" data-step="checkout" ${T.okMin?'':'disabled style="cursor:not-allowed"'}>${T.okMin?'Continuar al pago':'Pedido mínimo $3,000'}</button>
+      ${T.may?'':'<button class="rm" data-setmode="mayoreo" style="justify-self:center">¿Compras para escuela o negocio? Ver precios de mayoreo</button>'}`:'';
   }else{
-    $('#dTitle').textContent='Datos de envío';
-    $('#dBody').innerHTML=`<form id="coForm" style="display:grid;gap:12px;padding-top:6px">
-      <label class="field">Nombre completo<input name="name" required autocomplete="name"></label>
+    const inv=LS.get('dimex-fiscal',{});const want=T.may||inv.want;
+    $('#dTitle').textContent='Datos de envío y factura';
+    $('#dBody').innerHTML=`<form id="coForm" style="display:grid;gap:12px;padding-top:6px" novalidate>
+      ${T.may?'<label class="field">Escuela / empresa<input name="company" required autocomplete="organization"></label>':''}
+      <label class="field">Nombre de quien recibe<input name="name" required autocomplete="name"></label>
       <div class="row2"><label class="field">Correo<input name="email" type="email" required autocomplete="email"></label>
       <label class="field">Teléfono<input name="phone" required inputmode="tel" autocomplete="tel"></label></div>
       <label class="field">Calle y número<input name="street" required autocomplete="street-address"></label>
       <div class="row2"><label class="field">Código postal<input name="zip" required inputmode="numeric" maxlength="5" autocomplete="postal-code"></label>
       <label class="field">Ciudad / Estado<input name="city" required></label></div>
+      <label class="check"><input type="checkbox" name="wantInvoice" ${want?'checked':''}> <span>Necesito factura (CFDI 4.0)<br><small style="font-weight:600;color:var(--ink-2)">Te llega al correo en automático al confirmarse el pago.</small></span></label>
+      <div class="fiscal" id="fiscal" ${want?'':'hidden'}>${fiscalFields(inv)}</div>
       <div id="coMsg"></div>
       <button type="button" class="rm" data-step="cart" style="justify-self:start">← Volver al carrito</button>
     </form>`;
-    $('#dFoot').innerHTML=`<div class="tot big"><span>Total</span><span>${fmt(st+ship)}</span></div>
-      <button class="mp" id="payBtn" form="coForm" type="submit"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><ellipse cx="13" cy="9" rx="12.5" ry="8.5" fill="#fff"/><path d="M6 9.6c1.6-1.4 3.4-2.6 5.2-2.6 1.4 0 2 .8 3.2.8 1 0 2.6-.9 4.6-.9 1.2 0 .8 1.3 1 2.5" stroke="#009ee3" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>Pagar con Mercado Pago</button>
+    $('#dFoot').innerHTML=`<div class="tot big"><span>Total</span><span>${fmt(T.total)}</span></div>
+      <button class="mp" id="payBtn" form="coForm" type="submit"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><ellipse cx="13" cy="9" rx="12.5" ry="8.5" fill="#fff"/><path d="M6 9.6c1.6-1.4 3.4-2.6 5.2-2.6 1.4 0 2 .8 3.2.8 1 0 2.6-.9 4.6-.9 1.2 0 .8 1.3 1 2.5" stroke="#009ee3" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span>Pagar con Mercado Pago</span></button>
       <div style="font-size:12px;color:var(--ink-2);text-align:center">Serás redirigido al checkout seguro de Mercado Pago (modo prueba).</div>`;
   }
 }
+const REGIMENES=[['601','601 · General de Ley Personas Morales'],['603','603 · Personas Morales con Fines no Lucrativos'],['612','612 · Personas Físicas con Actividades Empresariales'],['626','626 · Régimen Simplificado de Confianza'],['605','605 · Sueldos y Salarios'],['616','616 · Sin obligaciones fiscales']];
+const USOS=[['G01','G01 · Adquisición de mercancías'],['G03','G03 · Gastos en general'],['S01','S01 · Sin efectos fiscales']];
+function fiscalFields(v={}){return `
+  <div class="row2"><label class="field">RFC<input name="rfc" value="${esc(v.rfc)}" maxlength="13" style="text-transform:uppercase" placeholder="ABC010203XY1"></label>
+  <label class="field">C.P. fiscal<input name="cpf" value="${esc(v.cpf)}" inputmode="numeric" maxlength="5"></label></div>
+  <label class="field">Razón social (como aparece en tu constancia)<input name="razon" value="${esc(v.razon)}"></label>
+  <label class="field">Régimen fiscal<select name="regimen">${REGIMENES.map(([k,t])=>`<option value="${k}" ${v.regimen===k?'selected':''}>${t}</option>`).join('')}</select></label>
+  <label class="field">Uso del CFDI<select name="uso">${USOS.map(([k,t])=>`<option value="${k}" ${(v.uso||'G03')===k?'selected':''}>${t}</option>`).join('')}</select></label>`}
+const RFC_RE=/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
+function readFiscal(f){const d=Object.fromEntries(new FormData(f));const v={rfc:(d.rfc||'').trim().toUpperCase(),razon:(d.razon||'').trim(),cpf:(d.cpf||'').trim(),regimen:d.regimen,uso:d.uso};
+  if(!RFC_RE.test(v.rfc))return [null,'Revisa tu RFC (12 o 13 caracteres).'];if(v.razon.length<3)return [null,'Escribe la razón social.'];if(!/^\d{5}$/.test(v.cpf))return [null,'El C.P. fiscal debe tener 5 dígitos.'];return [v,null]}
 function openCart(){step='cart';renderCart();$('#drawer').classList.add('on');$('#drawer').setAttribute('aria-hidden','false');$('#scrim').classList.add('on')}
 
 async function pay(form){
-  const btn=$('#payBtn'),msg=$('#coMsg');btn.disabled=true;btn.lastChild.textContent='Conectando con Mercado Pago…';msg.innerHTML='';
-  const f=Object.fromEntries(new FormData(form));
+  const btn=$('#payBtn'),msg=$('#coMsg');const f=Object.fromEntries(new FormData(form));
+  for(const k of ['name','email','phone','street','zip','city',...(state.mode==='mayoreo'?['company']:[])])if(!String(f[k]||'').trim()){msg.innerHTML='<div class="notice err">Completa todos los datos de envío.</div>';return}
+  let fiscal=null;
+  if(f.wantInvoice){const [v,err]=readFiscal(form);if(err){msg.innerHTML=`<div class="notice err">${err}</div>`;return}fiscal=v;LS.set('dimex-fiscal',{...v,want:true})}
+  btn.disabled=true;btn.lastChild.textContent='Conectando con Mercado Pago…';msg.innerHTML='';
+  const T=totals();
   try{
-    const r=await fetch('/api/demos/dimex/checkout/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:cart.map(l=>({id:l.id,opt:l.opt,qty:l.qty})),buyer:f})});
+    const r=await fetch('/api/demos/dimex/checkout/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:state.mode,items:cart.map(l=>({id:l.id,opt:l.opt,qty:l.qty})),buyer:f,invoice:fiscal})});
     const d=await r.json().catch(()=>({}));
     if(!r.ok||!d.url)throw new Error(d.error||'No se pudo crear el pago');
-    try{localStorage.setItem('dimex-last-order',JSON.stringify({ref:d.ref,total:subtotal(),items:cart}))}catch(e){}
+    LS.set('dimex-last-order',{ref:d.ref,date:new Date().toISOString(),mode:state.mode,buyer:{name:f.name,email:f.email,company:f.company},fiscal,lines:cart.map(l=>{const p=PRODUCTS.find(x=>x.id===l.id);return {id:l.id,name:p.name+(l.opt?' — '+l.opt:''),qty:l.qty,unit:unit(p,l.qty,state.mode)}}),ship:T.ship,total:T.total});
     location.href=d.url;
   }catch(e){
-    msg.innerHTML=`<div class="notice err">${e.message}. ${location.protocol==='file:'||location.hostname.includes('claude')?'El pago funciona cuando la tienda está publicada en Vercel.':''}</div>`;
-    btn.disabled=false;btn.lastChild.textContent='Pagar con Mercado Pago';
+    msg.innerHTML=`<div class="notice err">${esc(e.message)}.</div>`;btn.disabled=false;btn.lastChild.textContent='Pagar con Mercado Pago';
   }
 }
 
-/* events */
+/* ---- facturación (demo: vista previa sin timbrar) ---- */
+const SAT_CLAVE={mobiliario:['56121500','Mobiliario para salón de clases'],didacticos:['60101300','Material didáctico'],hogar:['52151600','Utensilios y contenedores de cocina'],fiestas:['52151600','Artículos para el hogar'],envio:['78102203','Servicio de envío']};
+function uuid(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16)}).toUpperCase()}
+function sampleOrder(){
+  const pick=['mesa-infantil-plastico-120x60-con-6-sillas-multicolor','melewi-mlh-831','tangram','bancubi-gigante-estuche-con-60-piezas-didacticas'].map(id=>PRODUCTS.find(p=>p.id===id)).filter(Boolean);
+  const qty=[2,24,12,6];const lines=pick.map((p,i)=>({id:p.id,name:p.name,qty:qty[i],unit:unit(p,qty[i],'mayoreo')}));
+  return {ref:'DMX-EJEMPLO',date:new Date().toISOString(),mode:'mayoreo',buyer:{name:'Mtra. Laura Gómez',email:'compras@colegio-ejemplo.mx',company:'Colegio Ejemplo'},
+    fiscal:{rfc:'CEJ0103153K8',razon:'COLEGIO EJEMPLO',cpf:'06600',regimen:'603',uso:'G03'},lines,ship:0,total:lines.reduce((s,l)=>s+l.unit*l.qty,0)};
+}
+function invoiceHTML(o){
+  const f=o.fiscal;const items=[...o.lines.map(l=>{const p=PRODUCTS.find(x=>x.id===l.id);return {...l,cat:p?p.cat:'hogar'}}),...(o.ship?[{name:'Envío',qty:1,unit:o.ship,cat:'envio'}]:[])];
+  const total=items.reduce((s,l)=>s+l.unit*l.qty,0),sub=total/1.16,iva=total-sub;
+  const reg=(REGIMENES.find(r=>r[0]===f.regimen)||['',''])[1],uso=(USOS.find(u=>u[0]===f.uso)||['',''])[1];
+  const d=new Date(o.date),folio=o.ref.replace('DMX-','');o.uuid=o.uuid||uuid();
+  const m2=n=>'$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return `<div class="inv" id="invPrint">
+    <div class="ih"><div><img src="img/logo-dimex.png" alt="DIMEX" style="height:38px"><div style="margin-top:6px"><b>DIMEX DIDÁCTICOS MÉXICO</b><br>RFC emisor: EKU9003173C9 (RFC de pruebas SAT)<br>Régimen: 601 General de Ley Personas Morales · Lugar de expedición: 06600</div></div>
+      <div style="text-align:right"><h4>Factura</h4><div class="lab">Serie y folio</div><b>A-${folio}</b><div class="lab" style="margin-top:4px">Fecha</div>${d.toLocaleString('es-MX')}<div class="lab" style="margin-top:4px">Pedido</div>${o.ref}</div></div>
+    <div class="ig"><div><div class="lab">Receptor</div><b>${esc(f.razon)}</b><br>RFC: ${esc(f.rfc)} · C.P. ${esc(f.cpf)}<br>${esc(reg)}</div>
+      <div><div class="lab">Datos del comprobante</div>Uso CFDI: ${esc(uso)}<br>Método de pago: PUE · Pago en una sola exhibición<br>Forma de pago: 31 · Intermediario de pagos (Mercado Pago)<br>Moneda: MXN · Tipo: I · Ingreso</div></div>
+    <div class="tw"><table><thead><tr><th>Clave SAT</th><th>Descripción</th><th class="n">Cant.</th><th class="n">P. unitario</th><th class="n">Importe</th></tr></thead><tbody>
+      ${items.map(l=>{const c=SAT_CLAVE[l.cat]||SAT_CLAVE.hogar;return `<tr><td>${c[0]}<br><span style="color:#6b7385">H87 Pieza</span></td><td>${esc(l.name)}</td><td class="n">${l.qty}</td><td class="n">${m2(l.unit/1.16)}</td><td class="n">${m2(l.unit*l.qty/1.16)}</td></tr>`}).join('')}
+    </tbody></table></div>
+    <div class="tt"><div><span>Subtotal</span><span>${m2(sub)}</span></div><div><span>IVA trasladado 16%</span><span>${m2(iva)}</span></div><div class="g"><span>Total</span><span>${m2(total)}</span></div></div>
+    <div class="seal"><div class="qr" aria-hidden="true"></div><div><b>Folio fiscal (UUID):</b> ${o.uuid}<br><b>No. de certificado:</b> 30001000000500003416 · <b>Fecha de timbrado:</b> ${d.toISOString().slice(0,19)}<br><b>Sello digital del CFDI:</b> DEMO${btoa(o.uuid).replace(/=/g,'').repeat(3).slice(0,140)}…<br>Este documento es una representación impresa de un CFDI 4.0 de demostración generada por el módulo de facturación de FishFlow. No tiene validez fiscal.</div></div>
+  </div>`;
+}
+function invoiceXML(o){const f=o.fiscal;return `<?xml version="1.0" encoding="UTF-8"?>\n<!-- DEMO · SIN VALIDEZ FISCAL -->\n<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" Version="4.0" Serie="A" Folio="${o.ref.replace('DMX-','')}" Fecha="${o.date.slice(0,19)}" FormaPago="31" MetodoPago="PUE" Moneda="MXN" TipoDeComprobante="I" Exportacion="01" LugarExpedicion="06600" Total="${o.total.toFixed(2)}">\n  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="DIMEX DIDACTICOS MEXICO" RegimenFiscal="601"/>\n  <cfdi:Receptor Rfc="${esc(f.rfc)}" Nombre="${esc(f.razon)}" DomicilioFiscalReceptor="${esc(f.cpf)}" RegimenFiscalReceptor="${esc(f.regimen)}" UsoCFDI="${esc(f.uso)}"/>\n  <cfdi:Conceptos>\n${o.lines.map(l=>`    <cfdi:Concepto Cantidad="${l.qty}" ClaveUnidad="H87" Descripcion="${esc(l.name)}" ValorUnitario="${(l.unit/1.16).toFixed(2)}" Importe="${(l.unit*l.qty/1.16).toFixed(2)}" ObjetoImp="02"/>`).join('\n')}\n  </cfdi:Conceptos>\n  <cfdi:Complemento><tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" UUID="${o.uuid}" SelloCFD="DEMO"/></cfdi:Complemento>\n</cfdi:Comprobante>`}
+function showInvoice(o,note){
+  $('#mBox').className='box ivbox';
+  $('#mBox').innerHTML=`<div class="info"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>🧾 Tu factura está lista</h3><button class="x" data-close aria-label="Cerrar">✕</button></div>
+    <div class="notice ok">${note||`Enviada a <b>${esc(o.buyer.email||'tu correo')}</b> en PDF y XML.`}</div>
+    ${invoiceHTML(o)}
+    <div class="ivact"><button class="add" style="margin:0;padding:10px 16px" data-invprint>Descargar PDF</button><button class="btn o" style="padding:9px 16px" data-invxml>Descargar XML</button></div>
+    <div style="font-size:12px;color:var(--ink-2)">Demo del módulo de facturación: en producción se timbra ante el SAT con el CSD de la empresa y se envía por correo en automático.</div></div>`;
+  showInvoice.cur=o;$('#modal').classList.add('on');$('#scrim').classList.add('on');
+}
+function showInvoiceForm(o){
+  $('#mBox').className='box ivbox';
+  const v=(o&&o.fiscal)||LS.get('dimex-fiscal',{});
+  $('#mBox').innerHTML=`<div class="info"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Facturar mi compra</h3><button class="x" data-close aria-label="Cerrar">✕</button></div>
+    <p style="margin:0;color:var(--ink-2)">Captura tu número de pedido y tus datos fiscales. La factura se genera al instante.</p>
+    <form id="invForm" style="display:grid;gap:12px" novalidate>
+      <div class="row2"><label class="field">Número de pedido<input name="ref" value="${esc(o?o.ref:'')}" placeholder="DMX-…" required></label><label class="field">Correo<input name="email" type="email" value="${esc(o&&o.buyer?o.buyer.email:'')}"></label></div>
+      ${fiscalFields(v)}<div id="invMsg"></div>
+      <button class="add" style="margin:0">Generar factura</button></form></div>`;
+  showInvoiceForm.cur=o;$('#modal').classList.add('on');$('#scrim').classList.add('on');
+}
+
+/* ---- eventos ---- */
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-cat],[data-sub],[data-go],[data-open],[data-add],[data-close],[data-thumb],[data-opt],[data-mq],[data-madd],[data-q],[data-rm],[data-step]');
+  const t=e.target.closest('[data-cat],[data-sub],[data-go],[data-open],[data-add],[data-close],[data-thumb],[data-opt],[data-mq],[data-mqset],[data-madd],[data-q],[data-rm],[data-step],[data-mode],[data-setmode],[data-invdemo],[data-invlater],[data-invprint],[data-invxml]');
   if(!t){if(e.target.id==='scrim')closeAll();return}
   const d=t.dataset;
   if(d.cat!==undefined)go(d.cat,null,false);
@@ -488,14 +656,27 @@ document.addEventListener('click',e=>{
   else if(d.thumb){mState.img=+d.thumb;drawModal()}
   else if(d.opt){mState.opt=d.opt;const i=mState.p.opts.indexOf(d.opt);if(mState.p.imgs[i])mState.img=i;drawModal()}
   else if(d.mq){mState.qty=Math.max(1,mState.qty+(+d.mq));drawModal()}
+  else if(d.mqset){mState.qty=+d.mqset;drawModal()}
   else if(d.madd!==undefined){addToCart(mState.p.id,mState.opt,mState.qty);closeAll()}
   else if(d.q){const l=cart.find(x=>x.k===d.k);l.qty+=+d.q;if(l.qty<1)cart=cart.filter(x=>x!==l);save();renderCart()}
   else if(d.rm){cart=cart.filter(x=>x.k!==d.rm);save();renderCart()}
   else if(d.step){step=d.step;renderCart()}
+  else if(d.mode){if(d.mode!==state.mode)setMode(d.mode)}
+  else if(d.setmode){e.preventDefault();closeAll();setMode(d.setmode);document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})}
+  else if(d.invdemo!==undefined){e.preventDefault();showInvoice(sampleOrder(),'Ejemplo de la factura que recibe una escuela al comprar por mayoreo.')}
+  else if(d.invlater!==undefined){e.preventDefault();showInvoiceForm(LS.get('dimex-last-order',null))}
+  else if(d.invprint!==undefined)window.print();
+  else if(d.invxml!==undefined){const o=showInvoice.cur;const b=new Blob([invoiceXML(o)],{type:'application/xml'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`factura-${o.ref}.xml`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
 });
+document.addEventListener('change',e=>{if(e.target.name==='wantInvoice')$('#fiscal').hidden=!e.target.checked});
 document.addEventListener('submit',e=>{
   if(e.target.id==='coForm'){e.preventDefault();pay(e.target)}
-  if(e.target.id==='whForm'){e.preventDefault();e.target.reset();toast('¡Gracias! Te contactaremos para tu cotización.')}
+  if(e.target.id==='whForm'){e.preventDefault();e.target.reset();toast('¡Gracias! Un asesor de mayoreo te contactará hoy mismo.')}
+  if(e.target.id==='invForm'){e.preventDefault();const f=e.target;const ref=f.ref.value.trim().toUpperCase();const [v,err]=readFiscal(f);
+    if(!/^DMX-[A-Z0-9]+$/.test(ref)){$('#invMsg').innerHTML='<div class="notice err">El número de pedido empieza con DMX- y viene en tu correo de confirmación.</div>';return}
+    if(err){$('#invMsg').innerHTML=`<div class="notice err">${err}</div>`;return}
+    const last=LS.get('dimex-last-order',null);const base=last&&last.ref===ref?last:{...sampleOrder(),ref};
+    const o={...base,fiscal:v,buyer:{...(base.buyer||{}),email:f.email.value||base.buyer.email}};LS.set('dimex-fiscal',{...v,want:true});showInvoice(o)}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
 $('#openCart').onclick=openCart;
@@ -504,20 +685,23 @@ $('#moreBtn').onclick=()=>{state.limit+=24;renderGrid()};
 $('#sort').onchange=e=>{state.sort=e.target.value;renderGrid()};
 let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{state.q=e.target.value.trim();state.limit=48;renderGrid();if(state.q)document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})},250)});
 
-/* return from Mercado Pago */
+/* ---- regreso de Mercado Pago ---- */
 function checkReturn(){
   const u=new URLSearchParams(location.search);const s=u.get('status')||u.get('collection_status');
-  if(!s)return;
-  if(s==='approved'){cart=[];save();renderCart();toast('✅ ¡Pago aprobado! Gracias por tu compra.')}
-  else if(s==='pending'||s==='in_process')toast('⏳ Tu pago está pendiente. Te avisaremos al confirmarse.');
+  if(!s)return;history.replaceState(null,'',location.pathname);
+  const o=LS.get('dimex-last-order',null);
+  if(s==='approved'){cart=[];save();renderCart();
+    if(o&&o.fiscal){LS.set('dimex-last-order',o);showInvoice(o,`✅ ¡Pago aprobado! Pedido <b>${esc(o.ref)}</b>. Tu factura se envió a <b>${esc(o.buyer.email)}</b>.`)}
+    else toast(`✅ ¡Pago aprobado! Gracias por tu compra. <a href="#" data-invlater style="color:#ffc629">¿Necesitas factura?</a>`,7000)}
+  else if(s==='pending'||s==='in_process')toast('⏳ Tu pago está pendiente. La factura se genera en cuanto se confirme.',5000);
   else toast('El pago no se completó. Puedes intentarlo de nuevo.');
-  history.replaceState(null,'',location.pathname);
 }
 
+const qsMode=new URLSearchParams(location.search).get('modo');
 Promise.resolve(window.PRODUCTS).then(d=>{
-  // Featured order: mix of offers, DIMEX catalog and best sellers
-  PRODUCTS=d;renderTabs();renderChips();renderGrid();renderCart();checkReturn();
-}).catch(()=>{$('#grid').innerHTML='<div class="empty">No se pudo cargar el catálogo.</div>'});
+  PRODUCTS=d;renderTabs();renderChips();setMode(qsMode==='mayoreo'||qsMode==='menudeo'?qsMode:LS.get('dimex-mode','menudeo'),false);checkReturn();
+});
+
 </script>
 </body>
 </html>
