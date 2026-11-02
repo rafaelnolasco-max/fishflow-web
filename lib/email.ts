@@ -67,6 +67,8 @@ export const SENDERS = {
   aguachiles: 'Los Aguachiles <noreply@fishflow.mx>',
   /** VIBRA MX (megaclase) — boletos al comprador. Sin dominio propio. */
   vibramx: 'VIBRA MX <boletos@fishflow.mx>',
+  /** Demo DIMEX (prospecto Elizabeth) — confirmaciones de pedido de la tienda demo. */
+  dimex: 'DIMEX Tienda <pedidos@fishflow.mx>',
 
   /**
    * Lukon — único cliente con dominio propio verificado en Resend

@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
 import PRICES from './prices.json'
+import { notifyDemoOrder, type DemoOrder } from '../notify'
 
 export const runtime = 'nodejs'
 
@@ -23,6 +24,16 @@ function unitPrice(price: number, qty: number, mayoreo: boolean) {
   let d = 0
   for (const [m, x] of tiersFor(price)) if (qty >= m) d = x
   return Math.round(price * (1 - d))
+}
+// Freno simple para que nadie use el demo para mandar correos en masa
+const SENT = new Map<string, number[]>()
+function allowEmail(ip: string) {
+  const now = Date.now()
+  const list = (SENT.get(ip) ?? []).filter((t) => now - t < 10 * 60_000)
+  if (list.length >= 5) return false
+  list.push(now)
+  SENT.set(ip, list)
+  return true
 }
 const RFC_RE = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/
 
@@ -69,6 +80,21 @@ export async function POST(req: NextRequest) {
     items.push({ id: 'envio', title: 'Envío', quantity: 1, unit_price: SHIP, currency_id: 'MXN', category_id: 'envio' })
 
   const ref = 'DMX-' + Date.now().toString(36).toUpperCase()
+  const factura = inv
+    ? { rfc: String(inv.rfc).toUpperCase().slice(0, 13), razon: inv.razon?.slice(0, 200), cp: inv.cpf?.slice(0, 5), regimen: inv.regimen, uso: inv.uso }
+    : null
+  const order: DemoOrder = {
+    ref,
+    canal: mayoreo ? 'mayoreo' : 'menudeo',
+    nombre: buyer.name?.slice(0, 80),
+    empresa: buyer.company?.slice(0, 120),
+    email: buyer.email?.slice(0, 120),
+    telefono: buyer.phone?.slice(0, 20),
+    direccion: [buyer.street, buyer.zip, buyer.city].filter(Boolean).join(', ').slice(0, 200),
+    items: items.map((i) => ({ title: i.title, quantity: i.quantity, unit_price: i.unit_price })),
+    total: items.reduce((s, l) => s + l.unit_price * l.quantity, 0),
+    factura,
+  }
   try {
     const pref = await new Preference(new MercadoPagoConfig({ accessToken: token })).create({
       body: {
@@ -87,16 +113,23 @@ export async function POST(req: NextRequest) {
         auto_return: 'approved',
         external_reference: ref,
         statement_descriptor: 'DIMEX DEMO',
+        notification_url: 'https://www.fishflow.mx/api/demos/dimex/webhook/',
         payment_methods: { installments: 6 },
         metadata: {
           canal: mayoreo ? 'mayoreo' : 'menudeo',
-          empresa: buyer.company?.slice(0, 120),
-          factura: inv
-            ? { rfc: String(inv.rfc).toUpperCase().slice(0, 13), razon: inv.razon?.slice(0, 200), cp: inv.cpf?.slice(0, 5), regimen: inv.regimen, uso: inv.uso }
-            : null,
+          ref,
+          empresa: order.empresa,
+          nombre: order.nombre,
+          email: order.email,
+          telefono: order.telefono,
+          direccion: order.direccion,
+          factura,
         },
       },
     })
+    // Pedido recibido: correo al comprador + aviso a #demoenslack
+    const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'anon'
+    if (allowEmail(ip)) await notifyDemoOrder(order, 'recibido')
     return NextResponse.json({ url: pref.sandbox_init_point ?? pref.init_point, ref, id: pref.id })
   } catch (e) {
     console.error('[demos/dimex/checkout]', e)

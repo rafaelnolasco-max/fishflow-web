@@ -7,6 +7,7 @@
  *   alertas → SLACK_WEBHOOK_ALERTAS (#alertas: crons y webhooks de pago que truenan)
  *   enlace  → SLACK_WEBHOOK_ENLACE  (#cli-enlace: leads, candidatas, top clientes, resumen diario)
  *   mario   → SLACK_WEBHOOK_MARIO   (#cli-mario: solicitudes y tests de mariocitalan.net)
+ *   demos   → SLACK_WEBHOOK_DEMOS   (#demoenslack: pedidos de las tiendas demo, p. ej. /demos/dimex)
  *
  * Desde el 12-oct-2026 los avisos internos de Enlace y Mario le llegan a Rafa
  * aquí y ya no por correo. Los clientes (Enlace, Mario) siguen recibiendo sus
@@ -26,6 +27,7 @@ const WEBHOOKS = {
   alertas: 'SLACK_WEBHOOK_ALERTAS',
   enlace: 'SLACK_WEBHOOK_ENLACE',
   mario: 'SLACK_WEBHOOK_MARIO',
+  demos: 'SLACK_WEBHOOK_DEMOS',
 } as const
 
 export type SlackChannel = keyof typeof WEBHOOKS

@@ -559,7 +559,7 @@ function renderCart(){
     </form>`;
     $('#dFoot').innerHTML=`<div class="tot big"><span>Total</span><span>${fmt(T.total)}</span></div>
       <button class="mp" id="payBtn" form="coForm" type="submit"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><ellipse cx="13" cy="9" rx="12.5" ry="8.5" fill="#fff"/><path d="M6 9.6c1.6-1.4 3.4-2.6 5.2-2.6 1.4 0 2 .8 3.2.8 1 0 2.6-.9 4.6-.9 1.2 0 .8 1.3 1 2.5" stroke="#009ee3" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span>Pagar con Mercado Pago</span></button>
-      <div style="font-size:12px;color:var(--ink-2);text-align:center">Serás redirigido al checkout seguro de Mercado Pago (modo prueba).</div>`;
+      <div style="font-size:12px;color:var(--ink-2);text-align:center">Te llegará la confirmación del pedido a tu correo. Serás redirigido al checkout seguro de Mercado Pago (modo prueba).</div>`;
   }
 }
 const REGIMENES=[['601','601 · General de Ley Personas Morales'],['603','603 · Personas Morales con Fines no Lucrativos'],['612','612 · Personas Físicas con Actividades Empresariales'],['626','626 · Régimen Simplificado de Confianza'],['605','605 · Sueldos y Salarios'],['616','616 · Sin obligaciones fiscales']];
@@ -692,7 +692,7 @@ function checkReturn(){
   const o=LS.get('dimex-last-order',null);
   if(s==='approved'){cart=[];save();renderCart();
     if(o&&o.fiscal){LS.set('dimex-last-order',o);showInvoice(o,`✅ ¡Pago aprobado! Pedido <b>${esc(o.ref)}</b>. Tu factura se envió a <b>${esc(o.buyer.email)}</b>.`)}
-    else toast(`✅ ¡Pago aprobado! Gracias por tu compra. <a href="#" data-invlater style="color:#ffc629">¿Necesitas factura?</a>`,7000)}
+    else toast(`✅ ¡Pago aprobado! Te enviamos la confirmación por correo. <a href="#" data-invlater style="color:#ffc629">¿Necesitas factura?</a>`,7000)}
   else if(s==='pending'||s==='in_process')toast('⏳ Tu pago está pendiente. La factura se genera en cuanto se confirme.',5000);
   else toast('El pago no se completó. Puedes intentarlo de nuevo.');
 }
