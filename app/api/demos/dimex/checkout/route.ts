@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     process.env.MERCADOPAGO_ACCESS_TOKEN
   if (!token) return NextResponse.json({ error: 'Falta configurar Mercado Pago' }, { status: 500 })
 
-  let body: { items?: Item[]; buyer?: Record<string, string>; mode?: string; invoice?: Fiscal | null }
+  let body: { items?: Item[]; buyer?: Record<string, string>; mode?: string; invoice?: Fiscal | null; simulate?: boolean }
   try {
     body = await req.json()
   } catch {
@@ -95,6 +95,14 @@ export async function POST(req: NextRequest) {
     total: items.reduce((s, l) => s + l.unit_price * l.quantity, 0),
     factura,
   }
+  const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'anon'
+
+  // Modo presentación: simula el pago aprobado sin pasar por Mercado Pago
+  if (body.simulate) {
+    if (allowEmail(ip)) await notifyDemoOrder({ ...order, pagoId: 'SIMULADO' }, 'aprobado')
+    return NextResponse.json({ url: BASE + '?status=approved', ref, simulated: true })
+  }
+
   try {
     const pref = await new Preference(new MercadoPagoConfig({ accessToken: token })).create({
       body: {
@@ -128,7 +136,6 @@ export async function POST(req: NextRequest) {
       },
     })
     // Pedido recibido: correo al comprador + aviso a #demoenslack
-    const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'anon'
     if (allowEmail(ip)) await notifyDemoOrder(order, 'recibido')
     return NextResponse.json({ url: pref.sandbox_init_point ?? pref.init_point, ref, id: pref.id })
   } catch (e) {

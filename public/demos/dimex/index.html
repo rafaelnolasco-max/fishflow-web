@@ -199,6 +199,12 @@ body.may .maybar{display:block}
 .fiscal[hidden]{display:none}
 .field select{border:2px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;color:var(--ink);background:#fff}
 .mp[disabled]{background:#9aa1ad}
+.testcard{background:#fff8e1;border:1px solid #f3dc9b;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.4;display:grid;gap:5px}
+.tc{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tc span{color:var(--ink-2);min-width:84px;font-size:12px;font-weight:700}
+.tc code{font:700 14px ui-monospace,Menlo,monospace;background:#fff;border:1px solid #f0e2b8;border-radius:6px;padding:2px 6px}
+.tc button{border:0;background:var(--blue);color:#fff;border-radius:6px;font-size:12px;font-weight:800;padding:3px 8px}
+.tc small{color:var(--ink-2)}
 /* factura */
 .inv{background:#fff;color:#1b2333;font-size:12px;line-height:1.4;position:relative;padding:22px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .inv:before{content:"DEMO · SIN VALIDEZ FISCAL";position:absolute;left:-10%;right:-10%;top:42%;transform:rotate(-18deg);text-align:center;font:700 38px Fredoka,sans-serif;color:rgba(226,55,43,.12);pointer-events:none;white-space:nowrap}
@@ -545,6 +551,11 @@ function renderCart(){
     const inv=LS.get('dimex-fiscal',{});const want=T.may||inv.want;
     $('#dTitle').textContent='Datos de envío y factura';
     $('#dBody').innerHTML=`<form id="coForm" style="display:grid;gap:12px;padding-top:6px" novalidate>
+      <div class="testcard"><b>🧪 Checkout de PRUEBA: no se cobra nada.</b> En Mercado Pago elige <b>“Sin cuenta → Tarjeta”</b> y usa:
+        <div class="tc"><span>Tarjeta</span><code>5474 9254 3267 0366</code><button type="button" data-copy="5474925432670366">Copiar</button></div>
+        <div class="tc"><span>Vence / CVV</span><code>11/30 · 123</code></div>
+        <div class="tc"><span>Titular</span><code>APRO</code><small>(así sale aprobado)</small></div></div>
+
       ${T.may?'<label class="field">Escuela / empresa<input name="company" required autocomplete="organization"></label>':''}
       <label class="field">Nombre de quien recibe<input name="name" required autocomplete="name"></label>
       <div class="row2"><label class="field">Correo<input name="email" type="email" required autocomplete="email"></label>
@@ -559,7 +570,8 @@ function renderCart(){
     </form>`;
     $('#dFoot').innerHTML=`<div class="tot big"><span>Total</span><span>${fmt(T.total)}</span></div>
       <button class="mp" id="payBtn" form="coForm" type="submit"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><ellipse cx="13" cy="9" rx="12.5" ry="8.5" fill="#fff"/><path d="M6 9.6c1.6-1.4 3.4-2.6 5.2-2.6 1.4 0 2 .8 3.2.8 1 0 2.6-.9 4.6-.9 1.2 0 .8 1.3 1 2.5" stroke="#009ee3" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span>Pagar con Mercado Pago</span></button>
-      <div style="font-size:12px;color:var(--ink-2);text-align:center">Te llegará la confirmación del pedido a tu correo. Serás redirigido al checkout seguro de Mercado Pago (modo prueba).</div>`;
+      <button type="button" class="rm" id="simBtn" style="justify-self:center;font-weight:800">o simula un pago aprobado sin salir de la tienda →</button>
+      <div style="font-size:12px;color:var(--ink-2);text-align:center">Te llegará la confirmación del pedido a tu correo.</div>`;
   }
 }
 const REGIMENES=[['601','601 · General de Ley Personas Morales'],['603','603 · Personas Morales con Fines no Lucrativos'],['612','612 · Personas Físicas con Actividades Empresariales'],['626','626 · Régimen Simplificado de Confianza'],['605','605 · Sueldos y Salarios'],['616','616 · Sin obligaciones fiscales']];
@@ -575,15 +587,15 @@ function readFiscal(f){const d=Object.fromEntries(new FormData(f));const v={rfc:
   if(!RFC_RE.test(v.rfc))return [null,'Revisa tu RFC (12 o 13 caracteres).'];if(v.razon.length<3)return [null,'Escribe la razón social.'];if(!/^\d{5}$/.test(v.cpf))return [null,'El C.P. fiscal debe tener 5 dígitos.'];return [v,null]}
 function openCart(){step='cart';renderCart();$('#drawer').classList.add('on');$('#drawer').setAttribute('aria-hidden','false');$('#scrim').classList.add('on')}
 
-async function pay(form){
+async function pay(form,simulate=false){
   const btn=$('#payBtn'),msg=$('#coMsg');const f=Object.fromEntries(new FormData(form));
   for(const k of ['name','email','phone','street','zip','city',...(state.mode==='mayoreo'?['company']:[])])if(!String(f[k]||'').trim()){msg.innerHTML='<div class="notice err">Completa todos los datos de envío.</div>';return}
   let fiscal=null;
   if(f.wantInvoice){const [v,err]=readFiscal(form);if(err){msg.innerHTML=`<div class="notice err">${err}</div>`;return}fiscal=v;LS.set('dimex-fiscal',{...v,want:true})}
-  btn.disabled=true;btn.lastChild.textContent='Conectando con Mercado Pago…';msg.innerHTML='';
+  btn.disabled=true;btn.lastChild.textContent=simulate?'Procesando pago de prueba…':'Conectando con Mercado Pago…';msg.innerHTML='';
   const T=totals();
   try{
-    const r=await fetch('/api/demos/dimex/checkout/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:state.mode,items:cart.map(l=>({id:l.id,opt:l.opt,qty:l.qty})),buyer:f,invoice:fiscal})});
+    const r=await fetch('/api/demos/dimex/checkout/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({simulate,mode:state.mode,items:cart.map(l=>({id:l.id,opt:l.opt,qty:l.qty})),buyer:f,invoice:fiscal})});
     const d=await r.json().catch(()=>({}));
     if(!r.ok||!d.url)throw new Error(d.error||'No se pudo crear el pago');
     LS.set('dimex-last-order',{ref:d.ref,date:new Date().toISOString(),mode:state.mode,buyer:{name:f.name,email:f.email,company:f.company},fiscal,lines:cart.map(l=>{const p=PRODUCTS.find(x=>x.id===l.id);return {id:l.id,name:p.name+(l.opt?' — '+l.opt:''),qty:l.qty,unit:unit(p,l.qty,state.mode)}}),ship:T.ship,total:T.total});
@@ -667,6 +679,10 @@ document.addEventListener('click',e=>{
   else if(d.invlater!==undefined){e.preventDefault();showInvoiceForm(LS.get('dimex-last-order',null))}
   else if(d.invprint!==undefined)window.print();
   else if(d.invxml!==undefined){const o=showInvoice.cur;const b=new Blob([invoiceXML(o)],{type:'application/xml'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`factura-${o.ref}.xml`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
+});
+document.addEventListener('click',e=>{
+  const c=e.target.closest('[data-copy]');if(c){navigator.clipboard?.writeText(c.dataset.copy).then(()=>{c.textContent='¡Copiado!'}).catch(()=>{})}
+  if(e.target.id==='simBtn'){const f=$('#coForm');if(f)pay(f,true)}
 });
 document.addEventListener('change',e=>{if(e.target.name==='wantInvoice')$('#fiscal').hidden=!e.target.checked});
 document.addEventListener('submit',e=>{
