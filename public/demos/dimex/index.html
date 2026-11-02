@@ -199,6 +199,13 @@ body.may .maybar{display:block}
 .fiscal[hidden]{display:none}
 .field select{border:2px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;color:var(--ink);background:#fff}
 .mp[disabled]{background:#9aa1ad}
+.geobox{display:grid;gap:10px;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
+.geohead{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}.geohead span{font-size:12px;color:var(--green);font-weight:800}
+.geoact{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
+.geomap{height:200px;border-radius:12px;border:1px solid var(--line);overflow:hidden;background:#e8eef2;position:relative;isolation:isolate}
+.geomap .leaflet-container{font:inherit}
+.geopin span{display:block;width:26px;height:26px;background:var(--red);border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.geomsg{font-size:12px;color:var(--ink-2)}.geomsg.ok{color:var(--green);font-weight:700}.geomsg.bad{color:#9B1C1C;font-weight:700}
 .testcard{background:#fff8e1;border:1px solid #f3dc9b;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.4;display:grid;gap:5px}
 .tc{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .tc span{color:var(--ink-2);min-width:84px;font-size:12px;font-weight:700}
@@ -261,7 +268,7 @@ body.may .maybar{display:block}
 </style>
 </head>
 <body>
-<div class="demo">Sitio <b>DEMO</b> · los pagos usan el entorno de <b>prueba</b> de Mercado Pago, no se cobra dinero real. · <a href="#" data-invdemo style="color:#ffc629">Ver ejemplo de factura</a></div>
+<div class="demo">Sitio <b>DEMO</b> · los pagos están en <b>modo de prueba</b>, no se cobra dinero real. · <a href="#" data-invdemo style="color:#ffc629">Ver ejemplo de factura</a></div>
 <div class="promo"><span id="promoTxt">🚚 Envío GRATIS en compras desde $500 · 💳 3 MSI desde $2,999 y 6 MSI desde $4,000 · 🏫 Precios de mayoreo para escuelas y guarderías · 🇲🇽 Fabricantes mexicanos</span></div>
 
 <header class="top">
@@ -308,7 +315,7 @@ body.may .maybar{display:block}
       </div>
       <div class="benefits" id="benefits">
         <div class="ben"><div class="ic" style="background:#fff3cf">🚚</div><div><b>Envío gratis</b><span>En compras desde $500 a todo México</span></div></div>
-        <div class="ben"><div class="ic" style="background:#e1f1ff">💳</div><div><b>Pago seguro</b><span>Tarjeta, OXXO y saldo con Mercado Pago</span></div></div>
+        <div class="ben"><div class="ic" style="background:#e1f1ff">💳</div><div><b>Pago seguro</b><span>Tarjeta de crédito, débito y Mercado Pago</span></div></div>
         <div class="ben"><div class="ic" style="background:#e3f6e8">🏭</div><div><b>Somos fabricantes</b><span>Plástico de primera calidad</span></div></div>
         <div class="ben"><div class="ic" style="background:#ffe6e3">🧾</div><div><b>Facturamos</b><span>CFDI para escuelas y empresas</span></div></div>
       </div>
@@ -344,7 +351,7 @@ body.may .maybar{display:block}
     <section class="block" id="faq">
       <div class="shead"><div><h2>Preguntas frecuentes</h2></div></div>
       <div class="faq">
-        <details open><summary>¿Qué métodos de pago aceptan?</summary><p>Pagas con Mercado Pago: tarjetas de crédito y débito (Visa, Mastercard, American Express), efectivo en OXXO, transferencia SPEI y saldo Mercado Pago. Meses sin intereses con tarjetas participantes.</p></details>
+        <details open><summary>¿Qué métodos de pago aceptan?</summary><p>Tarjetas de crédito y débito (Visa, Mastercard, American Express) con pago seguro, y también Mercado Pago. Meses sin intereses con tarjetas participantes.</p></details>
         <details><summary>¿El envío es gratis?</summary><p>Sí, en compras desde $500 MXN. Algunos productos voluminosos o zonas extendidas pueden tener condiciones especiales.</p></details>
         <details><summary>¿Cuánto tarda mi pedido?</summary><p>Procesamos en 1 a 2 días hábiles. CDMX y área metropolitana 1–3 días; Centro 2–4; Norte y Bajío 3–6; Sur y Sureste 4–8 días hábiles.</p></details>
         <details><summary>¿Emiten factura?</summary><p>Sí, en automático. Marca “Necesito factura” al pagar y tu CFDI 4.0 (PDF y XML) llega a tu correo en cuanto se confirma el pago. Si se te pasó, puedes <a href="#" data-invlater>facturar tu compra después</a> con tu número de pedido.</p></details>
@@ -359,7 +366,7 @@ body.may .maybar{display:block}
   <div class="wrap">
     <div class="fgrid">
       <div><h4>DIMEX · Didácticos México</h4><p>Fabricantes mexicanos de material didáctico, mobiliario infantil y productos de plástico para el hogar. Empresa familiar.</p>
-        <div class="pays"><span>Mercado Pago</span><span>Visa</span><span>Mastercard</span><span>AMEX</span><span>OXXO</span><span>SPEI</span></div></div>
+        <div class="pays"><span>Stripe</span><span>Mercado Pago</span><span>Visa</span><span>Mastercard</span><span>AMEX</span><span>OXXO</span><span>SPEI</span></div></div>
       <div><h4>Tienda</h4><a href="#" data-go="mobiliario">Mobiliario infantil</a><a href="#" data-go="didacticos">Material didáctico</a><a href="#" data-go="hogar">Hogar y organización</a><a href="#" data-go="fiestas">Fiestas y eventos</a><a href="#" data-go="ofertas">Ofertas</a></div>
       <div><h4>Ayuda</h4><a href="#faq">Preguntas frecuentes</a><a href="#" data-setmode="mayoreo">Comprar por mayoreo</a><a href="#faq">Envíos</a><a href="#" data-invlater>Facturar mi compra</a></div>
       <div><h4>Empresas hermanas</h4><a href="https://8connectgroup.com.mx" target="_blank" rel="noopener">8 Connect Group</a><a href="#" data-go="hogar">Melewi</a><a href="#">ELIROB</a></div>
@@ -420,7 +427,7 @@ const COPY={
   menudeo:{h:'Aprender jugando, hecho en México',p:'Material didáctico, mobiliario infantil y soluciones para el hogar. Más de 170 productos para escuelas, guarderías y familias.',img:'img/abaco-10-metalico.webp',
     cta:'<button class="btn y" data-go="didacticos">Ver material didáctico →</button>',
     promo:'🚚 Envío GRATIS en compras desde $500 · 💳 3 MSI desde $2,999 y 6 MSI desde $4,000 · 🧾 Factura automática al pagar · 🇲🇽 Fabricantes mexicanos',
-    ben:[['#fff3cf','🚚','Envío gratis','En compras desde $500 a todo México'],['#e1f1ff','💳','Pago seguro','Tarjeta, OXXO y saldo con Mercado Pago'],['#e3f6e8','🏭','Somos fabricantes','Plástico de primera calidad'],['#ffe6e3','🧾','Factura automática','Tu CFDI llega al correo al pagar']]},
+    ben:[['#fff3cf','🚚','Envío gratis','En compras desde $500 a todo México'],['#e1f1ff','💳','Pago seguro','Tarjeta de crédito, débito y Mercado Pago'],['#e3f6e8','🏭','Somos fabricantes','Plástico de primera calidad'],['#ffe6e3','🧾','Factura automática','Tu CFDI llega al correo al pagar']]},
   mayoreo:{h:'Equipa tu escuela, guardería o negocio',p:'Precios por volumen desde 6 piezas, factura automática y entrega programada a todo México. Directo de fábrica.',img:'img/set-sillas-mini.webp',
     cta:'<button class="btn y" data-go="mobiliario">Ver mobiliario para aula →</button> <a class="btn o" style="background:transparent;color:#fff;border-color:#fff" href="#mayoreo">Cotizar pedido especial</a>',
     promo:'🏫 Mayoreo: −10% desde 6 pzs · −18% desde 24 · −25% desde 100 · 🚚 Envío gratis en pedidos desde $3,000 · 🧾 Factura incluida · 📦 Entrega programada',
@@ -511,7 +518,7 @@ function drawModal(){
         <button class="add" style="flex:1;margin:0;min-width:200px" data-madd>Agregar · ${fmt(u*mState.qty)}</button>
       </div>
       ${may&&u<p.price?`<div class="save">Ahorras ${fmt((p.price-u)*mState.qty)} contra precio de menudeo</div>`:''}
-      <div class="ship">${may?'🏫 Pedido mínimo de mayoreo $3,000 · envío gratis · factura incluida.':p.price>=500?'🚚 Este producto tiene <b>envío gratis</b>.':'🚚 Envío gratis al sumar $500 en tu carrito.'}<br>🔒 Pago protegido con Mercado Pago · 🧾 Factura automática.</div>
+      <div class="ship">${may?'🏫 Pedido mínimo de mayoreo $3,000 · envío gratis · factura incluida.':p.price>=500?'🚚 Este producto tiene <b>envío gratis</b>.':'🚚 Envío gratis al sumar $500 en tu carrito.'}<br>🔒 Pago seguro con tarjeta · 🧾 Factura automática.</div>
     </div>`;
 }
 function closeAll(){$('#modal').classList.remove('on');$('#drawer').classList.remove('on');$('#drawer').setAttribute('aria-hidden','true');$('#scrim').classList.remove('on')}
@@ -551,34 +558,43 @@ function renderCart(){
     const inv=LS.get('dimex-fiscal',{});const want=T.may||inv.want;
     $('#dTitle').textContent='Datos de envío y factura';
     $('#dBody').innerHTML=`<form id="coForm" style="display:grid;gap:12px;padding-top:6px" novalidate>
-      <div class="testcard"><b>🧪 Checkout de PRUEBA: no se cobra nada.</b> En Mercado Pago elige <b>“Sin cuenta → Tarjeta”</b> y usa:
-        <div class="tc"><span>Tarjeta</span><code>5474 9254 3267 0366</code><button type="button" data-copy="5474925432670366">Copiar</button></div>
-        <div class="tc"><span>Vence / CVV</span><code>11/30 · 123</code></div>
-        <div class="tc"><span>Titular</span><code>APRO</code><small>(así sale aprobado)</small></div></div>
+      <div class="testcard"><b>🧪 Pago de PRUEBA: no se cobra nada.</b> En la pantalla de pago (dice “Modo de prueba”) usa:
+        <div class="tc"><span>Tarjeta</span><code>4242 4242 4242 4242</code><button type="button" data-copy="4242424242424242">Copiar</button></div>
+        <div class="tc"><span>Vence / CVC</span><code>12/34 · 123</code><small>(cualquier fecha futura)</small></div></div>
 
       ${T.may?'<label class="field">Escuela / empresa<input name="company" required autocomplete="organization"></label>':''}
       <label class="field">Nombre de quien recibe<input name="name" required autocomplete="name"></label>
       <div class="row2"><label class="field">Correo<input name="email" type="email" required autocomplete="email"></label>
       <label class="field">Teléfono<input name="phone" required inputmode="tel" autocomplete="tel"></label></div>
-      <label class="field">Calle y número<input name="street" required autocomplete="street-address"></label>
-      <div class="row2"><label class="field">Código postal<input name="zip" required inputmode="numeric" maxlength="5" autocomplete="postal-code"></label>
-      <label class="field">Ciudad / Estado<input name="city" required></label></div>
+      <div class="geobox"><div class="geohead"><b>📦 Dirección de envío</b><span>La identificamos por ti</span></div>
+        <div class="geoact"><button type="button" class="opt" id="geoMe">📍 Usar mi ubicación</button><span>o escribe tu C.P. y llenamos colonia, ciudad y estado</span></div>
+        <div class="row2"><label class="field">Código postal<input name="zip" required inputmode="numeric" maxlength="5" autocomplete="postal-code" placeholder="06600"></label>
+        <label class="field">Colonia<input name="colonia" required autocomplete="address-level3"></label></div>
+        <label class="field">Calle y número<input name="street" required autocomplete="address-line1" placeholder="Av. Reforma 222, int. 4"></label>
+        <div class="row2"><label class="field">Ciudad / Municipio<input name="city" required autocomplete="address-level2"></label>
+        <label class="field">Estado<input name="estado" required autocomplete="address-level1"></label></div>
+        <button type="button" class="opt" id="geoFind" style="justify-self:start">🔎 Ubicar en el mapa</button>
+        <div class="geomap" id="geoMap" role="application" aria-label="Mapa para confirmar la dirección de entrega"></div>
+        <div class="geomsg" id="geoMsg">Toca el mapa o arrastra el pin hasta tu puerta para que la paquetería llegue directo.</div></div>
       <label class="check"><input type="checkbox" name="wantInvoice" ${want?'checked':''}> <span>Necesito factura (CFDI 4.0)<br><small style="font-weight:600;color:var(--ink-2)">Te llega al correo en automático al confirmarse el pago.</small></span></label>
       <div class="fiscal" id="fiscal" ${want?'':'hidden'}>${fiscalFields(inv)}</div>
       <div id="coMsg"></div>
       <button type="button" class="rm" data-step="cart" style="justify-self:start">← Volver al carrito</button>
     </form>`;
     $('#dFoot').innerHTML=`<div class="tot big"><span>Total</span><span>${fmt(T.total)}</span></div>
-      <button class="mp" id="payBtn" form="coForm" type="submit"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><ellipse cx="13" cy="9" rx="12.5" ry="8.5" fill="#fff"/><path d="M6 9.6c1.6-1.4 3.4-2.6 5.2-2.6 1.4 0 2 .8 3.2.8 1 0 2.6-.9 4.6-.9 1.2 0 .8 1.3 1 2.5" stroke="#009ee3" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span>Pagar con Mercado Pago</span></button>
+      <button class="mp" id="payBtn" form="coForm" type="submit">🔒 <span>Pagar con tarjeta</span></button>
+      <button type="button" class="rm" id="mpBtn" style="justify-self:center">Prefiero pagar con Mercado Pago (prueba)</button>
       <button type="button" class="rm" id="simBtn" style="justify-self:center;font-weight:800">o simula un pago aprobado sin salir de la tienda →</button>
       <div style="font-size:12px;color:var(--ink-2);text-align:center">Te llegará la confirmación del pedido a tu correo.</div>`;
+    setTimeout(initMap,50);
   }
 }
 const REGIMENES=[['601','601 · General de Ley Personas Morales'],['603','603 · Personas Morales con Fines no Lucrativos'],['612','612 · Personas Físicas con Actividades Empresariales'],['626','626 · Régimen Simplificado de Confianza'],['605','605 · Sueldos y Salarios'],['616','616 · Sin obligaciones fiscales']];
 const USOS=[['G01','G01 · Adquisición de mercancías'],['G03','G03 · Gastos en general'],['S01','S01 · Sin efectos fiscales']];
 function fiscalFields(v={}){return `
   <div class="row2"><label class="field">RFC<input name="rfc" value="${esc(v.rfc)}" maxlength="13" style="text-transform:uppercase" placeholder="ABC010203XY1"></label>
-  <label class="field">C.P. fiscal<input name="cpf" value="${esc(v.cpf)}" inputmode="numeric" maxlength="5"></label></div>
+  <label class="field">C.P. fiscal<input name="cpf" value="${esc(v.cpf)}" inputmode="numeric" maxlength="5"><small id="cpfMsg" style="font-weight:700;color:var(--green)"></small></label></div>
+  <button type="button" class="rm" id="cpfSame" style="justify-self:start">Usar el mismo C.P. del envío</button>
   <label class="field">Razón social (como aparece en tu constancia)<input name="razon" value="${esc(v.razon)}"></label>
   <label class="field">Régimen fiscal<select name="regimen">${REGIMENES.map(([k,t])=>`<option value="${k}" ${v.regimen===k?'selected':''}>${t}</option>`).join('')}</select></label>
   <label class="field">Uso del CFDI<select name="uso">${USOS.map(([k,t])=>`<option value="${k}" ${(v.uso||'G03')===k?'selected':''}>${t}</option>`).join('')}</select></label>`}
@@ -587,21 +603,21 @@ function readFiscal(f){const d=Object.fromEntries(new FormData(f));const v={rfc:
   if(!RFC_RE.test(v.rfc))return [null,'Revisa tu RFC (12 o 13 caracteres).'];if(v.razon.length<3)return [null,'Escribe la razón social.'];if(!/^\d{5}$/.test(v.cpf))return [null,'El C.P. fiscal debe tener 5 dígitos.'];return [v,null]}
 function openCart(){step='cart';renderCart();$('#drawer').classList.add('on');$('#drawer').setAttribute('aria-hidden','false');$('#scrim').classList.add('on')}
 
-async function pay(form,simulate=false){
-  const btn=$('#payBtn'),msg=$('#coMsg');const f=Object.fromEntries(new FormData(form));
-  for(const k of ['name','email','phone','street','zip','city',...(state.mode==='mayoreo'?['company']:[])])if(!String(f[k]||'').trim()){msg.innerHTML='<div class="notice err">Completa todos los datos de envío.</div>';return}
+async function pay(form,simulate=false,provider='stripe'){
+  const btn=$('#payBtn'),msg=$('#coMsg');const f=Object.fromEntries(new FormData(form));if(f.colonia)f.street=[f.street,f.colonia].filter(Boolean).join(', ');if(f.estado)f.city=[f.city,f.estado].filter(Boolean).join(', ');if(GEO.lat)f.mapa=`https://www.google.com/maps/search/?api=1&query=${GEO.lat.toFixed(6)},${GEO.lng.toFixed(6)}`;
+  for(const k of ['name','email','phone','street','colonia','zip','city','estado',...(state.mode==='mayoreo'?['company']:[])])if(!String(f[k]||'').trim()){msg.innerHTML='<div class="notice err">Completa todos los datos de envío.</div>';return}
   let fiscal=null;
   if(f.wantInvoice){const [v,err]=readFiscal(form);if(err){msg.innerHTML=`<div class="notice err">${err}</div>`;return}fiscal=v;LS.set('dimex-fiscal',{...v,want:true})}
-  btn.disabled=true;btn.lastChild.textContent=simulate?'Procesando pago de prueba…':'Conectando con Mercado Pago…';msg.innerHTML='';
+  btn.disabled=true;btn.lastChild.textContent=simulate?'Procesando pago de prueba…':'Abriendo pago seguro…';msg.innerHTML='';
   const T=totals();
   try{
-    const r=await fetch('/api/demos/dimex/checkout/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({simulate,mode:state.mode,items:cart.map(l=>({id:l.id,opt:l.opt,qty:l.qty})),buyer:f,invoice:fiscal})});
+    const r=await fetch('/api/demos/dimex/checkout/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({simulate,provider,mode:state.mode,items:cart.map(l=>({id:l.id,opt:l.opt,qty:l.qty})),buyer:f,invoice:fiscal})});
     const d=await r.json().catch(()=>({}));
     if(!r.ok||!d.url)throw new Error(d.error||'No se pudo crear el pago');
     LS.set('dimex-last-order',{ref:d.ref,date:new Date().toISOString(),mode:state.mode,buyer:{name:f.name,email:f.email,company:f.company},fiscal,lines:cart.map(l=>{const p=PRODUCTS.find(x=>x.id===l.id);return {id:l.id,name:p.name+(l.opt?' — '+l.opt:''),qty:l.qty,unit:unit(p,l.qty,state.mode)}}),ship:T.ship,total:T.total});
     location.href=d.url;
   }catch(e){
-    msg.innerHTML=`<div class="notice err">${esc(e.message)}.</div>`;btn.disabled=false;btn.lastChild.textContent='Pagar con Mercado Pago';
+    msg.innerHTML=`<div class="notice err">${esc(e.message)}.</div>`;btn.disabled=false;btn.lastChild.textContent='Pagar con tarjeta';
   }
 }
 
@@ -624,7 +640,7 @@ function invoiceHTML(o){
     <div class="ih"><div><img src="img/logo-dimex.png" alt="DIMEX" style="height:38px"><div style="margin-top:6px"><b>DIMEX DIDÁCTICOS MÉXICO</b><br>RFC emisor: EKU9003173C9 (RFC de pruebas SAT)<br>Régimen: 601 General de Ley Personas Morales · Lugar de expedición: 06600</div></div>
       <div style="text-align:right"><h4>Factura</h4><div class="lab">Serie y folio</div><b>A-${folio}</b><div class="lab" style="margin-top:4px">Fecha</div>${d.toLocaleString('es-MX')}<div class="lab" style="margin-top:4px">Pedido</div>${o.ref}</div></div>
     <div class="ig"><div><div class="lab">Receptor</div><b>${esc(f.razon)}</b><br>RFC: ${esc(f.rfc)} · C.P. ${esc(f.cpf)}<br>${esc(reg)}</div>
-      <div><div class="lab">Datos del comprobante</div>Uso CFDI: ${esc(uso)}<br>Método de pago: PUE · Pago en una sola exhibición<br>Forma de pago: 31 · Intermediario de pagos (Mercado Pago)<br>Moneda: MXN · Tipo: I · Ingreso</div></div>
+      <div><div class="lab">Datos del comprobante</div>Uso CFDI: ${esc(uso)}<br>Método de pago: PUE · Pago en una sola exhibición<br>Forma de pago: 04 · Tarjeta de crédito<br>Moneda: MXN · Tipo: I · Ingreso</div></div>
     <div class="tw"><table><thead><tr><th>Clave SAT</th><th>Descripción</th><th class="n">Cant.</th><th class="n">P. unitario</th><th class="n">Importe</th></tr></thead><tbody>
       ${items.map(l=>{const c=SAT_CLAVE[l.cat]||SAT_CLAVE.hogar;return `<tr><td>${c[0]}<br><span style="color:#6b7385">H87 Pieza</span></td><td>${esc(l.name)}</td><td class="n">${l.qty}</td><td class="n">${m2(l.unit/1.16)}</td><td class="n">${m2(l.unit*l.qty/1.16)}</td></tr>`}).join('')}
     </tbody></table></div>
@@ -632,7 +648,7 @@ function invoiceHTML(o){
     <div class="seal"><div class="qr" aria-hidden="true"></div><div><b>Folio fiscal (UUID):</b> ${o.uuid}<br><b>No. de certificado:</b> 30001000000500003416 · <b>Fecha de timbrado:</b> ${d.toISOString().slice(0,19)}<br><b>Sello digital del CFDI:</b> DEMO${btoa(o.uuid).replace(/=/g,'').repeat(3).slice(0,140)}…<br>Este documento es una representación impresa de un CFDI 4.0 de demostración generada por el módulo de facturación de FishFlow. No tiene validez fiscal.</div></div>
   </div>`;
 }
-function invoiceXML(o){const f=o.fiscal;return `<?xml version="1.0" encoding="UTF-8"?>\n<!-- DEMO · SIN VALIDEZ FISCAL -->\n<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" Version="4.0" Serie="A" Folio="${o.ref.replace('DMX-','')}" Fecha="${o.date.slice(0,19)}" FormaPago="31" MetodoPago="PUE" Moneda="MXN" TipoDeComprobante="I" Exportacion="01" LugarExpedicion="06600" Total="${o.total.toFixed(2)}">\n  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="DIMEX DIDACTICOS MEXICO" RegimenFiscal="601"/>\n  <cfdi:Receptor Rfc="${esc(f.rfc)}" Nombre="${esc(f.razon)}" DomicilioFiscalReceptor="${esc(f.cpf)}" RegimenFiscalReceptor="${esc(f.regimen)}" UsoCFDI="${esc(f.uso)}"/>\n  <cfdi:Conceptos>\n${o.lines.map(l=>`    <cfdi:Concepto Cantidad="${l.qty}" ClaveUnidad="H87" Descripcion="${esc(l.name)}" ValorUnitario="${(l.unit/1.16).toFixed(2)}" Importe="${(l.unit*l.qty/1.16).toFixed(2)}" ObjetoImp="02"/>`).join('\n')}\n  </cfdi:Conceptos>\n  <cfdi:Complemento><tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" UUID="${o.uuid}" SelloCFD="DEMO"/></cfdi:Complemento>\n</cfdi:Comprobante>`}
+function invoiceXML(o){const f=o.fiscal;return `<?xml version="1.0" encoding="UTF-8"?>\n<!-- DEMO · SIN VALIDEZ FISCAL -->\n<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" Version="4.0" Serie="A" Folio="${o.ref.replace('DMX-','')}" Fecha="${o.date.slice(0,19)}" FormaPago="04" MetodoPago="PUE" Moneda="MXN" TipoDeComprobante="I" Exportacion="01" LugarExpedicion="06600" Total="${o.total.toFixed(2)}">\n  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="DIMEX DIDACTICOS MEXICO" RegimenFiscal="601"/>\n  <cfdi:Receptor Rfc="${esc(f.rfc)}" Nombre="${esc(f.razon)}" DomicilioFiscalReceptor="${esc(f.cpf)}" RegimenFiscalReceptor="${esc(f.regimen)}" UsoCFDI="${esc(f.uso)}"/>\n  <cfdi:Conceptos>\n${o.lines.map(l=>`    <cfdi:Concepto Cantidad="${l.qty}" ClaveUnidad="H87" Descripcion="${esc(l.name)}" ValorUnitario="${(l.unit/1.16).toFixed(2)}" Importe="${(l.unit*l.qty/1.16).toFixed(2)}" ObjetoImp="02"/>`).join('\n')}\n  </cfdi:Conceptos>\n  <cfdi:Complemento><tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" UUID="${o.uuid}" SelloCFD="DEMO"/></cfdi:Complemento>\n</cfdi:Comprobante>`}
 function showInvoice(o,note){
   $('#mBox').className='box ivbox';
   $('#mBox').innerHTML=`<div class="info"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>🧾 Tu factura está lista</h3><button class="x" data-close aria-label="Cerrar">✕</button></div>
@@ -683,6 +699,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('click',e=>{
   const c=e.target.closest('[data-copy]');if(c){navigator.clipboard?.writeText(c.dataset.copy).then(()=>{c.textContent='¡Copiado!'}).catch(()=>{})}
   if(e.target.id==='simBtn'){const f=$('#coForm');if(f)pay(f,true)}
+  if(e.target.id==='mpBtn'){const f=$('#coForm');if(f)pay(f,false,'mercadopago')}
 });
 document.addEventListener('change',e=>{if(e.target.name==='wantInvoice')$('#fiscal').hidden=!e.target.checked});
 document.addEventListener('submit',e=>{
@@ -701,10 +718,88 @@ $('#moreBtn').onclick=()=>{state.limit+=24;renderGrid()};
 $('#sort').onchange=e=>{state.sort=e.target.value;renderGrid()};
 let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{state.q=e.target.value.trim();state.limit=48;renderGrid();if(state.q)document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})},250)});
 
+/* ---- dirección: la identificamos y llenamos (Leaflet + OpenStreetMap + Nominatim, sin llave) ---- */
+const GEO={map:null,pin:null,lat:null,lng:null,loading:false,t:null};
+const NOMI='https://nominatim.openstreetmap.org/';
+function geoMsg(t,cls=''){const a=$('#geoMsg');if(a){a.textContent=t;a.className='geomsg '+cls}}
+function loadLeaflet(cb){
+  if(window.L)return cb();if(GEO.loading)return;GEO.loading=true;
+  const c=document.createElement('link');c.rel='stylesheet';c.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';document.head.appendChild(c);
+  const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+  s.onload=()=>{GEO.loading=false;cb()};s.onerror=()=>{GEO.loading=false;const m=$('#geoMap');if(m)m.hidden=true;geoMsg('No se pudo cargar el mapa; escribe tu dirección completa.')};document.head.appendChild(s);
+}
+function initMap(){
+  const el=$('#geoMap');if(!el)return;
+  loadLeaflet(()=>{
+    if(GEO.map&&GEO.map.getContainer()===el){GEO.map.invalidateSize();return}
+    if(GEO.map){try{GEO.map.remove()}catch(e){}}
+    GEO.map=L.map(el,{zoomControl:true}).setView(GEO.lat?[GEO.lat,GEO.lng]:[23.6,-102.5],GEO.lat?17:4);GEO.pin=null;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(GEO.map);
+    GEO.map.attributionControl.setPrefix(false);
+    GEO.map.on('click',e=>{setPin(e.latlng.lat,e.latlng.lng);reverseFill(e.latlng.lat,e.latlng.lng)});
+    if(GEO.lat)setPin(GEO.lat,GEO.lng,false);
+    setTimeout(()=>GEO.map&&GEO.map.invalidateSize(),250);
+  });
+}
+function setPin(lat,lng,move=true){
+  GEO.lat=lat;GEO.lng=lng;if(!GEO.map)return;
+  const icon=L.divIcon({className:'geopin',html:'<span></span>',iconSize:[26,26],iconAnchor:[13,26]});
+  if(!GEO.pin){GEO.pin=L.marker([lat,lng],{draggable:true,icon}).addTo(GEO.map);GEO.pin.on('dragend',()=>{const p=GEO.pin.getLatLng();GEO.lat=p.lat;GEO.lng=p.lng;reverseFill(p.lat,p.lng)})}
+  else GEO.pin.setLatLng([lat,lng]);
+  if(move)GEO.map.setView([lat,lng],Math.max(GEO.map.getZoom(),16));
+}
+const pickCity=a=>a.city||a.town||a.borough||a.municipality||a.county||a.village||'';
+const pickCol=a=>a.suburb||a.neighbourhood||a.quarter||a.city_district||a.hamlet||'';
+function fill(a,{street=true,onlyEmpty=false}={}){
+  const f=$('#coForm');if(!f)return;const set=(n,v)=>{if(v&&f[n]&&!(onlyEmpty&&f[n].value.trim()))f[n].value=v};
+  if(street&&a.road)set('street',(a.road+' '+(a.house_number||'')).trim());
+  set('colonia',pickCol(a));set('zip',a.postcode&&/^\d{5}$/.test(a.postcode)?a.postcode:'');set('city',pickCity(a));set('estado',a.state);
+  if(f.cpf&&!f.cpf.value&&f.zip.value)f.cpf.value=f.zip.value;
+}
+async function nomi(path){const r=await fetch(NOMI+path+(path.includes('?')?'&':'?')+'format=json&addressdetails=1&accept-language=es&countrycodes=mx');return r.ok?r.json():null}
+async function reverseFill(lat,lng){
+  geoMsg('Identificando la dirección…');
+  try{const d=await nomi(`reverse?lat=${lat}&lon=${lng}&zoom=18`);if(d&&d.address){fill(d.address);geoMsg('✓ Llenamos tu dirección. Revisa el número exterior y ajusta el pin si hace falta.','ok')}else geoMsg('Marcamos el punto; completa la dirección a mano.')}catch(e){geoMsg('Marcamos el punto; completa la dirección a mano.')}
+}
+async function cpLookup(cp,target='envio'){
+  try{const d=await nomi(`search?postalcode=${cp}&country=mx&limit=1`);
+    if(!d||!d[0]){if(target==='envio')geoMsg('No encontramos ese código postal. Revísalo.','bad');else $('#cpfMsg').textContent='No encontramos ese C.P.';return}
+    const a=d[0].address||{};
+    if(target==='fiscal'){$('#cpfMsg').textContent='📍 '+[pickCity(a),a.state].filter(Boolean).join(', ');return}
+    fill(a,{street:false,onlyEmpty:true});geoMsg(`✓ C.P. ${cp}: ${[pickCol(a),pickCity(a),a.state].filter(Boolean).join(', ')}. Ahora escribe tu calle o marca tu puerta en el mapa.`,'ok');
+    initMap();const go=()=>{if(GEO.map){if(!GEO.pin)GEO.map.setView([+d[0].lat,+d[0].lon],15)}else setTimeout(go,200)};go();
+  }catch(e){}
+}
+async function forwardSearch(){
+  const f=$('#coForm');const q=[f.street.value,f.colonia.value,f.zip.value,f.city.value,f.estado.value].map(s=>s.trim()).filter(Boolean).join(', ');
+  if(f.street.value.trim().length<3){geoMsg('Escribe primero tu calle y número.','bad');f.street.focus();return}
+  geoMsg('Buscando tu dirección en el mapa…');initMap();
+  try{const d=await nomi('search?limit=1&q='+encodeURIComponent(q+', México'));
+    if(d&&d[0]){const go=()=>{if(GEO.map){setPin(+d[0].lat,+d[0].lon);if(d[0].address)fill(d[0].address,{street:false,onlyEmpty:true});geoMsg('✓ La encontramos. Si el pin no está en tu puerta, arrástralo.','ok')}else setTimeout(go,200)};go()}
+    else geoMsg('No la encontramos; toca el mapa donde está tu puerta.','bad')}catch(e){geoMsg('No pudimos buscarla; toca el mapa.','bad')}
+}
+function useMyLocation(){
+  if(!navigator.geolocation){geoMsg('Tu navegador no comparte ubicación; escribe tu C.P.','bad');return}
+  geoMsg('Buscándote…');initMap();
+  navigator.geolocation.getCurrentPosition(p=>{const go=()=>{if(GEO.map){setPin(p.coords.latitude,p.coords.longitude);reverseFill(p.coords.latitude,p.coords.longitude)}else setTimeout(go,200)};go()},
+    ()=>geoMsg('No pudimos leer tu ubicación; escribe tu C.P.','bad'),{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
+}
+document.addEventListener('input',e=>{
+  const n=e.target.name;
+  if(n==='zip'&&/^\d{5}$/.test(e.target.value)){clearTimeout(GEO.t);GEO.t=setTimeout(()=>cpLookup(e.target.value),350)}
+  if(n==='cpf'&&/^\d{5}$/.test(e.target.value)){clearTimeout(GEO.t2);GEO.t2=setTimeout(()=>cpLookup(e.target.value,'fiscal'),350)}
+});
+document.addEventListener('click',e=>{
+  if(e.target.closest('#geoMe'))useMyLocation();
+  if(e.target.closest('#geoFind'))forwardSearch();
+  if(e.target.closest('#cpfSame')){const f=$('#coForm');if(f.zip.value){f.cpf.value=f.zip.value;cpLookup(f.zip.value,'fiscal')}}
+});
+
 /* ---- regreso de Mercado Pago ---- */
 function checkReturn(){
   const u=new URLSearchParams(location.search);const s=u.get('status')||u.get('collection_status');
-  if(!s)return;history.replaceState(null,'',location.pathname);
+  if(!s)return;const sid=u.get('sid');history.replaceState(null,'',location.pathname);
+  if(s==='approved'&&sid)fetch('/api/demos/dimex/confirm/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sid})}).catch(()=>{});
   const o=LS.get('dimex-last-order',null);
   if(s==='approved'){cart=[];save();renderCart();
     if(o&&o.fiscal){LS.set('dimex-last-order',o);showInvoice(o,`✅ ¡Pago aprobado! Pedido <b>${esc(o.ref)}</b>. Tu factura se envió a <b>${esc(o.buyer.email)}</b>.`)}

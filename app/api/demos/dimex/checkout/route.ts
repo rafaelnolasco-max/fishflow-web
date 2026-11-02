@@ -3,6 +3,7 @@
 // Token: DIMEX_MP_ACCESS_TOKEN (TEST-...) o, si no existe, MERCADOPAGO_TEST_ACCESS_TOKEN / MERCADOPAGO_ACCESS_TOKEN.
 import { NextRequest, NextResponse } from 'next/server'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
+import Stripe from 'stripe'
 import PRICES from './prices.json'
 import { notifyDemoOrder, type DemoOrder } from '../notify'
 
@@ -42,9 +43,8 @@ export async function POST(req: NextRequest) {
     process.env.DIMEX_MP_ACCESS_TOKEN ??
     process.env.MERCADOPAGO_TEST_ACCESS_TOKEN ??
     process.env.MERCADOPAGO_ACCESS_TOKEN
-  if (!token) return NextResponse.json({ error: 'Falta configurar Mercado Pago' }, { status: 500 })
 
-  let body: { items?: Item[]; buyer?: Record<string, string>; mode?: string; invoice?: Fiscal | null; simulate?: boolean }
+  let body: { items?: Item[]; buyer?: Record<string, string>; mode?: string; invoice?: Fiscal | null; simulate?: boolean; provider?: string }
   try {
     body = await req.json()
   } catch {
@@ -91,6 +91,7 @@ export async function POST(req: NextRequest) {
     email: buyer.email?.slice(0, 120),
     telefono: buyer.phone?.slice(0, 20),
     direccion: [buyer.street, buyer.zip, buyer.city].filter(Boolean).join(', ').slice(0, 200),
+    mapa: /^https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=-?\d+\.\d+,-?\d+\.\d+$/.test(buyer.mapa ?? '') ? buyer.mapa : undefined,
     items: items.map((i) => ({ title: i.title, quantity: i.quantity, unit_price: i.unit_price })),
     total: items.reduce((s, l) => s + l.unit_price * l.quantity, 0),
     factura,
@@ -103,6 +104,45 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: BASE + '?status=approved', ref, simulated: true })
   }
 
+  // Stripe en MODO PRUEBA (solo llaves sk_test_: nunca se usa una llave real)
+  if (body.provider === 'stripe') {
+    const sk = [process.env.DIMEX_STRIPE_SECRET_KEY, process.env.STRIPE_TEST_SECRET_KEY, process.env.STRIPE_SECRET_KEY]
+      .find((k) => k?.startsWith('sk_test_'))
+    if (!sk) return NextResponse.json({ error: 'Falta la llave de prueba de Stripe' }, { status: 500 })
+    try {
+      const stripe = new Stripe(sk, { apiVersion: '2026-04-22.dahlia' })
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        payment_method_types: ['card'],
+        line_items: items.map((i) => ({
+          price_data: { currency: 'mxn', product_data: { name: i.title }, unit_amount: Math.round(i.unit_price * 100) },
+          quantity: i.quantity,
+        })),
+        customer_email: order.email && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(order.email) ? order.email : undefined,
+        client_reference_id: ref,
+        metadata: {
+          ref,
+          canal: order.canal,
+          nombre: order.nombre ?? '',
+          empresa: order.empresa ?? '',
+          email: order.email ?? '',
+          direccion: order.direccion ?? '',
+          mapa: order.mapa ?? '',
+          factura: factura ? JSON.stringify(factura).slice(0, 480) : '',
+        },
+        success_url: BASE + '?status=approved&sid={CHECKOUT_SESSION_ID}',
+        cancel_url: BASE + '?status=failure',
+        locale: 'es',
+      })
+      if (allowEmail(ip)) await notifyDemoOrder(order, 'recibido')
+      return NextResponse.json({ url: session.url, ref })
+    } catch (e) {
+      console.error('[demos/dimex/checkout] stripe', e)
+      return NextResponse.json({ error: 'Stripe rechazó la solicitud' }, { status: 502 })
+    }
+  }
+
+  if (!token) return NextResponse.json({ error: 'Falta configurar Mercado Pago' }, { status: 500 })
   try {
     const pref = await new Preference(new MercadoPagoConfig({ accessToken: token })).create({
       body: {
@@ -131,6 +171,7 @@ export async function POST(req: NextRequest) {
           email: order.email,
           telefono: order.telefono,
           direccion: order.direccion,
+          mapa: order.mapa,
           factura,
         },
       },

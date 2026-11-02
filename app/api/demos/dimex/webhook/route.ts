@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
   if (SEEN.has(key)) return NextResponse.json({ ok: true, duplicate: true })
   SEEN.add(key)
 
-  type Meta = { canal?: string; nombre?: string; empresa?: string; email?: string; direccion?: string; factura?: DemoOrder['factura'] }
+  type Meta = { canal?: string; nombre?: string; empresa?: string; email?: string; direccion?: string; mapa?: string; factura?: DemoOrder['factura'] }
   const m = (p.metadata ?? {}) as Meta
   const items = (p.additional_info?.items ?? []).map((i) => ({
     title: String(i.title),
@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
     empresa: m.empresa,
     email: m.email || p.payer?.email,
     direccion: m.direccion,
+    mapa: m.mapa,
     items,
     total: p.transaction_amount ?? items.reduce((s, i) => s + i.quantity * i.unit_price, 0),
     factura: m.factura?.rfc ? m.factura : null,

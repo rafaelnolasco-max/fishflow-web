@@ -18,6 +18,7 @@ export type DemoOrder = {
   total: number
   factura?: DemoFiscal | null
   pagoId?: string
+  mapa?: string
 }
 export type DemoStage = 'recibido' | 'aprobado' | 'pendiente'
 
@@ -77,7 +78,7 @@ function emailHtml(o: DemoOrder, stage: DemoStage) {
       <p style="font-size:14px;color:#566074;margin:0 0 14px">Pedido <b style="color:#1b2333">${escHtml(o.ref)}</b></p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}
         <tr><td style="padding:10px 0;font-size:16px"><b>Total</b></td><td style="padding:10px 0;font-size:16px;text-align:right"><b>${money(o.total)}</b></td></tr></table>
-      ${o.direccion ? `<p style="font-size:13px;color:#566074;margin:6px 0 0">📦 Envío a: ${escHtml(o.direccion)}</p>` : ''}
+      ${o.direccion ? `<p style="font-size:13px;color:#566074;margin:6px 0 0">📦 Envío a: ${escHtml(o.direccion)}${o.mapa ? ` · <a href="${escHtml(o.mapa)}" style="color:${BLUE}">ver en mapa</a>` : ''}</p>` : ''}
       ${fact}
       <p style="margin:22px 0 0"><a href="${STORE}" style="background:${BLUE};color:#fff;text-decoration:none;font-weight:bold;border-radius:12px;padding:12px 18px;display:inline-block">Volver a la tienda</a></p>
     </td></tr>
@@ -91,7 +92,7 @@ function facturaXml(o: DemoOrder, uuid: string) {
   const x = (s: unknown) => escHtml(String(s ?? ''))
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!-- DEMO · SIN VALIDEZ FISCAL -->
-<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" Version="4.0" Serie="A" Folio="${x(o.ref.replace('DMX-', ''))}" Fecha="${new Date().toISOString().slice(0, 19)}" FormaPago="31" MetodoPago="PUE" Moneda="MXN" TipoDeComprobante="I" Exportacion="01" LugarExpedicion="06600" Total="${o.total.toFixed(2)}">
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" Version="4.0" Serie="A" Folio="${x(o.ref.replace('DMX-', ''))}" Fecha="${new Date().toISOString().slice(0, 19)}" FormaPago="04" MetodoPago="PUE" Moneda="MXN" TipoDeComprobante="I" Exportacion="01" LugarExpedicion="06600" Total="${o.total.toFixed(2)}">
   <cfdi:Emisor Rfc="EKU9003173C9" Nombre="DIMEX DIDACTICOS MEXICO" RegimenFiscal="601"/>
   <cfdi:Receptor Rfc="${x(f.rfc)}" Nombre="${x(f.razon)}" DomicilioFiscalReceptor="${x(f.cp)}" RegimenFiscalReceptor="${x(f.regimen)}" UsoCFDI="${x(f.uso)}"/>
   <cfdi:Conceptos>
@@ -133,7 +134,7 @@ export async function notifyDemoOrder(o: DemoOrder, stage: DemoStage) {
       body: [
         `*Canal:* ${o.canal === 'mayoreo' ? '🏫 Mayoreo' : '🛍️ Menudeo'}`,
         `*Cliente:* ${slackEscape(o.nombre || '—')}${o.empresa ? ` · ${slackEscape(o.empresa)}` : ''}${o.email ? ` · ${slackEscape(o.email)}` : ''}`,
-        o.direccion ? `*Envío:* ${slackEscape(o.direccion)}` : '',
+        o.direccion ? `*Envío:* ${slackEscape(o.direccion)}${o.mapa ? ` · <${o.mapa}|📍 ver en mapa>` : ''}` : '',
         `*Factura:* ${o.factura?.rfc ? `Sí · ${slackEscape(o.factura.rfc)}${stage === 'aprobado' ? ' (XML enviado)' : ''}` : 'No'}`,
         lines,
         o.pagoId ? `_Pago Mercado Pago ${slackEscape(o.pagoId)}_` : '',
