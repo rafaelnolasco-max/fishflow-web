@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel privado DIMEX</title>
+<link rel="icon" href="img/favicon.png">
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --surface:#fcfcfb;--bg:#f4f2ed;--card:#ffffff;--line:#e7e3da;--ink:#0b0b0b;--ink-2:#52514e;--muted:#8a877f;
+  --s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--grid:#ece9e2;
+  --good:#1a7f45;--bad:#c2352a;--warn:#a66800;--blue:#1d4f9c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Nunito,system-ui,sans-serif}
+h1,h2,h3{font-family:Fredoka,Nunito,sans-serif;margin:0;font-weight:600}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+header{background:#1b2333;color:#fff}
+.hrow{display:flex;min-width:0;align-items:center;gap:14px;min-height:68px;flex-wrap:wrap;padding:8px 0}
+.hrow img{height:36px;background:#fff;border-radius:8px;padding:3px 6px}
+.hrow h1{font-size:20px}
+.hrow .who{color:#aeb7c8;font-size:13px}
+.hrow .sp{flex:1}
+.seg{display:inline-flex;background:#2b3447;border-radius:12px;padding:3px}
+.seg button{border:0;background:transparent;color:#c8cfdc;font:inherit;font-weight:800;padding:6px 12px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed=true]{background:#fff;color:#1b2333}
+.hrow a{color:#c8cfdc;font-weight:700;font-size:14px}
+.sim{background:#fff4d6;color:#5c4300;font-size:13px;padding:8px 0;border-bottom:1px solid #f0e2b8}
+main{padding:20px 0 40px;display:grid;gap:16px}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.kpi .l{font-size:13px;color:var(--ink-2);font-weight:700}
+.kpi .v{font-family:Fredoka,sans-serif;font-size:26px;line-height:1.2;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:12px;font-weight:800;margin-top:2px}
+.up{color:var(--good)}.down{color:var(--bad)}
+.row{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+.row.eq{grid-template-columns:1fr 1fr}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.ph h2{font-size:18px}
+.ph span{font-size:13px;color:var(--muted)}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:#1b2333;color:#fff;border-radius:10px;padding:8px 10px;font-size:13px;line-height:1.35;white-space:nowrap;opacity:0;transition:opacity .1s;z-index:5;transform:translate(-50%,-110%)}
+.tip b{font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid #f1eee7;vertical-align:middle}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.pname{display:flex;align-items:center;gap:10px;min-width:0}
+.pname img{width:34px;height:34px;object-fit:contain;border:1px solid var(--line);border-radius:8px;background:#fff;flex:none}
+.pname span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px}
+.mbar{display:inline-block;height:8px;border-radius:4px;background:var(--s1);vertical-align:middle;margin-right:6px}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:800;border-radius:7px;padding:2px 7px}
+.tag.bad{background:#fbe7e5;color:var(--bad)}.tag.warn{background:#fff1d6;color:var(--warn)}.tag.good{background:#e2f3e8;color:var(--good)}
+.recs{display:grid;gap:10px}
+.rec{display:flex;gap:12px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--surface)}
+.rec .i{font-size:20px;flex:none}
+.rec b{display:block}
+.rec p{margin:2px 0 0;color:var(--ink-2);font-size:14px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:4px 10px;font:inherit;font-size:13px;font-weight:800;color:var(--ink-2);cursor:pointer}
+.tabs button[aria-pressed=true]{background:#1b2333;color:#fff;border-color:#1b2333}
+/* login */
+.gate{position:fixed;inset:0;background:linear-gradient(135deg,#1d4f9c,#1b2333);display:grid;place-items:center;z-index:100;padding:16px}
+.gate form{background:#fff;border-radius:22px;padding:30px;width:min(380px,100%);display:grid;gap:14px;text-align:center}
+.gate img{height:50px;margin:0 auto}
+.gate input{border:2px solid var(--line);border-radius:12px;padding:12px;font:inherit;font-size:20px;text-align:center;letter-spacing:.4em}
+.gate button{border:0;background:var(--blue);color:#fff;font:inherit;font-weight:800;border-radius:12px;padding:12px;cursor:pointer}
+.gate small{color:var(--muted)}
+.gate .err{color:var(--bad);font-weight:700;min-height:20px;font-size:14px}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr)}.row,.row.eq{grid-template-columns:1fr}}
+@media (max-width:560px){.wrap{padding:0 16px}.panel{padding:14px}td,th{padding:7px 4px}table{font-size:13px}.pname img{display:none}.kpis{grid-template-columns:1fr 1fr}.kpi .v{font-size:21px}.pname span{max-width:120px}.hide-sm{display:none}}
+</style>
+</head>
+<body>
+<div class="gate" id="gate">
+  <form id="gateForm">
+    <img src="img/logo-dimex.png" alt="DIMEX">
+    <h2>Panel privado</h2>
+    <div style="color:var(--ink-2)">Elizabeth y Roberto</div>
+    <input id="pin" inputmode="numeric" maxlength="4" placeholder="••••" aria-label="PIN" autofocus>
+    <div class="err" id="gateErr"></div>
+    <button>Entrar</button>
+    <small>PIN de la demo: <b>2026</b></small>
+  </form>
+</div>
+
+<header>
+  <div class="wrap hrow">
+    <img src="img/logo-dimex.png" alt="DIMEX">
+    <div><h1>Panel del negocio</h1><div class="who">Elizabeth y Roberto · actualizado <span id="now"></span></div></div>
+    <div class="sp"></div>
+    <div class="seg" id="range"><button data-d="7">7 días</button><button data-d="30" aria-pressed="true">30 días</button><button data-d="90">90 días</button></div>
+    <a href="index.html">Ver tienda →</a>
+  </div>
+</header>
+<div class="sim"><div class="wrap">📊 <b>Datos simulados para la demo.</b> En producción, este panel se conecta a los pedidos reales de Mercado Pago y al costo de cada producto.</div></div>
+
+<main class="wrap">
+  <section class="kpis" id="kpis"></section>
+
+  <section class="row">
+    <div class="panel">
+      <div class="ph"><h2>Ventas y utilidad por día</h2><span id="trendNote"></span></div>
+      <div class="chart" id="trend"></div>
+      <div class="legend"><span><i style="background:var(--s1)"></i>Ventas</span><span><i style="background:var(--s3)"></i>Utilidad bruta</span></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>Margen por sección</h2><span>Utilidad ÷ ventas</span></div>
+      <div id="catTable"></div>
+    </div>
+  </section>
+
+  <section class="row eq">
+    <div class="panel">
+      <div class="ph"><h2>Productos más vendidos</h2><span id="topNote"></span></div>
+      <div class="tabs" id="topTabs"><button data-k="rev" aria-pressed="true">Por ventas</button><button data-k="units">Por piezas</button><button data-k="profit">Por utilidad</button></div>
+      <div id="topTable"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>Lo que recomiendo revisar</h2><span>Generado con los datos del periodo</span></div>
+      <div class="recs" id="recs"></div>
+    </div>
+  </section>
+
+  <section class="row eq">
+    <div class="panel">
+      <div class="ph"><h2>¿A dónde se va cada peso?</h2><span>Desglose de las ventas del periodo</span></div>
+      <div class="chart" id="waterfall"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>Inventario por agotarse</h2><span>Días de venta que alcanzan</span></div>
+      <div id="stock"></div>
+    </div>
+  </section>
+
+  <section class="row eq">
+    <div class="panel">
+      <div class="ph"><h2>Ventas por estado</h2><span>Top 8</span></div>
+      <div class="chart" id="states"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>Cómo pagan tus clientes</h2><span>Por número de pedidos</span></div>
+      <div class="chart" id="payments"></div>
+    </div>
+  </section>
+</main>
+
+<script src="products.js"></script>
+<script>
+const fmt=n=>'$'+Math.round(n).toLocaleString('es-MX');
+const fmtK=n=>n>=1e6?'$'+(n/1e6).toFixed(2)+' M':n>=1e4?'$'+(n/1e3).toFixed(1)+' k':fmt(n);
+const pct=n=>(n*100).toFixed(1)+'%';
+const $=s=>document.querySelector(s);
+const CATN={mobiliario:'Mobiliario infantil',didacticos:'Material didáctico',hogar:'Hogar y organización',fiestas:'Fiestas y eventos'};
+// Costo de producción estimado como % del precio (supuesto de la demo; se reemplaza por el costo real)
+const COST={mobiliario:.56,didacticos:.44,hogar:.52,fiestas:.49};
+const MP_FEE=.0399, SHIP_COST=118; // comisión y costo de guía estimados
+const STATES=['CDMX','Estado de México','Jalisco','Nuevo León','Puebla','Querétaro','Guanajuato','Veracruz','Yucatán','Otros'];
+const SW=[24,19,10,9,7,5,5,4,3,14];
+const PAYS=[['Tarjeta de crédito',41],['Tarjeta de débito',27],['OXXO',14],['Saldo Mercado Pago',11],['SPEI',7]];
+
+/* gate */
+try{if(sessionStorage.getItem('dimex-admin')==='1')$('#gate').remove()}catch(e){}
+$('#gateForm').onsubmit=e=>{e.preventDefault();if($('#pin').value==='2026'){try{sessionStorage.setItem('dimex-admin','1')}catch(e){};$('#gate').remove()}else{$('#gateErr').textContent='PIN incorrecto';$('#pin').value=''}};
+
+/* seeded rng */
+let seed=20261102;const rnd=()=>{seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296};
+const pick=(arr,w)=>{let r=rnd()*w.reduce((a,b)=>a+b,0);for(let i=0;i<arr.length;i++){r-=w[i];if(r<=0)return arr[i]}return arr[arr.length-1]};
+
+let P=[],ORDERS=[],range=30;
+function simulate(){
+  // popularity: cheaper & mobiliario sets sell often; a few hero products
+  const pop=P.map((p,i)=>{let w=1/Math.sqrt(p.price/150);if(p.cat==='mobiliario')w*=1.6;if(p.before)w*=1.5;if(p.src!=='8connect')w*=.7;if(i%9===0)w*=2.4;return w});
+  const today=new Date();today.setHours(12,0,0,0);
+  for(let d=179;d>=0;d--){
+    const day=new Date(today-d*864e5);const dow=day.getDay();
+    const growth=1+(179-d)/179*.35;const n=Math.round((4+rnd()*4)*growth*(dow===0?.6:dow===6?.8:1)*(d<12?1.15:1));
+    for(let k=0;k<n;k++){
+      const lines=[];const nl=1+Math.floor(rnd()*rnd()*4);
+      for(let j=0;j<nl;j++){const p=pick(P,pop);lines.push({p,q:p.price>1500?1:1+Math.floor(rnd()*rnd()*4)})}
+      const sub=lines.reduce((s,l)=>s+l.p.price*l.q,0);
+      ORDERS.push({d:179-d,date:day,lines,sub,ship:sub>=500?0:149,state:pick(STATES,SW),pay:pick(PAYS.map(x=>x[0]),PAYS.map(x=>x[1]))});
+    }
+  }
+  P.forEach((p,i)=>{p.stock=Math.round(2+rnd()*rnd()*70);p.cr=COST[p.cat]*(0.9+rnd()*0.2)});
+}
+function agg(from,to){
+  const o=ORDERS.filter(x=>x.d>=from&&x.d<to);
+  let rev=0,cost=0,ship=0,shipCost=0,units=0;const byP={},byC={},byDay={},bySt={},byPay={};
+  for(const x of o){
+    rev+=x.sub;ship+=x.ship;shipCost+=SHIP_COST;bySt[x.state]=(bySt[x.state]||0)+x.sub;byPay[x.pay]=(byPay[x.pay]||0)+1;
+    const dd=byDay[x.d]||(byDay[x.d]={rev:0,profit:0,date:x.date});
+    for(const l of x.lines){
+      const r=l.p.price*l.q,c=r*l.p.cr;cost+=c;units+=l.q;dd.rev+=r;dd.profit+=r-c;
+      const bp=byP[l.p.id]||(byP[l.p.id]={p:l.p,rev:0,units:0,profit:0});bp.rev+=r;bp.units+=l.q;bp.profit+=r-c;
+      const bc=byC[l.p.cat]||(byC[l.p.cat]={rev:0,profit:0,units:0});bc.rev+=r;bc.profit+=r-c;bc.units+=l.q;
+    }
+  }
+  const fees=(rev+ship)*MP_FEE;
+  return {o,n:o.length,rev,cost,gross:rev-cost,ship,shipCost,fees,net:rev-cost+ship-shipCost-fees,units,byP,byC,byDay,bySt,byPay};
+}
+function delta(a,b){if(!b)return '';const v=(a-b)/b;return `<div class="d ${v>=0?'up':'down'}">${v>=0?'▲':'▼'} ${Math.abs(v*100).toFixed(1)}% vs periodo anterior</div>`}
+
+function render(){
+  const cur=agg(180-range,180),prev=agg(180-2*range,180-range);
+  const tick=cur.n?cur.rev/cur.n:0,ptick=prev.n?prev.rev/prev.n:0;
+  const k=[['Ventas',fmtK(cur.rev),delta(cur.rev,prev.rev)],['Utilidad bruta',fmtK(cur.gross),delta(cur.gross,prev.gross)],['Margen bruto',pct(cur.gross/cur.rev),`<div class="d ${(cur.gross/cur.rev)>=(prev.gross/prev.rev)?'up':'down'}">${((cur.gross/cur.rev-prev.gross/prev.rev)*100).toFixed(1)} pts vs anterior</div>`],
+    ['Pedidos',cur.n.toLocaleString('es-MX'),delta(cur.n,prev.n)],['Ticket promedio',fmt(tick),delta(tick,ptick)],['Utilidad neta est.',fmtK(cur.net),`<div class="d" style="color:var(--muted)">después de envíos y comisión</div>`]];
+  $('#kpis').innerHTML=k.map(([l,v,d])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div>${d}</div>`).join('');
+  $('#trendNote').textContent=`Últimos ${range} días`;
+  trend(cur);catTable(cur);topTable(cur);waterfall(cur);stock(cur);hbars('#states',Object.entries(cur.bySt).sort((a,b)=>b[1]-a[1]).filter(x=>x[0]!=='Otros').slice(0,8),fmtK,'var(--s1)');
+  const pay=Object.entries(cur.byPay).sort((a,b)=>b[1]-a[1]);hbars('#payments',pay,v=>Math.round(v/cur.n*100)+'%',  'var(--s1)');
+  recs(cur,prev);
+}
+
+/* charts */
+function tipOn(el,html,x,y){let t=el.querySelector('.tip');if(!t){t=document.createElement('div');t.className='tip';el.appendChild(t)}t.innerHTML=html;t.style.left=x+'px';t.style.top=y+'px';t.style.opacity=1}
+function tipOff(el){const t=el.querySelector('.tip');if(t)t.style.opacity=0}
+function niceMax(v){const e=Math.pow(10,Math.floor(Math.log10(v)));const m=v/e;return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*e}
+function trend(cur){
+  const el=$('#trend');const days=Object.keys(cur.byDay).map(Number).sort((a,b)=>a-b).map(d=>cur.byDay[d]);
+  const W=720,H=260,L=52,R=10,T=10,B=28;const max=niceMax(Math.max(...days.map(d=>d.rev)));
+  const x=i=>L+(W-L-R)*(days.length===1?0.5:i/(days.length-1)),y=v=>T+(H-T-B)*(1-v/max);
+  const path=k=>days.map((d,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(d[k]).toFixed(1)).join('');
+  let g='';for(let i=0;i<=4;i++){const v=max*i/4;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmtK(v)}</text>`}
+  const step=Math.ceil(days.length/6);let xl='';days.forEach((d,i)=>{if(i%step===0||i===days.length-1&&days.length<10)xl+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${d.date.toLocaleDateString('es-MX',{day:'numeric',month:'short'})}</text>`});
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ventas y utilidad diaria">${g}${xl}
+    <path d="${path('rev')} L${x(days.length-1)} ${y(0)} L${x(0)} ${y(0)}Z" fill="var(--s1)" opacity=".08"/>
+    <path d="${path('rev')}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round"/>
+    <path d="${path('profit')}" fill="none" stroke="var(--s3)" stroke-width="2" stroke-linejoin="round"/>
+    <line id="xh" y1="${T}" y2="${H-B}" stroke="#9a978f" stroke-dasharray="3 3" opacity="0"/>
+    <circle id="d1" r="4.5" fill="var(--s1)" stroke="#fff" stroke-width="2" opacity="0"/><circle id="d2" r="4.5" fill="var(--s3)" stroke="#fff" stroke-width="2" opacity="0"/>
+    <rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" id="hit"/></svg>`;
+  const svg=el.querySelector('svg'),hit=svg.querySelector('#hit');
+  hit.onpointermove=e=>{const r=svg.getBoundingClientRect(),sx=(e.clientX-r.left)*W/r.width;const i=Math.max(0,Math.min(days.length-1,Math.round((sx-L)/(W-L-R)*(days.length-1))));const d=days[i];
+    const X=x(i);svg.querySelector('#xh').setAttribute('x1',X);svg.querySelector('#xh').setAttribute('x2',X);svg.querySelector('#xh').setAttribute('opacity',1);
+    [['#d1','rev'],['#d2','profit']].forEach(([id,k])=>{const c=svg.querySelector(id);c.setAttribute('cx',X);c.setAttribute('cy',y(d[k]));c.setAttribute('opacity',1)});
+    tipOn(el,`${d.date.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'})}<br>Ventas <b>${fmt(d.rev)}</b><br>Utilidad <b>${fmt(d.profit)}</b> (${pct(d.profit/d.rev)})`,X*r.width/W,y(d.rev)*r.height/H)};
+  hit.onpointerleave=()=>{tipOff(el);['#xh','#d1','#d2'].forEach(s=>svg.querySelector(s).setAttribute('opacity',0))};
+}
+function catTable(cur){
+  const rows=Object.entries(cur.byC).sort((a,b)=>b[1].rev-a[1].rev);const mx=Math.max(...rows.map(r=>r[1].profit/r[1].rev));
+  $('#catTable').innerHTML=`<table><thead><tr><th>Sección</th><th class="n">Ventas</th><th class="n">Margen</th></tr></thead><tbody>${rows.map(([c,v])=>`<tr><td>${CATN[c]}<div style="font-size:12px;color:var(--muted)">${v.units.toLocaleString('es-MX')} piezas · ${pct(v.rev/cur.rev)} de la venta</div></td><td class="n">${fmtK(v.rev)}</td><td class="n" style="white-space:nowrap"><span class="mbar" style="width:${Math.round(v.profit/v.rev/mx*60)}px"></span>${pct(v.profit/v.rev)}</td></tr>`).join('')}</tbody></table>
+  <p style="font-size:12px;color:var(--muted);margin:10px 0 0">Costos estimados para la demo: mobiliario 56%, didáctico 44%, hogar 52%, fiestas 49% del precio.</p>`;
+}
+let topKey='rev';
+function topTable(cur){
+  const rows=Object.values(cur.byP).sort((a,b)=>b[topKey]-a[topKey]).slice(0,8);
+  $('#topNote').textContent=`${Object.keys(cur.byP).length} productos con venta`;
+  $('#topTable').innerHTML=`<table><thead><tr><th>Producto</th><th class="n">Piezas</th><th class="n">Ventas</th><th class="n hide-sm">Utilidad</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td><div class="pname"><b style="color:var(--muted);width:16px">${i+1}</b><img src="${r.p.img}" alt=""><span title="${r.p.name}">${r.p.name}</span></div></td><td class="n">${r.units}</td><td class="n">${fmtK(r.rev)}</td><td class="n hide-sm">${fmtK(r.profit)}</td></tr>`).join('')}</tbody></table>`;
+}
+function waterfall(cur){
+  const el=$('#waterfall');const items=[['Costo de producto',cur.cost],['Envíos (neto)',cur.shipCost-cur.ship],['Comisión Mercado Pago',cur.fees],['Te queda',cur.net]];
+  const W=520,H=210,L=150,R=70,rowH=H/items.length;const tot=cur.rev;
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Desglose de ventas">${items.map(([n,v],i)=>{const w=Math.max(2,(W-L-R)*v/tot);const y=i*rowH+rowH*.22;const last=i===items.length-1;
+    return `<text x="${L-10}" y="${y+rowH*.36}" text-anchor="end" font-size="13" fill="var(--ink-2)" ${last?'font-weight="800"':''}>${n}</text>
+    <rect x="${L}" y="${y}" width="${w}" height="${rowH*.56}" rx="4" fill="${last?'var(--s3)':'var(--s2)'}" ${last?'':'opacity=".85"'} data-t="${n}: <b>${fmt(v)}</b> (${pct(v/tot)} de cada peso)"/>
+    <text x="${L+w+8}" y="${y+rowH*.36}" font-size="13" fill="var(--ink)" font-weight="800">${Math.round(v/tot*100)}¢</text>`}).join('')}</svg>
+    <p style="font-size:13px;color:var(--ink-2);margin:6px 0 0">De cada <b>$1</b> vendido en el periodo, a ustedes les quedan <b>${Math.round(cur.net/tot*100)} centavos</b> antes de gastos fijos (renta, nómina, publicidad).</p>`;
+  el.querySelectorAll('rect').forEach(r=>{r.onpointermove=e=>{const b=el.getBoundingClientRect();tipOn(el,r.dataset.t,e.clientX-b.left,e.clientY-b.top-6)};r.onpointerleave=()=>tipOff(el)});
+}
+function stock(cur){
+  const rows=Object.values(cur.byP).map(r=>({...r,daily:r.units/range,days:r.p.stock/(r.units/range)})).filter(r=>r.units>=3).sort((a,b)=>a.days-b.days).slice(0,7);
+  $('#stock').innerHTML=`<table><thead><tr><th>Producto</th><th class="n">Existencia</th><th class="n">Alcanza</th></tr></thead><tbody>${rows.map(r=>{const d=Math.round(r.days);const cls=d<7?'bad':d<15?'warn':'good';const ic=d<7?'⚠':d<15?'◔':'✓';return `<tr><td><div class="pname"><img src="${r.p.img}" alt=""><span title="${r.p.name}">${r.p.name}</span></div></td><td class="n">${r.p.stock} pzs</td><td class="n"><span class="tag ${cls}">${ic} ${d} días</span></td></tr>`}).join('')}</tbody></table>`;
+}
+function hbars(sel,rows,lab,color){
+  const el=$(sel);const W=520,rowH=28,H=rows.length*rowH,L=140,R=60;const mx=Math.max(...rows.map(r=>r[1]));
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img">${rows.map(([n,v],i)=>{const w=Math.max(3,(W-L-R)*v/mx);const y=i*rowH+5;return `<text x="${L-10}" y="${y+13}" text-anchor="end" font-size="13" fill="var(--ink-2)">${n}</text><rect x="${L}" y="${y}" width="${w}" height="${rowH-12}" rx="4" fill="${color}" data-t="${n}: <b>${lab(v)}</b>"/><text x="${L+w+8}" y="${y+13}" font-size="13" font-weight="800" fill="var(--ink)">${lab(v)}</text>`}).join('')}</svg>`;
+  el.querySelectorAll('rect').forEach(r=>{r.onpointermove=e=>{const b=el.getBoundingClientRect();tipOn(el,r.dataset.t,e.clientX-b.left,e.clientY-b.top-6)};r.onpointerleave=()=>tipOff(el)});
+}
+function recs(cur,prev){
+  const cats=Object.entries(cur.byC).map(([c,v])=>({c,...v,m:v.profit/v.rev}));
+  const best=cats.sort((a,b)=>b.m-a.m)[0],low=[...cats].sort((a,b)=>a.m-b.m)[0];
+  const prods=Object.values(cur.byP);
+  const star=prods.sort((a,b)=>b.profit-a.profit)[0];
+  const lowStock=prods.filter(r=>r.units>=3&&r.p.stock/(r.units/range)<7).length;
+  const smallOrders=cur.o.filter(o=>o.sub<500).length/cur.n;
+  const growth=(cur.rev-prev.rev)/prev.rev;
+  const dimex=prods.filter(r=>r.p.src!=='8connect');const dimexRev=dimex.reduce((s,r)=>s+r.rev,0);
+  const R=[
+    ['💰',`${CATN[best.c]} es la sección más rentable (${pct(best.m)} de margen)`,`Denle más espacio en la portada y en anuncios. ${CATN[low.c]} deja menos (${pct(low.m)}); revisen precio o costo de producción.`],
+    ['⭐',`El producto que más utilidad deja: ${star.p.name}`,`${star.units} piezas y ${fmt(star.profit)} de utilidad en ${range} días. Conviene asegurar inventario y usarlo como producto ancla en campañas.`],
+    lowStock?['📦',`${lowStock} producto${lowStock===1?'':'s'} se agota${lowStock===1?'':'n'} en menos de una semana`,`Programen producción o reabasto antes de perder ventas. La tabla de inventario muestra cuáles.`]:['📦','Ningún producto se agota esta semana','Revisen la tabla de inventario: los que alcanzan menos de 15 días conviene producirlos ya.'],
+    ['🚚',`${pct(smallOrders)} de los pedidos no llega a $500`,`Esos pedidos pagan envío y bajan la conversión. Sugerencia: mostrar "complementa tu pedido" con productos de $100–$250 del catálogo didáctico.`],
+    ['🧩',`Los catálogos DIMEX y Melewi ya aportan ${pct(dimexRev/cur.rev)} de la venta`,`Son ${dimex.length} productos nuevos con venta. Fotos propias y descripciones por edad/uso (preescolar, primaria) subirían esa cifra.`],
+    ['📈',`Las ventas ${growth>=0?'crecieron':'bajaron'} ${pct(Math.abs(growth))} contra el periodo anterior`,growth>=0?'Buen momento para invertir en pauta en Meta durante el regreso a clases y diciembre.':'Revisen precios de la competencia y activen una promoción por tiempo limitado.']
+  ];
+  $('#recs').innerHTML=R.map(([i,t,p])=>`<div class="rec"><div class="i">${i}</div><div><b>${t}</b><p>${p}</p></div></div>`).join('');
+}
+
+$('#now').textContent=new Date().toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+$('#range').onclick=e=>{const b=e.target.closest('button');if(!b)return;range=+b.dataset.d;$('#range').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()};
+$('#topTabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;topKey=b.dataset.k;$('#topTabs').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));topTable(agg(180-range,180))};
+Promise.resolve(window.PRODUCTS).then(d=>{P=d;simulate();render()});
+</script>
+</body>
+</html>

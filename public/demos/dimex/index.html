@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DIMEX Tienda</title>
+<link rel="icon" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/favicon.png">
+<meta name="description" content="Tienda en línea de material didáctico, mobiliario infantil y artículos de plástico para el hogar. Fabricantes mexicanos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1d4f9c;--blue-d:#143a75;--red:#e2372b;--orange:#f28a1c;--yellow:#ffc629;--green:#2e9e4f;
+  --bg:#fffdf8;--card:#ffffff;--ink:#1b2333;--ink-2:#566074;--line:#ece7dc;--soft:#f6f1e6;--chip:#eef3fb;
+  --radius:18px;--shadow:0 6px 24px rgba(20,40,80,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Nunito,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer}
+a{color:inherit}
+h1,h2,h3{font-family:Fredoka,Nunito,sans-serif;letter-spacing:-.01em;margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+/* demo + promo bars */
+.demo{background:#1b2333;color:#fff;font-size:13px;text-align:center;padding:6px 16px}
+.demo b{color:var(--yellow)}
+.promo{background:var(--yellow);color:#3a2a00;font-weight:800;font-size:14px;text-align:center;padding:8px 16px;overflow:hidden;white-space:nowrap}
+.promo span{display:inline-block;animation:slide 22s linear infinite}
+@keyframes slide{from{transform:translateX(30%)}to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.promo span{animation:none}}
+/* header */
+header.top{position:sticky;top:0;z-index:40;background:rgba(255,253,248,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:18px;height:74px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
+.logo img{height:46px;width:auto}
+.search{flex:1;display:flex;align-items:center;background:#fff;border:2px solid var(--line);border-radius:999px;padding:0 6px 0 16px;max-width:520px}
+.search:focus-within{border-color:var(--blue)}
+.search input{flex:1;border:0;outline:0;background:transparent;padding:11px 4px;font:inherit;min-width:0}
+.iconbtn{text-decoration:none;border:0;background:var(--chip);color:var(--blue);border-radius:999px;height:42px;min-width:42px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;font-weight:800}
+.iconbtn:hover{background:#dfe8f7}
+.cartbtn{position:relative;background:var(--blue);color:#fff}
+.cartbtn:hover{background:var(--blue-d)}
+.cartbtn .n{position:absolute;top:-4px;right:0;background:var(--red);color:#fff;font-size:12px;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;padding:0 5px;border:2px solid #fff}
+.hlinks{display:flex;gap:6px;margin-left:auto}
+nav.cats{border-top:1px solid var(--line);background:#fff}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:2px solid transparent;background:transparent;border-radius:999px;padding:8px 16px;font-weight:800;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.tab:hover{background:var(--soft);color:var(--ink)}
+.tab[aria-pressed=true]{background:var(--blue);color:#fff}
+.tab .dot{width:10px;height:10px;border-radius:50%}
+/* hero */
+.hero{padding:28px 0 8px}
+.herogrid{display:grid;grid-template-columns:1.35fr 1fr;gap:18px}
+.hcard{border-radius:28px;overflow:hidden;position:relative;min-height:330px;padding:36px;display:flex;flex-direction:column;justify-content:flex-end}
+.h1{background:linear-gradient(135deg,#1d4f9c 0%,#2f6fcf 100%);color:#fff}
+.h1 h1{font-size:clamp(30px,4vw,46px);line-height:1.05;max-width:11ch;position:relative}
+.h1 p{max-width:34ch;position:relative;opacity:.92;margin:12px 0 20px;font-size:17px}
+.h1 .art{position:absolute;right:28px;top:28px;width:36%;max-width:270px;transform:rotate(4deg);filter:drop-shadow(0 14px 22px rgba(0,0,0,.25))}
+.h1 .art img{border-radius:22px;background:#fff;padding:10px}
+.btn{border:0;border-radius:999px;padding:13px 22px;font-weight:800;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn.y{background:var(--yellow);color:#3a2a00}.btn.y:hover{background:#ffd34f}
+.btn.b{background:var(--blue);color:#fff}.btn.b:hover{background:var(--blue-d)}
+.btn.o{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+.hstack{display:grid;grid-template-rows:1fr 1fr;gap:18px}
+.hmini{border-radius:28px;padding:24px;display:flex;align-items:center;gap:16px;cursor:pointer;border:0;text-align:left;color:inherit}
+.hmini img{width:42%;max-width:170px;border-radius:16px;background:#fff;padding:6px;flex:none}
+.hmini h3{font-size:24px;line-height:1.1}
+.hmini p{margin:6px 0 0;color:#3d4659;font-weight:600}
+.m1{background:#ffe9c7}.m2{background:#dff3e5}
+/* benefits */
+.benefits{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0 6px}
+.ben{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center}
+.ben .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;font-size:20px}
+.ben b{display:block;font-size:15px}.ben span{font-size:13px;color:var(--ink-2)}
+/* section */
+section.block{padding:34px 0 10px}
+.shead{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.shead h2{font-size:clamp(24px,3vw,32px)}
+.shead p{margin:4px 0 0;color:var(--ink-2)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+.chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;color:var(--ink-2)}
+.chip[aria-pressed=true]{border-color:var(--blue);color:var(--blue);background:var(--chip)}
+.tools{display:flex;gap:10px;align-items:center;color:var(--ink-2);font-size:14px}
+.tools select{font:inherit;border:2px solid var(--line);border-radius:12px;padding:7px 10px;background:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.pimg{position:relative;aspect-ratio:1;background:#fff;cursor:pointer;border:0;padding:0;display:block;width:100%}
+.pimg img{width:100%;height:100%;object-fit:contain;padding:10px}
+.badges{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap}
+.bdg{font-size:12px;font-weight:800;border-radius:8px;padding:3px 8px;background:#fff;border:1px solid var(--line)}
+.bdg.sale{background:var(--red);color:#fff;border-color:var(--red)}
+.bdg.new{background:var(--green);color:#fff;border-color:var(--green)}
+.bdg.cat{background:var(--chip);color:var(--blue);border-color:#d6e2f5}
+.pbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1;border-top:1px solid var(--line)}
+.pname{font-weight:700;font-size:15px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:39px;cursor:pointer}
+.pdesc{font-size:13px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.price b{font-size:20px;font-family:Fredoka,sans-serif;color:var(--ink)}
+.price s{color:#9aa1ad;font-size:14px}
+.price .msi{font-size:12px;color:var(--green);font-weight:700;width:100%}
+.add{margin-top:auto;border:0;background:var(--blue);color:#fff;font-weight:800;border-radius:12px;padding:10px}
+.add:hover{background:var(--blue-d)}
+.more{display:flex;justify-content:center;margin:22px 0}
+.empty{padding:40px;text-align:center;color:var(--ink-2);background:#fff;border:1px dashed var(--line);border-radius:18px}
+/* bands */
+.band{background:var(--blue);color:#fff;border-radius:28px;padding:34px;display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:center;margin:34px 0 10px}
+.band h2{font-size:30px}
+.band p{opacity:.9}
+.band form{display:grid;gap:10px}
+.band input,.band textarea,.band select{border:0;border-radius:12px;padding:12px 14px;font:inherit}
+.faq{display:grid;gap:10px}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.faq summary{font-weight:800;cursor:pointer}
+.faq p{color:var(--ink-2);margin:10px 0 0}
+footer{margin-top:40px;background:#1b2333;color:#c8cfdc;padding:36px 0 26px;font-size:14px}
+.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:24px}
+footer h4{color:#fff;margin:0 0 10px;font-family:Fredoka,sans-serif;font-size:17px}
+footer a{display:block;text-decoration:none;padding:3px 0;color:#c8cfdc}
+footer a:hover{color:#fff}
+.pays{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.pays span{background:#2b3447;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:700;color:#e3e7ef}
+.credit{border-top:1px solid #2f3a50;margin-top:26px;padding-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#8f99ad}
+.wa{position:fixed;right:18px;bottom:18px;z-index:30;width:58px;height:58px;border-radius:50%;background:#25d366;color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px rgba(0,0,0,.2);text-decoration:none}
+/* drawer & modal */
+.scrim{position:fixed;inset:0;background:rgba(15,22,36,.45);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:#fff;z-index:60;transform:translateX(100%);transition:transform .25s;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dhead{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}
+.dbody{flex:1;overflow:auto;padding:14px 20px}
+.dfoot{border-top:1px solid var(--line);padding:16px 20px;display:grid;gap:10px}
+.line{display:grid;grid-template-columns:64px 1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center}
+.line img{width:64px;height:64px;object-fit:contain;border:1px solid var(--line);border-radius:12px;background:#fff}
+.line .t{font-weight:700;font-size:14px;line-height:1.3}
+.line .o{font-size:12px;color:var(--ink-2)}
+.qty{display:inline-flex;align-items:center;border:2px solid var(--line);border-radius:10px;margin-top:6px}
+.qty button{border:0;background:transparent;width:28px;height:28px;font-weight:800}
+.qty span{min-width:22px;text-align:center;font-weight:800;font-size:14px}
+.rm{border:0;background:none;color:#9aa1ad;font-size:12px;text-decoration:underline}
+.ship{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:13px}
+.bar{height:8px;background:#e6dfcf;border-radius:4px;margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--green);border-radius:4px}
+.tot{display:flex;justify-content:space-between;font-weight:800}
+.tot.big{font-size:20px;font-family:Fredoka,sans-serif}
+.mp{background:#009ee3;color:#fff;border:0;border-radius:14px;padding:14px;font-weight:800;font-size:16px;display:flex;justify-content:center;align-items:center;gap:10px}
+.mp:hover{background:#0085c2}
+.mp[disabled]{opacity:.6;cursor:wait}
+.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;pointer-events:none}
+.modal .box{pointer-events:auto;background:#fff;border-radius:24px;max-width:900px;width:100%;max-height:92vh;overflow:auto;display:grid;grid-template-columns:1fr 1fr;opacity:0;transform:translateY(16px) scale(.98);transition:.2s}
+.modal.on .box{opacity:1;transform:none}
+.modal:not(.on){visibility:hidden}
+.gal{background:#fff;padding:18px;border-right:1px solid var(--line)}
+.gal .main{aspect-ratio:1;object-fit:contain;width:100%}
+.thumbs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.thumbs img{width:58px;height:58px;object-fit:contain;border:2px solid var(--line);border-radius:10px;cursor:pointer;background:#fff}
+.thumbs img.on{border-color:var(--blue)}
+.info{padding:26px;display:flex;flex-direction:column;gap:12px}
+.info h3{font-size:26px;line-height:1.15}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;font-size:13px;font-weight:700}
+.opt[aria-pressed=true]{border-color:var(--blue);color:var(--blue);background:var(--chip)}
+.x{border:0;background:var(--soft);border-radius:50%;width:36px;height:36px;font-size:18px}
+.field{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.field input,.field select{border:2px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;color:var(--ink)}
+.field input:focus{outline:0;border-color:var(--blue)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:#1b2333;color:#fff;padding:12px 18px;border-radius:14px;z-index:80;font-weight:700;transition:.25s;max-width:calc(100% - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.on{transform:translateX(-50%)}
+.notice{border-radius:14px;padding:12px 14px;font-size:14px}
+.notice.err{background:#fdecea;color:#8a1c14}
+.notice.ok{background:#e5f6ea;color:#185c2d}
+.ff-credit{display:inline-flex !important;align-items:center;gap:6px;color:inherit;text-decoration:none;opacity:.6;transition:opacity .2s;padding:0 !important}.ff-credit:hover,.ff-credit:focus-visible{opacity:1}.ff-credit__logo{width:22px;height:12px;flex:none}.ff-credit b{font-weight:600}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:900px){
+  .herogrid{grid-template-columns:1fr}
+  .hstack{grid-template-rows:none;grid-template-columns:1fr 1fr}
+  .benefits{grid-template-columns:1fr 1fr}
+  .band{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr 1fr}
+  .modal .box{grid-template-columns:1fr}
+  .gal{border-right:0;border-bottom:1px solid var(--line)}
+  .hlinks .lbl{display:none}
+}
+@media (max-width:600px){
+  .wrap{padding:0 16px}
+  .hrow{height:auto;flex-wrap:wrap;padding:10px 0;gap:10px}
+  .search{order:3;max-width:none;flex-basis:100%}
+  .logo img{height:38px}
+  .hstack{grid-template-columns:1fr}
+  .hcard{min-height:300px;padding:24px}
+  .h1 .art{width:34%;top:18px;right:16px}
+  .h1 h1{max-width:9ch}
+  .grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .pbody{padding:10px}
+  .price b{font-size:17px}
+  .benefits{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .band{padding:24px}
+  .row2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="demo">Sitio <b>DEMO</b> · los pagos usan el entorno de <b>prueba</b> de Mercado Pago, no se cobra dinero real.</div>
+<div class="promo"><span>🚚 Envío GRATIS en compras desde $500 · 💳 3 MSI desde $2,999 y 6 MSI desde $4,000 · 🏫 Precios de mayoreo para escuelas y guarderías · 🇲🇽 Fabricantes mexicanos</span></div>
+
+<header class="top">
+  <div class="wrap hrow">
+    <a class="logo" href="#" aria-label="Inicio"><img src="img/logo-dimex.png" alt="DIMEX Didácticos México"></a>
+    <label class="search"><span class="sr">Buscar</span>
+      <input id="q" type="search" placeholder="Buscar sillas, ábacos, canastas…" autocomplete="off">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#566074" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    </label>
+    <div class="hlinks">
+      <a class="iconbtn" href="#mayoreo"><span aria-hidden="true">🏫</span><span class="lbl">Mayoreo</span></a>
+      <button class="iconbtn cartbtn" id="openCart" aria-label="Abrir carrito">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1.3"/><circle cx="17" cy="20.5" r="1.3"/></svg>
+        <span class="lbl">Carrito</span><span class="n" id="cartN">0</span>
+      </button>
+    </div>
+  </div>
+  <nav class="cats" aria-label="Secciones">
+    <div class="wrap tabs" id="tabs"></div>
+  </nav>
+</header>
+
+<main>
+  <div class="wrap">
+    <section class="hero" id="hero">
+      <div class="herogrid">
+        <div class="hcard h1">
+          <div class="art"><img src="img/abaco-10-metalico.webp" alt=""></div>
+          <h1>Aprender jugando, hecho en México</h1>
+          <p>Material didáctico, mobiliario infantil y soluciones para el hogar. Más de 170 productos para escuelas, guarderías y familias.</p>
+          <div><button class="btn y" data-go="didacticos">Ver material didáctico →</button></div>
+        </div>
+        <div class="hstack">
+          <button class="hmini m1" data-go="mobiliario">
+            <img src="https://8connectgroup.com.mx/cdn/shop/files/120x60-_-6-sillas.jpg?width=400" alt="">
+            <div><h3>Mobiliario infantil</h3><p>Mesas y sillas resistentes para aula y casa</p></div>
+          </button>
+          <button class="hmini m2" data-go="hogar">
+            <img src="https://8connectgroup.com.mx/cdn/shop/files/canastaninagrisclaro.png?width=400" alt="">
+            <div><h3>Hogar y organización</h3><p>Canastas, cestos y herméticos</p></div>
+          </button>
+        </div>
+      </div>
+      <div class="benefits">
+        <div class="ben"><div class="ic" style="background:#fff3cf">🚚</div><div><b>Envío gratis</b><span>En compras desde $500 a todo México</span></div></div>
+        <div class="ben"><div class="ic" style="background:#e1f1ff">💳</div><div><b>Pago seguro</b><span>Tarjeta, OXXO y saldo con Mercado Pago</span></div></div>
+        <div class="ben"><div class="ic" style="background:#e3f6e8">🏭</div><div><b>Somos fabricantes</b><span>Plástico de primera calidad</span></div></div>
+        <div class="ben"><div class="ic" style="background:#ffe6e3">🧾</div><div><b>Facturamos</b><span>CFDI para escuelas y empresas</span></div></div>
+      </div>
+    </section>
+
+    <section class="block" id="catalogo">
+      <div class="shead">
+        <div><h2 id="secTitle">Todos los productos</h2><p id="secSub">Explora todo nuestro catálogo</p></div>
+        <div class="tools"><span id="count"></span>
+          <label><span class="sr">Ordenar</span><select id="sort">
+            <option value="rel">Destacados</option><option value="asc">Precio: menor a mayor</option><option value="desc">Precio: mayor a menor</option><option value="az">Nombre A–Z</option>
+          </select></label>
+        </div>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="grid" id="grid"></div>
+      <div class="more"><button class="btn o" id="moreBtn">Ver más productos</button></div>
+    </section>
+
+    <section class="band" id="mayoreo">
+      <div>
+        <h2>¿Equipas una escuela o guardería?</h2>
+        <p>Cotizamos pedidos de mayoreo con precio especial, factura y entrega programada. Cuéntanos qué necesitas y te respondemos el mismo día hábil.</p>
+      </div>
+      <form id="whForm">
+        <input required placeholder="Nombre y escuela / empresa" aria-label="Nombre">
+        <input required placeholder="Teléfono o WhatsApp" aria-label="Teléfono">
+        <textarea rows="3" placeholder="¿Qué productos y cuántas piezas?" aria-label="Pedido"></textarea>
+        <button class="btn y" type="submit">Solicitar cotización</button>
+      </form>
+    </section>
+
+    <section class="block" id="faq">
+      <div class="shead"><div><h2>Preguntas frecuentes</h2></div></div>
+      <div class="faq">
+        <details open><summary>¿Qué métodos de pago aceptan?</summary><p>Pagas con Mercado Pago: tarjetas de crédito y débito (Visa, Mastercard, American Express), efectivo en OXXO, transferencia SPEI y saldo Mercado Pago. Meses sin intereses con tarjetas participantes.</p></details>
+        <details><summary>¿El envío es gratis?</summary><p>Sí, en compras desde $500 MXN. Algunos productos voluminosos o zonas extendidas pueden tener condiciones especiales.</p></details>
+        <details><summary>¿Cuánto tarda mi pedido?</summary><p>Procesamos en 1 a 2 días hábiles. CDMX y área metropolitana 1–3 días; Centro 2–4; Norte y Bajío 3–6; Sur y Sureste 4–8 días hábiles.</p></details>
+        <details><summary>¿Emiten factura?</summary><p>Sí. Al terminar tu compra recibirás el enlace de facturación con tu número de pedido.</p></details>
+        <details><summary>¿Los productos didácticos están avalados?</summary><p>Varios productos del catálogo DIMEX están integrados en el programa de la SEP, como los Discos de 6 cm.</p></details>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div><h4>DIMEX · Didácticos México</h4><p>Fabricantes mexicanos de material didáctico, mobiliario infantil y productos de plástico para el hogar. Empresa familiar.</p>
+        <div class="pays"><span>Mercado Pago</span><span>Visa</span><span>Mastercard</span><span>AMEX</span><span>OXXO</span><span>SPEI</span></div></div>
+      <div><h4>Tienda</h4><a href="#" data-go="mobiliario">Mobiliario infantil</a><a href="#" data-go="didacticos">Material didáctico</a><a href="#" data-go="hogar">Hogar y organización</a><a href="#" data-go="fiestas">Fiestas y eventos</a><a href="#" data-go="ofertas">Ofertas</a></div>
+      <div><h4>Ayuda</h4><a href="#faq">Preguntas frecuentes</a><a href="#mayoreo">Pedidos de mayoreo</a><a href="#faq">Envíos</a><a href="#faq">Facturación</a></div>
+      <div><h4>Empresas hermanas</h4><a href="https://8connectgroup.com.mx" target="_blank" rel="noopener">8 Connect Group</a><a href="#" data-go="hogar">Melewi</a><a href="#">ELIROB</a></div>
+    </div>
+    <div class="credit"><span>© 2026 DIMEX Didácticos México · Sitio de demostración</span><span><a href="admin.html" style="display:inline">Panel privado</a> · <a class="ff-credit" href="https://fishflow.mx/?utm_source=demo-dimex&amp;utm_medium=credito-footer&amp;utm_campaign=sitios-clientes" target="_blank" rel="noopener" title="Sitio hecho por FishFlow">Hecho con <svg class="ff-credit__logo" viewBox="170 70 860 460" aria-hidden="true"><path d="M600 300C760 100 1000 90 1000 300C1000 510 760 500 600 300C440 100 200 90 200 300C200 510 440 500 600 300Z" fill="none" stroke="currentColor" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/></svg><b>FishFlow</b></a></span></div>
+  </div>
+</footer>
+
+<a class="wa" href="https://wa.me/?text=Hola%2C%20quiero%20informes%20de%20sus%20productos" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg width="30" height="30" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm0 23.6a10.6 10.6 0 0 1-5.4-1.5l-.4-.2-3.9 1 1-3.8-.2-.4A10.6 10.6 0 1 1 16 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7a.6.6 0 0 0 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.7 3.7 0 0 0-1.1 2.7 6.4 6.4 0 0 0 1.3 3.4 14.6 14.6 0 0 0 5.6 5c2.1.9 2.9 1 4 .8a3.4 3.4 0 0 0 2.2-1.6 2.8 2.8 0 0 0 .2-1.6c-.1-.1-.3-.2-.6-.3z"/></svg>
+</a>
+
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="drawer" aria-label="Carrito" aria-hidden="true">
+  <div class="dhead"><h3 id="dTitle">Tu carrito</h3><button class="x" data-close aria-label="Cerrar">✕</button></div>
+  <div class="dbody" id="dBody"></div>
+  <div class="dfoot" id="dFoot"></div>
+</aside>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="box" id="mBox"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="products.js"></script>
+<script>
+const CATS=[
+  {id:'todo',name:'Todo',color:'#1d4f9c',sub:'Explora todo nuestro catálogo'},
+  {id:'mobiliario',name:'Mobiliario infantil',color:'#f28a1c',sub:'Sillas, mesas y sets resistentes para aula y casa'},
+  {id:'didacticos',name:'Material didáctico',color:'#2e9e4f',sub:'Catálogo DIMEX: matemáticas, construcción, música y más'},
+  {id:'hogar',name:'Hogar y organización',color:'#2f6fcf',sub:'Herméticos Melewi, canastas, cestos y cajas organizadoras'},
+  {id:'fiestas',name:'Fiestas y eventos',color:'#e87ba4',sub:'Hieleras, bancos y artículos para tus reuniones'},
+  {id:'ofertas',name:'✦ Ofertas',color:'#e2372b',sub:'Precios especiales por tiempo limitado'}
+];
+const SUBS={
+  mobiliario:[['sillas','Sillas'],['mesas','Mesas y sets']],
+  hogar:[['hermeticos','Herméticos Melewi'],['organizacion','Organización y limpieza']],
+  didacticos:[['matematicas','Matemáticas y lógica'],['construccion','Construcción y ensamble'],['dominos','Dominós'],['motricidad','Motricidad fina y gruesa'],['simbolico','Juego simbólico'],['musica','Música'],['gran-formato','Gran formato']]
+};
+const fmt=n=>'$'+n.toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:0});
+const $=s=>document.querySelector(s);
+let PRODUCTS=[],state={cat:'todo',sub:null,q:'',sort:'rel',limit:24};
+let cart=[];try{cart=JSON.parse(localStorage.getItem('dimex-cart')||'[]')}catch(e){}
+const save=()=>{try{localStorage.setItem('dimex-cart',JSON.stringify(cart))}catch(e){}};
+
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('on'),2600)}
+
+function renderTabs(){
+  $('#tabs').innerHTML=CATS.map(c=>`<button class="tab" data-cat="${c.id}" aria-pressed="${state.cat===c.id}"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`).join('');
+}
+function renderChips(){
+  const s=SUBS[state.cat];const el=$('#chips');
+  if(!s){el.innerHTML='';return}
+  el.innerHTML=[['',`Todo ${CATS.find(c=>c.id===state.cat).name.toLowerCase()}`],...s].map(([id,n])=>`<button class="chip" data-sub="${id}" aria-pressed="${(state.sub||'')===id}">${n}</button>`).join('');
+}
+function filtered(){
+  let l=PRODUCTS.filter(p=>{
+    if(state.cat==='ofertas') return p.before;
+    if(state.cat!=='todo'&&p.cat!==state.cat) return false;
+    if(state.sub&&p.sub!==state.sub) return false;
+    return true});
+  if(state.q){const q=state.q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');l=PRODUCTS.filter(p=>(p.name+' '+p.desc).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q))}
+  if(state.sort==='asc')l=[...l].sort((a,b)=>a.price-b.price);
+  if(state.sort==='desc')l=[...l].sort((a,b)=>b.price-a.price);
+  if(state.sort==='az')l=[...l].sort((a,b)=>a.name.localeCompare(b.name,'es'));
+  return l;
+}
+function card(p){
+  const off=p.before?Math.round((1-p.price/p.before)*100):0;
+  const msi=p.price>=4000?'6 MSI de '+fmt(Math.ceil(p.price/6)):p.price>=2999?'3 MSI de '+fmt(Math.ceil(p.price/3)):'';
+  return `<article class="card">
+    <button class="pimg" data-open="${p.id}" aria-label="Ver ${p.name}"><img loading="lazy" src="${p.img}" alt="${p.name}">
+      <span class="badges">${off?`<span class="bdg sale">-${off}%</span>`:''}${p.src==='dimex'?'<span class="bdg cat">Catálogo DIMEX</span>':p.src==='melewi'?'<span class="bdg cat" style="color:#d8262e;background:#fdecec;border-color:#f6cfd0">Melewi</span>':p.new?'<span class="bdg new">Nuevo</span>':''}</span></button>
+    <div class="pbody">
+      <div class="pname" data-open="${p.id}">${p.name}</div>
+      <div class="pdesc">${p.src!=='8connect'?p.desc:(p.opts.length?p.opts.length+' opciones de color':'&nbsp;')}</div>
+      <div class="price"><b>${fmt(p.price)}</b>${p.before?`<s>${fmt(p.before)}</s>`:''}${msi?`<span class="msi">${msi}</span>`:''}</div>
+      <button class="add" data-add="${p.id}">${p.opts.length?'Elegir opción':'Agregar al carrito'}</button>
+    </div></article>`;
+}
+function renderGrid(){
+  const l=filtered();const c=CATS.find(x=>x.id===state.cat);
+  $('#secTitle').textContent=state.q?`Resultados para “${state.q}”`:(state.sub?SUBS[state.cat].find(s=>s[0]===state.sub)[1]:(state.cat==='todo'?'Todos los productos':c.name.replace('✦ ','')));
+  $('#secSub').textContent=state.q?'Buscando en todo el catálogo':c.sub;
+  $('#count').textContent=l.length+' productos';
+  $('#grid').innerHTML=l.length?l.slice(0,state.limit).map(card).join(''):'<div class="empty">No encontramos productos con esa búsqueda.</div>';
+  $('#moreBtn').style.display=l.length>state.limit?'':'none';
+}
+function go(cat,sub=null,scroll=true){state.cat=cat;state.sub=sub;state.q='';$('#q').value='';state.limit=24;renderTabs();renderChips();renderGrid();if(scroll)document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})}
+
+/* product modal */
+let mState={};
+function openProduct(id){
+  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;
+  mState={p,img:0,opt:p.opts[0]||null,qty:1};drawModal();
+  $('#modal').classList.add('on');$('#scrim').classList.add('on');
+}
+function drawModal(){
+  const {p}=mState;
+  $('#mBox').innerHTML=`<div class="gal"><img class="main" src="${p.imgs[mState.img]}" alt="${p.name}">
+    ${p.imgs.length>1?`<div class="thumbs">${p.imgs.map((s,i)=>`<img src="${s}" data-thumb="${i}" class="${i===mState.img?'on':''}" alt="">`).join('')}</div>`:''}</div>
+    <div class="info">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:start"><span class="bdg cat">${CATS.find(c=>c.id===p.cat).name}</span><button class="x" data-close aria-label="Cerrar">✕</button></div>
+      <h3 id="mTitle">${p.name}</h3>
+      <div class="price"><b style="font-size:28px">${fmt(p.price)}</b>${p.before?`<s>${fmt(p.before)}</s>`:''}</div>
+      <p style="margin:0;color:var(--ink-2)">${p.desc||''}</p>
+      ${p.opts.length?`<div><div class="field" style="margin-bottom:6px">Opción</div><div class="opts">${p.opts.map(o=>`<button class="opt" data-opt="${o.replace(/"/g,'&quot;')}" aria-pressed="${o===mState.opt}">${o}</button>`).join('')}</div></div>`:''}
+      <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
+        <div class="qty" style="margin:0"><button data-mq="-1" aria-label="Menos">−</button><span>${mState.qty}</span><button data-mq="1" aria-label="Más">+</button></div>
+        <button class="add" style="flex:1;margin:0" data-madd>Agregar al carrito · ${fmt(p.price*mState.qty)}</button>
+      </div>
+      <div class="ship">🚚 ${p.price>=500?'Este producto tiene <b>envío gratis</b>.':'Envío gratis al sumar $500 en tu carrito.'}<br>🔒 Pago protegido con Mercado Pago.</div>
+    </div>`;
+}
+function closeAll(){$('#modal').classList.remove('on');$('#drawer').classList.remove('on');$('#drawer').setAttribute('aria-hidden','true');$('#scrim').classList.remove('on')}
+
+/* cart */
+function addToCart(id,opt,qty=1){
+  const k=id+'|'+(opt||'');const l=cart.find(x=>x.k===k);
+  if(l)l.qty+=qty;else cart.push({k,id,opt,qty});save();renderCart();
+  const p=PRODUCTS.find(x=>x.id===id);toast('Agregado: '+p.name.slice(0,48));
+}
+const subtotal=()=>cart.reduce((s,l)=>{const p=PRODUCTS.find(x=>x.id===l.id);return s+(p?p.price*l.qty:0)},0);
+const SHIP_FREE=500,SHIP=149;
+let step='cart';
+function renderCart(){
+  cart=cart.filter(l=>PRODUCTS.find(x=>x.id===l.id));
+  const n=cart.reduce((s,l)=>s+l.qty,0);$('#cartN').textContent=n;
+  const st=subtotal(),ship=st===0||st>=SHIP_FREE?0:SHIP;
+  if(step==='cart'){
+    $('#dTitle').textContent='Tu carrito';
+    $('#dBody').innerHTML=cart.length?cart.map(l=>{const p=PRODUCTS.find(x=>x.id===l.id);return `<div class="line"><img src="${p.img}" alt=""><div><div class="t">${p.name}</div>${l.opt?`<div class="o">${l.opt}</div>`:''}<div class="qty"><button data-q="-1" data-k="${l.k}" aria-label="Menos">−</button><span>${l.qty}</span><button data-q="1" data-k="${l.k}" aria-label="Más">+</button></div></div><div style="text-align:right"><b>${fmt(p.price*l.qty)}</b><br><button class="rm" data-rm="${l.k}">Quitar</button></div></div>`}).join(''):'<div class="empty" style="margin-top:20px">Tu carrito está vacío.<br><br><button class="btn b" data-close>Seguir comprando</button></div>';
+    $('#dFoot').innerHTML=cart.length?`
+      <div class="ship">${st>=SHIP_FREE?'🎉 ¡Tienes <b>envío gratis</b>!':`Te faltan <b>${fmt(SHIP_FREE-st)}</b> para envío gratis`}<div class="bar"><i style="width:${Math.min(100,st/SHIP_FREE*100)}%"></i></div></div>
+      <div class="tot"><span>Subtotal</span><span>${fmt(st)}</span></div>
+      <div class="tot"><span>Envío</span><span>${ship?fmt(ship):'Gratis'}</span></div>
+      <div class="tot big"><span>Total</span><span>${fmt(st+ship)}</span></div>
+      <button class="mp" data-step="checkout">Continuar al pago</button>`:'';
+  }else{
+    $('#dTitle').textContent='Datos de envío';
+    $('#dBody').innerHTML=`<form id="coForm" style="display:grid;gap:12px;padding-top:6px">
+      <label class="field">Nombre completo<input name="name" required autocomplete="name"></label>
+      <div class="row2"><label class="field">Correo<input name="email" type="email" required autocomplete="email"></label>
+      <label class="field">Teléfono<input name="phone" required inputmode="tel" autocomplete="tel"></label></div>
+      <label class="field">Calle y número<input name="street" required autocomplete="street-address"></label>
+      <div class="row2"><label class="field">Código postal<input name="zip" required inputmode="numeric" maxlength="5" autocomplete="postal-code"></label>
+      <label class="field">Ciudad / Estado<input name="city" required></label></div>
+      <div id="coMsg"></div>
+      <button type="button" class="rm" data-step="cart" style="justify-self:start">← Volver al carrito</button>
+    </form>`;
+    $('#dFoot').innerHTML=`<div class="tot big"><span>Total</span><span>${fmt(st+ship)}</span></div>
+      <button class="mp" id="payBtn" form="coForm" type="submit"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><ellipse cx="13" cy="9" rx="12.5" ry="8.5" fill="#fff"/><path d="M6 9.6c1.6-1.4 3.4-2.6 5.2-2.6 1.4 0 2 .8 3.2.8 1 0 2.6-.9 4.6-.9 1.2 0 .8 1.3 1 2.5" stroke="#009ee3" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>Pagar con Mercado Pago</button>
+      <div style="font-size:12px;color:var(--ink-2);text-align:center">Serás redirigido al checkout seguro de Mercado Pago (modo prueba).</div>`;
+  }
+}
+function openCart(){step='cart';renderCart();$('#drawer').classList.add('on');$('#drawer').setAttribute('aria-hidden','false');$('#scrim').classList.add('on')}
+
+async function pay(form){
+  const btn=$('#payBtn'),msg=$('#coMsg');btn.disabled=true;btn.lastChild.textContent='Conectando con Mercado Pago…';msg.innerHTML='';
+  const f=Object.fromEntries(new FormData(form));
+  try{
+    const r=await fetch('/api/demos/dimex/checkout/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:cart.map(l=>({id:l.id,opt:l.opt,qty:l.qty})),buyer:f})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.url)throw new Error(d.error||'No se pudo crear el pago');
+    try{localStorage.setItem('dimex-last-order',JSON.stringify({ref:d.ref,total:subtotal(),items:cart}))}catch(e){}
+    location.href=d.url;
+  }catch(e){
+    msg.innerHTML=`<div class="notice err">${e.message}. ${location.protocol==='file:'||location.hostname.includes('claude')?'El pago funciona cuando la tienda está publicada en Vercel.':''}</div>`;
+    btn.disabled=false;btn.lastChild.textContent='Pagar con Mercado Pago';
+  }
+}
+
+/* events */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-cat],[data-sub],[data-go],[data-open],[data-add],[data-close],[data-thumb],[data-opt],[data-mq],[data-madd],[data-q],[data-rm],[data-step]');
+  if(!t){if(e.target.id==='scrim')closeAll();return}
+  const d=t.dataset;
+  if(d.cat!==undefined)go(d.cat,null,false);
+  else if(d.sub!==undefined){state.sub=d.sub||null;renderChips();renderGrid()}
+  else if(d.go){e.preventDefault();go(d.go)}
+  else if(d.open)openProduct(d.open);
+  else if(d.add){const p=PRODUCTS.find(x=>x.id===d.add);if(p.opts.length)openProduct(p.id);else addToCart(p.id,null)}
+  else if(d.close!==undefined)closeAll();
+  else if(d.thumb){mState.img=+d.thumb;drawModal()}
+  else if(d.opt){mState.opt=d.opt;const i=mState.p.opts.indexOf(d.opt);if(mState.p.imgs[i])mState.img=i;drawModal()}
+  else if(d.mq){mState.qty=Math.max(1,mState.qty+(+d.mq));drawModal()}
+  else if(d.madd!==undefined){addToCart(mState.p.id,mState.opt,mState.qty);closeAll()}
+  else if(d.q){const l=cart.find(x=>x.k===d.k);l.qty+=+d.q;if(l.qty<1)cart=cart.filter(x=>x!==l);save();renderCart()}
+  else if(d.rm){cart=cart.filter(x=>x.k!==d.rm);save();renderCart()}
+  else if(d.step){step=d.step;renderCart()}
+});
+document.addEventListener('submit',e=>{
+  if(e.target.id==='coForm'){e.preventDefault();pay(e.target)}
+  if(e.target.id==='whForm'){e.preventDefault();e.target.reset();toast('¡Gracias! Te contactaremos para tu cotización.')}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
+$('#openCart').onclick=openCart;
+$('#scrim').onclick=closeAll;
+$('#moreBtn').onclick=()=>{state.limit+=24;renderGrid()};
+$('#sort').onchange=e=>{state.sort=e.target.value;renderGrid()};
+let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{state.q=e.target.value.trim();state.limit=48;renderGrid();if(state.q)document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})},250)});
+
+/* return from Mercado Pago */
+function checkReturn(){
+  const u=new URLSearchParams(location.search);const s=u.get('status')||u.get('collection_status');
+  if(!s)return;
+  if(s==='approved'){cart=[];save();renderCart();toast('✅ ¡Pago aprobado! Gracias por tu compra.')}
+  else if(s==='pending'||s==='in_process')toast('⏳ Tu pago está pendiente. Te avisaremos al confirmarse.');
+  else toast('El pago no se completó. Puedes intentarlo de nuevo.');
+  history.replaceState(null,'',location.pathname);
+}
+
+Promise.resolve(window.PRODUCTS).then(d=>{
+  // Featured order: mix of offers, DIMEX catalog and best sellers
+  PRODUCTS=d;renderTabs();renderChips();renderGrid();renderCart();checkReturn();
+}).catch(()=>{$('#grid').innerHTML='<div class="empty">No se pudo cargar el catálogo.</div>'});
+</script>
+</body>
+</html>
