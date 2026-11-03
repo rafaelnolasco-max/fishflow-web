@@ -66,6 +66,19 @@ section{padding-block:56px;border-top:1px solid var(--line);display:grid;gap:28p
 .punch i.on{background:var(--on-plum);color:var(--plum);opacity:1;border-style:solid}
 .card .foot{display:flex;justify-content:space-between;font:500 .78rem var(--mono);opacity:.9}
 
+/* perks */
+.perk-hero{background:var(--plum);color:var(--on-plum);border-radius:16px;padding:28px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
+.perk-hero > *{min-width:0}
+.perk-hero div{display:grid;gap:6px;max-width:30ch}
+.perk-hero b{font-size:clamp(2.4rem,6vw,3.6rem);line-height:1}
+.perk-hero span{font-size:.9rem;opacity:.85}
+.perk-hero p{font-family:var(--display);font-size:1.3rem;line-height:1.35;font-style:italic}
+.perk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px 28px}
+.perk-grid div{display:grid;gap:6px;align-content:start;min-width:0;padding-top:14px;border-top:2px solid var(--plum)}
+.perk-grid b{font-family:var(--display);font-size:1.2rem}
+.perk-grid p{color:var(--muted);font-size:.95rem}
+@media (max-width:860px){.perk-hero{grid-template-columns:1fr}.perk-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.perk-grid{grid-template-columns:1fr}}
 /* how */
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:s}
 .steps div{display:grid;gap:6px;align-content:start;min-width:0}
@@ -166,6 +179,25 @@ footer img{height:26px;width:auto}
       <div class="foot"><span>5 de 12 cortes usados</span><span>$150 / mes</span></div>
     </div>
   </div>
+
+  <section class="perks">
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Lo que gana Belange</p>
+      <h2>Por qué el Club te conviene, Alberto</h2>
+    </div>
+    <div class="perk-hero">
+      <div><b class="num">$8,647</b><span>de ingreso fijo al mes con 40 socios, cobrado antes de que abras la cortina</span></div>
+      <p>Hoy cada mes empieza en cero y depende de quién entra por la puerta. Con el Club, una parte de tu mes ya está pagada desde el día 1.</p>
+    </div>
+    <div class="perk-grid">
+      <div><b>Dinero por adelantado</b><p>El cargo llega a tu cuenta cada mes, venga o no el cliente. Sabes con qué cuentas para renta, producto y gastos.</p></div>
+      <div><b>Clientes que se quedan</b><p>Quien ya pagó su plan no se va a la barbería de enfrente por $20 menos. Vuelve contigo todo el año.</p></div>
+      <div><b>Cero cobros pendientes</b><p>Stripe cobra solo a la tarjeta. Sin efectivo, sin cambio, sin "te lo pago la próxima".</p></div>
+      <div><b>Más venta de producto</b><p>El regalo de bienvenida le hace probar Terramar o Nioxin. Cuando se le acaba, te lo compra a ti.</p></div>
+      <div><b>Más gente por recomendación</b><p>Papá + Hijo y Familia meten a toda la casa. Cada socio contento trae al siguiente.</p></div>
+      <div><b>Algo que nadie en la colonia tiene</b><p>Un club con tarjeta de socio te separa de cualquier estética de Villa de Cortés que solo compite por precio.</p></div>
+    </div>
+  </section>
 
   <section>
     <div><p class="eyebrow">Cómo funciona para tu cliente</p></div>
