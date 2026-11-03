@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="es" data-theme="ejecutiva">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Panel · Elena Marín — Solicitudes de contratación (demo FishFlow)</title>
+<meta name="description" content="Demo del panel de la conferencista: cada solicitud de contratación que llega desde su sitio, con resumen de IA y siguiente paso." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2316181D'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia,serif' font-size='28' fill='%23C9A36B'%3EEM%3C/text%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2316181D'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia,serif' font-size='28' fill='%23C9A36B'%3EEM%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   1) RESPONSIVE BASE  ·  copia idéntica de demos/_template/responsive-base.css
+   ============================================================ */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1280px);margin-inline:auto;padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-tablewrap > table{min-width:var(--ff-tablemin,520px);}
+.ff-shell{display:grid;gap:var(--ff-gap,24px);align-items:start;grid-template-columns:var(--ff-side,260px) minmax(0,1fr);}
+.ff-shell--3{grid-template-columns:var(--ff-side,260px) minmax(0,1fr) var(--ff-right,300px);}
+.ff-h1{font-size:clamp(32px,5vw,64px);line-height:1.02;letter-spacing:-.02em;}
+.ff-h2{font-size:clamp(26px,3.6vw,46px);line-height:1.06;letter-spacing:-.02em;}
+.ff-lede{font-size:clamp(15px,1.4vw,19px);line-height:1.55;}
+@media(max-width:900px){ .ff-shell,.ff-shell--3{grid-template-columns:1fr;} }
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}
+
+/* ============================================================
+   2) TOKENS · mismas tres paletas del sitio
+   ============================================================ */
+:root{--f-display:"Cormorant Garamond",Georgia,serif;--f-body:"Inter",system-ui,sans-serif;--fx-cyan:#42C7E8;--fx-navy:#083B4C;}
+html[data-theme="ejecutiva"]{--bg:#F6F1E9;--card:#FFFDF9;--bg-2:#EFE7DA;--ink:#16181D;--muted:#6B665E;--line:rgba(22,24,29,.11);--dark:#16181D;--on-dark:#F6F1E9;--on-dark-muted:#B9B2A6;--accent:#B8925A;--accent-soft:#F3E9D8;--accent-ink:#16181D;}
+html[data-theme="calida"]{--bg:#FBF6EF;--card:#FFFFFF;--bg-2:#F3E8DA;--ink:#2A1E18;--muted:#6B5A4F;--line:rgba(42,30,24,.11);--dark:#2A1E18;--on-dark:#FBF6EF;--on-dark-muted:#CDB9A8;--accent:#B5573A;--accent-soft:#F7E2D8;--accent-ink:#FFFFFF;}
+html[data-theme="moderna"]{--bg:#F5F6F8;--card:#FFFFFF;--bg-2:#E8ECF2;--ink:#0F1B33;--muted:#4E5A70;--line:rgba(15,27,51,.11);--dark:#0F1B33;--on-dark:#F5F6F8;--on-dark-muted:#A9B4C9;--accent:#F2665A;--accent-soft:#FDE4E1;--accent-ink:#FFFFFF;}
+body{font-family:var(--f-body);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.55;font-size:15px;}
+a{color:inherit;text-decoration:none;}
+h1,h2,h3{font-family:var(--f-display);margin:0;font-weight:600;}
+.ico{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;}
+
+/* barra FishFlow */
+.fxbar{background:var(--fx-navy);color:#fff;font-size:13px;}
+.fxbar__in{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding:9px 16px;text-align:center;}
+.fxbar__logo{height:18px;width:auto;filter:brightness(0) invert(1);}
+.fxbar a{color:var(--fx-cyan);font-weight:600;white-space:nowrap;}
+
+/* shell del panel */
+.app{--ff-side:250px;--ff-gap:0;min-height:calc(100vh - 38px);align-items:stretch;}
+.side{background:var(--dark);color:var(--on-dark);padding:26px 18px;display:flex;flex-direction:column;gap:28px;}
+.wordmark{font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:.04em;line-height:1;}
+.wordmark small{display:block;font-family:var(--f-body);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--on-dark-muted);font-weight:500;margin-top:6px;}
+.snav{display:flex;flex-direction:column;gap:4px;}
+.snav a{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:10px;font-size:14px;color:var(--on-dark-muted);}
+.snav a.active{background:var(--accent);color:var(--accent-ink);font-weight:600;}
+.snav a.soon{opacity:.55;cursor:default;}
+.snav .tag{margin-left:auto;font-size:9px;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,255,255,.28);padding:2px 6px;border-radius:5px;}
+.snav .count{margin-left:auto;font-size:11px;font-weight:700;background:rgba(0,0,0,.18);padding:1px 7px;border-radius:999px;}
+.side__foot{margin-top:auto;border-top:1px solid rgba(255,255,255,.12);padding-top:16px;font-size:12px;color:var(--on-dark-muted);}
+.side__foot b{display:block;color:var(--on-dark);font-size:13px;font-weight:600;margin-bottom:2px;}
+@media(max-width:900px){
+  .side{flex-direction:row;align-items:center;gap:18px;padding:14px 18px;overflow-x:auto;}
+  .snav{flex-direction:row;}
+  .snav a{white-space:nowrap;padding:9px 12px;flex:none;}
+  .wordmark{flex:none;font-size:18px;}
+  .snav .tag,.side__foot{display:none;}
+}
+
+.main{display:flex;flex-direction:column;min-width:0;}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:18px clamp(18px,3vw,36px);background:var(--card);border-bottom:1px solid var(--line);}
+.top h1{font-size:26px;display:flex;align-items:center;gap:10px;}
+.pill{font-family:var(--f-body);font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--bg-2);color:var(--muted);padding:4px 8px;border-radius:6px;font-weight:600;}
+.top__r{display:flex;gap:10px;align-items:center;}
+.btn{font-family:var(--f-body);font-weight:600;font-size:13.5px;padding:10px 15px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);display:inline-flex;align-items:center;gap:8px;cursor:pointer;}
+.btn--accent{background:var(--accent);color:var(--accent-ink);border-color:transparent;}
+.content{padding:clamp(20px,3vw,34px) clamp(18px,3vw,36px) 56px;}
+.head{margin-bottom:22px;}
+.head h2{font-size:clamp(26px,3vw,34px);}
+.head p{color:var(--muted);margin:6px 0 0;max-width:70ch;}
+
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;}
+.stat .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+.stat .v{font-family:var(--f-display);font-size:40px;line-height:1.05;margin-top:6px;font-weight:600;}
+.stat .v small{font-size:18px;color:var(--muted);}
+.stat .s{font-size:12.5px;color:var(--muted);margin-top:2px;}
+.stat .s.up{color:#2E8A5C;}
+.stats{margin-bottom:26px;}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.chip{font:inherit;font-size:13px;padding:8px 15px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;}
+.chip.active{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+.chip .c{opacity:.6;margin-left:6px;font-size:12px;}
+
+.leads{display:flex;flex-direction:column;gap:14px;}
+.lead{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,2.4vw,24px);transition:border-color .2s,box-shadow .2s;}
+.lead:hover{border-color:var(--accent);box-shadow:0 8px 26px rgba(0,0,0,.05);}
+.lead.fresh{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);}
+.lead__top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;}
+.who{display:flex;gap:14px;align-items:center;}
+.av{width:44px;height:44px;border-radius:50%;background:var(--accent-soft);color:var(--ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:18px;flex:none;}
+.who .nm{font-family:var(--f-display);font-size:21px;font-weight:600;line-height:1.15;}
+.who .mt{font-size:12.5px;color:var(--muted);margin-top:2px;word-break:break-word;}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.tipo{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:5px 10px;border-radius:7px;background:var(--bg-2);color:var(--ink);}
+.new{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:5px 10px;border-radius:7px;background:var(--accent);color:var(--accent-ink);}
+.when{font-size:12px;color:var(--muted);}
+select.st{font:inherit;font-size:12.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer;}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0 58px;}
+.fact{display:inline-flex;align-items:center;gap:7px;font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:6px 11px;color:var(--ink);}
+.fact .ico{width:15px;height:15px;color:var(--accent);}
+.msg{margin:14px 0 0 58px;font-size:14.5px;color:var(--ink);}
+.msg .lbl{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px;}
+.ai{margin:14px 0 0 58px;background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:10px;padding:13px 16px;font-size:13.5px;}
+.ai .hd{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:6px;display:flex;gap:7px;align-items:center;}
+.ai p{margin:0;}
+.ai p + p{margin-top:6px;}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0 58px;}
+@media(max-width:600px){ .facts,.msg,.ai,.acts{margin-left:0;} .who .nm{font-size:19px;} }
+.empty{display:none;text-align:center;color:var(--muted);padding:40px 0;}
+.note{margin-top:28px;background:var(--bg-2);border:1px dashed var(--line);border-radius:14px;padding:18px 20px;font-size:13.5px;color:var(--muted);}
+.note b{color:var(--ink);}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-size:14px;transition:.25s;z-index:70;max-width:calc(100vw - 32px);text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.ff-credit-wrap{display:block;flex-basis:100%;width:100%;box-sizing:border-box;text-align:center;font-size:12px;line-height:1.4;padding:12px 16px 10px;margin:0;color:var(--muted);}
+.ff-credit{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:none;opacity:.7;}
+.ff-credit__logo{width:22px;height:12px;flex:none;}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-aud" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M22 20a6 6 0 0 0-4-5.6"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 6 10-6"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1 1 21 11.5z"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
+</svg>
+
+<div class="fxbar">
+  <div class="fxbar__in">
+    <img class="fxbar__logo" src="/logo-horizontal.svg" alt="FishFlow" width="86" height="18" onerror="this.style.display='none'">
+    <span><b>Demo del panel</b> · Así le llegan a Elena las solicitudes de su sitio. En el sitio real entra con su propio usuario. Datos de ejemplo.</span>
+    <a href="index.html#paquete">Ver el paquete →</a>
+  </div>
+</div>
+
+<div class="ff-shell app">
+  <aside class="side">
+    <div class="wordmark">ELENA MARÍN<small>Panel</small></div>
+    <nav class="snav" aria-label="Secciones del panel">
+      <a class="active" href="#"><svg class="ico"><use href="#i-inbox"/></svg> Solicitudes <span class="count" id="navcount">6</span></a>
+      <a class="soon" href="#" aria-disabled="true"><svg class="ico"><use href="#i-cal"/></svg> Agenda <span class="tag">Fase 2</span></a>
+      <a class="soon" href="#" aria-disabled="true"><svg class="ico"><use href="#i-users"/></svg> Speakers <span class="tag">Fase 2</span></a>
+      <a class="soon" href="#" aria-disabled="true"><svg class="ico"><use href="#i-chart"/></svg> Métricas <span class="tag">Fase 2</span></a>
+    </nav>
+    <div class="side__foot"><b>Elena Marín</b>Miami, FL</div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <h1>Solicitudes <span class="pill">Demo</span></h1>
+      <div class="top__r">
+        <a class="btn" href="index.html"><svg class="ico"><use href="#i-back"/></svg> Ver mi sitio</a>
+        <a class="btn btn--accent" href="index.html#contratar">Probar el formulario</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="head">
+        <h2>Quién quiere contratarte</h2>
+        <p>Cada vez que alguien llena el formulario de tu sitio aparece aquí, con los datos de su evento y un resumen de IA con el tema que mejor le queda. También te llega un aviso a tu correo.</p>
+      </div>
+
+      <div class="ff-grid ff-grid--sm stats">
+        <div class="stat"><div class="l">Solicitudes este mes</div><div class="v" id="stmes">14</div><div class="s up">▲ 5 vs. mes anterior</div></div>
+        <div class="stat"><div class="l">Sin responder</div><div class="v" id="stnew">2</div><div class="s">Responde en menos de 24 h</div></div>
+        <div class="stat"><div class="l">Tema más pedido</div><div class="v" style="font-size:26px;line-height:1.25">Liderar con propósito</div><div class="s">57% de las solicitudes</div></div>
+        <div class="stat"><div class="l">Cerradas</div><div class="v">4<small> eventos</small></div><div class="s">29% de conversión</div></div>
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="chip active" data-f="all">Todas <span class="c" data-c="all"></span></button>
+        <button class="chip" data-f="keynote">Congreso / keynote <span class="c" data-c="keynote"></span></button>
+        <button class="chip" data-f="taller">Taller <span class="c" data-c="taller"></span></button>
+        <button class="chip" data-f="ejecutiva">Sesión ejecutiva <span class="c" data-c="ejecutiva"></span></button>
+        <button class="chip" data-f="podcast">Podcast <span class="c" data-c="podcast"></span></button>
+      </div>
+
+      <div class="leads" id="leads"></div>
+      <div class="empty" id="empty">No hay solicitudes de este tipo.</div>
+
+      <div class="note"><b>Lo que sigue (Fase 2):</b> agenda con tus fechas apartadas, perfiles de los demás speakers con sus propias solicitudes, y métricas de qué anuncio o red social trajo cada contratación.</div>
+      <p class="ff-credit-wrap"><a class="ff-credit" href="https://fishflow.mx/?utm_source=demo-speaker-panel&amp;utm_medium=credito-footer&amp;utm_campaign=sitios-clientes" target="_blank" rel="noopener">Hecho con <svg class="ff-credit__logo" viewBox="170 70 860 460" aria-hidden="true"><path d="M600 300C760 100 1000 90 1000 300C1000 510 760 500 600 300C440 100 200 90 200 300C200 510 440 500 600 300Z" fill="none" stroke="currentColor" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/></svg><b>FishFlow</b></a></p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  // Paleta elegida en el sitio
+  try{var t=localStorage.getItem('speakerTheme'); if(t) document.documentElement.dataset.theme=t;}catch(e){}
+
+  var LEADS=[
+    {n:'Carolina Restrepo',org:'Directora de Talento · Grupo Altamar',mail:'carolina.r@grupoaltamar.com',tipo:'keynote',tipoTxt:'Congreso / keynote',when:'Hoy · 09:40',st:'nuevo',
+     fecha:'12 mar 2027',aud:'200–1,000',lugar:'Miami, FL',fmt:'Presencial · Español',
+     msg:'Es nuestra convención anual de gerentes. Queremos que salgan con ganas de liderar distinto, no solo motivados un día.',
+     ai:'Convención anual de mandos medios. Busca cambio de comportamiento, no motivación de un día.',reco:'<b>Tema sugerido:</b> Liderar con propósito (keynote 60 min) + taller corto para gerentes al día siguiente.'},
+    {n:'Michael Torres',org:'VP People · Brightline Logistics',mail:'m.torres@brightline.co',tipo:'ejecutiva',tipoTxt:'Sesión ejecutiva',when:'Hoy · 08:15',st:'nuevo',
+     fecha:'28 ene 2027',aud:'1–50',lugar:'Orlando, FL',fmt:'Presencial · Inglés',
+     msg:'Our leadership team is growing fast and decisions are getting stuck. We need a half-day session with our top 20.',
+     ai:'Equipo directivo de 20 personas en crecimiento rápido; el problema es la toma de decisiones. Escribió en inglés.',reco:'<b>Tema sugerido:</b> La empresa que crece contigo (sesión ejecutiva, en inglés). Proponer llamada previa con el VP.'},
+    {n:'Daniela Ochoa',org:'Coordinadora · Women in Business LATAM',mail:'daniela@wib-latam.org',tipo:'keynote',tipoTxt:'Congreso / keynote',when:'Ayer · 18:02',st:'contactado',
+     fecha:'8 abr 2027',aud:'1,000+',lugar:'Ciudad de México',fmt:'Presencial · Español',
+     msg:'Buscamos la conferencia de cierre de nuestra cumbre. Audiencia de mujeres líderes y emprendedoras.',
+     ai:'Cierre de cumbre con más de 1,000 asistentes: alta visibilidad y buen material para el showreel.',reco:'<b>Tema sugerido:</b> Crecer sin quemarse, con cierre de Liderar con propósito. Pedir permiso para grabar.'},
+    {n:'Roberto Salas',org:'Director General · Constructora Delta',mail:'rsalas@deltaconstruye.mx',tipo:'taller',tipoTxt:'Taller corporativo',when:'Ayer · 11:27',st:'agendado',
+     fecha:'20 feb 2027',aud:'50–200',lugar:'Monterrey, NL',fmt:'Presencial · Español',
+     msg:'Mis supervisores de obra son buenos técnicos pero no saben dirigir gente. Quiero un taller práctico.',
+     ai:'Supervisores técnicos ascendidos sin formación de liderazgo. Pide algo práctico, nada teórico.',reco:'<b>Tema sugerido:</b> Liderar con propósito en formato taller de 3 h, con ejercicios de obra.'},
+    {n:'Ana Lucía Ferrer',org:'Productora · Podcast "Líderes en Ruta"',mail:'ana@lideresenruta.fm',tipo:'podcast',tipoTxt:'Podcast / entrevista',when:'Lun · 16:50',st:'cotizado',
+     fecha:'Flexible',aud:'Audiencia en línea',lugar:'Virtual',fmt:'Virtual · Español',
+     msg:'Nos encantaría entrevistarte para un episodio sobre liderazgo femenino en empresas familiares.',
+     ai:'Entrevista sin costo, pero con buena exposición en Latinoamérica.',reco:'<b>Siguiente paso:</b> aceptar y pedir el clip del episodio para la sección de videos del sitio.'},
+    {n:'Jennifer Walsh',org:'Event Manager · HR Summit South',mail:'jwalsh@hrsummitsouth.com',tipo:'keynote',tipoTxt:'Congreso / keynote',when:'Lun · 10:05',st:'cliente',
+     fecha:'15 nov 2026',aud:'200–1,000',lugar:'Tampa, FL',fmt:'Presencial · Inglés',
+     msg:'Confirmed for the opening keynote. Please send your tech rider and bio.',
+     ai:'Evento confirmado. Pide ficha técnica y biografía.',reco:'<b>Siguiente paso:</b> enviar ficha técnica y biografía en inglés (las dos están en tu carpeta de prensa).'}
+  ];
+
+  // Solicitud real hecha en el demo del sitio (si existe)
+  try{
+    var s=JSON.parse(localStorage.getItem('speakerLead')||'null');
+    if(s && s.n){
+      var mapT={'Congreso / keynote':'keynote','Taller corporativo':'taller','Sesión ejecutiva':'ejecutiva','Podcast / entrevista':'podcast',
+                'Conference / keynote':'keynote','Corporate workshop':'taller','Executive session':'ejecutiva','Podcast / interview':'podcast'};
+      LEADS.unshift({n:s.n,org:s.c||'—',mail:s.e||'',tipo:mapT[s.t]||'keynote',tipoTxt:s.t||'Congreso / keynote',when:'Justo ahora',st:'nuevo',fresh:true,
+        fecha:s.d?new Date(s.d+'T12:00').toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}):'Por definir',
+        aud:s.a||'—',lugar:s.l||'—',fmt:(s.fmt||'Presencial')+(s.lang?' · '+s.lang:''),
+        msg:s.m||'(Sin mensaje)',ai:'Esta es la solicitud que acabas de enviar desde el sitio. En el sitio real, la IA resume el mensaje y sugiere el tema que mejor le queda al evento.',
+        reco:'<b>Siguiente paso:</b> responder en menos de 24 h con disponibilidad y propuesta.'});
+    }
+  }catch(e){}
+
+  var ST={nuevo:'🟡 Nuevo',contactado:'🔵 Contactado',agendado:'📅 Llamada agendada',cotizado:'📄 Cotizado',cliente:'✅ Confirmado'};
+  function ini(n){return n.split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();}
+  function esc(x){return String(x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  var box=document.getElementById('leads');
+  box.innerHTML=LEADS.map(function(l){
+    var opts=Object.keys(ST).map(function(k){return '<option'+(k===l.st?' selected':'')+'>'+ST[k]+'</option>';}).join('');
+    return '<article class="lead'+(l.fresh?' fresh':'')+'" data-t="'+l.tipo+'">'+
+      '<div class="lead__top"><div class="who"><div class="av">'+esc(ini(l.n))+'</div><div><div class="nm">'+esc(l.n)+'</div><div class="mt">'+esc(l.org)+(l.mail?' · '+esc(l.mail):'')+'</div></div></div>'+
+      '<div class="meta">'+(l.fresh?'<span class="new">Tu prueba</span>':'')+'<span class="tipo">'+esc(l.tipoTxt)+'</span><span class="when">'+esc(l.when)+'</span><select class="st" aria-label="Estatus">'+opts+'</select></div></div>'+
+      '<div class="facts"><span class="fact"><svg class="ico"><use href="#i-cal"/></svg>'+esc(l.fecha)+'</span><span class="fact"><svg class="ico"><use href="#i-aud"/></svg>'+esc(l.aud)+'</span><span class="fact"><svg class="ico"><use href="#i-pin"/></svg>'+esc(l.lugar)+'</span><span class="fact"><svg class="ico"><use href="#i-globe"/></svg>'+esc(l.fmt)+'</span></div>'+
+      '<div class="msg"><span class="lbl">Lo que escribió</span>“'+esc(l.msg)+'”</div>'+
+      '<div class="ai"><div class="hd"><svg class="ico" style="width:14px;height:14px"><use href="#i-spark"/></svg> Resumen IA</div><p>'+esc(l.ai)+'</p><p>'+l.reco+'</p></div>'+
+      '<div class="acts"><button class="btn btn--accent" data-a="Abriendo respuesta por correo con la propuesta prellenada…"><svg class="ico"><use href="#i-mail"/></svg> Responder</button>'+
+      '<button class="btn" data-a="Abriendo WhatsApp con el organizador…"><svg class="ico"><use href="#i-wa"/></svg> WhatsApp</button>'+
+      '<button class="btn" data-a="Generando propuesta en PDF con tu marca…"><svg class="ico"><use href="#i-doc"/></svg> Armar propuesta</button></div>'+
+    '</article>';
+  }).join('');
+
+  // Conteos
+  function count(f){return LEADS.filter(function(l){return f==='all'||l.tipo===f;}).length;}
+  document.querySelectorAll('[data-c]').forEach(function(el){el.textContent=count(el.dataset.c);});
+  document.getElementById('navcount').textContent=LEADS.length;
+  var nuevos=LEADS.filter(function(l){return l.st==='nuevo';}).length;
+  document.getElementById('stnew').textContent=nuevos;
+  if(LEADS[0].fresh) document.getElementById('stmes').textContent=15;
+
+  // Filtros
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.addEventListener('click',function(){
+      document.querySelectorAll('.chip').forEach(function(x){x.classList.toggle('active',x===c);});
+      var shown=0;
+      document.querySelectorAll('.lead').forEach(function(l){var ok=c.dataset.f==='all'||l.dataset.t===c.dataset.f;l.style.display=ok?'':'none';if(ok)shown++;});
+      document.getElementById('empty').style.display=shown?'none':'block';
+    });
+  });
+
+  // Acciones (demo)
+  var toast=document.getElementById('toast'),tt;
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('[data-a]'); if(!b) return;
+    toast.textContent='Demo: '+b.dataset.a; toast.classList.add('show');
+    clearTimeout(tt); tt=setTimeout(function(){toast.classList.remove('show');},2600);
+  });
+})();
+</script>
+</body>
+</html>

@@ -269,6 +269,7 @@ form .btn{margin-top:20px;width:100%;justify-content:center;}
 .sw i{flex:1;}
 .themer__note{font-size:11px;color:#6A7E88;margin-top:9px;line-height:1.35;}
 .themer.min .themer__opts,.themer.min .themer__note{display:none;}
+.themer.min{width:auto;}
 
 /* ===== Modal video ===== */
 .modal{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;padding:18px;}
@@ -316,6 +317,7 @@ form .btn{margin-top:20px;width:100%;justify-content:center;}
   <div class="ff-container fxbar__in">
     <img class="fxbar__logo" src="/logo-horizontal.svg" alt="FishFlow" width="86" height="18" onerror="this.style.display='none'">
     <span><b>Demo preparado por FishFlow</b> · Así se vería tu sitio con el paquete de autor. Nombre, fotos, videos y cifras son de ejemplo.</span>
+    <a href="panel.html">Ver su panel →</a>
     <a href="#paquete">¿Qué incluye? →</a>
   </div>
 </div>
@@ -391,7 +393,7 @@ form .btn{margin-top:20px;width:100%;justify-content:center;}
     <span class="events__item">Women in Business</span>
     <span class="events__item">Foro Empresarial</span>
     <span class="events__item">HR Summit</span>
-    <span class="events__item">TEDx*</span>
+    <span class="events__item">Leaders Forum</span>
   </div>
 </section>
 
@@ -542,6 +544,7 @@ form .btn{margin-top:20px;width:100%;justify-content:center;}
         <svg class="ico" style="width:44px;height:44px;margin:0 auto;color:var(--accent)"><use href="#i-check"/></svg>
         <h3 data-en="Request received">Solicitud recibida</h3>
         <p data-en="Demo: on the real site this request arrives instantly in Elena’s inbox and in a panel with every booking, and the organizer gets an automatic confirmation.">Demo: en el sitio real, esta solicitud le llega al instante al correo de Elena y a un panel con todas sus contrataciones, y el organizador recibe una confirmación automática.</p>
+        <a class="btn btn--accent" href="panel.html" style="margin-top:20px;width:auto" data-en="See it in Elena’s panel →">Verla en el panel de Elena →</a>
       </div>
     </form>
   </div>
@@ -577,7 +580,7 @@ form .btn{margin-top:20px;width:100%;justify-content:center;}
       <div class="fxcard"><div class="fxcard__i"><svg class="ico"><use href="#i-pen"/></svg></div><h3>Identidad de autor</h3><p>Nuestro director creativo diseña tu marca (logo, paleta y tipografía) y te la presenta antes de construir. Las tres paletas de este demo son una probadita.</p></div>
       <div class="fxcard"><div class="fxcard__i"><svg class="ico"><use href="#i-globe"/></svg></div><h3>Bilingüe de verdad</h3><p>Español e inglés con un clic, con textos que suenan naturales en Miami y en Latinoamérica. Tu dominio, configurado y con correo.</p></div>
       <div class="fxcard"><div class="fxcard__i"><svg class="ico"><use href="#i-video"/></svg></div><h3>El video al centro</h3><p>Showreel en portada y clips por tema, cargados rápido desde YouTube o Vimeo y bien vistos en celular.</p></div>
-      <div class="fxcard"><div class="fxcard__i"><svg class="ico"><use href="#i-inbox"/></svg></div><h3>Contrataciones sin perder ninguna</h3><p>Cada solicitud te llega al correo y a un panel con fecha, audiencia y presupuesto, y el organizador recibe confirmación automática.</p></div>
+      <div class="fxcard"><div class="fxcard__i"><svg class="ico"><use href="#i-inbox"/></svg></div><h3>Contrataciones sin perder ninguna</h3><p>Cada solicitud te llega al correo y a un panel con fecha, audiencia y resumen de IA, y el organizador recibe confirmación automática. <a href="panel.html" style="color:var(--fx-cyan);font-weight:600">Ver el panel →</a></p></div>
       <div class="fxcard"><div class="fxcard__i"><svg class="ico"><use href="#i-users"/></svg></div><h3>Listo para sumar colegas</h3><p>La sección de speakers ya está pensada para crecer: cada nueva voz con su perfil, sus temas y su formulario.</p></div>
       <div class="fxcard"><div class="fxcard__i"><svg class="ico"><use href="#i-trend"/></svg></div><h3>Listo para pautar</h3><p>Facebook e Instagram conectados al sitio y medición instalada, para que cuando quieras anunciarte cada contratación se pueda rastrear.</p></div>
     </div>
@@ -626,6 +629,7 @@ form .btn{margin-top:20px;width:100%;justify-content:center;}
 
 <script>
 (function(){
+  try{var st=localStorage.getItem('speakerTheme');if(st){document.documentElement.dataset.theme=st;document.querySelectorAll('.themer__opts button').forEach(function(x){x.setAttribute('aria-pressed',x.dataset.theme===st);});}}catch(e){}
   document.querySelectorAll('.yr').forEach(function(el){el.textContent=new Date().getFullYear();});
 
   // Menú móvil
@@ -652,6 +656,7 @@ form .btn{margin-top:20px;width:100%;justify-content:center;}
   document.querySelectorAll('.themer__opts button').forEach(function(b){
     b.addEventListener('click',function(){
       document.documentElement.dataset.theme=b.dataset.theme;
+      try{localStorage.setItem('speakerTheme',b.dataset.theme);}catch(e){}
       document.querySelectorAll('.themer__opts button').forEach(function(x){x.setAttribute('aria-pressed',x===b);});
     });
   });
@@ -674,6 +679,13 @@ form .btn{margin-top:20px;width:100%;justify-content:center;}
   // Formulario (demo)
   document.getElementById('bookform').addEventListener('submit',function(e){
     e.preventDefault();
+    function v(id){var el=document.getElementById(id);return el?el.value.trim():'';}
+    var fmtEl=document.querySelectorAll('input[name=fmt]'), langs=[];
+    document.querySelectorAll('.seg input[type=checkbox]').forEach(function(c){if(c.checked)langs.push(c.nextElementSibling.textContent.trim());});
+    var t=document.getElementById('t');
+    var lead={n:v('n')||'Organizador de prueba',c:v('c'),e:v('e'),p:v('p'),t:t.options[t.selectedIndex].text,d:v('d'),a:v('a'),l:v('l'),m:v('m'),
+      fmt:(fmtEl[1]&&fmtEl[1].checked)?'Virtual':'Presencial',lang:langs.join(' + ')};
+    try{localStorage.setItem('speakerLead',JSON.stringify(lead));}catch(err){}
     document.getElementById('formfields').style.display='none';
     document.getElementById('ok').classList.add('show');
   });
