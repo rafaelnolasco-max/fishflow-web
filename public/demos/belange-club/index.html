@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Propuesta de FishFlow a Belange Studio: planes de suscripción con cobro mensual.">
+<title>Club Belange</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;1,6..96,500&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: propuesta de una columna; héroe = tarjeta de socio con 12 perforaciones; paquetes en rejilla; calculadora al final */
+:root{
+  --plum:#6B1A4A; --plum-ink:#4A0F32; --blush:#F6EBF1; --bg:#FBF8FA; --surface:#FFFFFF;
+  --fg:#2A1622; --muted:#6E5966; --line:#E7DAE2; --gold:#B88A3E; --ff-orange:#FF8A2A; --ff-cyan:#42C7E8;
+  --on-plum:#FFF6FA;
+  --display:"Bodoni Moda", "Didot", Georgia, serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --plum:#D98BB8; --plum-ink:#F2C9DF; --blush:#2C1824; --bg:#170D13; --surface:#21131C;
+  --fg:#F4E8EF; --muted:#B9A3B0; --line:#3A2532; --gold:#D9AE63; --on-plum:#1A0C14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --plum:#D98BB8; --plum-ink:#F2C9DF; --blush:#2C1824; --bg:#170D13; --surface:#21131C;
+  --fg:#F4E8EF; --muted:#B9A3B0; --line:#3A2532; --gold:#D9AE63; --on-plum:#1A0C14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:400 16px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1080px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:700;text-wrap:balance;margin:0;line-height:1.1}
+h2{font-size:clamp(1.8rem,3.6vw,2.5rem)}
+h3{font-size:1.3rem}
+p{margin:0}
+.eyebrow{font:600 .75rem/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--plum)}
+.lead{color:var(--muted);max-width:62ch;font-size:1.05rem}
+section{padding-block:56px;border-top:1px solid var(--line);display:grid;gap:28px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* top bar */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:20px;flex-wrap:wrap}
+.top .ff{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.8rem}
+.top .ff img{height:28px;width:auto}
+.belmark{font-family:var(--display);font-size:1.5rem;color:var(--plum);letter-spacing:.02em}
+.belmark small{font-family:var(--body);font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;display:block;color:var(--muted);margin-top:-2px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding-block:40px 64px}
+.hero > div{min-width:0}
+.hero h1{font-size:clamp(2.4rem,6vw,4.2rem);font-weight:500}
+.hero h1 em{color:var(--plum);font-style:italic}
+.hero .lead{margin-top:18px}
+.facts{display:flex;gap:28px;flex-wrap:wrap;margin-top:28px}
+.facts div{display:grid;gap:2px}
+.facts b{font:500 1.6rem/1 var(--mono);color:var(--plum)}
+.facts span{font-size:.82rem;color:var(--muted)}
+
+.card{background:var(--plum);color:var(--on-plum);border-radius:18px;padding:26px;aspect-ratio:1.6/1;max-width:100%;
+  display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 30px 60px -30px rgba(74,15,50,.55);transform:rotate(-2deg)}
+.card .row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.card .name{font-family:var(--display);font-size:1.6rem;line-height:1}
+.card .plan{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;opacity:.8}
+.punch{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.punch i{aspect-ratio:1;border-radius:50%;border:1.5px dashed currentColor;opacity:.55;display:grid;place-items:center;font:500 .62rem var(--mono);font-style:normal}
+.punch i.on{background:var(--on-plum);color:var(--plum);opacity:1;border-style:solid}
+.card .foot{display:flex;justify-content:space-between;font:500 .78rem var(--mono);opacity:.9}
+
+/* how */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:s}
+.steps div{display:grid;gap:6px;align-content:start;min-width:0}
+.steps div::before{counter-increment:s;content:counter(s);font:500 .8rem var(--mono);color:var(--plum);border:1px solid var(--plum);border-radius:50%;width:28px;height:28px;display:grid;place-items:center}
+.steps b{font-weight:600}
+.steps p{color:var(--muted);font-size:.93rem}
+
+/* packages */
+.filter{display:flex;gap:8px;flex-wrap:wrap}
+.filter button{font:600 .85rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 16px;border-radius:999px;cursor:pointer}
+.filter button[aria-pressed="true"]{background:var(--plum);color:var(--on-plum);border-color:var(--plum)}
+.filter button:focus-visible,.calc input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.pk{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:14px;grid-template-rows:auto auto 1fr auto;min-width:0}
+.pk[data-g="flex"]{grid-column:1/-1}
+.pk.star{border-color:var(--plum);box-shadow:0 0 0 1px var(--plum)}
+.pk .hd{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.pk .tag{font:600 .68rem/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pk .idx{font:500 .75rem var(--mono);color:var(--muted)}
+.price{display:flex;align-items:baseline;gap:6px}
+.price b{font:500 2rem/1 var(--mono);color:var(--plum)}
+.price span{color:var(--muted);font-size:.85rem}
+.pk ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.93rem}
+.pk ul li::marker{color:var(--plum)}
+.val{border-top:1px dashed var(--line);padding-top:12px;display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:.84rem;color:var(--muted)}
+.val .num{text-align:right;color:var(--fg)}
+.val .save{color:var(--plum);font-weight:600}
+.flag{font-size:.75rem;color:var(--gold);font-weight:600}
+
+/* money */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.split > div{min-width:0}
+.box{background:var(--blush);border-radius:14px;padding:24px;display:grid;gap:12px}
+.box table{width:100%;border-collapse:collapse;font-size:.92rem}
+.box td{padding:6px 0;border-bottom:1px solid var(--line)}
+.box td.num{text-align:right}
+.box tr:last-child td{border-bottom:0;font-weight:700}
+.note{font-size:.82rem;color:var(--muted)}
+
+/* calc */
+.calc{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:start}
+.calc > div{min-width:0}
+.rows{display:grid;gap:8px}
+.rows label{display:grid;grid-template-columns:1fr 64px;align-items:center;gap:12px;font-size:.93rem;padding:6px 0;border-bottom:1px solid var(--line)}
+.rows label span small{color:var(--muted);font-family:var(--mono);margin-left:6px}
+.calc input{width:64px;font:500 1rem var(--mono);padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);text-align:right}
+.total{background:var(--plum);color:var(--on-plum);border-radius:14px;padding:26px;display:grid;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+.total div{display:grid;gap:2px}
+.total b{font:500 2.2rem/1 var(--mono)}
+.total span{font-size:.82rem;opacity:.85}
+
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.rules div{display:grid;gap:6px;align-content:start}
+.rules b{font-family:var(--display);font-size:1.1rem}
+.rules p{color:var(--muted);font-size:.93rem}
+
+.ffdo{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.ffdo div{border-left:2px solid var(--ff-orange);padding:4px 0 4px 14px;font-size:.93rem}
+.ffdo b{display:block}
+.ffdo span{color:var(--muted)}
+
+footer{border-top:1px solid var(--line);padding-block:32px 48px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;font-size:.85rem;color:var(--muted)}
+footer img{height:26px;width:auto}
+
+@media (max-width:860px){
+  .hero,.split,.calc{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .card{transform:none}
+  .total{position:static}
+}
+@media (max-width:480px){.steps{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){.punch i.on{animation:pop .5s both}@keyframes pop{from{transform:scale(.6)}to{transform:scale(1)}}}
+</style>
+
+</head>
+<body style="margin:0">
+<div class="wrap">
+  <header class="top">
+    <div class="belmark">Belange<small>Studio · Villa de Cortés</small></div>
+    <div class="ff">Propuesta de <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgMTM5MS4wIDI5My4yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRmlzaEZsb3ciPgogIDx0aXRsZT5GaXNoRmxvdyDigJQgTG9nbyBIb3Jpem9udGFsPC90aXRsZT4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZmYtdGlkZSIgeDE9IjE0JSIgeTE9IjUwJSIgeDI9Ijg2JSIgeTI9IjUwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzY3RDRFOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjQwJSIgIHN0b3AtY29sb3I9IiM3RkRDRUMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiICBzdG9wLWNvbG9yPSIjRDhDOUEwIiBzdG9wLW9wYWNpdHk9IjAuOTUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI2MCUiICBzdG9wLWNvbG9yPSIjRkZBRTVFIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0ZGOEMzNSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYuMDAgMTYuMDApIHNjYWxlKDAuNDM1NCkiPgogICAgPHBhdGggZD0iTSA2MDAgMzAwIEMgNzYwIDEwMCwgMTAwMCAgOTAsIDEwMDAgMzAwIEMgMTAwMCA1MTAsICA3NjAgNTAwLCA2MDAgMzAwIEMgNDQwIDEwMCwgIDIwMCAgOTAsICAyMDAgMzAwIEMgMjAwIDUxMCwgIDQ0MCA1MDAsICA2MDAgMzAwIFoiCiAgICAgIGZpbGw9Im5vbmUiCiAgICAgIHN0cm9rZT0idXJsKCNmZi10aWRlKSIKICAgICAgc3Ryb2tlLXdpZHRoPSI0NCIKICAgICAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogICAgICBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSI4ODAiIGN5PSIyNzgiIHI9IjkiIGZpbGw9IiMwQzM0NDUiIG9wYWNpdHk9IjAuNTUiLz4KICA8L2c+CiAgICA8cGF0aCBkPSJNMTMuNjAwMDAwMDAwMDAwMDAxIDAuMFYtMTQxLjIwMDAwMDAwMDAwMDAySDQ1LjBWMC4wWk0zNy42IC01NS40MDAwMDAwMDAwMDAwMDZWLTgyLjRIMTA4LjJWLTU1LjQwMDAwMDAwMDAwMDAwNlpNMzcuNiAtMTE0LjJWLTE0MS4yMDAwMDAwMDAwMDAwMkgxMTEuNFYtMTE0LjJaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTEyNi44IDAuMFYtOTcuMkgxNTcuNFYwLjBaTTE0Mi4yIC0xMTAuNjAwMDAwMDAwMDAwMDFRMTM1LjAgLTExMC42MDAwMDAwMDAwMDAwMSAxMzAuMyAtMTE1LjVRMTI1LjYgLTEyMC40IDEyNS42IC0xMjcuNFExMjUuNiAtMTM0LjYgMTMwLjMgLTEzOS40UTEzNS4wIC0xNDQuMjAwMDAwMDAwMDAwMDIgMTQyLjIgLTE0NC4yMDAwMDAwMDAwMDAwMlExNDkuNCAtMTQ0LjIwMDAwMDAwMDAwMDAyIDE1NC4wIC0xMzkuNFExNTguNiAtMTM0LjYgMTU4LjYgLTEyNy40UTE1OC42IC0xMjAuNCAxNTQuMCAtMTE1LjVRMTQ5LjQgLTExMC42MDAwMDAwMDAwMDAwMSAxNDIuMiAtMTEwLjYwMDAwMDAwMDAwMDAxWiIgZmlsbD0iIzY3RDRFOCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTcwLjQ0IDIxNy4yMTAwMDAwMDAwMDAwNCkiLz4KICAgIDxwYXRoIGQ9Ik0yMTIuMzk5OTk5OTk5OTk5OTggMi40MDAwMDAwMDAwMDAwMDA0UTIwMy43OTk5OTk5OTk5OTk5OCAyLjQwMDAwMDAwMDAwMDAwMDQgMTk1LjUgMC4yMDAwMDAwMDAwMDAwMDAxOFExODcuMiAtMi4wIDE4MC4xIC02LjEwMDAwMDAwMDAwMDAwMDVRMTczLjAgLTEwLjIwMDAwMDAwMDAwMDAwMSAxNjguMCAtMTUuNjAwMDAwMDAwMDAwMDAxTDE4NS4zOTk5OTk5OTk5OTk5OCAtMzMuMlExOTAuMiAtMjguMCAxOTYuNzk5OTk5OTk5OTk5OTggLTI1LjFRMjAzLjM5OTk5OTk5OTk5OTk4IC0yMi4yMDAwMDAwMDAwMDAwMDMgMjExLjIgLTIyLjIwMDAwMDAwMDAwMDAwM1EyMTYuNiAtMjIuMjAwMDAwMDAwMDAwMDAzIDIxOS41IC0yMy44MDAwMDAwMDAwMDAwMDRRMjIyLjM5OTk5OTk5OTk5OTk4IC0yNS40MDAwMDAwMDAwMDAwMDIgMjIyLjM5OTk5OTk5OTk5OTk4IC0yOC4yMDAwMDAwMDAwMDAwMDNRMjIyLjM5OTk5OTk5OTk5OTk4IC0zMS44IDIxOC44OTk5OTk5OTk5OTk5OCAtMzMuN1EyMTUuMzk5OTk5OTk5OTk5OTggLTM1LjYgMjEwLjAgLTM3LjFRMjA0LjYgLTM4LjYgMTk4LjYgLTQwLjQwMDAwMDAwMDAwMDAwNlExOTIuNiAtNDIuMiAxODcuMiAtNDUuNDAwMDAwMDAwMDAwMDA2UTE4MS43OTk5OTk5OTk5OTk5OCAtNDguNiAxNzguMzk5OTk5OTk5OTk5OTggLTU0LjNRMTc1LjAgLTYwLjAgMTc1LjAgLTY4LjhRMTc1LjAgLTc4LjIgMTc5LjggLTg1LjFRMTg0LjYgLTkyLjAgMTkzLjM5OTk5OTk5OTk5OTk4IC05Ni4wUTIwMi4yIC0xMDAuMCAyMTQuMCAtMTAwLjBRMjI2LjM5OTk5OTk5OTk5OTk4IC0xMDAuMCAyMzYuODk5OTk5OTk5OTk5OTggLTk1LjdRMjQ3LjM5OTk5OTk5OTk5OTk4IC05MS40IDI1NC4wIC04My4wTDIzNi42IC02NS40UTIzMi4wIC03MC44IDIyNi4zIC03My4wUTIyMC42IC03NS4yIDIxNS4yIC03NS4yUTIxMC4wIC03NS4yIDIwNy4zOTk5OTk5OTk5OTk5OCAtNzMuN1EyMDQuNzk5OTk5OTk5OTk5OTggLTcyLjIgMjA0Ljc5OTk5OTk5OTk5OTk4IC02OS40UTIwNC43OTk5OTk5OTk5OTk5OCAtNjYuNCAyMDguMiAtNjQuNjAwMDAwMDAwMDAwMDFRMjExLjYgLTYyLjgwMDAwMDAwMDAwMDAwNCAyMTcuMCAtNjEuNDAwMDAwMDAwMDAwMDA2UTIyMi4zOTk5OTk5OTk5OTk5OCAtNjAuMCAyMjguMzk5OTk5OTk5OTk5OTggLTU4LjBRMjM0LjM5OTk5OTk5OTk5OTk4IC01Ni4wIDIzOS43OTk5OTk5OTk5OTk5OCAtNTIuNlEyNDUuMiAtNDkuMiAyNDguNiAtNDMuNVEyNTIuMCAtMzcuODAwMDAwMDAwMDAwMDA0IDI1Mi4wIC0yOC42UTI1Mi4wIC0xNC40IDI0MS4zIC02LjBRMjMwLjYgMi40MDAwMDAwMDAwMDAwMDA0IDIxMi4zOTk5OTk5OTk5OTk5OCAyLjQwMDAwMDAwMDAwMDAwMDRaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTMzMC44IDAuMFYtNTUuNDAwMDAwMDAwMDAwMDA2UTMzMC44IC02My4wIDMyNi4xIC02Ny43UTMyMS40MDAwMDAwMDAwMDAwMyAtNzIuNCAzMTQuMjAwMDAwMDAwMDAwMDUgLTcyLjRRMzA5LjIwMDAwMDAwMDAwMDA1IC03Mi40IDMwNS40MDAwMDAwMDAwMDAwMyAtNzAuMzAwMDAwMDAwMDAwMDFRMzAxLjYgLTY4LjIgMjk5LjQwMDAwMDAwMDAwMDAzIC02NC4zMDAwMDAwMDAwMDAwMVEyOTcuMjAwMDAwMDAwMDAwMDUgLTYwLjQwMDAwMDAwMDAwMDAwNiAyOTcuMjAwMDAwMDAwMDAwMDUgLTU1LjQwMDAwMDAwMDAwMDAwNkwyODUuNDAwMDAwMDAwMDAwMDMgLTYxLjJRMjg1LjQwMDAwMDAwMDAwMDAzIC03Mi42MDAwMDAwMDAwMDAwMSAyOTAuMjAwMDAwMDAwMDAwMDUgLTgxLjIwMDAwMDAwMDAwMDAyUTI5NS4wIC04OS44MDAwMDAwMDAwMDAwMSAzMDMuNiAtOTQuNVEzMTIuMjAwMDAwMDAwMDAwMDUgLTk5LjIgMzIzLjQwMDAwMDAwMDAwMDAzIC05OS4yUTMzNC44IC05OS4yIDM0My40IC05NC41UTM1Mi4wIC04OS44MDAwMDAwMDAwMDAwMSAzNTYuNzAwMDAwMDAwMDAwMDUgLTgxLjVRMzYxLjQwMDAwMDAwMDAwMDAzIC03My4yIDM2MS40MDAwMDAwMDAwMDAwMyAtNjIuMlYwLjBaTTI2Ni42IDAuMFYtMTQ1LjIwMDAwMDAwMDAwMDAySDI5Ny4yMDAwMDAwMDAwMDAwNVYwLjBaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTM4MS44MDAwMDAwMDAwMDAwNyAwLjBWLTE0MS4yMDAwMDAwMDAwMDAwMkg0MTMuMjAwMDAwMDAwMDAwMDVWMC4wWk00MDUuODAwMDAwMDAwMDAwMDcgLTU1LjQwMDAwMDAwMDAwMDAwNlYtODIuNEg0NzYuNDAwMDAwMDAwMDAwMDNWLTU1LjQwMDAwMDAwMDAwMDAwNlpNNDA1LjgwMDAwMDAwMDAwMDA3IC0xMTQuMlYtMTQxLjIwMDAwMDAwMDAwMDAySDQ3OS42Vi0xMTQuMloiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNDk1LjAwMDAwMDAwMDAwMDA2IDAuMFYtMTQ1LjIwMDAwMDAwMDAwMDAySDUyNS42VjAuMFoiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNTkyLjAwMDAwMDAwMDAwMDEgMi4yUTU3Ny4wMDAwMDAwMDAwMDAxIDIuMiA1NjQuOTAwMDAwMDAwMDAwMSAtNC41UTU1Mi44MDAwMDAwMDAwMDAxIC0xMS4yMDAwMDAwMDAwMDAwMDEgNTQ1LjgwMDAwMDAwMDAwMDEgLTIyLjhRNTM4LjgwMDAwMDAwMDAwMDEgLTM0LjQgNTM4LjgwMDAwMDAwMDAwMDEgLTQ4LjgwMDAwMDAwMDAwMDAwNFE1MzguODAwMDAwMDAwMDAwMSAtNjMuMiA1NDUuODAwMDAwMDAwMDAwMSAtNzQuNlE1NTIuODAwMDAwMDAwMDAwMSAtODYuMCA1NjQuODAwMDAwMDAwMDAwMSAtOTIuN1E1NzYuODAwMDAwMDAwMDAwMSAtOTkuNCA1OTIuMDAwMDAwMDAwMDAwMSAtOTkuNFE2MDcuMiAtOTkuNCA2MTkuMiAtOTIuODAwMDAwMDAwMDAwMDFRNjMxLjIgLTg2LjIgNjM4LjIgLTc0LjdRNjQ1LjIgLTYzLjIgNjQ1LjIgLTQ4LjgwMDAwMDAwMDAwMDAwNFE2NDUuMiAtMzQuNCA2MzguMiAtMjIuOFE2MzEuMiAtMTEuMjAwMDAwMDAwMDAwMDAxIDYxOS4yIC00LjVRNjA3LjIgMi4yIDU5Mi4wMDAwMDAwMDAwMDAxIDIuMlpNNTkyLjAwMDAwMDAwMDAwMDEgLTI1LjZRNTk4LjYwMDAwMDAwMDAwMDEgLTI1LjYgNjAzLjYwMDAwMDAwMDAwMDEgLTI4LjVRNjA4LjYwMDAwMDAwMDAwMDEgLTMxLjQwMDAwMDAwMDAwMDAwMiA2MTEuMzAwMDAwMDAwMDAwMiAtMzYuN1E2MTQuMDAwMDAwMDAwMDAwMSAtNDIuMCA2MTQuMDAwMDAwMDAwMDAwMSAtNDguODAwMDAwMDAwMDAwMDA0UTYxNC4wMDAwMDAwMDAwMDAxIC01NS42IDYxMS4yIC02MC43UTYwOC40MDAwMDAwMDAwMDAxIC02NS44IDYwMy41MDAwMDAwMDAwMDAxIC02OC43UTU5OC42MDAwMDAwMDAwMDAxIC03MS42MDAwMDAwMDAwMDAwMSA1OTIuMDAwMDAwMDAwMDAwMSAtNzEuNjAwMDAwMDAwMDAwMDFRNTg1LjYwMDAwMDAwMDAwMDEgLTcxLjYwMDAwMDAwMDAwMDAxIDU4MC42MDAwMDAwMDAwMDAxIC02OC43UTU3NS42MDAwMDAwMDAwMDAxIC02NS44IDU3Mi44MDAwMDAwMDAwMDAyIC02MC42UTU3MC4wMDAwMDAwMDAwMDAxIC01NS40MDAwMDAwMDAwMDAwMDYgNTcwLjAwMDAwMDAwMDAwMDEgLTQ4LjZRNTcwLjAwMDAwMDAwMDAwMDEgLTQyLjAgNTcyLjgwMDAwMDAwMDAwMDIgLTM2LjdRNTc1LjYwMDAwMDAwMDAwMDEgLTMxLjQwMDAwMDAwMDAwMDAwMiA1ODAuNjAwMDAwMDAwMDAwMSAtMjguNVE1ODUuNjAwMDAwMDAwMDAwMSAtMjUuNiA1OTIuMDAwMDAwMDAwMDAwMSAtMjUuNloiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNjgyLjIwMDAwMDAwMDAwMDIgMC4wIDY0OC42MDAwMDAwMDAwMDAxIC05Ny4ySDY3OC42MDAwMDAwMDAwMDAxTDY5OS40MDAwMDAwMDAwMDAxIC0yNi42TDY5MC42MDAwMDAwMDAwMDAxIC0yNi40MDAwMDAwMDAwMDAwMDJMNzEzLjYwMDAwMDAwMDAwMDEgLTk3LjJINzM4LjQwMDAwMDAwMDAwMDFMNzYxLjYwMDAwMDAwMDAwMDEgLTI2LjQwMDAwMDAwMDAwMDAwMkw3NTIuNjAwMDAwMDAwMDAwMSAtMjYuNkw3NzMuNjAwMDAwMDAwMDAwMSAtOTcuMkg4MDMuNjAwMDAwMDAwMDAwMUw3NzAuMDAwMDAwMDAwMDAwMSAwLjBINzQ1LjAwMDAwMDAwMDAwMDFMNzIyLjQwMDAwMDAwMDAwMDEgLTY3LjJINzMwLjAwMDAwMDAwMDAwMDFMNzA3LjAwMDAwMDAwMDAwMDEgMC4wWiIgZmlsbD0iI0ZGOEMzNSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTcwLjQ0IDIxNy4yMTAwMDAwMDAwMDAwNCkiLz4KPC9zdmc+Cg==" alt="FishFlow"></div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Club Belange · suscripciones</p>
+      <h1>Tus clientes pagan cada mes. <em>Tú ya sabes que vuelven.</em></h1>
+      <p class="lead">Un plan anual con cargo automático a tarjeta. El cliente paga una mensualidad fija, tiene sus visitas del año y agenda cuando quiera: una vez al mes, dos seguidas o las que le acomoden. Tú cobras por adelantado y tu agenda se llena sola.</p>
+      <div class="facts">
+        <div><b>10</b><span>paquetes sugeridos</span></div>
+        <div><b>$119–$500</b><span>al mes por cliente</span></div>
+        <div><b>12</b><span>meses de plan, cobro automático</span></div>
+      </div>
+    </div>
+    <div class="card" aria-label="Ejemplo de tarjeta de socio con 5 de 12 cortes usados">
+      <div class="row"><div><div class="plan">Socio · Corte Caballero</div><div class="name">Club Belange</div></div><div class="plan">2026–27</div></div>
+      <div class="punch" id="punch"></div>
+      <div class="foot"><span>5 de 12 cortes usados</span><span>$150 / mes</span></div>
+    </div>
+  </div>
+
+  <section>
+    <div><p class="eyebrow">Cómo funciona para tu cliente</p></div>
+    <div class="steps">
+      <div><b>Elige su plan</b><p>Escanea el QR en el mostrador o abre el link que le mandas por WhatsApp.</p></div>
+      <div><b>Paga con tarjeta</b><p>Primer cargo hoy y luego cada mes en automático con Stripe. Crédito o débito.</p></div>
+      <div><b>Agenda cuando quiera</b><p>Sus visitas del año son suyas. Te escribe y tú le das lugar como siempre.</p></div>
+      <div><b>Tú marcas la visita</b><p>Un toque en tu panel y su saldo baja. Le llega por WhatsApp cuántas le quedan.</p></div>
+    </div>
+  </section>
+
+  <section id="paquetes">
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Los paquetes</p>
+      <h2>Diez planes para empezar</h2>
+      <p class="lead">Calculados con lo que cobras hoy en tu panel. Puedes lanzar solo tres o cuatro y agregar los demás después.</p>
+    </div>
+    <div class="filter" role="group" aria-label="Filtrar paquetes">
+      <button type="button" data-f="all" aria-pressed="true">Todos</button>
+      <button type="button" data-f="cab" aria-pressed="false">Caballeros</button>
+      <button type="button" data-f="fam" aria-pressed="false">Niños y familia</button>
+      <button type="button" data-f="dam" aria-pressed="false">Damas y color</button>
+      <button type="button" data-f="flex" aria-pressed="false">Flexible</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <p class="note">Precio de referencia por servicio: lo que más se repite en los 132 cobros registrados en tu panel entre mayo y agosto de 2026 (corte $200, corte niño $150, color y corte ~$950, retoque ~$650, tratamiento ~$450; productos a tu precio de mostrador). Los marcados <span class="flag">por confirmar</span> se ajustan con tu lista vigente.</p>
+  </section>
+
+  <section>
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Los números para ti, Alberto</p>
+      <h2>¿Cuánto te queda por corte?</h2>
+    </div>
+    <div class="split">
+      <div class="box">
+        <b>Plan Corte Caballero · $150 al mes</b>
+        <table>
+          <tr><td>Mensualidad</td><td class="num">$150.00</td></tr>
+          <tr><td>Comisión Stripe (3.6% + $3 + IVA)</td><td class="num">−$9.75</td></tr>
+          <tr><td>Te queda al mes</td><td class="num">$140.25</td></tr>
+        </table>
+        <p class="note">Si el cliente usa sus 12 cortes, cada uno te deja unos $140 contra los $200 de mostrador. Si usa 10, son $168 por corte. El gel de bienvenida sale de tu costo, no de su precio de venta.</p>
+      </div>
+      <div style="display:grid;gap:14px;align-content:start">
+        <p><b>Lo que cambias:</b> un descuento de ~25% por corte.</p>
+        <p><b>Lo que ganas:</b> el dinero entra el día 1 de cada mes aunque llueva, el cliente ya no compara precios con la barbería de enfrente, y cada visita es una oportunidad de venderle producto (Nioxin, Terramar, Avyna) a alguien que ya confía en ti.</p>
+        <p><b>Lo que cuidas:</b> como tú atiendes solo, cada plan lleva cupo. Así la agenda no se te satura.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Calculadora</p>
+      <h2>¿Cuántos socios te imaginas?</h2>
+      <p class="lead">Cambia los números para ver tu ingreso fijo. Viene con un ejemplo cargado.</p>
+    </div>
+    <div class="calc">
+      <div class="rows" id="rows"></div>
+      <div class="total" aria-live="polite">
+        <div><span>Ingreso fijo al mes</span><b id="mrr">$0</b></div>
+        <div><span>Al año</span><b id="arr" style="font-size:1.5rem">$0</b></div>
+        <div><span>Neto después de Stripe, al mes (aprox.)</span><b id="net" style="font-size:1.5rem">$0</b></div>
+        <div><span>Socios activos</span><b id="subs" style="font-size:1.5rem">0</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Reglas del club</p>
+      <h2>Para que nadie salga perdiendo</h2>
+    </div>
+    <div class="rules">
+      <div><b>Las visitas se liberan con cada pago</b><p>El cliente puede usar las que ya pagó más una de adelanto. Así puede venir dos veces en un mes sin que alguien pague un mes, use tres cortes y cancele.</p></div>
+      <div><b>Plan de 12 meses</b><p>Cargo automático mensual. Al año se renueva solo y el cliente puede cancelar sin costo en la renovación.</p></div>
+      <div><b>Regalo en el segundo pago</b><p>El gel o producto de bienvenida se entrega cuando pasa el segundo cobro, no el primero.</p></div>
+      <div><b>Visitas del año, no acumulables</b><p>Las que no use vencen al cerrar su año. Le avisamos por WhatsApp un mes antes para que las aproveche.</p></div>
+      <div><b>Personal</b><p>El plan es de una persona. Solo Papá + Hijo y Familia se comparten, con nombres registrados.</p></div>
+      <div><b>Tarjeta rechazada</b><p>Stripe reintenta el cobro y te avisamos. Mientras no pague, su saldo se congela.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Lo que pone FishFlow</p>
+      <h2>Tú cortas. El cobro y el control van solos.</h2>
+    </div>
+    <div class="ffdo">
+      <div><b>Página de alta por plan</b><span>Con tu marca, link y QR para el mostrador.</span></div>
+      <div><b>Cobro recurrente con Stripe</b><span>Tarjeta de crédito o débito, depósito a tu cuenta.</span></div>
+      <div><b>Socios en tu panel</b><span>En el mismo /app/belange que ya usas: quién paga, cuántas visitas le quedan.</span></div>
+      <div><b>Marcar visita en un toque</b><span>Y el cliente recibe su saldo por WhatsApp.</span></div>
+      <div><b>Avisos automáticos</b><span>Pago recibido, tarjeta rechazada, visitas por vencer.</span></div>
+      <div><b>Reporte mensual</b><span>Ingreso fijo, altas, bajas y producto vendido a socios.</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <div><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgMTM5MS4wIDI5My4yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRmlzaEZsb3ciPgogIDx0aXRsZT5GaXNoRmxvdyDigJQgTG9nbyBIb3Jpem9udGFsPC90aXRsZT4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZmYtdGlkZSIgeDE9IjE0JSIgeTE9IjUwJSIgeDI9Ijg2JSIgeTI9IjUwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzY3RDRFOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjQwJSIgIHN0b3AtY29sb3I9IiM3RkRDRUMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiICBzdG9wLWNvbG9yPSIjRDhDOUEwIiBzdG9wLW9wYWNpdHk9IjAuOTUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI2MCUiICBzdG9wLWNvbG9yPSIjRkZBRTVFIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0ZGOEMzNSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYuMDAgMTYuMDApIHNjYWxlKDAuNDM1NCkiPgogICAgPHBhdGggZD0iTSA2MDAgMzAwIEMgNzYwIDEwMCwgMTAwMCAgOTAsIDEwMDAgMzAwIEMgMTAwMCA1MTAsICA3NjAgNTAwLCA2MDAgMzAwIEMgNDQwIDEwMCwgIDIwMCAgOTAsICAyMDAgMzAwIEMgMjAwIDUxMCwgIDQ0MCA1MDAsICA2MDAgMzAwIFoiCiAgICAgIGZpbGw9Im5vbmUiCiAgICAgIHN0cm9rZT0idXJsKCNmZi10aWRlKSIKICAgICAgc3Ryb2tlLXdpZHRoPSI0NCIKICAgICAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogICAgICBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSI4ODAiIGN5PSIyNzgiIHI9IjkiIGZpbGw9IiMwQzM0NDUiIG9wYWNpdHk9IjAuNTUiLz4KICA8L2c+CiAgICA8cGF0aCBkPSJNMTMuNjAwMDAwMDAwMDAwMDAxIDAuMFYtMTQxLjIwMDAwMDAwMDAwMDAySDQ1LjBWMC4wWk0zNy42IC01NS40MDAwMDAwMDAwMDAwMDZWLTgyLjRIMTA4LjJWLTU1LjQwMDAwMDAwMDAwMDAwNlpNMzcuNiAtMTE0LjJWLTE0MS4yMDAwMDAwMDAwMDAwMkgxMTEuNFYtMTE0LjJaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTEyNi44IDAuMFYtOTcuMkgxNTcuNFYwLjBaTTE0Mi4yIC0xMTAuNjAwMDAwMDAwMDAwMDFRMTM1LjAgLTExMC42MDAwMDAwMDAwMDAwMSAxMzAuMyAtMTE1LjVRMTI1LjYgLTEyMC40IDEyNS42IC0xMjcuNFExMjUuNiAtMTM0LjYgMTMwLjMgLTEzOS40UTEzNS4wIC0xNDQuMjAwMDAwMDAwMDAwMDIgMTQyLjIgLTE0NC4yMDAwMDAwMDAwMDAwMlExNDkuNCAtMTQ0LjIwMDAwMDAwMDAwMDAyIDE1NC4wIC0xMzkuNFExNTguNiAtMTM0LjYgMTU4LjYgLTEyNy40UTE1OC42IC0xMjAuNCAxNTQuMCAtMTE1LjVRMTQ5LjQgLTExMC42MDAwMDAwMDAwMDAwMSAxNDIuMiAtMTEwLjYwMDAwMDAwMDAwMDAxWiIgZmlsbD0iIzY3RDRFOCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTcwLjQ0IDIxNy4yMTAwMDAwMDAwMDAwNCkiLz4KICAgIDxwYXRoIGQ9Ik0yMTIuMzk5OTk5OTk5OTk5OTggMi40MDAwMDAwMDAwMDAwMDA0UTIwMy43OTk5OTk5OTk5OTk5OCAyLjQwMDAwMDAwMDAwMDAwMDQgMTk1LjUgMC4yMDAwMDAwMDAwMDAwMDAxOFExODcuMiAtMi4wIDE4MC4xIC02LjEwMDAwMDAwMDAwMDAwMDVRMTczLjAgLTEwLjIwMDAwMDAwMDAwMDAwMSAxNjguMCAtMTUuNjAwMDAwMDAwMDAwMDAxTDE4NS4zOTk5OTk5OTk5OTk5OCAtMzMuMlExOTAuMiAtMjguMCAxOTYuNzk5OTk5OTk5OTk5OTggLTI1LjFRMjAzLjM5OTk5OTk5OTk5OTk4IC0yMi4yMDAwMDAwMDAwMDAwMDMgMjExLjIgLTIyLjIwMDAwMDAwMDAwMDAwM1EyMTYuNiAtMjIuMjAwMDAwMDAwMDAwMDAzIDIxOS41IC0yMy44MDAwMDAwMDAwMDAwMDRRMjIyLjM5OTk5OTk5OTk5OTk4IC0yNS40MDAwMDAwMDAwMDAwMDIgMjIyLjM5OTk5OTk5OTk5OTk4IC0yOC4yMDAwMDAwMDAwMDAwMDNRMjIyLjM5OTk5OTk5OTk5OTk4IC0zMS44IDIxOC44OTk5OTk5OTk5OTk5OCAtMzMuN1EyMTUuMzk5OTk5OTk5OTk5OTggLTM1LjYgMjEwLjAgLTM3LjFRMjA0LjYgLTM4LjYgMTk4LjYgLTQwLjQwMDAwMDAwMDAwMDAwNlExOTIuNiAtNDIuMiAxODcuMiAtNDUuNDAwMDAwMDAwMDAwMDA2UTE4MS43OTk5OTk5OTk5OTk5OCAtNDguNiAxNzguMzk5OTk5OTk5OTk5OTggLTU0LjNRMTc1LjAgLTYwLjAgMTc1LjAgLTY4LjhRMTc1LjAgLTc4LjIgMTc5LjggLTg1LjFRMTg0LjYgLTkyLjAgMTkzLjM5OTk5OTk5OTk5OTk4IC05Ni4wUTIwMi4yIC0xMDAuMCAyMTQuMCAtMTAwLjBRMjI2LjM5OTk5OTk5OTk5OTk4IC0xMDAuMCAyMzYuODk5OTk5OTk5OTk5OTggLTk1LjdRMjQ3LjM5OTk5OTk5OTk5OTk4IC05MS40IDI1NC4wIC04My4wTDIzNi42IC02NS40UTIzMi4wIC03MC44IDIyNi4zIC03My4wUTIyMC42IC03NS4yIDIxNS4yIC03NS4yUTIxMC4wIC03NS4yIDIwNy4zOTk5OTk5OTk5OTk5OCAtNzMuN1EyMDQuNzk5OTk5OTk5OTk5OTggLTcyLjIgMjA0Ljc5OTk5OTk5OTk5OTk4IC02OS40UTIwNC43OTk5OTk5OTk5OTk5OCAtNjYuNCAyMDguMiAtNjQuNjAwMDAwMDAwMDAwMDFRMjExLjYgLTYyLjgwMDAwMDAwMDAwMDAwNCAyMTcuMCAtNjEuNDAwMDAwMDAwMDAwMDA2UTIyMi4zOTk5OTk5OTk5OTk5OCAtNjAuMCAyMjguMzk5OTk5OTk5OTk5OTggLTU4LjBRMjM0LjM5OTk5OTk5OTk5OTk4IC01Ni4wIDIzOS43OTk5OTk5OTk5OTk5OCAtNTIuNlEyNDUuMiAtNDkuMiAyNDguNiAtNDMuNVEyNTIuMCAtMzcuODAwMDAwMDAwMDAwMDA0IDI1Mi4wIC0yOC42UTI1Mi4wIC0xNC40IDI0MS4zIC02LjBRMjMwLjYgMi40MDAwMDAwMDAwMDAwMDA0IDIxMi4zOTk5OTk5OTk5OTk5OCAyLjQwMDAwMDAwMDAwMDAwMDRaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTMzMC44IDAuMFYtNTUuNDAwMDAwMDAwMDAwMDA2UTMzMC44IC02My4wIDMyNi4xIC02Ny43UTMyMS40MDAwMDAwMDAwMDAwMyAtNzIuNCAzMTQuMjAwMDAwMDAwMDAwMDUgLTcyLjRRMzA5LjIwMDAwMDAwMDAwMDA1IC03Mi40IDMwNS40MDAwMDAwMDAwMDAwMyAtNzAuMzAwMDAwMDAwMDAwMDFRMzAxLjYgLTY4LjIgMjk5LjQwMDAwMDAwMDAwMDAzIC02NC4zMDAwMDAwMDAwMDAwMVEyOTcuMjAwMDAwMDAwMDAwMDUgLTYwLjQwMDAwMDAwMDAwMDAwNiAyOTcuMjAwMDAwMDAwMDAwMDUgLTU1LjQwMDAwMDAwMDAwMDAwNkwyODUuNDAwMDAwMDAwMDAwMDMgLTYxLjJRMjg1LjQwMDAwMDAwMDAwMDAzIC03Mi42MDAwMDAwMDAwMDAwMSAyOTAuMjAwMDAwMDAwMDAwMDUgLTgxLjIwMDAwMDAwMDAwMDAyUTI5NS4wIC04OS44MDAwMDAwMDAwMDAwMSAzMDMuNiAtOTQuNVEzMTIuMjAwMDAwMDAwMDAwMDUgLTk5LjIgMzIzLjQwMDAwMDAwMDAwMDAzIC05OS4yUTMzNC44IC05OS4yIDM0My40IC05NC41UTM1Mi4wIC04OS44MDAwMDAwMDAwMDAwMSAzNTYuNzAwMDAwMDAwMDAwMDUgLTgxLjVRMzYxLjQwMDAwMDAwMDAwMDAzIC03My4yIDM2MS40MDAwMDAwMDAwMDAwMyAtNjIuMlYwLjBaTTI2Ni42IDAuMFYtMTQ1LjIwMDAwMDAwMDAwMDAySDI5Ny4yMDAwMDAwMDAwMDAwNVYwLjBaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTM4MS44MDAwMDAwMDAwMDAwNyAwLjBWLTE0MS4yMDAwMDAwMDAwMDAwMkg0MTMuMjAwMDAwMDAwMDAwMDVWMC4wWk00MDUuODAwMDAwMDAwMDAwMDcgLTU1LjQwMDAwMDAwMDAwMDAwNlYtODIuNEg0NzYuNDAwMDAwMDAwMDAwMDNWLTU1LjQwMDAwMDAwMDAwMDAwNlpNNDA1LjgwMDAwMDAwMDAwMDA3IC0xMTQuMlYtMTQxLjIwMDAwMDAwMDAwMDAySDQ3OS42Vi0xMTQuMloiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNDk1LjAwMDAwMDAwMDAwMDA2IDAuMFYtMTQ1LjIwMDAwMDAwMDAwMDAySDUyNS42VjAuMFoiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNTkyLjAwMDAwMDAwMDAwMDEgMi4yUTU3Ny4wMDAwMDAwMDAwMDAxIDIuMiA1NjQuOTAwMDAwMDAwMDAwMSAtNC41UTU1Mi44MDAwMDAwMDAwMDAxIC0xMS4yMDAwMDAwMDAwMDAwMDEgNTQ1LjgwMDAwMDAwMDAwMDEgLTIyLjhRNTM4LjgwMDAwMDAwMDAwMDEgLTM0LjQgNTM4LjgwMDAwMDAwMDAwMDEgLTQ4LjgwMDAwMDAwMDAwMDAwNFE1MzguODAwMDAwMDAwMDAwMSAtNjMuMiA1NDUuODAwMDAwMDAwMDAwMSAtNzQuNlE1NTIuODAwMDAwMDAwMDAwMSAtODYuMCA1NjQuODAwMDAwMDAwMDAwMSAtOTIuN1E1NzYuODAwMDAwMDAwMDAwMSAtOTkuNCA1OTIuMDAwMDAwMDAwMDAwMSAtOTkuNFE2MDcuMiAtOTkuNCA2MTkuMiAtOTIuODAwMDAwMDAwMDAwMDFRNjMxLjIgLTg2LjIgNjM4LjIgLTc0LjdRNjQ1LjIgLTYzLjIgNjQ1LjIgLTQ4LjgwMDAwMDAwMDAwMDAwNFE2NDUuMiAtMzQuNCA2MzguMiAtMjIuOFE2MzEuMiAtMTEuMjAwMDAwMDAwMDAwMDAxIDYxOS4yIC00LjVRNjA3LjIgMi4yIDU5Mi4wMDAwMDAwMDAwMDAxIDIuMlpNNTkyLjAwMDAwMDAwMDAwMDEgLTI1LjZRNTk4LjYwMDAwMDAwMDAwMDEgLTI1LjYgNjAzLjYwMDAwMDAwMDAwMDEgLTI4LjVRNjA4LjYwMDAwMDAwMDAwMDEgLTMxLjQwMDAwMDAwMDAwMDAwMiA2MTEuMzAwMDAwMDAwMDAwMiAtMzYuN1E2MTQuMDAwMDAwMDAwMDAwMSAtNDIuMCA2MTQuMDAwMDAwMDAwMDAwMSAtNDguODAwMDAwMDAwMDAwMDA0UTYxNC4wMDAwMDAwMDAwMDAxIC01NS42IDYxMS4yIC02MC43UTYwOC40MDAwMDAwMDAwMDAxIC02NS44IDYwMy41MDAwMDAwMDAwMDAxIC02OC43UTU5OC42MDAwMDAwMDAwMDAxIC03MS42MDAwMDAwMDAwMDAwMSA1OTIuMDAwMDAwMDAwMDAwMSAtNzEuNjAwMDAwMDAwMDAwMDFRNTg1LjYwMDAwMDAwMDAwMDEgLTcxLjYwMDAwMDAwMDAwMDAxIDU4MC42MDAwMDAwMDAwMDAxIC02OC43UTU3NS42MDAwMDAwMDAwMDAxIC02NS44IDU3Mi44MDAwMDAwMDAwMDAyIC02MC42UTU3MC4wMDAwMDAwMDAwMDAxIC01NS40MDAwMDAwMDAwMDAwMDYgNTcwLjAwMDAwMDAwMDAwMDEgLTQ4LjZRNTcwLjAwMDAwMDAwMDAwMDEgLTQyLjAgNTcyLjgwMDAwMDAwMDAwMDIgLTM2LjdRNTc1LjYwMDAwMDAwMDAwMDEgLTMxLjQwMDAwMDAwMDAwMDAwMiA1ODAuNjAwMDAwMDAwMDAwMSAtMjguNVE1ODUuNjAwMDAwMDAwMDAwMSAtMjUuNiA1OTIuMDAwMDAwMDAwMDAwMSAtMjUuNloiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNjgyLjIwMDAwMDAwMDAwMDIgMC4wIDY0OC42MDAwMDAwMDAwMDAxIC05Ny4ySDY3OC42MDAwMDAwMDAwMDAxTDY5OS40MDAwMDAwMDAwMDAxIC0yNi42TDY5MC42MDAwMDAwMDAwMDAxIC0yNi40MDAwMDAwMDAwMDAwMDJMNzEzLjYwMDAwMDAwMDAwMDEgLTk3LjJINzM4LjQwMDAwMDAwMDAwMDFMNzYxLjYwMDAwMDAwMDAwMDEgLTI2LjQwMDAwMDAwMDAwMDAwMkw3NTIuNjAwMDAwMDAwMDAwMSAtMjYuNkw3NzMuNjAwMDAwMDAwMDAwMSAtOTcuMkg4MDMuNjAwMDAwMDAwMDAwMUw3NzAuMDAwMDAwMDAwMDAwMSAwLjBINzQ1LjAwMDAwMDAwMDAwMDFMNzIyLjQwMDAwMDAwMDAwMDEgLTY3LjJINzMwLjAwMDAwMDAwMDAwMDFMNzA3LjAwMDAwMDAwMDAwMDEgMC4wWiIgZmlsbD0iI0ZGOEMzNSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTcwLjQ0IDIxNy4yMTAwMDAwMDAwMDAwNCkiLz4KPC9zdmc+Cg==" alt="FishFlow"><div>Automatización inteligente para tu negocio</div></div>
+    <div>Rafa Fish · FishFlow · raf@fishflow.mx</div>
+  </footer>
+</div>
+
+<script>
+const P=[
+ {g:'cab',n:'Corte Caballero',p:150,star:true,items:['12 cortes al año','Agenda cuando quieras','Gel Terramar de bienvenida'],val:[['12 cortes × $200',2400],['Gel Terramar',200]]},
+ {g:'cab',n:'Caballero Plus',p:199,items:['12 cortes al año','Un producto de peinado cada trimestre (gel o cera Terramar)'],val:[['12 cortes × $200',2400],['4 productos × ~$250',1000]]},
+ {g:'cab',n:'Caballero Ejecutivo',p:279,items:['24 cortes al año, uno cada quincena','Gel Terramar de bienvenida','Para el que siempre trae el corte impecable'],val:[['24 cortes × $200',4800],['Gel Terramar',200]]},
+ {g:'fam',n:'Escolar',p:119,items:['12 cortes al año para niño o niña','Ideal para regreso a clases y fotos escolares'],val:[['12 cortes × ~$165',1980]]},
+ {g:'fam',n:'Papá + Hijo',p:249,star:true,items:['12 cortes para él y 12 para su hijo','Pueden venir juntos o por separado','Gel Terramar de bienvenida'],val:[['12 cortes × $200',2400],['12 cortes niño × $150',1800],['Gel Terramar',200]]},
+ {g:'fam',n:'Familia Belange',p:449,items:['Bolsa de 36 cortes al año','Hasta 4 personas registradas','Adultos y niños, como la repartan'],val:[['36 cortes × ~$185',6660]]},
+ {g:'dam',n:'Corte & Cuidado',p:179,flag:true,items:['6 visitas de corte con tratamiento o ampolleta','Una cada dos meses','Shampoo de argán Avyna de bienvenida'],val:[['6 corte + tratamiento × ~$450',2700],['Shampoo argán Avyna',350]]},
+ {g:'dam',n:'Raíz Perfecta',p:279,star:true,flag:true,items:['6 retoques de raíz al año','Las canas no se notan nunca','Shampoo Nioxin Color Safe de bienvenida'],val:[['6 retoques × ~$650',3900],['Shampoo Color Safe',350]]},
+ {g:'dam',n:'Color + Corte',p:399,flag:true,items:['6 servicios de color y corte al año','Dúo Nioxin Color Safe de bienvenida','Diseños, mechas y cabello largo se cotizan aparte'],val:[['6 color y corte × ~$950',5700],['Dúo Color Safe',700]]},
+ {g:'flex',n:'Monedero Belange',p:500,items:['Pagas $500 al mes y recibes $575 de saldo','Úsalo en cualquier servicio o producto','Para quien no quiere amarrarse a un solo servicio'],val:[['Saldo al año',6900]]},
+];
+const MX=v=>'$'+Math.round(v).toLocaleString('es-MX');
+const grid=document.getElementById('grid');
+grid.innerHTML=P.map((x,i)=>{
+  const v=x.val.reduce((a,b)=>a+b[1],0), pay=x.p*12, save=v-pay;
+  return `<article class="pk${x.star?' star':''}" data-g="${x.g}">
+   <div class="hd"><span class="tag">${{cab:'Caballeros',fam:'Niños y familia',dam:'Damas y color',flex:'Flexible'}[x.g]}${x.star?' · recomendado':''}</span><span class="idx">${String(i+1).padStart(2,'0')}</span></div>
+   <div style="display:grid;gap:8px"><h3>${x.n}</h3><div class="price"><b>${MX(x.p)}</b><span>al mes · 12 meses</span></div>${x.flag?'<span class="flag">Precio de referencia por confirmar</span>':''}</div>
+   <ul>${x.items.map(t=>`<li>${t}</li>`).join('')}</ul>
+   <div class="val">${x.val.map(r=>`<span>${r[0]}</span><span class="num">${MX(r[1])}</span>`).join('')}
+     <span>El cliente paga al año</span><span class="num">${MX(pay)}</span>
+     <span class="save">Ahorra</span><span class="num save">${MX(save)} (${Math.round(save/v*100)}%)</span></div>
+  </article>`}).join('');
+document.querySelectorAll('.filter button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.filter button').forEach(o=>o.setAttribute('aria-pressed',o===b));
+  grid.querySelectorAll('.pk').forEach(c=>c.hidden=!(b.dataset.f==='all'||c.dataset.g===b.dataset.f));
+}));
+const punch=document.getElementById('punch');
+punch.innerHTML=Array.from({length:12},(_,i)=>`<i class="${i<5?'on':''}" style="animation-delay:${i*80}ms">${i+1}</i>`).join('');
+const ex=[15,3,2,5,3,1,3,4,2,2];
+const rows=document.getElementById('rows');
+rows.innerHTML=P.map((x,i)=>`<label for="q${i}"><span>${x.n}<small>${MX(x.p)}</small></span><input id="q${i}" type="number" min="0" max="200" inputmode="numeric" value="${ex[i]}"></label>`).join('');
+function calc(){
+  let m=0,net=0,s=0;
+  P.forEach((x,i)=>{const q=Math.max(0,+document.getElementById('q'+i).value||0);m+=q*x.p;s+=q;net+=q*(x.p-(x.p*0.036+3)*1.16)});
+  mrr.textContent=MX(m);arr.textContent=MX(m*12);document.getElementById('net').textContent=MX(net);subs.textContent=s;
+}
+rows.addEventListener('input',calc);calc();
+</script>
+
+</body>
+</html>
