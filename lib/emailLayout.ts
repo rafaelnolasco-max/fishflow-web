@@ -208,6 +208,38 @@ export const EMAIL_BRANDS = {
     sitio: { url: 'https://megaclase.fishflow.mx', etiqueta: 'megaclase.fishflow.mx' },
     pieLegal: 'VIBRA Fitness Events · Ciudad de México',
   },
+
+  /**
+   * DIMEX Didácticos México — tienda demo (public/demos/dimex). Misma paleta y
+   * tipografía de la tienda: azul #1d4f9c, naranja #f28a1c, Fredoka + Nunito.
+   * El logo está dibujado sobre blanco, encabezado claro.
+   */
+  dimex: {
+    nombre: 'DIMEX Didácticos México',
+    logo: {
+      src: `${ORIGIN}/clients/dimex/email-logo.png`,
+      width: 150,
+      height: 50,
+      alt: 'DIMEX Didácticos México',
+    },
+    color: {
+      primario: '#1d4f9c',
+      acento: '#f28a1c',
+      acentoTexto: '#b35f06',
+      tinta: '#1b2333',
+      gris: '#566074',
+      linea: '#ece7dc',
+      papel: '#fffdf8',
+      suave: '#eef3fb',
+    },
+    fuente: {
+      titulos: "'Fredoka', 'Nunito', 'Helvetica Neue', Arial, sans-serif",
+      cuerpo: "'Nunito', 'Helvetica Neue', Arial, sans-serif",
+      googleFonts: 'https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&display=swap',
+    },
+    sitio: { url: 'https://www.fishflow.mx/demos/dimex/', etiqueta: 'Tienda DIMEX' },
+    pieLegal: 'DIMEX Didácticos México · Fabricantes mexicanos',
+  },
 } satisfies Record<string, EmailBrand>
 
 export type EmailBrandKey = keyof typeof EMAIL_BRANDS

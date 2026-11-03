@@ -40,6 +40,17 @@ header.top{position:sticky;top:0;z-index:40;background:rgba(255,253,248,.95);bac
 .search input{flex:1;border:0;outline:0;background:transparent;padding:11px 4px;font:inherit;min-width:0}
 .iconbtn{text-decoration:none;border:0;background:var(--chip);color:var(--blue);border-radius:999px;height:42px;min-width:42px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;font-weight:800}
 .iconbtn:hover{background:#dfe8f7}
+/* Menú hamburguesa móvil (estándar FishFlow): en ≤600 px las pestañas se ocultan y este menú las reemplaza */
+.menubtn{display:none}
+.mmenu{border-top:1px solid var(--line);background:#fff;max-height:calc(100vh - 140px);overflow-y:auto;box-shadow:var(--shadow)}
+.mmenu .wrap{display:flex;flex-direction:column;gap:2px;padding-top:10px;padding-bottom:16px}
+.mmenu__t{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin:8px 0 4px}
+.mmitem{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:transparent;border-radius:12px;padding:12px 10px;font:inherit;font-weight:800;color:var(--ink);text-decoration:none}
+.mmitem:hover,.mmitem[aria-pressed=true]{background:var(--chip);color:var(--blue)}
+.mmitem .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.mmcta{margin-top:10px;border:0;border-radius:999px;background:var(--blue);color:#fff;font:inherit;font-weight:800;padding:13px 18px}
+@media (max-width:600px){nav.cats{display:none}.menubtn{display:inline-flex}section[id]{scroll-margin-top:150px}}
+@media (min-width:601px){.mmenu{display:none !important}}
 .cartbtn{position:relative;background:var(--blue);color:#fff}
 .cartbtn:hover{background:var(--blue-d)}
 .cartbtn .n{position:absolute;top:-4px;right:0;background:var(--red);color:#fff;font-size:12px;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;padding:0 5px;border:2px solid #fff}
@@ -284,11 +295,26 @@ body.may .maybar{display:block}
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1.3"/><circle cx="17" cy="20.5" r="1.3"/></svg>
         <span class="lbl">Carrito</span><span class="n" id="cartN">0</span>
       </button>
+      <button class="iconbtn menubtn" id="menuBtn" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileMenu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
     </div>
   </div>
   <nav class="cats" aria-label="Secciones">
     <div class="wrap tabs" id="tabs"></div>
   </nav>
+  <div class="mmenu" id="mobileMenu" hidden>
+    <div class="wrap">
+      <p class="mmenu__t">Secciones</p>
+      <div id="mmCats"></div>
+      <p class="mmenu__t">Más</p>
+      <a class="mmitem" href="#mayoreo">Mayoreo para escuelas y negocios</a>
+      <a class="mmitem" href="#faq">Preguntas frecuentes</a>
+      <a class="mmitem" href="#" data-invdemo>Ejemplo de factura</a>
+      <a class="mmitem" href="admin.html">Panel privado</a>
+      <button class="mmcta" data-mm-cart>Ver carrito</button>
+    </div>
+  </div>
   <div class="maybar"><div class="wrap"><span>🏫 <b>Modo mayoreo:</b> precios por volumen desde 6 piezas · pedido mínimo <b>$3,000</b> · envío gratis · factura automática</span><a href="#mayoreo" style="font-weight:800">¿Pedido especial? Cotiza aquí →</a></div></div>
 </header>
 
@@ -442,7 +468,8 @@ function setMode(m,announce=true){
   if(announce)toast(m==='mayoreo'?'🏫 Modo mayoreo: verás precios por volumen':'🛍️ Modo menudeo: precios por pieza');
 }
 
-function renderTabs(){$('#tabs').innerHTML=CATS.map(c=>`<button class="tab" data-cat="${c.id}" aria-pressed="${state.cat===c.id}"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`).join('')}
+function renderTabs(){$('#tabs').innerHTML=CATS.map(c=>`<button class="tab" data-cat="${c.id}" aria-pressed="${state.cat===c.id}"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`).join('');
+  $('#mmCats').innerHTML=CATS.map(c=>`<button class="mmitem" data-cat="${c.id}" aria-pressed="${state.cat===c.id}"><span class="dot" style="background:${c.color}"></span>${c.name}</button>`).join('')}
 function renderChips(){
   const s=SUBS[state.cat];const el=$('#chips');
   if(!s){el.innerHTML='';return}
@@ -812,6 +839,16 @@ const qsMode=new URLSearchParams(location.search).get('modo');
 Promise.resolve(window.PRODUCTS).then(d=>{
   PRODUCTS=d;renderTabs();renderChips();setMode(qsMode==='mayoreo'||qsMode==='menudeo'?qsMode:LS.get('dimex-mode','menudeo'),false);checkReturn();
 });
+
+// Menú hamburguesa móvil: abre/cierra, se cierra al tocar cualquier opción, con Esc o al pasar a escritorio.
+(function(){
+  const btn=document.getElementById('menuBtn'),menu=document.getElementById('mobileMenu');
+  function set(open){menu.hidden=!open;btn.setAttribute('aria-expanded',String(open));btn.setAttribute('aria-label',open?'Cerrar menú':'Abrir menú')}
+  btn.addEventListener('click',()=>set(menu.hidden));
+  menu.addEventListener('click',e=>{const t=e.target.closest('a,button');if(!t)return;if(t.hasAttribute('data-mm-cart'))document.getElementById('openCart').click();setTimeout(()=>set(false),0)});
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden)set(false)});
+  matchMedia('(min-width:601px)').addEventListener('change',e=>{if(e.matches)set(false)});
+})();
 
 </script>
 </body>
