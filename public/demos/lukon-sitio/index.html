@@ -1,0 +1,1272 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lukon · Supervisión vehicular inteligente, siempre activa</title>
+<meta name="description" content="Ubica tu auto, tu moto o tu carga en tiempo real desde tu celular, recibe alertas al instante e inmovilízalo a distancia. Lukon: Todo Inteligente. Todo Seguro.">
+<meta name="theme-color" content="#000D32">
+<link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<!-- Open Graph: así se ve el link al compartirlo en Facebook, Instagram y WhatsApp -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_MX">
+<meta property="og:site_name" content="Lukon">
+<meta property="og:title" content="Lukon · Toma el control de tu vehículo">
+<meta property="og:description" content="Supervisión vehicular inteligente, siempre activa. Todo Inteligente. Todo Seguro.">
+<meta property="og:image" content="https://fishflow.mx/demos/lukon-sitio/img/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ============================================================
+     META PIXEL — listo para pautar.
+     Cuando Lukon tenga su Pixel (Business Manager → Orígenes de datos),
+     pega el ID en LUKON_CONFIG.pixelId abajo. Nada más.
+     Eventos que ya dispara la página:
+       PageView  · al cargar
+       ViewContent · al ver la sección de vehículos / planes
+       Contact   · clic en cualquier botón de WhatsApp
+       Lead      · al enviar el formulario "Toma el control"
+       VehiculoSeleccionado (custom) · auto / moto / carga / flotilla
+     ============================================================ -->
+<script>
+window.LUKON_CONFIG = {
+  pixelId: "",          // ← ID del Pixel de Meta de Lukon (pendiente)
+  whatsapp: "",         // ← WhatsApp de ventas de Lukon, solo dígitos con 52 (pendiente)
+};
+(function(){
+  var id = window.LUKON_CONFIG.pixelId;
+  if(!id) return;
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', id); fbq('track', 'PageView');
+})();
+</script>
+
+<style>
+/* ===================== RESPONSIVE BASE (FishFlow) ===================== */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1280px);margin-inline:auto;padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}.ff-grid--md{--ff-min:240px;}.ff-grid--lg{--ff-min:300px;}
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-hide-mobile{}.ff-stack-mobile{}
+@media(max-width:600px){:root{--ff-pad:18px;}.ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}.ff-grid{--ff-gap:14px;}}
+/* ===================== /RESPONSIVE BASE ===================== */
+
+:root{
+  --ink:#000D32;        /* navy profundo (fondos) */
+  --ink-2:#06143F;
+  --navy:#10336B;       /* navy del logotipo (LUK) */
+  --royal:#0638B5;      /* azul de los patrones */
+  --blue:#0084F9;       /* electric blue del logotipo (ON) */
+  --blue-2:#3BA4FF;
+  --ice:#E9F2FF;
+  --paper:#F6F9FE;
+  --text:#0B1A3A;
+  --muted:#5A6B8C;
+  --line:rgba(255,255,255,.12);
+  --display:"Bebas Neue",Impact,"Arial Narrow",sans-serif;
+  --body:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --ease:cubic-bezier(.2,.7,.1,1);
+  --r:18px;
+}
+html{scroll-behavior:smooth;}
+main{overflow-x:clip;}
+body{font-family:var(--body);background:var(--ink);color:#fff;-webkit-font-smoothing:antialiased;line-height:1.55;}
+a{color:inherit;text-decoration:none;}
+button{font:inherit;cursor:pointer;}
+.display{font-family:var(--display);font-weight:400;letter-spacing:.01em;line-height:.92;text-transform:uppercase;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue-2);}
+.eyebrow::before{content:"";width:28px;height:3px;background:var(--blue);border-radius:2px;}
+.sec{position:relative;padding:clamp(72px,10vw,140px) 0;}
+.sec--light{background:var(--paper);color:var(--text);}
+.sec--light .eyebrow{color:var(--blue);}
+.h2{font-size:clamp(44px,7vw,96px);margin:14px 0 18px;}
+.lede{font-size:clamp(16px,1.5vw,19px);color:rgba(255,255,255,.78);max-width:60ch;}
+.sec--light .lede{color:var(--muted);}
+.underline{display:block;width:96px;height:5px;background:var(--blue);border-radius:3px;margin-top:18px;transform-origin:left;}
+
+/* ---------- Preview ribbon ---------- */
+.preview{position:relative;z-index:70;background:linear-gradient(90deg,var(--blue),var(--royal));color:#fff;font-size:12.5px;font-weight:600;text-align:center;padding:8px 44px;}
+.preview b{font-weight:800;}
+.preview button{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.18);border:0;color:#fff;width:24px;height:24px;border-radius:50%;line-height:1;}
+
+/* ---------- Scroll progress ---------- */
+.progress{position:fixed;left:0;top:0;height:3px;width:100%;transform-origin:left;transform:scaleX(0);background:linear-gradient(90deg,var(--blue),#7cc4ff);z-index:80;}
+
+/* ---------- Nav ---------- */
+.nav{position:sticky;top:0;z-index:60;transition:background .35s var(--ease),box-shadow .35s,padding .35s;}
+.nav .ff-container{display:flex;align-items:center;justify-content:space-between;height:76px;transition:height .35s var(--ease);}
+.nav.is-scrolled{background:rgba(0,13,50,.82);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);box-shadow:0 1px 0 var(--line);}
+.nav.is-scrolled .ff-container{height:62px;}
+.brand{display:flex;align-items:center;}
+.brand svg{height:30px;width:auto;}
+.nav-links{display:flex;gap:28px;align-items:center;}
+.nav-links a{font-size:14px;font-weight:600;color:rgba(255,255,255,.78);position:relative;padding:6px 0;transition:color .2s;}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--blue);transform:scaleX(0);transform-origin:right;transition:transform .35s var(--ease);}
+.nav-links a:hover{color:#fff;}
+.nav-links a:hover::after{transform:scaleX(1);transform-origin:left;}
+.nav-cta{display:flex;align-items:center;gap:10px;}
+.burger{display:none;background:transparent;border:1px solid var(--line);color:#fff;width:44px;height:44px;border-radius:12px;align-items:center;justify-content:center;}
+.burger span,.burger span::before,.burger span::after{display:block;width:20px;height:2px;background:#fff;border-radius:2px;position:relative;transition:transform .3s var(--ease),background .2s;}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0;}
+.burger span::before{top:-6px;}.burger span::after{top:6px;}
+.burger[aria-expanded="true"] span{background:transparent;}
+.burger[aria-expanded="true"] span::before{transform:translateY(6px) rotate(45deg);}
+.burger[aria-expanded="true"] span::after{transform:translateY(-6px) rotate(-45deg);}
+.mobile-menu{position:fixed;inset:62px 0 auto 0;z-index:59;background:rgba(0,13,50,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:10px var(--ff-pad,18px) 22px;display:flex;flex-direction:column;clip-path:inset(0 0 100% 0);transition:clip-path .45s var(--ease);visibility:hidden;}
+.mobile-menu.open{clip-path:inset(0 0 0 0);visibility:visible;}
+.mobile-menu a{font-family:var(--display);font-size:34px;padding:10px 0;border-bottom:1px solid var(--line);opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s var(--ease);}
+.mobile-menu.open a{opacity:1;transform:none;}
+.mobile-menu a.btn{margin-top:18px;justify-content:center;font-family:var(--body);font-size:16px;padding:15px;border:0;}
+@media(max-width:960px){.nav-links{display:none;}.burger{display:inline-flex;}.nav-cta .btn--ghost{display:none;}}
+
+/* ---------- Buttons ---------- */
+.btn{position:relative;display:inline-flex;align-items:center;gap:10px;border:0;border-radius:999px;padding:15px 26px;font-weight:700;font-size:15px;letter-spacing:.01em;overflow:hidden;isolation:isolate;transition:transform .25s var(--ease),box-shadow .3s;will-change:transform;}
+.btn--primary{background:var(--blue);color:#fff;box-shadow:0 10px 30px -8px rgba(0,132,249,.65);}
+.btn--primary::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-120%);transition:transform .8s var(--ease);}
+.btn--primary:hover::before{transform:translateX(120%);}
+.btn--primary:hover{box-shadow:0 16px 40px -8px rgba(0,132,249,.85);}
+.btn--ghost{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.22);}
+.btn--ghost:hover{background:rgba(255,255,255,.12);}
+.btn--wa{background:#fff;color:var(--ink);}
+.btn--sm{padding:11px 18px;font-size:14px;}
+.btn svg{width:18px;height:18px;flex:none;}
+.btn .arrow{transition:transform .3s var(--ease);}
+.btn:hover .arrow{transform:translateX(4px);}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;min-height:calc(100svh - 34px);margin-top:-76px;padding-top:76px;display:flex;align-items:center;overflow:hidden;}
+.hero canvas.poly{position:absolute;inset:0;width:100%;height:100%;z-index:0;}
+.hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:
+  radial-gradient(60% 70% at 18% 45%,rgba(0,13,50,.92) 0%,rgba(0,13,50,.55) 55%,transparent 80%),
+  linear-gradient(180deg,transparent 70%,var(--ink) 100%);}
+.hero .dots{position:absolute;inset:0;z-index:1;opacity:.35;background-image:radial-gradient(rgba(255,255,255,.35) 1px,transparent 1.2px);background-size:22px 22px;mask-image:linear-gradient(90deg,transparent,#000 40%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%,transparent);}
+.hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(24px,4vw,64px);align-items:center;padding-block:56px 90px;}
+.hero h1{font-size:clamp(56px,7.6vw,116px);margin:18px 0 22px;}
+.hero h1 .line{display:block;overflow:hidden;padding-bottom:.04em;}
+.hero h1 .line > span{display:inline-block;transform:translateY(105%);animation:rise 1.05s var(--ease) forwards;}
+.hero h1 .line:nth-child(2) > span{animation-delay:.12s;}
+.hero h1 .line:nth-child(3) > span{animation-delay:.24s;}
+.hero h1 .accent{color:var(--blue);}
+@keyframes rise{to{transform:none;}}
+.hero .lede{opacity:0;animation:fadeUp .9s .45s var(--ease) forwards;}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px;opacity:0;animation:fadeUp .9s .6s var(--ease) forwards;}
+.hero-chips{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:34px;opacity:0;animation:fadeUp .9s .75s var(--ease) forwards;}
+.chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.75);font-weight:500;}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 0 rgba(0,132,249,.7);animation:ping 2s infinite;}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(0,132,249,.7);}80%,100%{box-shadow:0 0 0 10px rgba(0,132,249,0);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:none;}}
+.scroll-cue{position:absolute;left:50%;bottom:26px;z-index:3;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.55);}
+.scroll-cue span{width:22px;height:36px;border:2px solid rgba(255,255,255,.35);border-radius:12px;position:relative;}
+.scroll-cue span::after{content:"";position:absolute;left:50%;top:7px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:#fff;animation:wheel 1.6s infinite;}
+@keyframes wheel{0%{opacity:0;transform:translateY(0);}30%{opacity:1;}100%{opacity:0;transform:translateY(12px);}}
+
+/* ---------- Phone mockup ---------- */
+.phone-wrap{position:relative;display:flex;justify-content:center;perspective:1400px;opacity:0;animation:phoneIn 1.3s .35s var(--ease) forwards;}
+@keyframes phoneIn{from{opacity:0;transform:translateY(60px) rotate(4deg);}to{opacity:1;transform:none;}}
+.radar{position:absolute;left:50%;top:44%;width:520px;height:520px;margin:-260px 0 0 -260px;pointer-events:none;}
+.radar i{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(0,132,249,.45);animation:radar 4.5s linear infinite;opacity:0;}
+.radar i:nth-child(2){animation-delay:1.5s;}.radar i:nth-child(3){animation-delay:3s;}
+@keyframes radar{0%{transform:scale(.25);opacity:.9;}100%{transform:scale(1.15);opacity:0;}}
+.phone{position:relative;width:min(292px,78vw);aspect-ratio:9/18.6;border-radius:46px;padding:11px;background:linear-gradient(145deg,#2a3550,#0b1226 40%,#1d2742);box-shadow:0 50px 90px -30px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.08) inset,0 0 80px -10px rgba(0,132,249,.45);transform-style:preserve-3d;transition:transform .2s ease-out;}
+.screen{position:relative;height:100%;border-radius:36px;overflow:hidden;background:#071233;display:flex;flex-direction:column;}
+.notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:96px;height:26px;border-radius:14px;background:#000;z-index:5;}
+.status{display:flex;justify-content:space-between;padding:12px 24px 0;font-size:11px;font-weight:700;color:#fff;}
+.apphead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 8px;}
+.apphead b{font-size:15px;}
+.apphead .live{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;color:#7cc4ff;background:rgba(0,132,249,.14);padding:4px 9px;border-radius:99px;}
+.apphead .live i{width:6px;height:6px;border-radius:50%;background:#35e08a;animation:ping 1.6s infinite;}
+.apphead .live.stopped{color:#ff9a9a;background:rgba(255,80,80,.14);}
+.apphead .live.stopped i{background:#ff5a5a;animation:none;}
+.map{position:relative;margin:4px 12px 10px;border-radius:20px;overflow:hidden;flex:none;aspect-ratio:300/250;background:#0a1a45;}
+.map svg{width:100%;height:100%;}
+.map .label{font:600 8.5px var(--body);fill:rgba(255,255,255,.5);letter-spacing:.04em;}
+.cards{display:grid;gap:8px;padding:0 12px 12px;}
+.mcard{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:9px 11px;}
+.mcard .ic{width:28px;height:28px;border-radius:9px;background:rgba(0,132,249,.18);display:grid;place-items:center;flex:none;}
+.mcard .ic svg{width:15px;height:15px;stroke:#7cc4ff;}
+.mcard small{display:block;font-size:9.5px;color:rgba(255,255,255,.55);}
+.mcard b{font-size:14px;font-variant-numeric:tabular-nums;}
+.mcard .bar{height:4px;border-radius:3px;background:rgba(255,255,255,.1);margin-top:5px;overflow:hidden;}
+.mcard .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),#7cc4ff);border-radius:3px;transition:width 1.6s var(--ease);}
+.mcard .grow{flex:1;}
+.mcard .tag{font-size:9.5px;font-weight:700;color:#35e08a;}
+.immob{margin:auto 12px 14px;border:0;border-radius:14px;padding:12px;font-weight:800;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--blue);display:flex;gap:8px;align-items:center;justify-content:center;position:relative;overflow:hidden;transition:background .3s;}
+.immob svg{width:15px;height:15px;}
+.immob.on{background:#e0393e;}
+.immob .rip{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:rip .7s ease-out forwards;pointer-events:none;}
+@keyframes rip{to{transform:scale(4);opacity:0;}}
+.float-card{position:absolute;z-index:4;background:rgba(255,255,255,.96);color:var(--text);border-radius:16px;padding:12px 14px;box-shadow:0 20px 40px -14px rgba(0,0,0,.55);display:flex;gap:10px;align-items:center;font-size:12.5px;animation:bob 5s ease-in-out infinite;}
+.float-card b{display:block;font-size:13px;}
+.float-card small{color:var(--muted);}
+.float-card .dot{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--ice);flex:none;}
+.float-card .dot svg{width:18px;height:18px;stroke:var(--blue);}
+.fc-1{left:-6%;top:16%;}
+.fc-2{right:-8%;bottom:20%;animation-delay:-2.5s;}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr;text-align:left;}.phone-wrap{margin-top:12px;}.fc-1{left:0;}.fc-2{right:0;}}
+@media(max-width:600px){.float-card{display:none;}.radar{width:380px;height:380px;margin:-190px 0 0 -190px;}.hero{margin-top:-76px;}}
+
+/* ---------- Marquee ---------- */
+.marquee{position:relative;z-index:3;background:var(--blue);color:#fff;overflow:hidden;transform:rotate(-1.6deg) scale(1.03);margin:-18px 0 0;box-shadow:0 20px 40px -20px rgba(0,132,249,.7);}
+.marquee .track{display:flex;width:max-content;animation:marq 34s linear infinite;}
+.marquee span{font-family:var(--display);font-size:clamp(26px,3.4vw,40px);padding:12px 22px;white-space:nowrap;display:flex;align-items:center;gap:44px;}
+.marquee span::after{content:"";width:12px;height:12px;background:#fff;transform:rotate(45deg);}
+@keyframes marq{to{transform:translateX(-50%);}}
+
+/* ---------- Reveal ---------- */
+.rv{opacity:0;transform:translateY(40px);transition:opacity 1s var(--ease),transform 1s var(--ease);transition-delay:calc(var(--d,0) * 90ms);}
+.rv.in{opacity:1;transform:none;}
+.rv-left{opacity:0;transform:translateX(-50px);transition:opacity 1s var(--ease),transform 1s var(--ease);}
+.rv-left.in{opacity:1;transform:none;}
+.rv-scale{opacity:0;transform:scale(.9);transition:opacity 1.1s var(--ease),transform 1.1s var(--ease);transition-delay:calc(var(--d,0) * 90ms);}
+.rv-scale.in{opacity:1;transform:none;}
+.underline.rv{transform:scaleX(0);opacity:1;}
+.underline.rv.in{transform:scaleX(1);}
+.split .w{display:inline-block;overflow:hidden;vertical-align:bottom;}
+.split .w > span{display:inline-block;transform:translateY(105%);transition:transform .9s var(--ease);transition-delay:calc(var(--i) * 45ms);}
+.split.in .w > span{transform:none;}
+
+/* ---------- Qué es ---------- */
+.about{overflow:hidden;background:var(--ink);}
+.about .ghost{position:absolute;left:-1vw;top:50%;transform:translateY(-50%);font-family:var(--display);font-size:clamp(140px,26vw,380px);line-height:.8;color:rgba(6,56,181,.22);white-space:nowrap;pointer-events:none;will-change:transform;}
+.about-grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,90px);align-items:center;}
+.about p.big{font-size:clamp(20px,2.2vw,28px);line-height:1.4;font-weight:500;color:#fff;margin:0;}
+.about p.big em{font-style:normal;color:var(--blue-2);}
+.pillars{display:grid;gap:14px;margin-top:30px;}
+.pillar{display:flex;gap:16px;align-items:flex-start;padding:18px 20px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01));transition:border-color .3s,transform .3s var(--ease);}
+.pillar:hover{border-color:rgba(0,132,249,.6);transform:translateX(6px);}
+.pillar .n{font-family:var(--display);font-size:34px;color:var(--blue);line-height:1;}
+.pillar b{display:block;font-size:16px;margin-bottom:2px;}
+.pillar span{font-size:14.5px;color:rgba(255,255,255,.68);}
+@media(max-width:900px){.about-grid{grid-template-columns:1fr;}}
+
+/* ---------- Vehículos ---------- */
+.vehicles{background:linear-gradient(180deg,var(--ink),var(--ink-2));overflow:hidden;}
+.tabs{display:flex;width:fit-content;gap:6px;padding:6px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);margin-top:26px;position:relative;}
+.tabs button{position:relative;z-index:1;border:0;background:transparent;color:rgba(255,255,255,.7);font-weight:700;font-size:14px;padding:11px 22px;border-radius:999px;transition:color .3s;}
+.tabs button[aria-selected="true"]{color:#fff;}
+.tabs .pill{position:absolute;z-index:0;top:6px;bottom:6px;border-radius:999px;background:var(--blue);box-shadow:0 8px 22px -6px rgba(0,132,249,.8);transition:left .5s var(--ease),width .5s var(--ease);}
+.veh-stage{display:grid;grid-template-columns:1fr 1fr;gap:clamp(26px,5vw,70px);align-items:center;margin-top:44px;}
+.veh-title{font-size:clamp(70px,11vw,168px);margin:0;}
+.veh-title .swap{display:inline-block;color:var(--blue);position:relative;}
+.veh-title .swap span{display:inline-block;}
+.veh-title .swap.out span{animation:flipOut .35s var(--ease) forwards;}
+.veh-title .swap.in span{animation:flipIn .55s var(--ease) both;}
+@keyframes flipOut{to{transform:translateY(-60%) rotateX(80deg);opacity:0;}}
+@keyframes flipIn{from{transform:translateY(60%) rotateX(-80deg);opacity:0;}to{transform:none;opacity:1;}}
+.veh-copy{margin-top:22px;font-size:17px;color:rgba(255,255,255,.78);max-width:46ch;min-height:5.2em;transition:opacity .35s;}
+.veh-list{list-style:none;padding:0;margin:18px 0 28px;display:grid;gap:10px;}
+.veh-list li{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:rgba(255,255,255,.85);}
+.veh-list li svg{width:20px;height:20px;flex:none;stroke:var(--blue);margin-top:1px;}
+.veh-media{position:relative;aspect-ratio:804/540;border-radius:24px;overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.08);transform-style:preserve-3d;}
+.veh-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.08);transition:opacity .8s var(--ease),transform 1.4s var(--ease);}
+.veh-media img.on{opacity:1;transform:scale(1);}
+.veh-media .shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);pointer-events:none;}
+.veh-media.flash .shine{animation:shine 1.1s var(--ease);}
+@keyframes shine{to{transform:translateX(120%);}}
+@media(max-width:900px){.veh-stage{grid-template-columns:1fr;}.veh-media{order:-1;}}
+@media(max-width:600px){.tabs{display:flex;width:100%;}.tabs button{flex:1;padding:11px 8px;}}
+
+/* ---------- Cómo funciona ---------- */
+.steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:56px;}
+.steps .rail{position:absolute;left:8%;right:8%;top:38px;height:3px;background:rgba(16,51,107,.12);border-radius:3px;overflow:hidden;}
+.steps .rail i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--blue),var(--royal));transform-origin:left;transform:scaleX(var(--p,0));}
+.step{position:relative;text-align:center;padding:0 10px;}
+.step .bubble{position:relative;width:78px;height:78px;margin:0 auto 22px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 14px 34px -12px rgba(0,55,160,.35),0 0 0 8px var(--paper);transition:transform .5s var(--ease),background .4s;}
+.step .bubble svg{width:32px;height:32px;stroke:var(--blue);transition:stroke .4s;}
+.step.lit .bubble{background:var(--blue);transform:scale(1.06);}
+.step.lit .bubble svg{stroke:#fff;}
+.step .num{font-family:var(--display);font-size:15px;letter-spacing:.2em;color:var(--blue);}
+.step h3{font-family:var(--display);font-weight:400;font-size:clamp(30px,3vw,40px);line-height:1;margin:6px 0 10px;color:var(--navy);}
+.step p{margin:0 auto;max-width:30ch;color:var(--muted);font-size:15.5px;}
+@media(max-width:820px){.steps{grid-template-columns:1fr;gap:38px;}.steps .rail{left:50%;right:auto;top:38px;bottom:38px;width:3px;height:auto;transform:translateX(-50%);}.steps .rail i{transform-origin:top;transform:scaleY(var(--p,0));}}
+
+/* ---------- Features ---------- */
+.features{background:var(--paper);}
+.feat-grid{margin-top:48px;--ff-min:300px;--ff-gap:18px;}
+.feat{position:relative;padding:26px 24px 24px;border-radius:22px;background:#fff;border:1px solid rgba(16,51,107,.08);box-shadow:0 18px 40px -28px rgba(0,30,100,.35);transform-style:preserve-3d;transition:transform .25s ease-out,box-shadow .35s,border-color .35s;overflow:hidden;}
+.feat::before{content:"";position:absolute;inset:0;background:radial-gradient(300px circle at var(--mx,50%) var(--my,0%),rgba(0,132,249,.12),transparent 60%);opacity:0;transition:opacity .35s;pointer-events:none;}
+.feat:hover{box-shadow:0 30px 60px -28px rgba(0,60,180,.45);border-color:rgba(0,132,249,.35);}
+.feat:hover::before{opacity:1;}
+.feat .ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--navy),var(--royal));margin-bottom:18px;transform:translateZ(30px);transition:transform .4s var(--ease);}
+.feat:hover .ic{transform:translateZ(30px) rotate(-8deg) scale(1.08);}
+.feat .ic svg{width:25px;height:25px;stroke:#fff;}
+.feat h3{margin:0 0 6px;font-size:18px;color:var(--navy);}
+.feat p{margin:0;font-size:14.5px;color:var(--muted);}
+.feat .k{position:absolute;right:18px;top:18px;font-family:var(--display);font-size:20px;color:rgba(16,51,107,.15);}
+
+/* ---------- Stats band ---------- */
+.stats{position:relative;background:linear-gradient(120deg,var(--royal),var(--ink) 70%);overflow:hidden;}
+.stats canvas.poly{position:absolute;inset:0;width:100%;height:100%;opacity:.55;}
+.stats .ff-container{position:relative;}
+.stat-grid{--ff-min:200px;--ff-gap:0;}
+.stat{padding:30px 26px;border-left:1px solid var(--line);}
+.stat:first-child{border-left:0;}
+.stat .v{font-family:var(--display);font-size:clamp(64px,8vw,104px);line-height:.9;color:#fff;font-variant-numeric:tabular-nums;}
+.stat .v small{font-size:.45em;color:var(--blue-2);margin-left:4px;}
+.stat p{margin:8px 0 0;color:rgba(255,255,255,.72);font-size:14.5px;max-width:24ch;}
+@media(max-width:600px){.stat{border-left:0;border-top:1px solid var(--line);padding:24px 4px;}.stat:first-child{border-top:0;}}
+
+/* ---------- Equipos ---------- */
+.gear{background:var(--ink);}
+.gear-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:48px;}
+.gcard{position:relative;border-radius:26px;padding:clamp(24px,3vw,38px);background:linear-gradient(160deg,rgba(16,51,107,.55),rgba(0,13,50,.9));border:1px solid var(--line);overflow:hidden;}
+.gcard::after{content:"";position:absolute;right:-30%;top:-40%;width:80%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(0,132,249,.35),transparent 65%);transition:transform 1.2s var(--ease);}
+.gcard:hover::after{transform:translate(-14%,14%);}
+.gcard .sku{font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--blue-2);}
+.gcard h3{font-family:var(--display);font-weight:400;font-size:clamp(40px,4.4vw,60px);line-height:.95;margin:10px 0 12px;}
+.gcard p{color:rgba(255,255,255,.72);margin:0 0 20px;max-width:46ch;}
+.gcard ul{list-style:none;padding:0;margin:0;display:grid;gap:10px;position:relative;z-index:1;}
+.gcard li{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);}
+.gcard li b{display:block;font-size:14.5px;}
+.gcard li span{color:rgba(255,255,255,.62);font-size:13.5px;}
+.gcard li svg{width:20px;height:20px;stroke:var(--blue);flex:none;margin-top:2px;}
+.gcard .media{position:relative;z-index:1;margin:-6px 0 22px;border-radius:18px;overflow:hidden;aspect-ratio:16/9;background:#000;}
+.gcard .media img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease);}
+.gcard:hover .media img{transform:scale(1.06);}
+@media(max-width:900px){.gear-grid{grid-template-columns:1fr;}}
+
+.gcard .media.camview{background:linear-gradient(180deg,#0b1d52 0%,#122a6b 46%,#0a1533 46%);perspective:300px;}
+.camview .road{position:absolute;left:0;bottom:0;width:100%;height:54%;}
+.camview .cdash{animation:roadmove .5s linear infinite;}
+@keyframes roadmove{to{stroke-dashoffset:-11;}}
+.camview .lead{position:absolute;left:50%;top:38%;transform:translateX(-50%);width:22%;aspect-ratio:1.6;background:linear-gradient(180deg,#22325f,#0d1633);border-radius:8px 8px 4px 4px;animation:leadcar 4s ease-in-out infinite;}
+.camview .lead::after{content:"";position:absolute;left:10%;right:10%;bottom:18%;height:12%;background:linear-gradient(90deg,#ff4d4d 0 18%,transparent 18% 82%,#ff4d4d 82%);border-radius:2px;}
+.camview .box{position:absolute;inset:-12% -10%;border:2px solid #35e08a;border-radius:4px;}
+.camview .box em{position:absolute;left:-2px;bottom:100%;margin-bottom:4px;font:700 10px var(--body);font-style:normal;white-space:nowrap;background:#35e08a;color:#03210f;padding:2px 6px;border-radius:3px;}
+@keyframes leadcar{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-46%) scale(1.12);}}
+.camview .rec{position:absolute;left:12px;top:10px;font:700 10.5px var(--body);color:#fff;display:flex;gap:6px;align-items:center;}
+.camview .rec i{width:8px;height:8px;border-radius:50%;background:#ff4d4d;animation:blink 1s steps(2) infinite;}
+@keyframes blink{50%{opacity:0;}}
+.camview .hud{position:absolute;right:12px;top:10px;font:800 10px var(--body);letter-spacing:.12em;color:#7cc4ff;}
+.camview .cabin{position:absolute;right:10px;bottom:10px;width:30%;aspect-ratio:4/3;border-radius:10px;background:radial-gradient(circle at 50% 45%,#2a3a66,#0a1230);border:1px solid rgba(255,255,255,.25);overflow:hidden;}
+.camview .face{position:absolute;left:50%;top:22%;width:34%;aspect-ratio:.85;transform:translateX(-50%);border-radius:50% 50% 45% 45%;background:#3b4f86;box-shadow:0 0 0 2px #35e08a;}
+.camview .face em{position:absolute;left:50%;top:118%;transform:translateX(-50%);white-space:nowrap;font:700 8.5px var(--body);font-style:normal;color:#35e08a;}
+
+/* ---------- Flotillas ---------- */
+.fleet{background:var(--paper);overflow:hidden;}
+.fleet-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(28px,5vw,70px);align-items:center;}
+.dash{position:relative;border-radius:26px;background:#071233;color:#fff;padding:20px;box-shadow:0 50px 90px -40px rgba(0,30,100,.7);border:1px solid rgba(0,132,249,.25);}
+.dash-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.dash-top b{font-size:15px;}
+.dash-top small{font-size:11px;color:rgba(255,255,255,.5);}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.kpi{background:rgba(255,255,255,.05);border-radius:14px;padding:12px;}
+.kpi small{display:block;font-size:10.5px;color:rgba(255,255,255,.55);}
+.kpi b{font-family:var(--display);font-size:32px;font-weight:400;line-height:1;font-variant-numeric:tabular-nums;}
+.kpi.warn b{color:#ffb347;}
+.dash-body{display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin-top:10px;}
+.chart{background:rgba(255,255,255,.05);border-radius:14px;padding:12px;}
+.chart small{font-size:10.5px;color:rgba(255,255,255,.55);}
+.bars{display:flex;align-items:flex-end;gap:7px;height:120px;margin-top:10px;}
+.bars i{flex:1;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,var(--blue),var(--royal));height:0;transition:height 1.2s var(--ease);transition-delay:calc(var(--i) * 70ms);}
+.bars i.lo{background:rgba(255,255,255,.18);}
+.days{display:flex;gap:7px;margin-top:6px;}
+.days span{flex:1;text-align:center;font-size:9.5px;color:rgba(255,255,255,.45);}
+.minimap{position:relative;background:#0a1a45;border-radius:14px;overflow:hidden;min-height:170px;}
+.minimap svg{position:absolute;inset:0;width:100%;height:100%;}
+.alerts{margin-top:10px;display:grid;gap:8px;}
+.alert{display:flex;align-items:center;gap:10px;font-size:12.5px;background:rgba(255,255,255,.05);border-radius:12px;padding:10px 12px;opacity:0;transform:translateX(20px);transition:opacity .6s,transform .6s var(--ease);transition-delay:calc(.9s + var(--i) * 180ms);}
+.in .alert{opacity:1;transform:none;}
+.alert i{width:8px;height:8px;border-radius:50%;flex:none;}
+.alert span{margin-left:auto;color:rgba(255,255,255,.45);font-size:11px;}
+.demo-tag{position:absolute;top:-12px;right:18px;background:#fff;color:var(--navy);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:99px;box-shadow:0 8px 20px -8px rgba(0,0,0,.4);}
+.fleet ul{list-style:none;padding:0;margin:24px 0 30px;display:grid;gap:12px;}
+.fleet li{display:flex;gap:12px;color:var(--text);font-size:15.5px;}
+.fleet li svg{width:22px;height:22px;stroke:var(--blue);flex:none;}
+@media(max-width:900px){.fleet-grid{grid-template-columns:1fr;}}
+@media(max-width:600px){.kpis{grid-template-columns:repeat(2,1fr);}.dash-body{grid-template-columns:1fr;}}
+
+/* ---------- Brand strip / galería ---------- */
+.brandwall{background:var(--ink);overflow:hidden;padding-bottom:clamp(60px,8vw,110px);}
+.wall{display:grid;grid-template-columns:1.3fr 1fr 1fr;grid-template-rows:repeat(2,clamp(200px,22vw,300px));gap:16px;margin-top:46px;}
+.tile{position:relative;border-radius:22px;overflow:hidden;background:#050b22;border:1px solid var(--line);}
+.tile img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease);will-change:transform;}
+.tile:hover img{transform:scale(1.07);}
+.tile figcaption{position:absolute;left:14px;bottom:14px;font-family:var(--display);font-size:24px;letter-spacing:.03em;background:rgba(0,13,50,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:6px 14px 4px;border-radius:10px;}
+.tile.big{grid-row:span 2;}
+@media(max-width:900px){.wall{grid-template-columns:1fr 1fr;grid-template-rows:none;grid-auto-rows:auto;}.tile.big{grid-column:span 2;grid-row:auto;aspect-ratio:16/10;}.tile{aspect-ratio:4/3;}}
+@media(max-width:600px){.wall{grid-template-columns:1fr;}.tile.big{grid-column:auto;}}
+.adreel{margin-top:70px;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);}
+.adreel .track{display:flex;gap:18px;width:max-content;animation:marq 60s linear infinite;}
+.adreel:hover .track{animation-play-state:paused;}
+.adreel img{width:clamp(240px,26vw,360px);aspect-ratio:804/540;object-fit:cover;border-radius:16px;border:1px solid var(--line);transition:transform .5s var(--ease);}
+.adreel img:hover{transform:translateY(-8px) scale(1.02);}
+
+/* ---------- FAQ ---------- */
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(28px,5vw,70px);align-items:start;}
+.qa{border-bottom:1px solid rgba(16,51,107,.14);}
+.qa button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:18px;background:none;border:0;text-align:left;padding:22px 0;color:var(--navy);font-weight:700;font-size:clamp(16px,1.5vw,18.5px);}
+.qa .pm{width:32px;height:32px;border-radius:50%;background:var(--ice);position:relative;flex:none;transition:background .3s,transform .4s var(--ease);}
+.qa .pm::before,.qa .pm::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:2px;margin:-1px 0 0 -6px;background:var(--blue);border-radius:2px;transition:transform .4s var(--ease),background .3s;}
+.qa .pm::after{transform:rotate(90deg);}
+.qa[open-state="1"] .pm{background:var(--blue);transform:rotate(180deg);}
+.qa[open-state="1"] .pm::before,.qa[open-state="1"] .pm::after{background:#fff;}
+.qa[open-state="1"] .pm::after{transform:rotate(0);}
+.qa .a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s var(--ease);}
+.qa[open-state="1"] .a{grid-template-rows:1fr;}
+.qa .a > div{overflow:hidden;}
+.qa .a p{margin:0 0 22px;color:var(--muted);max-width:62ch;}
+@media(max-width:900px){.faq-grid{grid-template-columns:1fr;}}
+
+/* ---------- CTA / Form ---------- */
+.cta{position:relative;overflow:hidden;background:var(--ink);}
+.cta canvas.poly{position:absolute;inset:0;width:100%;height:100%;}
+.cta::before{content:"";position:absolute;inset:0;z-index:1;background:radial-gradient(70% 90% at 80% 50%,rgba(0,13,50,.35),rgba(0,13,50,.92) 70%);}
+.cta .ff-container{position:relative;z-index:2;}
+.cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,70px);align-items:center;}
+.cta h2{font-size:clamp(64px,10vw,150px);margin:12px 0 18px;}
+.form{background:rgba(255,255,255,.97);color:var(--text);border-radius:28px;padding:clamp(22px,3vw,36px);box-shadow:0 50px 100px -40px rgba(0,0,0,.9);}
+.form h3{margin:0 0 4px;font-size:22px;color:var(--navy);}
+.form > p{margin:0 0 20px;color:var(--muted);font-size:14.5px;}
+.field{display:grid;gap:6px;margin-bottom:14px;}
+.field label{font-size:13px;font-weight:700;color:var(--navy);}
+.field input,.field select{font:inherit;font-size:16px;padding:13px 14px;border-radius:12px;border:1.5px solid #d6e0f0;background:#fff;color:var(--text);transition:border-color .2s,box-shadow .2s;width:100%;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,132,249,.15);}
+.vpick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.vpick label{display:grid;place-items:center;gap:4px;padding:12px 4px;border:1.5px solid #d6e0f0;border-radius:14px;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .25s var(--ease);}
+.vpick label svg{width:24px;height:24px;stroke:currentColor;}
+.vpick input{position:absolute;opacity:0;pointer-events:none;}
+.vpick input:checked + label{border-color:var(--blue);color:var(--blue);background:var(--ice);transform:translateY(-2px);}
+.vpick input:focus-visible + label{box-shadow:0 0 0 4px rgba(0,132,249,.25);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form .btn{width:100%;justify-content:center;margin-top:6px;}
+.form .fine{font-size:12px;color:var(--muted);text-align:center;margin:12px 0 0;}
+.form .ok{display:none;text-align:center;padding:30px 6px;}
+.form.sent .ok{display:block;animation:fadeUp .7s var(--ease);}
+.form.sent .fields{display:none;}
+.ok .check{width:74px;height:74px;margin:0 auto 14px;border-radius:50%;background:var(--blue);display:grid;place-items:center;}
+.ok .check svg{width:36px;height:36px;stroke:#fff;stroke-dasharray:40;stroke-dashoffset:40;animation:draw .7s .25s forwards;}
+@keyframes draw{to{stroke-dashoffset:0;}}
+.hidden{display:none !important;}
+@media(max-width:900px){.cta-grid{grid-template-columns:1fr;}}
+@media(max-width:420px){.vpick{grid-template-columns:repeat(2,1fr);}.row2{grid-template-columns:1fr;}}
+
+/* ---------- Footer ---------- */
+footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;color:rgba(255,255,255,.65);font-size:14px;}
+.foot{display:flex;flex-wrap:wrap;gap:30px;justify-content:space-between;align-items:flex-start;}
+.foot svg.logo{height:34px;width:auto;margin-bottom:12px;}
+.foot .slogan{font-family:var(--display);font-size:26px;color:#fff;letter-spacing:.02em;}
+.foot .slogan b{color:var(--blue);font-weight:400;}
+.foot nav{display:grid;grid-template-columns:repeat(2,auto);gap:10px 34px;}
+.foot nav a:hover{color:#fff;}
+.foot-bottom{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:40px;padding-top:22px;border-top:1px solid var(--line);font-size:12.5px;color:rgba(255,255,255,.45);}
+
+/* ---------- Floating WA ---------- */
+.fab{position:fixed;right:18px;bottom:18px;z-index:55;width:58px;height:58px;border-radius:50%;background:#25D366;display:grid;place-items:center;box-shadow:0 14px 30px -8px rgba(37,211,102,.6);transform:scale(0);transition:transform .5s var(--ease);}
+.fab.show{transform:scale(1);}
+.fab svg{width:30px;height:30px;fill:#fff;}
+.fab::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid #25D366;animation:radar 2.4s infinite;}
+
+/* ---------- Intro (logo) ---------- */
+.intro{position:fixed;inset:0;z-index:100;background:var(--ink);display:grid;place-items:center;transition:clip-path .9s var(--ease) .1s;clip-path:inset(0 0 0 0);}
+.intro.done{clip-path:inset(0 0 100% 0);pointer-events:none;}
+.intro svg{width:min(300px,60vw);}
+.intro .l1{opacity:0;transform:translateY(30px);animation:fadeUp .7s var(--ease) forwards;}
+.intro .pinO{transform-origin:416px 90px;transform:scale(0);animation:pop .7s .25s cubic-bezier(.3,1.6,.5,1) forwards;}
+.intro .l2{opacity:0;animation:fadeUp .6s .5s var(--ease) forwards;}
+@keyframes pop{to{transform:scale(1);}}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}
+  .rv,.rv-left,.rv-scale{opacity:1;transform:none;}
+  .split .w > span{transform:none;}
+  .marquee .track,.adreel .track{animation:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- Logo SVG reutilizable (vectorizado del master del rebranding) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="lk-logo" viewBox="0 -2 606 187">
+      <g class="luk" fill="currentColor">
+        <path d="M0 0h28.7v106h71.6v28H0z"/>
+        <path d="M104 0h28.5v78a27.5 27.5 0 0 0 55 0V0H216v78a56 56 0 0 1-112 0z"/>
+        <path d="M237.5 0h28.3v56.4L316.2 0H350l-55.1 62.8 57 71.2h-36.7l-49.4-61.75V134h-28.3z"/>
+      </g>
+      <circle cx="416.75" cy="66.5" r="17.75" fill="currentColor"/>
+      <g fill="#0084F9">
+        <path fill-rule="evenodd" d="M416.75 0.7a66.3 66.3 0 1 0 0.001 0zm0 28.45a37.85 37.85 0 1 1-0.001 0z"/>
+        <path d="M393 146.8h47.8l-23.9 36.2z"/>
+        <path d="M498.8 0H518l60.2 75.25V0H606v134h-18.4l-61.1-76.4V134h-27.7z"/>
+      </g>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></symbol>
+  </defs>
+</svg>
+
+<div class="intro" id="intro" aria-hidden="true">
+  <svg viewBox="0 -2 606 187">
+    <g class="l1" fill="#fff">
+      <path d="M0 0h28.7v106h71.6v28H0z"/><path d="M104 0h28.5v78a27.5 27.5 0 0 0 55 0V0H216v78a56 56 0 0 1-112 0z"/><path d="M237.5 0h28.3v56.4L316.2 0H350l-55.1 62.8 57 71.2h-36.7l-49.4-61.75V134h-28.3z"/>
+    </g>
+    <g class="pinO">
+      <path fill="#0084F9" fill-rule="evenodd" d="M416.75 0.7a66.3 66.3 0 1 0 0.001 0zm0 28.45a37.85 37.85 0 1 1-0.001 0z"/>
+      <circle cx="416.75" cy="66.5" r="17.75" fill="#fff"/>
+      <path fill="#0084F9" d="M393 146.8h47.8l-23.9 36.2z"/>
+    </g>
+    <path class="l2" fill="#0084F9" d="M498.8 0H518l60.2 75.25V0H606v134h-18.4l-61.1-76.4V134h-27.7z"/>
+  </svg>
+</div>
+
+<div class="progress" id="progress"></div>
+
+<div class="preview" id="preview">
+  <b>Vista previa para aprobación de Lukon</b> · aún no publicada · textos y fotos sujetos a ajuste
+  <button type="button" aria-label="Ocultar aviso" onclick="this.parentNode.remove()">×</button>
+</div>
+
+<header class="nav" id="nav">
+  <div class="ff-container">
+    <a href="#top" class="brand" aria-label="Lukon, inicio"><svg viewBox="0 -2 606 187" style="color:#fff"><use href="#lk-logo"/></svg></a>
+    <nav class="nav-links" aria-label="Principal">
+      <a href="#que-es">Qué es Lukon</a>
+      <a href="#vehiculos">Tu vehículo</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#app">La app</a>
+      <a href="#flotillas">Flotillas</a>
+      <a href="#faq">Preguntas</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#" class="btn btn--ghost btn--sm js-wa" data-origen="nav">WhatsApp</a>
+      <a href="#control" class="btn btn--primary btn--sm">Toma el control</a>
+      <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="mmenu"><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-menu" id="mmenu">
+  <a href="#que-es">Qué es Lukon</a>
+  <a href="#vehiculos">Tu vehículo</a>
+  <a href="#como">Cómo funciona</a>
+  <a href="#app">La app</a>
+  <a href="#flotillas">Flotillas</a>
+  <a href="#faq">Preguntas</a>
+  <a href="#control" class="btn btn--primary">Toma el control</a>
+</div>
+
+<main id="top">
+
+<!-- =============================== HERO =============================== -->
+<section class="hero">
+  <canvas class="poly" data-poly="hero" aria-hidden="true"></canvas>
+  <div class="dots" aria-hidden="true"></div>
+  <div class="ff-container">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow" style="opacity:0;animation:fadeUp .8s .1s var(--ease) forwards">Seguridad de vehículos en México</span>
+        <h1 class="display">
+          <span class="line"><span>Supervisión</span></span>
+          <span class="line"><span>vehicular <span class="accent">inteligente</span></span></span>
+          <span class="line"><span>siempre activa</span></span>
+        </h1>
+        <p class="lede">Ve dónde está tu auto, tu moto o tu carga en tiempo real desde tu celular. Recibe alertas al instante y, si algo no está bien, inmovilízalo con un toque.</p>
+        <div class="hero-ctas">
+          <a href="#control" class="btn btn--primary magnet">Toma el control <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a href="#" class="btn btn--ghost magnet js-wa" data-origen="hero"><svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 3C9 3 3.3 8.6 3.3 15.6c0 2.4.7 4.7 1.9 6.7L3 29l6.9-2.2c1.9 1 4 1.6 6.1 1.6 7 0 12.7-5.6 12.7-12.6S23 3 16 3zm0 23.1c-1.9 0-3.8-.5-5.4-1.5l-.4-.2-4.1 1.3 1.3-4-.3-.4c-1.1-1.7-1.7-3.6-1.7-5.6C5.4 9.8 10.2 5.1 16 5.1s10.6 4.7 10.6 10.5S21.8 26.1 16 26.1zm5.8-7.8c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.6-1.6-1-.8-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.6l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg> Escríbenos</a>
+        </div>
+        <div class="hero-chips">
+          <span class="chip"><i></i>Ubicación en tiempo real</span>
+          <span class="chip"><i style="animation-delay:.4s"></i>Alertas al instante</span>
+          <span class="chip"><i style="animation-delay:.8s"></i>Inmovilización remota</span>
+        </div>
+      </div>
+
+      <div class="phone-wrap" id="phoneWrap">
+        <div class="radar" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="float-card fc-1"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.1 7-12.5A7 7 0 0 0 5 9.5C5 14.9 12 22 12 22z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><div><b>Llegó a casa</b><small>Geocerca · hace 2 min</small></div></div>
+        <div class="float-card fc-2"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span><div><b>Encendido fuera de horario</b><small>Te avisamos al momento</small></div></div>
+        <div class="phone" id="phone" role="img" aria-label="Vista de la app Lukon con un vehículo en movimiento sobre el mapa">
+          <div class="screen">
+            <div class="notch"></div>
+            <div class="status"><span>9:41</span><span>●●● 5G</span></div>
+            <div class="apphead"><b>Lukon</b><span class="live" id="liveTag"><i></i><em style="font-style:normal" id="liveTxt">En movimiento</em></span></div>
+            <div class="map">
+              <svg viewBox="0 0 300 250" preserveAspectRatio="xMidYMid slice" id="heroMap">
+                <defs>
+                  <linearGradient id="rt" x1="0" x2="1"><stop offset="0" stop-color="#0084F9" stop-opacity=".2"/><stop offset="1" stop-color="#3BA4FF"/></linearGradient>
+                  <radialGradient id="glow"><stop offset="0" stop-color="#0084F9" stop-opacity=".55"/><stop offset="1" stop-color="#0084F9" stop-opacity="0"/></radialGradient>
+                </defs>
+                <rect width="300" height="260" fill="#0a1a45"/>
+                <path d="M0 210 Q70 190 120 205 T300 180 V260 H0z" fill="#0d2152"/>
+                <circle cx="230" cy="70" r="40" fill="#0c1f50"/>
+                <g stroke="#1b3478" stroke-width="7" fill="none" stroke-linecap="round">
+                  <path d="M-10 60 L320 110"/><path d="M40 -10 L90 280"/><path d="M-10 170 L320 140"/><path d="M200 -10 L170 280"/>
+                </g>
+                <g stroke="#14296a" stroke-width="3" fill="none">
+                  <path d="M-10 25 L320 70"/><path d="M-10 120 L320 95"/><path d="M130 -10 L125 280"/><path d="M260 -10 L240 280"/><path d="M-10 235 L320 215"/><path d="M10 -10 L40 280"/>
+                </g>
+                <text class="label" x="14" y="44">POLANCO</text>
+                <text class="label" x="150" y="62">CONDESA</text>
+                <text class="label" x="196" y="236">CENTRO</text>
+                <text class="label" x="22" y="196">ROMA</text>
+                <path id="routeBg" d="M40 30 C70 60 60 110 100 125 S170 120 180 160 S230 220 262 205" stroke="#1d3f8f" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path id="route" d="M40 30 C70 60 60 110 100 125 S170 120 180 160 S230 220 262 205" stroke="url(#rt)" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <circle cx="40" cy="30" r="5" fill="#fff" stroke="#0084F9" stroke-width="3"/>
+                <g id="car">
+                  <circle r="26" fill="url(#glow)"/>
+                  <path d="M0 -21c-7.7 0-14 6-14 13.5C-14 2 0 13 0 13S14 2 14-7.5C14-15 7.7-21 0-21z" fill="#0084F9" stroke="#fff" stroke-width="2.5"/>
+                  <circle cy="-8" r="5" fill="#fff"/>
+                </g>
+              </svg>
+            </div>
+            <div class="cards">
+              <div class="mcard"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v17M3 22h12M15 10h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8l-3-3"/><path d="M6 8h6"/></svg></span><div class="grow"><small>Combustible</small><b><span id="fuel">62</span>%</b><div class="bar"><i id="fuelBar"></i></div></div></div>
+              <div class="mcard"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12 7.5 8.5M12 3v2M21 12h-2M5 12H3"/></svg></span><div class="grow"><small>Kilometraje hoy</small><b><span id="km">28.0</span> km</b></div><span class="tag">↑ 12%</span></div>
+              <div class="mcard"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 14.5V21M9.6 11.3 3.5 9.5M14.4 11.3l6.1-1.8"/></svg></span><div class="grow"><small>Estilo de manejo</small><b>Bueno <span style="color:#7cc4ff;font-size:12px">★★★★☆</span></b></div><span class="tag">4.2 / 5</span></div>
+            </div>
+            <button class="immob" id="immob" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0"/></svg><span id="immobTxt">Inmovilizar</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <a href="#que-es" class="scroll-cue ff-hide-mobile" aria-label="Bajar"><span></span>Desliza</a>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="track">
+    <span>Todo Inteligente</span><span>Todo Seguro</span><span>Toma el Control</span><span>Tu auto vale mucho</span><span>Tu moto vale mucho</span><span>Tu carga vale mucho</span>
+    <span>Todo Inteligente</span><span>Todo Seguro</span><span>Toma el Control</span><span>Tu auto vale mucho</span><span>Tu moto vale mucho</span><span>Tu carga vale mucho</span>
+  </div>
+</div>
+
+<!-- =============================== QUÉ ES =============================== -->
+<section class="sec about" id="que-es">
+  <div class="ghost" id="ghost" aria-hidden="true">¿Qué es Lukon?</div>
+  <div class="ff-container">
+    <div class="about-grid">
+      <div>
+        <span class="eyebrow rv">Qué es Lukon</span>
+        <h2 class="display h2 split" data-split>Más que localizar. Supervisar.</h2>
+        <span class="underline rv"></span>
+      </div>
+      <div>
+        <p class="big rv">Lukon nace de una necesidad: tener <em>otra opción de seguridad para tu vehículo</em>. Un seguro te responde cuando ya pasó algo; Lukon te deja ver qué está pasando, en todo momento, y actuar a tiempo.</p>
+        <div class="pillars">
+          <div class="pillar rv" style="--d:1"><span class="n">01</span><div><b>Siempre visible</b><span>Tu vehículo en el mapa, las 24 horas, desde tu celular.</span></div></div>
+          <div class="pillar rv" style="--d:2"><span class="n">02</span><div><b>Siempre activa</b><span>Alertas en el momento en que algo sale de lo normal.</span></div></div>
+          <div class="pillar rv" style="--d:3"><span class="n">03</span><div><b>A tu medida</b><span>Desde un auto particular hasta una flotilla completa, con reportes para tu operación.</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== VEHÍCULOS =============================== -->
+<section class="sec vehicles" id="vehiculos">
+  <div class="ff-container">
+    <span class="eyebrow rv">Para lo que más te importa</span>
+    <div class="tabs rv" role="tablist" aria-label="Tipo de vehículo" id="vtabs">
+      <span class="pill" aria-hidden="true"></span>
+      <button role="tab" aria-selected="true" data-v="auto">Auto</button>
+      <button role="tab" aria-selected="false" data-v="moto">Moto</button>
+      <button role="tab" aria-selected="false" data-v="carga">Carga</button>
+    </div>
+    <div class="veh-stage">
+      <div>
+        <h2 class="display veh-title rv">Tu <span class="swap" id="vword"><span>auto</span></span><br>vale mucho.</h2>
+        <p class="veh-copy" id="vcopy"></p>
+        <ul class="veh-list" id="vlist"></ul>
+        <a href="#control" class="btn btn--primary magnet" id="vcta">Protege tu auto <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="veh-media rv-scale tilt" id="vmedia">
+        <img src="img/ad-auto.webp" alt="Conductor en su auto con la app Lukon" class="on" data-v="auto">
+        <img src="img/ad-moto.webp" alt="Motociclista con la app Lukon" data-v="moto" loading="lazy">
+        <img src="img/ad-carga.webp" alt="Camioneta de carga con la app Lukon" data-v="carga" loading="lazy">
+        <span class="shine"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== CÓMO FUNCIONA =============================== -->
+<section class="sec sec--light" id="como">
+  <div class="ff-container" style="text-align:center">
+    <span class="eyebrow rv">Cómo funciona</span>
+    <h2 class="display h2 split" data-split style="color:var(--navy)">Tres pasos y tomas el control</h2>
+    <p class="lede rv" style="margin:0 auto">Sin complicaciones. Nosotros instalamos, tú lo ves en tu celular.</p>
+    <div class="steps" id="steps">
+      <div class="rail"><i></i></div>
+      <div class="step rv" style="--d:0"><div class="bubble"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></div><span class="num">Paso 01</span><h3>Instalamos el equipo</h3><p>Un técnico de Lukon coloca el GPS en tu vehículo, oculto y protegido.</p></div>
+      <div class="step rv" style="--d:2"><div class="bubble"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg></div><span class="num">Paso 02</span><h3>Lo ves en tu app</h3><p>Ubicación, recorridos, kilómetros y estilo de manejo, en vivo.</p></div>
+      <div class="step rv" style="--d:4"><div class="bubble"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg></div><span class="num">Paso 03</span><h3>Tomas el control</h3><p>Recibes alertas y, si lo necesitas, inmovilizas el vehículo a distancia.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== APP / FEATURES =============================== -->
+<section class="sec features sec--light" id="app" style="padding-top:0">
+  <div class="ff-container">
+    <div style="max-width:760px">
+      <span class="eyebrow rv">La app Lukon</span>
+      <h2 class="display h2 split" data-split style="color:var(--navy)">Todo inteligente, en tu bolsillo</h2>
+      <p class="lede rv">Lo que pasa con tu vehículo, explicado claro. Sin pantallas complicadas.</p>
+    </div>
+    <div class="ff-grid feat-grid">
+      <article class="feat rv tilt" style="--d:0"><span class="k">01</span><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.1 7-12.5A7 7 0 0 0 5 9.5C5 14.9 12 22 12 22z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div><h3>Ubicación en tiempo real</h3><p>Ve en el mapa dónde está tu vehículo ahora mismo, se mueva o esté estacionado.</p></article>
+      <article class="feat rv tilt" style="--d:1"><span class="k">02</span><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8V6a2 2 0 0 0-4 0v12a2 2 0 0 1-4 0V6a2 2 0 0 0-4 0v2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/></svg></div><h3>Historial de recorridos</h3><p>Revisa por dónde anduvo, a qué hora salió, dónde se detuvo y cuánto tiempo.</p></article>
+      <article class="feat rv tilt" style="--d:2"><span class="k">03</span><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></div><h3>Alertas al instante</h3><p>Encendido, exceso de velocidad, salida de una zona o desconexión del equipo: te enteras al momento.</p></article>
+      <article class="feat rv tilt" style="--d:3"><span class="k">04</span><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0"/></svg></div><h3>Inmovilización remota</h3><p>Si algo no está bien, apaga el vehículo de forma segura desde la app.</p></article>
+      <article class="feat rv tilt" style="--d:4"><span class="k">05</span><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/><circle cx="12" cy="12" r="3"/></svg></div><h3>Zonas seguras</h3><p>Marca casa, oficina o tus rutas. Te avisamos cuando el vehículo entra o sale.</p></article>
+      <article class="feat rv tilt" style="--d:5"><span class="k">06</span><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></div><h3>Consumo y manejo</h3><p>Kilómetros por día, combustible y estilo de manejo para cuidar tu vehículo y tu bolsillo.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== STATS =============================== -->
+<section class="stats" aria-label="Lukon en números">
+  <canvas class="poly" data-poly="band" aria-hidden="true"></canvas>
+  <div class="ff-container">
+    <div class="ff-grid stat-grid">
+      <div class="stat rv" style="--d:0"><div class="v"><span data-count="24">0</span><small>/7</small></div><p>Supervisión todos los días, a cualquier hora.</p></div>
+      <div class="stat rv" style="--d:1"><div class="v"><span data-count="10">0</span><small>seg</small></div><p>Reporte de posición mientras el vehículo está en movimiento.</p></div>
+      <div class="stat rv" style="--d:2"><div class="v"><span data-count="2">0</span><small>cámaras</small></div><p>En la dashcam con IA: el camino y la cabina.</p></div>
+      <div class="stat rv" style="--d:3"><div class="v"><span data-count="1">0</span><small>toque</small></div><p>Para inmovilizar tu vehículo desde la app.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== EQUIPOS =============================== -->
+<section class="sec gear" id="equipos">
+  <div class="ff-container">
+    <span class="eyebrow rv">Equipos</span>
+    <h2 class="display h2 split" data-split>Tecnología que trabaja callada</h2>
+    <p class="lede rv">Equipos de grado industrial, instalados por técnicos de Lukon.</p>
+    <div class="gear-grid">
+      <article class="gcard rv" style="--d:0">
+        <div class="media"><img src="img/kit.webp" alt="Kit de instalación y rastreador GPS con la marca Lukon" loading="lazy"></div>
+        <span class="sku">RASTREADOR GPS</span>
+        <h3>Lukon GPS Tracker</h3>
+        <p>El equipo que hace que tu vehículo siempre esté visible. Cableado, oculto y con batería de respaldo.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg><div><b>Posición en tiempo real</b><span>Reporte frecuente en movimiento y zonas configurables.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg><div><b>Apagado remoto seguro</b><span>Inmoviliza el motor desde la plataforma.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg><div><b>Eventos de manejo</b><span>Detecta aceleraciones, frenadas y giros bruscos.</span></div></li>
+        </ul>
+      </article>
+      <article class="gcard rv" style="--d:2">
+        <div class="media camview" aria-hidden="true">
+          <svg class="road" viewBox="0 0 160 50" preserveAspectRatio="none"><polygon points="72,0 88,0 160,50 0,50" fill="#1a2547"/><line x1="73" y1="0" x2="6" y2="50" stroke="#cfe3ff" stroke-width="1.2"/><line x1="87" y1="0" x2="154" y2="50" stroke="#cfe3ff" stroke-width="1.2"/><line class="cdash" x1="80" y1="0" x2="80" y2="50" stroke="#fff" stroke-width="1.6" stroke-dasharray="5 6"/></svg>
+          <div class="lead"><span class="box"><em>Vehículo adelante · 2.1 s</em></span></div>
+          <span class="rec"><i></i>REC · Frontal</span><span class="hud">ADAS ACTIVO</span>
+          <div class="cabin"><span class="face"><em>Conductor atento</em></span></div>
+        </div>
+        <span class="sku">DASHCAM CON IA</span>
+        <h3>Ojos en el camino y en la cabina</h3>
+        <p>Doble cámara con inteligencia artificial para flotillas: previene antes de que algo pase.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg><div><b>Doble cámara HD</b><span>Frontal y cabina, con visión nocturna.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg><div><b>Alertas de conducción</b><span>Fatiga, distracción y uso del celular del operador.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg><div><b>Video en la nube</b><span>Revisa y descarga eventos a distancia.</span></div></li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== FLOTILLAS =============================== -->
+<section class="sec fleet sec--light" id="flotillas">
+  <div class="ff-container">
+    <div class="fleet-grid">
+      <div>
+        <span class="eyebrow rv">Para empresas</span>
+        <h2 class="display h2 split" data-split style="color:var(--navy)">Tu flotilla, en una sola pantalla</h2>
+        <p class="lede rv">Para el dueño que quiere saber, sin perseguir a nadie, cómo trabajan sus unidades.</p>
+        <ul>
+          <li class="rv" style="--d:1"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Unidades activas, kilómetros y horas en movimiento por día.</li>
+          <li class="rv" style="--d:2"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Combustible estimado y uso fuera de horario.</li>
+          <li class="rv" style="--d:3"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Excesos de velocidad y unidades ociosas, señalados solos.</li>
+          <li class="rv" style="--d:4"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Recorrido de cada unidad para revisar cualquier día.</li>
+        </ul>
+        <a href="#control" class="btn btn--primary magnet js-flota">Pide una demo para tu flotilla <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="dash rv-scale" id="dash">
+        <span class="demo-tag">Ejemplo</span>
+        <div class="dash-top"><b>Flotilla · Esta semana</b><small>Actualizado hace 1 min</small></div>
+        <div class="kpis">
+          <div class="kpi"><small>Unidades activas</small><b data-count="18">0</b></div>
+          <div class="kpi"><small>Km recorridos</small><b data-count="6420" data-sep="1">0</b></div>
+          <div class="kpi"><small>Horas en ruta</small><b data-count="212">0</b></div>
+          <div class="kpi warn"><small>Excesos</small><b data-count="7">0</b></div>
+        </div>
+        <div class="dash-body">
+          <div class="chart"><small>Kilómetros por día</small>
+            <div class="bars" id="bars"><i style="--i:0" data-h="62"></i><i style="--i:1" data-h="78"></i><i style="--i:2" data-h="70"></i><i style="--i:3" data-h="92"></i><i style="--i:4" data-h="84"></i><i style="--i:5" data-h="46"></i><i class="lo" style="--i:6" data-h="14"></i></div>
+            <div class="days"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+          </div>
+          <div class="minimap">
+            <svg viewBox="0 0 200 170" preserveAspectRatio="xMidYMid slice" id="miniMap">
+              <rect width="200" height="170" fill="#0a1a45"/>
+              <g stroke="#1b3478" stroke-width="4" fill="none" stroke-linecap="round"><path d="M-5 40 L205 70"/><path d="M60 -5 L40 175"/><path d="M-5 130 L205 110"/><path d="M150 -5 L135 175"/></g>
+              <g stroke="#14296a" stroke-width="2" fill="none"><path d="M-5 90 L205 95"/><path d="M100 -5 L95 175"/></g>
+            </svg>
+          </div>
+        </div>
+        <div class="alerts">
+          <div class="alert" style="--i:0"><i style="background:#ffb347"></i>Unidad 29 · 96 km/h en Periférico<span>10:42</span></div>
+          <div class="alert" style="--i:1"><i style="background:#ff5a5a"></i>Unidad 73 · encendida fuera de horario<span>06:15</span></div>
+          <div class="alert" style="--i:2"><i style="background:#35e08a"></i>Unidad 92 · llegó a patio<span>18:03</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== MARCA / GALERÍA =============================== -->
+<section class="sec brandwall" id="lukon">
+  <div class="ff-container">
+    <span class="eyebrow rv">Lukon en la calle</span>
+    <h2 class="display h2 split" data-split>Llegamos hasta ti</h2>
+    <p class="lede rv">Técnicos con uniforme, camioneta instaladora y un kit hecho para que tu equipo quede bien puesto.</p>
+    <div class="wall">
+      <figure class="tile big rv-scale" style="margin:0;--d:0"><img src="img/app.webp" alt="App Lukon" loading="lazy" data-parallax=".05" style="object-position:center 20%"><figcaption>La app Lukon</figcaption></figure>
+      <figure class="tile rv-scale" style="margin:0;--d:1"><img src="img/uniformes.webp" alt="Uniformes del equipo Lukon" loading="lazy"><figcaption>Nuestro equipo</figcaption></figure>
+      <figure class="tile rv-scale" style="margin:0;--d:2"><img src="img/kit.webp" alt="Kit de instalación Lukon" loading="lazy"><figcaption>Kit de instalación</figcaption></figure>
+      <figure class="tile rv-scale" style="margin:0;--d:3;grid-column:span 2"><img src="img/camioneta.webp" alt="Camioneta instaladora Lukon" loading="lazy" style="object-position:center 45%"><figcaption>Camioneta instaladora</figcaption></figure>
+    </div>
+  </div>
+  <div class="adreel" aria-hidden="true">
+    <div class="track">
+      <img src="img/bold-auto.webp" alt="" loading="lazy"><img src="img/ad-moto.webp" alt="" loading="lazy"><img src="img/bold-carga.webp" alt="" loading="lazy"><img src="img/ad-auto.webp" alt="" loading="lazy"><img src="img/bold-moto.webp" alt="" loading="lazy"><img src="img/ad-carga.webp" alt="" loading="lazy">
+      <img src="img/bold-auto.webp" alt="" loading="lazy"><img src="img/ad-moto.webp" alt="" loading="lazy"><img src="img/bold-carga.webp" alt="" loading="lazy"><img src="img/ad-auto.webp" alt="" loading="lazy"><img src="img/bold-moto.webp" alt="" loading="lazy"><img src="img/ad-carga.webp" alt="" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- =============================== FAQ =============================== -->
+<section class="sec sec--light" id="faq">
+  <div class="ff-container">
+    <div class="faq-grid">
+      <div>
+        <span class="eyebrow rv">Preguntas frecuentes</span>
+        <h2 class="display h2 split" data-split style="color:var(--navy)">Lo que nos preguntan</h2>
+        <p class="lede rv">¿Te quedó otra duda? Escríbenos y te respondemos en el día.</p>
+        <a href="#" class="btn btn--primary magnet js-wa rv" data-origen="faq" style="margin-top:22px">Pregúntanos por WhatsApp</a>
+      </div>
+      <div id="faqList">
+        <div class="qa rv"><button aria-expanded="false">¿Funciona para auto, moto y camioneta de carga?<span class="pm"></span></button><div class="a"><div><p>Sí. Tenemos equipo para autos particulares, motocicletas y vehículos de trabajo. Si tienes varias unidades, te armamos un tablero de flotilla.</p></div></div></div>
+        <div class="qa rv"><button aria-expanded="false">¿Lo puedo ver desde mi celular?<span class="pm"></span></button><div class="a"><div><p>Sí. En la app Lukon ves la ubicación en vivo, tus recorridos, el kilometraje del día y recibes las alertas.</p></div></div></div>
+        <div class="qa rv"><button aria-expanded="false">¿Qué pasa si me roban el vehículo?<span class="pm"></span></button><div class="a"><div><p>Ves en el mapa dónde está en ese momento y puedes inmovilizarlo a distancia desde la app, de forma segura. Así tienes información real para actuar rápido.</p></div></div></div>
+        <div class="qa rv"><button aria-expanded="false">¿Necesito internet en el vehículo?<span class="pm"></span></button><div class="a"><div><p>No. El equipo trae su propia conexión celular. Funciona donde haya cobertura de red.</p></div></div></div>
+        <div class="qa rv"><button aria-expanded="false">¿Quién hace la instalación?<span class="pm"></span></button><div class="a"><div><p>Un técnico de Lukon. El equipo queda oculto y protegido, y te enseñamos a usar la app antes de irnos.</p></div></div></div>
+        <div class="qa rv"><button aria-expanded="false">¿Cuánto cuesta?<span class="pm"></span></button><div class="a"><div><p>Depende del vehículo y del equipo que necesites. Déjanos tus datos y te mandamos una cotización a tu medida por WhatsApp.</p></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== CTA / FORM =============================== -->
+<section class="sec cta" id="control">
+  <canvas class="poly" data-poly="cta" aria-hidden="true"></canvas>
+  <div class="ff-container">
+    <div class="cta-grid">
+      <div>
+        <span class="eyebrow rv">Toma el control</span>
+        <h2 class="display split" data-split>Tu vehículo vale mucho.</h2>
+        <p class="lede rv">Déjanos tus datos y un asesor de Lukon te contacta por WhatsApp con una cotización para tu vehículo.</p>
+        <div class="hero-chips" style="opacity:1;animation:none">
+          <span class="chip"><i></i>Respuesta el mismo día</span>
+          <span class="chip"><i style="animation-delay:.5s"></i>Sin compromiso</span>
+        </div>
+      </div>
+      <form class="form rv-scale" id="leadForm" novalidate>
+        <div class="fields">
+          <h3>Cotiza tu equipo Lukon</h3>
+          <p>Tarda menos de un minuto.</p>
+          <div class="field">
+            <label>¿Qué quieres proteger?</label>
+            <div class="vpick" role="radiogroup">
+              <input type="radio" name="vehiculo" id="v-auto" value="Auto" checked><label for="v-auto"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M3 13l2-6a2 2 0 0 1 2-1.4h10A2 2 0 0 1 19 7l2 6v4H3z"/><circle cx="7.5" cy="17" r="1.8"/><circle cx="16.5" cy="17" r="1.8"/></svg>Auto</label>
+              <input type="radio" name="vehiculo" id="v-moto" value="Moto"><label for="v-moto"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 10 9h4l4.5 7.5M14 9l-1-3h3"/></svg>Moto</label>
+              <input type="radio" name="vehiculo" id="v-carga" value="Carga"><label for="v-carga"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h12v10H2zM14 9h4l3 3v4h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>Carga</label>
+              <input type="radio" name="vehiculo" id="v-flota" value="Flotilla"><label for="v-flota"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>Flotilla</label>
+            </div>
+          </div>
+          <div class="field hidden" id="fUnidades"><label for="unidades">¿Cuántas unidades?</label>
+            <select id="unidades" name="unidades"><option>2 a 5</option><option>6 a 15</option><option>16 a 50</option><option>Más de 50</option></select></div>
+          <div class="field"><label for="nombre">Tu nombre</label><input id="nombre" name="nombre" autocomplete="name" required placeholder="¿Cómo te llamas?"></div>
+          <div class="row2">
+            <div class="field"><label for="tel">WhatsApp</label><input id="tel" name="tel" type="tel" inputmode="tel" autocomplete="tel" required placeholder="10 dígitos" pattern="[0-9 ]{10,14}"></div>
+            <div class="field"><label for="cp">Código postal</label><input id="cp" name="cp" inputmode="numeric" autocomplete="postal-code" placeholder="Opcional" maxlength="5"></div>
+          </div>
+          <button class="btn btn--primary" type="submit">Quiero mi cotización <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <p class="fine">Usamos tus datos solo para enviarte la cotización.</p>
+        </div>
+        <div class="ok" role="status" aria-live="polite">
+          <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <h3>¡Listo, <span id="okName"></span>!</h3>
+          <p style="color:var(--muted);margin:6px 0 0">Un asesor de Lukon te escribe por WhatsApp muy pronto.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="ff-container">
+    <div class="foot">
+      <div>
+        <svg class="logo" viewBox="0 -2 606 187" style="color:#fff" aria-label="Lukon"><use href="#lk-logo"/></svg>
+        <div class="slogan">Todo Inteligente. <b>Todo Seguro.</b></div>
+      </div>
+      <nav aria-label="Pie de página">
+        <a href="#que-es">Qué es Lukon</a><a href="#app">La app</a>
+        <a href="#vehiculos">Tu vehículo</a><a href="#flotillas">Flotillas</a>
+        <a href="#como">Cómo funciona</a><a href="#faq">Preguntas</a>
+      </nav>
+      <a href="#control" class="btn btn--primary">Toma el control</a>
+    </div>
+    <div class="foot-bottom"><span>© <span id="yr"></span> Lukon. Seguridad de vehículos en México.</span><span>Sitio por FishFlow</span></div>
+  </div>
+</footer>
+
+<a href="#" class="fab js-wa" data-origen="flotante" id="fab" aria-label="Escríbenos por WhatsApp"><svg viewBox="0 0 32 32"><path d="M16 3C9 3 3.3 8.6 3.3 15.6c0 2.4.7 4.7 1.9 6.7L3 29l6.9-2.2c1.9 1 4 1.6 6.1 1.6 7 0 12.7-5.6 12.7-12.6S23 3 16 3zm5.8 15.3c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.6-1.6-1-.8-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.6l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg></a>
+
+<script>
+(function(){
+"use strict";
+var CFG = window.LUKON_CONFIG || {};
+var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var $ = function(s,c){return (c||document).querySelector(s);};
+var $$ = function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s));};
+
+/* ---------- Medición (Meta) ---------- */
+function track(ev, params, custom){
+  try{ if(window.fbq){ fbq(custom ? "trackCustom" : "track", ev, params || {}); } }catch(e){}
+}
+var utm = {};
+try{
+  var q = new URLSearchParams(location.search);
+  ["utm_source","utm_medium","utm_campaign","utm_content","fbclid"].forEach(function(k){ if(q.get(k)) utm[k] = q.get(k); });
+  if(Object.keys(utm).length) sessionStorage.setItem("lk_utm", JSON.stringify(utm));
+  else utm = JSON.parse(sessionStorage.getItem("lk_utm") || "{}");
+}catch(e){}
+function waLink(msg){
+  var n = (CFG.whatsapp || "").replace(/\D/g,"");
+  return n ? "https://wa.me/" + n + "?text=" + encodeURIComponent(msg) : null;
+}
+var campaign = utm.utm_campaign ? " (vengo de " + utm.utm_campaign + ")" : "";
+$$(".js-wa").forEach(function(a){
+  a.addEventListener("click", function(e){
+    track("Contact", {content_name: "whatsapp_" + (a.dataset.origen || "")});
+    var url = waLink("Hola Lukon, quiero información para proteger mi vehículo" + campaign + ".");
+    if(url){ a.href = url; a.target = "_blank"; a.rel = "noopener"; }
+    else { e.preventDefault(); $("#control").scrollIntoView({behavior: reduce ? "auto" : "smooth"}); }
+  });
+});
+
+/* ---------- Intro ---------- */
+var intro = $("#intro");
+function endIntro(){ intro.classList.add("done"); setTimeout(function(){ intro.remove(); }, 1200); }
+if(reduce){ intro.remove(); } else { setTimeout(endIntro, 1250); }
+
+$("#yr").textContent = new Date().getFullYear();
+
+/* ---------- Nav + progreso + FAB ---------- */
+var nav = $("#nav"), prog = $("#progress"), fab = $("#fab"), ghost = $("#ghost");
+function onScroll(){
+  var y = window.scrollY, h = document.documentElement.scrollHeight - innerHeight;
+  nav.classList.toggle("is-scrolled", y > 30);
+  prog.style.transform = "scaleX(" + (h > 0 ? y / h : 0) + ")";
+  fab.classList.toggle("show", y > innerHeight * .8);
+  if(!reduce && ghost){
+    var r = ghost.parentNode.getBoundingClientRect();
+    ghost.style.transform = "translate(" + (-(r.top) * 0.25) + "px,-50%)";
+  }
+  stepsProgress();
+  $$("[data-parallax]").forEach(function(img){
+    var rr = img.getBoundingClientRect(); var k = +img.dataset.parallax;
+    if(rr.bottom > 0 && rr.top < innerHeight && !reduce) img.style.transform = "scale(1.08) translateY(" + ((rr.top + rr.height/2 - innerHeight/2) * -k) + "px)";
+  });
+}
+window.addEventListener("scroll", onScroll, {passive:true});
+
+/* ---------- Menú móvil ---------- */
+var burger = $("#burger"), mm = $("#mmenu");
+function setMenu(open){
+  burger.setAttribute("aria-expanded", open); burger.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+  if(open) mm.style.top = nav.getBoundingClientRect().bottom + "px";
+  mm.classList.toggle("open", open);
+  $$("a", mm).forEach(function(a,i){ a.style.transitionDelay = open ? (80 + i*45) + "ms" : "0ms"; });
+}
+burger.addEventListener("click", function(){ setMenu(burger.getAttribute("aria-expanded") !== "true"); });
+$$("a", mm).forEach(function(a){ a.addEventListener("click", function(){ setMenu(false); }); });
+
+/* ---------- Split text ---------- */
+$$("[data-split]").forEach(function(el){
+  var words = el.textContent.trim().split(/\s+/);
+  el.innerHTML = words.map(function(w,i){ return '<span class="w"><span style="--i:' + i + '">' + w + '</span></span>'; }).join(" ");
+});
+
+/* ---------- Reveal ---------- */
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      en.target.classList.add("in");
+      if(en.target.id === "dash") runDash();
+      $$("[data-count]", en.target).forEach(countUp);
+      if(en.target.hasAttribute("data-count")) countUp(en.target);
+      io.unobserve(en.target);
+    }
+  });
+}, {threshold: .18, rootMargin: "0px 0px -6% 0px"});
+$$(".rv,.rv-left,.rv-scale,[data-split]").forEach(function(el){ io.observe(el); });
+
+function countUp(el){
+  if(el._done) return; el._done = true;
+  var to = +el.dataset.count, sep = el.dataset.sep, t0 = null, dur = reduce ? 1 : 1600;
+  function fmt(v){ return sep ? v.toLocaleString("es-MX") : String(v); }
+  function f(t){ if(!t0) t0 = t; var p = Math.min((t - t0) / dur, 1); var e = 1 - Math.pow(1 - p, 4);
+    el.textContent = fmt(Math.round(to * e)); if(p < 1) requestAnimationFrame(f); }
+  requestAnimationFrame(f);
+}
+
+/* ---------- Low-poly animado (patrón de marca) ---------- */
+function Poly(canvas){
+  var ctx = canvas.getContext("2d"), pts = [], tris = [], W, H, dpr, mx = .5, my = .5, mode = canvas.dataset.poly;
+  function build(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    var cell = W < 600 ? 90 : 130, cols = Math.ceil(W / cell) + 2, rows = Math.ceil(H / cell) + 2;
+    pts = []; tris = [];
+    for(var r = 0; r < rows; r++){ for(var c = 0; c < cols; c++){
+      pts.push({x:(c - .5) * cell + (Math.random() - .5) * cell * .8, y:(r - .5) * cell + (Math.random() - .5) * cell * .8, p:Math.random() * 6.28, a:8 + Math.random() * 14});
+    }}
+    for(r = 0; r < rows - 1; r++){ for(c = 0; c < cols - 1; c++){
+      var i = r * cols + c, flip = Math.random() > .5;
+      if(flip){ tris.push([i, i+1, i+cols]); tris.push([i+1, i+cols+1, i+cols]); }
+      else { tris.push([i, i+1, i+cols+1]); tris.push([i, i+cols+1, i+cols]); }
+    }}
+    tris.forEach(function(t){ t.s = Math.random(); t.ph = Math.random() * 6.28; });
+  }
+  function draw(time){
+    var tt = time * .001;
+    ctx.clearRect(0,0,W,H);
+    for(var k = 0; k < tris.length; k++){
+      var t = tris[k], A = pts[t[0]], B = pts[t[1]], C = pts[t[2]];
+      var ax = A.x + Math.sin(tt * .6 + A.p) * A.a * .4, ay = A.y + Math.cos(tt * .5 + A.p) * A.a * .4;
+      var bx = B.x + Math.sin(tt * .6 + B.p) * B.a * .4, by = B.y + Math.cos(tt * .5 + B.p) * B.a * .4;
+      var cx = C.x + Math.sin(tt * .6 + C.p) * C.a * .4, cy = C.y + Math.cos(tt * .5 + C.p) * C.a * .4;
+      var gx = (ax + bx + cx) / 3 / W, gy = (ay + by + cy) / 3 / H;
+      // luz que barre en diagonal + luz del cursor
+      var sweep = Math.max(0, Math.sin((gx * 2.2 - gy * 1.1) * 3 - tt * .9 + t.ph * .25));
+      var d = Math.hypot(gx - mx, gy - my), cur = Math.max(0, 1 - d * 2.6);
+      var base = mode === "hero" ? gx * .9 : .55;
+      var L = 6 + base * 18 + t.s * 10 + sweep * 16 + cur * 22;
+      var S = 92, Hh = 220 - t.s * 6;
+      ctx.fillStyle = "hsl(" + Hh + "," + S + "%," + Math.min(L, 52) + "%)";
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.lineTo(cx, cy); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = "rgba(120,180,255," + (0.04 + sweep * .08) + ")"; ctx.lineWidth = .6; ctx.stroke();
+    }
+  }
+  var visible = false, raf;
+  function loop(t){ draw(t); if(visible && !reduce) raf = requestAnimationFrame(loop); }
+  new IntersectionObserver(function(e){ visible = e[0].isIntersecting; if(visible){ cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); } }).observe(canvas);
+  canvas.parentNode.addEventListener("pointermove", function(e){ var r = canvas.getBoundingClientRect(); mx = (e.clientX - r.left) / r.width; my = (e.clientY - r.top) / r.height; });
+  var rt; window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(function(){ build(); draw(performance.now()); }, 150); });
+  build(); draw(0);
+}
+$$("canvas.poly").forEach(Poly);
+
+/* ---------- App del hero: auto que se mueve en el mapa ---------- */
+var route = $("#route"), car = $("#car"), kmEl = $("#km"), fuelEl = $("#fuel"), immob = $("#immob");
+var len = route.getTotalLength(), stopped = false, prog0 = 0, km = 28.0, last = 0;
+route.style.strokeDasharray = len; route.style.strokeDashoffset = len;
+setTimeout(function(){ $("#fuelBar").style.width = "62%"; }, 900);
+function carLoop(t){
+  var dt = last ? Math.min(t - last, 50) : 16; last = t;
+  if(!stopped){
+    prog0 = (prog0 + dt * 0.000055) % 1;
+    km += dt * 0.00009; kmEl.textContent = km.toFixed(1);
+  }
+  var p = route.getPointAtLength(prog0 * len);
+  car.setAttribute("transform", "translate(" + p.x + "," + p.y + ")");
+  route.style.strokeDashoffset = len * (1 - prog0);
+  requestAnimationFrame(carLoop);
+}
+if(reduce){ var p = route.getPointAtLength(len * .62); car.setAttribute("transform","translate(" + p.x + "," + p.y + ")"); route.style.strokeDashoffset = len * .38; }
+else requestAnimationFrame(carLoop);
+immob.addEventListener("click", function(e){
+  stopped = !stopped;
+  immob.classList.toggle("on", stopped);
+  $("#immobTxt").textContent = stopped ? "Vehículo inmovilizado · reactivar" : "Inmovilizar";
+  $("#liveTag").classList.toggle("stopped", stopped);
+  $("#liveTxt").textContent = stopped ? "Detenido" : "En movimiento";
+  var r = immob.getBoundingClientRect(), s = document.createElement("span"), size = Math.max(r.width, r.height);
+  s.className = "rip"; s.style.width = s.style.height = size + "px";
+  s.style.left = (e.clientX - r.left - size/2) + "px"; s.style.top = (e.clientY - r.top - size/2) + "px";
+  immob.appendChild(s); setTimeout(function(){ s.remove(); }, 700);
+});
+
+/* ---------- Tilt 3D ---------- */
+function tilt(el, max){
+  if(reduce || matchMedia("(hover: none)").matches) return;
+  el.addEventListener("pointermove", function(e){
+    var r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    el.style.transform = "perspective(900px) rotateY(" + ((x - .5) * max) + "deg) rotateX(" + ((.5 - y) * max) + "deg)";
+    el.style.setProperty("--mx", x * 100 + "%"); el.style.setProperty("--my", y * 100 + "%");
+  });
+  el.addEventListener("pointerleave", function(){ el.style.transform = ""; });
+}
+$$(".tilt").forEach(function(el){ tilt(el, el.classList.contains("feat") ? 10 : 7); });
+var phone = $("#phone"), pw = $("#phoneWrap");
+if(!reduce && !matchMedia("(hover: none)").matches){
+  document.querySelector(".hero").addEventListener("pointermove", function(e){
+    var x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
+    phone.style.transform = "rotateY(" + (x * -14) + "deg) rotateX(" + (y * 10) + "deg)";
+  });
+}
+
+/* ---------- Botones magnéticos ---------- */
+if(!reduce && !matchMedia("(hover: none)").matches){
+  $$(".magnet").forEach(function(b){
+    b.addEventListener("pointermove", function(e){ var r = b.getBoundingClientRect();
+      b.style.transform = "translate(" + ((e.clientX - r.left - r.width/2) * .18) + "px," + ((e.clientY - r.top - r.height/2) * .25) + "px)"; });
+    b.addEventListener("pointerleave", function(){ b.style.transform = ""; });
+  });
+}
+
+/* ---------- Vehículos ---------- */
+var VEH = {
+  auto: {copy:"Tu auto es de lo más valioso que tienes. Con Lukon sabes dónde está a cualquier hora y quién lo está usando.",
+    list:["Ubicación en vivo y recorridos del día","Alerta si se enciende o se mueve sin ti","Inmovilización remota desde la app"], cta:"Protege tu auto"},
+  moto: {copy:"Una moto se mueve rápido y se esconde fácil. Con Lukon la tienes en el mapa todo el tiempo.",
+    list:["Equipo compacto y bien escondido","Alerta si la mueven estando apagada","Historial de cada trayecto"], cta:"Protege tu moto"},
+  carga: {copy:"Tu camioneta es tu negocio rodando. Sabe por dónde va tu mercancía, cuánto recorre y cómo se maneja.",
+    list:["Rutas y paradas de cada día","Excesos de velocidad y horario de uso","Kilometraje y combustible estimado"], cta:"Protege tu carga"}
+};
+var tabs = $$("#vtabs button"), pill = $("#vtabs .pill"), vword = $("#vword"), vcopy = $("#vcopy"), vlist = $("#vlist"), vcta = $("#vcta"), vmedia = $("#vmedia"), cur = "auto", seenVeh = false;
+function placePill(btn){ pill.style.left = btn.offsetLeft + "px"; pill.style.width = btn.offsetWidth + "px"; }
+function render(v, animate){
+  var d = VEH[v];
+  vcopy.textContent = d.copy;
+  vlist.innerHTML = d.list.map(function(x){ return '<li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>' + x + "</li>"; }).join("");
+  vcta.firstChild.nodeValue = d.cta + " ";
+  $$("img", vmedia).forEach(function(im){ im.classList.toggle("on", im.dataset.v === v); });
+  if(animate){
+    vword.className = "swap out";
+    setTimeout(function(){ vword.innerHTML = "<span>" + v + "</span>"; vword.className = "swap in"; }, 330);
+    vmedia.classList.remove("flash"); void vmedia.offsetWidth; vmedia.classList.add("flash");
+  }
+}
+tabs.forEach(function(b){
+  b.addEventListener("click", function(){
+    if(b.dataset.v === cur) return; cur = b.dataset.v;
+    tabs.forEach(function(x){ x.setAttribute("aria-selected", x === b); });
+    placePill(b); render(cur, !reduce); stopAuto();
+    track("VehiculoSeleccionado", {vehiculo: cur}, true);
+    var radio = $("#v-" + cur); if(radio) { radio.checked = true; radio.dispatchEvent(new Event("change")); }
+  });
+});
+render("auto", false);
+requestAnimationFrame(function(){ placePill(tabs[0]); });
+window.addEventListener("resize", function(){ placePill($('#vtabs button[aria-selected="true"]')); });
+// rotación automática hasta que el usuario toque una pestaña
+var order = ["auto","moto","carga"], autoTimer = null;
+function stopAuto(){ clearInterval(autoTimer); autoTimer = null; }
+new IntersectionObserver(function(e){
+  if(e[0].isIntersecting){
+    if(!seenVeh){ seenVeh = true; track("ViewContent", {content_name: "vehiculos"}); }
+    if(!autoTimer && !reduce && !tabs._touched){
+      autoTimer = setInterval(function(){
+        var n = order[(order.indexOf(cur) + 1) % 3], b = $('#vtabs button[data-v="' + n + '"]');
+        cur = n; tabs.forEach(function(x){ x.setAttribute("aria-selected", x === b); }); placePill(b); render(n, true);
+      }, 4200);
+    }
+  } else stopAuto();
+}, {threshold:.4}).observe($("#vehiculos"));
+tabs.forEach(function(b){ b.addEventListener("pointerdown", function(){ tabs._touched = true; }); });
+
+/* ---------- Pasos: riel que se llena con el scroll ---------- */
+var steps = $("#steps"), rail = $("#steps .rail i"), stepEls = $$("#steps .step");
+function stepsProgress(){
+  if(!steps) return;
+  var r = steps.getBoundingClientRect(), p = (innerHeight * .75 - r.top) / (r.height + innerHeight * .1);
+  p = Math.max(0, Math.min(1, p));
+  rail.style.setProperty("--p", p);
+  stepEls.forEach(function(s, i){ s.classList.toggle("lit", p >= i / (stepEls.length - 1) - .02); });
+}
+
+/* ---------- Tablero de flotilla ---------- */
+var mini = $("#miniMap");
+function runDash(){
+  $$("#bars i").forEach(function(b){ b.style.height = b.dataset.h + "%"; });
+  if(mini._run) return; mini._run = true;
+  var NS = "http://www.w3.org/2000/svg", dots = [];
+  for(var i = 0; i < 9; i++){
+    var g = document.createElementNS(NS, "g"), c1 = document.createElementNS(NS, "circle"), c2 = document.createElementNS(NS, "circle");
+    c1.setAttribute("r", 9); c1.setAttribute("fill", "rgba(0,132,249,.25)");
+    c2.setAttribute("r", 3.6); c2.setAttribute("fill", i === 3 ? "#ffb347" : "#3BA4FF"); c2.setAttribute("stroke", "#fff"); c2.setAttribute("stroke-width", 1.2);
+    g.appendChild(c1); g.appendChild(c2); mini.appendChild(g);
+    dots.push({g:g, x:20 + Math.random() * 160, y:20 + Math.random() * 130, a:Math.random() * 6.28, s:.15 + Math.random() * .25, halo:c1});
+  }
+  function mv(t){
+    dots.forEach(function(d){
+      if(!reduce){ d.a += (Math.random() - .5) * .08; d.x += Math.cos(d.a) * d.s; d.y += Math.sin(d.a) * d.s;
+        if(d.x < 10 || d.x > 190) d.a = Math.PI - d.a; if(d.y < 10 || d.y > 160) d.a = -d.a; }
+      d.g.setAttribute("transform", "translate(" + d.x.toFixed(1) + "," + d.y.toFixed(1) + ")");
+      d.halo.setAttribute("r", 6 + Math.abs(Math.sin(t * .002 + d.a)) * 5);
+    });
+    if(!reduce) requestAnimationFrame(mv);
+  }
+  requestAnimationFrame(mv);
+}
+
+/* ---------- FAQ ---------- */
+$$("#faqList .qa").forEach(function(qa){
+  var b = $("button", qa);
+  b.addEventListener("click", function(){
+    var open = qa.getAttribute("open-state") === "1";
+    $$("#faqList .qa").forEach(function(o){ o.removeAttribute("open-state"); $("button", o).setAttribute("aria-expanded", "false"); });
+    if(!open){ qa.setAttribute("open-state", "1"); b.setAttribute("aria-expanded", "true"); }
+  });
+});
+
+/* ---------- Formulario ---------- */
+var form = $("#leadForm"), fUn = $("#fUnidades");
+$$('input[name="vehiculo"]').forEach(function(r){ r.addEventListener("change", function(){ fUn.classList.toggle("hidden", !$("#v-flota").checked); }); });
+$$(".js-flota").forEach(function(a){ a.addEventListener("click", function(){ var r = $("#v-flota"); r.checked = true; r.dispatchEvent(new Event("change")); }); });
+form.addEventListener("submit", function(e){
+  e.preventDefault();
+  var nombre = $("#nombre"), tel = $("#tel"), ok = true;
+  [nombre, tel].forEach(function(i){ var bad = !i.value.trim() || (i === tel && i.value.replace(/\D/g,"").length < 10);
+    i.style.borderColor = bad ? "#e0393e" : ""; if(bad) ok = false; });
+  if(!ok){ form.animate && form.animate([{transform:"translateX(0)"},{transform:"translateX(-8px)"},{transform:"translateX(8px)"},{transform:"translateX(0)"}], {duration:320}); return; }
+  var veh = $('input[name="vehiculo"]:checked').value;
+  var data = {nombre:nombre.value.trim(), tel:tel.value.replace(/\D/g,""), vehiculo:veh, unidades: veh === "Flotilla" ? $("#unidades").value : "", cp:$("#cp").value.trim(), utm:utm};
+  track("Lead", {content_name: "cotizacion", content_category: veh});
+  var msg = "Hola Lukon, soy " + data.nombre + ". Quiero cotizar para: " + veh + (data.unidades ? " (" + data.unidades + " unidades)" : "") + (data.cp ? ". C.P. " + data.cp : "") + campaign + ".";
+  $("#okName").textContent = data.nombre.split(" ")[0];
+  form.classList.add("sent");
+  var url = waLink(msg);
+  if(url) setTimeout(function(){ window.open(url, "_blank", "noopener"); }, 900);
+  // Aquí se conecta el envío a la base de datos de FishFlow (leads) cuando se publique.
+});
+
+onScroll();
+})();
+</script>
+</body>
+</html>
