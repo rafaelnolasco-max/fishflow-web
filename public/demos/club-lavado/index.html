@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Club de Lavado</title>
+<meta name="description" content="Demo de FishFlow: planes de suscripción de lavados para autolavados, con cobro mensual por Stripe.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314202B'/%3E%3Cpath d='M32 12c8 11 14 19 14 26a14 14 0 0 1-28 0c0-7 6-15 14-26z' fill='%23FFC531'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: letrero de autolavado; héroe = tarjeta de socio con placa y 12 sellos; selector de tamaño que reprecia todo */
+:root{
+  --asphalt:#14202B; --water:#0B8D99; --sign:#FFC531; --bg:#F3F6F7; --surface:#FFFFFF;
+  --fg:#14202B; --muted:#5A6873; --line:#DCE3E7; --foam:#E3F3F5; --on-dark:#F3F6F7; --save:#0B7A52;
+  --display:"Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body:"Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E161D; --surface:#16212B; --fg:#E8EEF1; --muted:#9AA9B3; --line:#26343F; --foam:#13303A; --water:#3CC3CF; --save:#4FD1A0; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E161D; --surface:#16212B; --fg:#E8EEF1; --muted:#9AA9B3; --line:#26343F; --foam:#13303A; --water:#3CC3CF; --save:#4FD1A0; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.6 var(--body);font-stretch:100%;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:1100px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-stretch:118%;font-weight:850;text-wrap:balance;margin:0;line-height:1.02;letter-spacing:-.01em;text-transform:uppercase}
+h2{font-size:clamp(1.7rem,3.6vw,2.4rem)}
+h3{font-size:1.15rem;letter-spacing:.01em}
+p{margin:0}
+.eyebrow{font:700 .74rem/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--water)}
+.lead{color:var(--muted);max-width:62ch;font-size:1.05rem}
+section{padding-block:56px;border-top:1px solid var(--line);display:grid;gap:28px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.head{display:grid;gap:12px}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .drop{width:34px;height:34px;border-radius:9px;background:var(--asphalt);display:grid;place-items:center}
+.brand b{font:850 1.15rem/1 var(--display);font-stretch:118%;text-transform:uppercase}
+.ff{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.8rem}
+.ff img{height:26px;width:auto}
+
+.custom{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--foam);border-radius:12px;padding:12px 16px;font-size:.88rem}
+.custom label{font-weight:600}
+.custom input{flex:1 1 220px;min-width:0;font:600 .95rem var(--body);padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg)}
+.custom span{color:var(--muted)}
+
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding-block:36px 60px}
+.hero > div{min-width:0}
+.hero h1{font-size:clamp(2.2rem,5.4vw,3.8rem)}
+.hero h1 mark{background:var(--sign);color:var(--asphalt);padding:0 .12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.hero .lead{margin-top:18px}
+.facts{display:flex;gap:28px;flex-wrap:wrap;margin-top:26px}
+.facts div{display:grid;gap:2px}
+.facts b{font:600 1.5rem/1 var(--mono);color:var(--water)}
+.facts span{font-size:.82rem;color:var(--muted)}
+
+.card{background:var(--asphalt);color:var(--on-dark);border-radius:18px;padding:24px;aspect-ratio:1.6/1;max-width:100%;
+  display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 30px 60px -30px rgba(20,32,43,.6);position:relative;overflow:hidden}
+.card::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:var(--sign);opacity:.14}
+.card .row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;position:relative;z-index:1}
+.card .club{font:850 1.35rem/1 var(--display);font-stretch:118%;text-transform:uppercase}
+.card .plan{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;opacity:.75}
+.plate{white-space:nowrap;flex:none;background:#F7F7F2;color:#14202B;border-radius:6px;padding:4px 10px;font:600 .95rem var(--mono);letter-spacing:.08em;border:2px solid #14202B;box-shadow:0 0 0 2px #F7F7F2}
+.stamps{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;position:relative;z-index:1}
+.stamps i{aspect-ratio:1;border-radius:50%;border:1.5px dashed currentColor;opacity:.5;display:grid;place-items:center;font:600 .62rem var(--mono);font-style:normal}
+.stamps i.on{background:var(--sign);color:var(--asphalt);border-style:solid;border-color:var(--sign);opacity:1}
+.card .foot{display:flex;justify-content:space-between;font:500 .78rem var(--mono);opacity:.9;position:relative;z-index:1}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:s}
+.steps div{display:grid;gap:6px;align-content:start;min-width:0}
+.steps div::before{counter-increment:s;content:counter(s);font:600 .8rem var(--mono);background:var(--sign);color:var(--asphalt);border-radius:6px;width:28px;height:28px;display:grid;place-items:center}
+.steps b{font-weight:700}
+.steps p{color:var(--muted);font-size:.93rem}
+
+.controls{display:flex;gap:16px 28px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;gap:4px;flex-wrap:wrap}
+.seg button{font:700 .85rem var(--body);border:0;background:transparent;color:var(--fg);padding:8px 16px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--asphalt);color:var(--on-dark)}
+:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{outline:1px solid var(--line)}
+.ctl-label{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-right:8px}
+button:focus-visible,input:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.pk{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:14px;grid-template-rows:auto auto 1fr auto;min-width:0}
+.pk.star{border:2px solid var(--asphalt)}
+:root:not([data-theme="light"]) .pk.star{border-color:var(--sign)}
+.pk.wide{grid-column:1/-1}
+.pk .hd{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.pk .tag{font:700 .66rem/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pk .badge{font:700 .66rem/1 var(--body);letter-spacing:.1em;text-transform:uppercase;background:var(--sign);color:var(--asphalt);padding:5px 8px;border-radius:4px}
+.price{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.price b{font:600 2rem/1 var(--mono)}
+.price span{color:var(--muted);font-size:.85rem}
+.pk ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.93rem}
+.pk ul li::marker{color:var(--water)}
+.val{border-top:1px dashed var(--line);padding-top:12px;display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:.84rem;color:var(--muted)}
+.val .num{text-align:right;color:var(--fg)}
+.val .save{color:var(--save);font-weight:700}
+
+.perk-hero{background:var(--asphalt);color:var(--on-dark);border-radius:16px;padding:28px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
+.perk-hero > *{min-width:0}
+.perk-hero div{display:grid;gap:6px;max-width:30ch}
+.perk-hero b{font-size:clamp(2.4rem,6vw,3.6rem);line-height:1;color:var(--sign)}
+.perk-hero span{font-size:.9rem;opacity:.85}
+.perk-hero p{font-size:1.2rem;line-height:1.45}
+.perk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px 28px}
+.perk-grid div{display:grid;gap:6px;align-content:start;min-width:0;padding-top:14px;border-top:3px solid var(--sign)}
+.perk-grid b{font:800 1.05rem/1.2 var(--display);font-stretch:110%;text-transform:uppercase}
+.perk-grid p{color:var(--muted);font-size:.95rem}
+
+.ideas{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.idea{background:var(--foam);border-radius:12px;padding:20px;display:grid;gap:8px;align-content:start}
+.idea b{font:800 1rem/1.2 var(--display);font-stretch:110%;text-transform:uppercase}
+.idea p{color:var(--muted);font-size:.93rem}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.split > div{min-width:0}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;display:grid;gap:12px}
+.box table{width:100%;border-collapse:collapse;font-size:.92rem}
+.box td{padding:6px 0;border-bottom:1px solid var(--line)}
+.box td.num{text-align:right}
+.box tr:last-child td{border-bottom:0;font-weight:700}
+.note{font-size:.82rem;color:var(--muted)}
+
+.calc{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:start}
+.calc > div{min-width:0}
+.rows{display:grid;gap:4px}
+.rows label{display:grid;grid-template-columns:1fr 70px;align-items:center;gap:12px;font-size:.93rem;padding:6px 0;border-bottom:1px solid var(--line)}
+.rows small{color:var(--muted);font-family:var(--mono);margin-left:6px}
+.rows input{width:70px;font:600 1rem var(--mono);padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);text-align:right}
+.total{background:var(--asphalt);color:var(--on-dark);border-radius:14px;padding:26px;display:grid;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+.total div{display:grid;gap:2px}
+.total b{font:600 2.2rem/1 var(--mono);color:var(--sign)}
+.total b.sm{font-size:1.5rem;color:var(--on-dark)}
+.total span{font-size:.82rem;opacity:.85}
+
+.rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.rules div{display:grid;gap:6px;align-content:start}
+.rules b{font-weight:700}
+.rules p{color:var(--muted);font-size:.93rem}
+
+.ffdo{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.ffdo div{border-left:2px solid #FF8A2A;padding:4px 0 4px 14px;font-size:.93rem}
+.ffdo b{display:block}
+.ffdo span{color:var(--muted)}
+.cta{display:inline-block;background:#FF8A2A;color:#162632;font-weight:800;padding:14px 26px;border-radius:999px;text-decoration:none;justify-self:start}
+
+footer{border-top:1px solid var(--line);padding-block:32px 48px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;font-size:.85rem;color:var(--muted)}
+footer img{height:26px;width:auto}
+
+@media (max-width:860px){
+  .hero,.split,.calc,.perk-hero{grid-template-columns:1fr}
+  .steps,.perk-grid{grid-template-columns:1fr 1fr}
+  .total{position:static}
+}
+@media (max-width:480px){.steps,.perk-grid,.grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){.stamps i.on{animation:pop .45s both}@keyframes pop{from{transform:scale(.5)}to{transform:scale(1)}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="drop"><svg width="18" height="18" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6c9 12 16 21 16 29a16 16 0 0 1-32 0c0-8 7-17 16-29z" fill="#FFC531"/></svg></span><b class="bizname">Tu Autolavado</b></div>
+    <div class="ff">Demo de <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgMTM5MS4wIDI5My4yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRmlzaEZsb3ciPgogIDx0aXRsZT5GaXNoRmxvdyDigJQgTG9nbyBIb3Jpem9udGFsPC90aXRsZT4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZmYtdGlkZSIgeDE9IjE0JSIgeTE9IjUwJSIgeDI9Ijg2JSIgeTI9IjUwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzY3RDRFOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjQwJSIgIHN0b3AtY29sb3I9IiM3RkRDRUMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiICBzdG9wLWNvbG9yPSIjRDhDOUEwIiBzdG9wLW9wYWNpdHk9IjAuOTUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI2MCUiICBzdG9wLWNvbG9yPSIjRkZBRTVFIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0ZGOEMzNSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYuMDAgMTYuMDApIHNjYWxlKDAuNDM1NCkiPgogICAgPHBhdGggZD0iTSA2MDAgMzAwIEMgNzYwIDEwMCwgMTAwMCAgOTAsIDEwMDAgMzAwIEMgMTAwMCA1MTAsICA3NjAgNTAwLCA2MDAgMzAwIEMgNDQwIDEwMCwgIDIwMCAgOTAsICAyMDAgMzAwIEMgMjAwIDUxMCwgIDQ0MCA1MDAsICA2MDAgMzAwIFoiCiAgICAgIGZpbGw9Im5vbmUiCiAgICAgIHN0cm9rZT0idXJsKCNmZi10aWRlKSIKICAgICAgc3Ryb2tlLXdpZHRoPSI0NCIKICAgICAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogICAgICBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSI4ODAiIGN5PSIyNzgiIHI9IjkiIGZpbGw9IiMwQzM0NDUiIG9wYWNpdHk9IjAuNTUiLz4KICA8L2c+CiAgICA8cGF0aCBkPSJNMTMuNjAwMDAwMDAwMDAwMDAxIDAuMFYtMTQxLjIwMDAwMDAwMDAwMDAySDQ1LjBWMC4wWk0zNy42IC01NS40MDAwMDAwMDAwMDAwMDZWLTgyLjRIMTA4LjJWLTU1LjQwMDAwMDAwMDAwMDAwNlpNMzcuNiAtMTE0LjJWLTE0MS4yMDAwMDAwMDAwMDAwMkgxMTEuNFYtMTE0LjJaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTEyNi44IDAuMFYtOTcuMkgxNTcuNFYwLjBaTTE0Mi4yIC0xMTAuNjAwMDAwMDAwMDAwMDFRMTM1LjAgLTExMC42MDAwMDAwMDAwMDAwMSAxMzAuMyAtMTE1LjVRMTI1LjYgLTEyMC40IDEyNS42IC0xMjcuNFExMjUuNiAtMTM0LjYgMTMwLjMgLTEzOS40UTEzNS4wIC0xNDQuMjAwMDAwMDAwMDAwMDIgMTQyLjIgLTE0NC4yMDAwMDAwMDAwMDAwMlExNDkuNCAtMTQ0LjIwMDAwMDAwMDAwMDAyIDE1NC4wIC0xMzkuNFExNTguNiAtMTM0LjYgMTU4LjYgLTEyNy40UTE1OC42IC0xMjAuNCAxNTQuMCAtMTE1LjVRMTQ5LjQgLTExMC42MDAwMDAwMDAwMDAwMSAxNDIuMiAtMTEwLjYwMDAwMDAwMDAwMDAxWiIgZmlsbD0iIzY3RDRFOCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTcwLjQ0IDIxNy4yMTAwMDAwMDAwMDAwNCkiLz4KICAgIDxwYXRoIGQ9Ik0yMTIuMzk5OTk5OTk5OTk5OTggMi40MDAwMDAwMDAwMDAwMDA0UTIwMy43OTk5OTk5OTk5OTk5OCAyLjQwMDAwMDAwMDAwMDAwMDQgMTk1LjUgMC4yMDAwMDAwMDAwMDAwMDAxOFExODcuMiAtMi4wIDE4MC4xIC02LjEwMDAwMDAwMDAwMDAwMDVRMTczLjAgLTEwLjIwMDAwMDAwMDAwMDAwMSAxNjguMCAtMTUuNjAwMDAwMDAwMDAwMDAxTDE4NS4zOTk5OTk5OTk5OTk5OCAtMzMuMlExOTAuMiAtMjguMCAxOTYuNzk5OTk5OTk5OTk5OTggLTI1LjFRMjAzLjM5OTk5OTk5OTk5OTk4IC0yMi4yMDAwMDAwMDAwMDAwMDMgMjExLjIgLTIyLjIwMDAwMDAwMDAwMDAwM1EyMTYuNiAtMjIuMjAwMDAwMDAwMDAwMDAzIDIxOS41IC0yMy44MDAwMDAwMDAwMDAwMDRRMjIyLjM5OTk5OTk5OTk5OTk4IC0yNS40MDAwMDAwMDAwMDAwMDIgMjIyLjM5OTk5OTk5OTk5OTk4IC0yOC4yMDAwMDAwMDAwMDAwMDNRMjIyLjM5OTk5OTk5OTk5OTk4IC0zMS44IDIxOC44OTk5OTk5OTk5OTk5OCAtMzMuN1EyMTUuMzk5OTk5OTk5OTk5OTggLTM1LjYgMjEwLjAgLTM3LjFRMjA0LjYgLTM4LjYgMTk4LjYgLTQwLjQwMDAwMDAwMDAwMDAwNlExOTIuNiAtNDIuMiAxODcuMiAtNDUuNDAwMDAwMDAwMDAwMDA2UTE4MS43OTk5OTk5OTk5OTk5OCAtNDguNiAxNzguMzk5OTk5OTk5OTk5OTggLTU0LjNRMTc1LjAgLTYwLjAgMTc1LjAgLTY4LjhRMTc1LjAgLTc4LjIgMTc5LjggLTg1LjFRMTg0LjYgLTkyLjAgMTkzLjM5OTk5OTk5OTk5OTk4IC05Ni4wUTIwMi4yIC0xMDAuMCAyMTQuMCAtMTAwLjBRMjI2LjM5OTk5OTk5OTk5OTk4IC0xMDAuMCAyMzYuODk5OTk5OTk5OTk5OTggLTk1LjdRMjQ3LjM5OTk5OTk5OTk5OTk4IC05MS40IDI1NC4wIC04My4wTDIzNi42IC02NS40UTIzMi4wIC03MC44IDIyNi4zIC03My4wUTIyMC42IC03NS4yIDIxNS4yIC03NS4yUTIxMC4wIC03NS4yIDIwNy4zOTk5OTk5OTk5OTk5OCAtNzMuN1EyMDQuNzk5OTk5OTk5OTk5OTggLTcyLjIgMjA0Ljc5OTk5OTk5OTk5OTk4IC02OS40UTIwNC43OTk5OTk5OTk5OTk5OCAtNjYuNCAyMDguMiAtNjQuNjAwMDAwMDAwMDAwMDFRMjExLjYgLTYyLjgwMDAwMDAwMDAwMDAwNCAyMTcuMCAtNjEuNDAwMDAwMDAwMDAwMDA2UTIyMi4zOTk5OTk5OTk5OTk5OCAtNjAuMCAyMjguMzk5OTk5OTk5OTk5OTggLTU4LjBRMjM0LjM5OTk5OTk5OTk5OTk4IC01Ni4wIDIzOS43OTk5OTk5OTk5OTk5OCAtNTIuNlEyNDUuMiAtNDkuMiAyNDguNiAtNDMuNVEyNTIuMCAtMzcuODAwMDAwMDAwMDAwMDA0IDI1Mi4wIC0yOC42UTI1Mi4wIC0xNC40IDI0MS4zIC02LjBRMjMwLjYgMi40MDAwMDAwMDAwMDAwMDA0IDIxMi4zOTk5OTk5OTk5OTk5OCAyLjQwMDAwMDAwMDAwMDAwMDRaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTMzMC44IDAuMFYtNTUuNDAwMDAwMDAwMDAwMDA2UTMzMC44IC02My4wIDMyNi4xIC02Ny43UTMyMS40MDAwMDAwMDAwMDAwMyAtNzIuNCAzMTQuMjAwMDAwMDAwMDAwMDUgLTcyLjRRMzA5LjIwMDAwMDAwMDAwMDA1IC03Mi40IDMwNS40MDAwMDAwMDAwMDAwMyAtNzAuMzAwMDAwMDAwMDAwMDFRMzAxLjYgLTY4LjIgMjk5LjQwMDAwMDAwMDAwMDAzIC02NC4zMDAwMDAwMDAwMDAwMVEyOTcuMjAwMDAwMDAwMDAwMDUgLTYwLjQwMDAwMDAwMDAwMDAwNiAyOTcuMjAwMDAwMDAwMDAwMDUgLTU1LjQwMDAwMDAwMDAwMDAwNkwyODUuNDAwMDAwMDAwMDAwMDMgLTYxLjJRMjg1LjQwMDAwMDAwMDAwMDAzIC03Mi42MDAwMDAwMDAwMDAwMSAyOTAuMjAwMDAwMDAwMDAwMDUgLTgxLjIwMDAwMDAwMDAwMDAyUTI5NS4wIC04OS44MDAwMDAwMDAwMDAwMSAzMDMuNiAtOTQuNVEzMTIuMjAwMDAwMDAwMDAwMDUgLTk5LjIgMzIzLjQwMDAwMDAwMDAwMDAzIC05OS4yUTMzNC44IC05OS4yIDM0My40IC05NC41UTM1Mi4wIC04OS44MDAwMDAwMDAwMDAwMSAzNTYuNzAwMDAwMDAwMDAwMDUgLTgxLjVRMzYxLjQwMDAwMDAwMDAwMDAzIC03My4yIDM2MS40MDAwMDAwMDAwMDAwMyAtNjIuMlYwLjBaTTI2Ni42IDAuMFYtMTQ1LjIwMDAwMDAwMDAwMDAySDI5Ny4yMDAwMDAwMDAwMDAwNVYwLjBaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTM4MS44MDAwMDAwMDAwMDAwNyAwLjBWLTE0MS4yMDAwMDAwMDAwMDAwMkg0MTMuMjAwMDAwMDAwMDAwMDVWMC4wWk00MDUuODAwMDAwMDAwMDAwMDcgLTU1LjQwMDAwMDAwMDAwMDAwNlYtODIuNEg0NzYuNDAwMDAwMDAwMDAwMDNWLTU1LjQwMDAwMDAwMDAwMDAwNlpNNDA1LjgwMDAwMDAwMDAwMDA3IC0xMTQuMlYtMTQxLjIwMDAwMDAwMDAwMDAySDQ3OS42Vi0xMTQuMloiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNDk1LjAwMDAwMDAwMDAwMDA2IDAuMFYtMTQ1LjIwMDAwMDAwMDAwMDAySDUyNS42VjAuMFoiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNTkyLjAwMDAwMDAwMDAwMDEgMi4yUTU3Ny4wMDAwMDAwMDAwMDAxIDIuMiA1NjQuOTAwMDAwMDAwMDAwMSAtNC41UTU1Mi44MDAwMDAwMDAwMDAxIC0xMS4yMDAwMDAwMDAwMDAwMDEgNTQ1LjgwMDAwMDAwMDAwMDEgLTIyLjhRNTM4LjgwMDAwMDAwMDAwMDEgLTM0LjQgNTM4LjgwMDAwMDAwMDAwMDEgLTQ4LjgwMDAwMDAwMDAwMDAwNFE1MzguODAwMDAwMDAwMDAwMSAtNjMuMiA1NDUuODAwMDAwMDAwMDAwMSAtNzQuNlE1NTIuODAwMDAwMDAwMDAwMSAtODYuMCA1NjQuODAwMDAwMDAwMDAwMSAtOTIuN1E1NzYuODAwMDAwMDAwMDAwMSAtOTkuNCA1OTIuMDAwMDAwMDAwMDAwMSAtOTkuNFE2MDcuMiAtOTkuNCA2MTkuMiAtOTIuODAwMDAwMDAwMDAwMDFRNjMxLjIgLTg2LjIgNjM4LjIgLTc0LjdRNjQ1LjIgLTYzLjIgNjQ1LjIgLTQ4LjgwMDAwMDAwMDAwMDAwNFE2NDUuMiAtMzQuNCA2MzguMiAtMjIuOFE2MzEuMiAtMTEuMjAwMDAwMDAwMDAwMDAxIDYxOS4yIC00LjVRNjA3LjIgMi4yIDU5Mi4wMDAwMDAwMDAwMDAxIDIuMlpNNTkyLjAwMDAwMDAwMDAwMDEgLTI1LjZRNTk4LjYwMDAwMDAwMDAwMDEgLTI1LjYgNjAzLjYwMDAwMDAwMDAwMDEgLTI4LjVRNjA4LjYwMDAwMDAwMDAwMDEgLTMxLjQwMDAwMDAwMDAwMDAwMiA2MTEuMzAwMDAwMDAwMDAwMiAtMzYuN1E2MTQuMDAwMDAwMDAwMDAwMSAtNDIuMCA2MTQuMDAwMDAwMDAwMDAwMSAtNDguODAwMDAwMDAwMDAwMDA0UTYxNC4wMDAwMDAwMDAwMDAxIC01NS42IDYxMS4yIC02MC43UTYwOC40MDAwMDAwMDAwMDAxIC02NS44IDYwMy41MDAwMDAwMDAwMDAxIC02OC43UTU5OC42MDAwMDAwMDAwMDAxIC03MS42MDAwMDAwMDAwMDAwMSA1OTIuMDAwMDAwMDAwMDAwMSAtNzEuNjAwMDAwMDAwMDAwMDFRNTg1LjYwMDAwMDAwMDAwMDEgLTcxLjYwMDAwMDAwMDAwMDAxIDU4MC42MDAwMDAwMDAwMDAxIC02OC43UTU3NS42MDAwMDAwMDAwMDAxIC02NS44IDU3Mi44MDAwMDAwMDAwMDAyIC02MC42UTU3MC4wMDAwMDAwMDAwMDAxIC01NS40MDAwMDAwMDAwMDAwMDYgNTcwLjAwMDAwMDAwMDAwMDEgLTQ4LjZRNTcwLjAwMDAwMDAwMDAwMDEgLTQyLjAgNTcyLjgwMDAwMDAwMDAwMDIgLTM2LjdRNTc1LjYwMDAwMDAwMDAwMDEgLTMxLjQwMDAwMDAwMDAwMDAwMiA1ODAuNjAwMDAwMDAwMDAwMSAtMjguNVE1ODUuNjAwMDAwMDAwMDAwMSAtMjUuNiA1OTIuMDAwMDAwMDAwMDAwMSAtMjUuNloiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNjgyLjIwMDAwMDAwMDAwMDIgMC4wIDY0OC42MDAwMDAwMDAwMDAxIC05Ny4ySDY3OC42MDAwMDAwMDAwMDAxTDY5OS40MDAwMDAwMDAwMDAxIC0yNi42TDY5MC42MDAwMDAwMDAwMDAxIC0yNi40MDAwMDAwMDAwMDAwMDJMNzEzLjYwMDAwMDAwMDAwMDEgLTk3LjJINzM4LjQwMDAwMDAwMDAwMDFMNzYxLjYwMDAwMDAwMDAwMDEgLTI2LjQwMDAwMDAwMDAwMDAwMkw3NTIuNjAwMDAwMDAwMDAwMSAtMjYuNkw3NzMuNjAwMDAwMDAwMDAwMSAtOTcuMkg4MDMuNjAwMDAwMDAwMDAwMUw3NzAuMDAwMDAwMDAwMDAwMSAwLjBINzQ1LjAwMDAwMDAwMDAwMDFMNzIyLjQwMDAwMDAwMDAwMDEgLTY3LjJINzMwLjAwMDAwMDAwMDAwMDFMNzA3LjAwMDAwMDAwMDAwMDEgMC4wWiIgZmlsbD0iI0ZGOEMzNSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTcwLjQ0IDIxNy4yMTAwMDAwMDAwMDAwNCkiLz4KPC9zdmc+Cg==" alt="FishFlow"></div>
+  </header>
+
+  <div class="custom">
+    <label for="biz">Pruébalo con tu negocio:</label>
+    <input id="biz" type="text" maxlength="40" placeholder="Nombre de tu autolavado" autocomplete="off">
+    <span>El nombre cambia en toda la página.</span>
+  </div>
+
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Club de Lavado · suscripciones</p>
+      <h1>Tu auto siempre limpio. <mark>Tu caja siempre llena.</mark></h1>
+      <p class="lead">Planes de 6, 12 o más lavadas al año con cargo automático a tarjeta. El cliente paga una mensualidad fija y viene cuando quiere. El autolavado cobra por adelantado y llena los días flojos.</p>
+      <div class="facts">
+        <div><b>10</b><span>planes listos para lanzar</span></div>
+        <div><b>6 · 12 · 48</b><span>lavadas al año</span></div>
+        <div><b>3</b><span>tamaños de auto</span></div>
+      </div>
+    </div>
+    <div class="card" aria-label="Ejemplo de tarjeta de socio con 4 de 12 lavadas usadas">
+      <div class="row"><div><div class="plan">Socio · Completo 12</div><div class="club"><span class="bizname">Tu Autolavado</span></div></div><span class="plate">NXR-482-B</span></div>
+      <div class="stamps" id="stamps"></div>
+      <div class="foot"><span>4 de 12 lavadas usadas</span><span id="cardprice">$149 / mes</span></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="head">
+      <p class="eyebrow">Lo que gana el autolavado</p>
+      <h2>Por qué un club de lavado conviene</h2>
+    </div>
+    <div class="perk-hero">
+      <div><b class="num" id="perk-mrr">$0</b><span>de ingreso fijo al mes con <span id="perk-subs">0</span> socios, antes de mojar el primer coche</span></div>
+      <p>Un autolavado vive del clima y del día de la semana. Con socios, una parte del mes ya está cobrada aunque llueva el lunes y el martes no llegue nadie.</p>
+    </div>
+    <div class="perk-grid">
+      <div><b>Cobro por adelantado</b><p>El cargo cae cada mes a tu cuenta, venga o no el cliente. Sabes con qué cuentas para nómina, jabón y renta.</p></div>
+      <div><b>Días flojos llenos</b><p>El socio ya pagó, así que viene martes o miércoles si le das ese horario. Tus lavadores no se quedan parados.</p></div>
+      <div><b>Clientes que no se cambian</b><p>Quien tiene su plan no se va al autolavado de la otra cuadra por $20 menos.</p></div>
+      <div><b>Más servicios por visita</b><p>Cada socio que llega es alguien a quien ofrecerle encerado, lavado de motor o vestiduras.</p></div>
+      <div><b>Cero efectivo en caja</b><p>Stripe cobra a la tarjeta. Menos cambio, menos errores al cierre del turno.</p></div>
+      <div><b>Sabes quién es tu cliente</b><p>Cada socio queda registrado por placa y teléfono. Ya no es un coche más en la fila.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head"><p class="eyebrow">Cómo funciona para el cliente</p></div>
+    <div class="steps">
+      <div><b>Elige su plan</b><p>Escanea el QR en la caja o abre el link que le mandas por WhatsApp.</p></div>
+      <div><b>Registra su placa</b><p>Y paga con tarjeta. Luego se cobra solo cada mes con Stripe.</p></div>
+      <div><b>Llega cuando quiera</b><p>Sin cita. Dice su placa y se forma como siempre.</p></div>
+      <div><b>Se le descuenta la lavada</b><p>El cajero la marca en un toque y al cliente le llega su saldo por WhatsApp.</p></div>
+    </div>
+  </section>
+
+  <section id="planes">
+    <div class="head">
+      <p class="eyebrow">Los planes</p>
+      <h2>Diez planes para empezar</h2>
+      <p class="lead">Elige el tamaño del auto y los precios se recalculan. Puedes lanzar solo tres o cuatro y agregar los demás después.</p>
+    </div>
+    <div class="controls">
+      <div><span class="ctl-label">Tamaño</span>
+        <div class="seg" role="group" aria-label="Tamaño del auto" id="sizes">
+          <button type="button" data-s="chico" aria-pressed="false">Chico</button>
+          <button type="button" data-s="mediano" aria-pressed="true">Mediano</button>
+          <button type="button" data-s="grande" aria-pressed="false">Camioneta</button>
+        </div></div>
+      <div><span class="ctl-label">Ver</span>
+        <div class="seg" role="group" aria-label="Filtrar planes" id="filters">
+          <button type="button" data-f="all" aria-pressed="true">Todos</button>
+          <button type="button" data-f="6" aria-pressed="false">6 al año</button>
+          <button type="button" data-f="12" aria-pressed="false">12 al año</button>
+          <button type="button" data-f="pro" aria-pressed="false">Uso intenso</button>
+        </div></div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <p class="note">Precios de lista de ejemplo, tomados de un autolavado real de la plataforma: Express $110 / $140 / $180, Estándar $150 / $190 / $240, Premium $200 / $250 / $320, Detallado VIP $260 / $320 / $400 (chico / mediano / camioneta). Cada autolavado pone los suyos y los planes se recalculan solos.</p>
+  </section>
+
+  <section>
+    <div class="head">
+      <p class="eyebrow">Ideas para hacerlo atractivo</p>
+      <h2>Lo que hace que el cliente diga que sí</h2>
+    </div>
+    <div class="ideas">
+      <div class="idea"><b>Garantía de lluvia</b><p>Si llueve en las 48 horas siguientes, el socio vuelve por un enjuague exterior sin que cuente como lavada. Quita el pretexto número uno para no lavar.</p></div>
+      <div class="idea"><b>Carril o horario de socio</b><p>Un horario preferente entre semana, o pasar primero los martes. Llena tus días flojos y el socio siente que vale.</p></div>
+      <div class="idea"><b>Plan para conductores de app</b><p>Uber, DiDi e inDrive necesitan el coche limpio para su calificación. Cuatro lavadas al mes a precio de socio es fácil de vender en sus grupos.</p></div>
+      <div class="idea"><b>Aviso "tu auto está listo"</b><p>Mensaje por WhatsApp cuando se termina la lavada. El cliente se va a desayunar y regresa a tiempo.</p></div>
+      <div class="idea"><b>Lavada gratis por referido</b><p>Cada socio que trae a otro socio gana una lavada. Tus clientes venden por ti en su oficina y su colonia.</p></div>
+      <div class="idea"><b>Convenios con negocios cercanos</b><p>Oficinas, gimnasios o estacionamientos de la zona: el plan como prestación para sus empleados, con factura.</p></div>
+      <div class="idea"><b>Recordatorio de lavadas</b><p>"Te quedan 5 lavadas este año." Un mensaje al mes y el socio vuelve, y siente que su plan sí le rinde.</p></div>
+      <div class="idea"><b>Regalo de bienvenida</b><p>Aromatizante o cera en spray en el segundo pago. Barato para ti y el cliente lo trae colgado en el espejo con tu nombre.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <p class="eyebrow">Los números</p>
+      <h2>¿Cuánto queda por lavada?</h2>
+    </div>
+    <div class="split">
+      <div class="box">
+        <b>Plan Completo 12 · auto mediano · <span class="num" id="ex-price">$0</span> al mes</b>
+        <table>
+          <tr><td>Mensualidad</td><td class="num" id="ex-a">$0</td></tr>
+          <tr><td>Comisión Stripe (3.6% + $3 + IVA)</td><td class="num" id="ex-b">$0</td></tr>
+          <tr><td>Te queda al mes</td><td class="num" id="ex-c">$0</td></tr>
+        </table>
+        <p class="note" id="ex-note"></p>
+      </div>
+      <div style="display:grid;gap:14px;align-content:start">
+        <p><b>Lo que das:</b> entre 15% y 35% de descuento, según cuántas lavadas incluye el plan.</p>
+        <p><b>Lo que ganas:</b> el dinero entra al inicio de cada mes, el cliente regresa contigo todo el año y cada visita es una oportunidad de venderle encerado, motor o vestiduras.</p>
+        <p><b>Lo que cuidas:</b> los planes de uso intenso llevan cupo y horario, para que los socios no te tapen la entrada el sábado en la mañana.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <p class="eyebrow">Calculadora</p>
+      <h2>¿Cuántos socios te imaginas?</h2>
+      <p class="lead">Cambia los números para ver el ingreso fijo. Usa el tamaño elegido arriba y viene con un ejemplo cargado.</p>
+    </div>
+    <div class="calc">
+      <div class="rows" id="rows"></div>
+      <div class="total" aria-live="polite">
+        <div><span>Ingreso fijo al mes</span><b id="mrr">$0</b></div>
+        <div><span>Al año</span><b class="sm" id="arr">$0</b></div>
+        <div><span>Neto después de Stripe, al mes (aprox.)</span><b class="sm" id="net">$0</b></div>
+        <div><span>Socios activos</span><b class="sm" id="subs">0</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <p class="eyebrow">Reglas del club</p>
+      <h2>Para que nadie salga perdiendo</h2>
+    </div>
+    <div class="rules">
+      <div><b>Una placa por plan</b><p>El plan es del coche, no de la persona. Así no se presta a toda la familia. Dos Autos y Flotilla registran cada placa.</p></div>
+      <div><b>Lavadas que se liberan con cada pago</b><p>Puede usar las que ya pagó más una de adelanto. Nadie paga un mes, se lava tres veces y cancela.</p></div>
+      <div><b>Plan de 12 meses</b><p>Cargo automático mensual. Al año se renueva solo y puede cancelar sin costo en la renovación.</p></div>
+      <div><b>No acumulables</b><p>Las lavadas que no use vencen al cerrar su año. Un mes antes le avisamos para que las aproveche.</p></div>
+      <div><b>Tamaño correcto</b><p>Si cambia de coche a uno más grande, el plan sube al precio de ese tamaño desde el siguiente cobro.</p></div>
+      <div><b>Tarjeta rechazada</b><p>Stripe reintenta el cobro y te avisamos. Mientras no pague, sus lavadas se congelan.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <p class="eyebrow">Lo que pone FishFlow</p>
+      <h2>Tú lavas. El cobro y el control van solos.</h2>
+    </div>
+    <div class="ffdo">
+      <div><b>Página de alta con tu marca</b><span>Link y QR para la caja y para WhatsApp.</span></div>
+      <div><b>Cobro recurrente con Stripe</b><span>Tarjeta de crédito o débito, depósito a tu cuenta.</span></div>
+      <div><b>Búsqueda por placa</b><span>El cajero teclea la placa y ve plan, saldo y si está al corriente.</span></div>
+      <div><b>Tickets y turnos</b><span>El mismo panel registra lavador, paquete y tiempos de cada coche.</span></div>
+      <div><b>Avisos por WhatsApp</b><span>Auto listo, saldo de lavadas, pago recibido, tarjeta rechazada.</span></div>
+      <div><b>Reporte mensual</b><span>Ingreso fijo, altas, bajas y servicios extra vendidos a socios.</span></div>
+    </div>
+    <a class="cta" href="https://fishflow.mx">Hagámoslo con IA</a>
+  </section>
+
+  <footer>
+    <div><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgMTM5MS4wIDI5My4yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRmlzaEZsb3ciPgogIDx0aXRsZT5GaXNoRmxvdyDigJQgTG9nbyBIb3Jpem9udGFsPC90aXRsZT4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZmYtdGlkZSIgeDE9IjE0JSIgeTE9IjUwJSIgeDI9Ijg2JSIgeTI9IjUwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzY3RDRFOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjQwJSIgIHN0b3AtY29sb3I9IiM3RkRDRUMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiICBzdG9wLWNvbG9yPSIjRDhDOUEwIiBzdG9wLW9wYWNpdHk9IjAuOTUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI2MCUiICBzdG9wLWNvbG9yPSIjRkZBRTVFIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0ZGOEMzNSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYuMDAgMTYuMDApIHNjYWxlKDAuNDM1NCkiPgogICAgPHBhdGggZD0iTSA2MDAgMzAwIEMgNzYwIDEwMCwgMTAwMCAgOTAsIDEwMDAgMzAwIEMgMTAwMCA1MTAsICA3NjAgNTAwLCA2MDAgMzAwIEMgNDQwIDEwMCwgIDIwMCAgOTAsICAyMDAgMzAwIEMgMjAwIDUxMCwgIDQ0MCA1MDAsICA2MDAgMzAwIFoiCiAgICAgIGZpbGw9Im5vbmUiCiAgICAgIHN0cm9rZT0idXJsKCNmZi10aWRlKSIKICAgICAgc3Ryb2tlLXdpZHRoPSI0NCIKICAgICAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogICAgICBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSI4ODAiIGN5PSIyNzgiIHI9IjkiIGZpbGw9IiMwQzM0NDUiIG9wYWNpdHk9IjAuNTUiLz4KICA8L2c+CiAgICA8cGF0aCBkPSJNMTMuNjAwMDAwMDAwMDAwMDAxIDAuMFYtMTQxLjIwMDAwMDAwMDAwMDAySDQ1LjBWMC4wWk0zNy42IC01NS40MDAwMDAwMDAwMDAwMDZWLTgyLjRIMTA4LjJWLTU1LjQwMDAwMDAwMDAwMDAwNlpNMzcuNiAtMTE0LjJWLTE0MS4yMDAwMDAwMDAwMDAwMkgxMTEuNFYtMTE0LjJaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTEyNi44IDAuMFYtOTcuMkgxNTcuNFYwLjBaTTE0Mi4yIC0xMTAuNjAwMDAwMDAwMDAwMDFRMTM1LjAgLTExMC42MDAwMDAwMDAwMDAwMSAxMzAuMyAtMTE1LjVRMTI1LjYgLTEyMC40IDEyNS42IC0xMjcuNFExMjUuNiAtMTM0LjYgMTMwLjMgLTEzOS40UTEzNS4wIC0xNDQuMjAwMDAwMDAwMDAwMDIgMTQyLjIgLTE0NC4yMDAwMDAwMDAwMDAwMlExNDkuNCAtMTQ0LjIwMDAwMDAwMDAwMDAyIDE1NC4wIC0xMzkuNFExNTguNiAtMTM0LjYgMTU4LjYgLTEyNy40UTE1OC42IC0xMjAuNCAxNTQuMCAtMTE1LjVRMTQ5LjQgLTExMC42MDAwMDAwMDAwMDAwMSAxNDIuMiAtMTEwLjYwMDAwMDAwMDAwMDAxWiIgZmlsbD0iIzY3RDRFOCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTcwLjQ0IDIxNy4yMTAwMDAwMDAwMDAwNCkiLz4KICAgIDxwYXRoIGQ9Ik0yMTIuMzk5OTk5OTk5OTk5OTggMi40MDAwMDAwMDAwMDAwMDA0UTIwMy43OTk5OTk5OTk5OTk5OCAyLjQwMDAwMDAwMDAwMDAwMDQgMTk1LjUgMC4yMDAwMDAwMDAwMDAwMDAxOFExODcuMiAtMi4wIDE4MC4xIC02LjEwMDAwMDAwMDAwMDAwMDVRMTczLjAgLTEwLjIwMDAwMDAwMDAwMDAwMSAxNjguMCAtMTUuNjAwMDAwMDAwMDAwMDAxTDE4NS4zOTk5OTk5OTk5OTk5OCAtMzMuMlExOTAuMiAtMjguMCAxOTYuNzk5OTk5OTk5OTk5OTggLTI1LjFRMjAzLjM5OTk5OTk5OTk5OTk4IC0yMi4yMDAwMDAwMDAwMDAwMDMgMjExLjIgLTIyLjIwMDAwMDAwMDAwMDAwM1EyMTYuNiAtMjIuMjAwMDAwMDAwMDAwMDAzIDIxOS41IC0yMy44MDAwMDAwMDAwMDAwMDRRMjIyLjM5OTk5OTk5OTk5OTk4IC0yNS40MDAwMDAwMDAwMDAwMDIgMjIyLjM5OTk5OTk5OTk5OTk4IC0yOC4yMDAwMDAwMDAwMDAwMDNRMjIyLjM5OTk5OTk5OTk5OTk4IC0zMS44IDIxOC44OTk5OTk5OTk5OTk5OCAtMzMuN1EyMTUuMzk5OTk5OTk5OTk5OTggLTM1LjYgMjEwLjAgLTM3LjFRMjA0LjYgLTM4LjYgMTk4LjYgLTQwLjQwMDAwMDAwMDAwMDAwNlExOTIuNiAtNDIuMiAxODcuMiAtNDUuNDAwMDAwMDAwMDAwMDA2UTE4MS43OTk5OTk5OTk5OTk5OCAtNDguNiAxNzguMzk5OTk5OTk5OTk5OTggLTU0LjNRMTc1LjAgLTYwLjAgMTc1LjAgLTY4LjhRMTc1LjAgLTc4LjIgMTc5LjggLTg1LjFRMTg0LjYgLTkyLjAgMTkzLjM5OTk5OTk5OTk5OTk4IC05Ni4wUTIwMi4yIC0xMDAuMCAyMTQuMCAtMTAwLjBRMjI2LjM5OTk5OTk5OTk5OTk4IC0xMDAuMCAyMzYuODk5OTk5OTk5OTk5OTggLTk1LjdRMjQ3LjM5OTk5OTk5OTk5OTk4IC05MS40IDI1NC4wIC04My4wTDIzNi42IC02NS40UTIzMi4wIC03MC44IDIyNi4zIC03My4wUTIyMC42IC03NS4yIDIxNS4yIC03NS4yUTIxMC4wIC03NS4yIDIwNy4zOTk5OTk5OTk5OTk5OCAtNzMuN1EyMDQuNzk5OTk5OTk5OTk5OTggLTcyLjIgMjA0Ljc5OTk5OTk5OTk5OTk4IC02OS40UTIwNC43OTk5OTk5OTk5OTk5OCAtNjYuNCAyMDguMiAtNjQuNjAwMDAwMDAwMDAwMDFRMjExLjYgLTYyLjgwMDAwMDAwMDAwMDAwNCAyMTcuMCAtNjEuNDAwMDAwMDAwMDAwMDA2UTIyMi4zOTk5OTk5OTk5OTk5OCAtNjAuMCAyMjguMzk5OTk5OTk5OTk5OTggLTU4LjBRMjM0LjM5OTk5OTk5OTk5OTk4IC01Ni4wIDIzOS43OTk5OTk5OTk5OTk5OCAtNTIuNlEyNDUuMiAtNDkuMiAyNDguNiAtNDMuNVEyNTIuMCAtMzcuODAwMDAwMDAwMDAwMDA0IDI1Mi4wIC0yOC42UTI1Mi4wIC0xNC40IDI0MS4zIC02LjBRMjMwLjYgMi40MDAwMDAwMDAwMDAwMDA0IDIxMi4zOTk5OTk5OTk5OTk5OCAyLjQwMDAwMDAwMDAwMDAwMDRaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTMzMC44IDAuMFYtNTUuNDAwMDAwMDAwMDAwMDA2UTMzMC44IC02My4wIDMyNi4xIC02Ny43UTMyMS40MDAwMDAwMDAwMDAwMyAtNzIuNCAzMTQuMjAwMDAwMDAwMDAwMDUgLTcyLjRRMzA5LjIwMDAwMDAwMDAwMDA1IC03Mi40IDMwNS40MDAwMDAwMDAwMDAwMyAtNzAuMzAwMDAwMDAwMDAwMDFRMzAxLjYgLTY4LjIgMjk5LjQwMDAwMDAwMDAwMDAzIC02NC4zMDAwMDAwMDAwMDAwMVEyOTcuMjAwMDAwMDAwMDAwMDUgLTYwLjQwMDAwMDAwMDAwMDAwNiAyOTcuMjAwMDAwMDAwMDAwMDUgLTU1LjQwMDAwMDAwMDAwMDAwNkwyODUuNDAwMDAwMDAwMDAwMDMgLTYxLjJRMjg1LjQwMDAwMDAwMDAwMDAzIC03Mi42MDAwMDAwMDAwMDAwMSAyOTAuMjAwMDAwMDAwMDAwMDUgLTgxLjIwMDAwMDAwMDAwMDAyUTI5NS4wIC04OS44MDAwMDAwMDAwMDAwMSAzMDMuNiAtOTQuNVEzMTIuMjAwMDAwMDAwMDAwMDUgLTk5LjIgMzIzLjQwMDAwMDAwMDAwMDAzIC05OS4yUTMzNC44IC05OS4yIDM0My40IC05NC41UTM1Mi4wIC04OS44MDAwMDAwMDAwMDAwMSAzNTYuNzAwMDAwMDAwMDAwMDUgLTgxLjVRMzYxLjQwMDAwMDAwMDAwMDAzIC03My4yIDM2MS40MDAwMDAwMDAwMDAwMyAtNjIuMlYwLjBaTTI2Ni42IDAuMFYtMTQ1LjIwMDAwMDAwMDAwMDAySDI5Ny4yMDAwMDAwMDAwMDAwNVYwLjBaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTM4MS44MDAwMDAwMDAwMDAwNyAwLjBWLTE0MS4yMDAwMDAwMDAwMDAwMkg0MTMuMjAwMDAwMDAwMDAwMDVWMC4wWk00MDUuODAwMDAwMDAwMDAwMDcgLTU1LjQwMDAwMDAwMDAwMDAwNlYtODIuNEg0NzYuNDAwMDAwMDAwMDAwMDNWLTU1LjQwMDAwMDAwMDAwMDAwNlpNNDA1LjgwMDAwMDAwMDAwMDA3IC0xMTQuMlYtMTQxLjIwMDAwMDAwMDAwMDAySDQ3OS42Vi0xMTQuMloiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNDk1LjAwMDAwMDAwMDAwMDA2IDAuMFYtMTQ1LjIwMDAwMDAwMDAwMDAySDUyNS42VjAuMFoiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNTkyLjAwMDAwMDAwMDAwMDEgMi4yUTU3Ny4wMDAwMDAwMDAwMDAxIDIuMiA1NjQuOTAwMDAwMDAwMDAwMSAtNC41UTU1Mi44MDAwMDAwMDAwMDAxIC0xMS4yMDAwMDAwMDAwMDAwMDEgNTQ1LjgwMDAwMDAwMDAwMDEgLTIyLjhRNTM4LjgwMDAwMDAwMDAwMDEgLTM0LjQgNTM4LjgwMDAwMDAwMDAwMDEgLTQ4LjgwMDAwMDAwMDAwMDAwNFE1MzguODAwMDAwMDAwMDAwMSAtNjMuMiA1NDUuODAwMDAwMDAwMDAwMSAtNzQuNlE1NTIuODAwMDAwMDAwMDAwMSAtODYuMCA1NjQuODAwMDAwMDAwMDAwMSAtOTIuN1E1NzYuODAwMDAwMDAwMDAwMSAtOTkuNCA1OTIuMDAwMDAwMDAwMDAwMSAtOTkuNFE2MDcuMiAtOTkuNCA2MTkuMiAtOTIuODAwMDAwMDAwMDAwMDFRNjMxLjIgLTg2LjIgNjM4LjIgLTc0LjdRNjQ1LjIgLTYzLjIgNjQ1LjIgLTQ4LjgwMDAwMDAwMDAwMDAwNFE2NDUuMiAtMzQuNCA2MzguMiAtMjIuOFE2MzEuMiAtMTEuMjAwMDAwMDAwMDAwMDAxIDYxOS4yIC00LjVRNjA3LjIgMi4yIDU5Mi4wMDAwMDAwMDAwMDAxIDIuMlpNNTkyLjAwMDAwMDAwMDAwMDEgLTI1LjZRNTk4LjYwMDAwMDAwMDAwMDEgLTI1LjYgNjAzLjYwMDAwMDAwMDAwMDEgLTI4LjVRNjA4LjYwMDAwMDAwMDAwMDEgLTMxLjQwMDAwMDAwMDAwMDAwMiA2MTEuMzAwMDAwMDAwMDAwMiAtMzYuN1E2MTQuMDAwMDAwMDAwMDAwMSAtNDIuMCA2MTQuMDAwMDAwMDAwMDAwMSAtNDguODAwMDAwMDAwMDAwMDA0UTYxNC4wMDAwMDAwMDAwMDAxIC01NS42IDYxMS4yIC02MC43UTYwOC40MDAwMDAwMDAwMDAxIC02NS44IDYwMy41MDAwMDAwMDAwMDAxIC02OC43UTU5OC42MDAwMDAwMDAwMDAxIC03MS42MDAwMDAwMDAwMDAwMSA1OTIuMDAwMDAwMDAwMDAwMSAtNzEuNjAwMDAwMDAwMDAwMDFRNTg1LjYwMDAwMDAwMDAwMDEgLTcxLjYwMDAwMDAwMDAwMDAxIDU4MC42MDAwMDAwMDAwMDAxIC02OC43UTU3NS42MDAwMDAwMDAwMDAxIC02NS44IDU3Mi44MDAwMDAwMDAwMDAyIC02MC42UTU3MC4wMDAwMDAwMDAwMDAxIC01NS40MDAwMDAwMDAwMDAwMDYgNTcwLjAwMDAwMDAwMDAwMDEgLTQ4LjZRNTcwLjAwMDAwMDAwMDAwMDEgLTQyLjAgNTcyLjgwMDAwMDAwMDAwMDIgLTM2LjdRNTc1LjYwMDAwMDAwMDAwMDEgLTMxLjQwMDAwMDAwMDAwMDAwMiA1ODAuNjAwMDAwMDAwMDAwMSAtMjguNVE1ODUuNjAwMDAwMDAwMDAwMSAtMjUuNiA1OTIuMDAwMDAwMDAwMDAwMSAtMjUuNloiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNjgyLjIwMDAwMDAwMDAwMDIgMC4wIDY0OC42MDAwMDAwMDAwMDAxIC05Ny4ySDY3OC42MDAwMDAwMDAwMDAxTDY5OS40MDAwMDAwMDAwMDAxIC0yNi42TDY5MC42MDAwMDAwMDAwMDAxIC0yNi40MDAwMDAwMDAwMDAwMDJMNzEzLjYwMDAwMDAwMDAwMDEgLTk3LjJINzM4LjQwMDAwMDAwMDAwMDFMNzYxLjYwMDAwMDAwMDAwMDEgLTI2LjQwMDAwMDAwMDAwMDAwMkw3NTIuNjAwMDAwMDAwMDAwMSAtMjYuNkw3NzMuNjAwMDAwMDAwMDAwMSAtOTcuMkg4MDMuNjAwMDAwMDAwMDAwMUw3NzAuMDAwMDAwMDAwMDAwMSAwLjBINzQ1LjAwMDAwMDAwMDAwMDFMNzIyLjQwMDAwMDAwMDAwMDEgLTY3LjJINzMwLjAwMDAwMDAwMDAwMDFMNzA3LjAwMDAwMDAwMDAwMDEgMC4wWiIgZmlsbD0iI0ZGOEMzNSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTcwLjQ0IDIxNy4yMTAwMDAwMDAwMDAwNCkiLz4KPC9zdmc+Cg==" alt="FishFlow"><div>Automatización inteligente para tu negocio</div></div>
+    <div>Rafa Fish · FishFlow · raf@fishflow.mx</div>
+  </footer>
+</div>
+
+<script>
+const LIST={Express:{chico:110,mediano:140,grande:180},'Estándar':{chico:150,mediano:190,grande:240},Premium:{chico:200,mediano:250,grande:320},VIP:{chico:260,mediano:320,grande:400}};
+const NAMES={Express:'Express',
+  'Estándar':'Estándar (con aspirado)',Premium:'Premium',VIP:'Detallado VIP'};
+const P=[
+ {g:'6',n:'Express 6',mix:[['Express',6]],d:.15,items:['6 lavadas Express al año','Una cada dos meses, o cuando llueva menos','Garantía de lluvia']},
+ {g:'12',n:'Express 12',mix:[['Express',12]],d:.20,items:['12 lavadas Express al año','Una al mes, o dos seguidas cuando se ensucie','Garantía de lluvia']},
+ {g:'6',n:'Completo 6',mix:[['Estándar',6]],d:.15,items:['6 lavadas con aspirado interior','Para el que cuida el coche por dentro','Aromatizante de bienvenida']},
+ {g:'12',n:'Completo 12',mix:[['Estándar',12]],d:.22,star:true,items:['12 lavadas con aspirado interior','Aromatizante de bienvenida','Garantía de lluvia']},
+ {g:'12',n:'Premium 12',mix:[['Premium',12]],d:.22,items:['12 lavadas completas con abrillantado','Cera en spray de bienvenida','Horario preferente entre semana']},
+ {g:'12',n:'Completo + Detallado',mix:[['Estándar',10],['VIP',2]],d:.20,star:true,items:['10 lavadas con aspirado','2 detallados VIP con encerado al año','El coche como nuevo cada seis meses']},
+ {g:'6',n:'Detallado 6',mix:[['VIP',6]],d:.15,items:['6 detallados VIP al año','Encerado y aromatizante en cada visita','Para el que presume su coche']},
+ {g:'pro',n:'Conductor de App',mix:[['Express',48]],d:.35,star:true,items:['4 lavadas Express al mes','Para Uber, DiDi e inDrive','Lunes a jueves, máximo una por día']},
+ {g:'pro',n:'Dos Autos',mix:[['Estándar',24]],d:.25,items:['24 lavadas con aspirado al año','Para dos placas de la misma casa','Repártanlas como quieran']},
+ {g:'pro',n:'Flotilla',mix:[['Express',12]],d:.25,unit:true,wide:true,items:['Precio por unidad, desde 5 unidades','12 lavadas Express al año por vehículo','Factura mensual y reporte por placa para el encargado de la flotilla']},
+];
+let size='mediano';
+const MX=v=>'$'+Math.round(v).toLocaleString('es-MX');
+const value=x=>x.mix.reduce((a,[s,q])=>a+LIST[s][size]*q,0);
+const monthly=x=>{const m=value(x)*(1-x.d)/12;return Math.max(9,Math.round((m+1)/10)*10-1)};
+const fee=p=>(p*0.036+3)*1.16;
+const grid=document.getElementById('grid');
+const ex=[6,10,4,14,4,5,2,8,3,10];
+function render(){
+  grid.innerHTML=P.map((x,i)=>{
+    const v=value(x),m=monthly(x),pay=m*12,save=v-pay;
+    const tag={'6':'6 al año','12':'12 al año',pro:'Uso intenso'}[x.g];
+    return `<article class="pk${x.star?' star':''}${x.wide?' wide':''}" data-g="${x.g}">
+      <div class="hd"><span class="tag">${tag}</span>${x.star?'<span class="badge">Recomendado</span>':''}</div>
+      <div style="display:grid;gap:8px"><h3>${x.n}</h3><div class="price"><b>${MX(m)}</b><span>al mes${x.unit?' por unidad':''} · 12 meses</span></div></div>
+      <ul>${x.items.map(t=>`<li>${t}</li>`).join('')}</ul>
+      <div class="val">${x.mix.map(([s,q])=>`<span>${q} × ${NAMES[s]} ${MX(LIST[s][size])}</span><span class="num">${MX(LIST[s][size]*q)}</span>`).join('')}
+        <span>El cliente paga al año</span><span class="num">${MX(pay)}</span>
+        <span class="save">Ahorra</span><span class="num save">${MX(save)} (${Math.round(save/v*100)}%)</span></div>
+    </article>`}).join('');
+  applyFilter();
+  const c=P[3],cm=monthly(c);
+  document.getElementById('cardprice').textContent=MX(cm)+' / mes';
+  const mm=P[3];const s0=size;size='mediano';const em=monthly(mm);size=s0;
+  const f=fee(em);
+  document.getElementById('ex-price').textContent=MX(em);
+  document.getElementById('ex-a').textContent='$'+em.toFixed(2);
+  document.getElementById('ex-b').textContent='−$'+f.toFixed(2);
+  document.getElementById('ex-c').textContent='$'+(em-f).toFixed(2);
+  document.getElementById('ex-note').textContent=`Si el socio usa sus 12 lavadas, cada una te deja unos ${MX(em-f)} contra ${MX(LIST['Estándar'].mediano)} de lista. Si usa 10, son ${MX((em-f)*12/10)} por lavada. Los socios que se lavan seguido compran encerado o vestiduras.`;
+  document.querySelectorAll('.rows label').forEach((l,i)=>l.querySelector('small').textContent=MX(monthly(P[i])));
+  calc();
+}
+let filter='all';
+function applyFilter(){grid.querySelectorAll('.pk').forEach(c=>c.hidden=!(filter==='all'||c.dataset.g===filter))}
+function wireSeg(id,fn){const g=document.getElementById(id);g.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{g.querySelectorAll('button').forEach(o=>o.setAttribute('aria-pressed',o===b));fn(b)}))}
+wireSeg('sizes',b=>{size=b.dataset.s;render()});
+wireSeg('filters',b=>{filter=b.dataset.f;applyFilter()});
+document.getElementById('rows').innerHTML=P.map((x,i)=>`<label for="q${i}"><span>${x.n}${x.unit?' (unidades)':''}<small></small></span><input id="q${i}" type="number" min="0" max="500" inputmode="numeric" value="${ex[i]}"></label>`).join('');
+function calc(){
+  let m=0,net=0,s=0;
+  P.forEach((x,i)=>{const q=Math.max(0,+document.getElementById('q'+i).value||0);const p=monthly(x);m+=q*p;s+=q;net+=q*(p-fee(p))});
+  document.getElementById('mrr').textContent=MX(m);document.getElementById('arr').textContent=MX(m*12);
+  document.getElementById('net').textContent=MX(net);document.getElementById('subs').textContent=s;
+  document.getElementById('perk-mrr').textContent=MX(m);document.getElementById('perk-subs').textContent=s;
+}
+document.getElementById('rows').addEventListener('input',calc);
+document.getElementById('stamps').innerHTML=Array.from({length:12},(_,i)=>`<i class="${i<4?'on':''}" style="animation-delay:${i*70}ms">${i+1}</i>`).join('');
+const biz=document.getElementById('biz');
+function setName(v){const n=(v||'').trim()||'Tu Autolavado';document.querySelectorAll('.bizname').forEach(e=>e.textContent=n);document.title='Club de Lavado · '+n}
+let qn='';try{qn=new URLSearchParams(location.search).get('n')||''}catch(e){}
+if(qn){biz.value=qn;setName(qn)}
+biz.addEventListener('input',()=>setName(biz.value));
+render();
+</script>
+</body>
+</html>
