@@ -41,10 +41,10 @@ window.LUKON_CONFIG = {
   whatsapp: "",         // ← WhatsApp de ventas de Lukon, solo dígitos con 52 (pendiente)
   // Precios en MXN. null = "por confirmar". IVA: indicar en ivaIncluido.
   precios: {
-    gps:     { equipo: null, mensual: null },
-    dashcam: { equipo: null, mensual: null },
+    gps:     { equipo: 2299, mensual: 389 },
+    dashcam: { equipo: 6499, mensual: 1199 },
     combo:   { equipo: 8499, mensual: 1499 },   // GPS + Dashcam
-    descuentoAnual: null,   // ← % de descuento del plan anual, ej. 15
+    mesesGratisAnual: 1,    // plan anual: pagas 12 - N meses
     ivaIncluido: false,
   },
 };
@@ -407,6 +407,7 @@ button{font:inherit;cursor:pointer;}
 .fleet-band b{display:block;font-size:19px;}
 .fleet-band span{color:rgba(255,255,255,.85);font-size:14.5px;}
 .fleet-band .btn{position:relative;z-index:1;}
+.combo-save{margin:-8px 0 18px;font-size:13px;font-weight:700;color:#35e08a;}
 .price-legal{text-align:center;color:rgba(255,255,255,.5);font-size:12.5px;margin-top:22px;}
 @media(max-width:1060px){.plans{grid-template-columns:minmax(0,520px);}.plan.feat-plan{order:-1;}}
 
@@ -921,6 +922,7 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
         <div class="price"><span class="amt" data-amt>$—</span><span class="per">MXN<br>al mes</span></div>
         <p class="price-note" data-note></p>
         <div class="setup"><div>Kit GPS + Dashcam e instalación<small>Pago único</small></div><b data-setup>$—</b></div>
+        <p class="combo-save" data-combo-save></p>
         <ul>
           <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Todo lo de Lukon GPS</li>
           <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Todo lo de Lukon Dashcam</li>
@@ -1318,18 +1320,23 @@ tabs.forEach(function(b){ b.addEventListener("pointerdown", function(){ tabs._to
 var P = CFG.precios || {}, billing = "mes", selectedPlan = "";
 var money = function(v){ return "$" + Math.round(v).toLocaleString("es-MX"); };
 function renderPrices(animate){
-  var d = +P.descuentoAnual || 0;
-  $("#saveTag").textContent = d ? "−" + d + "%" : "Ahorra";
+  var free = +P.mesesGratisAnual || 0;
+  $("#saveTag").textContent = free ? free + (free > 1 ? " meses gratis" : " mes gratis") : "Ahorra";
   $$(".plan[data-plan]").forEach(function(card){
     var c = P[card.dataset.plan] || {}, amt = $("[data-amt]", card), note = $("[data-note]", card), setup = $("[data-setup]", card);
     var m = c.mensual;
     if(m == null){ amt.innerHTML = "$—"; note.innerHTML = '<span class="tbd">Por confirmar</span>'; }
-    else if(billing === "anual" && d){
-      var anual = m * 12 * (1 - d/100);
+    else if(billing === "anual" && free){
+      var anual = m * (12 - free);
       amt.textContent = money(anual / 12);
-      note.textContent = "Pagando " + money(anual) + " al año. Ahorras " + money(m * 12 - anual) + ".";
+      note.textContent = "Pagas " + money(anual) + " al año (12 meses por " + (12 - free) + ").";
     } else if(billing === "anual"){ amt.textContent = money(m); note.innerHTML = 'Descuento anual <span class="tbd">Por confirmar</span>'; }
     else { amt.textContent = money(m); note.textContent = "Por vehículo, pago mes a mes."; }
+    var cs = $("[data-combo-save]", card);
+    if(cs && P.gps && P.dashcam && P.gps.mensual != null && P.dashcam.mensual != null && c.mensual != null){
+      var se = P.gps.equipo + P.dashcam.equipo - c.equipo, sm = (P.gps.mensual + P.dashcam.mensual - c.mensual) * (billing === "anual" ? (12 - free) : 1);
+      cs.textContent = "Ahorras " + money(se) + " en equipo y " + money(sm) + (billing === "anual" ? " al año" : " al mes") + " contra comprarlos por separado";
+    }
     setup.innerHTML = c.equipo == null ? '$— <span class="tbd">Por confirmar</span>' : money(c.equipo);
     if(animate){ amt.classList.remove("flip"); void amt.offsetWidth; amt.classList.add("flip"); }
   });
