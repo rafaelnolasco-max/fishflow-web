@@ -39,6 +39,13 @@
 window.LUKON_CONFIG = {
   pixelId: "",          // ← ID del Pixel de Meta de Lukon (pendiente)
   whatsapp: "",         // ← WhatsApp de ventas de Lukon, solo dígitos con 52 (pendiente)
+  // Precios en MXN. null = "por confirmar". IVA: indicar en ivaIncluido.
+  precios: {
+    gps:     { equipo: null, mensual: null },
+    dashcam: { equipo: null, mensual: null },
+    descuentoAnual: null,   // ← % de descuento del plan anual, ej. 15
+    ivaIncluido: true,
+  },
 };
 (function(){
   var id = window.LUKON_CONFIG.pixelId;
@@ -361,6 +368,47 @@ button{font:inherit;cursor:pointer;}
 .camview .face{position:absolute;left:50%;top:22%;width:34%;aspect-ratio:.85;transform:translateX(-50%);border-radius:50% 50% 45% 45%;background:#3b4f86;box-shadow:0 0 0 2px #35e08a;}
 .camview .face em{position:absolute;left:50%;top:118%;transform:translateX(-50%);white-space:nowrap;font:700 8.5px var(--body);font-style:normal;color:#35e08a;}
 
+/* ---------- Precios ---------- */
+.pricing{position:relative;overflow:hidden;background:radial-gradient(80% 60% at 50% 0%,rgba(6,56,181,.55),transparent 70%),var(--ink);}
+.pricing .head{text-align:center;max-width:760px;margin:0 auto;}
+.pricing .head .lede{margin:0 auto;}
+.billing{display:flex;width:fit-content;margin:30px auto 0;position:relative;padding:6px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);}
+.billing button{position:relative;z-index:1;border:0;background:transparent;color:rgba(255,255,255,.7);font-weight:700;font-size:14px;padding:11px 22px;border-radius:999px;display:flex;gap:8px;align-items:center;transition:color .3s;}
+.billing button[aria-pressed="true"]{color:#fff;}
+.billing .save{font-size:11px;font-weight:800;background:#35e08a;color:#03210f;padding:3px 8px;border-radius:99px;}
+.billing .pill{position:absolute;top:6px;bottom:6px;border-radius:999px;background:var(--blue);box-shadow:0 8px 22px -6px rgba(0,132,249,.8);transition:left .45s var(--ease),width .45s var(--ease);}
+.plans{display:grid;grid-template-columns:repeat(2,minmax(0,440px));justify-content:center;gap:22px;margin-top:44px;}
+.plan{position:relative;border-radius:28px;padding:clamp(24px,3vw,36px);background:linear-gradient(165deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .4s var(--ease),border-color .4s,box-shadow .4s;}
+.plan:hover{transform:translateY(-6px);border-color:rgba(0,132,249,.55);box-shadow:0 40px 80px -40px rgba(0,132,249,.6);}
+.plan.feat-plan{background:linear-gradient(165deg,rgba(0,132,249,.28),rgba(6,56,181,.12) 60%,rgba(255,255,255,.02));border-color:rgba(0,132,249,.5);}
+.plan .badge{position:absolute;top:-13px;left:28px;background:#fff;color:var(--navy);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:99px;}
+.plan .ptype{font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--blue-2);}
+.plan h3{font-family:var(--display);font-weight:400;font-size:clamp(40px,4vw,54px);line-height:.95;margin:8px 0 6px;}
+.plan .for{color:rgba(255,255,255,.7);font-size:14.5px;margin:0 0 22px;}
+.price{display:flex;align-items:flex-end;gap:8px;min-height:84px;}
+.price .amt{font-family:var(--display);font-size:clamp(68px,7vw,88px);line-height:.85;font-variant-numeric:tabular-nums;display:inline-block;}
+.price .amt.flip{animation:priceIn .5s var(--ease);}
+@keyframes priceIn{from{opacity:0;transform:translateY(30%);filter:blur(4px);}to{opacity:1;transform:none;filter:none;}}
+.price .per{color:rgba(255,255,255,.65);font-size:14px;line-height:1.3;padding-bottom:8px;}
+.price-note{font-size:13px;color:rgba(255,255,255,.6);margin:8px 0 0;min-height:20px;}
+.tbd{display:inline-block;margin-left:6px;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,179,71,.18);color:#ffcf8a;padding:3px 8px;border-radius:99px;vertical-align:middle;}
+.setup{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:20px 0;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);font-size:14px;}
+.setup b{font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.setup small{display:block;color:rgba(255,255,255,.55);font-size:12px;}
+.plan ul{list-style:none;padding:0;margin:0 0 26px;display:grid;gap:10px;flex:1;}
+.plan li{display:flex;gap:10px;font-size:14.5px;color:rgba(255,255,255,.85);}
+.plan li svg{width:19px;height:19px;stroke:var(--blue);flex:none;margin-top:2px;}
+.plan .btn{justify-content:center;}
+.fleet-band{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;max-width:902px;margin:26px auto 0;padding:24px 28px;border-radius:24px;background:linear-gradient(100deg,var(--blue),var(--royal));box-shadow:0 30px 60px -30px rgba(0,132,249,.8);position:relative;overflow:hidden;}
+.fleet-band::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;border:2px solid rgba(255,255,255,.2);box-shadow:0 0 0 30px rgba(255,255,255,.06),0 0 0 60px rgba(255,255,255,.04);animation:spinSlow 18s linear infinite;}
+@keyframes spinSlow{to{transform:rotate(360deg);}}
+.fleet-band .n3{font-family:var(--display);font-size:64px;line-height:.8;}
+.fleet-band b{display:block;font-size:19px;}
+.fleet-band span{color:rgba(255,255,255,.85);font-size:14.5px;}
+.fleet-band .btn{position:relative;z-index:1;}
+.price-legal{text-align:center;color:rgba(255,255,255,.5);font-size:12.5px;margin-top:22px;}
+@media(max-width:860px){.plans{grid-template-columns:minmax(0,520px);}}
+
 /* ---------- Flotillas ---------- */
 .fleet{background:var(--paper);overflow:hidden;}
 .fleet-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(28px,5vw,70px);align-items:center;}
@@ -545,6 +593,7 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
       <a href="#como">Cómo funciona</a>
       <a href="#app">La app</a>
       <a href="#flotillas">Flotillas</a>
+      <a href="#precios">Precios</a>
       <a href="#faq">Preguntas</a>
     </nav>
     <div class="nav-cta">
@@ -560,6 +609,7 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
   <a href="#como">Cómo funciona</a>
   <a href="#app">La app</a>
   <a href="#flotillas">Flotillas</a>
+  <a href="#precios">Precios</a>
   <a href="#faq">Preguntas</a>
   <a href="#control" class="btn btn--primary">Toma el control</a>
 </div>
@@ -832,6 +882,65 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
   </div>
 </section>
 
+<!-- =============================== PRECIOS =============================== -->
+<section class="sec pricing" id="precios">
+  <div class="ff-container">
+    <div class="head">
+      <span class="eyebrow rv">Precios</span>
+      <h2 class="display h2 split" data-split>Elige cómo proteger tu vehículo</h2>
+      <p class="lede rv">Pagas el equipo una sola vez y una suscripción para la app y el monitoreo. Con plan anual pagas menos.</p>
+    </div>
+    <div class="billing rv" role="group" aria-label="Forma de pago">
+      <span class="pill" aria-hidden="true"></span>
+      <button type="button" data-b="mes" aria-pressed="true">Mensual</button>
+      <button type="button" data-b="anual" aria-pressed="false">Anual <span class="save" id="saveTag">Ahorra</span></button>
+    </div>
+    <div class="plans">
+      <article class="plan rv" style="--d:0" data-plan="gps">
+        <span class="ptype">RASTREADOR GPS</span>
+        <h3>Lukon GPS</h3>
+        <p class="for">Para tu auto, tu moto o tu camioneta.</p>
+        <div class="price"><span class="amt" data-amt>$—</span><span class="per">MXN<br>al mes</span></div>
+        <p class="price-note" data-note></p>
+        <div class="setup"><div>Equipo e instalación<small>Pago único</small></div><b data-setup>$—</b></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Ubicación en tiempo real en la app</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Historial de recorridos</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Alertas de encendido, velocidad y zonas</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Inmovilización remota</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Kilometraje y estilo de manejo</li>
+        </ul>
+        <a href="#control" class="btn btn--primary js-plan" data-plan="GPS">Quiero Lukon GPS</a>
+      </article>
+      <article class="plan feat-plan rv" style="--d:2" data-plan="dashcam">
+        <span class="badge">Para trabajo y flotillas</span>
+        <span class="ptype">DASHCAM CON IA</span>
+        <h3>Lukon Dashcam</h3>
+        <p class="for">Ojos en el camino y en la cabina.</p>
+        <div class="price"><span class="amt" data-amt>$—</span><span class="per">MXN<br>al mes</span></div>
+        <p class="price-note" data-note></p>
+        <div class="setup"><div>Equipo e instalación<small>Pago único</small></div><b data-setup>$—</b></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Doble cámara HD: camino y cabina</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Alertas de fatiga, distracción y celular</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Aviso de vehículo adelante y salida de carril</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Video de eventos en la nube</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Revisa y descarga desde la app</li>
+        </ul>
+        <a href="#control" class="btn btn--primary js-plan" data-plan="Dashcam">Quiero Lukon Dashcam</a>
+      </article>
+    </div>
+    <div class="fleet-band rv-scale">
+      <div style="display:flex;gap:18px;align-items:center;position:relative;z-index:1">
+        <span class="n3">3+</span>
+        <div><b>¿Tienes 3 vehículos o más?</b><span>Tienes precio especial de flotilla y tablero para ver todas tus unidades.</span></div>
+      </div>
+      <a href="#control" class="btn btn--wa js-flota js-plan" data-plan="Flotilla">Cotizar mi flotilla</a>
+    </div>
+    <p class="price-legal" id="priceLegal">Precios en pesos mexicanos.</p>
+  </div>
+</section>
+
 <!-- =============================== CAMPAÑA =============================== -->
 <section class="brandwall" id="campana" aria-label="Campaña Lukon" style="padding:clamp(40px,6vw,80px) 0">
   <div class="adreel" aria-hidden="true">
@@ -858,7 +967,7 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
         <div class="qa rv"><button aria-expanded="false">¿Qué pasa si me roban el vehículo?<span class="pm"></span></button><div class="a"><div><p>Ves en el mapa dónde está en ese momento y puedes inmovilizarlo a distancia desde la app, de forma segura. Así tienes información real para actuar rápido.</p></div></div></div>
         <div class="qa rv"><button aria-expanded="false">¿Necesito internet en el vehículo?<span class="pm"></span></button><div class="a"><div><p>No. El equipo trae su propia conexión celular. Funciona donde haya cobertura de red.</p></div></div></div>
         <div class="qa rv"><button aria-expanded="false">¿Quién hace la instalación?<span class="pm"></span></button><div class="a"><div><p>Un técnico de Lukon. El equipo queda oculto y protegido, y te enseñamos a usar la app antes de irnos.</p></div></div></div>
-        <div class="qa rv"><button aria-expanded="false">¿Cuánto cuesta?<span class="pm"></span></button><div class="a"><div><p>Depende del vehículo y del equipo que necesites. Déjanos tus datos y te mandamos una cotización a tu medida por WhatsApp.</p></div></div></div>
+        <div class="qa rv"><button aria-expanded="false">¿Cuánto cuesta?<span class="pm"></span></button><div class="a"><div><p>Pagas el equipo con su instalación una sola vez y después una suscripción mensual o anual. Los precios están en la sección <a href="#precios" style="color:var(--blue);font-weight:700">Precios</a>; si tienes 3 vehículos o más, te damos precio de flotilla.</p></div></div></div>
       </div>
     </div>
   </div>
@@ -921,7 +1030,8 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
       </div>
       <nav aria-label="Pie de página">
         <a href="#que-es">Qué es Lukon</a><a href="#app">La app</a>
-        <a href="#vehiculos">Tu vehículo</a><a href="#flotillas">Flotillas</a>
+        <a href="#vehiculos">Tu vehículo</a><a href="#precios">Precios</a>
+        <a href="#flotillas">Flotillas</a>
         <a href="#como">Cómo funciona</a><a href="#faq">Preguntas</a>
       </nav>
       <a href="#control" class="btn btn--primary">Toma el control</a>
@@ -1188,6 +1298,45 @@ new IntersectionObserver(function(e){
 }, {threshold:.4}).observe($("#vehiculos"));
 tabs.forEach(function(b){ b.addEventListener("pointerdown", function(){ tabs._touched = true; }); });
 
+/* ---------- Precios ---------- */
+var P = CFG.precios || {}, billing = "mes", selectedPlan = "";
+var money = function(v){ return "$" + Math.round(v).toLocaleString("es-MX"); };
+function renderPrices(animate){
+  var d = +P.descuentoAnual || 0;
+  $("#saveTag").textContent = d ? "−" + d + "%" : "Ahorra";
+  $$(".plan[data-plan]").forEach(function(card){
+    var c = P[card.dataset.plan] || {}, amt = $("[data-amt]", card), note = $("[data-note]", card), setup = $("[data-setup]", card);
+    var m = c.mensual;
+    if(m == null){ amt.innerHTML = "$—"; note.innerHTML = '<span class="tbd">Por confirmar</span>'; }
+    else if(billing === "anual" && d){
+      var anual = m * 12 * (1 - d/100);
+      amt.textContent = money(anual / 12);
+      note.textContent = "Pagando " + money(anual) + " al año. Ahorras " + money(m * 12 - anual) + ".";
+    } else if(billing === "anual"){ amt.textContent = money(m); note.innerHTML = 'Descuento anual <span class="tbd">Por confirmar</span>'; }
+    else { amt.textContent = money(m); note.textContent = "Pago mes a mes."; }
+    setup.innerHTML = c.equipo == null ? '$— <span class="tbd">Por confirmar</span>' : money(c.equipo);
+    if(animate){ amt.classList.remove("flip"); void amt.offsetWidth; amt.classList.add("flip"); }
+  });
+  $("#priceLegal").textContent = "Precios en pesos mexicanos" + (P.ivaIncluido ? ", IVA incluido." : " más IVA.");
+}
+var bBtns = $$(".billing button"), bPill = $(".billing .pill");
+function placeB(b){ bPill.style.left = b.offsetLeft + "px"; bPill.style.width = b.offsetWidth + "px"; }
+bBtns.forEach(function(b){ b.addEventListener("click", function(){
+  if(b.dataset.b === billing) return; billing = b.dataset.b;
+  bBtns.forEach(function(x){ x.setAttribute("aria-pressed", x === b); }); placeB(b); renderPrices(!reduce);
+  track("PlanFacturacion", {plan: billing}, true);
+}); });
+renderPrices(false);
+requestAnimationFrame(function(){ placeB(bBtns[0]); });
+if(document.fonts) document.fonts.ready.then(function(){ placeB($('.billing button[aria-pressed="true"]')); placePill($('#vtabs button[aria-selected="true"]')); });
+window.addEventListener("resize", function(){ placeB($('.billing button[aria-pressed="true"]')); });
+var seenPrices = false;
+new IntersectionObserver(function(e){ if(e[0].isIntersecting && !seenPrices){ seenPrices = true; track("ViewContent", {content_name: "precios"}); } }, {threshold:.3}).observe($("#precios"));
+$$(".js-plan").forEach(function(a){ a.addEventListener("click", function(){
+  selectedPlan = a.dataset.plan + (billing === "anual" ? " (plan anual)" : " (plan mensual)");
+  track("PlanSeleccionado", {plan: selectedPlan}, true);
+}); });
+
 /* ---------- Pasos: riel que se llena con el scroll ---------- */
 var steps = $("#steps"), rail = $("#steps .rail i"), stepEls = $$("#steps .step");
 function stepsProgress(){
@@ -1246,7 +1395,7 @@ form.addEventListener("submit", function(e){
   var veh = $('input[name="vehiculo"]:checked').value;
   var data = {nombre:nombre.value.trim(), tel:tel.value.replace(/\D/g,""), vehiculo:veh, unidades: veh === "Flotilla" ? $("#unidades").value : "", cp:$("#cp").value.trim(), utm:utm};
   track("Lead", {content_name: "cotizacion", content_category: veh});
-  var msg = "Hola Lukon, soy " + data.nombre + ". Quiero cotizar para: " + veh + (data.unidades ? " (" + data.unidades + " unidades)" : "") + (data.cp ? ". C.P. " + data.cp : "") + campaign + ".";
+  var msg = "Hola Lukon, soy " + data.nombre + ". Quiero cotizar para: " + veh + (selectedPlan ? " · " + selectedPlan : "") + (data.unidades ? " (" + data.unidades + " unidades)" : "") + (data.cp ? ". C.P. " + data.cp : "") + campaign + ".";
   $("#okName").textContent = data.nombre.split(" ")[0];
   form.classList.add("sent");
   var url = waLink(msg);
