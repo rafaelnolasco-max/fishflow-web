@@ -43,8 +43,9 @@ window.LUKON_CONFIG = {
   precios: {
     gps:     { equipo: null, mensual: null },
     dashcam: { equipo: null, mensual: null },
+    combo:   { equipo: 8499, mensual: 1499 },   // GPS + Dashcam
     descuentoAnual: null,   // ← % de descuento del plan anual, ej. 15
-    ivaIncluido: true,
+    ivaIncluido: false,
   },
 };
 (function(){
@@ -377,7 +378,7 @@ button{font:inherit;cursor:pointer;}
 .billing button[aria-pressed="true"]{color:#fff;}
 .billing .save{font-size:11px;font-weight:800;background:#35e08a;color:#03210f;padding:3px 8px;border-radius:99px;}
 .billing .pill{position:absolute;top:6px;bottom:6px;border-radius:999px;background:var(--blue);box-shadow:0 8px 22px -6px rgba(0,132,249,.8);transition:left .45s var(--ease),width .45s var(--ease);}
-.plans{display:grid;grid-template-columns:repeat(2,minmax(0,440px));justify-content:center;gap:22px;margin-top:44px;}
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));justify-content:center;gap:22px;margin-top:44px;}
 .plan{position:relative;border-radius:28px;padding:clamp(24px,3vw,36px);background:linear-gradient(165deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .4s var(--ease),border-color .4s,box-shadow .4s;}
 .plan:hover{transform:translateY(-6px);border-color:rgba(0,132,249,.55);box-shadow:0 40px 80px -40px rgba(0,132,249,.6);}
 .plan.feat-plan{background:linear-gradient(165deg,rgba(0,132,249,.28),rgba(6,56,181,.12) 60%,rgba(255,255,255,.02));border-color:rgba(0,132,249,.5);}
@@ -399,7 +400,7 @@ button{font:inherit;cursor:pointer;}
 .plan li{display:flex;gap:10px;font-size:14.5px;color:rgba(255,255,255,.85);}
 .plan li svg{width:19px;height:19px;stroke:var(--blue);flex:none;margin-top:2px;}
 .plan .btn{justify-content:center;}
-.fleet-band{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;max-width:902px;margin:26px auto 0;padding:24px 28px;border-radius:24px;background:linear-gradient(100deg,var(--blue),var(--royal));box-shadow:0 30px 60px -30px rgba(0,132,249,.8);position:relative;overflow:hidden;}
+.fleet-band{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;margin:26px auto 0;padding:24px 28px;border-radius:24px;background:linear-gradient(100deg,var(--blue),var(--royal));box-shadow:0 30px 60px -30px rgba(0,132,249,.8);position:relative;overflow:hidden;}
 .fleet-band::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;border:2px solid rgba(255,255,255,.2);box-shadow:0 0 0 30px rgba(255,255,255,.06),0 0 0 60px rgba(255,255,255,.04);animation:spinSlow 18s linear infinite;}
 @keyframes spinSlow{to{transform:rotate(360deg);}}
 .fleet-band .n3{font-family:var(--display);font-size:64px;line-height:.8;}
@@ -407,7 +408,7 @@ button{font:inherit;cursor:pointer;}
 .fleet-band span{color:rgba(255,255,255,.85);font-size:14.5px;}
 .fleet-band .btn{position:relative;z-index:1;}
 .price-legal{text-align:center;color:rgba(255,255,255,.5);font-size:12.5px;margin-top:22px;}
-@media(max-width:860px){.plans{grid-template-columns:minmax(0,520px);}}
+@media(max-width:1060px){.plans{grid-template-columns:minmax(0,520px);}.plan.feat-plan{order:-1;}}
 
 /* ---------- Flotillas ---------- */
 .fleet{background:var(--paper);overflow:hidden;}
@@ -888,7 +889,7 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
     <div class="head">
       <span class="eyebrow rv">Precios</span>
       <h2 class="display h2 split" data-split>Elige cómo proteger tu vehículo</h2>
-      <p class="lede rv">Pagas el equipo una sola vez y una suscripción para la app y el monitoreo. Con plan anual pagas menos.</p>
+      <p class="lede rv">Pagas el equipo una sola vez y una suscripción para la app y el monitoreo. Precios por vehículo. Con plan anual pagas menos.</p>
     </div>
     <div class="billing rv" role="group" aria-label="Forma de pago">
       <span class="pill" aria-hidden="true"></span>
@@ -912,8 +913,23 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
         </ul>
         <a href="#control" class="btn btn--primary js-plan" data-plan="GPS">Quiero Lukon GPS</a>
       </article>
-      <article class="plan feat-plan rv" style="--d:2" data-plan="dashcam">
-        <span class="badge">Para trabajo y flotillas</span>
+      <article class="plan feat-plan rv" style="--d:1" data-plan="combo">
+        <span class="badge">Paquete completo</span>
+        <span class="ptype">GPS + DASHCAM CON IA</span>
+        <h3>Lukon Total</h3>
+        <p class="for">Ubicación, video y alertas en un solo equipo instalado.</p>
+        <div class="price"><span class="amt" data-amt>$—</span><span class="per">MXN<br>al mes</span></div>
+        <p class="price-note" data-note></p>
+        <div class="setup"><div>Kit GPS + Dashcam e instalación<small>Pago único</small></div><b data-setup>$—</b></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Todo lo de Lukon GPS</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Todo lo de Lukon Dashcam</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Plataforma Lukon y video de la dashcam en una suscripción</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Ideal para unidades de trabajo y reparto</li>
+        </ul>
+        <a href="#control" class="btn btn--primary js-plan" data-plan="Lukon Total (GPS + Dashcam)">Quiero el paquete</a>
+      </article>
+      <article class="plan rv" style="--d:2" data-plan="dashcam">
         <span class="ptype">DASHCAM CON IA</span>
         <h3>Lukon Dashcam</h3>
         <p class="for">Ojos en el camino y en la cabina.</p>
@@ -1313,7 +1329,7 @@ function renderPrices(animate){
       amt.textContent = money(anual / 12);
       note.textContent = "Pagando " + money(anual) + " al año. Ahorras " + money(m * 12 - anual) + ".";
     } else if(billing === "anual"){ amt.textContent = money(m); note.innerHTML = 'Descuento anual <span class="tbd">Por confirmar</span>'; }
-    else { amt.textContent = money(m); note.textContent = "Pago mes a mes."; }
+    else { amt.textContent = money(m); note.textContent = "Por vehículo, pago mes a mes."; }
     setup.innerHTML = c.equipo == null ? '$— <span class="tbd">Por confirmar</span>' : money(c.equipo);
     if(animate){ amt.classList.remove("flip"); void amt.offsetWidth; amt.classList.add("flip"); }
   });
