@@ -1021,6 +1021,7 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
           <div class="field hidden" id="fUnidades"><label for="unidades">¿Cuántas unidades?</label>
             <select id="unidades" name="unidades"><option>2 a 5</option><option>6 a 15</option><option>16 a 50</option><option>Más de 50</option></select></div>
           <div class="field"><label for="nombre">Tu nombre</label><input id="nombre" name="nombre" autocomplete="name" required placeholder="¿Cómo te llamas?"></div>
+          <div class="field"><label for="email">Correo electrónico <span style="font-weight:500;color:var(--muted)">(opcional)</span></label><input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Para mandarte la cotización por escrito"></div>
           <div class="row2">
             <div class="field"><label for="tel">WhatsApp</label><input id="tel" name="tel" type="tel" inputmode="tel" autocomplete="tel" required placeholder="10 dígitos" pattern="[0-9 ]{10,14}"></div>
             <div class="field"><label for="cp">Código postal</label><input id="cp" name="cp" inputmode="numeric" autocomplete="postal-code" placeholder="Opcional" maxlength="5"></div>
@@ -1411,14 +1412,18 @@ $$('input[name="vehiculo"]').forEach(function(r){ r.addEventListener("change", f
 $$(".js-flota").forEach(function(a){ a.addEventListener("click", function(){ var r = $("#v-flota"); r.checked = true; r.dispatchEvent(new Event("change")); }); });
 form.addEventListener("submit", function(e){
   e.preventDefault();
-  var nombre = $("#nombre"), tel = $("#tel"), ok = true;
+  var nombre = $("#nombre"), tel = $("#tel"), email = $("#email"), ok = true;
+  var emailBad = email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+  email.style.borderColor = emailBad ? "#e0393e" : ""; if(emailBad) ok = false;
   [nombre, tel].forEach(function(i){ var bad = !i.value.trim() || (i === tel && i.value.replace(/\D/g,"").length < 10);
     i.style.borderColor = bad ? "#e0393e" : ""; if(bad) ok = false; });
   if(!ok){ form.animate && form.animate([{transform:"translateX(0)"},{transform:"translateX(-8px)"},{transform:"translateX(8px)"},{transform:"translateX(0)"}], {duration:320}); return; }
   var veh = $('input[name="vehiculo"]:checked').value;
-  var data = {nombre:nombre.value.trim(), tel:tel.value.replace(/\D/g,""), vehiculo:veh, unidades: veh === "Flotilla" ? $("#unidades").value : "", cp:$("#cp").value.trim(), utm:utm};
+  var data = {nombre:nombre.value.trim(), tel:tel.value.replace(/\D/g,""), email:email.value.trim().toLowerCase(), vehiculo:veh, unidades: veh === "Flotilla" ? $("#unidades").value : "", cp:$("#cp").value.trim(), utm:utm};
+  // Coincidencia avanzada de Meta: el Pixel cifra correo y teléfono antes de enviarlos
+  try{ if(window.fbq && CFG.pixelId){ var ud = {ph: "52" + data.tel.slice(-10), fn: data.nombre.split(" ")[0].toLowerCase()}; if(data.email) ud.em = data.email; fbq("init", CFG.pixelId, ud); } }catch(e){}
   track("Lead", {content_name: "cotizacion", content_category: veh});
-  var msg = "Hola Lukon, soy " + data.nombre + ". Quiero cotizar para: " + veh + (selectedPlan ? " · " + selectedPlan : "") + (data.unidades ? " (" + data.unidades + " unidades)" : "") + (data.cp ? ". C.P. " + data.cp : "") + campaign + ".";
+  var msg = "Hola Lukon, soy " + data.nombre + ". Quiero cotizar para: " + veh + (selectedPlan ? " · " + selectedPlan : "") + (data.unidades ? " (" + data.unidades + " unidades)" : "") + (data.cp ? ". C.P. " + data.cp : "") + (data.email ? ". Correo: " + data.email : "") + campaign + ".";
   $("#okName").textContent = data.nombre.split(" ")[0];
   form.classList.add("sent");
   var url = waLink(msg);
