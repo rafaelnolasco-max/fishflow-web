@@ -240,6 +240,37 @@ export const EMAIL_BRANDS = {
     sitio: { url: 'https://www.fishflow.mx/demos/dimex/', etiqueta: 'Tienda DIMEX' },
     pieLegal: 'DIMEX Didácticos México · Fabricantes mexicanos',
   },
+  /**
+   * Lukon (rebranding nov-2026): navy #10336B del logotipo, azul eléctrico
+   * #0084F9, Bebas Neue + Inter como la landing. Logo vectorizado del master.
+   */
+  lukon: {
+    nombre: 'Lukon',
+    logo: {
+      src: `${ORIGIN}/clients/lukon/email-logo.png`,
+      width: 150,
+      height: 46,
+      alt: 'LUKON',
+    },
+    color: {
+      primario: '#10336B',
+      acento: '#0084F9',
+      acentoTexto: '#0062C4',
+      tinta: '#0B1A3A',
+      gris: '#5A6B8C',
+      linea: '#DCE5F3',
+      papel: '#F6F9FE',
+      suave: '#E9F2FF',
+      boton: '#0084F9',
+    },
+    fuente: {
+      titulos: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
+      cuerpo: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+      googleFonts: 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap',
+    },
+    sitio: { url: 'https://www.fishflow.mx/demos/lukon-sitio/', etiqueta: 'Lukon' },
+    pieLegal: 'Lukon Localization System · Todo Inteligente. Todo Seguro.',
+  },
 } satisfies Record<string, EmailBrand>
 
 export type EmailBrandKey = keyof typeof EMAIL_BRANDS

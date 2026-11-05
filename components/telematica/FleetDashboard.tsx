@@ -152,7 +152,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
     setEditing(true);
   }
 
-  const card = { background: "#FBF9F3", border: `1px solid ${t.lineL}`, borderRadius: 10, padding: "16px 18px" };
+  const card = { background: "#FFFFFF", border: `1px solid ${t.lineL}`, borderRadius: 10, padding: "16px 18px" };
   const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
   const input = { padding: "8px 10px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#fff", fontFamily: t.fBody, fontSize: 14, color: t.ink };
   const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "10px 18px", fontFamily: t.fBody, fontWeight: 700, fontSize: 14, cursor: "pointer" };
@@ -213,7 +213,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
 
         {/* Hallazgos */}
         {insights.length > 0 && (
-          <div style={{ ...card, background: t.ink, border: "none", color: "#F2EEE6" }}>
+          <div style={{ ...card, background: t.ink, border: "none", color: "#F6F9FE" }}>
             <div style={{ ...label, color: t.signal }}>Lo que hay que saber</div>
             <ul style={{ listStyle: "none", padding: 0, margin: "10px 0 0", display: "flex", flexDirection: "column", gap: 10 }}>
               {insights.map((i, k) => (
@@ -393,7 +393,7 @@ function LastPositions({ rows, t, onOpen }: { rows: FV[]; t: RecorridosTokens; o
       div.type = "button";
       div.title = `${name(r)} · ${r.last_address ?? ""}`;
       div.textContent = name(r);
-      div.style.cssText = `background:${stale ? "#E04E2A" : "#0B0F14"};color:${stale ? "#fff" : t.signal};border:2px solid #fff;border-radius:12px;padding:3px 8px;font:700 11px ui-monospace,monospace;cursor:pointer;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25)`;
+      div.style.cssText = `background:${stale ? "#E04E2A" : "#000D32"};color:${stale ? "#fff" : t.signal};border:2px solid #fff;border-radius:12px;padding:3px 8px;font:700 11px ui-monospace,monospace;cursor:pointer;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25)`;
       div.onclick = () => onOpen(r.id);
       marks.current.push(new ml.Marker({ element: div }).setLngLat([r.last_lon, r.last_lat]).addTo(m));
     });

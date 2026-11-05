@@ -153,7 +153,7 @@ export default function VehicleDashboard({ pts, t }: { pts: TP[]; t: RecorridosT
   const top = useMemo(() => stays(pts), [pts]);
   const last = pts[pts.length - 1];
 
-  const card = { background: "#FBF9F3", border: `1px solid ${t.lineL}`, borderRadius: 10, padding: "16px 18px" };
+  const card = { background: "#FFFFFF", border: `1px solid ${t.lineL}`, borderRadius: 10, padding: "16px 18px" };
   const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
   const big = { fontFamily: t.fMono, fontSize: 22, fontWeight: 700, color: t.ink, marginTop: 6 };
 
@@ -283,7 +283,7 @@ export function Bars({ data, t, every }: {
           const x = pad.l + i * bw, bh = h(d.value), y = H - pad.b - bh;
           const w = Math.max(2, bw - 2);
           const r = Math.min(4, w / 2, bh);
-          const fill = d.night ? "#6E6655" : t.ink;
+          const fill = d.night ? "#5A6B8C" : t.ink;
           return (
             <g key={d.key} onMouseEnter={() => setHover(d.key)}>
               <rect x={x} y={pad.t} width={bw} height={H - pad.t - pad.b} fill="transparent" />
@@ -303,7 +303,7 @@ export function Bars({ data, t, every }: {
         })()}
       </svg>
       {hov && (
-        <div style={{ position: "absolute", top: -6, right: 0, background: t.ink, color: "#F2EEE6", borderRadius: 6, padding: "4px 8px", fontFamily: t.fMono, fontSize: 11, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", top: -6, right: 0, background: t.ink, color: "#F6F9FE", borderRadius: 6, padding: "4px 8px", fontFamily: t.fMono, fontSize: 11, pointerEvents: "none" }}>
           {hov.tip}
         </div>
       )}

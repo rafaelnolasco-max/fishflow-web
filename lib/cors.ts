@@ -28,6 +28,8 @@ const ALLOWED_ORIGINS = [
   'https://www.enlaceintegralseguros.com',
   'https://enlace-integral.vercel.app',
   'https://fishflow.mx',
+  'https://gpslukon.com',
+  'https://www.gpslukon.com',
   'https://www.fishflow.mx',
 ]
 

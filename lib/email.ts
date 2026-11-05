@@ -78,6 +78,8 @@ export const SENDERS = {
    */
   lukonFacturacion: 'Lukon <facturacion@gpslukon.com>',
   lukonRecibos:     'Lukon <recibos@gpslukon.com>',
+  /** Avisos de prospectos de la landing y acuses a prospectos (5-nov-2026). */
+  lukonVentas:      'Lukon <ventas@gpslukon.com>',
 } as const
 
 export type SenderKey = keyof typeof SENDERS

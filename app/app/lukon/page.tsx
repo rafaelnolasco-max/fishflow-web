@@ -2,36 +2,41 @@
 
 // ─── Lukon · Panel de Pagos y Facturación ─────────────────────────────────────
 // Ruta: /app/lukon  (autenticado: rafaelnolasco@gmail.com | aalmarazmo@lukon.com.mx)
+// Pestañas: Prospectos (landing), Cobrar, Facturar, Historial, Reseñas, Recorridos.
 
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, LUKON_CLIENT_ID } from "@/lib/supabase";
 import ReviewsTab from "@/components/reviews/ReviewsTab";
 import RecorridosTab from "@/components/telematica/RecorridosTab";
+import ProspectosTab from "@/components/lukon/ProspectosTab";
 import type { DashTheme } from "@/components/dashboard";
 
-// ─── Brand tokens de Lukon ────────────────────────────────────────────────────
+// ─── Brand tokens de Lukon (rebranding nov-2026: navy + azul eléctrico) ───────
+// Mismos nombres de token de antes: `signal` ahora es el azul claro de la marca.
 const L = {
-  ink:    "#0B0F14",
-  ink2:   "#131820",
-  ink3:   "#1C232C",
-  paper:  "#F2EEE6",
-  paper2: "#E9E3D6",
-  line:   "#2A323D",
-  lineL:  "#CFC5AE",
-  muted:  "#8A98A6",
-  mutedL: "#6E6655",
-  signal: "#C8FF3D",
+  ink:    "#000D32",
+  ink2:   "#06143F",
+  ink3:   "#0E2150",
+  paper:  "#F6F9FE",
+  paper2: "#E9F2FF",
+  line:   "#1E3A70",
+  lineL:  "#D6E0F0",
+  muted:  "#8DA2C8",
+  mutedL: "#5A6B8C",
+  signal: "#3BA4FF",
   amber:  "#F6A623",
   crimson:"#E04E2A",
-  fBody:  "'Inter Tight', system-ui, sans-serif",
-  fMono:  "'JetBrains Mono', ui-monospace, monospace",
+  fBody:  "'Inter', system-ui, sans-serif",
+  fMono:  "'Inter', system-ui, sans-serif",
+  fDisplay: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
 };
 
 // ─── Capa responsiva ──────────────────────────────────────────────────────────
 // Breakpoints estándar FishFlow: ≤600 móvil · 601–900 iPad · >900 PC
-// El diseño (ink/lima, mono) no se toca: esto solo reacomoda el layout.
+// Marca Lukon (nov-2026): navy, azul eléctrico, Bebas Neue + Inter.
 const RESPONSIVE_CSS = `
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap");
 .lk-toast{ position:fixed; top:20px; right:20px; left:auto; z-index:999; }
 .lk-header{ padding:16px 32px; }
 .lk-tabs{ padding:20px 32px 0; }
@@ -82,8 +87,8 @@ function fmtDate(iso: string) {
 function statusColor(s: string) {
   const map: Record<string, string> = {
     pending:  L.amber,
-    paid:     L.signal,
-    valid:    L.signal,
+    paid:     "#1FA971",
+    valid:    "#1FA971",
     failed:   L.crimson,
     error:    L.crimson,
     cancelled:"#888",
@@ -106,12 +111,13 @@ function statusLabel(s: string) {
 }
 
 // ─── Componente principal ─────────────────────────────────────────────────────
-type Tab = "cobrar" | "facturar" | "historial" | "resenas" | "recorridos";
+type Tab = "prospectos" | "cobrar" | "facturar" | "historial" | "resenas" | "recorridos";
+const TABS: Tab[] = ["prospectos", "cobrar", "facturar", "historial", "resenas", "recorridos"];
 
 // Tema para el módulo compartido de Reseñas, en clave Lukon (página crema, ink)
 const REVIEWS_THEME: DashTheme = {
   accent: L.ink, accentDark: L.ink, accentSoft: L.paper2,
-  bg: L.paper, surface: "#FBF9F3", text: L.ink,
+  bg: L.paper, surface: "#FFFFFF", text: L.ink,
   muted: L.mutedL, border: L.lineL, danger: L.crimson, disabled: "#999",
 };
 
@@ -153,7 +159,7 @@ interface InvRecord {
 
 export default function LukonPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F2EEE6" }} />}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F6F9FE" }} />}>
       <LukonDashboard />
     </Suspense>
   );
@@ -161,7 +167,7 @@ export default function LukonPage() {
 
 function LukonDashboard() {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("cobrar");
+  const [tab, setTab] = useState<Tab>("prospectos");
   const [userEmail, setEmail]   = useState("");
   const [loading, setLoading]   = useState(false);
   const [toast, setToast]       = useState<{ msg: string; ok: boolean } | null>(null);
@@ -196,6 +202,8 @@ function LukonDashboard() {
       setEmail(user.email ?? "");
     });
     const params = new URLSearchParams(window.location.search);
+    const t0 = params.get("tab") as Tab | null;
+    if (t0 && TABS.includes(t0)) setTab(t0);
     const pago   = params.get("pago");
     if (pago === "ok")        showToast("✅ Pago completado exitosamente", true);
     if (pago === "error")     showToast("❌ El pago no pudo completarse", false);
@@ -345,18 +353,17 @@ function LukonDashboard() {
         borderBottom: `1px solid ${L.line}`,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          {/* Lukon wordmark */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{
-              width: 8, height: 8, borderRadius: "50%",
-              background: L.signal,
-              boxShadow: `0 0 0 3px rgba(200,255,61,0.25)`,
-            }} />
-            <span style={{
-              fontFamily: L.fMono, fontSize: 18, fontWeight: 600,
-              color: "#F2EEE6", letterSpacing: "0.12em",
-            }}>LUKON</span>
-          </div>
+          {/* Logo Lukon (vector del master del rebranding) */}
+          <svg viewBox="0 -2 606 187" role="img" aria-label="LUKON" style={{ height: 26, width: "auto", display: "block" }}>
+            <g fill="#FFFFFF">
+              <path d="M0 0h28.7v106h71.6v28H0z"/><path d="M104 0h28.5v78a27.5 27.5 0 0 0 55 0V0H216v78a56 56 0 0 1-112 0z"/>
+              <path d="M237.5 0h28.3v56.4L316.2 0H350l-55.1 62.8 57 71.2h-36.7l-49.4-61.75V134h-28.3z"/><circle cx="416.75" cy="66.5" r="17.75"/>
+            </g>
+            <g fill="#0084F9">
+              <path fillRule="evenodd" d="M416.75 0.7a66.3 66.3 0 1 0 0.001 0zm0 28.45a37.85 37.85 0 1 1-0.001 0z"/>
+              <path d="M393 146.8h47.8l-23.9 36.2z"/><path d="M498.8 0H518l60.2 75.25V0H606v134h-18.4l-61.1-76.4V134h-27.7z"/>
+            </g>
+          </svg>
           <span className="lk-header-sub" style={{
             fontFamily: L.fMono, fontSize: 10, letterSpacing: "0.2em",
             color: L.muted, textTransform: "uppercase", paddingLeft: 12,
@@ -392,8 +399,9 @@ function LukonDashboard() {
         display: "flex", gap: 4,
         borderBottom: `1px solid ${L.lineL}`,
       }}>
-        {(["cobrar", "facturar", "historial", "resenas", "recorridos"] as Tab[]).map(t => {
+        {TABS.map(t => {
           const labels: Record<Tab, string> = {
+            prospectos:"🎯  Prospectos",
             cobrar:    "💳  Cobrar",
             facturar:  "🧾  Facturar",
             historial: "📋  Historial",
@@ -420,7 +428,7 @@ function LukonDashboard() {
       </div>
 
       {/* ── Contenido ─────────────────────────────────────────────────────────── */}
-      <main className="lk-main" style={{ maxWidth: tab === "recorridos" ? 1200 : 800, margin: "0 auto" }}>
+      <main className="lk-main" style={{ maxWidth: tab === "recorridos" ? 1200 : tab === "prospectos" ? 1000 : 800, margin: "0 auto" }}>
 
         {/* ════ TAB: COBRAR ════════════════════════════════════════════════════ */}
         {tab === "cobrar" && (
@@ -504,7 +512,7 @@ function LukonDashboard() {
                   <div style={{ fontFamily: L.fMono, fontSize: 11, color: L.muted, marginBottom: 6 }}>LINK DE PRODUCCIÓN</div>
                   <div style={{
                     background: L.ink3, borderRadius: 6, padding: "10px 14px",
-                    fontFamily: L.fMono, fontSize: 11, color: "#F2EEE6",
+                    fontFamily: L.fMono, fontSize: 11, color: "#F6F9FE",
                     wordBreak: "break-all",
                   }}>
                     {payResult.payment_url}
@@ -666,7 +674,7 @@ function LukonDashboard() {
                   — CFDI TIMBRADO EXITOSAMENTE
                 </div>
                 <div style={{ fontFamily: L.fMono, fontSize: 11, color: L.muted, marginBottom: 4 }}>UUID SAT</div>
-                <div style={{ fontFamily: L.fMono, fontSize: 13, color: "#F2EEE6", marginBottom: 20 }}>{invResult.uuid_sat}</div>
+                <div style={{ fontFamily: L.fMono, fontSize: 13, color: "#F6F9FE", marginBottom: 20 }}>{invResult.uuid_sat}</div>
 
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                   {invResult.pdf_url && (
@@ -794,6 +802,8 @@ function LukonDashboard() {
         )}
 
         {/* ════ TAB: RECORRIDOS (telemática, add-on) ═══════════════════════════ */}
+        {tab === "prospectos" && <ProspectosTab t={L} onToast={showToast} />}
+
         {tab === "recorridos" && <RecorridosTab parentId={LUKON_CLIENT_ID} t={L} />}
 
         {/* ════ TAB: RESEÑAS ═══════════════════════════════════════════════════ */}
@@ -828,9 +838,9 @@ function Field({ label, children, required }: { label: string; children: React.R
       <label style={{
         fontFamily: "'JetBrains Mono', ui-monospace, monospace",
         fontSize: 11, letterSpacing: "0.14em",
-        textTransform: "uppercase", color: "#6E6655", fontWeight: 500,
+        textTransform: "uppercase", color: "#5A6B8C", fontWeight: 500,
       }}>
-        {label}{required && <span style={{ color: "#C8FF3D", marginLeft: 4 }}>*</span>}
+        {label}{required && <span style={{ color: "#3BA4FF", marginLeft: 4 }}>*</span>}
       </label>
       {children}
     </div>
@@ -853,8 +863,8 @@ function EmptyState({ text }: { text: string }) {
   return (
     <div style={{
       padding: "32px 16px", textAlign: "center",
-      color: "#8A98A6", fontSize: 13,
-      border: "1px dashed #CFC5AE", borderRadius: 8, marginBottom: 40,
+      color: "#8DA2C8", fontSize: 13,
+      border: "1px dashed #D6E0F0", borderRadius: 8, marginBottom: 40,
       fontFamily: "'JetBrains Mono', ui-monospace, monospace",
     }}>
       {text}
@@ -864,11 +874,11 @@ function EmptyState({ text }: { text: string }) {
 
 // ─── Estilos reutilizables ────────────────────────────────────────────────────
 const inputStyle: React.CSSProperties = {
-  background: "#E9E3D6",
-  border: "1px solid #CFC5AE",
+  background: "#E9F2FF",
+  border: "1px solid #D6E0F0",
   borderRadius: 8, padding: "11px 14px",
-  fontFamily: "'Inter Tight', system-ui, sans-serif",
-  fontSize: 14, color: "#0B0F14",
+  fontFamily: "'Inter', system-ui, sans-serif",
+  fontSize: 14, color: "#000D32",
   width: "100%", boxSizing: "border-box",
   outline: "none", transition: "border 0.15s",
 };
@@ -876,7 +886,7 @@ const inputStyle: React.CSSProperties = {
 const selectStyle: React.CSSProperties = {
   ...inputStyle,
   appearance: "none",
-  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236E6655' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")",
+  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235A6B8C' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")",
   backgroundRepeat: "no-repeat",
   backgroundPosition: "right 12px center",
   paddingRight: 32,
@@ -885,11 +895,11 @@ const selectStyle: React.CSSProperties = {
 
 function btnPrimaryStyle(disabled: boolean): React.CSSProperties {
   return {
-    background: disabled ? "#8A98A6" : "#C8FF3D",
-    color: "#0B0F14",
+    background: disabled ? "#8DA2C8" : "#3BA4FF",
+    color: "#000D32",
     border: "none", borderRadius: 8,
     padding: "13px 24px",
-    fontFamily: "'Inter Tight', system-ui, sans-serif",
+    fontFamily: "'Inter', system-ui, sans-serif",
     fontWeight: 700, fontSize: 15,
     cursor: disabled ? "not-allowed" : "pointer",
     transition: "all 0.15s", alignSelf: "flex-start",
@@ -898,10 +908,10 @@ function btnPrimaryStyle(disabled: boolean): React.CSSProperties {
 
 const btnGhostStyle: React.CSSProperties = {
   background: "transparent",
-  border: "1px solid #CFC5AE",
-  color: "#6E6655", borderRadius: 8,
+  border: "1px solid #D6E0F0",
+  color: "#5A6B8C", borderRadius: 8,
   padding: "9px 16px", cursor: "pointer",
-  fontFamily: "'Inter Tight', system-ui, sans-serif",
+  fontFamily: "'Inter', system-ui, sans-serif",
   fontWeight: 600, fontSize: 13,
   transition: "all 0.15s",
 };

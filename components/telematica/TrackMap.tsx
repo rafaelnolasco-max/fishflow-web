@@ -101,7 +101,7 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
 
   // Colores del trazo según el mapa base: lima sobre oscuro, tinta sobre claro
   const pal = base === "oscuro"
-    ? { trail: t.signal, full: t.signal, fullOp: 0.3, ring: "#0B0F14" }
+    ? { trail: t.signal, full: t.signal, fullOp: 0.3, ring: "#000D32" }
     : { trail: t.ink, full: t.ink, fullOp: 0.22, ring: "#FFFFFF" };
 
   // Crear el mapa una vez
@@ -170,14 +170,14 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
     // Lugares donde más tiempo se queda detenido, numerados como en el tablero
     stays(pts).forEach((st, i) => {
       const el = markerEl(
-        `<div style="width:24px;height:24px;border-radius:12px;background:#0B0F14;border:2px solid ${t.signal};color:${t.signal};font:700 12px ui-monospace,monospace;display:grid;place-items:center">${i + 1}</div>`,
+        `<div style="width:24px;height:24px;border-radius:12px;background:#000D32;border:2px solid ${t.signal};color:${t.signal};font:700 12px ui-monospace,monospace;display:grid;place-items:center">${i + 1}</div>`,
         `${i + 1}. ${(st.address ?? "").split(",").slice(0, 2).join(",")} · ${Math.round(st.minutes / 60)} h detenido`,
       );
       markers.current.others.push(new ml.Marker({ element: el }).setLngLat([st.lon, st.lat]).addTo(m));
     });
-    const startEl = markerEl(`<div style="width:12px;height:12px;border-radius:6px;background:#0B0F14;border:3px solid #F2EEE6"></div>`, "Inicio · " + fmtTs(pts[0].ts));
+    const startEl = markerEl(`<div style="width:12px;height:12px;border-radius:6px;background:#000D32;border:3px solid #F6F9FE"></div>`, "Inicio · " + fmtTs(pts[0].ts));
     markers.current.others.push(new ml.Marker({ element: startEl }).setLngLat([pts[0].lon, pts[0].lat]).addTo(m));
-    const headEl = markerEl(`<div style="width:18px;height:18px;border-radius:9px;background:${t.signal};border:3px solid #0B0F14;box-shadow:0 0 0 6px rgba(200,255,61,.25)"></div>`);
+    const headEl = markerEl(`<div style="width:18px;height:18px;border-radius:9px;background:${t.signal};border:3px solid #000D32;box-shadow:0 0 0 6px rgba(59,164,255,.25)"></div>`);
     markers.current.head = new ml.Marker({ element: headEl }).setLngLat([pts[0].lon, pts[0].lat]).addTo(m);
 
     // Encuadrar solo cuando cambian los puntos, no al cambiar de mapa base
@@ -229,7 +229,7 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
   const selPhoto = withData.find(v => v.id === vehicleId)?.photo_url ?? null;
 
   const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
-  const input = { padding: "10px 12px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#FBF9F3", fontFamily: t.fBody, fontSize: 14, color: t.ink };
+  const input = { padding: "10px 12px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#FFFFFF", fontFamily: t.fBody, fontSize: 14, color: t.ink };
   const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "10px 18px", fontFamily: t.fBody, fontWeight: 700, fontSize: 14, cursor: "pointer" };
 
   if (!withData.length) {
@@ -273,23 +273,23 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
       {/* Mapa */}
       <div style={{ position: "relative", isolation: "isolate", borderRadius: 10, overflow: "hidden", border: `1px solid ${t.ink}` }}>
         <div ref={mapEl} style={{ height: "min(62vh, 560px)", minHeight: 320, background: base === "oscuro" ? t.ink : "#F2F2F0" }} />
-        <div style={{ position: "absolute", top: 10, right: 10, zIndex: 2, display: "flex", background: "#0B0F14", borderRadius: 6, padding: 3, gap: 2 }}>
+        <div style={{ position: "absolute", top: 10, right: 10, zIndex: 2, display: "flex", background: "#000D32", borderRadius: 6, padding: 3, gap: 2 }}>
           {(["oscuro", "claro"] as Basemap[]).map(b => (
             <button key={b} onClick={() => setBase(b)} aria-pressed={base === b} style={{
-              background: base === b ? t.signal : "transparent", color: base === b ? t.ink : "#F2EEE6",
+              background: base === b ? t.signal : "transparent", color: base === b ? t.ink : "#F6F9FE",
               border: "none", borderRadius: 4, padding: "5px 10px", fontFamily: t.fMono, fontSize: 11, cursor: "pointer",
             }}>{b === "oscuro" ? "Oscuro" : "Claro"}</button>
           ))}
         </div>
         {!pts.length && !loading && (
-          <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#F2EEE6", fontFamily: t.fBody, fontSize: 14, zIndex: 500, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#F6F9FE", fontFamily: t.fBody, fontSize: 14, zIndex: 500, pointerEvents: "none" }}>
             Sin puntos en ese rango
           </div>
         )}
       </div>
 
       {/* Reproducción */}
-      <div style={{ background: t.ink, color: "#F2EEE6", borderRadius: 10, padding: "14px 16px", marginTop: 10 }}>
+      <div style={{ background: t.ink, color: "#F6F9FE", borderRadius: 10, padding: "14px 16px", marginTop: 10 }}>
         <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <button onClick={play} disabled={!pts.length} aria-label={playing ? "Pausar" : "Reproducir"}
             style={{ ...btn, background: t.signal, color: t.ink, padding: "8px 16px", minWidth: 96 }}>
@@ -298,8 +298,8 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
           <div style={{ display: "flex", gap: 4 }}>
             {SPEEDS.map((sp, i) => (
               <button key={sp.label} onClick={() => setSpeed(i)} style={{
-                background: i === speed ? "#1C232C" : "transparent", color: i === speed ? t.signal : "#8A98A6",
-                border: `1px solid ${i === speed ? t.signal : "#2A323D"}`, borderRadius: 6, padding: "6px 10px",
+                background: i === speed ? "#0E2150" : "transparent", color: i === speed ? t.signal : "#8DA2C8",
+                border: `1px solid ${i === speed ? t.signal : "#1E3A70"}`, borderRadius: 6, padding: "6px 10px",
                 fontFamily: t.fMono, fontSize: 11, cursor: "pointer",
               }}>{sp.label}</button>
             ))}
@@ -312,7 +312,7 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
           onChange={e => { const v = Number(e.target.value); setPlaying(false); idxRef.current = v; setIdx(v); drawTo(v); }}
           aria-label="Posición en el recorrido"
           style={{ width: "100%", marginTop: 12, accentColor: t.signal }} />
-        <div style={{ fontFamily: t.fBody, fontSize: 12, color: "#8A98A6", marginTop: 4, minHeight: 16, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div style={{ fontFamily: t.fBody, fontSize: 12, color: "#8DA2C8", marginTop: 4, minHeight: 16, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {cur?.address ?? ""}
         </div>
       </div>

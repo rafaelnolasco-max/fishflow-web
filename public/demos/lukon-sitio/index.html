@@ -38,6 +38,7 @@
 <script>
 window.LUKON_CONFIG = {
   pixelId: "",          // ← ID del Pixel de Meta de Lukon (pendiente)
+  leadApi: "https://www.fishflow.mx/api/lukon/lead/",  // guarda el prospecto y avisa a Lukon
   whatsapp: "525513285555",   // WhatsApp corporativo de Lukon (+52 55 1328 5555)
   // Precios en MXN. null = "por confirmar". IVA: indicar en ivaIncluido.
   precios: {
@@ -1006,6 +1007,7 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
         </div>
       </div>
       <form class="form rv-scale" id="leadForm" novalidate>
+        <input type="text" name="_hp" id="_hp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
         <div class="fields">
           <h3>Cotiza tu equipo Lukon</h3>
           <p>Tarda menos de un minuto.</p>
@@ -1407,7 +1409,7 @@ $$("#faqList .qa").forEach(function(qa){
 });
 
 /* ---------- Formulario ---------- */
-var form = $("#leadForm"), fUn = $("#fUnidades");
+var form = $("#leadForm"), fUn = $("#fUnidades"), loadedAt = Date.now();
 $$('input[name="vehiculo"]').forEach(function(r){ r.addEventListener("change", function(){ fUn.classList.toggle("hidden", !$("#v-flota").checked); }); });
 $$(".js-flota").forEach(function(a){ a.addEventListener("click", function(){ var r = $("#v-flota"); r.checked = true; r.dispatchEvent(new Event("change")); }); });
 form.addEventListener("submit", function(e){
@@ -1426,6 +1428,14 @@ form.addEventListener("submit", function(e){
   var msg = "Hola Lukon, soy " + data.nombre + ". Quiero cotizar para: " + veh + (selectedPlan ? " · " + selectedPlan : "") + (data.unidades ? " (" + data.unidades + " unidades)" : "") + (data.cp ? ". C.P. " + data.cp : "") + (data.email ? ". Correo: " + data.email : "") + campaign + ".";
   $("#okName").textContent = data.nombre.split(" ")[0];
   form.classList.add("sent");
+  // Guarda el prospecto y avisa a Lukon (correo + Slack). Si falla, WhatsApp igual se abre.
+  try{
+    if(CFG.leadApi) fetch(CFG.leadApi, {method:"POST", headers:{"Content-Type":"application/json"}, keepalive:true,
+      body: JSON.stringify({nombre:data.nombre, tel:data.tel, email:data.email, vehiculo:veh, unidades:data.unidades, cp:data.cp,
+        plan: selectedPlan, utm_source:utm.utm_source, utm_medium:utm.utm_medium, utm_campaign:utm.utm_campaign,
+        utm_content:utm.utm_content, fbclid:utm.fbclid, landing_url:location.href.slice(0,500), referrer:document.referrer.slice(0,500),
+        _hp: $("#_hp").value, _ts: loadedAt})}).catch(function(){});
+  }catch(e){}
   var url = waLink(msg);
   if(url) setTimeout(function(){ window.open(url, "_blank", "noopener"); }, 900);
   // Aquí se conecta el envío a la base de datos de FishFlow (leads) cuando se publique.

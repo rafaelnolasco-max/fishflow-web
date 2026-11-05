@@ -162,7 +162,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
         <span style={label}>Flotilla (cliente)</span>
         <select value={fleetId} onChange={e => setFleetId(e.target.value)} disabled={loading || !fleets.length}
-          style={{ padding: "12px 14px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#FBF9F3", fontFamily: t.fBody, fontSize: 15, color: t.ink }}>
+          style={{ padding: "12px 14px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#FFFFFF", fontFamily: t.fBody, fontSize: 15, color: t.ink }}>
           {!fleets.length && <option value="">{loading ? "Cargando…" : "Sin flotillas dadas de alta"}</option>}
           {fleets.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
         </select>
@@ -199,7 +199,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
         style={{
           display: "block", border: `1.5px dashed ${dragOver ? t.ink : t.lineL}`, borderRadius: 10, padding: "36px 20px",
           textAlign: "center", cursor: fleetId && !busy ? "pointer" : "not-allowed",
-          background: dragOver ? t.paper2 : "#FBF9F3", marginBottom: 20, opacity: fleetId ? 1 : 0.5,
+          background: dragOver ? t.paper2 : "#FFFFFF", marginBottom: 20, opacity: fleetId ? 1 : 0.5,
           transition: "background .15s, border-color .15s",
         }}>
         <input type="file" accept=".csv,.xlsx,.xls" multiple disabled={!fleetId || !!busy}
@@ -214,7 +214,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
       {busy === "leyendo" && <p style={{ fontFamily: t.fMono, fontSize: 12, color: t.mutedL }}>Leyendo archivos…</p>}
 
       {items.length > 0 && (
-        <div style={{ border: `1px solid ${t.lineL}`, borderRadius: 10, padding: 20, marginBottom: 24, background: "#FBF9F3" }}>
+        <div style={{ border: `1px solid ${t.lineL}`, borderRadius: 10, padding: 20, marginBottom: 24, background: "#FFFFFF" }}>
           <div className="lk-tablewrap">
             <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
               <thead>
