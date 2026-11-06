@@ -18,11 +18,12 @@ interface MV {
   vehicle_id: string; alias: string | null; plate: string | null; device_id: string; photo_url: string | null;
   kmpl: number; km: number; moving_h: number; idle_h: number; km_after_hours: number; speeding: number; vmax: number;
   active_days: number; liters: number; first_move_avg: string | null; last_move_avg: string | null; km_sunday: number | null;
+  harsh_accel: number; harsh_accel_low: number; harsh_brake: number; starts: number;
 }
 interface Month {
   month: string; first_day: string; last_day: string; days_with_data: number; units_total: number; units_active: number;
   km: number; moving_h: number; idle_h: number; liters: number; cost_mxn: number | null; speeding: number; vmax: number;
-  km_after_hours: number; vehicles: MV[];
+  km_after_hours: number; harsh_accel: number; harsh_accel_low: number; harsh_brake: number; starts: number; vehicles: MV[];
 }
 interface Settings {
   fuel_price_mxn: number | null; default_km_per_l: number; work_start_hour: number; work_end_hour: number;
@@ -40,6 +41,31 @@ const dNum = (iso: string) => Number(iso.slice(8, 10));
 const daysInMonth = (iso: string) => new Date(Date.UTC(Number(iso.slice(0, 4)), mIdx(iso) + 1, 0)).getUTCDate();
 const list = (xs: string[]) => xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} y ${xs[xs.length - 1]}`;
 const per1000 = (m: { speeding: number; km: number }) => (m.km > 0 ? (m.speeding / m.km) * 1000 : 0);
+const per100 = (n: number, km: number) => (km > 0 ? (n / km) * 100 : 0);
+/** Unidades con suficientes km para calificar su manejo (con pocos km un solo arrancón dispara la tasa). */
+const RATE_MIN_KM = 200;
+function median(xs: number[]) {
+  if (!xs.length) return 0;
+  const a = [...xs].sort((x, y) => x - y), k = Math.floor(a.length / 2);
+  return a.length % 2 ? a[k] : (a[k - 1] + a[k]) / 2;
+}
+/** Manejo agresivo de un mes: tasas por 100 km y nivel contra la mediana de la flotilla.
+ *  El nivel sale de los arrancones (aceleración brusca a ≤20 km/h): es lo que más castiga el clutch. */
+function harshRows(vs: MV[]) {
+  const rated = vs.filter(v => v.km >= RATE_MIN_KM).map(v => ({
+    v, low100: per100(v.harsh_accel_low, v.km), acc100: per100(v.harsh_accel, v.km),
+    brk100: per100(v.harsh_brake, v.km), st100: per100(v.starts, v.km),
+  }));
+  const med = median(rated.map(r => r.low100));
+  return {
+    med,
+    rows: rated.map(r => {
+      const x = med > 0 ? r.low100 / med : 0;
+      return { ...r, x, level: (x >= 1.5 ? "alto" : x >= 1.15 ? "medio" : "normal") as "alto" | "medio" | "normal" };
+    }).sort((a, b) => b.low100 - a.low100),
+    unrated: vs.filter(v => v.km < RATE_MIN_KM),
+  };
+}
 
 /** "completo", "del 9 al 31", "1 al 6 · en curso" */
 function coverage(m: Month) {
@@ -120,6 +146,12 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
     }
     const fastest = [...vs].sort((a, b) => b.vmax - a.vmax)[0];
     if (fastest && fastest.vmax >= 120) out.push({ tone: "bad", vehicleId: fastest.vehicle_id, text: `${name(fastest)} llegó a ${fastest.vmax} km/h, la velocidad más alta del mes.` });
+
+    // Manejo agresivo (posible desgaste de clutch)
+    const hr = harshRows(vs);
+    const high = hr.rows.filter(r => r.level === "alto");
+    if (high.length) out.push({ tone: "bad", vehicleId: high[0].v.vehicle_id, text:
+      `Posible desgaste de clutch: ${list(high.slice(0, 4).map(r => `${name(r.v)} (${nf1.format(r.x)}×)`))} ${high.length > 1 ? "arrancan" : "arranca"} con aceleración brusca muchas más veces por km que la mediana de la flotilla. Revisa sus choferes y su clutch.` });
 
     // Fuera de horario y domingo
     const ah = working.filter(v => v.km >= 200 && v.km_after_hours / v.km > 0.3).sort((a, b) => b.km_after_hours / b.km - a.km_after_hours / a.km);
@@ -269,6 +301,84 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           </div>
         )}
 
+        {/* Manejo agresivo */}
+        {(() => {
+          const hr = harshRows(m.vehicles);
+          const prevHr = prev ? { low: per100(prev.harsh_accel_low, prev.km), acc: per100(prev.harsh_accel, prev.km), brk: per100(prev.harsh_brake, prev.km), st: per100(prev.starts, prev.km) } : null;
+          const cur = { low: per100(m.harsh_accel_low, m.km), acc: per100(m.harsh_accel, m.km), brk: per100(m.harsh_brake, m.km), st: per100(m.starts, m.km) };
+          if (!m.harsh_accel && !m.harsh_brake) return null;
+          const badge = (lv: "alto" | "medio" | "normal") => (
+            <span style={{ fontFamily: t.fMono, fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 10, whiteSpace: "nowrap",
+              background: lv === "alto" ? "#FCE4DE" : lv === "medio" ? "#FFF1D6" : t.paper2, color: lv === "alto" ? t.crimson : lv === "medio" ? "#B87500" : t.mutedL }}>
+              {lv === "alto" ? "ALTO" : lv === "medio" ? "MEDIO" : "NORMAL"}
+            </span>
+          );
+          const maxLow = Math.max(1, ...hr.rows.map(r => r.low100));
+          return (
+            <div style={card}>
+              <div style={label}>Manejo agresivo · posible desgaste de clutch</div>
+              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
+                El GPS no ve el pedal del clutch, pero su acelerómetro registra cada <b>aceleración brusca</b> y <b>frenada brusca</b>.
+                Los <b>arrancones</b> (aceleración brusca saliendo de parado, a 20 km/h o menos) son los que más castigan el clutch.
+                Las cifras sirven para comparar unidades entre sí: el nivel es contra la mediana de la flotilla ({nf1.format(hr.med)} arrancones por cada 100 km).
+              </p>
+              <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", marginBottom: 12 }}>
+                {([
+                  ["Arrancones", cur.low, prevHr?.low ?? null, `${nf0.format(m.harsh_accel_low)} en el mes`],
+                  ["Aceleraciones bruscas", cur.acc, prevHr?.acc ?? null, `${nf0.format(m.harsh_accel)} en el mes`],
+                  ["Frenadas bruscas", cur.brk, prevHr?.brk ?? null, `${nf0.format(m.harsh_brake)} en el mes`],
+                  ["Encendidos", cur.st, prevHr?.st ?? null, "cuánto para y arranca"],
+                ] as [string, number, number | null, string][]).map(([k, v, pv, sub]) => (
+                  <div key={k} style={{ background: t.paper2, borderRadius: 8, padding: "10px 12px" }}>
+                    <div style={label}>{k} · por 100 km</div>
+                    <div style={{ fontFamily: t.fMono, fontSize: 20, fontWeight: 700, color: t.ink, marginTop: 4 }}>{nf1.format(v)}</div>
+                    <div style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, marginTop: 2 }}>{sub}{pv != null ? <> · {delta(v, pv, false)}</> : null}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="lk-tablewrap">
+                <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
+                      {["Unidad", "Nivel", "Arrancones /100 km", "vs mediana", "Acel. bruscas /100 km", "Frenadas /100 km", "Encendidos /100 km", "Km"].map((h, k) => (
+                        <th key={h} style={{ ...label, textAlign: k < 2 ? "left" : "right", padding: "8px 10px", fontWeight: 500, whiteSpace: "nowrap" }}>{h}</th>
+                      ))}
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {hr.rows.map(r => (
+                      <tr key={r.v.vehicle_id} style={{ borderBottom: `1px solid ${t.paper2}` }}>
+                        <td style={{ padding: 10, fontWeight: 700, color: t.ink, whiteSpace: "nowrap" }}>{name(r.v)}{r.v.alias && r.v.plate ? <span style={{ fontWeight: 400, color: t.mutedL }}> · {r.v.plate}</span> : null}</td>
+                        <td style={{ padding: 10 }}>{badge(r.level)}</td>
+                        <td style={{ padding: 10, textAlign: "right", minWidth: 120 }}>
+                          <div style={{ fontFamily: t.fMono, fontWeight: 700, color: r.level === "alto" ? t.crimson : t.ink }}>{nf1.format(r.low100)}</div>
+                          <div style={{ height: 4, background: t.paper2, borderRadius: 2, marginTop: 4 }}>
+                            <div style={{ height: 4, width: `${(r.low100 / maxLow) * 100}%`, background: r.level === "alto" ? t.crimson : r.level === "medio" ? "#F6A623" : t.ink, borderRadius: 2, marginLeft: "auto" }} />
+                          </div>
+                        </td>
+                        <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.x)}×</td>
+                        <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.acc100)}</td>
+                        <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.brk100)}</td>
+                        <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.st100)}</td>
+                        <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: t.mutedL }}>{nf0.format(r.v.km)}</td>
+                        <td style={{ padding: 10, textAlign: "right" }}>
+                          <button onClick={() => onOpenVehicle(r.v.vehicle_id)} style={ghost}>Ver recorrido</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
+                Nivel: ALTO = 1.5 veces la mediana o más; MEDIO = 1.15 a 1.5 veces. Se cuentan episodios (eventos del mismo tipo a menos de 30 s son el mismo).
+                La ruta y la carga también influyen: tráfico de ciudad y subidas con carga castigan más el clutch.
+                {hr.unrated.length > 0 && <> Sin calificar por tener menos de {RATE_MIN_KM} km en el mes: {list(hr.unrated.map(name))}.</>}
+              </p>
+            </div>
+          );
+        })()}
+
         {/* Unidades del mes */}
         <div style={card}>
           <div style={label}>Unidades en {MESES[mIdx(m.month)].toLowerCase()} · toca un encabezado para ordenar</div>
@@ -341,6 +451,13 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
             <Bars t={t} every={1} data={months.map(mm => ({
               key: mm.month, label: MESES[mIdx(mm.month)].slice(0, 3), value: mm.km / mm.days_with_data,
               tip: `${MESES[mIdx(mm.month)]} · ${nf0.format(mm.km / mm.days_with_data)} km por día`,
+            }))} />
+          </div>
+          <div style={card}>
+            <div style={label}>Arrancones por cada 100 km, mes a mes</div>
+            <Bars t={t} every={1} data={months.map(mm => ({
+              key: mm.month, label: MESES[mIdx(mm.month)].slice(0, 3), value: per100(mm.harsh_accel_low, mm.km),
+              tip: `${MESES[mIdx(mm.month)]} · ${nf1.format(per100(mm.harsh_accel_low, mm.km))} arrancones por cada 100 km`,
             }))} />
           </div>
           <div style={card}>
