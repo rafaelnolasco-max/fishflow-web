@@ -45,7 +45,7 @@ const per1000 = (m: { speeding: number; km: number }) => (m.km > 0 ? (m.speeding
 function coverage(m: Month) {
   const today = new Date(Date.now() - 6 * 3600e3).toISOString().slice(0, 7);
   const full = dNum(m.first_day) === 1 && dNum(m.last_day) === daysInMonth(m.month);
-  if (m.month.slice(0, 7) === today) return `del ${dNum(m.first_day)} al ${dNum(m.last_day)} · en curso`;
+  if (m.month.slice(0, 7) === today) return `${dNum(m.first_day)}–${dNum(m.last_day)} · en curso`;
   return full ? "mes completo" : `del ${dNum(m.first_day)} al ${dNum(m.last_day)}`;
 }
 
@@ -212,13 +212,15 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
         {months.map(mm => {
           const on = mm.month === sel;
           return (
-            <button key={mm.month} role="tab" aria-selected={on} onClick={() => setSel(mm.month)} style={{
-              flex: "0 0 auto", minWidth: 132, textAlign: "left", cursor: "pointer", borderRadius: 10, padding: "12px 14px",
+            <button key={mm.month} role="tab" aria-selected={on} onClick={() => setSel(mm.month)}
+              title={`${MESES[mIdx(mm.month)]} ${mm.month.slice(0, 4)} · ${coverage(mm)}`} style={{
+              flex: "1 0 104px", minWidth: 104, textAlign: "left", cursor: "pointer", borderRadius: 10, padding: "10px 12px",
               background: on ? t.ink : "#FFFFFF", color: on ? "#F6F9FE" : t.ink, border: `1px solid ${on ? t.ink : t.lineL}`,
             }}>
-              <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 15, color: on ? t.signal : t.ink }}>{MESES[mIdx(mm.month)]} <span style={{ fontWeight: 400, fontSize: 12, opacity: 0.7 }}>{mm.month.slice(0, 4)}</span></div>
-              <div style={{ fontFamily: t.fMono, fontSize: 18, fontWeight: 700, marginTop: 4 }}>{nf0.format(mm.km)} <span style={{ fontSize: 11, fontWeight: 400 }}>km</span></div>
-              <div style={{ fontFamily: t.fMono, fontSize: 10, marginTop: 3, color: on ? "#C9D3E6" : t.mutedL }}>{nf0.format(mm.speeding)} excesos · {coverage(mm)}</div>
+              <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 14, color: on ? t.signal : t.ink, whiteSpace: "nowrap" }}>{MESES[mIdx(mm.month)]}</div>
+              <div style={{ fontFamily: t.fMono, fontSize: 16, fontWeight: 700, marginTop: 4, whiteSpace: "nowrap" }}>{nf0.format(mm.km)} <span style={{ fontSize: 10, fontWeight: 400 }}>km</span></div>
+              <div style={{ fontFamily: t.fMono, fontSize: 10, marginTop: 3, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{nf0.format(mm.speeding)} excesos</div>
+              <div style={{ fontFamily: t.fMono, fontSize: 10, marginTop: 2, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{coverage(mm)}</div>
             </button>
           );
         })}
