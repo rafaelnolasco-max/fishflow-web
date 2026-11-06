@@ -219,7 +219,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
 
       {m && (<>
         {/* Cifras del mes */}
-        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
+        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))" }}>
           {([
             ["Unidades trabajando", `${m.units_active} de ${m.units_total}`, <>con 50 km o más · {coverage(m)}</>],
             ["Kilómetros", nf0.format(m.km), <>{nf0.format(m.km / m.days_with_data)} km por día · {delta(perDay(m, x => x.km)!, perDay(prev, x => x.km), true) ?? "primer mes con datos"}</>],

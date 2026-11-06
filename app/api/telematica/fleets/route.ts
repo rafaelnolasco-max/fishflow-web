@@ -24,13 +24,20 @@ export async function GET(req: NextRequest) {
     : { data: [], error: null };
   if (vErr) return NextResponse.json({ error: vErr.message }, { status: 500 });
 
+  // Puntos por unidad: suma del resumen diario (contar 400 mil puntos crudos unidad por unidad tardaba ~8 s)
+  const { data: daily, error: dErr } = ids.length
+    ? await db.rpc("telematica_points_by_vehicle", { p_clients: ids })
+    : { data: [], error: null };
+  if (dErr) return NextResponse.json({ error: dErr.message }, { status: 500 });
+  const pointsBy = new Map<string, number>();
+  for (const d of (daily ?? []) as { vehicle_id: string; points: number }[]) pointsBy.set(d.vehicle_id, Number(d.points));
+
   const stats = await Promise.all((vehicles ?? []).map(async v => {
-    const [{ count }, first, last] = await Promise.all([
-      db.from("telematica_points").select("id", { count: "exact", head: true }).eq("vehicle_id", v.id),
+    const [first, last] = await Promise.all([
       db.from("telematica_points").select("ts").eq("vehicle_id", v.id).order("ts", { ascending: true }).limit(1),
       db.from("telematica_points").select("ts").eq("vehicle_id", v.id).order("ts", { ascending: false }).limit(1),
     ]);
-    return { ...v, points: count ?? 0, ts_min: first.data?.[0]?.ts ?? null, ts_max: last.data?.[0]?.ts ?? null };
+    return { ...v, points: pointsBy.get(v.id) ?? 0, ts_min: first.data?.[0]?.ts ?? null, ts_max: last.data?.[0]?.ts ?? null };
   }));
 
   return NextResponse.json({
