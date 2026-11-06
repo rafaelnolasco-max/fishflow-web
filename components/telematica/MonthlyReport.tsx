@@ -67,6 +67,45 @@ function harshRows(vs: MV[]) {
   };
 }
 
+const YEAR = "año";
+const toMin = (hhmm: string) => { const [h, mi] = hhmm.split(":").map(Number); return h * 60 + mi; };
+const toHHMM = (min: number) => `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(Math.round(min % 60)).padStart(2, "0")}`;
+
+/** Suma los meses de un año en un "mes" sintético: así el resumen anual reutiliza toda la vista.
+ *  Sale y Regresa: promedio de los meses ponderado por días trabajados. */
+function aggregateYear(ms: Month[]): Month | null {
+  if (!ms.length) return null;
+  type Acc = MV & { fm: number; fn: number; lm: number; ln: number };
+  const by = new Map<string, Acc>();
+  for (const mm of ms) for (const v of mm.vehicles) {
+    const a: Acc = by.get(v.vehicle_id) ?? { ...v, km: 0, moving_h: 0, idle_h: 0, km_after_hours: 0, speeding: 0, vmax: 0, active_days: 0,
+      liters: 0, km_sunday: 0, harsh_accel: 0, harsh_accel_low: 0, harsh_brake: 0, starts: 0, first_move_avg: null, last_move_avg: null,
+      fm: 0, fn: 0, lm: 0, ln: 0 };
+    a.km += Number(v.km); a.moving_h += Number(v.moving_h); a.idle_h += Number(v.idle_h); a.km_after_hours += Number(v.km_after_hours);
+    a.speeding += Number(v.speeding); a.vmax = Math.max(a.vmax, Number(v.vmax)); a.active_days += Number(v.active_days);
+    a.liters += Number(v.liters); a.km_sunday = (a.km_sunday ?? 0) + Number(v.km_sunday ?? 0);
+    a.harsh_accel += Number(v.harsh_accel); a.harsh_accel_low += Number(v.harsh_accel_low); a.harsh_brake += Number(v.harsh_brake); a.starts += Number(v.starts);
+    if (v.first_move_avg && v.active_days) { a.fm += toMin(v.first_move_avg) * v.active_days; a.fn += v.active_days; }
+    if (v.last_move_avg && v.active_days) { a.lm += toMin(v.last_move_avg) * v.active_days; a.ln += v.active_days; }
+    by.set(v.vehicle_id, a);
+  }
+  const vehicles: MV[] = [...by.values()].map(({ fm, fn, lm, ln, ...v }) => ({
+    ...v, first_move_avg: fn ? toHHMM(fm / fn) : null, last_move_avg: ln ? toHHMM(lm / ln) : null,
+  })).sort((a, b) => b.km - a.km);
+  const sum = (f: (mm: Month) => number) => ms.reduce((a, mm) => a + Number(f(mm) ?? 0), 0);
+  return {
+    month: `${ms[0].month.slice(0, 4)}-01-01`, first_day: ms[0].first_day, last_day: ms[ms.length - 1].last_day,
+    days_with_data: sum(mm => mm.days_with_data), units_total: ms[ms.length - 1].units_total,
+    units_active: vehicles.filter(v => v.km >= 50).length,
+    km: sum(mm => mm.km), moving_h: sum(mm => mm.moving_h), idle_h: sum(mm => mm.idle_h), liters: sum(mm => mm.liters),
+    cost_mxn: ms.every(mm => mm.cost_mxn != null) ? sum(mm => mm.cost_mxn ?? 0) : null,
+    speeding: sum(mm => mm.speeding), vmax: Math.max(...ms.map(mm => Number(mm.vmax))), km_after_hours: sum(mm => mm.km_after_hours),
+    harsh_accel: sum(mm => mm.harsh_accel), harsh_accel_low: sum(mm => mm.harsh_accel_low),
+    harsh_brake: sum(mm => mm.harsh_brake), starts: sum(mm => mm.starts), vehicles,
+  };
+}
+const fmtShort = (iso: string) => `${dNum(iso)} ${MESES[mIdx(iso)].slice(0, 3).toLowerCase()}`;
+
 /** "completo", "del 9 al 31", "1 al 6 · en curso" */
 function coverage(m: Month) {
   const today = new Date(Date.now() - 6 * 3600e3).toISOString().slice(0, 7);
@@ -112,9 +151,21 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
     if (el && strip.current) strip.current.scrollTo({ left: el.offsetLeft - strip.current.offsetLeft - 16, behavior: "smooth" });
   }, [sel, months.length]);
 
-  const i = months.findIndex(m => m.month === sel);
-  const m = i >= 0 ? months[i] : null;
-  const prev = i > 0 ? months[i - 1] : null;
+  // Resumen del año: los meses del año más reciente con datos
+  const yearMonths = useMemo(() => {
+    if (!months.length) return [];
+    const y = months[months.length - 1].month.slice(0, 4);
+    return months.filter(mm => mm.month.startsWith(y));
+  }, [months]);
+  const yearAgg = useMemo(() => aggregateYear(yearMonths), [yearMonths]);
+
+  const isYear = sel === YEAR;
+  const i = isYear ? -1 : months.findIndex(m => m.month === sel);
+  const m = isYear ? yearAgg : i >= 0 ? months[i] : null;
+  const prev = !isYear && i > 0 ? months[i - 1] : null;
+  const selName = isYear && m ? `el año ${m.month.slice(0, 4)}` : m ? MESES[mIdx(m.month)].toLowerCase() : "";
+  const periodo = isYear ? "del año" : "del mes";
+  const cov = !m ? "" : isYear ? `del ${fmtShort(m.first_day)} al ${fmtShort(m.last_day)} · ${yearMonths.length} meses` : coverage(m);
   const vlim = settings?.speeding_kmh ?? 80;
 
   const rows = useMemo(() => {
@@ -145,7 +196,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
         `${list(top3.map(v => `${name(v)} (${v.speeding})`))} ${top3.length > 1 ? "concentran" : "concentra"} el ${nf0.format(share * 100)}%: habla con sus choferes.` });
     }
     const fastest = [...vs].sort((a, b) => b.vmax - a.vmax)[0];
-    if (fastest && fastest.vmax >= 120) out.push({ tone: "bad", vehicleId: fastest.vehicle_id, text: `${name(fastest)} llegó a ${fastest.vmax} km/h, la velocidad más alta del mes.` });
+    if (fastest && fastest.vmax >= 120) out.push({ tone: "bad", vehicleId: fastest.vehicle_id, text: `${name(fastest)} llegó a ${fastest.vmax} km/h, la velocidad más alta ${periodo}.` });
 
     // Manejo agresivo (posible desgaste de clutch)
     const hr = harshRows(vs);
@@ -194,7 +245,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
     const top = [...vs].sort((a, b) => b.km - a.km)[0];
     if (top) out.push({ tone: "info", vehicleId: top.vehicle_id, text: `${name(top)} fue la que más trabajó: ${nf0.format(top.km)} km en ${top.active_days} días.` });
     return out;
-  }, [m, prev, vlim]);
+  }, [m, prev, vlim, periodo]);
 
   const card = { background: "#FFFFFF", border: `1px solid ${t.lineL}`, borderRadius: 10, padding: "16px 18px" };
   const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
@@ -241,6 +292,21 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
 
       {/* Meses */}
       <div ref={strip} role="tablist" aria-label="Meses" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+        {yearAgg && (() => {
+          const on = isYear;
+          return (
+            <button key={YEAR} role="tab" aria-selected={on} onClick={() => setSel(YEAR)}
+              title={`Resumen del año ${yearAgg.month.slice(0, 4)}: todas las unidades, ${yearMonths.length} meses`} style={{
+              flex: "1 0 112px", minWidth: 112, textAlign: "left", cursor: "pointer", borderRadius: 10, padding: "10px 12px",
+              background: on ? t.ink : t.paper2, color: on ? "#F6F9FE" : t.ink, border: `1px solid ${on ? t.ink : t.ink}`,
+            }}>
+              <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 14, color: on ? t.signal : t.ink, whiteSpace: "nowrap" }}>Año {yearAgg.month.slice(0, 4)}</div>
+              <div style={{ fontFamily: t.fMono, fontSize: 16, fontWeight: 700, marginTop: 4, whiteSpace: "nowrap" }}>{nf0.format(yearAgg.km)} <span style={{ fontSize: 10, fontWeight: 400 }}>km</span></div>
+              <div style={{ fontFamily: t.fMono, fontSize: 10, marginTop: 3, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{nf0.format(yearAgg.speeding)} excesos</div>
+              <div style={{ fontFamily: t.fMono, fontSize: 10, marginTop: 2, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{yearMonths.length} meses · resumen</div>
+            </button>
+          );
+        })()}
         {months.map(mm => {
           const on = mm.month === sel;
           return (
@@ -262,8 +328,8 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
         {/* Cifras del mes */}
         <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))" }}>
           {([
-            ["Unidades trabajando", `${m.units_active} de ${m.units_total}`, <>con 50 km o más · {coverage(m)}</>],
-            ["Kilómetros", nf0.format(m.km), <>{nf0.format(m.km / m.days_with_data)} km por día · {delta(perDay(m, x => x.km)!, perDay(prev, x => x.km), true) ?? "primer mes con datos"}</>],
+            ["Unidades trabajando", `${m.units_active} de ${m.units_total}`, <>con 50 km o más · {cov}</>],
+            ["Kilómetros", nf0.format(m.km), <>{nf0.format(m.km / m.days_with_data)} km por día · {delta(perDay(m, x => x.km)!, perDay(prev, x => x.km), true) ?? (isYear ? "promedio del periodo con datos" : "primer mes con datos")}</>],
             ["En movimiento", `${nf0.format(m.moving_h)} h`, <>{nf1.format(m.moving_h / Math.max(1, m.units_active))} h por unidad trabajando</>],
             ["Ralentí", `${nf0.format(m.idle_h)} h`, <>motor encendido sin moverse · {nf0.format((m.idle_h / Math.max(1, m.idle_h + m.moving_h)) * 100)}% del tiempo encendido</>],
             ["Combustible (est.)", `${nf0.format(m.liters)} L`, <>{m.cost_mxn != null ? `≈ ${mxn.format(m.cost_mxn)}` : "precio por litro: defínelo en Flotilla → Ajustes"}</>],
@@ -282,7 +348,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
         {/* Hallazgos */}
         {insights.length > 0 && (
           <div style={{ ...card, background: t.ink, border: "none", color: "#F6F9FE" }}>
-            <div style={{ ...label, color: t.signal }}>Para atender · {MESES[mIdx(m.month)].toLowerCase()}</div>
+            <div style={{ ...label, color: t.signal }}>Para atender · {selName}</div>
             <ul style={{ listStyle: "none", padding: 0, margin: "10px 0 0", display: "flex", flexDirection: "column", gap: 10 }}>
               {insights.map((x, k) => (
                 <li key={k} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
@@ -324,9 +390,9 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
               </p>
               <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", marginBottom: 12 }}>
                 {([
-                  ["Arrancones", cur.low, prevHr?.low ?? null, `${nf0.format(m.harsh_accel_low)} en el mes`],
-                  ["Aceleraciones bruscas", cur.acc, prevHr?.acc ?? null, `${nf0.format(m.harsh_accel)} en el mes`],
-                  ["Frenadas bruscas", cur.brk, prevHr?.brk ?? null, `${nf0.format(m.harsh_brake)} en el mes`],
+                  ["Arrancones", cur.low, prevHr?.low ?? null, `${nf0.format(m.harsh_accel_low)} ${isYear ? "en el año" : "en el mes"}`],
+                  ["Aceleraciones bruscas", cur.acc, prevHr?.acc ?? null, `${nf0.format(m.harsh_accel)} ${isYear ? "en el año" : "en el mes"}`],
+                  ["Frenadas bruscas", cur.brk, prevHr?.brk ?? null, `${nf0.format(m.harsh_brake)} ${isYear ? "en el año" : "en el mes"}`],
                   ["Encendidos", cur.st, prevHr?.st ?? null, "cuánto para y arranca"],
                 ] as [string, number, number | null, string][]).map(([k, v, pv, sub]) => (
                   <div key={k} style={{ background: t.paper2, borderRadius: 8, padding: "10px 12px" }}>
@@ -373,7 +439,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
               <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
                 Nivel: ALTO = 1.5 veces la mediana o más; MEDIO = 1.15 a 1.5 veces. Se cuentan episodios (eventos del mismo tipo a menos de 30 s son el mismo).
                 La ruta y la carga también influyen: tráfico de ciudad y subidas con carga castigan más el clutch.
-                {hr.unrated.length > 0 && <> Sin calificar por tener menos de {RATE_MIN_KM} km en el mes: {list(hr.unrated.map(name))}.</>}
+                {hr.unrated.length > 0 && <> Sin calificar por tener menos de {RATE_MIN_KM} km {isYear ? "en el año" : "en el mes"}: {list(hr.unrated.map(name))}.</>}
               </p>
             </div>
           );
@@ -381,7 +447,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
 
         {/* Unidades del mes */}
         <div style={card}>
-          <div style={label}>Unidades en {MESES[mIdx(m.month)].toLowerCase()} · toca un encabezado para ordenar</div>
+          <div style={label}>Unidades en {selName} · toca un encabezado para ordenar</div>
           <div className="lk-tablewrap" style={{ marginTop: 10 }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
               <thead>
@@ -443,6 +509,51 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
             Litros estimados: km ÷ rendimiento de cada unidad. Las comparaciones contra el mes anterior son por día con datos.
           </p>
         </div>
+
+        {/* Año: km por unidad y por mes */}
+        {isYear && (() => {
+          const cell = (vid: string, mm: Month) => Number(mm.vehicles.find(v => v.vehicle_id === vid)?.km ?? 0);
+          const maxCell = Math.max(1, ...m.vehicles.flatMap(v => yearMonths.map(mm => cell(v.vehicle_id, mm))));
+          return (
+            <div style={card}>
+              <div style={label}>Kilómetros por unidad y por mes · {m.month.slice(0, 4)}</div>
+              <div className="lk-tablewrap" style={{ marginTop: 10 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 12 }}>
+                  <thead>
+                    <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
+                      <th style={{ ...label, textAlign: "left", padding: "8px 10px", fontWeight: 500 }}>Unidad</th>
+                      {yearMonths.map(mm => <th key={mm.month} style={{ ...label, textAlign: "right", padding: "8px 8px", fontWeight: 500 }}>{MESES[mIdx(mm.month)].slice(0, 3)}</th>)}
+                      <th style={{ ...label, textAlign: "right", padding: "8px 10px", fontWeight: 500 }}>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {m.vehicles.map(v => (
+                      <tr key={v.vehicle_id} style={{ borderBottom: `1px solid ${t.paper2}` }}>
+                        <td style={{ padding: "8px 10px", fontWeight: 700, color: t.ink, whiteSpace: "nowrap" }}>
+                          <button onClick={() => onOpenVehicle(v.vehicle_id)} style={{ background: "none", border: "none", padding: 0, font: "inherit", color: "inherit", cursor: "pointer" }}>{name(v)}</button>
+                        </td>
+                        {yearMonths.map(mm => {
+                          const x = cell(v.vehicle_id, mm);
+                          const a = x / maxCell;
+                          return (
+                            <td key={mm.month} title={`${name(v)} · ${MESES[mIdx(mm.month)]}: ${nf0.format(x)} km`} style={{
+                              padding: "8px 8px", textAlign: "right", fontFamily: t.fMono, whiteSpace: "nowrap",
+                              background: x > 0 ? `rgba(0, 13, 50, ${0.06 + a * 0.6})` : "transparent", color: a > 0.55 ? "#F6F9FE" : x < 50 ? t.mutedL : t.ink,
+                            }}>{x >= 1 ? nf0.format(x) : "—"}</td>
+                          );
+                        })}
+                        <td style={{ padding: "8px 10px", textAlign: "right", fontFamily: t.fMono, fontWeight: 700 }}>{nf0.format(v.km)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0" }}>
+                Más oscuro = más km. Datos {cov}. Toca una unidad para ver su recorrido.
+              </p>
+            </div>
+          );
+        })()}
 
         {/* Tendencia */}
         <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
