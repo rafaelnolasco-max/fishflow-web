@@ -9,7 +9,7 @@
 // telematica_daily_stats); la comparación contra el mes anterior es por día
 // con datos, para que un mes incompleto no se vea como caída.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RecorridosTokens } from "./RecorridosTab";
 import { Bars } from "./VehicleDashboard";
 import { horarioTxt } from "./FleetDashboard";
@@ -58,6 +58,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "km", dir: -1 });
+  const strip = useRef<HTMLDivElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true); setErr("");
@@ -78,6 +79,12 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
     }
   }, [clientId]);
   useEffect(() => { load(); }, [load]);
+
+  // En celular la tira de meses no cabe: centrar el mes elegido
+  useEffect(() => {
+    const el = strip.current?.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (el && strip.current) strip.current.scrollTo({ left: el.offsetLeft - strip.current.offsetLeft - 16, behavior: "smooth" });
+  }, [sel, months.length]);
 
   const i = months.findIndex(m => m.month === sel);
   const m = i >= 0 ? months[i] : null;
@@ -201,7 +208,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
       </div>
 
       {/* Meses */}
-      <div role="tablist" aria-label="Meses" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+      <div ref={strip} role="tablist" aria-label="Meses" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
         {months.map(mm => {
           const on = mm.month === sel;
           return (
