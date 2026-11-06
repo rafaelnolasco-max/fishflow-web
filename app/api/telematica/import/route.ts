@@ -3,21 +3,25 @@
 // y los guarda en telematica_points. Re-subir el mismo archivo no duplica:
 // unique (vehicle_id, ts, event_code) + ignoreDuplicates.
 //
-// Body: { client_id, device_id, filename, points[], import_id?, done? }
+// Body: { client_id, device_id, filename, points[], import_id?, done?, range? }
 //   - Primer bloque sin import_id: crea la unidad si no existe y la bitácora.
 //   - Bloques siguientes: mandan el import_id que regresó el primero.
-//   - done: true en el último bloque cierra la bitácora con totales y fechas.
+//   - done: true en el último bloque cierra la bitácora con totales y fechas y
+//     recalcula el resumen diario (telematica_daily_stats) de range.from–range.to
+//     (ISO de la primera y última fecha del archivo).
 
 import { NextRequest, NextResponse } from "next/server";
 import { requireFleetAccess, supabaseAdmin } from "@/lib/telematicaAuth";
 import { IMPORT_CHUNK, type TelematicaPoint } from "@/lib/telematica";
+import { refreshDailyStats, cdmxDay } from "@/lib/telematicaStats";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
   let body: {
     client_id?: string; device_id?: string; filename?: string;
     points?: TelematicaPoint[]; import_id?: string; done?: boolean;
+    range?: { from?: string; to?: string };
   };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "JSON inválido" }, { status: 400 }); }
 
@@ -90,6 +94,15 @@ export async function POST(req: NextRequest) {
   }
   const { error: uErr } = await db.from("telematica_imports").update(patch).eq("id", importId);
   if (uErr) return NextResponse.json({ error: uErr.message }, { status: 500 });
+
+  // Resumen diario de los días que tocó el archivo (reporte mensual y tablero)
+  if (done) {
+    const f = body.range?.from ?? (patch.ts_min as string | null), t = body.range?.to ?? (patch.ts_max as string | null);
+    if (f && t) {
+      try { await refreshDailyStats(db, client_id, cdmxDay(f), cdmxDay(t)); }
+      catch (e) { return NextResponse.json({ error: (e as Error).message }, { status: 500 }); }
+    }
+  }
 
   return NextResponse.json({ import_id: importId, vehicle_id: vehicle.id, inserted, read: points.length });
 }

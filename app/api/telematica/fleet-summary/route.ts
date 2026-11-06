@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     db.rpc("telematica_fleet_summary", {
       p_client: clientId, p_from: `${from}T00:00:00-06:00`, p_to: `${to}T23:59:59.999-06:00`,
     }),
-    db.from("telematica_fleet_settings").select("fuel_price_mxn, default_km_per_l, work_start_hour, work_end_hour, work_days, speeding_kmh")
+    db.from("telematica_fleet_settings").select("fuel_price_mxn, default_km_per_l, work_start_hour, work_end_hour, work_days, sat_end_hour, speeding_kmh")
       .eq("client_id", clientId).maybeSingle(),
   ]);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -40,6 +40,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     from, to, ...(data as object),
-    settings: settings ?? { fuel_price_mxn: null, default_km_per_l: 8, work_start_hour: 7, work_end_hour: 19, work_days: [1, 2, 3, 4, 5, 6], speeding_kmh: 80 },
+    settings: settings ?? { fuel_price_mxn: null, default_km_per_l: 8, work_start_hour: 7, work_end_hour: 19, work_days: [1, 2, 3, 4, 5, 6], sat_end_hour: null, speeding_kmh: 80 },
   });
 }

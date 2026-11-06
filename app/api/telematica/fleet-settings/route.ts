@@ -4,6 +4,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { requireFleetAccess, supabaseAdmin } from "@/lib/telematicaAuth";
+import { refreshDailyStats } from "@/lib/telematicaStats";
+
+export const maxDuration = 300;
 
 const numOrNull = (v: unknown, min: number, max: number) => {
   if (v === null || v === "" || v === undefined) return null;
@@ -41,6 +44,18 @@ export async function PATCH(req: NextRequest) {
     const { error } = await db.from("telematica_fleet_settings")
       .upsert({ client_id: clientId, ...patch, updated_at: new Date().toISOString() }, { onConflict: "client_id" });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // El límite de velocidad cambia los excesos guardados en el resumen diario: recalcular todo el historial
+  if ("speeding_kmh" in patch) {
+    const [{ data: a }, { data: b }] = await Promise.all([
+      db.from("telematica_daily_stats").select("day").eq("client_id", clientId).order("day", { ascending: true }).limit(1),
+      db.from("telematica_daily_stats").select("day").eq("client_id", clientId).order("day", { ascending: false }).limit(1),
+    ]);
+    if (a?.[0] && b?.[0]) {
+      try { await refreshDailyStats(db, clientId, a[0].day, b[0].day); }
+      catch (e) { return NextResponse.json({ error: (e as Error).message }, { status: 500 }); }
+    }
   }
 
   const vehicles = Array.isArray(body.vehicles) ? body.vehicles as Record<string, unknown>[] : [];

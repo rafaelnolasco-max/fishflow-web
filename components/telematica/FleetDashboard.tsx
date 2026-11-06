@@ -25,7 +25,7 @@ interface FV {
 }
 interface Settings {
   fuel_price_mxn: number | null; default_km_per_l: number; work_start_hour: number; work_end_hour: number;
-  work_days: number[]; speeding_kmh: number;
+  work_days: number[]; sat_end_hour?: number | null; speeding_kmh: number;
 }
 interface Summary { from: string | null; to: string | null; vehicles: FV[]; daily: { day: string; km: number }[]; settings: Settings }
 
@@ -35,6 +35,13 @@ const nf0 = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 0 });
 const nf1 = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 1 });
 const mxn = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 });
 const DIAS = ["", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+/** "Lun–Vie 7:00–19:00 · Sáb 7:00–15:00" (o "Lun Mar … · 7:00–19:00" si el sábado no cierra antes). */
+export function horarioTxt(s: { work_days: number[]; work_start_hour: number; work_end_hour: number; sat_end_hour?: number | null }) {
+  const sat = s.work_days.includes(6) && s.sat_end_hour != null && s.sat_end_hour !== s.work_end_hour;
+  if (!sat) return `${s.work_days.map(d => DIAS[d]).join(" ")} · ${s.work_start_hour}:00–${s.work_end_hour}:00`;
+  const wk = s.work_days.filter(d => d !== 6);
+  return `${wk.map(d => DIAS[d]).join(" ")} ${s.work_start_hour}:00–${s.work_end_hour}:00 · Sáb ${s.work_start_hour}:00–${s.sat_end_hour}:00`;
+}
 const hrs = (m: number) => `${nf0.format(Math.floor(m / 60))} h`;
 const name = (v: FV) => v.alias || v.plate || `Equipo ${v.device_id}`;
 const fmtDayShort = (d: string) => new Date(d + "T12:00:00-06:00").toLocaleDateString("es-MX", { day: "2-digit", month: "short", timeZone: "America/Mexico_City" });
@@ -158,7 +165,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
   const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "10px 18px", fontFamily: t.fBody, fontWeight: 700, fontSize: 14, cursor: "pointer" };
   const ghost = { background: "transparent", color: t.ink, border: `1px solid ${t.lineL}`, borderRadius: 6, padding: "9px 14px", fontFamily: t.fBody, fontWeight: 600, fontSize: 13, cursor: "pointer" };
   const maxKm = Math.max(1, ...rows.map(r => r.km));
-  const horario = s ? `${s.work_days.map(d => DIAS[d]).join(" ")} · ${s.work_start_hour}:00–${s.work_end_hour}:00` : "";
+  const horario = s ? horarioTxt(s) : "";
 
   const th = (k: SortKey | null, txt: string, align: "left" | "right" = "right") => (
     <th style={{ ...label, textAlign: align, padding: "8px 10px", fontWeight: 500, cursor: k ? "pointer" : "default", whiteSpace: "nowrap" }}

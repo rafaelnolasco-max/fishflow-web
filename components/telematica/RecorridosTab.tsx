@@ -10,6 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import { parseLukonRows, IMPORT_CHUNK, type TelematicaPoint } from "@/lib/telematica";
 import TrackMap from "./TrackMap";
 import FleetDashboard from "./FleetDashboard";
+import MonthlyReport from "./MonthlyReport";
 
 // Con 3 o más unidades con datos, la flotilla abre en el tablero del dueño.
 const FLEET_VIEW_MIN = 3;
@@ -54,7 +55,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
   const [items, setItems] = useState<Item[]>([]);
   const [busy, setBusy] = useState<"" | "leyendo" | "subiendo">("");
   const [error, setError] = useState("");
-  const [view, setView] = useState<"flotilla" | "mapa" | "cargar">("mapa");
+  const [view, setView] = useState<"mensual" | "flotilla" | "mapa" | "cargar">("mapa");
   const [focusVehicle, setFocusVehicle] = useState<string | undefined>(undefined);
   const [dragOver, setDragOver] = useState(false);
 
@@ -128,6 +129,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
               client_id: fleetId, device_id: it.device_id, filename: it.filename,
               points: it.points.slice(i, i + IMPORT_CHUNK), import_id: importId,
               done: i + IMPORT_CHUNK >= it.points.length,
+              range: { from: it.ts_min, to: it.ts_max },
             }),
           });
           const data = await res.json();
@@ -147,9 +149,9 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
   const fleet = fleets.find(f => f.id === fleetId);
   const fleetReady = (fleet?.vehicles.filter(v => v.points > 0).length ?? 0) >= FLEET_VIEW_MIN;
   const openVehicle = useCallback((id: string) => { setFocusVehicle(id); setView("mapa"); }, []);
-  // Al cambiar de flotilla: tablero del dueño si tiene 3+ unidades con datos, si no el mapa.
+  // Al cambiar de flotilla: reporte mensual si tiene 3+ unidades con datos, si no el mapa.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { if (fleetId) { setView(fleetReady ? "flotilla" : "mapa"); setFocusVehicle(undefined); } }, [fleetId]);
+  useEffect(() => { if (fleetId) { setView(fleetReady ? "mensual" : "mapa"); setFocusVehicle(undefined); } }, [fleetId]);
   const h2 = { fontFamily: t.fMono, fontSize: 13, fontWeight: 500, color: t.mutedL, letterSpacing: "0.2em", textTransform: "uppercase" as const, margin: "0 0 28px" };
   const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
   const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "12px 22px", fontFamily: t.fBody, fontWeight: 700, fontSize: 14, cursor: "pointer" };
@@ -170,15 +172,18 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
 
       {/* Vista */}
       <div style={{ display: "flex", gap: 6, marginBottom: 22, flexWrap: "wrap" }}>
-        {((fleetReady ? ["flotilla", "mapa", "cargar"] : ["mapa", "cargar"]) as ("flotilla" | "mapa" | "cargar")[]).map(v => (
+        {((fleetReady ? ["mensual", "flotilla", "mapa", "cargar"] : ["mapa", "cargar"]) as ("mensual" | "flotilla" | "mapa" | "cargar")[]).map(v => (
           <button key={v} onClick={() => setView(v)} style={{
             background: view === v ? t.ink : "transparent", color: view === v ? t.signal : t.mutedL,
             border: `1px solid ${view === v ? t.ink : t.lineL}`, borderRadius: 6, padding: "8px 16px",
             fontFamily: t.fBody, fontWeight: 600, fontSize: 13, cursor: "pointer",
-          }}>{v === "flotilla" ? "Flotilla" : v === "mapa" ? "Mapa por unidad" : "Cargar datos"}</button>
+          }}>{v === "mensual" ? "Reporte mensual" : v === "flotilla" ? "Flotilla" : v === "mapa" ? "Mapa por unidad" : "Cargar datos"}</button>
         ))}
       </div>
 
+      {view === "mensual" && fleet && fleetReady && (
+        <MonthlyReport key={fleet.id} clientId={fleet.id} fleetName={fleet.name} t={t} onOpenVehicle={openVehicle} />
+      )}
       {view === "flotilla" && fleet && fleetReady && (
         <FleetDashboard key={fleet.id} clientId={fleet.id} fleetName={fleet.name} t={t} onOpenVehicle={openVehicle} />
       )}
