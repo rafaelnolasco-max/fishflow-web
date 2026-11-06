@@ -18,7 +18,7 @@ interface MV {
   vehicle_id: string; alias: string | null; plate: string | null; device_id: string; photo_url: string | null;
   kmpl: number; km: number; moving_h: number; idle_h: number; km_after_hours: number; speeding: number; vmax: number;
   active_days: number; liters: number; first_move_avg: string | null; last_move_avg: string | null; km_sunday: number | null;
-  harsh_accel: number; harsh_accel_low: number; harsh_brake: number; starts: number;
+  harsh_accel: number; harsh_accel_low: number; harsh_brake: number; starts: number; device_model?: string | null;
 }
 interface Month {
   month: string; first_day: string; last_day: string; days_with_data: number; units_total: number; units_active: number;
@@ -49,21 +49,35 @@ function median(xs: number[]) {
   const a = [...xs].sort((x, y) => x - y), k = Math.floor(a.length / 2);
   return a.length % 2 ? a[k] : (a[k - 1] + a[k]) / 2;
 }
-/** Manejo agresivo de un mes: tasas por 100 km y nivel contra la mediana de la flotilla.
- *  El nivel sale de los arrancones (aceleración brusca a ≤20 km/h): es lo que más castiga el clutch. */
+/** Manejo agresivo de un periodo: tasas por 100 km y nivel contra la mediana de las unidades del MISMO
+ *  modelo de equipo (los acelerómetros de modelos distintos no marcan igual). El nivel sale de los arrancones
+ *  (aceleración brusca a ≤20 km/h): es lo que más castiga el clutch. Una unidad que marca 6 veces o más que
+ *  su modelo casi siempre es configuración del equipo, no chofer: se marca "revisar equipo". */
+type HarshLevel = "alto" | "medio" | "normal" | "equipo";
+const LEVEL_EQUIPO = 6;
 function harshRows(vs: MV[]) {
-  const rated = vs.filter(v => v.km >= RATE_MIN_KM).map(v => ({
+  const model = (v: MV) => v.device_model || "Sin modelo";
+  const noSensor = vs.filter(v => v.km >= RATE_MIN_KM && !v.harsh_accel && !v.harsh_brake);
+  const rated = vs.filter(v => v.km >= RATE_MIN_KM && (v.harsh_accel || v.harsh_brake)).map(v => ({
     v, low100: per100(v.harsh_accel_low, v.km), acc100: per100(v.harsh_accel, v.km),
     brk100: per100(v.harsh_brake, v.km), st100: per100(v.starts, v.km),
   }));
   const med = median(rated.map(r => r.low100));
+  const models = [...new Set(rated.map(r => model(r.v)))];
+  const medBy = new Map(models.map(mo => {
+    const xs = rated.filter(r => model(r.v) === mo).map(r => r.low100);
+    return [mo, xs.length >= 3 ? median(xs) : med] as const;
+  }));
   return {
-    med,
+    med, medBy, mixed: models.length > 1,
     rows: rated.map(r => {
-      const x = med > 0 ? r.low100 / med : 0;
-      return { ...r, x, level: (x >= 1.5 ? "alto" : x >= 1.15 ? "medio" : "normal") as "alto" | "medio" | "normal" };
+      const base = medBy.get(model(r.v)) ?? med;
+      const x = base > 0 ? r.low100 / base : 0;
+      const level: HarshLevel = x >= LEVEL_EQUIPO ? "equipo" : x >= 1.5 ? "alto" : x >= 1.15 ? "medio" : "normal";
+      return { ...r, base, x, level };
     }).sort((a, b) => b.low100 - a.low100),
     unrated: vs.filter(v => v.km < RATE_MIN_KM),
+    noSensor,
   };
 }
 
@@ -202,7 +216,10 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
     const hr = harshRows(vs);
     const high = hr.rows.filter(r => r.level === "alto");
     if (high.length) out.push({ tone: "bad", vehicleId: high[0].v.vehicle_id, text:
-      `Posible desgaste de clutch: ${list(high.slice(0, 4).map(r => `${name(r.v)} (${nf1.format(r.x)}×)`))} ${high.length > 1 ? "arrancan" : "arranca"} con aceleración brusca muchas más veces por km que la mediana de la flotilla. Revisa sus choferes y su clutch.` });
+      `Posible desgaste de clutch: ${list(high.slice(0, 4).map(r => `${name(r.v)} (${nf1.format(r.x)}×)`))} ${high.length > 1 ? "arrancan" : "arranca"} con aceleración brusca muchas más veces por km que ${hr.mixed ? "las unidades con su mismo equipo" : "la mediana de la flotilla"}. Revisa sus choferes y su clutch.` });
+    const odd = hr.rows.filter(r => r.level === "equipo");
+    if (odd.length) out.push({ tone: "warn", vehicleId: odd[0].v.vehicle_id, text:
+      `${list(odd.slice(0, 4).map(r => `${name(r.v)} (${nf0.format(r.x)}×)`))} ${odd.length > 1 ? "marcan" : "marca"} muchísimos más arrancones que otras unidades con el mismo equipo. Lo más probable es que su acelerómetro esté configurado más sensible: pide a Lukon revisarlo antes de sacar conclusiones del chofer.` });
 
     // Fuera de horario y domingo
     const ah = working.filter(v => v.km >= 200 && v.km_after_hours / v.km > 0.3).sort((a, b) => b.km_after_hours / b.km - a.km_after_hours / a.km);
@@ -373,10 +390,11 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           const prevHr = prev ? { low: per100(prev.harsh_accel_low, prev.km), acc: per100(prev.harsh_accel, prev.km), brk: per100(prev.harsh_brake, prev.km), st: per100(prev.starts, prev.km) } : null;
           const cur = { low: per100(m.harsh_accel_low, m.km), acc: per100(m.harsh_accel, m.km), brk: per100(m.harsh_brake, m.km), st: per100(m.starts, m.km) };
           if (!m.harsh_accel && !m.harsh_brake) return null;
-          const badge = (lv: "alto" | "medio" | "normal") => (
+          const badge = (lv: HarshLevel) => (
             <span style={{ fontFamily: t.fMono, fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 10, whiteSpace: "nowrap",
-              background: lv === "alto" ? "#FCE4DE" : lv === "medio" ? "#FFF1D6" : t.paper2, color: lv === "alto" ? t.crimson : lv === "medio" ? "#B87500" : t.mutedL }}>
-              {lv === "alto" ? "ALTO" : lv === "medio" ? "MEDIO" : "NORMAL"}
+              background: lv === "alto" ? "#FCE4DE" : lv === "medio" ? "#FFF1D6" : lv === "equipo" ? "#E6E9F2" : t.paper2,
+              color: lv === "alto" ? t.crimson : lv === "medio" ? "#B87500" : lv === "equipo" ? t.ink3 : t.mutedL }}>
+              {lv === "alto" ? "ALTO" : lv === "medio" ? "MEDIO" : lv === "equipo" ? "REVISAR EQUIPO" : "NORMAL"}
             </span>
           );
           const maxLow = Math.max(1, ...hr.rows.map(r => r.low100));
@@ -386,7 +404,9 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
               <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
                 El GPS no ve el pedal del clutch, pero su acelerómetro registra cada <b>aceleración brusca</b> y <b>frenada brusca</b>.
                 Los <b>arrancones</b> (aceleración brusca saliendo de parado, a 20 km/h o menos) son los que más castigan el clutch.
-                Las cifras sirven para comparar unidades entre sí: el nivel es contra la mediana de la flotilla ({nf1.format(hr.med)} arrancones por cada 100 km).
+                Las cifras sirven para comparar unidades entre sí: {hr.mixed
+                  ? <>esta flotilla tiene equipos de varios modelos y cada unidad se compara contra las de su mismo modelo ({[...hr.medBy.entries()].map(([mo, md]) => `${mo.replace("Suntech ", "")}: ${nf1.format(md)}`).join(" · ")} arrancones por cada 100 km).</>
+                  : <>el nivel es contra la mediana de la flotilla ({nf1.format(hr.med)} arrancones por cada 100 km).</>}
               </p>
               <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", marginBottom: 12 }}>
                 {([
@@ -406,7 +426,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                 <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
-                      {["Unidad", "Nivel", "Arrancones /100 km", "vs mediana", "Acel. bruscas /100 km", "Frenadas /100 km", "Encendidos /100 km", "Km"].map((h, k) => (
+                      {["Unidad", "Nivel", "Arrancones /100 km", "vs mediana", "Acel. bruscas /100 km", "Frenadas /100 km", "Encendidos /100 km", "Km", ...(hr.mixed ? ["Equipo"] : [])].map((h, k) => (
                         <th key={h} style={{ ...label, textAlign: k < 2 ? "left" : "right", padding: "8px 10px", fontWeight: 500, whiteSpace: "nowrap" }}>{h}</th>
                       ))}
                       <th />
@@ -418,9 +438,9 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                         <td style={{ padding: 10, fontWeight: 700, color: t.ink, whiteSpace: "nowrap" }}>{name(r.v)}{r.v.alias && r.v.plate ? <span style={{ fontWeight: 400, color: t.mutedL }}> · {r.v.plate}</span> : null}</td>
                         <td style={{ padding: 10 }}>{badge(r.level)}</td>
                         <td style={{ padding: 10, textAlign: "right", minWidth: 120 }}>
-                          <div style={{ fontFamily: t.fMono, fontWeight: 700, color: r.level === "alto" ? t.crimson : t.ink }}>{nf1.format(r.low100)}</div>
+                          <div style={{ fontFamily: t.fMono, fontWeight: 700, color: r.level === "alto" ? t.crimson : r.level === "equipo" ? t.mutedL : t.ink }}>{nf1.format(r.low100)}</div>
                           <div style={{ height: 4, background: t.paper2, borderRadius: 2, marginTop: 4 }}>
-                            <div style={{ height: 4, width: `${(r.low100 / maxLow) * 100}%`, background: r.level === "alto" ? t.crimson : r.level === "medio" ? "#F6A623" : t.ink, borderRadius: 2, marginLeft: "auto" }} />
+                            <div style={{ height: 4, width: `${(r.low100 / maxLow) * 100}%`, background: r.level === "alto" ? t.crimson : r.level === "medio" ? "#F6A623" : r.level === "equipo" ? "#9AA3B8" : t.ink, borderRadius: 2, marginLeft: "auto" }} />
                           </div>
                         </td>
                         <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.x)}×</td>
@@ -428,6 +448,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                         <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.brk100)}</td>
                         <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.st100)}</td>
                         <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: t.mutedL }}>{nf0.format(r.v.km)}</td>
+                        {hr.mixed && <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontSize: 11, color: t.mutedL, whiteSpace: "nowrap" }}>{(r.v.device_model ?? "—").replace("Suntech ", "")}</td>}
                         <td style={{ padding: 10, textAlign: "right" }}>
                           <button onClick={() => onOpenVehicle(r.v.vehicle_id)} style={ghost}>Ver recorrido</button>
                         </td>
@@ -437,8 +458,9 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                 </table>
               </div>
               <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
-                Nivel: ALTO = 1.5 veces la mediana o más; MEDIO = 1.15 a 1.5 veces. Se cuentan episodios (eventos del mismo tipo a menos de 30 s son el mismo).
+                Nivel: ALTO = 1.5 veces la mediana o más; MEDIO = 1.15 a 1.5 veces; REVISAR EQUIPO = {LEVEL_EQUIPO} veces o más (casi siempre es la sensibilidad del acelerómetro, no el chofer). Se cuentan episodios (eventos del mismo tipo a menos de 30 s son el mismo).
                 La ruta y la carga también influyen: tráfico de ciudad y subidas con carga castigan más el clutch.
+                {hr.noSensor.length > 0 && <> Su equipo no reporta acelerómetro: {list(hr.noSensor.map(name))}.</>}
                 {hr.unrated.length > 0 && <> Sin calificar por tener menos de {RATE_MIN_KM} km {isYear ? "en el año" : "en el mes"}: {list(hr.unrated.map(name))}.</>}
               </p>
             </div>
