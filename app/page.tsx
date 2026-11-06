@@ -247,7 +247,7 @@ export default function Home() {
             {[
               { icon: Activity,    name: "CANE Neurofeedback", note: "Salud", soon: false },
               { icon: Sparkles,    name: "Studio Jomay", note: "Micropigmentación", soon: false },
-              { icon: Navigation,  name: "Lukon", note: "Telemática GPS", soon: false },
+              { icon: Navigation,  name: "LUKON", note: "Telemática GPS", soon: false, logo: "/clients/lukon/logo.svg" },
               { icon: Brain,       name: "TherapyOS", note: "Terapia", soon: false },
               { icon: PenTool,     name: "Mario Citalán", note: "Formación y terapia", soon: false },
               { icon: ShieldCheck, name: "Enlace Integral", note: "Seguros", soon: false },
@@ -260,8 +260,14 @@ export default function Home() {
                     : "border-primary/15 bg-secondary/40 hover:border-primary/40"
                 }`}
               >
-                <c.icon className={`h-4 w-4 flex-shrink-0 ${c.soon ? "text-accent" : "text-primary"}`} />
-                <span className="text-sm font-semibold text-foreground leading-none">{c.name}</span>
+                {"logo" in c && c.logo ? (
+                  <Image src={c.logo} alt={c.name} width={606} height={187} className="h-4 w-auto flex-shrink-0" />
+                ) : (
+                  <>
+                    <c.icon className={`h-4 w-4 flex-shrink-0 ${c.soon ? "text-accent" : "text-primary"}`} />
+                    <span className="text-sm font-semibold text-foreground leading-none">{c.name}</span>
+                  </>
+                )}
                 <span className={`text-[11px] leading-none ${c.soon ? "text-accent font-medium" : "text-muted-foreground"}`}>
                   · {c.note}
                 </span>
