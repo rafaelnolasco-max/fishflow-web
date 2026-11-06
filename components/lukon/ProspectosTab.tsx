@@ -1,7 +1,7 @@
 "use client";
 
-// ─── Lukon · Prospectos de la landing ─────────────────────────────────────────
-// Lee `leads` (client_id de Lukon, source 'lukon_landing'). RLS ya limita a los
+// ─── LUKON · Prospectos de la landing ─────────────────────────────────────────
+// Lee `leads` (client_id de LUKON, source 'lukon_landing'). RLS ya limita a los
 // prospectos del cliente; el filtro explícito es defensa en profundidad.
 // Los registra /api/lukon/lead (formulario "Toma el control" de la landing).
 
@@ -182,7 +182,7 @@ export default function ProspectosTab({ t, onToast }: { t: LukonTheme; onToast: 
             const mail = correoReal(l.email);
             const flot = d.vehiculo === "Flotilla";
             const reenvios = ((l.notes || "").match(/\[Reenvi[oó] #/g) ?? []).length;
-            const wa = tel ? `https://wa.me/52${tel}?text=${encodeURIComponent(`Hola ${(l.name || "").split(/\s+/)[0]}, te escribo de Lukon por la cotización que pediste.`)}` : "";
+            const wa = tel ? `https://wa.me/52${tel}?text=${encodeURIComponent(`Hola ${(l.name || "").split(/\s+/)[0]}, te escribo de LUKON por la cotización que pediste.`)}` : "";
             return (
               <article key={l.id} style={{ background: "#fff", border: `1px solid ${flot ? "#0084F9" : t.lineL}`, borderRadius: 16, padding: "16px 18px", boxShadow: flot ? "0 10px 30px -18px rgba(0,132,249,.6)" : "none" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
@@ -214,7 +214,7 @@ export default function ProspectosTab({ t, onToast }: { t: LukonTheme; onToast: 
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {wa && <a href={wa} target="_blank" rel="noopener" style={{ background: "#25D366", color: "#fff", borderRadius: 10, padding: "9px 14px", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>WhatsApp</a>}
                   {tel && <a href={`tel:+52${tel}`} style={{ border: `1.5px solid ${t.lineL}`, color: t.ink, borderRadius: 10, padding: "8px 14px", fontWeight: 600, fontSize: 14, textDecoration: "none" }}>Llamar</a>}
-                  {mail && <a href={`mailto:${mail}?subject=${encodeURIComponent("Tu cotización Lukon")}`} style={{ border: `1.5px solid ${t.lineL}`, color: t.ink, borderRadius: 10, padding: "8px 14px", fontWeight: 600, fontSize: 14, textDecoration: "none" }}>Correo</a>}
+                  {mail && <a href={`mailto:${mail}?subject=${encodeURIComponent("Tu cotización LUKON")}`} style={{ border: `1.5px solid ${t.lineL}`, color: t.ink, borderRadius: 10, padding: "8px 14px", fontWeight: 600, fontSize: 14, textDecoration: "none" }}>Correo</a>}
                 </div>
               </article>
             );

@@ -10,15 +10,15 @@ import { notifySlack, slackEscape } from '@/lib/slack'
 export const runtime = 'nodejs'
 
 /**
- * Prospectos de la landing de Lukon (hoy /demos/lukon-sitio, después gpslukon.com).
+ * Prospectos de la landing de LUKON (hoy /demos/lukon-sitio, después gpslukon.com).
  *
- * 1) Guarda el prospecto en `leads` (client_id de Lukon, source 'lukon_landing').
+ * 1) Guarda el prospecto en `leads` (client_id de LUKON, source 'lukon_landing').
  *    Si el mismo teléfono o correo ya escribió en los últimos 30 días, no se
  *    crea otro: se anota el reenvío en `notes` (mismo criterio que Enlace).
- * 2) Avisa a Alejandro por correo (aalmarazmo@lukon.com.mx) con la marca Lukon.
+ * 2) Avisa a Alejandro por correo (aalmarazmo@lukon.com.mx) con la marca LUKON.
  *    Responder ese correo le escribe directo al prospecto.
  * 3) Avisa en Slack #cli-lukon. Si es flotilla (3+ vehículos) sale marcado.
- * 4) Si el prospecto dejó correo, le manda un acuse con la marca Lukon,
+ * 4) Si el prospecto dejó correo, le manda un acuse con la marca LUKON,
  *    desde gpslukon.com y sin mencionar a FishFlow.
  *
  * La landing también abre WhatsApp con el mensaje armado; esto no lo sustituye.
@@ -70,7 +70,7 @@ function avisoHtml(d: {
         {
           texto: 'Escribirle por WhatsApp',
           href: `https://wa.me/52${ult10(d.tel)}?text=${encodeURIComponent(
-            `Hola ${d.nombre.split(/\s+/)[0]}, te escribo de Lukon por la cotización que pediste.`
+            `Hola ${d.nombre.split(/\s+/)[0]}, te escribo de LUKON por la cotización que pediste.`
           )}`,
         },
         { texto: 'Ver en el panel', href: PANEL_URL, estilo: 'secundario' },
@@ -83,16 +83,16 @@ function acuseHtml(d: { nombre: string; vehiculo: string; plan: string }) {
   const ui = emailUI('lukon')
   const primer = d.nombre.trim().split(/\s+/)[0] || ''
   const wa = `https://wa.me/${LUKON_WA}?text=${encodeURIComponent(
-    `Hola Lukon, soy ${d.nombre}. Acabo de pedir mi cotización en su página.`
+    `Hola LUKON, soy ${d.nombre}. Acabo de pedir mi cotización en su página.`
   )}`
   return ui.layout({
     audiencia: 'externo',
-    preheader: 'Recibimos tu solicitud. Un asesor de Lukon te escribe por WhatsApp.',
+    preheader: 'Recibimos tu solicitud. Un asesor de LUKON te escribe por WhatsApp.',
     titulo: `Recibimos tu solicitud${primer ? ', ' + escHtml(primer) : ''}`,
     cuerpo:
-      ui.p('Gracias por tu interés en Lukon. Esto es lo que nos pediste:') +
+      ui.p('Gracias por tu interés en LUKON. Esto es lo que nos pediste:') +
       ui.dato('Quieres proteger', d.vehiculo + (d.plan ? ` · ${d.plan}` : '')) +
-      ui.p('<strong>Un asesor de Lukon te escribe por WhatsApp muy pronto</strong> con tu cotización y para resolver tus dudas, sin compromiso.') +
+      ui.p('<strong>Un asesor de LUKON te escribe por WhatsApp muy pronto</strong> con tu cotización y para resolver tus dudas, sin compromiso.') +
       ui.p('¿Prefieres adelantarlo? Escríbenos directo:') +
       ui.botones([{ texto: 'Escribir por WhatsApp', href: wa }]),
     nota: 'Usamos tus datos solo para enviarte tu cotización. Si no deseas que te contactemos, responde este correo.',
@@ -137,7 +137,7 @@ export async function POST(req: Request) {
       : b.fbclid ? 'Meta (sin UTM)' : 'Orgánico (sin UTM)'
 
     const resumen = [
-      '[Landing Lukon]',
+      '[Landing LUKON]',
       `Vehículo: ${vehiculo}${unidades ? ` (${unidades} unidades)` : ''}`,
       plan ? `Paquete: ${plan}` : '',
       cp ? `C.P.: ${cp}` : '',
@@ -227,14 +227,14 @@ export async function POST(req: Request) {
         subject: `${repetido ? 'Prospecto repetido' : vehiculo === 'Flotilla' ? 'Nuevo prospecto · FLOTILLA' : 'Nuevo prospecto'} — ${nombre} · ${vehiculo}`,
         html: avisoHtml({ nombre, tel, email, vehiculo, unidades, plan, cp, origen, repetido: repetidoTxt, estadoPrevio: repetido?.status ?? '' }),
       })
-      if (mailErr) console.error('[lukon/lead] aviso a Lukon:', mailErr)
+      if (mailErr) console.error('[lukon/lead] aviso a LUKON:', mailErr)
 
       if (email && !repetido) {
         const { error: ackErr } = await resend.emails.send({
           from: SENDERS.lukonVentas,
           to: email,
           replyTo: LUKON_NOTIFY_TO[0],
-          subject: 'Recibimos tu solicitud — Lukon',
+          subject: 'Recibimos tu solicitud — LUKON',
           html: acuseHtml({ nombre, vehiculo, plan }),
         })
         if (ackErr) console.error('[lukon/lead] acuse al prospecto:', ackErr)

@@ -245,7 +245,7 @@ export const EMAIL_BRANDS = {
    * #0084F9, Bebas Neue + Inter como la landing. Logo vectorizado del master.
    */
   lukon: {
-    nombre: 'Lukon',
+    nombre: 'LUKON',
     logo: {
       src: `${ORIGIN}/clients/lukon/email-logo.png`,
       width: 150,
@@ -269,7 +269,7 @@ export const EMAIL_BRANDS = {
       googleFonts: 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap',
     },
     sitio: { url: 'https://www.fishflow.mx/demos/lukon-sitio/', etiqueta: 'Lukon' },
-    pieLegal: 'Lukon Localization System · Todo Inteligente. Todo Seguro.',
+    pieLegal: 'LUKON Localization System · Siempre Inteligente. Siempre Seguro.',
   },
 } satisfies Record<string, EmailBrand>
 
