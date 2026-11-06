@@ -309,7 +309,17 @@ button{font:inherit;cursor:pointer;}
 .step .num{font-family:var(--display);font-size:15px;letter-spacing:.2em;color:var(--blue);}
 .step h3{font-family:var(--display);font-weight:400;font-size:clamp(30px,3vw,40px);line-height:1;margin:6px 0 10px;color:var(--navy);}
 .step p{margin:0 auto;max-width:30ch;color:var(--muted);font-size:15.5px;}
-@media(max-width:820px){.steps{grid-template-columns:1fr;gap:38px;}.steps .rail{left:50%;right:auto;top:38px;bottom:38px;width:3px;height:auto;transform:translateX(-50%);}.steps .rail i{transform-origin:top;transform:scaleY(var(--p,0));}}
+@media(max-width:820px){
+  .steps{grid-template-columns:1fr;gap:34px;margin-top:40px;text-align:left;}
+  .steps .rail{left:31px;right:auto;top:32px;bottom:60px;width:3px;height:auto;transform:none;}
+  .steps .rail i{transform-origin:top;transform:scaleY(var(--p,0));}
+  .step{display:grid;grid-template-columns:64px 1fr;column-gap:18px;align-items:start;text-align:left;padding:0;}
+  .step .bubble{grid-row:1 / span 3;width:64px;height:64px;margin:0;box-shadow:0 10px 26px -12px rgba(0,55,160,.35),0 0 0 6px var(--paper);}
+  .step .bubble svg{width:26px;height:26px;}
+  .step .num{padding-top:4px;}
+  .step h3{margin:4px 0 6px;}
+  .step p{margin:0;max-width:none;}
+}
 
 /* ---------- Features ---------- */
 .features{background:var(--paper);}
