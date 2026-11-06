@@ -19,6 +19,7 @@ interface MV {
   kmpl: number; km: number; moving_h: number; idle_h: number; km_after_hours: number; speeding: number; vmax: number;
   active_days: number; liters: number; first_move_avg: string | null; last_move_avg: string | null; km_sunday: number | null;
   harsh_accel: number; harsh_accel_low: number; harsh_brake: number; starts: number; device_model?: string | null;
+  vehicle_class?: "ligero" | "pesado" | null; vehicle_desc?: string | null;
 }
 interface Month {
   month: string; first_day: string; last_day: string; days_with_data: number; units_total: number; units_active: number;
@@ -49,14 +50,17 @@ function median(xs: number[]) {
   const a = [...xs].sort((x, y) => x - y), k = Math.floor(a.length / 2);
   return a.length % 2 ? a[k] : (a[k - 1] + a[k]) / 2;
 }
-/** Manejo agresivo de un periodo: tasas por 100 km y nivel contra la mediana de las unidades del MISMO
- *  modelo de equipo (los acelerómetros de modelos distintos no marcan igual). El nivel sale de los arrancones
+/** Manejo agresivo de un periodo: tasas por 100 km y nivel contra la mediana de su grupo: el TIPO de
+ *  vehículo si la flotilla lo tiene (una camioneta acelera mucho más fuerte que un tractocamión cargado:
+ *  en JC las 4 que más marcaban eran camionetas), si no el MODELO de equipo (los acelerómetros no marcan igual). El nivel sale de los arrancones
  *  (aceleración brusca a ≤20 km/h): es lo que más castiga el clutch. Una unidad que marca 6 veces o más que
  *  su modelo casi siempre es configuración del equipo, no chofer: se marca "revisar equipo". */
 type HarshLevel = "alto" | "medio" | "normal" | "equipo";
 const LEVEL_EQUIPO = 6;
 function harshRows(vs: MV[]) {
-  const model = (v: MV) => v.device_model || "Sin modelo";
+  const byClass = vs.some(v => v.vehicle_class);
+  const model = (v: MV) => byClass ? (v.vehicle_class === "ligero" ? "Ligeras" : v.vehicle_class === "pesado" ? "Pesadas" : "Sin tipo")
+    : (v.device_model || "Sin modelo").replace("Suntech ", "");
   const noSensor = vs.filter(v => v.km >= RATE_MIN_KM && !v.harsh_accel && !v.harsh_brake);
   const rated = vs.filter(v => v.km >= RATE_MIN_KM && (v.harsh_accel || v.harsh_brake)).map(v => ({
     v, low100: per100(v.harsh_accel_low, v.km), acc100: per100(v.harsh_accel, v.km),
@@ -69,7 +73,7 @@ function harshRows(vs: MV[]) {
     return [mo, xs.length >= 3 ? median(xs) : med] as const;
   }));
   return {
-    med, medBy, mixed: models.length > 1,
+    med, medBy, mixed: models.length > 1, byClass, group: model,
     rows: rated.map(r => {
       const base = medBy.get(model(r.v)) ?? med;
       const x = base > 0 ? r.low100 / base : 0;
@@ -216,10 +220,10 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
     const hr = harshRows(vs);
     const high = hr.rows.filter(r => r.level === "alto");
     if (high.length) out.push({ tone: "bad", vehicleId: high[0].v.vehicle_id, text:
-      `Posible desgaste de clutch: ${list(high.slice(0, 4).map(r => `${name(r.v)} (${nf1.format(r.x)}×)`))} ${high.length > 1 ? "arrancan" : "arranca"} con aceleración brusca muchas más veces por km que ${hr.mixed ? "las unidades con su mismo equipo" : "la mediana de la flotilla"}. Revisa sus choferes y su clutch.` });
+      `Posible desgaste de clutch: ${list(high.slice(0, 4).map(r => `${name(r.v)} (${nf1.format(r.x)}×)`))} ${high.length > 1 ? "arrancan" : "arranca"} con aceleración brusca muchas más veces por km que ${!hr.mixed ? "la mediana de la flotilla" : hr.byClass ? "las unidades de su mismo tipo" : "las unidades con su mismo equipo"}. Revisa sus choferes y su clutch.` });
     const odd = hr.rows.filter(r => r.level === "equipo");
     if (odd.length) out.push({ tone: "warn", vehicleId: odd[0].v.vehicle_id, text:
-      `${list(odd.slice(0, 4).map(r => `${name(r.v)} (${nf0.format(r.x)}×)`))} ${odd.length > 1 ? "marcan" : "marca"} muchísimos más arrancones que otras unidades con el mismo equipo. Lo más probable es que su acelerómetro esté configurado más sensible: pide a Lukon revisarlo antes de sacar conclusiones del chofer.` });
+      `${list(odd.slice(0, 4).map(r => `${name(r.v)} (${nf0.format(r.x)}×)`))} ${odd.length > 1 ? "marcan" : "marca"} muchísimos más arrancones que otras unidades ${hr.byClass ? "de su mismo tipo" : "con el mismo equipo"}. Lo más probable es que su acelerómetro esté configurado más sensible: pide a Lukon revisarlo antes de sacar conclusiones del chofer.` });
 
     // Fuera de horario y domingo
     const ah = working.filter(v => v.km >= 200 && v.km_after_hours / v.km > 0.3).sort((a, b) => b.km_after_hours / b.km - a.km_after_hours / a.km);
@@ -405,7 +409,9 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                 El GPS no ve el pedal del clutch, pero su acelerómetro registra cada <b>aceleración brusca</b> y <b>frenada brusca</b>.
                 Los <b>arrancones</b> (aceleración brusca saliendo de parado, a 20 km/h o menos) son los que más castigan el clutch.
                 Las cifras sirven para comparar unidades entre sí: {hr.mixed
-                  ? <>esta flotilla tiene equipos de varios modelos y cada unidad se compara contra las de su mismo modelo ({[...hr.medBy.entries()].map(([mo, md]) => `${mo.replace("Suntech ", "")}: ${nf1.format(md)}`).join(" · ")} arrancones por cada 100 km).</>
+                  ? <>{hr.byClass
+                      ? "una camioneta acelera mucho más fuerte que un tractocamión cargado, así que cada unidad se compara contra las de su mismo tipo"
+                      : "esta flotilla tiene equipos de varios modelos y cada unidad se compara contra las de su mismo modelo"} ({[...hr.medBy.entries()].map(([mo, md]) => `${mo}: ${nf1.format(md)}`).join(" · ")} arrancones por cada 100 km).</>
                   : <>el nivel es contra la mediana de la flotilla ({nf1.format(hr.med)} arrancones por cada 100 km).</>}
               </p>
               <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", marginBottom: 12 }}>
@@ -426,7 +432,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                 <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
-                      {["Unidad", "Nivel", "Arrancones /100 km", "vs mediana", "Acel. bruscas /100 km", "Frenadas /100 km", "Encendidos /100 km", "Km", ...(hr.mixed ? ["Equipo"] : [])].map((h, k) => (
+                      {["Unidad", "Nivel", "Arrancones /100 km", "vs mediana", "Acel. bruscas /100 km", "Frenadas /100 km", "Encendidos /100 km", "Km", ...(hr.mixed ? [hr.byClass ? "Vehículo" : "Equipo"] : [])].map((h, k) => (
                         <th key={h} style={{ ...label, textAlign: k < 2 ? "left" : "right", padding: "8px 10px", fontWeight: 500, whiteSpace: "nowrap" }}>{h}</th>
                       ))}
                       <th />
@@ -448,7 +454,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                         <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.brk100)}</td>
                         <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.st100)}</td>
                         <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: t.mutedL }}>{nf0.format(r.v.km)}</td>
-                        {hr.mixed && <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontSize: 11, color: t.mutedL, whiteSpace: "nowrap" }}>{(r.v.device_model ?? "—").replace("Suntech ", "")}</td>}
+                        {hr.mixed && <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontSize: 11, color: t.mutedL, whiteSpace: "nowrap" }}>{hr.byClass ? `${hr.group(r.v)} · ${r.v.vehicle_desc ?? ""}` : (r.v.device_model ?? "—").replace("Suntech ", "")}</td>}
                         <td style={{ padding: 10, textAlign: "right" }}>
                           <button onClick={() => onOpenVehicle(r.v.vehicle_id)} style={ghost}>Ver recorrido</button>
                         </td>
