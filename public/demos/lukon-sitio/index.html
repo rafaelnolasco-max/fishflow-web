@@ -168,7 +168,7 @@ button{font:inherit;cursor:pointer;}
   linear-gradient(180deg,transparent 70%,var(--ink) 100%);}
 .hero .dots{position:absolute;inset:0;z-index:1;opacity:.35;background-image:radial-gradient(rgba(255,255,255,.35) 1px,transparent 1.2px);background-size:22px 22px;mask-image:linear-gradient(90deg,transparent,#000 40%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%,transparent);}
 .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(24px,4vw,64px);align-items:center;padding-block:56px 90px;}
-.hero h1{font-size:clamp(56px,7.6vw,116px);margin:18px 0 22px;}
+.hero h1{font-size:clamp(54px,6.9vw,100px);margin:16px 0 18px;}
 .hero h1 .line{display:block;overflow:hidden;padding-bottom:.04em;}
 .hero h1 .line > span{display:inline-block;transform:translateY(105%);animation:rise 1.05s var(--ease) forwards;}
 .hero h1 .line:nth-child(2) > span{animation-delay:.12s;}
@@ -176,6 +176,9 @@ button{font:inherit;cursor:pointer;}
 .hero h1 .accent{color:var(--blue);}
 @keyframes rise{to{transform:none;}}
 .hero .lede{opacity:0;animation:fadeUp .9s .45s var(--ease) forwards;}
+.hero-slogan{font-size:clamp(28px,3.4vw,46px);margin:-6px 0 18px;letter-spacing:.02em;opacity:0;animation:fadeUp .9s .38s var(--ease) forwards;}
+.hero-slogan b,.hero-slogan span{white-space:nowrap;font-weight:400;}
+.hero-slogan span{color:var(--blue);}
 .hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px;opacity:0;animation:fadeUp .9s .6s var(--ease) forwards;}
 .hero-chips{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:34px;opacity:0;animation:fadeUp .9s .75s var(--ease) forwards;}
 .chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.75);font-weight:500;}
@@ -632,6 +635,7 @@ footer{background:#00081F;border-top:1px solid var(--line);padding:56px 0 30px;c
           <span class="line"><span>vehicular <span class="accent">inteligente</span></span></span>
           <span class="line"><span>siempre activa</span></span>
         </h1>
+        <p class="hero-slogan display"><b>Siempre Inteligente.</b> <span>Siempre Seguro.</span></p>
         <p class="lede">Ve dónde está tu auto, tu moto o tu carga en tiempo real desde tu celular. Recibe alertas al instante y, si algo no está bien, inmovilízalo con un toque.</p>
         <div class="hero-ctas">
           <a href="#control" class="btn btn--primary magnet">Toma el control <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
