@@ -44,6 +44,9 @@ const Section = (p: Omit<React.ComponentProps<typeof DSection>, "theme">) => <DS
 
 const META_VENDEDORES = 40;
 const META_CLIENTES_POR_VENDEDOR = 20;
+// Vendedoras que atienden prospectos aunque todavía no hayan capturado su Top 20.
+// Se suman a las opciones de "Asignar" en la lista de prospectos.
+const VENDEDORAS_EXTRA = ["Ivonne"];
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
@@ -294,8 +297,8 @@ export default function EnlaceDashboardPage() {
   const vendorOptions = useMemo(() => {
     const seen = new Set<string>();
     const out: string[] = [];
-    for (const g of vendorGroups) {
-      const name = g.vendorName.trim();
+    for (const raw of [...vendorGroups.map((g) => g.vendorName), ...VENDEDORAS_EXTRA]) {
+      const name = raw.trim();
       const key = name.toLowerCase();
       if (!name || key === "vendedor o representante por definir" || seen.has(key)) continue;
       seen.add(key);
