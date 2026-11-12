@@ -491,7 +491,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                   {th("km_sunday", "Domingo")}
                   {th("first_move_avg", "Sale")}
                   {th("last_move_avg", "Regresa")}
-                  {th("liters", "Litros est.")}
+                  {th("liters", settings?.fuel_price_mxn != null ? "Combustible est." : "Litros est.")}
                   <th />
                 </tr>
               </thead>
@@ -522,7 +522,10 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: (r.km_sunday ?? 0) >= 20 ? "#B87500" : t.ink }}>{r.km_sunday ? `${nf0.format(r.km_sunday)} km` : "—"}</td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{r.first_move_avg ?? "—"}</td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{r.last_move_avg ?? "—"}</td>
-                      <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf0.format(r.liters)} L</td>
+                      <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, whiteSpace: "nowrap" }}>
+                        <div>{nf0.format(r.liters)} L</div>
+                        {settings?.fuel_price_mxn != null && <div style={{ fontSize: 10, color: t.mutedL }}>{mxn.format(Number(r.liters) * Number(settings.fuel_price_mxn))} · {nf1.format(Number(r.kmpl))} km/l</div>}
+                      </td>
                       <td style={{ padding: 10, textAlign: "right" }}>
                         <button onClick={() => onOpenVehicle(r.vehicle_id)} style={ghost}>Ver recorrido</button>
                       </td>
