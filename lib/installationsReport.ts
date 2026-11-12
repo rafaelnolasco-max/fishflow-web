@@ -14,6 +14,7 @@ export type InstRow = {
   id: string; client_id: string; folio: number; customer_name: string; customer_email: string | null;
   vehicle_brand: string | null; vehicle_model: string | null; vehicle_year: number | null; vehicle_plate: string | null;
   service: Service; installer_no: number | null; started_at: string | null; finished_at: string | null; report_token: string;
+  remote_cutoff_test?: string | null;
 };
 
 export const vehicleTxt = (i: Pick<InstRow, "vehicle_brand" | "vehicle_model" | "vehicle_year">) =>
@@ -42,6 +43,7 @@ export async function sendInstallationReport(db: SupabaseClient, inst: InstRow, 
         ["Inicio", fmtCdmx(inst.started_at)],
         ["Término", fmtCdmx(inst.finished_at)],
         ["Instalador", inst.installer_no ? `Instalador ${inst.installer_no}` : "—"],
+        ...(inst.remote_cutoff_test ? [["Prueba de apagado remoto", inst.remote_cutoff_test === "exitosa" ? "✓ Exitosa" : "No aplica"] as [string, string]] : []),
       ]) +
       ui.p("En el reporte puedes ver las fotos de cómo recibimos y cómo entregamos tu vehículo. <strong>Si todo está bien, confírmalo con un clic.</strong>") +
       ui.botones([

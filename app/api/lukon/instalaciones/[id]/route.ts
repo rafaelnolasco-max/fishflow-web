@@ -95,8 +95,11 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     const faltan = [...missingPhotos(inst.service as Service, "antes", kinds), ...missingPhotos(inst.service as Service, "despues", kinds)];
     if (faltan.length) return NextResponse.json({ error: `Faltan fotos: ${faltan.join(", ")}` }, { status: 400 });
     if (inst.service !== "dashcam" && !merged.device_imei) return NextResponse.json({ error: "Falta el IMEI del equipo GPS" }, { status: 400 });
+    // Prueba de apagado remoto: obligatoria si lleva GPS ("exitosa" o "no aplica")
+    const cutoff = ["exitosa", "no_aplica"].includes(String(b.remote_cutoff_test)) ? String(b.remote_cutoff_test) : null;
+    if (inst.service !== "dashcam" && !cutoff) return NextResponse.json({ error: "Falta la prueba de apagado remoto (exitosa o no aplica)" }, { status: 400 });
     const res = await db.from("telematica_installations").update({
-      ...v.row, status: "terminada", finished_at: now, finish_lat: num(b.lat), finish_lon: num(b.lon), updated_at: now,
+      ...v.row, remote_cutoff_test: inst.service !== "dashcam" ? cutoff : null, status: "terminada", finished_at: now, finish_lat: num(b.lat), finish_lon: num(b.lon), updated_at: now,
     }).eq("id", id).select("*").single();
     if (res.error) return NextResponse.json({ error: res.error.message }, { status: 500 });
     await logEvent(db, inst, "fin", num(b.lat) != null ? `Ubicación ${num(b.lat)!.toFixed(5)}, ${num(b.lon)!.toFixed(5)}` : "Sin ubicación del celular", by);

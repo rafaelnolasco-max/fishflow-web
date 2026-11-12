@@ -20,7 +20,7 @@ interface Inst {
   vehicle_brand: string | null; vehicle_model: string | null; vehicle_year: number | null; vehicle_plate: string | null; vehicle_color: string | null;
   service: Service; address: string | null; scheduled_at: string | null; notes: string | null;
   started_at: string | null; finished_at: string | null; device_imei: string | null; sim_iccid: string | null; dashcam_serial: string | null;
-  hidden_location: string | null; tech_notes: string | null; report_token: string; report_sent_at: string | null; report_sent_to: string | null;
+  hidden_location: string | null; tech_notes: string | null; remote_cutoff_test: string | null; report_token: string; report_sent_at: string | null; report_sent_to: string | null;
   accepted_at: string | null; accepted_auto: boolean; cancel_reason: string | null; photos?: number;
 }
 interface Photo { id: string; stage: Stage; kind: string; url: string | null; created_at: string }
@@ -272,7 +272,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [events, setEvents] = useState<Ev[]>([]);
   const [busy, setBusy] = useState("");
-  const [dev, setDev] = useState({ device_imei: "", sim_iccid: "", dashcam_serial: "", hidden_location: "", tech_notes: "", customer_email: "" });
+  const [dev, setDev] = useState({ device_imei: "", sim_iccid: "", dashcam_serial: "", hidden_location: "", tech_notes: "", customer_email: "", remote_cutoff_test: "" });
   const [resched, setResched] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -287,6 +287,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
         device_imei: p.device_imei || d.installation.device_imei || "", sim_iccid: p.sim_iccid || d.installation.sim_iccid || "",
         dashcam_serial: p.dashcam_serial || d.installation.dashcam_serial || "", hidden_location: p.hidden_location || d.installation.hidden_location || "",
         tech_notes: p.tech_notes || d.installation.tech_notes || "", customer_email: p.customer_email || d.installation.customer_email || "",
+        remote_cutoff_test: p.remote_cutoff_test || d.installation.remote_cutoff_test || "",
       }));
     } catch (e) { onToast((e as Error).message, false); }
   }, [id, onToast]);
@@ -310,6 +311,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
   const steps = stepsFor(inst.service);
   const faltan = [...missingPhotos(inst.service, "antes", kinds), ...missingPhotos(inst.service, "despues", kinds)];
   const needImei = inst.service !== "dashcam";
+  const pendientes = [...faltan, ...(needImei && !dev.device_imei.trim() ? ["IMEI"] : []), ...(needImei && !dev.remote_cutoff_test ? ["prueba de apagado remoto"] : [])];
   const live = inst.status === "en_sitio";
   const reportUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/instalacion/${inst.report_token}`;
   const daysLeft = inst.report_sent_at ? Math.max(0, Math.ceil(AUTO_ACCEPT_DAYS - (Date.now() - +new Date(inst.report_sent_at)) / 86400e3)) : null;
@@ -437,6 +439,18 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
             <input style={S.input} inputMode="numeric" value={dev.sim_iccid} onChange={e => setDev(p => ({ ...p, sim_iccid: e.target.value }))} /></label>}
           {inst.service !== "gps" && <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={S.label}>Serie de la dashcam</span>
             <input style={S.input} value={dev.dashcam_serial} onChange={e => setDev(p => ({ ...p, dashcam_serial: e.target.value }))} /></label>}
+          {needImei && (
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div style={{ ...S.label, marginBottom: 6 }}>Prueba de apagado remoto *</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {([["exitosa", "✓ Probada y exitosa"], ["no_aplica", "No aplica (sin corte de motor)"]] as [string, string][]).map(([v, l]) => {
+                  const on = dev.remote_cutoff_test === v;
+                  return <button key={v} type="button" onClick={() => setDev(p => ({ ...p, remote_cutoff_test: v }))}
+                    style={{ ...S.ghost, flex: "1 1 180px", background: on ? (v === "exitosa" ? "#E7F6EC" : t.paper2) : "#fff", borderColor: on ? (v === "exitosa" ? "#1F8A4C" : t.ink3) : t.lineL, color: on && v === "exitosa" ? "#1F8A4C" : t.ink, fontWeight: on ? 700 : 600 }}>{l}</button>;
+                })}
+              </div>
+            </div>
+          )}
           <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={S.label}>Correo del cliente (recibe el reporte)</span>
             <input style={S.input} type="email" value={dev.customer_email} onChange={e => setDev(p => ({ ...p, customer_email: e.target.value }))} /></label>
           <label style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: "1 / -1" }}><span style={S.label}>🔒 Dónde quedó el equipo (interno, no va al cliente)</span>
@@ -444,13 +458,13 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
           <label style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: "1 / -1" }}><span style={S.label}>🔒 Notas técnicas (internas)</span>
             <textarea style={{ ...S.input, minHeight: 60 }} value={dev.tech_notes} onChange={e => setDev(p => ({ ...p, tech_notes: e.target.value }))} /></label>
           <div style={{ gridColumn: "1 / -1" }}>
-            {(faltan.length > 0 || (needImei && !dev.device_imei.trim())) && (
+            {pendientes.length > 0 && (
               <p style={{ fontSize: 13, color: "#B87500", margin: "0 0 10px" }}>
-                Para terminar falta: {[...faltan, ...(needImei && !dev.device_imei.trim() ? ["IMEI"] : [])].join(", ")}.
+                Para terminar falta: {pendientes.join(", ")}.
               </p>
             )}
-            <button style={{ ...S.btn, padding: "16px 20px", fontSize: 17, width: "100%", opacity: faltan.length || (needImei && !dev.device_imei.trim()) || busy ? 0.5 : 1 }}
-              disabled={!!busy || faltan.length > 0 || (needImei && !dev.device_imei.trim())}
+            <button style={{ ...S.btn, padding: "16px 20px", fontSize: 17, width: "100%", opacity: pendientes.length || busy ? 0.5 : 1 }}
+              disabled={!!busy || pendientes.length > 0}
               onClick={async () => {
                 setBusy("finish"); const pos = await getPosition(); setBusy("");
                 await patch({ action: "finish", ...dev, ...(pos ?? {}) }, "finish", dev.customer_email.trim() ? "Instalación terminada y reporte enviado" : "Instalación terminada (sin correo: el reporte no se envió)");
@@ -462,11 +476,12 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
       )}
 
       {/* Datos internos de una orden cerrada */}
-      {!live && (inst.device_imei || inst.hidden_location || inst.tech_notes) && (
+      {!live && (inst.device_imei || inst.hidden_location || inst.tech_notes || inst.remote_cutoff_test) && (
         <div style={{ ...S.card, marginTop: 22, fontSize: 14 }}>
           <div style={{ ...S.label, color: t.ink, marginBottom: 8 }}>Equipo · 🔒 interno</div>
           {inst.device_imei && <div>IMEI: <b>{inst.device_imei}</b>{inst.sim_iccid ? ` · SIM ${inst.sim_iccid}` : ""}</div>}
           {inst.dashcam_serial && <div>Dashcam: <b>{inst.dashcam_serial}</b></div>}
+          {inst.remote_cutoff_test && <div>Apagado remoto: <b>{inst.remote_cutoff_test === "exitosa" ? "✓ Exitosa" : "No aplica"}</b></div>}
           {inst.hidden_location && <div>Ubicación del equipo: <b>{inst.hidden_location}</b></div>}
           {inst.tech_notes && <div style={{ color: t.mutedL, marginTop: 4 }}>{inst.tech_notes}</div>}
         </div>

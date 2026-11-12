@@ -63,6 +63,7 @@ export default async function InstalacionPage({ params }: { params: Promise<{ to
     ["Inicio", fmtCdmx(inst.started_at)], ["Término", fmtCdmx(inst.finished_at)], ["Duración", duracion],
     ["Instalador", inst.installer_no ? `Instalador ${inst.installer_no}` : "—"],
     ...(inst.device_imei ? [["IMEI del GPS", inst.device_imei] as [string, string]] : []),
+    ...(inst.remote_cutoff_test ? [["Prueba de apagado remoto", inst.remote_cutoff_test === "exitosa" ? "✓ Exitosa" : "No aplica"] as [string, string]] : []),
     ...(inst.dashcam_serial ? [["Serie de la dashcam", inst.dashcam_serial] as [string, string]] : []),
   ];
 
