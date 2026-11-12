@@ -3,16 +3,16 @@
 // La pestaña comprime a ~1600 px JPEG antes de subir (cabe en el límite de 4.5 MB de Vercel).
 
 import { NextRequest, NextResponse } from "next/server";
-import { requireClientAccess } from "@/lib/apiAuth";
+import { authInstallation } from "@/lib/installationsAuth";
 import { supabaseAdmin } from "@/lib/telematicaAuth";
 import { LUKON_ID, BUCKET, PHOTO_STEPS, signPhotos } from "@/lib/installations";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function POST(req: NextRequest, { params }: Ctx) {
-  const auth = await requireClientAccess(LUKON_ID);
-  if (!auth.ok) return auth.response;
   const { id } = await params;
+  const auth = await authInstallation(req, id);
+  if (!auth.ok) return auth.response;
   const db = supabaseAdmin();
   const { data: inst } = await db.from("telematica_installations").select("id, client_id, status").eq("id", id).eq("client_id", LUKON_ID).maybeSingle();
   if (!inst) return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const up = await db.storage.from(BUCKET).upload(path, Buffer.from(await file.arrayBuffer()), { contentType: file.type, upsert: false });
   if (up.error) return NextResponse.json({ error: up.error.message }, { status: 500 });
   const { data, error } = await db.from("telematica_installation_photos")
-    .insert({ installation_id: id, client_id: inst.client_id, stage, kind, path, created_by: auth.email })
+    .insert({ installation_id: id, client_id: inst.client_id, stage, kind, path, created_by: auth.by })
     .select("id, stage, kind, path, created_at").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   const [signed] = await signPhotos(db, [data]);
@@ -40,9 +40,9 @@ export async function POST(req: NextRequest, { params }: Ctx) {
 }
 
 export async function DELETE(req: NextRequest, { params }: Ctx) {
-  const auth = await requireClientAccess(LUKON_ID);
-  if (!auth.ok) return auth.response;
   const { id } = await params;
+  const auth = await authInstallation(req, id);
+  if (!auth.ok) return auth.response;
   const photoId = req.nextUrl.searchParams.get("photo");
   const db = supabaseAdmin();
   const { data: inst } = await db.from("telematica_installations").select("status").eq("id", id).eq("client_id", LUKON_ID).maybeSingle();

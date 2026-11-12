@@ -29,7 +29,7 @@ interface Ev { type: string; detail: string | null; by: string | null; at: strin
 const EV_LABEL: Record<string, string> = {
   creada: "Orden creada", editada: "Datos editados", reprogramada: "Reprogramada", inicio: "Inicio de la instalación",
   fin: "Instalación terminada", reporte_enviado: "Reporte enviado", aceptada_cliente: "Aceptada por el cliente",
-  aceptada_auto: "Aceptada automáticamente", aceptada_lukon: "Aceptada (registrada por LUKON)", cancelada: "Cancelada", incidencia_cliente: "El cliente NO aceptó (incidencia)",
+  aceptada_auto: "Aceptada automáticamente", aceptada_lukon: "Aceptada (registrada por LUKON)", cancelada: "Cancelada", incidencia_cliente: "El cliente NO aceptó (incidencia)", liga_instalador: "Liga enviada al instalador",
 };
 const fmt = (iso: string | null, opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) =>
   iso ? new Date(iso).toLocaleString("es-MX", { timeZone: "America/Mexico_City", ...opts }) : "—";
@@ -265,10 +265,14 @@ function OrderForm({ t, inst, onCancel, onSaved, onToast }: {
 }
 
 // ─── Detalle / en sitio ──────────────────────────────────────────────────────
-function OrderDetail({ t, id, onBack, onEdit, onToast }: {
-  t: LukonTheme; id: string; onBack: () => void; onEdit: (i: Inst) => void; onToast: (m: string, ok: boolean) => void;
+export function OrderDetail({ t, id, onBack, onEdit, onToast, installerToken }: {
+  t: LukonTheme; id: string; onBack?: () => void; onEdit?: (i: Inst) => void; onToast: (m: string, ok: boolean) => void;
+  /** Modo instalador: liga privada de la orden (sin cuenta). Solo empezar, fotos y terminar. */
+  installerToken?: string;
 }) {
   const S = styles(t);
+  const iMode = !!installerToken;
+  const hdr: Record<string, string> = installerToken ? { "x-instalador": installerToken } : {};
   const [inst, setInst] = useState<Inst | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [events, setEvents] = useState<Ev[]>([]);
@@ -280,7 +284,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`/api/lukon/instalaciones/${id}`);
+      const r = await fetch(`/api/lukon/instalaciones/${id}`, { headers: hdr });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error ?? "No se pudo cargar la orden");
       setInst(d.installation); setPhotos(d.photos ?? []); setEvents(d.events ?? []);
@@ -291,13 +295,14 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
         remote_cutoff_test: p.remote_cutoff_test || d.installation.remote_cutoff_test || "",
       }));
     } catch (e) { onToast((e as Error).message, false); }
-  }, [id, onToast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, onToast, installerToken]);
   useEffect(() => { load(); }, [load]);
 
   async function patch(body: Record<string, unknown>, label: string, okMsg: string) {
     setBusy(label);
     try {
-      const r = await fetch(`/api/lukon/instalaciones/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const r = await fetch(`/api/lukon/instalaciones/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", ...hdr }, body: JSON.stringify(body) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error ?? "No se pudo guardar");
       onToast(d.report && !d.report.ok ? `${okMsg}. Ojo: ${d.report.error}` : okMsg, !(d.report && !d.report.ok));
@@ -306,7 +311,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
     } catch (e) { onToast((e as Error).message, false); return false; } finally { setBusy(""); }
   }
 
-  if (!inst) return <div><button style={S.ghost} onClick={onBack}>← Volver</button><p style={S.muted}>Cargando…</p></div>;
+  if (!inst) return <div>{onBack && <button style={S.ghost} onClick={onBack}>← Volver</button>}<p style={S.muted}>Cargando…</p></div>;
 
   const kinds = photos.map(p => p.kind);
   const steps = stepsFor(inst.service);
@@ -335,7 +340,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
 
   return (
     <div>
-      <button style={{ ...S.ghost, marginBottom: 16 }} onClick={onBack}>← Instalaciones</button>
+      {onBack && <button style={{ ...S.ghost, marginBottom: 16 }} onClick={onBack}>← Instalaciones</button>}
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
         <div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -344,7 +349,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
           <div style={{ fontFamily: t.fDisplay, fontSize: 32, color: t.ink, lineHeight: 1.1, marginTop: 4 }}>{inst.customer_name}</div>
           <div style={S.muted}>{vehicle(inst)}{inst.vehicle_plate ? ` · ${inst.vehicle_plate}` : ""}</div>
         </div>
-        {["programada", "en_sitio"].includes(inst.status) && <button style={S.ghost} onClick={() => onEdit(inst)}>Editar datos</button>}
+        {!iMode && onEdit && ["programada", "en_sitio"].includes(inst.status) && <button style={S.ghost} onClick={() => onEdit(inst)}>Editar datos</button>}
       </div>
 
       {/* Acciones según el estado */}
@@ -355,7 +360,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
             {busy === "start" ? "Registrando llegada…" : "▶  Empezar instalación"}
           </button>
           <p style={{ ...S.muted, fontSize: 12, margin: 0 }}>Registra la hora y la ubicación del celular. Después toma las fotos de “antes”.</p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {!iMode && <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {resched === null
               ? <button style={S.ghost} onClick={() => setResched(toLocalInput(inst.scheduled_at))}>Reprogramar</button>
               : <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", width: "100%" }}>
@@ -371,11 +376,52 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
                     onClick={async () => { if (await patch({ action: "cancel", reason: cancelReason }, "cancel", "Orden cancelada")) setCancelReason(null); }}>Cancelar orden</button>
                   <button style={S.ghost} onClick={() => setCancelReason(null)}>×</button>
                 </div>}
-          </div>
+          </div>}
         </div>
       )}
 
-      {inst.status === "incidencia" && (
+      {!iMode && ["programada", "en_sitio"].includes(inst.status) && (
+        <div style={{ ...S.card, marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ flex: "1 1 220px" }}>
+            <div style={{ fontWeight: 700, color: t.ink, fontSize: 14 }}>Liga para el instalador</div>
+            <div style={{ fontSize: 12, color: t.mutedL }}>Ve solo esta orden: empezar, fotos y terminar. Sin cuenta ni contraseña.</div>
+          </div>
+          <button style={{ ...S.btn, background: "#25D366", color: "#fff" }} disabled={!!busy} onClick={async () => {
+            const w = window.open("about:blank", "_blank");
+            setBusy("liga");
+            try {
+              const r = await fetch(`/api/lukon/instalaciones/${id}/liga`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+              const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "No se pudo generar la liga");
+              const wa = `https://wa.me/?text=${encodeURIComponent(d.text)}`;
+              if (w) w.location.href = wa; else window.location.href = wa;
+              await load();
+            } catch (e) { w?.close(); onToast((e as Error).message, false); } finally { setBusy(""); }
+          }}>{busy === "liga" ? "Generando…" : "📲 Enviar al instalador"}</button>
+          <button style={S.ghost} disabled={!!busy} onClick={async () => {
+            try {
+              const r = await fetch(`/api/lukon/instalaciones/${id}/liga`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+              const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "No se pudo generar la liga");
+              await navigator.clipboard.writeText(d.url); onToast("Liga copiada", true); await load();
+            } catch (e) { onToast((e as Error).message, false); }
+          }}>Copiar liga</button>
+          <button style={{ ...S.ghost, color: t.crimson }} disabled={!!busy} onClick={async () => {
+            try {
+              const r = await fetch(`/api/lukon/instalaciones/${id}/liga`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nueva: true }) });
+              const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "No se pudo generar la liga");
+              await navigator.clipboard.writeText(d.url).catch(() => {}); onToast("Liga nueva copiada; la anterior ya no funciona", true); await load();
+            } catch (e) { onToast((e as Error).message, false); }
+          }}>Anular y generar nueva</button>
+        </div>
+      )}
+
+      {iMode && ["terminada", "incidencia", "aceptada"].includes(inst.status) && (
+        <div style={{ ...S.card, marginTop: 16, background: "#EEF9F1", borderColor: "#BFE5CC" }}>
+          <div style={{ color: "#1F8A4C", fontWeight: 700, fontSize: 17 }}>✓ Instalación terminada</div>
+          <p style={{ ...S.muted, margin: "6px 0 0" }}>¡Gracias! Quedó registrada{inst.report_sent_at ? " y el reporte ya se le envió al cliente" : ""}. Ya puedes cerrar esta página.</p>
+        </div>
+      )}
+
+      {!iMode && inst.status === "incidencia" && (
         <div style={{ ...S.card, marginTop: 16, background: "#FDF1EF", borderColor: "#F2C4BD" }}>
           <div style={{ fontWeight: 700, color: "#C0392B" }}>⚠️ El cliente NO aceptó la instalación</div>
           <p style={{ ...S.muted, margin: "6px 0 4px" }}>Reportado el {fmt(inst.incident_at)}. La aceptación automática quedó detenida.</p>
@@ -396,7 +442,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
         </div>
       )}
 
-      {inst.status === "terminada" && (
+      {!iMode && inst.status === "terminada" && (
         <div style={{ ...S.card, marginTop: 16, background: "#F7F2FF", borderColor: "#D9C8F5" }}>
           <div style={{ fontWeight: 700, color: "#6B3FB8" }}>Esperando que el cliente acepte</div>
           <p style={{ ...S.muted, margin: "6px 0 12px" }}>
@@ -419,7 +465,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
         </div>
       )}
 
-      {inst.status === "aceptada" && (
+      {!iMode && inst.status === "aceptada" && (
         <div style={{ ...S.card, marginTop: 16, background: "#EEF9F1", borderColor: "#BFE5CC", display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", justifyContent: "space-between" }}>
           <div style={{ color: "#1F8A4C", fontWeight: 700 }}>✓ Aceptada {inst.accepted_auto ? "automáticamente" : ""} el {fmt(inst.accepted_at)}</div>
           <a href={reportUrl} target="_blank" rel="noopener noreferrer" style={{ ...S.ghost, textDecoration: "none" }}>Ver reporte</a>
@@ -443,7 +489,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
             {steps.filter(s => s.stage === stage).map(s => {
               const ps = photos.filter(p => p.stage === stage && p.kind === s.kind);
               if (!live && !ps.length) return null;
-              return <PhotoStep key={s.kind} t={t} instId={id} step={s} photos={ps} editable={live || inst.status === "programada"}
+              return <PhotoStep key={s.kind} t={t} hdr={hdr} instId={id} step={s} photos={ps} editable={live || inst.status === "programada"}
                 onChange={load} onToast={onToast} onOpen={setLightbox} />;
             })}
           </div>
@@ -473,8 +519,8 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
               </div>
             </div>
           )}
-          <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={S.label}>Correo del cliente (recibe el reporte)</span>
-            <input style={S.input} type="email" value={dev.customer_email} onChange={e => setDev(p => ({ ...p, customer_email: e.target.value }))} /></label>
+          {!iMode && <label style={{ display: "flex", flexDirection: "column", gap: 6 }}><span style={S.label}>Correo del cliente (recibe el reporte)</span>
+            <input style={S.input} type="email" value={dev.customer_email} onChange={e => setDev(p => ({ ...p, customer_email: e.target.value }))} /></label>}
           <label style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: "1 / -1" }}><span style={S.label}>🔒 Dónde quedó el equipo (interno, no va al cliente)</span>
             <input style={S.input} placeholder="Ej. detrás del tablero, lado copiloto" value={dev.hidden_location} onChange={e => setDev(p => ({ ...p, hidden_location: e.target.value }))} /></label>
           <label style={{ display: "flex", flexDirection: "column", gap: 6, gridColumn: "1 / -1" }}><span style={S.label}>🔒 Notas técnicas (internas)</span>
@@ -489,7 +535,7 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
               disabled={!!busy || pendientes.length > 0}
               onClick={async () => {
                 setBusy("finish"); const pos = await getPosition(); setBusy("");
-                await patch({ action: "finish", ...dev, ...(pos ?? {}) }, "finish", dev.customer_email.trim() ? "Instalación terminada y reporte enviado" : "Instalación terminada (sin correo: el reporte no se envió)");
+                await patch({ action: "finish", ...dev, ...(pos ?? {}) }, "finish", iMode ? "Instalación terminada. ¡Gracias!" : dev.customer_email.trim() ? "Instalación terminada y reporte enviado" : "Instalación terminada (sin correo: el reporte no se envió)");
               }}>
               {busy === "finish" ? "Cerrando…" : "■  Terminar y enviar reporte"}
             </button>
@@ -532,8 +578,8 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
   );
 }
 
-function PhotoStep({ t, instId, step, photos, editable, onChange, onToast, onOpen }: {
-  t: LukonTheme; instId: string; step: ReturnType<typeof stepsFor>[number]; photos: Photo[]; editable: boolean;
+function PhotoStep({ t, hdr, instId, step, photos, editable, onChange, onToast, onOpen }: {
+  t: LukonTheme; hdr: Record<string, string>; instId: string; step: ReturnType<typeof stepsFor>[number]; photos: Photo[]; editable: boolean;
   onChange: () => void; onToast: (m: string, ok: boolean) => void; onOpen: (url: string) => void;
 }) {
   const S = styles(t);
@@ -553,7 +599,7 @@ function PhotoStep({ t, instId, step, photos, editable, onChange, onToast, onOpe
         const blob = await compress(f);
         const fd = new FormData();
         fd.append("file", blob, "foto.jpg"); fd.append("stage", step.stage); fd.append("kind", step.kind);
-        const r = await fetch(`/api/lukon/instalaciones/${instId}/fotos`, { method: "POST", body: fd });
+        const r = await fetch(`/api/lukon/instalaciones/${instId}/fotos`, { method: "POST", body: fd, headers: hdr });
         if (!r.ok) { fails++; const d = await r.json().catch(() => ({})); onToast(d.error ?? "No se pudo subir la foto", false); }
       } catch { fails++; onToast("No se pudo subir la foto. Revisa la señal e intenta de nuevo.", false); }
       setUp(n => n - 1);
@@ -565,7 +611,7 @@ function PhotoStep({ t, instId, step, photos, editable, onChange, onToast, onOpe
   }
 
   async function remove(p: Photo) {
-    const r = await fetch(`/api/lukon/instalaciones/${instId}/fotos?photo=${p.id}`, { method: "DELETE" });
+    const r = await fetch(`/api/lukon/instalaciones/${instId}/fotos?photo=${p.id}`, { method: "DELETE", headers: hdr });
     if (!r.ok) { const d = await r.json().catch(() => ({})); return onToast(d.error ?? "No se pudo borrar", false); }
     onChange();
   }

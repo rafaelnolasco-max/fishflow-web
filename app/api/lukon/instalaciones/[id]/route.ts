@@ -9,7 +9,7 @@
 //   accept      aceptación registrada por Lukon (p. ej. el cliente lo confirmó por teléfono)
 
 import { NextRequest, NextResponse } from "next/server";
-import { requireClientAccess } from "@/lib/apiAuth";
+import { authInstallation, forInstaller, INSTALLER_FIELDS } from "@/lib/installationsAuth";
 import { supabaseAdmin } from "@/lib/telematicaAuth";
 import { notifyOps } from "@/lib/installationsReport";
 import { LUKON_ID, signPhotos, missingPhotos, fmtCdmx, type Service } from "@/lib/installations";
@@ -26,32 +26,43 @@ async function load(id: string) {
   return { db, inst: data };
 }
 
-export async function GET(_req: NextRequest, { params }: Ctx) {
-  const auth = await requireClientAccess(LUKON_ID);
-  if (!auth.ok) return auth.response;
+export async function GET(req: NextRequest, { params }: Ctx) {
   const { id } = await params;
+  const auth = await authInstallation(req, id);
+  if (!auth.ok) return auth.response;
   const { db, inst } = await load(id);
   if (!inst) return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
   const [{ data: photos }, { data: events }] = await Promise.all([
     db.from("telematica_installation_photos").select("id, stage, kind, path, created_at").eq("installation_id", id).order("created_at"),
     db.from("telematica_installation_events").select("type, detail, by, at").eq("installation_id", id).order("at"),
   ]);
+  if (auth.installer) return NextResponse.json({
+    installation: forInstaller(inst), photos: await signPhotos(db, photos ?? []),
+    events: (events ?? []).map(e => ({ ...e, by: null })), installer: true,
+  });
   return NextResponse.json({ installation: inst, photos: await signPhotos(db, photos ?? []), events: events ?? [] });
 }
 
 const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
 export async function PATCH(req: NextRequest, { params }: Ctx) {
-  const auth = await requireClientAccess(LUKON_ID);
-  if (!auth.ok) return auth.response;
   const { id } = await params;
+  const auth = await authInstallation(req, id);
+  if (!auth.ok) return auth.response;
   let b: Record<string, unknown>;
   try { b = await req.json(); } catch { return NextResponse.json({ error: "JSON inválido" }, { status: 400 }); }
+  // El instalador (liga privada) solo puede empezar y terminar, y solo captura datos del equipo
+  if (auth.installer) {
+    if (!["start", "finish"].includes(String(b.action))) return NextResponse.json({ error: "Acción no permitida" }, { status: 403 });
+    const keep: Record<string, unknown> = { action: b.action, lat: b.lat, lon: b.lon, remote_cutoff_test: b.remote_cutoff_test };
+    for (const f of INSTALLER_FIELDS) if (f in b) keep[f] = b[f];
+    b = keep;
+  }
   const { db, inst } = await load(id);
   if (!inst) return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
 
   const now = new Date().toISOString();
-  const by = auth.email;
+  const by = auth.by;
   const action = String(b.action ?? "update");
   const done = async (patch: Record<string, unknown>, ev?: [string, string | null], notify?: "reprogramada" | "cancelada") => {
     const { data, error } = await db.from("telematica_installations").update({ ...patch, updated_at: now }).eq("id", id).select("*").single();
