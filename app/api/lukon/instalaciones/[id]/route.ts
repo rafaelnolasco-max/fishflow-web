@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireClientAccess } from "@/lib/apiAuth";
 import { supabaseAdmin } from "@/lib/telematicaAuth";
+import { notifyOps } from "@/lib/installationsReport";
 import { LUKON_ID, logEvent, signPhotos, missingPhotos, fmtCdmx, type Service } from "@/lib/installations";
 import { sendInstallationReport } from "@/lib/installationsReport";
 import { cleanOrder } from "../validate";
@@ -51,17 +52,23 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   const now = new Date().toISOString();
   const by = auth.email;
   const action = String(b.action ?? "update");
-  const done = async (patch: Record<string, unknown>, ev?: [string, string | null]) => {
+  const done = async (patch: Record<string, unknown>, ev?: [string, string | null], notify?: "reprogramada" | "cancelada") => {
     const { data, error } = await db.from("telematica_installations").update({ ...patch, updated_at: now }).eq("id", id).select("*").single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     if (ev) await logEvent(db, inst, ev[0], ev[1], by);
+    if (notify) await notifyOps(data, notify);
     return NextResponse.json({ installation: data });
   };
 
   if (action === "update") {
     const v = cleanOrder(b, false);
     if ("error" in v) return NextResponse.json({ error: v.error }, { status: 400 });
-    return done(v.row, ["editada", null]);
+    // Cambiar fecha o instalador de una orden programada también avisa a Alex
+    const sameTime = (a: unknown, b: unknown) => (a ? +new Date(String(a)) : 0) === (b ? +new Date(String(b)) : 0);
+    const moved = inst.status === "programada" &&
+      (("scheduled_at" in v.row && !sameTime(v.row.scheduled_at, inst.scheduled_at)) ||
+       ("installer_no" in v.row && (v.row.installer_no ?? null) !== (inst.installer_no ?? null)));
+    return done(v.row, ["editada", null], moved ? "reprogramada" : undefined);
   }
 
   if (action === "reschedule") {
@@ -69,7 +76,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     const v = cleanOrder({ scheduled_at: b.scheduled_at, ...("installer_no" in b ? { installer_no: b.installer_no } : {}) }, false);
     if ("error" in v) return NextResponse.json({ error: v.error }, { status: 400 });
     const txt = `Nueva fecha: ${fmtCdmx(v.row.scheduled_at as string | null)}${v.row.installer_no ? ` · Instalador ${v.row.installer_no}` : ""}${b.reason ? ` · ${String(b.reason).slice(0, 200)}` : ""}`;
-    return done(v.row, ["reprogramada", txt]);
+    return done(v.row, ["reprogramada", txt], "reprogramada");
   }
 
   if (action === "start") {
@@ -102,7 +109,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     if (["aceptada", "cancelada"].includes(inst.status)) return NextResponse.json({ error: "La orden ya está cerrada" }, { status: 400 });
     const reason = String(b.reason ?? "").trim().slice(0, 300);
     if (!reason) return NextResponse.json({ error: "Escribe el motivo de la cancelación" }, { status: 400 });
-    return done({ status: "cancelada", cancel_reason: reason }, ["cancelada", reason]);
+    return done({ status: "cancelada", cancel_reason: reason }, ["cancelada", reason], "cancelada");
   }
 
   if (action === "accept") {

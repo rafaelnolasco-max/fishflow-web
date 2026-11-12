@@ -6,7 +6,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sendEmail } from "@/lib/email";
 import { emailUI, escHtml } from "@/lib/emailLayout";
-import { SERVICE_LABEL, SITE, AUTO_ACCEPT_DAYS, fmtCdmx, folioTxt, logEvent, type Service } from "@/lib/installations";
+import { SERVICE_LABEL, SITE, AUTO_ACCEPT_DAYS, LUKON_OPS_EMAIL, fmtCdmx, folioTxt, logEvent, type Service } from "@/lib/installations";
 
 const LUKON_WA = "525513285555";
 
@@ -79,4 +79,44 @@ export async function notifyAccepted(db: SupabaseClient, inst: InstRow) {
     }),
     tag: "lukon/instalacion-aceptada",
   });
+}
+
+/** Aviso interno a Alex cuando se crea, reprograma o cancela una orden. Nunca truena la operación. */
+export async function notifyOps(
+  inst: InstRow & { address?: string | null; scheduled_at?: string | null; notes?: string | null; customer_phone?: string | null; cancel_reason?: string | null },
+  kind: "nueva" | "reprogramada" | "cancelada",
+) {
+  try {
+    const ui = emailUI("lukon");
+    const maps = (inst.notes ?? "").match(/https?:\/\/\S+/)?.[0]
+      ?? (inst.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inst.address)}` : null);
+    const cita = fmtCdmx(inst.scheduled_at ?? null);
+    const titulo = kind === "nueva" ? "Nueva orden de instalación" : kind === "reprogramada" ? "Orden reprogramada" : "Orden cancelada";
+    const filas: [string, string][] = [
+      ["Folio", folioTxt(inst.folio)],
+      ["Cita", cita],
+      ["Cliente", inst.customer_name + (inst.customer_phone ? ` · ${inst.customer_phone}` : "")],
+      ["Vehículo", vehicleTxt(inst) + (inst.vehicle_plate ? ` · ${inst.vehicle_plate}` : "")],
+      ["Servicio", SERVICE_LABEL[inst.service]],
+      ["Instalador", inst.installer_no ? `Instalador ${inst.installer_no}` : "Sin asignar"],
+      ["Dirección", inst.address || "—"],
+      ...(inst.notes ? [["Notas", inst.notes] as [string, string]] : []),
+      ...(kind === "cancelada" && inst.cancel_reason ? [["Motivo", inst.cancel_reason] as [string, string]] : []),
+    ];
+    await sendEmail({
+      from: "lukonInstalaciones", to: LUKON_OPS_EMAIL,
+      subject: `${titulo} · ${folioTxt(inst.folio)} · ${cita} · ${inst.customer_name}`,
+      html: ui.layout({
+        audiencia: "interno",
+        preheader: `${vehicleTxt(inst)} · ${cita} · ${inst.address ?? ""}`,
+        etiqueta: titulo, titulo: `${folioTxt(inst.folio)} · ${escHtml(inst.customer_name)}`,
+        cuerpo: ui.tabla(filas) +
+          ui.botones([
+            { texto: "Abrir la orden", href: `${SITE}/app/lukon/?tab=instalaciones&orden=${inst.id}` },
+            ...(maps && kind !== "cancelada" ? [{ texto: "Cómo llegar", href: maps, estilo: "secundario" as const }] : []),
+          ]),
+      }),
+      tag: `lukon/instalacion-${kind}`,
+    });
+  } catch (e) { console.error("notifyOps", e); }
 }

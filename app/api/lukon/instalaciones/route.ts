@@ -7,6 +7,7 @@ import { requireClientAccess } from "@/lib/apiAuth";
 import { supabaseAdmin } from "@/lib/telematicaAuth";
 import { LUKON_ID, logEvent } from "@/lib/installations";
 import { cleanOrder } from "./validate";
+import { notifyOps } from "@/lib/installationsReport";
 
 export async function GET() {
   const auth = await requireClientAccess(LUKON_ID);
@@ -36,5 +37,6 @@ export async function POST(req: NextRequest) {
     .insert({ ...v.row, client_id: LUKON_ID, created_by: auth.email }).select("*").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   await logEvent(db, data, "creada", data.installer_no ? `Asignada al Instalador ${data.installer_no}` : null, auth.email);
+  await notifyOps(data, "nueva");
   return NextResponse.json({ installation: data });
 }

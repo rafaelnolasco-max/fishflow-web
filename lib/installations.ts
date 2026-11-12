@@ -7,6 +7,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export const LUKON_ID = "1aa4a82b-e524-40f4-808e-c02e87e82427";
 export const INSTALLERS = [1, 2, 3] as const;          // por número, sin nombre (decisión de Rafa)
 export const BUCKET = "installations";
+/** Recibe el aviso de órdenes nuevas, reprogramadas y canceladas (Alex, admin de Lukon). */
+export const LUKON_OPS_EMAIL = "aalmarazmo@lukon.com.mx";
 export const AUTO_ACCEPT_DAYS = 3;
 export const SITE = "https://www.fishflow.mx";
 
