@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Propuesta de FishFlow a Víctor: paquetes mensuales de paseo de perros con cobro automático por Mercado Pago o Stripe.">
+<title>Club de Paseo Víctor</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231F5D45'/%3E%3Cg fill='%23F4C45A'%3E%3Cellipse cx='32' cy='40' rx='11' ry='9'/%3E%3Ccircle cx='18' cy='27' r='5'/%3E%3Ccircle cx='27' cy='19' r='5'/%3E%3Ccircle cx='37' cy='19' r='5'/%3E%3Ccircle cx='46' cy='27' r='5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%231F5D45'/%3E%3Cg fill='%23F4C45A'%3E%3Cellipse cx='32' cy='40' rx='11' ry='9'/%3E%3Ccircle cx='18' cy='27' r='5'/%3E%3Ccircle cx='27' cy='19' r='5'/%3E%3Ccircle cx='37' cy='19' r='5'/%3E%3Ccircle cx='46' cy='27' r='5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --green:#1F5D45; --green-ink:#123B2B; --sand:#F3ECDD; --bg:#FAF7F0; --surface:#FFFFFF;
+  --fg:#1E2A24; --muted:#5F6B63; --line:#E3DCCB; --sun:#E9A93A; --on-green:#FBF8F1;
+  --ff-orange:#FF8C35;
+  --display:"Bricolage Grotesque", system-ui, sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --green:#7FCBA6; --green-ink:#BFE8D2; --sand:#1E2722; --bg:#111814; --surface:#18211C;
+  --fg:#EEF2EC; --muted:#A6B2AA; --line:#2C3A32; --sun:#F2C25E; --on-green:#0E1712; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --green:#7FCBA6; --green-ink:#BFE8D2; --sand:#1E2722; --bg:#111814; --surface:#18211C;
+  --fg:#EEF2EC; --muted:#A6B2AA; --line:#2C3A32; --sun:#F2C25E; --on-green:#0E1712; color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1080px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:800;text-wrap:balance;margin:0;line-height:1.05;letter-spacing:-.01em}
+h2{font-size:clamp(1.8rem,3.6vw,2.5rem)}
+h3{font-size:1.3rem;font-weight:600}
+p{margin:0}
+.eyebrow{font:600 .75rem/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--green)}
+.lead{color:var(--muted);max-width:62ch;font-size:1.05rem}
+section{padding-block:56px;border-top:1px solid var(--line);display:grid;gap:28px;scroll-margin-top:72px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+
+/* top bar + menú móvil */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:18px;position:relative}
+.brand{font-family:var(--display);font-weight:800;font-size:1.4rem;color:var(--green);line-height:1;display:flex;gap:10px;align-items:center;text-decoration:none}
+.brand svg{width:34px;height:34px;flex:none}
+.brand small{display:block;font:600 .62rem var(--body);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+nav.links{display:flex;gap:22px;align-items:center;font-size:.9rem}
+nav.links a{color:var(--fg);text-decoration:none}
+nav.links a.cta{background:var(--green);color:var(--on-green);padding:8px 16px;border-radius:999px;font-weight:600}
+.burger{display:none;background:none;border:1px solid var(--line);border-radius:10px;width:42px;height:42px;font-size:1.3rem;color:var(--fg);cursor:pointer}
+@media (max-width:860px){
+  .burger{display:block}
+  nav.links{display:none;position:absolute;top:100%;right:0;left:0;z-index:10;flex-direction:column;align-items:stretch;gap:0;
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px;box-shadow:0 20px 40px -20px rgba(0,0,0,.3)}
+  nav.links.open{display:flex}
+  nav.links a{padding:12px 14px;border-radius:10px}
+  nav.links a.cta{text-align:center;margin-top:6px}
+}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding-block:32px 64px}
+.hero > div{min-width:0}
+.hero h1{font-size:clamp(2.4rem,6vw,4.1rem)}
+.hero h1 em{color:var(--green);font-style:normal;background:linear-gradient(transparent 62%,color-mix(in srgb,var(--sun) 45%,transparent) 62%)}
+.hero .lead{margin-top:18px}
+.facts{display:flex;gap:28px;flex-wrap:wrap;margin-top:28px}
+.facts div{display:grid;gap:2px}
+.facts b{font:500 1.6rem/1 var(--mono);color:var(--green)}
+.facts span{font-size:.82rem;color:var(--muted)}
+
+.card{background:var(--green);color:var(--on-green);border-radius:20px;padding:24px;aspect-ratio:1.6/1;max-width:100%;
+  display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 30px 60px -30px rgba(18,59,43,.6);transform:rotate(-2deg)}
+.card .row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.card .name{font-family:var(--display);font-weight:800;font-size:1.55rem;line-height:1}
+.card .plan{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;opacity:.8}
+.card .dog{font:500 .8rem var(--mono);opacity:.9;margin-top:4px}
+.punch{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+.punch i{aspect-ratio:1;border-radius:50%;border:1.5px dashed currentColor;opacity:.5;display:grid;place-items:center;font-style:normal}
+.punch i svg{width:62%;height:62%;fill:currentColor;opacity:0}
+.punch i.on{background:var(--sun);color:var(--green-ink);opacity:1;border-style:solid;border-color:var(--sun)}
+.punch i.on svg{opacity:1}
+.card .foot{display:flex;justify-content:space-between;gap:8px;font:500 .78rem var(--mono);opacity:.92;flex-wrap:wrap}
+
+/* perks */
+.perk-hero{background:var(--green);color:var(--on-green);border-radius:16px;padding:28px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
+.perk-hero > *{min-width:0}
+.perk-hero div{display:grid;gap:6px;max-width:30ch}
+.perk-hero b{font-size:clamp(2.4rem,6vw,3.6rem);line-height:1}
+.perk-hero span{font-size:.9rem;opacity:.85}
+.perk-hero p{font-family:var(--display);font-weight:600;font-size:1.3rem;line-height:1.35}
+.perk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px 28px}
+.perk-grid div{display:grid;gap:6px;align-content:start;min-width:0;padding-top:14px;border-top:2px solid var(--green)}
+.perk-grid b{font-family:var(--display);font-weight:600;font-size:1.15rem}
+.perk-grid p{color:var(--muted);font-size:.95rem}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:s}
+.steps div{display:grid;gap:6px;align-content:start;min-width:0}
+.steps div::before{counter-increment:s;content:counter(s);font:500 .8rem var(--mono);color:var(--green);border:1px solid var(--green);border-radius:50%;width:28px;height:28px;display:grid;place-items:center}
+.steps b{font-weight:600}
+.steps p{color:var(--muted);font-size:.93rem}
+
+/* packages */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.pk{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:14px;grid-template-rows:auto auto 1fr auto auto;min-width:0}
+.pk.star{border-color:var(--green);box-shadow:0 0 0 1px var(--green)}
+.pk .hd{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.pk .tag{font:600 .68rem/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pk.star .tag{color:var(--green)}
+.pk .idx{font:500 .75rem var(--mono);color:var(--muted)}
+.price{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.price b{font:500 2rem/1 var(--mono);color:var(--green)}
+.price span{color:var(--muted);font-size:.85rem}
+.pk ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.93rem}
+.pk ul li::marker{color:var(--green)}
+.val{border-top:1px dashed var(--line);padding-top:12px;display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:.84rem;color:var(--muted)}
+.val .num{text-align:right;color:var(--fg)}
+.val .save{color:var(--green);font-weight:600}
+.flag{font-size:.75rem;color:var(--sun);font-weight:700}
+.pay{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pay button{font:600 .84rem var(--body);border-radius:10px;padding:10px 8px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.pay button.mp{background:#009EE3;border-color:#009EE3;color:#fff}
+.pay button.st{background:#635BFF;border-color:#635BFF;color:#fff}
+.pay.one{grid-template-columns:1fr}
+.addon{background:var(--sand);border-radius:14px;padding:18px 22px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.addon b{font:500 1.4rem var(--mono);color:var(--green)}
+
+/* money */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.split > div{min-width:0}
+.box{background:var(--sand);border-radius:14px;padding:24px;display:grid;gap:12px;align-content:start}
+.box table{width:100%;border-collapse:collapse;font-size:.92rem}
+.box td{padding:6px 0;border-bottom:1px solid var(--line)}
+.box td.num{text-align:right}
+.box tr:last-child td{border-bottom:0;font-weight:700}
+.note{font-size:.82rem;color:var(--muted)}
+
+/* calc */
+.calc{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:start}
+.calc > div{min-width:0}
+.rows{display:grid;gap:8px}
+.rows label{display:grid;grid-template-columns:1fr 70px;align-items:center;gap:12px;font-size:.93rem;padding:6px 0;border-bottom:1px solid var(--line)}
+.rows label span small{color:var(--muted);font-family:var(--mono);margin-left:6px}
+.calc input,.calc select{width:70px;font:500 1rem var(--mono);padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);text-align:right}
+.calc select{text-align:left}
+.total{background:var(--green);color:var(--on-green);border-radius:14px;padding:26px;display:grid;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+.total div{display:grid;gap:2px}
+.total b{font:500 2.2rem/1 var(--mono)}
+.total span{font-size:.82rem;opacity:.85}
+.meter{height:8px;border-radius:99px;background:color-mix(in srgb,var(--on-green) 25%,transparent);overflow:hidden;margin-top:6px}
+.meter i{display:block;height:100%;background:var(--sun);width:0;transition:width .3s}
+.warn{font-size:.82rem;font-weight:600;color:var(--sun)}
+
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.rules div{display:grid;gap:6px;align-content:start}
+.rules b{font-family:var(--display);font-weight:600;font-size:1.1rem}
+.rules p{color:var(--muted);font-size:.93rem}
+
+/* report card */
+.report{display:grid;grid-template-columns:.9fr 1.1fr;gap:32px;align-items:center}
+.report > div{min-width:0}
+.wa{background:#E7F7EE;color:#14261C;border-radius:18px;padding:16px;max-width:360px;font-size:.9rem;display:grid;gap:10px;box-shadow:0 20px 40px -26px rgba(0,0,0,.4)}
+.wa .msg{background:#fff;border-radius:12px 12px 12px 4px;padding:12px 14px;display:grid;gap:6px}
+.wa .msg b{font-weight:700}
+.wa .map{height:110px;border-radius:10px;background:
+  radial-gradient(circle at 20% 70%,#F2C25E 0 5px,transparent 6px),
+  radial-gradient(circle at 78% 28%,#1F5D45 0 5px,transparent 6px),
+  linear-gradient(135deg,#dfeee4,#cfe3d6);position:relative;overflow:hidden}
+.wa .map svg{position:absolute;inset:0;width:100%;height:100%}
+.wa .meta{font:500 .72rem var(--mono);color:#5F6B63;text-align:right}
+
+.ffdo{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.ffdo div{border-left:2px solid var(--ff-orange);padding:4px 0 4px 14px;font-size:.93rem}
+.ffdo b{display:block}
+.ffdo span{color:var(--muted)}
+
+footer{border-top:1px solid var(--line);padding-block:32px 48px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;font-size:.85rem;color:var(--muted)}
+footer img{height:26px;width:auto}
+.ffby{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.8rem}
+.ffby img{height:24px;width:auto}
+
+/* modal demo */
+dialog{border:0;border-radius:16px;padding:26px;max-width:min(420px,calc(100vw - 32px));background:var(--surface);color:var(--fg);box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
+dialog::backdrop{background:rgba(10,20,15,.5)}
+dialog h3{margin-bottom:10px}
+dialog p{color:var(--muted);font-size:.95rem}
+dialog button{margin-top:18px;font:600 .9rem var(--body);background:var(--green);color:var(--on-green);border:0;border-radius:999px;padding:10px 20px;cursor:pointer}
+
+@media (max-width:860px){
+  .hero,.split,.calc,.report{grid-template-columns:1fr}
+  .perk-hero{grid-template-columns:1fr}
+  .perk-grid{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .card{transform:none}
+  .total{position:static}
+}
+@media (max-width:600px){
+  .perk-grid,.steps,.grid{grid-template-columns:1fr}
+  .punch{gap:5px}
+}
+@media (prefers-reduced-motion:no-preference){.punch i.on{animation:pop .5s both}@keyframes pop{from{transform:scale(.6)}to{transform:scale(1)}}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="paw" viewBox="0 0 64 64"><ellipse cx="32" cy="42" rx="12" ry="10"/><circle cx="16" cy="28" r="6"/><circle cx="26" cy="17" r="6"/><circle cx="38" cy="17" r="6"/><circle cx="48" cy="28" r="6"/></symbol></svg>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#inicio"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="var(--green)"/><use href="#paw" fill="var(--sun)" transform="translate(8 8) scale(.75)"/></svg><span>Club de Paseo Víctor<small>Reforma Iztaccíhuatl Sur</small></span></a>
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">☰</button>
+    <nav class="links" id="menu">
+      <a href="#ventajas">Ventajas</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#paquetes">Paquetes</a>
+      <a href="#calculadora">Calculadora</a>
+      <a href="#reglas">Reglas</a>
+      <a class="cta" href="#paquetes">Ver planes</a>
+    </nav>
+  </header>
+
+  <div class="hero" id="inicio">
+    <div>
+      <p class="eyebrow">Club de Paseo · suscripción mensual</p>
+      <h1>Paseos pagados <em>desde el día 1</em>. Perros felices todo el mes.</h1>
+      <p class="lead">El dueño elige cuántos paseos quiere al mes, paga con tarjeta por Mercado Pago o Stripe y el cargo se repite solo cada mes. Víctor ya no persigue cobros de $80: la agenda de la semana está pagada antes de salir a la calle.</p>
+      <div class="facts">
+        <div><b>$80</b><span>el paseo de 1 hora hoy</span></div>
+        <div><b>4–20</b><span>paseos al mes por plan</span></div>
+        <div><b>0</b><span>cobros en efectivo</span></div>
+      </div>
+    </div>
+    <div class="card" aria-label="Ejemplo de tarjeta de socio: 3 de 8 paseos usados este mes">
+      <div class="row"><div><div class="plan">Socio · Dos por semana</div><div class="name">Club de Paseo Víctor</div><div class="dog">🐕 Canela · Labrador</div></div><div class="plan">Nov 2026</div></div>
+      <div class="punch" id="punch"></div>
+      <div class="foot"><span>3 de 8 paseos este mes</span><span>$579 / mes</span></div>
+    </div>
+  </div>
+
+  <section id="ventajas">
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Lo que gana Víctor</p>
+      <h2>Por qué el Club te conviene, Víctor</h2>
+    </div>
+    <div class="perk-hero">
+      <div><b class="num" id="heroMrr">$0</b><span id="heroMrrTxt">de ingreso fijo al mes con el ejemplo de la calculadora</span></div>
+      <p>Hoy cada paseo se cobra uno por uno y a veces "luego te pago". Con el Club, la mayor parte de tu mes ya está cobrada antes de que empiece.</p>
+    </div>
+    <div class="perk-grid">
+      <div><b>Dinero por adelantado</b><p>El cargo llega a tu cuenta cada mes. Si el dueño se va de vacaciones, el mes ya está pagado.</p></div>
+      <div><b>Agenda fija</b><p>Cada socio tiene sus días y su hora. Sabes desde el lunes cuántas horas de calle tienes en la semana.</p></div>
+      <div><b>Cero cobros pendientes</b><p>Mercado Pago o Stripe cobran solos a la tarjeta. Sin cambio, sin transferencias perdidas.</p></div>
+      <div><b>Paseos en grupo, mejor hora</b><p>Con horarios fijos puedes sacar a 2 o 3 perros que se lleven bien en el mismo paseo y ganar más por hora.</p></div>
+      <div><b>Confianza del dueño</b><p>Cada paseo termina con foto, ruta y tiempo por WhatsApp. Eso vende más que cualquier volante.</p></div>
+      <div><b>Algo que nadie en la colonia tiene</b><p>Un club con planes, tarjeta de socio y cobro con tarjeta te separa de cualquier paseador que solo compite por precio.</p></div>
+    </div>
+  </section>
+
+  <section id="como">
+    <div><p class="eyebrow">Cómo funciona para el dueño del perro</p></div>
+    <div class="steps">
+      <div><b>Elige su plan</b><p>Escanea el QR que Víctor trae en la correa o abre el link que le manda por WhatsApp.</p></div>
+      <div><b>Paga con tarjeta</b><p>Mercado Pago o Stripe. Primer cargo hoy y luego cada mes en automático. Cancela cuando quiera.</p></div>
+      <div><b>Registra a su perro</b><p>Nombre, raza, carácter, vacunas, veterinario y contacto de emergencia. Una sola vez.</p></div>
+      <div><b>Recibe su reporte</b><p>Al terminar cada paseo le llega foto, ruta, duración y cuántos paseos le quedan en el mes.</p></div>
+    </div>
+  </section>
+
+  <section id="paquetes">
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Los paquetes</p>
+      <h2>Seis planes para empezar</h2>
+      <p class="lead">Todos con paseos de 1 hora a partir de tu precio de hoy, $80. Mientras más paseos al mes, más ahorra el dueño y más fija es tu agenda. Puedes lanzar solo tres y agregar los demás después.</p>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="addon">
+      <b>+$40</b>
+      <p style="flex:1;min-width:220px"><strong>Segundo perro de la misma casa.</strong> Sale en el mismo paseo, así que por $40 extra por paseo tu hora rinde $120 en lugar de $80. Se agrega a cualquier plan.</p>
+    </div>
+    <p class="note">Los botones de pago son de demostración: aquí no se cobra nada. El plan <span class="flag">Express</span> usa un precio sugerido de $50 por paseo de 30 minutos que Víctor tendría que confirmar.</p>
+  </section>
+
+  <section>
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Los números para ti, Víctor</p>
+      <h2>¿Cuánto te queda por paseo?</h2>
+    </div>
+    <div class="split">
+      <div class="box">
+        <b>Plan Dos por semana · $579 al mes</b>
+        <table>
+          <tr><td>Mensualidad</td><td class="num">$579.00</td></tr>
+          <tr><td>Comisión aprox. (3.6% + $3 + IVA)</td><td class="num">−$27.66</td></tr>
+          <tr><td>Te queda al mes</td><td class="num">$551.34</td></tr>
+        </table>
+        <p class="note">Son unos $69 por paseo contra $80 en efectivo. La comisión de Mercado Pago es parecida (alrededor de 3.5% + $4 + IVA); se confirma con tu cuenta al darla de alta.</p>
+      </div>
+      <div style="display:grid;gap:14px;align-content:start">
+        <p><b>Lo que cambias:</b> unos $11 por paseo entre descuento y comisión.</p>
+        <p><b>Lo que ganas:</b> el mes cobrado por adelantado, clientes que no te cancelan "porque hoy no tengo cambio", y horarios fijos que te dejan juntar perros en el mismo paseo.</p>
+        <p><b>La cuenta que más importa:</b> si sacas a 2 perros juntos en la misma hora, esa hora te deja ~$138 en lugar de $69. Por eso la calculadora mide tu ingreso por <em>hora de calle</em>, no por paseo.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="calculadora">
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Calculadora</p>
+      <h2>¿Cuántos socios te imaginas?</h2>
+      <p class="lead">Cambia los números para ver tu ingreso fijo y cuántas horas de calle te piden. Viene con un ejemplo cargado.</p>
+    </div>
+    <div class="calc">
+      <div class="rows" id="rows"></div>
+      <div class="total" aria-live="polite">
+        <div><span>Ingreso fijo al mes</span><b id="mrr">$0</b></div>
+        <div><span>Neto después de comisión (aprox.)</span><b id="net" style="font-size:1.5rem">$0</b></div>
+        <div><span>Horas de calle al mes · <span id="hday">0</span> h por día hábil</span><b id="hrs" style="font-size:1.5rem">0</b>
+          <div class="meter" aria-hidden="true"><i id="meter"></i></div><span class="warn" id="warn"></span></div>
+        <div><span>Te deja por hora de calle</span><b id="perh" style="font-size:1.5rem">$0</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="report">
+      <div style="display:grid;gap:14px">
+        <p class="eyebrow">El reporte de paseo</p>
+        <h2>Lo que hace que el dueño no cancele</h2>
+        <p class="lead">Al terminar, Víctor toca "paseo terminado" en su celular. Al dueño le llega por WhatsApp la foto, el recorrido, el tiempo y su saldo del mes. Es la diferencia entre "un señor que pasea perros" y un servicio que se paga solo.</p>
+      </div>
+      <div class="wa" aria-label="Ejemplo de mensaje de WhatsApp con el reporte del paseo">
+        <div class="msg">
+          <b>🐾 Canela ya está en casa</b>
+          <div class="map"><svg viewBox="0 0 300 110" preserveAspectRatio="none"><path d="M60 77 C 90 40, 120 90, 160 60 S 220 20, 234 31" fill="none" stroke="#1F5D45" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/></svg></div>
+          <span>Paseo de <b>62 min</b> · 3.4 km · hizo sus necesidades ✔️ · tomó agua ✔️</span>
+          <span>Te quedan <b>5 de 8</b> paseos de noviembre.</span>
+          <span class="meta">Víctor · 9:14</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reglas">
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Reglas del club</p>
+      <h2>Para que nadie salga perdiendo</h2>
+    </div>
+    <div class="rules">
+      <div><b>Mes a mes, sin plazo forzoso</b><p>El cargo se repite cada mes y el dueño puede cancelar cuando quiera; aplica a partir del siguiente cobro.</p></div>
+      <div><b>Días y horario fijos</b><p>Cada socio aparta sus días y su hora. Así Víctor arma sus grupos y nadie se queda sin lugar.</p></div>
+      <div><b>Cancelar con 12 horas</b><p>Si el dueño avisa con 12 horas o más, el paseo se reprograma. Con menos aviso, cuenta como usado.</p></div>
+      <div><b>Lluvia fuerte</b><p>Si Víctor suspende por lluvia, el paseo se repone esa misma semana o se pasa al mes siguiente.</p></div>
+      <div><b>Paseos del mes</b><p>Los que no se usen se pueden pasar hasta 2 al mes siguiente. El resto vence con el mes.</p></div>
+      <div><b>Ficha y vacunas al día</b><p>Para entrar al club el perro necesita su ficha completa y vacuna antirrábica vigente. Paseos en grupo solo con perros que se lleven bien.</p></div>
+      <div><b>Tarjeta rechazada</b><p>Mercado Pago o Stripe reintentan el cobro y Víctor recibe aviso. Mientras no pase, los paseos se pausan.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div style="display:grid;gap:12px">
+      <p class="eyebrow">Lo que pone FishFlow</p>
+      <h2>Tú paseas. El cobro y el control van solos.</h2>
+    </div>
+    <div class="ffdo">
+      <div><b>Página de alta por plan</b><span>Con la marca de Víctor, link y QR para la correa o el volante.</span></div>
+      <div><b>Cobro recurrente</b><span>Suscripción de Mercado Pago o de Stripe, con depósito a tu cuenta.</span></div>
+      <div><b>Ficha de cada perro</b><span>Carácter, vacunas, veterinario, alergias y contacto de emergencia.</span></div>
+      <div><b>Botón "paseo terminado"</b><span>Desde el celular: foto y tiempo, y el saldo baja solo.</span></div>
+      <div><b>Reporte al dueño por WhatsApp</b><span>Foto, duración y paseos que le quedan en el mes.</span></div>
+      <div><b>Agenda de la semana</b><span>Quién sale, a qué hora y con quién en grupo.</span></div>
+      <div><b>Avisos automáticos</b><span>Pago recibido, tarjeta rechazada, plan por vencer.</span></div>
+      <div><b>Reporte mensual</b><span>Ingreso fijo, altas, bajas y horas de calle.</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="ffby"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgMTM5MS4wIDI5My4yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRmlzaEZsb3ciPgogIDx0aXRsZT5GaXNoRmxvdyDigJQgTG9nbyBIb3Jpem9udGFsPC90aXRsZT4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZmYtdGlkZSIgeDE9IjE0JSIgeTE9IjUwJSIgeDI9Ijg2JSIgeTI9IjUwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiICAgc3RvcC1jb2xvcj0iIzY3RDRFOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjQwJSIgIHN0b3AtY29sb3I9IiM3RkRDRUMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiICBzdG9wLWNvbG9yPSIjRDhDOUEwIiBzdG9wLW9wYWNpdHk9IjAuOTUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI2MCUiICBzdG9wLWNvbG9yPSIjRkZBRTVFIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0ZGOEMzNSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYuMDAgMTYuMDApIHNjYWxlKDAuNDM1NCkiPgogICAgPHBhdGggZD0iTSA2MDAgMzAwIEMgNzYwIDEwMCwgMTAwMCAgOTAsIDEwMDAgMzAwIEMgMTAwMCA1MTAsICA3NjAgNTAwLCA2MDAgMzAwIEMgNDQwIDEwMCwgIDIwMCAgOTAsICAyMDAgMzAwIEMgMjAwIDUxMCwgIDQ0MCA1MDAsICA2MDAgMzAwIFoiCiAgICAgIGZpbGw9Im5vbmUiCiAgICAgIHN0cm9rZT0idXJsKCNmZi10aWRlKSIKICAgICAgc3Ryb2tlLXdpZHRoPSI0NCIKICAgICAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogICAgICBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgICA8Y2lyY2xlIGN4PSI4ODAiIGN5PSIyNzgiIHI9IjkiIGZpbGw9IiMwQzM0NDUiIG9wYWNpdHk9IjAuNTUiLz4KICA8L2c+CiAgICA8cGF0aCBkPSJNMTMuNjAwMDAwMDAwMDAwMDAxIDAuMFYtMTQxLjIwMDAwMDAwMDAwMDAySDQ1LjBWMC4wWk0zNy42IC01NS40MDAwMDAwMDAwMDAwMDZWLTgyLjRIMTA4LjJWLTU1LjQwMDAwMDAwMDAwMDAwNlpNMzcuNiAtMTE0LjJWLTE0MS4yMDAwMDAwMDAwMDAwMkgxMTEuNFYtMTE0LjJaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTEyNi44IDAuMFYtOTcuMkgxNTcuNFYwLjBaTTE0Mi4yIC0xMTAuNjAwMDAwMDAwMDAwMDFRMTM1LjAgLTExMC42MDAwMDAwMDAwMDAwMSAxMzAuMyAtMTE1LjVRMTI1LjYgLTEyMC40IDEyNS42IC0xMjcuNFExMjUuNiAtMTM0LjYgMTMwLjMgLTEzOS40UTEzNS4wIC0xNDQuMjAwMDAwMDAwMDAwMDIgMTQyLjIgLTE0NC4yMDAwMDAwMDAwMDAwMlExNDkuNCAtMTQ0LjIwMDAwMDAwMDAwMDAyIDE1NC4wIC0xMzkuNFExNTguNiAtMTM0LjYgMTU4LjYgLTEyNy40UTE1OC42IC0xMjAuNCAxNTQuMCAtMTE1LjVRMTQ5LjQgLTExMC42MDAwMDAwMDAwMDAwMSAxNDIuMiAtMTEwLjYwMDAwMDAwMDAwMDAxWiIgZmlsbD0iIzY3RDRFOCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTcwLjQ0IDIxNy4yMTAwMDAwMDAwMDAwNCkiLz4KICAgIDxwYXRoIGQ9Ik0yMTIuMzk5OTk5OTk5OTk5OTggMi40MDAwMDAwMDAwMDAwMDA0UTIwMy43OTk5OTk5OTk5OTk5OCAyLjQwMDAwMDAwMDAwMDAwMDQgMTk1LjUgMC4yMDAwMDAwMDAwMDAwMDAxOFExODcuMiAtMi4wIDE4MC4xIC02LjEwMDAwMDAwMDAwMDAwMDVRMTczLjAgLTEwLjIwMDAwMDAwMDAwMDAwMSAxNjguMCAtMTUuNjAwMDAwMDAwMDAwMDAxTDE4NS4zOTk5OTk5OTk5OTk5OCAtMzMuMlExOTAuMiAtMjguMCAxOTYuNzk5OTk5OTk5OTk5OTggLTI1LjFRMjAzLjM5OTk5OTk5OTk5OTk4IC0yMi4yMDAwMDAwMDAwMDAwMDMgMjExLjIgLTIyLjIwMDAwMDAwMDAwMDAwM1EyMTYuNiAtMjIuMjAwMDAwMDAwMDAwMDAzIDIxOS41IC0yMy44MDAwMDAwMDAwMDAwMDRRMjIyLjM5OTk5OTk5OTk5OTk4IC0yNS40MDAwMDAwMDAwMDAwMDIgMjIyLjM5OTk5OTk5OTk5OTk4IC0yOC4yMDAwMDAwMDAwMDAwMDNRMjIyLjM5OTk5OTk5OTk5OTk4IC0zMS44IDIxOC44OTk5OTk5OTk5OTk5OCAtMzMuN1EyMTUuMzk5OTk5OTk5OTk5OTggLTM1LjYgMjEwLjAgLTM3LjFRMjA0LjYgLTM4LjYgMTk4LjYgLTQwLjQwMDAwMDAwMDAwMDAwNlExOTIuNiAtNDIuMiAxODcuMiAtNDUuNDAwMDAwMDAwMDAwMDA2UTE4MS43OTk5OTk5OTk5OTk5OCAtNDguNiAxNzguMzk5OTk5OTk5OTk5OTggLTU0LjNRMTc1LjAgLTYwLjAgMTc1LjAgLTY4LjhRMTc1LjAgLTc4LjIgMTc5LjggLTg1LjFRMTg0LjYgLTkyLjAgMTkzLjM5OTk5OTk5OTk5OTk4IC05Ni4wUTIwMi4yIC0xMDAuMCAyMTQuMCAtMTAwLjBRMjI2LjM5OTk5OTk5OTk5OTk4IC0xMDAuMCAyMzYuODk5OTk5OTk5OTk5OTggLTk1LjdRMjQ3LjM5OTk5OTk5OTk5OTk4IC05MS40IDI1NC4wIC04My4wTDIzNi42IC02NS40UTIzMi4wIC03MC44IDIyNi4zIC03My4wUTIyMC42IC03NS4yIDIxNS4yIC03NS4yUTIxMC4wIC03NS4yIDIwNy4zOTk5OTk5OTk5OTk5OCAtNzMuN1EyMDQuNzk5OTk5OTk5OTk5OTggLTcyLjIgMjA0Ljc5OTk5OTk5OTk5OTk4IC02OS40UTIwNC43OTk5OTk5OTk5OTk5OCAtNjYuNCAyMDguMiAtNjQuNjAwMDAwMDAwMDAwMDFRMjExLjYgLTYyLjgwMDAwMDAwMDAwMDAwNCAyMTcuMCAtNjEuNDAwMDAwMDAwMDAwMDA2UTIyMi4zOTk5OTk5OTk5OTk5OCAtNjAuMCAyMjguMzk5OTk5OTk5OTk5OTggLTU4LjBRMjM0LjM5OTk5OTk5OTk5OTk4IC01Ni4wIDIzOS43OTk5OTk5OTk5OTk5OCAtNTIuNlEyNDUuMiAtNDkuMiAyNDguNiAtNDMuNVEyNTIuMCAtMzcuODAwMDAwMDAwMDAwMDA0IDI1Mi4wIC0yOC42UTI1Mi4wIC0xNC40IDI0MS4zIC02LjBRMjMwLjYgMi40MDAwMDAwMDAwMDAwMDA0IDIxMi4zOTk5OTk5OTk5OTk5OCAyLjQwMDAwMDAwMDAwMDAwMDRaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTMzMC44IDAuMFYtNTUuNDAwMDAwMDAwMDAwMDA2UTMzMC44IC02My4wIDMyNi4xIC02Ny43UTMyMS40MDAwMDAwMDAwMDAwMyAtNzIuNCAzMTQuMjAwMDAwMDAwMDAwMDUgLTcyLjRRMzA5LjIwMDAwMDAwMDAwMDA1IC03Mi40IDMwNS40MDAwMDAwMDAwMDAwMyAtNzAuMzAwMDAwMDAwMDAwMDFRMzAxLjYgLTY4LjIgMjk5LjQwMDAwMDAwMDAwMDAzIC02NC4zMDAwMDAwMDAwMDAwMVEyOTcuMjAwMDAwMDAwMDAwMDUgLTYwLjQwMDAwMDAwMDAwMDAwNiAyOTcuMjAwMDAwMDAwMDAwMDUgLTU1LjQwMDAwMDAwMDAwMDAwNkwyODUuNDAwMDAwMDAwMDAwMDMgLTYxLjJRMjg1LjQwMDAwMDAwMDAwMDAzIC03Mi42MDAwMDAwMDAwMDAwMSAyOTAuMjAwMDAwMDAwMDAwMDUgLTgxLjIwMDAwMDAwMDAwMDAyUTI5NS4wIC04OS44MDAwMDAwMDAwMDAwMSAzMDMuNiAtOTQuNVEzMTIuMjAwMDAwMDAwMDAwMDUgLTk5LjIgMzIzLjQwMDAwMDAwMDAwMDAzIC05OS4yUTMzNC44IC05OS4yIDM0My40IC05NC41UTM1Mi4wIC04OS44MDAwMDAwMDAwMDAwMSAzNTYuNzAwMDAwMDAwMDAwMDUgLTgxLjVRMzYxLjQwMDAwMDAwMDAwMDAzIC03My4yIDM2MS40MDAwMDAwMDAwMDAwMyAtNjIuMlYwLjBaTTI2Ni42IDAuMFYtMTQ1LjIwMDAwMDAwMDAwMDAySDI5Ny4yMDAwMDAwMDAwMDAwNVYwLjBaIiBmaWxsPSIjNjdENEU4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NzAuNDQgMjE3LjIxMDAwMDAwMDAwMDA0KSIvPgogICAgPHBhdGggZD0iTTM4MS44MDAwMDAwMDAwMDAwNyAwLjBWLTE0MS4yMDAwMDAwMDAwMDAwMkg0MTMuMjAwMDAwMDAwMDAwMDVWMC4wWk00MDUuODAwMDAwMDAwMDAwMDcgLTU1LjQwMDAwMDAwMDAwMDAwNlYtODIuNEg0NzYuNDAwMDAwMDAwMDAwMDNWLTU1LjQwMDAwMDAwMDAwMDAwNlpNNDA1LjgwMDAwMDAwMDAwMDA3IC0xMTQuMlYtMTQxLjIwMDAwMDAwMDAwMDAySDQ3OS42Vi0xMTQuMloiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNDk1LjAwMDAwMDAwMDAwMDA2IDAuMFYtMTQ1LjIwMDAwMDAwMDAwMDAySDUyNS42VjAuMFoiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNTkyLjAwMDAwMDAwMDAwMDEgMi4yUTU3Ny4wMDAwMDAwMDAwMDAxIDIuMiA1NjQuOTAwMDAwMDAwMDAwMSAtNC41UTU1Mi44MDAwMDAwMDAwMDAxIC0xMS4yMDAwMDAwMDAwMDAwMDEgNTQ1LjgwMDAwMDAwMDAwMDEgLTIyLjhRNTM4LjgwMDAwMDAwMDAwMDEgLTM0LjQgNTM4LjgwMDAwMDAwMDAwMDEgLTQ4LjgwMDAwMDAwMDAwMDAwNFE1MzguODAwMDAwMDAwMDAwMSAtNjMuMiA1NDUuODAwMDAwMDAwMDAwMSAtNzQuNlE1NTIuODAwMDAwMDAwMDAwMSAtODYuMCA1NjQuODAwMDAwMDAwMDAwMSAtOTIuN1E1NzYuODAwMDAwMDAwMDAwMSAtOTkuNCA1OTIuMDAwMDAwMDAwMDAwMSAtOTkuNFE2MDcuMiAtOTkuNCA2MTkuMiAtOTIuODAwMDAwMDAwMDAwMDFRNjMxLjIgLTg2LjIgNjM4LjIgLTc0LjdRNjQ1LjIgLTYzLjIgNjQ1LjIgLTQ4LjgwMDAwMDAwMDAwMDAwNFE2NDUuMiAtMzQuNCA2MzguMiAtMjIuOFE2MzEuMiAtMTEuMjAwMDAwMDAwMDAwMDAxIDYxOS4yIC00LjVRNjA3LjIgMi4yIDU5Mi4wMDAwMDAwMDAwMDAxIDIuMlpNNTkyLjAwMDAwMDAwMDAwMDEgLTI1LjZRNTk4LjYwMDAwMDAwMDAwMDEgLTI1LjYgNjAzLjYwMDAwMDAwMDAwMDEgLTI4LjVRNjA4LjYwMDAwMDAwMDAwMDEgLTMxLjQwMDAwMDAwMDAwMDAwMiA2MTEuMzAwMDAwMDAwMDAwMiAtMzYuN1E2MTQuMDAwMDAwMDAwMDAwMSAtNDIuMCA2MTQuMDAwMDAwMDAwMDAwMSAtNDguODAwMDAwMDAwMDAwMDA0UTYxNC4wMDAwMDAwMDAwMDAxIC01NS42IDYxMS4yIC02MC43UTYwOC40MDAwMDAwMDAwMDAxIC02NS44IDYwMy41MDAwMDAwMDAwMDAxIC02OC43UTU5OC42MDAwMDAwMDAwMDAxIC03MS42MDAwMDAwMDAwMDAwMSA1OTIuMDAwMDAwMDAwMDAwMSAtNzEuNjAwMDAwMDAwMDAwMDFRNTg1LjYwMDAwMDAwMDAwMDEgLTcxLjYwMDAwMDAwMDAwMDAxIDU4MC42MDAwMDAwMDAwMDAxIC02OC43UTU3NS42MDAwMDAwMDAwMDAxIC02NS44IDU3Mi44MDAwMDAwMDAwMDAyIC02MC42UTU3MC4wMDAwMDAwMDAwMDAxIC01NS40MDAwMDAwMDAwMDAwMDYgNTcwLjAwMDAwMDAwMDAwMDEgLTQ4LjZRNTcwLjAwMDAwMDAwMDAwMDEgLTQyLjAgNTcyLjgwMDAwMDAwMDAwMDIgLTM2LjdRNTc1LjYwMDAwMDAwMDAwMDEgLTMxLjQwMDAwMDAwMDAwMDAwMiA1ODAuNjAwMDAwMDAwMDAwMSAtMjguNVE1ODUuNjAwMDAwMDAwMDAwMSAtMjUuNiA1OTIuMDAwMDAwMDAwMDAwMSAtMjUuNloiIGZpbGw9IiNGRjhDMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU3MC40NCAyMTcuMjEwMDAwMDAwMDAwMDQpIi8+CiAgICA8cGF0aCBkPSJNNjgyLjIwMDAwMDAwMDAwMDIgMC4wIDY0OC42MDAwMDAwMDAwMDAxIC05Ny4ySDY3OC42MDAwMDAwMDAwMDAxTDY5OS40MDAwMDAwMDAwMDAxIC0yNi42TDY5MC42MDAwMDAwMDAwMDAxIC0yNi40MDAwMDAwMDAwMDAwMDJMNzEzLjYwMDAwMDAwMDAwMDEgLTk3LjJINzM4LjQwMDAwMDAwMDAwMDFMNzYxLjYwMDAwMDAwMDAwMDEgLTI2LjQwMDAwMDAwMDAwMDAwMkw3NTIuNjAwMDAwMDAwMDAwMSAtMjYuNkw3NzMuNjAwMDAwMDAwMDAwMSAtOTcuMkg4MDMuNjAwMDAwMDAwMDAwMUw3NzAuMDAwMDAwMDAwMDAwMSAwLjBINzQ1LjAwMDAwMDAwMDAwMDFMNzIyLjQwMDAwMDAwMDAwMDEgLTY3LjJINzMwLjAwMDAwMDAwMDAwMDFMNzA3LjAwMDAwMDAwMDAwMDEgMC4wWiIgZmlsbD0iI0ZGOEMzNSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTcwLjQ0IDIxNy4yMTAwMDAwMDAwMDAwNCkiLz4KPC9zdmc+Cg==" alt="FishFlow"><span>Automatización inteligente para tu negocio</span></div>
+    <div>Propuesta preparada por Rafa Fish · FishFlow · raf@fishflow.mx</div>
+  </footer>
+</div>
+
+<dialog id="dlg">
+  <h3 id="dlgT">Esto es un demo</h3>
+  <p id="dlgP"></p>
+  <button type="button" onclick="dlg.close()">Entendido</button>
+</dialog>
+
+<script>
+const BASE=80;
+const P=[
+ {n:'Paseo Semanal',p:299,w:4,h:1,tag:'1 vez por semana',items:['4 paseos de 1 hora al mes','Mismo día y hora cada semana','Reporte con foto por WhatsApp']},
+ {n:'Dos por semana',p:579,w:8,h:1,star:true,tag:'2 veces por semana',items:['8 paseos de 1 hora al mes','Ideal para perros jóvenes o de departamento','Reporte con foto por WhatsApp']},
+ {n:'Tres por semana',p:839,w:12,h:1,tag:'3 veces por semana',items:['12 paseos de 1 hora al mes','Lunes, miércoles y viernes (o como acomode)','Reporte con foto por WhatsApp']},
+ {n:'Diario',p:1349,w:20,h:1,tag:'Lunes a viernes',items:['20 paseos de 1 hora al mes','Para quien trabaja fuera todo el día','Prioridad para elegir horario']},
+ {n:'Express 30 min',p:890,w:20,h:.5,flag:true,tag:'Lunes a viernes',val:50,items:['20 paseos de 30 minutos al mes','Para cachorros, perros mayores o chiquitos','Salida rápida a hacer sus necesidades']},
+ {n:'Bolsa de 10',p:760,w:10,h:1,once:true,tag:'Pago único · sin suscripción',items:['10 paseos de 1 hora','Úsalos en 60 días, cuando quieras','Para probar el club antes de suscribirse']},
+];
+const MX=v=>'$'+Math.round(v).toLocaleString('es-MX');
+const grid=document.getElementById('grid');
+grid.innerHTML=P.map((x,i)=>{
+  const unit=x.val||BASE, v=x.w*unit, save=v-x.p;
+  return `<article class="pk${x.star?' star':''}">
+   <div class="hd"><span class="tag">${x.tag}${x.star?' · recomendado':''}</span><span class="idx">${String(i+1).padStart(2,'0')}</span></div>
+   <div style="display:grid;gap:8px"><h3>${x.n}</h3><div class="price"><b>${MX(x.p)}</b><span>${x.once?'pago único':'al mes · cancela cuando quieras'}</span></div>${x.flag?'<span class="flag">Precio por confirmar</span>':''}</div>
+   <ul>${x.items.map(t=>`<li>${t}</li>`).join('')}</ul>
+   <div class="val"><span>${x.w} paseos × ${MX(unit)}</span><span class="num">${MX(v)}</span>
+     <span>El dueño paga</span><span class="num">${MX(x.p)}</span>
+     <span class="save">Ahorra</span><span class="num save">${MX(save)} (${Math.round(save/v*100)}%)</span>
+     <span>Precio por paseo</span><span class="num">${MX(x.p/x.w)}</span></div>
+   <div class="pay${x.once?' one':''}">${x.once
+     ?`<button type="button" class="mp" data-i="${i}" data-m="mp">Pagar con Mercado Pago</button>`
+     :`<button type="button" class="mp" data-i="${i}" data-m="mp">Mercado Pago</button><button type="button" class="st" data-i="${i}" data-m="st">Tarjeta · Stripe</button>`}</div>
+  </article>`}).join('');
+grid.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-i]'); if(!b) return;
+  const x=P[+b.dataset.i];
+  dlgT.textContent=x.n+' · '+MX(x.p)+(x.once?'':' al mes');
+  dlgP.textContent=(b.dataset.m==='mp'
+    ? (x.once?'En la versión real, aquí se abre el checkout de Mercado Pago para pagar la bolsa con tarjeta, OXXO o saldo de Mercado Pago.'
+             :'En la versión real, aquí se abre la suscripción de Mercado Pago: el dueño paga con su tarjeta y el cargo se repite cada mes.')
+    : 'En la versión real, aquí se abre Stripe Checkout: tarjeta de crédito o débito con cargo automático cada mes.')
+    +' Este demo no cobra nada.';
+  dlg.showModal();
+});
+
+const paw='<svg viewBox="0 0 64 64" aria-hidden="true"><use href="#paw"/></svg>';
+document.getElementById('punch').innerHTML=Array.from({length:8},(_,i)=>`<i class="${i<3?'on':''}" style="animation-delay:${i*90}ms">${paw}</i>`).join('');
+
+const ex=[5,8,4,3,2,3];
+const rows=document.getElementById('rows');
+rows.innerHTML=P.map((x,i)=>`<label for="q${i}"><span>${x.n}<small>${MX(x.p)}</small></span><input id="q${i}" type="number" min="0" max="99" inputmode="numeric" value="${ex[i]}"></label>`).join('')
+ +`<label for="grp"><span>Perros por paseo en grupo<small>promedio</small></span><select id="grp"><option value="1">1</option><option value="1.5">1.5</option><option value="2" selected>2</option><option value="2.5">2.5</option><option value="3">3</option></select></label>`
+ +`<label for="cap"><span>Horas de calle que quieres al día<small>L–V</small></span><input id="cap" type="number" min="1" max="12" value="6"></label>`;
+const fee=p=>(p*0.036+3)*1.16;
+function calc(){
+  let m=0,net=0,hrs=0;
+  P.forEach((x,i)=>{const q=Math.max(0,+document.getElementById('q'+i).value||0);m+=q*x.p;net+=q*(x.p-fee(x.p));hrs+=q*x.w*x.h});
+  const g=+document.getElementById('grp').value||1, cap=Math.max(1,+document.getElementById('cap').value||1);
+  const street=hrs/g, perDay=street/22, pct=Math.min(100,perDay/cap*100);
+  mrr.textContent=MX(m); document.getElementById('net').textContent=MX(net);
+  document.getElementById('hrs').textContent=Math.round(street);
+  document.getElementById('hday').textContent=perDay.toFixed(1);
+  document.getElementById('perh').textContent=street?MX(net/street):'$0';
+  document.getElementById('meter').style.width=pct+'%';
+  document.getElementById('warn').textContent=perDay>cap?'Te pasas de las horas que quieres: sube el cupo de grupo o limita socios.':'';
+  heroMrr.textContent=MX(m);
+}
+rows.addEventListener('input',calc);calc();
+
+const burger=document.getElementById('burger'),menu=document.getElementById('menu');
+burger.addEventListener('click',()=>{const o=menu.classList.toggle('open');burger.setAttribute('aria-expanded',o);burger.setAttribute('aria-label',o?'Cerrar menú':'Abrir menú');burger.textContent=o?'✕':'☰'});
+menu.addEventListener('click',e=>{if(e.target.closest('a')){menu.classList.remove('open');burger.setAttribute('aria-expanded','false');burger.setAttribute('aria-label','Abrir menú');burger.textContent='☰'}});
+</script>
+</body>
+</html>
