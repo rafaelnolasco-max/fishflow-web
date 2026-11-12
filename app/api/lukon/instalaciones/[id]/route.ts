@@ -12,7 +12,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireClientAccess } from "@/lib/apiAuth";
 import { supabaseAdmin } from "@/lib/telematicaAuth";
 import { notifyOps } from "@/lib/installationsReport";
-import { LUKON_ID, logEvent, signPhotos, missingPhotos, fmtCdmx, type Service } from "@/lib/installations";
+import { LUKON_ID, signPhotos, missingPhotos, fmtCdmx, type Service } from "@/lib/installations";
+import { logEvent } from "@/lib/installationsLog";
 import { sendInstallationReport } from "@/lib/installationsReport";
 import { cleanOrder } from "../validate";
 

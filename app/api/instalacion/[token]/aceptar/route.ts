@@ -1,7 +1,7 @@
 // POST /api/instalacion/[token]/aceptar  → el cliente final acepta su instalación (sin login)
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/telematicaAuth";
-import { logEvent } from "@/lib/installations";
+import { logEvent } from "@/lib/installationsLog";
 import { notifyAccepted } from "@/lib/installationsReport";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

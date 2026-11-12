@@ -6,7 +6,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sendEmail } from "@/lib/email";
 import { emailUI, escHtml } from "@/lib/emailLayout";
-import { SERVICE_LABEL, SITE, AUTO_ACCEPT_DAYS, LUKON_OPS_EMAIL, fmtCdmx, folioTxt, logEvent, type Service } from "@/lib/installations";
+import { SERVICE_LABEL, SITE, AUTO_ACCEPT_DAYS, LUKON_OPS_EMAIL, fmtCdmx, folioTxt, type Service } from "@/lib/installations";
+import { logEvent } from "@/lib/installationsLog";
 
 const LUKON_WA = "525513285555";
 

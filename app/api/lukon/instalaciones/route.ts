@@ -5,7 +5,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireClientAccess } from "@/lib/apiAuth";
 import { supabaseAdmin } from "@/lib/telematicaAuth";
-import { LUKON_ID, logEvent } from "@/lib/installations";
+import { LUKON_ID } from "@/lib/installations";
+import { logEvent } from "@/lib/installationsLog";
 import { cleanOrder } from "./validate";
 import { notifyOps } from "@/lib/installationsReport";
 

@@ -43,10 +43,6 @@ export function missingPhotos(service: Service, stage: Stage, kinds: string[]) {
   return stepsFor(service).filter(s => s.stage === stage && s.need && !kinds.includes(s.kind)).map(s => s.label);
 }
 
-export async function logEvent(db: SupabaseClient, inst: { id: string; client_id: string }, type: string, detail: string | null, by: string | null) {
-  await db.from("telematica_installation_events").insert({ installation_id: inst.id, client_id: inst.client_id, type, detail, by });
-}
-
 /** URLs firmadas (1 h) para mostrar fotos del bucket privado. */
 export async function signPhotos<T extends { path: string }>(db: SupabaseClient, photos: T[]) {
   if (!photos.length) return [] as (T & { url: string | null })[];
