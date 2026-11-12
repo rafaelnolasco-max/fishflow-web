@@ -45,6 +45,8 @@ const RESPONSIVE_CSS = `
 .lk-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .lk-grid-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
 .lk-tablewrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.lk-main{ min-width:0; overflow-wrap:anywhere; }
+.lk-main img, .lk-main video, .lk-main canvas{ max-width:100%; }
 
 /* ── iPad / tablet ─────────────────────────────────────────────────────────── */
 @media (max-width: 900px){
@@ -325,6 +327,8 @@ function LukonDashboard() {
   return (
     <div style={{
       minHeight: "100vh",
+      maxWidth: "100vw",
+      overflowX: "clip",        // nada dentro del panel puede ensanchar la página en el celular
       background: L.paper,
       color: L.ink,
       fontFamily: L.fBody,

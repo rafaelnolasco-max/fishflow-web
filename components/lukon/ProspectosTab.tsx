@@ -154,12 +154,12 @@ export default function ProspectosTab({ t, onToast }: { t: LukonTheme; onToast: 
       </div>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
-        <input placeholder="Buscar nombre, teléfono, campaña…" value={q} onChange={(e) => setQ(e.target.value)} style={{ ...input, flex: "1 1 220px" }} />
-        <select value={fVeh} onChange={(e) => setFVeh(e.target.value)} style={input}>
+        <input placeholder="Buscar nombre, teléfono, campaña…" value={q} onChange={(e) => setQ(e.target.value)} style={{ ...input, flex: "1 1 220px", minWidth: 0 }} />
+        <select value={fVeh} onChange={(e) => setFVeh(e.target.value)} style={{ ...input, flex: "1 1 150px", minWidth: 0 }}>
           <option value="todos">Todos los vehículos</option>
           {VEHICULOS.map((v) => <option key={v} value={v}>{v}</option>)}
         </select>
-        <select value={fEstatus} onChange={(e) => setFEstatus(e.target.value)} style={input}>
+        <select value={fEstatus} onChange={(e) => setFEstatus(e.target.value)} style={{ ...input, flex: "1 1 150px", minWidth: 0 }}>
           <option value="todos">Todos los estatus</option>
           {ESTATUS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
         </select>
@@ -174,7 +174,7 @@ export default function ProspectosTab({ t, onToast }: { t: LukonTheme; onToast: 
             : "Ningún prospecto coincide con los filtros."}
         </div>
       ) : (
-        <div style={{ display: "grid", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
           {lista.map((l) => {
             const d = datos(l);
             const m = meta(l.status);
@@ -229,7 +229,7 @@ function Dato({ t, k, v }: { t: LukonTheme; k: string; v: string }) {
   return (
     <div style={{ minWidth: 0 }}>
       <div style={{ fontSize: 11.5, color: t.mutedL, fontWeight: 600 }}>{k}</div>
-      <div style={{ color: t.ink, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis" }}>{v}</div>
+      <div style={{ color: t.ink, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", overflowWrap: "anywhere" }}>{v}</div>
     </div>
   );
 }
