@@ -500,7 +500,8 @@ function PhotoStep({ t, instId, step, photos, editable, onChange, onToast, onOpe
   onChange: () => void; onToast: (m: string, ok: boolean) => void; onOpen: (url: string) => void;
 }) {
   const S = styles(t);
-  const ref = useRef<HTMLInputElement>(null);
+  const ref = useRef<HTMLInputElement>(null);      // cámara
+  const galRef = useRef<HTMLInputElement>(null);   // galería / archivos
   const [up, setUp] = useState(0);
   const done = photos.length > 0;
   const canAdd = editable && (step.multi || !done);
@@ -521,6 +522,7 @@ function PhotoStep({ t, instId, step, photos, editable, onChange, onToast, onOpe
       setUp(n => n - 1);
     }
     if (ref.current) ref.current.value = "";
+    if (galRef.current) galRef.current.value = "";
     if (!fails) onToast(list.length > 1 ? `${list.length} fotos subidas` : "Foto subida", true);
     onChange();
   }
@@ -552,10 +554,16 @@ function PhotoStep({ t, instId, step, photos, editable, onChange, onToast, onOpe
       )}
       {canAdd && (
         <>
-          <input ref={ref} type="file" accept="image/*" capture="environment" multiple={!!step.multi} style={{ display: "none" }} onChange={e => onFiles(e.target.files)} />
-          <button style={{ ...S.ghost, marginTop: 10, width: "100%" }} disabled={up > 0} onClick={() => ref.current?.click()}>
-            {up > 0 ? `Subiendo${up > 1 ? ` (${up})` : ""}…` : done ? "+ Agregar otra" : "📷  Tomar foto"}
-          </button>
+          {/* Cámara (capture abre directo la cámara en iOS/Android) y galería por separado:
+              muchas veces toman todas las fotos de un jalón y las suben al final. */}
+          <input ref={ref} type="file" accept="image/*" capture="environment" style={{ display: "none" }} onChange={e => onFiles(e.target.files)} />
+          <input ref={galRef} type="file" accept="image/*" multiple={!!step.multi} style={{ display: "none" }} onChange={e => onFiles(e.target.files)} />
+          {up > 0
+            ? <div style={{ ...S.ghost, marginTop: 10, textAlign: "center", cursor: "default" }}>Subiendo{up > 1 ? ` (${up})` : ""}…</div>
+            : <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                <button style={{ ...S.ghost, flex: 1, padding: "10px 8px" }} onClick={() => ref.current?.click()}>📷 {done ? "Otra" : "Tomar foto"}</button>
+                <button style={{ ...S.ghost, flex: 1, padding: "10px 8px" }} onClick={() => galRef.current?.click()}>🖼 {step.multi ? "Adjuntar fotos" : "Adjuntar"}</button>
+              </div>}
         </>
       )}
     </div>
