@@ -10,7 +10,7 @@ import AcceptButton from "./AcceptButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Reporte de instalación · LUKON",
+  title: { absolute: "Reporte de instalación · LUKON" },
   robots: { index: false, follow: false },
   icons: {
     icon: [{ url: "/demos/lukon-sitio/img/favicon.svg", type: "image/svg+xml" }, { url: "/demos/lukon-sitio/img/favicon-32.png", sizes: "32x32" }],
