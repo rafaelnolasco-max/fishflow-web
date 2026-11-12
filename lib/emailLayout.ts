@@ -268,7 +268,7 @@ export const EMAIL_BRANDS = {
       cuerpo: "'Inter', 'Helvetica Neue', Arial, sans-serif",
       googleFonts: 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap',
     },
-    sitio: { url: 'https://www.fishflow.mx/demos/lukon-sitio/', etiqueta: 'Lukon' },
+    sitio: { url: 'https://gpslukon.com/', etiqueta: 'LUKON' },
     pieLegal: 'LUKON Localization System · Siempre Inteligente. Siempre Seguro.',
   },
 } satisfies Record<string, EmailBrand>
