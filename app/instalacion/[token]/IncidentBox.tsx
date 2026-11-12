@@ -51,10 +51,14 @@ export default function IncidentBox({ token, folio, initialReason, closed }: {
           </a>
         </>
       ) : closed ? (
-        <p style={{ margin: "8px 0 0", fontSize: 14, color: C.gris, lineHeight: 1.55 }}>
-          Escríbenos por WhatsApp con tu folio {folio} y lo revisamos.{" "}
-          <a href={wa(`Hola LUKON, tengo una duda sobre mi instalación ${folio}.`)} style={{ color: C.azul, fontWeight: 600 }}>55 1328 5555</a>
-        </p>
+        <>
+          <p style={{ margin: "8px 0 12px", fontSize: 14, color: C.gris, lineHeight: 1.55 }}>
+            Si notas cualquier falla con tu equipo, escríbenos por WhatsApp con tu folio {folio} y lo revisamos.
+          </p>
+          <a href={wa(`Hola LUKON, tengo un problema con mi instalación ${folio}.`)} target="_blank" rel="noopener noreferrer" style={btn(C.wa)}>
+            WhatsApp 55 1328 5555
+          </a>
+        </>
       ) : open ? (
         <>
           <p style={{ margin: "8px 0 10px", fontSize: 14, color: C.gris }}>Cuéntanos qué pasó. Queda registrado en tu folio {folio} y te contactamos.</p>
