@@ -15,7 +15,12 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const db = supabaseAdmin();
   const { data: inst } = await db.from("telematica_installations").select("*").eq("id", id).eq("client_id", LUKON_ID).maybeSingle();
   if (!inst) return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
-  if (!["terminada", "aceptada"].includes(inst.status)) return NextResponse.json({ error: "El reporte se envía cuando la instalación está terminada" }, { status: 400 });
+  if (!["terminada", "incidencia", "aceptada"].includes(inst.status)) return NextResponse.json({ error: "El reporte se envía cuando la instalación está terminada" }, { status: 400 });
+  // Incidencia resuelta: vuelve a "terminada" y corre de nuevo el plazo de aceptación
+  if (inst.status === "incidencia") {
+    await db.from("telematica_installations").update({ status: "terminada", updated_at: new Date().toISOString() }).eq("id", id);
+    inst.status = "terminada";
+  }
   const to = typeof b.to === "string" && b.to.trim() ? b.to.trim() : null;
   if (to && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return NextResponse.json({ error: "Correo inválido" }, { status: 400 });
   if (to && to !== inst.customer_email) await db.from("telematica_installations").update({ customer_email: to }).eq("id", id);

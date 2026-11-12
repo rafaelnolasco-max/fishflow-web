@@ -86,15 +86,15 @@ export async function notifyAccepted(db: SupabaseClient, inst: InstRow) {
 
 /** Aviso interno a Alex cuando se crea, reprograma o cancela una orden. Nunca truena la operación. */
 export async function notifyOps(
-  inst: InstRow & { address?: string | null; scheduled_at?: string | null; notes?: string | null; customer_phone?: string | null; cancel_reason?: string | null },
-  kind: "nueva" | "reprogramada" | "cancelada",
+  inst: InstRow & { address?: string | null; scheduled_at?: string | null; notes?: string | null; customer_phone?: string | null; cancel_reason?: string | null; incident_reason?: string | null },
+  kind: "nueva" | "reprogramada" | "cancelada" | "incidencia",
 ) {
   try {
     const ui = emailUI("lukon");
     const maps = (inst.notes ?? "").match(/https?:\/\/\S+/)?.[0]
       ?? (inst.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inst.address)}` : null);
     const cita = fmtCdmx(inst.scheduled_at ?? null);
-    const titulo = kind === "nueva" ? "Nueva orden de instalación" : kind === "reprogramada" ? "Orden reprogramada" : "Orden cancelada";
+    const titulo = kind === "nueva" ? "Nueva orden de instalación" : kind === "reprogramada" ? "Orden reprogramada" : kind === "incidencia" ? "El cliente NO aceptó la instalación" : "Orden cancelada";
     const filas: [string, string][] = [
       ["Folio", folioTxt(inst.folio)],
       ["Cita", cita],
@@ -105,6 +105,7 @@ export async function notifyOps(
       ["Dirección", inst.address || "—"],
       ...(inst.notes ? [["Notas", inst.notes] as [string, string]] : []),
       ...(kind === "cancelada" && inst.cancel_reason ? [["Motivo", inst.cancel_reason] as [string, string]] : []),
+      ...(kind === "incidencia" && inst.incident_reason ? [["Motivo del cliente", inst.incident_reason] as [string, string]] : []),
     ];
     await sendEmail({
       from: "lukonInstalaciones", to: LUKON_OPS_EMAIL,
@@ -116,7 +117,7 @@ export async function notifyOps(
         cuerpo: ui.tabla(filas) +
           ui.botones([
             { texto: "Abrir la orden", href: `${SITE}/app/lukon/?tab=instalaciones&orden=${inst.id}` },
-            ...(maps && kind !== "cancelada" ? [{ texto: "Cómo llegar", href: maps, estilo: "secundario" as const }] : []),
+            ...(maps && (kind === "nueva" || kind === "reprogramada") ? [{ texto: "Cómo llegar", href: maps, estilo: "secundario" as const }] : []),
           ]),
       }),
       tag: `lukon/instalacion-${kind}`,

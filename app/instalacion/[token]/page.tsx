@@ -7,6 +7,7 @@ import type React from "react";
 import { supabaseAdmin } from "@/lib/telematicaAuth";
 import { PHOTO_STEPS, SERVICE_LABEL, AUTO_ACCEPT_DAYS, signPhotos, fmtCdmx, folioTxt, type Service } from "@/lib/installations";
 import AcceptButton from "./AcceptButton";
+import IncidentBox from "./IncidentBox";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -48,7 +49,7 @@ export default async function InstalacionPage({ params }: { params: Promise<{ to
   if (!UUID_RE.test(token)) return shell(<div style={S.body}>Reporte no encontrado.</div>);
   const db = supabaseAdmin();
   const { data: inst } = await db.from("telematica_installations").select("*").eq("report_token", token).maybeSingle();
-  if (!inst || !["terminada", "aceptada"].includes(inst.status)) return shell(<div style={S.body}>Reporte no encontrado.</div>);
+  if (!inst || !["terminada", "incidencia", "aceptada"].includes(inst.status)) return shell(<div style={S.body}>Reporte no encontrado.</div>);
 
   const { data: rows } = await db.from("telematica_installation_photos").select("stage, kind, path, created_at").eq("installation_id", inst.id).order("created_at");
   const photos = await signPhotos(db, rows ?? []);
@@ -91,8 +92,14 @@ export default async function InstalacionPage({ params }: { params: Promise<{ to
       </h1>
       <p style={{ color: C.gris, fontSize: 15, margin: "0 0 18px" }}>{vehiculo}{inst.vehicle_plate ? ` · ${inst.vehicle_plate}` : ""}</p>
 
-      <AcceptButton token={token} accepted={inst.status === "aceptada"} acceptedAt={inst.accepted_at ? fmtCdmx(inst.accepted_at) : null}
-        auto={inst.accepted_auto} days={AUTO_ACCEPT_DAYS} />
+      {inst.status === "incidencia" ? (
+        <div style={{ background: "#FFF6EF", border: "1px solid #F6D3B4", borderRadius: 12, padding: "14px 16px", color: "#7A3E12", fontSize: 15, lineHeight: 1.5 }}>
+          Recibimos tu reporte de un problema y lo estamos revisando. Te contactamos para resolverlo. <a href="#problema" style={{ color: "#7A3E12", fontWeight: 700 }}>Ver detalle ↓</a>
+        </div>
+      ) : (
+        <AcceptButton token={token} accepted={inst.status === "aceptada"} acceptedAt={inst.accepted_at ? fmtCdmx(inst.accepted_at) : null}
+          auto={inst.accepted_auto} days={AUTO_ACCEPT_DAYS} />
+      )}
 
       <h2 style={S.h2}>Datos de la instalación</h2>
       <div style={{ border: `1px solid ${C.linea}`, borderRadius: 10, overflow: "hidden" }}>
@@ -108,11 +115,8 @@ export default async function InstalacionPage({ params }: { params: Promise<{ to
       <h2 style={S.h2}>Así lo entregamos</h2>
       {gallery("despues")}
 
-      <p style={{ fontSize: 13, color: C.gris, marginTop: 28, lineHeight: 1.6 }}>
-        ¿Algo no quedó bien? Escríbenos por WhatsApp al{" "}
-        <a href={`https://wa.me/525513285555?text=${encodeURIComponent(`Hola LUKON, tengo una duda sobre mi instalación ${folioTxt(inst.folio)}.`)}`} style={{ color: C.azul, fontWeight: 600 }}>55 1328 5555</a>{" "}
-        con tu folio {folioTxt(inst.folio)}.
-      </p>
+      <IncidentBox token={token} folio={folioTxt(inst.folio)} closed={inst.status === "aceptada"}
+        initialReason={inst.status === "incidencia" ? inst.incident_reason : null} />
     </div>
   );
 }

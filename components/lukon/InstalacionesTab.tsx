@@ -21,7 +21,7 @@ interface Inst {
   service: Service; address: string | null; scheduled_at: string | null; notes: string | null;
   started_at: string | null; finished_at: string | null; device_imei: string | null; sim_iccid: string | null; dashcam_serial: string | null;
   hidden_location: string | null; tech_notes: string | null; remote_cutoff_test: string | null; report_token: string; report_sent_at: string | null; report_sent_to: string | null;
-  accepted_at: string | null; accepted_auto: boolean; cancel_reason: string | null; photos?: number;
+  accepted_at: string | null; accepted_auto: boolean; cancel_reason: string | null; incident_reason: string | null; incident_at: string | null; photos?: number;
 }
 interface Photo { id: string; stage: Stage; kind: string; url: string | null; created_at: string }
 interface Ev { type: string; detail: string | null; by: string | null; at: string }
@@ -29,7 +29,7 @@ interface Ev { type: string; detail: string | null; by: string | null; at: strin
 const EV_LABEL: Record<string, string> = {
   creada: "Orden creada", editada: "Datos editados", reprogramada: "Reprogramada", inicio: "Inicio de la instalación",
   fin: "Instalación terminada", reporte_enviado: "Reporte enviado", aceptada_cliente: "Aceptada por el cliente",
-  aceptada_auto: "Aceptada automáticamente", aceptada_lukon: "Aceptada (registrada por LUKON)", cancelada: "Cancelada",
+  aceptada_auto: "Aceptada automáticamente", aceptada_lukon: "Aceptada (registrada por LUKON)", cancelada: "Cancelada", incidencia_cliente: "El cliente NO aceptó (incidencia)",
 };
 const fmt = (iso: string | null, opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) =>
   iso ? new Date(iso).toLocaleString("es-MX", { timeZone: "America/Mexico_City", ...opts }) : "—";
@@ -95,18 +95,19 @@ export default function InstalacionesTab({ t, onToast }: { t: LukonTheme; onToas
     hoy: list.filter(i => i.status === "programada" && i.scheduled_at && cdmxDay(i.scheduled_at) === today).length,
     sitio: list.filter(i => i.status === "en_sitio").length,
     aceptar: list.filter(i => i.status === "terminada").length,
+    incid: list.filter(i => i.status === "incidencia").length,
     mes: list.filter(i => ["terminada", "aceptada"].includes(i.status) && i.finished_at && cdmxDay(i.finished_at).startsWith(month)).length,
   }), [list, today, month]);
 
   const shown = useMemo(() => {
     const qq = q.trim().toLowerCase();
     return list.filter(i =>
-      (fStatus === "todas" ? true : fStatus === "activas" ? ["programada", "en_sitio", "terminada"].includes(i.status) : i.status === fStatus) &&
+      (fStatus === "todas" ? true : fStatus === "activas" ? ["programada", "en_sitio", "terminada", "incidencia"].includes(i.status) : i.status === fStatus) &&
       (fInst === "" || i.installer_no === fInst) &&
       (!qq || [i.customer_name, i.vehicle_plate, folioTxt(i.folio), i.vehicle_brand, i.vehicle_model].some(x => (x ?? "").toLowerCase().includes(qq)))
     ).sort((a, b) => {
       // En curso primero, luego programadas por fecha más próxima, luego el resto por fecha reciente
-      const rank = (i: Inst) => (i.status === "en_sitio" ? 0 : i.status === "programada" ? 1 : 2);
+      const rank = (i: Inst) => (i.status === "incidencia" ? -1 : i.status === "en_sitio" ? 0 : i.status === "programada" ? 1 : 2);
       if (rank(a) !== rank(b)) return rank(a) - rank(b);
       const ta = +new Date(a.scheduled_at ?? a.finished_at ?? 0), tb = +new Date(b.scheduled_at ?? b.finished_at ?? 0);
       return rank(a) === 1 ? ta - tb : tb - ta;
@@ -127,14 +128,14 @@ export default function InstalacionesTab({ t, onToast }: { t: LukonTheme; onToas
       </div>
 
       <div className="lk-grid-4" style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", marginBottom: 18 }}>
-        {([["Programadas hoy", counts.hoy], ["En sitio ahora", counts.sitio], ["Por aceptar", counts.aceptar], ["Terminadas este mes", counts.mes]] as [string, number][]).map(([k, v]) => (
+        {([["Programadas hoy", counts.hoy], ["En sitio ahora", counts.sitio], ["Por aceptar", counts.aceptar], ...(counts.incid ? [["⚠️ Con incidencia", counts.incid]] : []), ["Terminadas este mes", counts.mes]] as [string, number][]).map(([k, v]) => (
           <div key={k} style={S.card}><div style={S.label}>{k}</div><div style={{ fontFamily: t.fDisplay, fontSize: 34, color: t.ink, lineHeight: 1.1, marginTop: 4 }}>{v}</div></div>
         ))}
       </div>
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
         <select value={fStatus} onChange={e => setFStatus(e.target.value as typeof fStatus)} style={{ ...S.input, flex: "1 1 160px" }}>
-          <option value="activas">Activas (programadas, en sitio, por aceptar)</option>
+          <option value="activas">Activas (programadas, en sitio, por aceptar, incidencias)</option>
           {(Object.keys(STATUS_LABEL) as Status[]).map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
           <option value="todas">Todas</option>
         </select>
@@ -175,7 +176,7 @@ export default function InstalacionesTab({ t, onToast }: { t: LukonTheme; onToas
 
 function Badge({ t, s }: { t: LukonTheme; s: Status }) {
   const c: Record<Status, [string, string]> = {
-    programada: ["#E9F2FF", "#0062C4"], en_sitio: ["#FFF1D6", "#B87500"], terminada: ["#F1E8FF", "#6B3FB8"],
+    programada: ["#E9F2FF", "#0062C4"], en_sitio: ["#FFF1D6", "#B87500"], terminada: ["#F1E8FF", "#6B3FB8"], incidencia: ["#FDECEA", "#C0392B"],
     aceptada: ["#E7F6EC", "#1F8A4C"], cancelada: [t.paper2, t.mutedL],
   };
   return <span style={{ background: c[s][0], color: c[s][1], fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 10, whiteSpace: "nowrap" }}>{STATUS_LABEL[s]}</span>;
@@ -370,6 +371,27 @@ function OrderDetail({ t, id, onBack, onEdit, onToast }: {
                     onClick={async () => { if (await patch({ action: "cancel", reason: cancelReason }, "cancel", "Orden cancelada")) setCancelReason(null); }}>Cancelar orden</button>
                   <button style={S.ghost} onClick={() => setCancelReason(null)}>×</button>
                 </div>}
+          </div>
+        </div>
+      )}
+
+      {inst.status === "incidencia" && (
+        <div style={{ ...S.card, marginTop: 16, background: "#FDF1EF", borderColor: "#F2C4BD" }}>
+          <div style={{ fontWeight: 700, color: "#C0392B" }}>⚠️ El cliente NO aceptó la instalación</div>
+          <p style={{ ...S.muted, margin: "6px 0 4px" }}>Reportado el {fmt(inst.incident_at)}. La aceptación automática quedó detenida.</p>
+          <div style={{ background: "#fff", border: "1px solid #F2C4BD", borderRadius: 8, padding: "10px 12px", fontSize: 14, color: t.ink, margin: "8px 0 12px" }}>“{inst.incident_reason}”</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+            {inst.customer_phone && <a href={`https://wa.me/52${tel}?text=${encodeURIComponent(`Hola ${inst.customer_name.split(/\s+/)[0]}, te escribo de LUKON por tu reporte de la instalación ${folioTxt(inst.folio)}.`)}`} target="_blank" rel="noopener noreferrer" style={{ ...S.btn, background: "#25D366", color: "#fff", textDecoration: "none" }}>WhatsApp al cliente</a>}
+            <a href={reportUrl} target="_blank" rel="noopener noreferrer" style={{ ...S.ghost, textDecoration: "none" }}>Ver reporte</a>
+            <button style={S.ghost} disabled={!!busy || !inst.customer_email} onClick={async () => {
+              setBusy("send");
+              try {
+                const r = await fetch(`/api/lukon/instalaciones/${id}/enviar`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
+                const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "No se pudo enviar");
+                onToast("Resuelta: reporte reenviado, vuelve a esperar aceptación", true); await load();
+              } catch (e) { onToast((e as Error).message, false); } finally { setBusy(""); }
+            }}>{busy === "send" ? "Enviando…" : "Resuelta: reenviar reporte"}</button>
+            <button style={S.ghost} disabled={!!busy} onClick={() => patch({ action: "accept", reason: "Incidencia resuelta; el cliente confirmó por otro medio" }, "accept", "Marcada como aceptada")}>Marcar aceptada</button>
           </div>
         </div>
       )}

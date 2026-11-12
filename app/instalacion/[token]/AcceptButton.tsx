@@ -39,7 +39,8 @@ export default function AcceptButton({ token, accepted, acceptedAt, auto, days }
         fontWeight: 700, fontSize: 16, cursor: busy ? "default" : "pointer", width: "100%", maxWidth: 360, opacity: busy ? 0.6 : 1,
       }}>{busy ? "Registrando…" : "Acepto la instalación"}</button>
       {err && <p style={{ color: "#C0392B", fontSize: 14, margin: "10px 0 0" }}>{err}</p>}
-      <p style={{ margin: "10px 0 0", fontSize: 12, color: C.gris }}>Si no recibimos respuesta en {days} días, la instalación se da por aceptada.</p>
+      <p style={{ margin: "10px 0 0", fontSize: 13 }}><a href="#problema" style={{ color: "#C0392B", fontWeight: 600 }}>¿Algo no quedó bien? Repórtalo aquí ↓</a></p>
+      <p style={{ margin: "8px 0 0", fontSize: 12, color: C.gris }}>Si no recibimos respuesta en {days} días, la instalación se da por aceptada.</p>
     </div>
   );
 }

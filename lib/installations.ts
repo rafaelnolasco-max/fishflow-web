@@ -12,12 +12,12 @@ export const LUKON_OPS_EMAIL = "aalmarazmo@lukon.com.mx";
 export const AUTO_ACCEPT_DAYS = 3;
 export const SITE = "https://www.fishflow.mx";
 
-export type Status = "programada" | "en_sitio" | "terminada" | "aceptada" | "cancelada";
+export type Status = "programada" | "en_sitio" | "terminada" | "incidencia" | "aceptada" | "cancelada";
 export type Service = "gps" | "dashcam" | "gps_dashcam";
 export type Stage = "antes" | "despues";
 
 export const STATUS_LABEL: Record<Status, string> = {
-  programada: "Programada", en_sitio: "En sitio", terminada: "Terminada · por aceptar",
+  programada: "Programada", en_sitio: "En sitio", terminada: "Terminada · por aceptar", incidencia: "Con incidencia",
   aceptada: "Aceptada", cancelada: "Cancelada",
 };
 export const SERVICE_LABEL: Record<Service, string> = { gps: "GPS", dashcam: "Dashcam", gps_dashcam: "GPS + Dashcam" };

@@ -14,7 +14,7 @@ export async function logEvent(db: SupabaseClient, inst: { id: string; client_id
 const SLACK_EVENTS: Record<string, string> = {
   creada: "🆕 Nueva orden", reprogramada: "🗓️ Reprogramada", inicio: "▶️ Instalador en sitio",
   fin: "✅ Instalación terminada", reporte_enviado: "📧 Reporte enviado al cliente",
-  aceptada_cliente: "👍 El cliente aceptó", aceptada_lukon: "👍 Marcada como aceptada", cancelada: "❌ Orden cancelada",
+  aceptada_cliente: "👍 El cliente aceptó", incidencia_cliente: "⚠️ El cliente NO aceptó · incidencia", aceptada_lukon: "👍 Marcada como aceptada", cancelada: "❌ Orden cancelada",
 };
 
 async function slackEvent(db: SupabaseClient, id: string, type: string, detail: string | null, by: string | null) {

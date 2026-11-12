@@ -117,7 +117,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   }
 
   if (action === "accept") {
-    if (inst.status !== "terminada") return NextResponse.json({ error: "Solo se aceptan instalaciones terminadas" }, { status: 400 });
+    if (!["terminada", "incidencia"].includes(inst.status)) return NextResponse.json({ error: "Solo se aceptan instalaciones terminadas" }, { status: 400 });
     return done({ status: "aceptada", accepted_at: now, accepted_auto: false },
       ["aceptada_lukon", String(b.reason ?? "Registrada por LUKON").slice(0, 200)]);
   }
