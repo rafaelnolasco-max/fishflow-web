@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { supabase, LUKON_CLIENT_ID } from "@/lib/supabase";
 import ReviewsTab from "@/components/reviews/ReviewsTab";
 import RecorridosTab from "@/components/telematica/RecorridosTab";
+import InstalacionesTab from "@/components/lukon/InstalacionesTab";
 import ProspectosTab from "@/components/lukon/ProspectosTab";
 import type { DashTheme } from "@/components/dashboard";
 
@@ -111,8 +112,8 @@ function statusLabel(s: string) {
 }
 
 // ─── Componente principal ─────────────────────────────────────────────────────
-type Tab = "prospectos" | "cobrar" | "facturar" | "historial" | "resenas" | "recorridos";
-const TABS: Tab[] = ["prospectos", "cobrar", "facturar", "historial", "resenas", "recorridos"];
+type Tab = "prospectos" | "cobrar" | "facturar" | "historial" | "resenas" | "recorridos" | "instalaciones";
+const TABS: Tab[] = ["prospectos", "cobrar", "facturar", "historial", "resenas", "recorridos", "instalaciones"];
 
 // Tema para el módulo compartido de Reseñas, en clave Lukon (página crema, ink)
 const REVIEWS_THEME: DashTheme = {
@@ -407,6 +408,7 @@ function LukonDashboard() {
             historial: "📋  Historial",
             resenas:   "⭐  Reseñas",
             recorridos:"🛰  Recorridos",
+            instalaciones:"🔧 Instalaciones",
           };
           const active = tab === t;
           return (
@@ -428,7 +430,7 @@ function LukonDashboard() {
       </div>
 
       {/* ── Contenido ─────────────────────────────────────────────────────────── */}
-      <main className="lk-main" style={{ maxWidth: tab === "recorridos" ? 1200 : tab === "prospectos" ? 1000 : 800, margin: "0 auto" }}>
+      <main className="lk-main" style={{ maxWidth: tab === "recorridos" ? 1200 : tab === "prospectos" || tab === "instalaciones" ? 1000 : 800, margin: "0 auto" }}>
 
         {/* ════ TAB: COBRAR ════════════════════════════════════════════════════ */}
         {tab === "cobrar" && (
@@ -805,6 +807,7 @@ function LukonDashboard() {
         {tab === "prospectos" && <ProspectosTab t={L} onToast={showToast} />}
 
         {tab === "recorridos" && <RecorridosTab parentId={LUKON_CLIENT_ID} t={L} />}
+        {tab === "instalaciones" && <InstalacionesTab t={L} onToast={showToast} />}
 
         {/* ════ TAB: RESEÑAS ═══════════════════════════════════════════════════ */}
         {tab === "resenas" && (
