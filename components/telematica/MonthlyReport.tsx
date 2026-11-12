@@ -42,6 +42,13 @@ const dNum = (iso: string) => Number(iso.slice(8, 10));
 const daysInMonth = (iso: string) => new Date(Date.UTC(Number(iso.slice(0, 4)), mIdx(iso) + 1, 0)).getUTCDate();
 const list = (xs: string[]) => xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} y ${xs[xs.length - 1]}`;
 const per1000 = (m: { speeding: number; km: number }) => (m.km > 0 ? (m.speeding / m.km) * 1000 : 0);
+/** Litros por hora en ralentí (estimado, sin sensor de combustible): pickup/camioneta ~1 L/h,
+ *  camión mediano ~1.8 L/h, tractocamión/camión pesado ~3 L/h. Se infiere del rendimiento de la unidad. */
+const idleLph = (v: { kmpl?: number | null; vehicle_class?: string | null }) => {
+  const k = Number(v.kmpl ?? 8);
+  return v.vehicle_class === "pesado" || k < 4 ? 3 : k < 8 ? 1.8 : 1;
+};
+const idlePct = (v: { idle_h: number; moving_h: number }) => (v.idle_h + v.moving_h > 0 ? (v.idle_h / (v.idle_h + v.moving_h)) * 100 : 0);
 const per100 = (n: number, km: number) => (km > 0 ? (n / km) * 100 : 0);
 /** Unidades con suficientes km para calificar su manejo (con pocos km un solo arrancón dispara la tasa). */
 const RATE_MIN_KM = 200;
@@ -234,9 +241,9 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
       `Se manejaron ${nf0.format(sunday.reduce((a, v) => a + (v.km_sunday ?? 0), 0))} km en domingo: ${list(sunday.slice(0, 4).map(v => `${name(v)} (${nf0.format(v.km_sunday ?? 0)} km)`))}${sunday.length > 4 ? " y otras" : ""}.` });
 
     // Ralentí: motor encendido sin moverse
-    const idle = working.filter(v => v.idle_h >= 5 && v.idle_h / (v.idle_h + v.moving_h) > 0.2).sort((a, b) => b.idle_h - a.idle_h);
+    const idle = working.filter(v => v.idle_h >= 5 && idlePct(v) >= 15).sort((a, b) => b.idle_h - a.idle_h);
     if (idle.length) out.push({ tone: "warn", vehicleId: idle[0].vehicle_id, text:
-      `${list(idle.slice(0, 3).map(v => `${name(v)} (${nf0.format(v.idle_h)} h)`))} ${idle.length > 1 ? "pasaron" : "pasó"} mucho tiempo con el motor encendido sin moverse. Es gasolina que se quema sin trabajar.` });
+      `${list(idle.slice(0, 3).map(v => `${name(v)} (${nf0.format(v.idle_h)} h, ${nf0.format(idlePct(v))}% del tiempo encendido)`))} ${idle.length > 1 ? "pasaron" : "pasó"} mucho tiempo con el motor encendido sin moverse. Es gasolina que se quema sin trabajar: habla con sus choferes.` });
 
     // Sin uso
     const unused = vs.filter(v => v.km < 50);
@@ -352,7 +359,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
             ["Unidades trabajando", `${m.units_active} de ${m.units_total}`, <>con 50 km o más · {cov}</>],
             ["Kilómetros", nf0.format(m.km), <>{nf0.format(m.km / m.days_with_data)} km por día · {delta(perDay(m, x => x.km)!, perDay(prev, x => x.km), true) ?? (isYear ? "promedio del periodo con datos" : "primer mes con datos")}</>],
             ["En movimiento", `${nf0.format(m.moving_h)} h`, <>{nf1.format(m.moving_h / Math.max(1, m.units_active))} h por unidad trabajando</>],
-            ["Ralentí", `${nf0.format(m.idle_h)} h`, <>motor encendido sin moverse · {nf0.format((m.idle_h / Math.max(1, m.idle_h + m.moving_h)) * 100)}% del tiempo encendido</>],
+            ["Ralentí", `${nf0.format(m.idle_h)} h`, <>motor encendido sin moverse · {nf0.format((m.idle_h / Math.max(1, m.idle_h + m.moving_h)) * 100)}% del tiempo encendido · ≈ {nf0.format(m.vehicles.reduce((a, v) => a + Number(v.idle_h) * idleLph(v), 0))} L{settings?.fuel_price_mxn != null ? ` (${mxn.format(m.vehicles.reduce((a, v) => a + Number(v.idle_h) * idleLph(v), 0) * Number(settings.fuel_price_mxn))})` : ""}</>],
             ["Combustible (est.)", `${nf0.format(m.liters)} L`, <>{m.cost_mxn != null ? `≈ ${mxn.format(m.cost_mxn)}` : "precio por litro: defínelo en Flotilla → Ajustes"}</>],
             [`Excesos ≥${vlim}`, nf0.format(m.speeding), <>{nf1.format(per1000(m))} por cada 1,000 km · {delta(per1000(m), prev ? per1000(prev) : null, false) ?? ""}</>],
             ["Velocidad máxima", `${m.vmax} km/h`, <>{(() => { const f = [...m.vehicles].sort((a, b) => b.vmax - a.vmax)[0]; return f ? name(f) : ""; })()}</>],
@@ -513,7 +520,10 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                       </td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{r.active_days}</td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf0.format(r.moving_h)} h</td>
-                      <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: r.idle_h >= 5 && r.idle_h / (r.idle_h + r.moving_h) > 0.2 ? "#B87500" : t.ink }}>{nf0.format(r.idle_h)} h</td>
+                      <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, whiteSpace: "nowrap", color: r.idle_h >= 5 && idlePct(r) >= 15 ? "#B87500" : t.ink }}>
+                        <div style={{ fontWeight: r.idle_h >= 5 && idlePct(r) >= 15 ? 700 : 400 }}>{nf1.format(r.idle_h)} h <span style={{ color: t.mutedL, fontWeight: 400 }}>({nf0.format(idlePct(r))}%)</span></div>
+                        <div style={{ fontSize: 10, color: t.mutedL }}>≈ {nf0.format(Number(r.idle_h) * idleLph(r))} L{settings?.fuel_price_mxn != null ? ` · ${mxn.format(Number(r.idle_h) * idleLph(r) * Number(settings.fuel_price_mxn))}` : ""}</div>
+                      </td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: r.speeding ? t.crimson : t.ink, fontWeight: r.speeding ? 700 : 400 }}>{nf0.format(r.speeding)}</td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: r.vmax >= 120 ? t.crimson : t.ink }}>{r.vmax}</td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: r.km >= 200 && pctAH > 30 ? "#B87500" : t.ink, whiteSpace: "nowrap" }}>
@@ -536,7 +546,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
             </table>
           </div>
           <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
-            Sale / Regresa: hora promedio del primer y último movimiento en días hábiles. Ralentí: motor encendido sin moverse.
+            Sale / Regresa: hora promedio del primer y último movimiento en días hábiles. Ralentí: motor encendido sin moverse (horas, % del tiempo con motor encendido y gasolina estimada: ~1 L/h pickup, ~1.8 L/h camión mediano, ~3 L/h pesado).
             Litros estimados: km ÷ rendimiento de cada unidad. Las comparaciones contra el mes anterior son por día con datos.
           </p>
         </div>

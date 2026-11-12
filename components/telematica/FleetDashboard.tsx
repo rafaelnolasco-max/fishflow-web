@@ -19,7 +19,7 @@ import { BASEMAPS, loadMapLibre } from "./maplibre";
 
 interface FV {
   id: string; device_id: string; alias: string | null; plate: string | null; photo_url?: string | null; fuel_km_per_l: number | null;
-  km: number; moving_min: number; active_days: number; vmax: number; speeding: number;
+  km: number; moving_min: number; idle_min?: number; active_days: number; vmax: number; speeding: number;
   km_after_hours: number; night_starts: number; ign_reported: boolean; speed_reported: boolean; odo_frozen: boolean;
   last_ts: string | null; last_lat: number | null; last_lon: number | null; last_address: string | null;
 }
@@ -29,7 +29,7 @@ interface Settings {
 }
 interface Summary { from: string | null; to: string | null; vehicles: FV[]; daily: { day: string; km: number }[]; settings: Settings }
 
-type SortKey = "km" | "moving_min" | "active_days" | "km_after_hours" | "speeding" | "vmax" | "liters" | "last_ts";
+type SortKey = "km" | "moving_min" | "idle_min" | "active_days" | "km_after_hours" | "speeding" | "vmax" | "liters" | "last_ts";
 
 const nf0 = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 0 });
 const nf1 = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 1 });
@@ -276,6 +276,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
                   {th(null, "Unidad", "left")}
                   {th("km", "Km")}
                   {th("moving_min", "En mov.")}
+                  {th("idle_min", "Ralentí")}
                   {th("active_days", "Días")}
                   {th("km_after_hours", "Fuera de horario")}
                   {th("speeding", "Excesos")}
@@ -321,6 +322,9 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
                         </div>
                       </td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{hrs(r.moving_min)}</td>
+                      <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, whiteSpace: "nowrap", color: (r.idle_min ?? 0) >= 300 && (r.idle_min ?? 0) / Math.max(1, (r.idle_min ?? 0) + r.moving_min) >= 0.15 ? "#B87500" : t.ink }}>
+                        {hrs(r.idle_min ?? 0)} <span style={{ color: t.mutedL }}>({nf0.format(((r.idle_min ?? 0) / Math.max(1, (r.idle_min ?? 0) + r.moving_min)) * 100)}%)</span>
+                      </td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{r.active_days}</td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: r.km && r.km_after_hours / r.km > 0.25 ? "#B87500" : t.ink }}>
                         {nf0.format(r.km_after_hours)} km <span style={{ color: t.mutedL }}>({nf0.format(r.km ? (r.km_after_hours / r.km) * 100 : 0)}%)</span>
