@@ -20,11 +20,22 @@ interface MV {
   active_days: number; liters: number; first_move_avg: string | null; last_move_avg: string | null; km_sunday: number | null;
   harsh_accel: number; harsh_accel_low: number; harsh_brake: number; starts: number; device_model?: string | null;
   vehicle_class?: "ligero" | "pesado" | null; vehicle_desc?: string | null;
+  // Jornadas largas y manejo nocturno (22:00–05:00)
+  km_night?: number; night_h?: number; night_days?: number; long_days?: number; long_drives?: number;
+  max_drive_h?: number; max_day_h?: number;
+  // Batería del vehículo (voltaje con motor apagado) y del equipo
+  batt_v_rest?: number | null; batt_v_rest_min?: number | null; batt_low_days?: number; batt_v_min?: number | null;
+  batt_gps_min?: number | null; power_cut?: number; power_cut_days?: number;
+  // Estados donde anduvo
+  top_state?: string | null; states_n?: number; regions?: { state: string; km: number }[];
 }
+interface Region { state: string; km: number; units: number; pct: number }
 interface Month {
   month: string; first_day: string; last_day: string; days_with_data: number; units_total: number; units_active: number;
   km: number; moving_h: number; idle_h: number; liters: number; cost_mxn: number | null; speeding: number; vmax: number;
   km_after_hours: number; harsh_accel: number; harsh_accel_low: number; harsh_brake: number; starts: number; vehicles: MV[];
+  km_night?: number; night_h?: number; long_days?: number; long_drives?: number; max_drive_h?: number;
+  batt_low_units?: number; power_cut_units?: number; regions?: Region[];
 }
 interface Settings {
   fuel_price_mxn: number | null; default_km_per_l: number; work_start_hour: number; work_end_hour: number;
@@ -92,6 +103,23 @@ function harshRows(vs: MV[]) {
   };
 }
 
+const n0 = (x: unknown) => Number(x ?? 0);
+const nightPct = (v: { km: number; km_night?: number }) => (v.km > 0 ? (n0(v.km_night) / v.km) * 100 : 0);
+/** Batería: BAJA = 3 días o más con menos de 12.0 V en reposo; VIGILAR = algún día bajo; CORTE = el equipo se quedó sin corriente. */
+type BattLevel = "baja" | "vigilar" | "corte" | "ok" | "sin dato";
+const BATT_LOW_V = 12.0;
+function battLevel(v: MV): BattLevel {
+  if (v.batt_v_rest == null && !n0(v.power_cut)) return "sin dato";
+  if (n0(v.batt_low_days) >= 3) return "baja";
+  if (n0(v.power_cut_days) >= 2) return "corte";
+  if (n0(v.batt_low_days) >= 1 || n0(v.power_cut_days) >= 1) return "vigilar";
+  return "ok";
+}
+/** Jornadas: reincidente = 2 o más días de 10 h, o 2 o más tramos de 5 h sin pausa, en el periodo. */
+const longRepeat = (v: MV) => n0(v.long_days) >= 2 || n0(v.long_drives) >= 2;
+type Light = "verde" | "ambar" | "rojo";
+const LIGHT = { verde: "#2E7D32", ambar: "#F6A623", rojo: "#D5382B" } as const;
+
 const YEAR = "año";
 const toMin = (hhmm: string) => { const [h, mi] = hhmm.split(":").map(Number); return h * 60 + mi; };
 const toHHMM = (min: number) => `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(Math.round(min % 60)).padStart(2, "0")}`;
@@ -100,12 +128,22 @@ const toHHMM = (min: number) => `${String(Math.floor(min / 60)).padStart(2, "0")
  *  Sale y Regresa: promedio de los meses ponderado por días trabajados. */
 function aggregateYear(ms: Month[]): Month | null {
   if (!ms.length) return null;
-  type Acc = MV & { fm: number; fn: number; lm: number; ln: number };
+  type Acc = MV & { fm: number; fn: number; lm: number; ln: number; bs: number; bn: number; reg: Map<string, number> };
   const by = new Map<string, Acc>();
   for (const mm of ms) for (const v of mm.vehicles) {
     const a: Acc = by.get(v.vehicle_id) ?? { ...v, km: 0, moving_h: 0, idle_h: 0, km_after_hours: 0, speeding: 0, vmax: 0, active_days: 0,
       liters: 0, km_sunday: 0, harsh_accel: 0, harsh_accel_low: 0, harsh_brake: 0, starts: 0, first_move_avg: null, last_move_avg: null,
-      fm: 0, fn: 0, lm: 0, ln: 0 };
+      km_night: 0, night_h: 0, night_days: 0, long_days: 0, long_drives: 0, max_drive_h: 0, max_day_h: 0,
+      batt_v_rest: null, batt_v_rest_min: null, batt_low_days: 0, batt_v_min: null, batt_gps_min: null, power_cut: 0, power_cut_days: 0,
+      fm: 0, fn: 0, lm: 0, ln: 0, bs: 0, bn: 0, reg: new Map<string, number>() };
+    const minN = (x: number | null | undefined, y: number | null | undefined) => (x == null ? y ?? null : y == null ? x : Math.min(Number(x), Number(y)));
+    a.km_night = n0(a.km_night) + n0(v.km_night); a.night_h = n0(a.night_h) + n0(v.night_h); a.night_days = n0(a.night_days) + n0(v.night_days);
+    a.long_days = n0(a.long_days) + n0(v.long_days); a.long_drives = n0(a.long_drives) + n0(v.long_drives);
+    a.max_drive_h = Math.max(n0(a.max_drive_h), n0(v.max_drive_h)); a.max_day_h = Math.max(n0(a.max_day_h), n0(v.max_day_h));
+    a.batt_low_days = n0(a.batt_low_days) + n0(v.batt_low_days); a.power_cut = n0(a.power_cut) + n0(v.power_cut); a.power_cut_days = n0(a.power_cut_days) + n0(v.power_cut_days);
+    a.batt_v_rest_min = minN(a.batt_v_rest_min, v.batt_v_rest_min); a.batt_v_min = minN(a.batt_v_min, v.batt_v_min); a.batt_gps_min = minN(a.batt_gps_min, v.batt_gps_min);
+    if (v.batt_v_rest != null && v.active_days) { a.bs += Number(v.batt_v_rest) * v.active_days; a.bn += v.active_days; }
+    for (const r of v.regions ?? []) a.reg.set(r.state, (a.reg.get(r.state) ?? 0) + Number(r.km));
     a.km += Number(v.km); a.moving_h += Number(v.moving_h); a.idle_h += Number(v.idle_h); a.km_after_hours += Number(v.km_after_hours);
     a.speeding += Number(v.speeding); a.vmax = Math.max(a.vmax, Number(v.vmax)); a.active_days += Number(v.active_days);
     a.liters += Number(v.liters); a.km_sunday = (a.km_sunday ?? 0) + Number(v.km_sunday ?? 0);
@@ -114,9 +152,21 @@ function aggregateYear(ms: Month[]): Month | null {
     if (v.last_move_avg && v.active_days) { a.lm += toMin(v.last_move_avg) * v.active_days; a.ln += v.active_days; }
     by.set(v.vehicle_id, a);
   }
-  const vehicles: MV[] = [...by.values()].map(({ fm, fn, lm, ln, ...v }) => ({
-    ...v, first_move_avg: fn ? toHHMM(fm / fn) : null, last_move_avg: ln ? toHHMM(lm / ln) : null,
-  })).sort((a, b) => b.km - a.km);
+  const vehicles: MV[] = [...by.values()].map(({ fm, fn, lm, ln, bs, bn, reg, ...v }) => {
+    const regions = [...reg.entries()].map(([state, km]) => ({ state, km })).sort((x, y) => y.km - x.km);
+    return {
+      ...v, first_move_avg: fn ? toHHMM(fm / fn) : null, last_move_avg: ln ? toHHMM(lm / ln) : null,
+      batt_v_rest: bn ? Math.round((bs / bn) * 100) / 100 : null,
+      regions, top_state: regions[0]?.state ?? null, states_n: regions.filter(r => r.km >= 20).length,
+    };
+  }).sort((a, b) => b.km - a.km);
+  const regAll = new Map<string, number>();
+  for (const v of vehicles) for (const r of v.regions ?? []) regAll.set(r.state, (regAll.get(r.state) ?? 0) + r.km);
+  const regTot = [...regAll.values()].reduce((a, x) => a + x, 0);
+  const regions: Region[] = [...regAll.entries()].map(([state, km]) => ({
+    state, km: Math.round(km), pct: regTot ? Math.round((km / regTot) * 1000) / 10 : 0,
+    units: vehicles.filter(v => (v.regions ?? []).some(r => r.state === state && r.km >= 20)).length,
+  })).sort((x, y) => y.km - x.km);
   const sum = (f: (mm: Month) => number) => ms.reduce((a, mm) => a + Number(f(mm) ?? 0), 0);
   return {
     month: `${ms[0].month.slice(0, 4)}-01-01`, first_day: ms[0].first_day, last_day: ms[ms.length - 1].last_day,
@@ -127,6 +177,10 @@ function aggregateYear(ms: Month[]): Month | null {
     speeding: sum(mm => mm.speeding), vmax: Math.max(...ms.map(mm => Number(mm.vmax))), km_after_hours: sum(mm => mm.km_after_hours),
     harsh_accel: sum(mm => mm.harsh_accel), harsh_accel_low: sum(mm => mm.harsh_accel_low),
     harsh_brake: sum(mm => mm.harsh_brake), starts: sum(mm => mm.starts), vehicles,
+    km_night: sum(mm => n0(mm.km_night)), night_h: sum(mm => n0(mm.night_h)), long_days: sum(mm => n0(mm.long_days)),
+    long_drives: sum(mm => n0(mm.long_drives)), max_drive_h: Math.max(...ms.map(mm => n0(mm.max_drive_h))),
+    batt_low_units: vehicles.filter(v => n0(v.batt_low_days) >= 3).length,
+    power_cut_units: vehicles.filter(v => n0(v.power_cut) > 0).length, regions,
   };
 }
 const fmtShort = (iso: string) => `${dNum(iso)} ${MESES[mIdx(iso)].slice(0, 3).toLowerCase()}`;
@@ -245,6 +299,22 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
     if (idle.length) out.push({ tone: "warn", vehicleId: idle[0].vehicle_id, text:
       `${list(idle.slice(0, 3).map(v => `${name(v)} (${nf0.format(v.idle_h)} h, ${nf0.format(idlePct(v))}% del tiempo encendido)`))} ${idle.length > 1 ? "pasaron" : "pasó"} mucho tiempo con el motor encendido sin moverse. Es gasolina que se quema sin trabajar: habla con sus choferes.` });
 
+    // Jornadas largas y manejo nocturno
+    const rep = working.filter(longRepeat).sort((a, b) => n0(b.long_drives) + n0(b.long_days) - (n0(a.long_drives) + n0(a.long_days)));
+    if (rep.length) out.push({ tone: "bad", vehicleId: rep[0].vehicle_id, text:
+      `Jornadas largas: ${list(rep.slice(0, 4).map(v => `${name(v)} (${[n0(v.long_drives) ? `${v.long_drives} tramos de 5 h o más sin pausa` : "", n0(v.long_days) ? `${v.long_days} días de 10 h o más` : ""].filter(Boolean).join(", ")})`))}. El cansancio es el mayor riesgo en carretera: revisa sus rutas y pausas.` });
+    const night = working.filter(v => v.km >= 500 && nightPct(v) >= 25).sort((a, b) => nightPct(b) - nightPct(a));
+    if (night.length) out.push({ tone: "warn", vehicleId: night[0].vehicle_id, text:
+      `Manejo nocturno (22:00 a 05:00): ${list(night.slice(0, 4).map(v => `${name(v)} (${nf0.format(nightPct(v))}% de sus km)`))}. De noche hay más riesgo de robo y de accidente por sueño.` });
+
+    // Batería
+    const batt = vs.filter(v => battLevel(v) === "baja").sort((a, b) => Number(a.batt_v_rest ?? 99) - Number(b.batt_v_rest ?? 99));
+    if (batt.length) out.push({ tone: "warn", vehicleId: batt[0].vehicle_id, text:
+      `Batería baja con el motor apagado: ${list(batt.slice(0, 4).map(v => `${name(v)} (${nf1.format(Number(v.batt_v_rest_min ?? v.batt_v_rest))} V)`))}. Revísala antes de que la unidad no arranque o el GPS deje de reportar.` });
+    const cuts = vs.filter(v => n0(v.power_cut_days) >= 2);
+    if (cuts.length) out.push({ tone: "warn", vehicleId: cuts[0].vehicle_id, text:
+      `${list(cuts.slice(0, 4).map(v => `${name(v)} (${v.power_cut_days} días)`))} ${cuts.length > 1 ? "tuvieron" : "tuvo"} el GPS sin corriente del vehículo: puede ser batería desconectada, taller o alguien manipulando el equipo.` });
+
     // Sin uso
     const unused = vs.filter(v => v.km < 50);
     const missing = m.units_total - vs.length;
@@ -274,6 +344,52 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
     if (top) out.push({ tone: "info", vehicleId: top.vehicle_id, text: `${name(top)} fue la que más trabajó: ${nf0.format(top.km)} km en ${top.active_days} días.` });
     return out;
   }, [m, prev, vlim, periodo]);
+
+  // Semáforos: el estado de la flotilla de un vistazo. Cada uno lleva a su sección.
+  const lights = useMemo(() => {
+    const out: { key: string; title: string; light: Light; value: string; why: string; anchor: string }[] = [];
+    if (!m || m.km <= 0) return out;
+    const vs = m.vehicles;
+    const working = vs.filter(v => v.km >= 50);
+    const p1000 = per1000(m);
+    out.push({ key: "vel", title: "Velocidad", anchor: "rep-unidades",
+      light: p1000 >= 15 || m.vmax >= 140 ? "rojo" : p1000 >= 5 || m.vmax >= 120 ? "ambar" : "verde",
+      value: `${nf1.format(p1000)} / 1,000 km`, why: `${nf0.format(m.speeding)} excesos · máxima ${m.vmax} km/h` });
+    const hr = harshRows(vs);
+    if (hr.rows.length) {
+      const high = hr.rows.filter(r => r.level === "alto").length;
+      out.push({ key: "manejo", title: "Manejo agresivo", anchor: "rep-manejo",
+        light: high >= 3 ? "rojo" : high >= 1 ? "ambar" : "verde",
+        value: high ? `${high} en nivel alto` : "Sin unidades en alto", why: `de ${hr.rows.length} unidades calificadas` });
+    }
+    const idle = (m.idle_h / Math.max(1, m.idle_h + m.moving_h)) * 100;
+    out.push({ key: "ralenti", title: "Ralentí", anchor: "rep-unidades",
+      light: idle >= 20 ? "rojo" : idle >= 10 ? "ambar" : "verde",
+      value: `${nf0.format(idle)}% del motor encendido`, why: `${nf0.format(m.idle_h)} h sin moverse` });
+    const ah = m.km ? (m.km_after_hours / m.km) * 100 : 0;
+    out.push({ key: "horario", title: "Fuera de horario", anchor: "rep-unidades",
+      light: ah >= 25 ? "rojo" : ah >= 10 ? "ambar" : "verde",
+      value: `${nf0.format(ah)}% de los km`, why: `${nf0.format(m.km_after_hours)} km fuera de horario` });
+    if (m.km_night != null) {
+      const ev = n0(m.long_days) + n0(m.long_drives);
+      const reinc = working.filter(longRepeat).length;
+      out.push({ key: "jornadas", title: "Jornadas largas", anchor: "rep-jornadas",
+        light: reinc >= 1 ? "rojo" : ev >= 1 ? "ambar" : "verde",
+        value: reinc ? `${reinc} ${reinc > 1 ? "unidades reinciden" : "unidad reincide"}` : ev ? `${ev} ${ev > 1 ? "casos aislados" : "caso aislado"}` : "Sin jornadas largas",
+        why: `${nf0.format(nightPct(m))}% de los km de noche` });
+      const low = vs.filter(v => battLevel(v) === "baja").length;
+      const watch = vs.filter(v => ["vigilar", "corte"].includes(battLevel(v))).length;
+      out.push({ key: "bateria", title: "Batería", anchor: "rep-bateria",
+        light: low >= 2 ? "rojo" : low + watch >= 1 ? "ambar" : "verde",
+        value: low ? `${low} con batería baja` : watch ? `${watch} por vigilar` : "Todas bien", why: low && watch ? `y ${watch} por vigilar` : "voltaje con motor apagado" });
+    }
+    const idleUnits = m.units_total - working.length;
+    out.push({ key: "uso", title: "Uso de la flotilla", anchor: "rep-unidades",
+      light: idleUnits / Math.max(1, m.units_total) > 0.15 ? "rojo" : idleUnits > 0 ? "ambar" : "verde",
+      value: `${working.length} de ${m.units_total} trabajando`, why: idleUnits ? `${idleUnits} con menos de 50 km` : "todas con 50 km o más" });
+    return out;
+  }, [m]);
+  const goTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const card = { background: "#FFFFFF", border: `1px solid ${t.lineL}`, borderRadius: 10, padding: "16px 18px" };
   const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
@@ -353,6 +469,31 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
       </div>
 
       {m && (<>
+        {/* Semáforos */}
+        {lights.length > 0 && (
+          <div style={{ ...card, padding: "14px 16px" }}>
+            <div style={label}>Cómo va la flotilla · {selName}</div>
+            <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", marginTop: 10 }}>
+              {lights.map(l => (
+                <button key={l.key} onClick={() => goTo(l.anchor)} title="Ver el detalle" style={{
+                  textAlign: "left", cursor: "pointer", background: t.paper2, border: "none", borderLeft: `4px solid ${LIGHT[l.light]}`,
+                  borderRadius: 8, padding: "10px 12px", color: t.ink,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span aria-hidden style={{ width: 10, height: 10, borderRadius: 5, background: LIGHT[l.light], flex: "0 0 auto" }} />
+                    <span style={{ fontFamily: t.fBody, fontWeight: 700, fontSize: 13 }}>{l.title}</span>
+                    <span style={{ ...label, fontSize: 9, marginLeft: "auto", color: l.light === "verde" ? "#2E7D32" : l.light === "ambar" ? "#B87500" : t.crimson }}>
+                      {l.light === "verde" ? "Bien" : l.light === "ambar" ? "Vigilar" : "Atender"}
+                    </span>
+                  </div>
+                  <div style={{ fontFamily: t.fMono, fontSize: 13, fontWeight: 700, marginTop: 6 }}>{l.value}</div>
+                  <div style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, marginTop: 2 }}>{l.why}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Cifras del mes */}
         <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))" }}>
           {([
@@ -410,7 +551,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           );
           const maxLow = Math.max(1, ...hr.rows.map(r => r.low100));
           return (
-            <div style={card}>
+            <div id="rep-manejo" style={{ ...card, scrollMarginTop: 12 }}>
               <div style={label}>Manejo agresivo · posible desgaste de clutch</div>
               <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
                 El GPS no ve el pedal del clutch, pero su acelerómetro registra cada <b>aceleración brusca</b> y <b>frenada brusca</b>.
@@ -480,8 +621,199 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           );
         })()}
 
+        {/* Jornadas largas y manejo nocturno */}
+        {m.km_night != null && (() => {
+          const vs = m.vehicles.filter(v => v.km >= 50);
+          const rowsJ = vs.filter(v => n0(v.long_days) || n0(v.long_drives) || nightPct(v) >= 10)
+            .sort((a, b) => (n0(b.long_drives) + n0(b.long_days)) - (n0(a.long_drives) + n0(a.long_days)) || nightPct(b) - nightPct(a));
+          const pn = nightPct(m), ppn = prev && prev.km_night != null ? nightPct(prev) : null;
+          const en = isYear ? "en el año" : "en el mes";
+          return (
+            <div id="rep-jornadas" style={{ ...card, scrollMarginTop: 12 }}>
+              <div style={label}>Jornadas largas y manejo nocturno</div>
+              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
+                El cansancio es el mayor riesgo en carretera. Aquí se ve qué unidades manejan <b>de noche</b> (de 22:00 a 05:00),
+                cuáles pasan <b>10 horas o más en movimiento</b> en un día y cuáles hacen <b>tramos de 5 horas o más sin una pausa de 30 minutos</b>.
+              </p>
+              <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", marginBottom: 12 }}>
+                {([
+                  ["Km de noche", `${nf0.format(pn)}%`, <>{nf0.format(n0(m.km_night))} km · {nf0.format(n0(m.night_h))} h{ppn != null ? <> · {delta(pn, ppn, false)}</> : null}</>],
+                  ["Días de 10 h o más", nf0.format(n0(m.long_days)), <>en movimiento, por unidad · {en}</>],
+                  ["Tramos de 5 h o más", nf0.format(n0(m.long_drives)), <>sin pausa de 30 min · {en}</>],
+                  ["Tramo más largo", `${nf1.format(n0(m.max_drive_h))} h`, <>{(() => { const f = [...vs].sort((a, b) => n0(b.max_drive_h) - n0(a.max_drive_h))[0]; return f && n0(f.max_drive_h) ? name(f) : "—"; })()}</>],
+                ] as [string, string, React.ReactNode][]).map(([k, v, sub]) => (
+                  <div key={k} style={{ background: t.paper2, borderRadius: 8, padding: "10px 12px" }}>
+                    <div style={label}>{k}</div>
+                    <div style={{ fontFamily: t.fMono, fontSize: 20, fontWeight: 700, color: t.ink, marginTop: 4 }}>{v}</div>
+                    <div style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, marginTop: 2 }}>{sub}</div>
+                  </div>
+                ))}
+              </div>
+              {rowsJ.length > 0 ? (
+                <div className="lk-tablewrap">
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
+                        {["Unidad", "Km de noche", "Noches", "Días de 10 h o más", "Tramos de 5 h sin pausa", "Tramo más largo", "Día más largo", "Km"].map((h, k) => (
+                          <th key={h} style={{ ...label, textAlign: k < 1 ? "left" : "right", padding: "8px 10px", fontWeight: 500, whiteSpace: "nowrap" }}>{h}</th>
+                        ))}
+                        <th />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rowsJ.map(v => {
+                        const pct = nightPct(v), hot = longRepeat(v);
+                        return (
+                          <tr key={v.vehicle_id} style={{ borderBottom: `1px solid ${t.paper2}` }}>
+                            <td style={{ padding: 10, whiteSpace: "nowrap" }}>
+                              <div style={{ fontWeight: 700, color: t.ink }}>{name(v)}{v.alias && v.plate ? <span style={{ fontWeight: 400, color: t.mutedL }}> · {v.plate}</span> : null}</div>
+                              {v.vehicle_desc && <div style={{ fontFamily: t.fMono, fontSize: 10, color: t.mutedL, marginTop: 2 }}>{v.vehicle_desc}</div>}
+                            </td>
+                            <td style={{ padding: 10, textAlign: "right", minWidth: 120 }}>
+                              <div style={{ fontFamily: t.fMono, fontWeight: pct >= 25 ? 700 : 400, color: pct >= 25 ? "#B87500" : t.ink, whiteSpace: "nowrap" }}>{nf0.format(n0(v.km_night))} km <span style={{ color: t.mutedL, fontWeight: 400 }}>({nf0.format(pct)}%)</span></div>
+                              <div style={{ height: 4, background: t.paper2, borderRadius: 2, marginTop: 4 }}>
+                                <div style={{ height: 4, width: `${Math.min(100, pct)}%`, background: pct >= 25 ? "#F6A623" : t.ink, borderRadius: 2, marginLeft: "auto" }} />
+                              </div>
+                            </td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{n0(v.night_days) || "—"}</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontWeight: n0(v.long_days) >= 2 ? 700 : 400, color: n0(v.long_days) >= 2 ? t.crimson : t.ink }}>{n0(v.long_days) || "—"}</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontWeight: n0(v.long_drives) >= 2 ? 700 : 400, color: n0(v.long_drives) >= 2 ? t.crimson : t.ink }}>{n0(v.long_drives) || "—"}</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: n0(v.max_drive_h) >= 5 ? (hot ? t.crimson : "#B87500") : t.ink }}>{nf1.format(n0(v.max_drive_h))} h</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: n0(v.max_day_h) >= 10 ? "#B87500" : t.ink }}>{nf1.format(n0(v.max_day_h))} h</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: t.mutedL }}>{nf0.format(v.km)}</td>
+                            <td style={{ padding: 10, textAlign: "right" }}>
+                              <button onClick={() => onOpenVehicle(v.vehicle_id)} style={ghost}>Ver recorrido</button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p style={{ fontFamily: t.fBody, fontSize: 13, color: "#2E7D32", margin: 0, fontWeight: 600 }}>Ninguna unidad tuvo jornadas largas ni manejo nocturno relevante {en}.</p>
+              )}
+              <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
+                Se listan las unidades con alguna jornada larga o con 10% o más de sus km de noche. Un tramo se corta cuando la unidad se detiene 30 minutos o más, y cuenta en el día en que termina.
+                Como referencia, la NOM-087 de la SCT pide al autotransporte federal una pausa de 30 minutos por cada 5 horas de manejo continuo.
+                El GPS ve la unidad, no al chofer: si dos choferes se relevan, la jornada es de la unidad.
+              </p>
+            </div>
+          );
+        })()}
+
+        {/* Regiones */}
+        {(m.regions?.length ?? 0) > 0 && (() => {
+          const regs = (m.regions ?? []).filter(r => r.km >= 50 && r.state !== "Sin identificar");
+          if (!regs.length) return null;
+          const maxR = Math.max(1, ...regs.map(r => r.km));
+          const based = (st: string) => m.vehicles.filter(v => v.km >= 50 && v.top_state === st).sort((a, b) => b.km - a.km);
+          const roam = m.vehicles.filter(v => v.km >= 200 && n0(v.states_n) >= 3).sort((a, b) => n0(b.states_n) - n0(a.states_n));
+          return (
+            <div id="rep-regiones" style={{ ...card, scrollMarginTop: 12 }}>
+              <div style={label}>Dónde trabaja la flotilla · por estado</div>
+              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
+                Kilómetros recorridos en cada estado y las unidades que trabajan ahí la mayor parte del tiempo. Sirve para comparar regiones y para ver unidades fuera de su zona.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {regs.map(r => {
+                  const us = based(r.state);
+                  return (
+                    <div key={r.state} style={{ display: "grid", gridTemplateColumns: "minmax(120px, 170px) 1fr", gap: 12, alignItems: "start" }}>
+                      <div>
+                        <div style={{ fontFamily: t.fBody, fontWeight: 700, fontSize: 13, color: t.ink }}>{r.state}</div>
+                        <div style={{ fontFamily: t.fMono, fontSize: 11, color: t.mutedL, marginTop: 2 }}>{nf0.format(r.km)} km · {nf0.format(r.pct)}%</div>
+                      </div>
+                      <div>
+                        <div style={{ height: 8, background: t.paper2, borderRadius: 4 }}>
+                          <div style={{ height: 8, width: `${Math.max(2, (r.km / maxR) * 100)}%`, background: t.ink, borderRadius: 4 }} />
+                        </div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+                          {us.length ? us.map(v => (
+                            <button key={v.vehicle_id} onClick={() => onOpenVehicle(v.vehicle_id)} title={`${name(v)} · ${nf0.format(v.km)} km ${periodo}`} style={{
+                              background: t.paper2, border: "none", borderRadius: 10, padding: "3px 8px", fontFamily: t.fMono, fontSize: 10, color: t.ink, cursor: "pointer", whiteSpace: "nowrap",
+                            }}>{name(v)} · {nf0.format(v.km)} km</button>
+                          )) : <span style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL }}>{r.units} {r.units === 1 ? "unidad pasó" : "unidades pasaron"} por aquí; ninguna tiene aquí su zona principal.</span>}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "12px 0 0", lineHeight: 1.5 }}>
+                Cada unidad aparece en el estado donde hizo más km {periodo}. Se muestran estados con 50 km o más.
+                {roam.length > 0 && <> Las que más se mueven entre estados: {list(roam.slice(0, 5).map(v => `${name(v)} (${v.states_n})`))}.</>}
+              </p>
+            </div>
+          );
+        })()}
+
+        {/* Batería */}
+        {m.km_night != null && (() => {
+          const withData = m.vehicles.filter(v => battLevel(v) !== "sin dato");
+          if (!withData.length) return null;
+          const order: BattLevel[] = ["baja", "corte", "vigilar"];
+          const flagged = withData.filter(v => order.includes(battLevel(v)))
+            .sort((a, b) => order.indexOf(battLevel(a)) - order.indexOf(battLevel(b)) || Number(a.batt_v_rest_min ?? 99) - Number(b.batt_v_rest_min ?? 99));
+          const ok = withData.length - flagged.length;
+          const badge = (lv: BattLevel) => (
+            <span style={{ fontFamily: t.fMono, fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 10, whiteSpace: "nowrap",
+              background: lv === "baja" ? "#FCE4DE" : lv === "corte" ? "#E6E9F2" : "#FFF1D6",
+              color: lv === "baja" ? t.crimson : lv === "corte" ? t.ink3 : "#B87500" }}>
+              {lv === "baja" ? "BATERÍA BAJA" : lv === "corte" ? "SIN CORRIENTE" : "VIGILAR"}
+            </span>
+          );
+          return (
+            <div id="rep-bateria" style={{ ...card, scrollMarginTop: 12 }}>
+              <div style={label}>Batería de las unidades</div>
+              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
+                El GPS mide el voltaje de la batería del vehículo. Con el motor apagado, una batería sana marca alrededor de 12.6 V; por debajo de {nf1.format(BATT_LOW_V)} V está descargada y la unidad puede no arrancar.
+                {flagged.length ? <> <b>{flagged.length} {flagged.length === 1 ? "unidad necesita" : "unidades necesitan"} revisión</b> y {ok} {ok === 1 ? "está" : "están"} bien.</> : <> <b style={{ color: "#2E7D32" }}>Las {ok} unidades están bien.</b></>}
+              </p>
+              {flagged.length > 0 && (
+                <div className="lk-tablewrap">
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
+                        {["Unidad", "Estado", "Voltaje en reposo", "Mínimo en reposo", "Días bajo 12 V", "Días sin corriente", "Batería del GPS", "Zona"].map((h, k) => (
+                          <th key={h} style={{ ...label, textAlign: k < 2 ? "left" : "right", padding: "8px 10px", fontWeight: 500, whiteSpace: "nowrap" }}>{h}</th>
+                        ))}
+                        <th />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {flagged.map(v => {
+                        const lv = battLevel(v);
+                        return (
+                          <tr key={v.vehicle_id} style={{ borderBottom: `1px solid ${t.paper2}` }}>
+                            <td style={{ padding: 10, fontWeight: 700, color: t.ink, whiteSpace: "nowrap" }}>{name(v)}{v.alias && v.plate ? <span style={{ fontWeight: 400, color: t.mutedL }}> · {v.plate}</span> : null}</td>
+                            <td style={{ padding: 10 }}>{badge(lv)}</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{v.batt_v_rest != null ? `${nf1.format(Number(v.batt_v_rest))} V` : "—"}</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontWeight: 700, color: Number(v.batt_v_rest_min ?? 99) < BATT_LOW_V ? t.crimson : t.ink }}>{v.batt_v_rest_min != null ? `${nf1.format(Number(v.batt_v_rest_min))} V` : "—"}</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{n0(v.batt_low_days) || "—"}</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{n0(v.power_cut_days) || "—"}</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: Number(v.batt_gps_min ?? 100) < 30 ? "#B87500" : t.ink }}>{v.batt_gps_min != null ? `${v.batt_gps_min}% mín.` : "—"}</td>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontSize: 11, color: t.mutedL, whiteSpace: "nowrap" }}>{v.top_state ?? "—"}</td>
+                            <td style={{ padding: 10, textAlign: "right" }}>
+                              <button onClick={() => onOpenVehicle(v.vehicle_id)} style={ghost}>Ver recorrido</button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
+                BATERÍA BAJA = 3 días o más con menos de {nf1.format(BATT_LOW_V)} V en reposo {isYear ? "en el año" : "en el mes"}; VIGILAR = algún día bajo o un día sin corriente; SIN CORRIENTE = 2 días o más en que el GPS dejó de recibir corriente del vehículo (batería desconectada, taller o equipo manipulado).
+                Voltaje en reposo: promedio diario con el motor apagado. Una unidad parada muchos días también descarga su batería.
+              </p>
+            </div>
+          );
+        })()}
+
         {/* Unidades del mes */}
-        <div style={card}>
+        <div id="rep-unidades" style={{ ...card, scrollMarginTop: 12 }}>
           <div style={label}>Unidades en {selName} · toca un encabezado para ordenar</div>
           <div className="lk-tablewrap" style={{ marginTop: 10 }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
@@ -612,6 +944,15 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
               tip: `${MESES[mIdx(mm.month)]} · ${nf1.format(per100(mm.harsh_accel_low, mm.km))} arrancones por cada 100 km`,
             }))} />
           </div>
+          {months.some(mm => n0(mm.km_night) > 0) && (
+            <div style={card}>
+              <div style={label}>% de km de noche, mes a mes</div>
+              <Bars t={t} every={1} data={months.map(mm => ({
+                key: mm.month, label: MESES[mIdx(mm.month)].slice(0, 3), value: nightPct(mm),
+                tip: `${MESES[mIdx(mm.month)]} · ${nf0.format(nightPct(mm))}% de los km entre 22:00 y 05:00`,
+              }))} />
+            </div>
+          )}
           <div style={card}>
             <div style={label}>Excesos por cada 1,000 km, mes a mes</div>
             <Bars t={t} every={1} data={months.map(mm => ({
