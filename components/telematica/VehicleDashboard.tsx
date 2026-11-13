@@ -154,8 +154,8 @@ export default function VehicleDashboard({ pts, t }: { pts: TP[]; t: RecorridosT
   const last = pts[pts.length - 1];
 
   const card = { background: "#FFFFFF", border: `1px solid ${t.lineL}`, borderRadius: 10, padding: "16px 18px" };
-  const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
-  const big = { fontFamily: t.fMono, fontSize: 22, fontWeight: 700, color: t.ink, marginTop: 6 };
+  const label = { fontFamily: t.fMono, fontSize: 12, color: t.mutedL, letterSpacing: "0.08em", textTransform: "uppercase" as const };
+  const big = { fontFamily: t.fMono, fontSize: 24, fontWeight: 700, color: t.ink, marginTop: 6 };
 
   if (!pts.length) return null;
 
@@ -185,7 +185,7 @@ export default function VehicleDashboard({ pts, t }: { pts: TP[]; t: RecorridosT
           <div key={k} style={card}>
             <div style={label}>{k}</div>
             <div style={{ ...big, color: k === "Alertas" && alerts.length ? t.crimson : t.ink }}>{v}</div>
-            <div style={{ fontFamily: t.fBody, fontSize: 12, color: t.mutedL, marginTop: 4 }}>{sub}</div>
+            <div style={{ fontFamily: t.fBody, fontSize: 14, color: t.mutedL, marginTop: 4 }}>{sub}</div>
           </div>
         ))}
       </div>
@@ -209,17 +209,17 @@ export default function VehicleDashboard({ pts, t }: { pts: TP[]; t: RecorridosT
         {/* Alertas */}
         <div style={card}>
           <div style={label}>Alertas del periodo</div>
-          {alerts.length === 0 && <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.ink, margin: "10px 0 0" }}>✓ Sin alertas en este rango.</p>}
+          {alerts.length === 0 && <p style={{ fontFamily: t.fBody, fontSize: 16, color: t.ink, margin: "10px 0 0" }}>✓ Sin alertas en este rango.</p>}
           {alerts.map(al => (
             <div key={al.title} style={{ display: "flex", gap: 10, marginTop: 12 }}>
               <span aria-hidden style={{ flex: "0 0 auto", width: 10, height: 10, borderRadius: 5, marginTop: 5, background: al.tone === "alta" ? t.crimson : "#F6A623" }} />
               <div>
-                <div style={{ fontFamily: t.fBody, fontWeight: 600, fontSize: 14, color: t.ink }}>
-                  <span style={{ fontFamily: t.fMono, fontSize: 10, letterSpacing: "0.12em", color: al.tone === "alta" ? t.crimson : "#B87500", marginRight: 8 }}>
+                <div style={{ fontFamily: t.fBody, fontWeight: 600, fontSize: 16, color: t.ink }}>
+                  <span style={{ fontFamily: t.fMono, fontSize: 12, letterSpacing: "0.12em", color: al.tone === "alta" ? t.crimson : "#B87500", marginRight: 8 }}>
                     {al.tone === "alta" ? "ALTA" : "REVISAR"}
                   </span>{al.title}
                 </div>
-                <div style={{ fontFamily: t.fBody, fontSize: 12, color: t.mutedL, marginTop: 3 }}>{al.detail}</div>
+                <div style={{ fontFamily: t.fBody, fontSize: 14, color: t.mutedL, marginTop: 3 }}>{al.detail}</div>
               </div>
             </div>
           ))}
@@ -227,16 +227,16 @@ export default function VehicleDashboard({ pts, t }: { pts: TP[]; t: RecorridosT
         {/* Dónde se estaciona */}
         <div style={card}>
           <div style={label}>Dónde pasa más tiempo detenido</div>
-          {!top.length && <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.mutedL, margin: "10px 0 0" }}>Sin paradas largas en este rango.</p>}
+          {!top.length && <p style={{ fontFamily: t.fBody, fontSize: 16, color: t.mutedL, margin: "10px 0 0" }}>Sin paradas largas en este rango.</p>}
           <ol style={{ listStyle: "none", padding: 0, margin: "10px 0 0", display: "flex", flexDirection: "column", gap: 10 }}>
             {top.map((st, i) => (
               <li key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <span style={{ flex: "0 0 auto", width: 22, height: 22, borderRadius: 11, background: t.ink, color: t.signal, fontFamily: t.fMono, fontSize: 12, fontWeight: 700, display: "grid", placeItems: "center" }}>{i + 1}</span>
+                <span style={{ flex: "0 0 auto", width: 22, height: 22, borderRadius: 11, background: t.ink, color: t.signal, fontFamily: t.fMono, fontSize: 14, fontWeight: 700, display: "grid", placeItems: "center" }}>{i + 1}</span>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontFamily: t.fBody, fontSize: 14, color: t.ink, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div style={{ fontFamily: t.fBody, fontSize: 16, color: t.ink, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {st.address?.split(",").slice(0, 2).join(",") ?? `${st.lat.toFixed(4)}, ${st.lon.toFixed(4)}`}
                   </div>
-                  <div style={{ fontFamily: t.fMono, fontSize: 11, color: t.mutedL, marginTop: 2 }}>
+                  <div style={{ fontFamily: t.fMono, fontSize: 13, color: t.mutedL, marginTop: 2 }}>
                     {hm(st.minutes)} · {st.visits} {st.visits === 1 ? "visita" : "visitas"}{st.nights ? ` · ${st.nights} ${st.nights === 1 ? "noche" : "noches"}` : ""}
                   </div>
                 </div>
@@ -247,7 +247,7 @@ export default function VehicleDashboard({ pts, t }: { pts: TP[]; t: RecorridosT
         {/* Estado del equipo */}
         <div style={card}>
           <div style={label}>Estado del equipo · último reporte del rango</div>
-          <dl style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "8px 16px", margin: "12px 0 0", fontFamily: t.fBody, fontSize: 14 }}>
+          <dl style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "8px 16px", margin: "12px 0 0", fontFamily: t.fBody, fontSize: 16 }}>
             <dt style={{ color: t.mutedL }}>Último reporte</dt><dd style={{ margin: 0, fontFamily: t.fMono }}>{fmtTs(last.ts)}</dd>
             <dt style={{ color: t.mutedL }}>Ubicación</dt><dd style={{ margin: 0 }}>{last.address ?? `${last.lat.toFixed(5)}, ${last.lon.toFixed(5)}`}</dd>
             <dt style={{ color: t.mutedL }}>Batería del vehículo</dt><dd style={{ margin: 0, fontFamily: t.fMono }}>{last.batt_vehicle_v != null ? `${last.batt_vehicle_v} V` : "—"}</dd>
@@ -303,7 +303,7 @@ export function Bars({ data, t, every }: {
         })()}
       </svg>
       {hov && (
-        <div style={{ position: "absolute", top: -6, right: 0, background: t.ink, color: "#F6F9FE", borderRadius: 6, padding: "4px 8px", fontFamily: t.fMono, fontSize: 11, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", top: -6, right: 0, background: t.ink, color: "#F6F9FE", borderRadius: 6, padding: "4px 8px", fontFamily: t.fMono, fontSize: 13, pointerEvents: "none" }}>
           {hov.tip}
         </div>
       )}

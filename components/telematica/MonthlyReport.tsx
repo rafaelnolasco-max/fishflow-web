@@ -392,8 +392,8 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
   const goTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const card = { background: "#FFFFFF", border: `1px solid ${t.lineL}`, borderRadius: 10, padding: "16px 18px" };
-  const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
-  const ghost = { background: "transparent", color: t.ink, border: `1px solid ${t.lineL}`, borderRadius: 6, padding: "6px 10px", fontFamily: t.fBody, fontWeight: 600, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap" as const };
+  const label = { fontFamily: t.fMono, fontSize: 12, color: t.mutedL, letterSpacing: "0.08em", textTransform: "uppercase" as const };
+  const ghost = { background: "transparent", color: t.ink, border: `1px solid ${t.lineL}`, borderRadius: 6, padding: "6px 10px", fontFamily: t.fBody, fontWeight: 600, fontSize: 14, cursor: "pointer", whiteSpace: "nowrap" as const };
 
   /** ▲ 12% por día contra el mes anterior (verde/rojo según si subir es bueno) */
   const delta = (cur: number, before: number | null, goodUp: boolean) => {
@@ -413,9 +413,9 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
     </th>
   );
 
-  if (err) return <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.crimson }}>{err}</p>;
-  if (loading && !months.length) return <p style={{ fontFamily: t.fMono, fontSize: 12, color: t.mutedL }}>Armando el reporte…</p>;
-  if (!months.length) return <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.mutedL }}>Todavía no hay datos para el reporte mensual de esta flotilla.</p>;
+  if (err) return <p style={{ fontFamily: t.fBody, fontSize: 16, color: t.crimson }}>{err}</p>;
+  if (loading && !months.length) return <p style={{ fontFamily: t.fMono, fontSize: 14, color: t.mutedL }}>Armando el reporte…</p>;
+  if (!months.length) return <p style={{ fontFamily: t.fBody, fontSize: 16, color: t.mutedL }}>Todavía no hay datos para el reporte mensual de esta flotilla.</p>;
 
   const maxKm = Math.max(1, ...rows.map(r => r.km));
 
@@ -425,10 +425,10 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between" }}>
         <div>
           <div style={label}>Reporte mensual de la flotilla</div>
-          <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 22, color: t.ink, marginTop: 4 }}>{fleetName}</div>
+          <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 24, color: t.ink, marginTop: 4 }}>{fleetName}</div>
         </div>
         {settings && (
-          <div style={{ fontFamily: t.fMono, fontSize: 11, color: t.mutedL, textAlign: "right", lineHeight: 1.6 }}>
+          <div style={{ fontFamily: t.fMono, fontSize: 13, color: t.mutedL, textAlign: "right", lineHeight: 1.6 }}>
             Horario: {horarioTxt(settings)}<br />Exceso: {vlim} km/h o más · rendimiento {nf1.format(Number(settings.default_km_per_l))} km/l
           </div>
         )}
@@ -441,13 +441,13 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           return (
             <button key={YEAR} role="tab" aria-selected={on} onClick={() => setSel(YEAR)}
               title={`Resumen del año ${yearAgg.month.slice(0, 4)}: todas las unidades, ${yearMonths.length} meses`} style={{
-              flex: "1 0 112px", minWidth: 112, textAlign: "left", cursor: "pointer", borderRadius: 10, padding: "10px 12px",
+              flex: "1 0 132px", minWidth: 132, textAlign: "left", cursor: "pointer", borderRadius: 10, padding: "10px 12px",
               background: on ? t.ink : t.paper2, color: on ? "#F6F9FE" : t.ink, border: `1px solid ${on ? t.ink : t.ink}`,
             }}>
-              <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 14, color: on ? t.signal : t.ink, whiteSpace: "nowrap" }}>Año {yearAgg.month.slice(0, 4)}</div>
-              <div style={{ fontFamily: t.fMono, fontSize: 16, fontWeight: 700, marginTop: 4, whiteSpace: "nowrap" }}>{nf0.format(yearAgg.km)} <span style={{ fontSize: 10, fontWeight: 400 }}>km</span></div>
-              <div style={{ fontFamily: t.fMono, fontSize: 10, marginTop: 3, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{nf0.format(yearAgg.speeding)} excesos</div>
-              <div style={{ fontFamily: t.fMono, fontSize: 10, marginTop: 2, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{yearMonths.length} meses · resumen</div>
+              <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 16, color: on ? t.signal : t.ink, whiteSpace: "nowrap" }}>Año {yearAgg.month.slice(0, 4)}</div>
+              <div style={{ fontFamily: t.fMono, fontSize: 18, fontWeight: 700, marginTop: 4, whiteSpace: "nowrap" }}>{nf0.format(yearAgg.km)} <span style={{ fontSize: 12, fontWeight: 400 }}>km</span></div>
+              <div style={{ fontFamily: t.fMono, fontSize: 12, marginTop: 3, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{nf0.format(yearAgg.speeding)} excesos</div>
+              <div style={{ fontFamily: t.fMono, fontSize: 12, marginTop: 2, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{yearMonths.length} meses · resumen</div>
             </button>
           );
         })()}
@@ -456,13 +456,13 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           return (
             <button key={mm.month} role="tab" aria-selected={on} onClick={() => setSel(mm.month)}
               title={`${MESES[mIdx(mm.month)]} ${mm.month.slice(0, 4)} · ${coverage(mm)}`} style={{
-              flex: "1 0 104px", minWidth: 104, textAlign: "left", cursor: "pointer", borderRadius: 10, padding: "10px 12px",
+              flex: "1 0 124px", minWidth: 124, textAlign: "left", cursor: "pointer", borderRadius: 10, padding: "10px 12px",
               background: on ? t.ink : "#FFFFFF", color: on ? "#F6F9FE" : t.ink, border: `1px solid ${on ? t.ink : t.lineL}`,
             }}>
-              <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 14, color: on ? t.signal : t.ink, whiteSpace: "nowrap" }}>{MESES[mIdx(mm.month)]}</div>
-              <div style={{ fontFamily: t.fMono, fontSize: 16, fontWeight: 700, marginTop: 4, whiteSpace: "nowrap" }}>{nf0.format(mm.km)} <span style={{ fontSize: 10, fontWeight: 400 }}>km</span></div>
-              <div style={{ fontFamily: t.fMono, fontSize: 10, marginTop: 3, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{nf0.format(mm.speeding)} excesos</div>
-              <div style={{ fontFamily: t.fMono, fontSize: 10, marginTop: 2, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{coverage(mm)}</div>
+              <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 16, color: on ? t.signal : t.ink, whiteSpace: "nowrap" }}>{MESES[mIdx(mm.month)]}</div>
+              <div style={{ fontFamily: t.fMono, fontSize: 18, fontWeight: 700, marginTop: 4, whiteSpace: "nowrap" }}>{nf0.format(mm.km)} <span style={{ fontSize: 12, fontWeight: 400 }}>km</span></div>
+              <div style={{ fontFamily: t.fMono, fontSize: 12, marginTop: 3, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{nf0.format(mm.speeding)} excesos</div>
+              <div style={{ fontFamily: t.fMono, fontSize: 12, marginTop: 2, color: on ? "#C9D3E6" : t.mutedL, whiteSpace: "nowrap" }}>{coverage(mm)}</div>
             </button>
           );
         })}
@@ -473,7 +473,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
         {lights.length > 0 && (
           <div style={{ ...card, padding: "14px 16px" }}>
             <div style={label}>Cómo va la flotilla · {selName}</div>
-            <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", marginTop: 10 }}>
+            <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", marginTop: 10 }}>
               {lights.map(l => (
                 <button key={l.key} onClick={() => goTo(l.anchor)} title="Ver el detalle" style={{
                   textAlign: "left", cursor: "pointer", background: t.paper2, border: "none", borderLeft: `4px solid ${LIGHT[l.light]}`,
@@ -481,13 +481,13 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span aria-hidden style={{ width: 10, height: 10, borderRadius: 5, background: LIGHT[l.light], flex: "0 0 auto" }} />
-                    <span style={{ fontFamily: t.fBody, fontWeight: 700, fontSize: 13 }}>{l.title}</span>
-                    <span style={{ ...label, fontSize: 9, marginLeft: "auto", color: l.light === "verde" ? "#2E7D32" : l.light === "ambar" ? "#B87500" : t.crimson }}>
+                    <span style={{ fontFamily: t.fBody, fontWeight: 700, fontSize: 15 }}>{l.title}</span>
+                    <span style={{ ...label, fontSize: 12, marginLeft: "auto", color: l.light === "verde" ? "#2E7D32" : l.light === "ambar" ? "#B87500" : t.crimson }}>
                       {l.light === "verde" ? "Bien" : l.light === "ambar" ? "Vigilar" : "Atender"}
                     </span>
                   </div>
-                  <div style={{ fontFamily: t.fMono, fontSize: 13, fontWeight: 700, marginTop: 6 }}>{l.value}</div>
-                  <div style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, marginTop: 2 }}>{l.why}</div>
+                  <div style={{ fontFamily: t.fMono, fontSize: 15, fontWeight: 700, marginTop: 6 }}>{l.value}</div>
+                  <div style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, marginTop: 2 }}>{l.why}</div>
                 </button>
               ))}
             </div>
@@ -495,7 +495,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
         )}
 
         {/* Cifras del mes */}
-        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))" }}>
+        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))" }}>
           {([
             ["Unidades trabajando", `${m.units_active} de ${m.units_total}`, <>con 50 km o más · {cov}</>],
             ["Kilómetros", nf0.format(m.km), <>{nf0.format(m.km / m.days_with_data)} km por día · {delta(perDay(m, x => x.km)!, perDay(prev, x => x.km), true) ?? (isYear ? "promedio del periodo con datos" : "primer mes con datos")}</>],
@@ -508,8 +508,8 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           ] as [string, string, React.ReactNode][]).map(([k, v, sub]) => (
             <div key={k} style={card}>
               <div style={label}>{k}</div>
-              <div style={{ fontFamily: t.fMono, fontSize: 22, fontWeight: 700, color: k.startsWith("Excesos") && m.speeding ? t.crimson : t.ink, marginTop: 6 }}>{v}</div>
-              <div style={{ fontFamily: t.fBody, fontSize: 12, color: t.mutedL, marginTop: 4, lineHeight: 1.4 }}>{sub}</div>
+              <div style={{ fontFamily: t.fMono, fontSize: 24, fontWeight: 700, color: k.startsWith("Excesos") && m.speeding ? t.crimson : t.ink, marginTop: 6 }}>{v}</div>
+              <div style={{ fontFamily: t.fBody, fontSize: 14, color: t.mutedL, marginTop: 4, lineHeight: 1.4 }}>{sub}</div>
             </div>
           ))}
         </div>
@@ -522,10 +522,10 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
               {insights.map((x, k) => (
                 <li key={k} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
                   <span aria-hidden style={{ flex: "0 0 auto", width: 8, height: 8, borderRadius: 4, marginTop: 7, background: x.tone === "bad" ? "#E04E2A" : x.tone === "warn" ? "#F6A623" : t.signal }} />
-                  <span style={{ fontFamily: t.fBody, fontSize: 14, lineHeight: 1.45 }}>
+                  <span style={{ fontFamily: t.fBody, fontSize: 16, lineHeight: 1.45 }}>
                     {x.text}
                     {x.vehicleId && (
-                      <button onClick={() => onOpenVehicle(x.vehicleId!)} style={{ marginLeft: 8, background: "none", border: "none", color: t.signal, fontFamily: t.fMono, fontSize: 11, cursor: "pointer", textDecoration: "underline", padding: 0 }}>
+                      <button onClick={() => onOpenVehicle(x.vehicleId!)} style={{ marginLeft: 8, background: "none", border: "none", color: t.signal, fontFamily: t.fMono, fontSize: 13, cursor: "pointer", textDecoration: "underline", padding: 0 }}>
                         ver recorrido
                       </button>
                     )}
@@ -543,7 +543,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           const cur = { low: per100(m.harsh_accel_low, m.km), acc: per100(m.harsh_accel, m.km), brk: per100(m.harsh_brake, m.km), st: per100(m.starts, m.km) };
           if (!m.harsh_accel && !m.harsh_brake) return null;
           const badge = (lv: HarshLevel) => (
-            <span style={{ fontFamily: t.fMono, fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 10, whiteSpace: "nowrap",
+            <span style={{ fontFamily: t.fMono, fontSize: 12, fontWeight: 700, padding: "3px 8px", borderRadius: 10, whiteSpace: "nowrap",
               background: lv === "alto" ? "#FCE4DE" : lv === "medio" ? "#FFF1D6" : lv === "equipo" ? "#E6E9F2" : t.paper2,
               color: lv === "alto" ? t.crimson : lv === "medio" ? "#B87500" : lv === "equipo" ? t.ink3 : t.mutedL }}>
               {lv === "alto" ? "ALTO" : lv === "medio" ? "MEDIO" : lv === "equipo" ? "REVISAR EQUIPO" : "NORMAL"}
@@ -553,7 +553,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           return (
             <div id="rep-manejo" style={{ ...card, scrollMarginTop: 12 }}>
               <div style={label}>Manejo agresivo · posible desgaste de clutch</div>
-              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
+              <p style={{ fontFamily: t.fBody, fontSize: 15, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
                 El GPS no ve el pedal del clutch, pero su acelerómetro registra cada <b>aceleración brusca</b> y <b>frenada brusca</b>.
                 Los <b>arrancones</b> (aceleración brusca saliendo de parado, a 20 km/h o menos) son los que más castigan el clutch.
                 Las cifras sirven para comparar unidades entre sí: {hr.mixed
@@ -571,25 +571,28 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                 ] as [string, number, number | null, string][]).map(([k, v, pv, sub]) => (
                   <div key={k} style={{ background: t.paper2, borderRadius: 8, padding: "10px 12px" }}>
                     <div style={label}>{k} · por 100 km</div>
-                    <div style={{ fontFamily: t.fMono, fontSize: 20, fontWeight: 700, color: t.ink, marginTop: 4 }}>{nf1.format(v)}</div>
-                    <div style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, marginTop: 2 }}>{sub}{pv != null ? <> · {delta(v, pv, false)}</> : null}</div>
+                    <div style={{ fontFamily: t.fMono, fontSize: 22, fontWeight: 700, color: t.ink, marginTop: 4 }}>{nf1.format(v)}</div>
+                    <div style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, marginTop: 2 }}>{sub}{pv != null ? <> · {delta(v, pv, false)}</> : null}</div>
                   </div>
                 ))}
               </div>
               <div className="lk-tablewrap">
-                <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 15 }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
-                      {["Unidad", "Nivel", "Arrancones /100 km", "vs mediana", "Acel. bruscas /100 km", "Frenadas /100 km", "Encendidos /100 km", "Km", ...(hr.mixed ? [hr.byClass ? "Vehículo" : "Equipo"] : [])].map((h, k) => (
+                      {["Unidad", "Nivel", "Arrancones /100 km", "vs mediana", "Acel. bruscas /100 km", "Frenadas /100 km", "Encendidos /100 km", "Km"].map((h, k) => (
                         <th key={h} style={{ ...label, textAlign: k < 2 ? "left" : "right", padding: "8px 10px", fontWeight: 500, whiteSpace: "nowrap" }}>{h}</th>
                       ))}
-                      <th />
+                      <th className="lk-stick" />
                     </tr>
                   </thead>
                   <tbody>
                     {hr.rows.map(r => (
                       <tr key={r.v.vehicle_id} style={{ borderBottom: `1px solid ${t.paper2}` }}>
-                        <td style={{ padding: 10, fontWeight: 700, color: t.ink, whiteSpace: "nowrap" }}>{name(r.v)}{r.v.alias && r.v.plate ? <span style={{ fontWeight: 400, color: t.mutedL }}> · {r.v.plate}</span> : null}</td>
+                        <td style={{ padding: 10, whiteSpace: "nowrap" }}>
+                          <div style={{ fontWeight: 700, color: t.ink }}>{name(r.v)}{r.v.alias && r.v.plate ? <span style={{ fontWeight: 400, color: t.mutedL }}> · {r.v.plate}</span> : null}</div>
+                          {hr.mixed && <div style={{ fontFamily: t.fMono, fontSize: 12, color: t.mutedL, marginTop: 2 }}>{hr.byClass ? `${hr.group(r.v)} · ${r.v.vehicle_desc ?? ""}` : (r.v.device_model ?? "—").replace("Suntech ", "")}</div>}
+                        </td>
                         <td style={{ padding: 10 }}>{badge(r.level)}</td>
                         <td style={{ padding: 10, textAlign: "right", minWidth: 120 }}>
                           <div style={{ fontFamily: t.fMono, fontWeight: 700, color: r.level === "alto" ? t.crimson : r.level === "equipo" ? t.mutedL : t.ink }}>{nf1.format(r.low100)}</div>
@@ -602,8 +605,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                         <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.brk100)}</td>
                         <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf1.format(r.st100)}</td>
                         <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: t.mutedL }}>{nf0.format(r.v.km)}</td>
-                        {hr.mixed && <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontSize: 11, color: t.mutedL, whiteSpace: "nowrap" }}>{hr.byClass ? `${hr.group(r.v)} · ${r.v.vehicle_desc ?? ""}` : (r.v.device_model ?? "—").replace("Suntech ", "")}</td>}
-                        <td style={{ padding: 10, textAlign: "right" }}>
+                        <td className="lk-stick" style={{ padding: 10, textAlign: "right" }}>
                           <button onClick={() => onOpenVehicle(r.v.vehicle_id)} style={ghost}>Ver recorrido</button>
                         </td>
                       </tr>
@@ -611,7 +613,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                   </tbody>
                 </table>
               </div>
-              <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
+              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
                 Nivel: ALTO = 1.5 veces la mediana o más; MEDIO = 1.15 a 1.5 veces; REVISAR EQUIPO = {LEVEL_EQUIPO} veces o más (casi siempre es la sensibilidad del acelerómetro, no el chofer). Se cuentan episodios (eventos del mismo tipo a menos de 30 s son el mismo).
                 La ruta y la carga también influyen: tráfico de ciudad y subidas con carga castigan más el clutch.
                 {hr.noSensor.length > 0 && <> Su equipo no reporta acelerómetro: {list(hr.noSensor.map(name))}.</>}
@@ -631,7 +633,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           return (
             <div id="rep-jornadas" style={{ ...card, scrollMarginTop: 12 }}>
               <div style={label}>Jornadas largas y manejo nocturno</div>
-              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
+              <p style={{ fontFamily: t.fBody, fontSize: 15, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
                 El cansancio es el mayor riesgo en carretera. Aquí se ve qué unidades manejan <b>de noche</b> (de 22:00 a 05:00),
                 cuáles pasan <b>10 horas o más en movimiento</b> en un día y cuáles hacen <b>tramos de 5 horas o más sin una pausa de 30 minutos</b>.
               </p>
@@ -644,20 +646,20 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                 ] as [string, string, React.ReactNode][]).map(([k, v, sub]) => (
                   <div key={k} style={{ background: t.paper2, borderRadius: 8, padding: "10px 12px" }}>
                     <div style={label}>{k}</div>
-                    <div style={{ fontFamily: t.fMono, fontSize: 20, fontWeight: 700, color: t.ink, marginTop: 4 }}>{v}</div>
-                    <div style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, marginTop: 2 }}>{sub}</div>
+                    <div style={{ fontFamily: t.fMono, fontSize: 22, fontWeight: 700, color: t.ink, marginTop: 4 }}>{v}</div>
+                    <div style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, marginTop: 2 }}>{sub}</div>
                   </div>
                 ))}
               </div>
               {rowsJ.length > 0 ? (
                 <div className="lk-tablewrap">
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 15 }}>
                     <thead>
                       <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
                         {["Unidad", "Km de noche", "Noches", "Días de 10 h o más", "Tramos de 5 h sin pausa", "Tramo más largo", "Día más largo", "Km"].map((h, k) => (
                           <th key={h} style={{ ...label, textAlign: k < 1 ? "left" : "right", padding: "8px 10px", fontWeight: 500, whiteSpace: "nowrap" }}>{h}</th>
                         ))}
-                        <th />
+                        <th className="lk-stick" />
                       </tr>
                     </thead>
                     <tbody>
@@ -667,7 +669,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                           <tr key={v.vehicle_id} style={{ borderBottom: `1px solid ${t.paper2}` }}>
                             <td style={{ padding: 10, whiteSpace: "nowrap" }}>
                               <div style={{ fontWeight: 700, color: t.ink }}>{name(v)}{v.alias && v.plate ? <span style={{ fontWeight: 400, color: t.mutedL }}> · {v.plate}</span> : null}</div>
-                              {v.vehicle_desc && <div style={{ fontFamily: t.fMono, fontSize: 10, color: t.mutedL, marginTop: 2 }}>{v.vehicle_desc}</div>}
+                              {v.vehicle_desc && <div style={{ fontFamily: t.fMono, fontSize: 12, color: t.mutedL, marginTop: 2 }}>{v.vehicle_desc}</div>}
                             </td>
                             <td style={{ padding: 10, textAlign: "right", minWidth: 120 }}>
                               <div style={{ fontFamily: t.fMono, fontWeight: pct >= 25 ? 700 : 400, color: pct >= 25 ? "#B87500" : t.ink, whiteSpace: "nowrap" }}>{nf0.format(n0(v.km_night))} km <span style={{ color: t.mutedL, fontWeight: 400 }}>({nf0.format(pct)}%)</span></div>
@@ -681,7 +683,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                             <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: n0(v.max_drive_h) >= 5 ? (hot ? t.crimson : "#B87500") : t.ink }}>{nf1.format(n0(v.max_drive_h))} h</td>
                             <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: n0(v.max_day_h) >= 10 ? "#B87500" : t.ink }}>{nf1.format(n0(v.max_day_h))} h</td>
                             <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: t.mutedL }}>{nf0.format(v.km)}</td>
-                            <td style={{ padding: 10, textAlign: "right" }}>
+                            <td className="lk-stick" style={{ padding: 10, textAlign: "right" }}>
                               <button onClick={() => onOpenVehicle(v.vehicle_id)} style={ghost}>Ver recorrido</button>
                             </td>
                           </tr>
@@ -691,9 +693,9 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                   </table>
                 </div>
               ) : (
-                <p style={{ fontFamily: t.fBody, fontSize: 13, color: "#2E7D32", margin: 0, fontWeight: 600 }}>Ninguna unidad tuvo jornadas largas ni manejo nocturno relevante {en}.</p>
+                <p style={{ fontFamily: t.fBody, fontSize: 15, color: "#2E7D32", margin: 0, fontWeight: 600 }}>Ninguna unidad tuvo jornadas largas ni manejo nocturno relevante {en}.</p>
               )}
-              <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
+              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
                 Se listan las unidades con alguna jornada larga o con 10% o más de sus km de noche. Un tramo se corta cuando la unidad se detiene 30 minutos o más, y cuenta en el día en que termina.
                 Como referencia, la NOM-087 de la SCT pide al autotransporte federal una pausa de 30 minutos por cada 5 horas de manejo continuo.
                 El GPS ve la unidad, no al chofer: si dos choferes se relevan, la jornada es de la unidad.
@@ -712,7 +714,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           return (
             <div id="rep-regiones" style={{ ...card, scrollMarginTop: 12 }}>
               <div style={label}>Dónde trabaja la flotilla · por estado</div>
-              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
+              <p style={{ fontFamily: t.fBody, fontSize: 15, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
                 Kilómetros recorridos en cada estado y las unidades que trabajan ahí la mayor parte del tiempo. Sirve para comparar regiones y para ver unidades fuera de su zona.
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -721,8 +723,8 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                   return (
                     <div key={r.state} style={{ display: "grid", gridTemplateColumns: "minmax(120px, 170px) 1fr", gap: 12, alignItems: "start" }}>
                       <div>
-                        <div style={{ fontFamily: t.fBody, fontWeight: 700, fontSize: 13, color: t.ink }}>{r.state}</div>
-                        <div style={{ fontFamily: t.fMono, fontSize: 11, color: t.mutedL, marginTop: 2 }}>{nf0.format(r.km)} km · {nf0.format(r.pct)}%</div>
+                        <div style={{ fontFamily: t.fBody, fontWeight: 700, fontSize: 15, color: t.ink }}>{r.state}</div>
+                        <div style={{ fontFamily: t.fMono, fontSize: 13, color: t.mutedL, marginTop: 2 }}>{nf0.format(r.km)} km · {nf0.format(r.pct)}%</div>
                       </div>
                       <div>
                         <div style={{ height: 8, background: t.paper2, borderRadius: 4 }}>
@@ -731,16 +733,16 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
                           {us.length ? us.map(v => (
                             <button key={v.vehicle_id} onClick={() => onOpenVehicle(v.vehicle_id)} title={`${name(v)} · ${nf0.format(v.km)} km ${periodo}`} style={{
-                              background: t.paper2, border: "none", borderRadius: 10, padding: "3px 8px", fontFamily: t.fMono, fontSize: 10, color: t.ink, cursor: "pointer", whiteSpace: "nowrap",
+                              background: t.paper2, border: "none", borderRadius: 10, padding: "3px 8px", fontFamily: t.fMono, fontSize: 12, color: t.ink, cursor: "pointer", whiteSpace: "nowrap",
                             }}>{name(v)} · {nf0.format(v.km)} km</button>
-                          )) : <span style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL }}>{r.units} {r.units === 1 ? "unidad pasó" : "unidades pasaron"} por aquí; ninguna tiene aquí su zona principal.</span>}
+                          )) : <span style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL }}>{r.units} {r.units === 1 ? "unidad pasó" : "unidades pasaron"} por aquí; ninguna tiene aquí su zona principal.</span>}
                         </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-              <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "12px 0 0", lineHeight: 1.5 }}>
+              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, margin: "12px 0 0", lineHeight: 1.5 }}>
                 Cada unidad aparece en el estado donde hizo más km {periodo}. Se muestran estados con 50 km o más.
                 {roam.length > 0 && <> Las que más se mueven entre estados: {list(roam.slice(0, 5).map(v => `${name(v)} (${v.states_n})`))}.</>}
               </p>
@@ -757,7 +759,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
             .sort((a, b) => order.indexOf(battLevel(a)) - order.indexOf(battLevel(b)) || Number(a.batt_v_rest_min ?? 99) - Number(b.batt_v_rest_min ?? 99));
           const ok = withData.length - flagged.length;
           const badge = (lv: BattLevel) => (
-            <span style={{ fontFamily: t.fMono, fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 10, whiteSpace: "nowrap",
+            <span style={{ fontFamily: t.fMono, fontSize: 12, fontWeight: 700, padding: "3px 8px", borderRadius: 10, whiteSpace: "nowrap",
               background: lv === "baja" ? "#FCE4DE" : lv === "corte" ? "#E6E9F2" : "#FFF1D6",
               color: lv === "baja" ? t.crimson : lv === "corte" ? t.ink3 : "#B87500" }}>
               {lv === "baja" ? "BATERÍA BAJA" : lv === "corte" ? "SIN CORRIENTE" : "VIGILAR"}
@@ -766,19 +768,19 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
           return (
             <div id="rep-bateria" style={{ ...card, scrollMarginTop: 12 }}>
               <div style={label}>Batería de las unidades</div>
-              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
+              <p style={{ fontFamily: t.fBody, fontSize: 15, color: t.ink3, margin: "8px 0 12px", lineHeight: 1.5 }}>
                 El GPS mide el voltaje de la batería del vehículo. Con el motor apagado, una batería sana marca alrededor de 12.6 V; por debajo de {nf1.format(BATT_LOW_V)} V está descargada y la unidad puede no arrancar.
                 {flagged.length ? <> <b>{flagged.length} {flagged.length === 1 ? "unidad necesita" : "unidades necesitan"} revisión</b> y {ok} {ok === 1 ? "está" : "están"} bien.</> : <> <b style={{ color: "#2E7D32" }}>Las {ok} unidades están bien.</b></>}
               </p>
               {flagged.length > 0 && (
                 <div className="lk-tablewrap">
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 15 }}>
                     <thead>
                       <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
                         {["Unidad", "Estado", "Voltaje en reposo", "Mínimo en reposo", "Días bajo 12 V", "Días sin corriente", "Batería del GPS", "Zona"].map((h, k) => (
                           <th key={h} style={{ ...label, textAlign: k < 2 ? "left" : "right", padding: "8px 10px", fontWeight: 500, whiteSpace: "nowrap" }}>{h}</th>
                         ))}
-                        <th />
+                        <th className="lk-stick" />
                       </tr>
                     </thead>
                     <tbody>
@@ -793,8 +795,8 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                             <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{n0(v.batt_low_days) || "—"}</td>
                             <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{n0(v.power_cut_days) || "—"}</td>
                             <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: Number(v.batt_gps_min ?? 100) < 30 ? "#B87500" : t.ink }}>{v.batt_gps_min != null ? `${v.batt_gps_min}% mín.` : "—"}</td>
-                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontSize: 11, color: t.mutedL, whiteSpace: "nowrap" }}>{v.top_state ?? "—"}</td>
-                            <td style={{ padding: 10, textAlign: "right" }}>
+                            <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontSize: 13, color: t.mutedL, whiteSpace: "nowrap" }}>{v.top_state ?? "—"}</td>
+                            <td className="lk-stick" style={{ padding: 10, textAlign: "right" }}>
                               <button onClick={() => onOpenVehicle(v.vehicle_id)} style={ghost}>Ver recorrido</button>
                             </td>
                           </tr>
@@ -804,7 +806,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                   </table>
                 </div>
               )}
-              <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
+              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
                 BATERÍA BAJA = 3 días o más con menos de {nf1.format(BATT_LOW_V)} V en reposo {isYear ? "en el año" : "en el mes"}; VIGILAR = algún día bajo o un día sin corriente; SIN CORRIENTE = 2 días o más en que el GPS dejó de recibir corriente del vehículo (batería desconectada, taller o equipo manipulado).
                 Voltaje en reposo: promedio diario con el motor apagado. Una unidad parada muchos días también descarga su batería.
               </p>
@@ -816,7 +818,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
         <div id="rep-unidades" style={{ ...card, scrollMarginTop: 12 }}>
           <div style={label}>Unidades en {selName} · toca un encabezado para ordenar</div>
           <div className="lk-tablewrap" style={{ marginTop: 10 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 15 }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
                   {th(null, "Unidad", "left")}
@@ -831,7 +833,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                   {th("first_move_avg", "Sale")}
                   {th("last_move_avg", "Regresa")}
                   {th("liters", settings?.fuel_price_mxn != null ? "Combustible est." : "Litros est.")}
-                  <th />
+                  <th className="lk-stick" />
                 </tr>
               </thead>
               <tbody>
@@ -842,7 +844,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                     <tr key={r.vehicle_id} style={{ borderBottom: `1px solid ${t.paper2}`, opacity: unused ? 0.6 : 1 }}>
                       <td style={{ padding: 10, minWidth: 150 }}>
                         <div style={{ fontWeight: 700, color: t.ink, whiteSpace: "nowrap" }}>{name(r)}{r.alias && r.plate ? <span style={{ fontWeight: 400, color: t.mutedL }}> · {r.plate}</span> : null}</div>
-                        <div style={{ fontFamily: t.fMono, fontSize: 10, color: t.mutedL, marginTop: 2 }}>{r.device_id}{unused ? " · sin uso" : ""}</div>
+                        <div style={{ fontFamily: t.fMono, fontSize: 12, color: t.mutedL, marginTop: 2 }}>{r.device_id}{unused ? " · sin uso" : ""}</div>
                       </td>
                       <td style={{ padding: 10, textAlign: "right", minWidth: 100 }}>
                         <div style={{ fontFamily: t.fMono, fontWeight: 700 }}>{nf0.format(r.km)}</div>
@@ -854,7 +856,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{nf0.format(r.moving_h)} h</td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, whiteSpace: "nowrap", color: r.idle_h >= 5 && idlePct(r) >= 15 ? "#B87500" : t.ink }}>
                         <div style={{ fontWeight: r.idle_h >= 5 && idlePct(r) >= 15 ? 700 : 400 }}>{nf1.format(r.idle_h)} h <span style={{ color: t.mutedL, fontWeight: 400 }}>({nf0.format(idlePct(r))}%)</span></div>
-                        <div style={{ fontSize: 10, color: t.mutedL }}>≈ {nf0.format(Number(r.idle_h) * idleLph(r))} L{settings?.fuel_price_mxn != null ? ` · ${mxn.format(Number(r.idle_h) * idleLph(r) * Number(settings.fuel_price_mxn))}` : ""}</div>
+                        <div style={{ fontSize: 12, color: t.mutedL }}>≈ {nf0.format(Number(r.idle_h) * idleLph(r))} L{settings?.fuel_price_mxn != null ? ` · ${mxn.format(Number(r.idle_h) * idleLph(r) * Number(settings.fuel_price_mxn))}` : ""}</div>
                       </td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: r.speeding ? t.crimson : t.ink, fontWeight: r.speeding ? 700 : 400 }}>{nf0.format(r.speeding)}</td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, color: r.vmax >= 120 ? t.crimson : t.ink }}>{r.vmax}</td>
@@ -866,9 +868,9 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono }}>{r.last_move_avg ?? "—"}</td>
                       <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, whiteSpace: "nowrap" }}>
                         <div>{nf0.format(r.liters)} L</div>
-                        {settings?.fuel_price_mxn != null && <div style={{ fontSize: 10, color: t.mutedL }}>{mxn.format(Number(r.liters) * Number(settings.fuel_price_mxn))} · {nf1.format(Number(r.kmpl))} km/l</div>}
+                        {settings?.fuel_price_mxn != null && <div style={{ fontSize: 12, color: t.mutedL }}>{mxn.format(Number(r.liters) * Number(settings.fuel_price_mxn))} · {nf1.format(Number(r.kmpl))} km/l</div>}
                       </td>
-                      <td style={{ padding: 10, textAlign: "right" }}>
+                      <td className="lk-stick" style={{ padding: 10, textAlign: "right" }}>
                         <button onClick={() => onOpenVehicle(r.vehicle_id)} style={ghost}>Ver recorrido</button>
                       </td>
                     </tr>
@@ -877,7 +879,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
               </tbody>
             </table>
           </div>
-          <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
+          <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, margin: "10px 0 0", lineHeight: 1.5 }}>
             Sale / Regresa: hora promedio del primer y último movimiento en días hábiles. Ralentí: motor encendido sin moverse (horas, % del tiempo con motor encendido y gasolina estimada: ~1 L/h pickup, ~1.8 L/h camión mediano, ~3 L/h pesado).
             Litros estimados: km ÷ rendimiento de cada unidad. Las comparaciones contra el mes anterior son por día con datos.
           </p>
@@ -891,7 +893,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
             <div style={card}>
               <div style={label}>Kilómetros por unidad y por mes · {m.month.slice(0, 4)}</div>
               <div className="lk-tablewrap" style={{ marginTop: 10 }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 12 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 14 }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
                       <th style={{ ...label, textAlign: "left", padding: "8px 10px", fontWeight: 500 }}>Unidad</th>
@@ -921,7 +923,7 @@ export default function MonthlyReport({ clientId, fleetName, t, onOpenVehicle }:
                   </tbody>
                 </table>
               </div>
-              <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0" }}>
+              <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, margin: "10px 0 0" }}>
                 Más oscuro = más km. Datos {cov}. Toca una unidad para ver su recorrido.
               </p>
             </div>

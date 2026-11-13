@@ -160,10 +160,10 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
   }
 
   const card = { background: "#FFFFFF", border: `1px solid ${t.lineL}`, borderRadius: 10, padding: "16px 18px" };
-  const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
-  const input = { padding: "8px 10px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#fff", fontFamily: t.fBody, fontSize: 14, color: t.ink };
-  const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "10px 18px", fontFamily: t.fBody, fontWeight: 700, fontSize: 14, cursor: "pointer" };
-  const ghost = { background: "transparent", color: t.ink, border: `1px solid ${t.lineL}`, borderRadius: 6, padding: "9px 14px", fontFamily: t.fBody, fontWeight: 600, fontSize: 13, cursor: "pointer" };
+  const label = { fontFamily: t.fMono, fontSize: 12, color: t.mutedL, letterSpacing: "0.08em", textTransform: "uppercase" as const };
+  const input = { padding: "8px 10px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#fff", fontFamily: t.fBody, fontSize: 16, color: t.ink };
+  const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "10px 18px", fontFamily: t.fBody, fontWeight: 700, fontSize: 16, cursor: "pointer" };
+  const ghost = { background: "transparent", color: t.ink, border: `1px solid ${t.lineL}`, borderRadius: 6, padding: "9px 14px", fontFamily: t.fBody, fontWeight: 600, fontSize: 15, cursor: "pointer" };
   const maxKm = Math.max(1, ...rows.map(r => r.km));
   const horario = s ? horarioTxt(s) : "";
 
@@ -181,7 +181,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
         <div style={{ flex: "1 1 240px" }}>
           <div style={label}>Resumen de la flotilla</div>
-          <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 22, color: t.ink, marginTop: 4 }}>{fleetName}</div>
+          <div style={{ fontFamily: t.fBody, fontWeight: 800, fontSize: 24, color: t.ink, marginTop: 4 }}>{fleetName}</div>
         </div>
         <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <span style={label}>Desde</span>
@@ -196,8 +196,8 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
         </button>
       </div>
 
-      {err && <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.crimson, margin: 0 }}>{err}</p>}
-      {!data && loading && <p style={{ fontFamily: t.fMono, fontSize: 12, color: t.mutedL }}>Calculando la flotilla…</p>}
+      {err && <p style={{ fontFamily: t.fBody, fontSize: 16, color: t.crimson, margin: 0 }}>{err}</p>}
+      {!data && loading && <p style={{ fontFamily: t.fMono, fontSize: 14, color: t.mutedL }}>Calculando la flotilla…</p>}
 
       {data && (<>
         {/* Cifras */}
@@ -212,8 +212,8 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
           ].map(([k, v, sub]) => (
             <div key={k} style={card}>
               <div style={label}>{k}</div>
-              <div style={{ fontFamily: t.fMono, fontSize: 22, fontWeight: 700, color: k.startsWith("Excesos") && tot.speeding ? t.crimson : t.ink, marginTop: 6 }}>{v}</div>
-              <div style={{ fontFamily: t.fBody, fontSize: 12, color: t.mutedL, marginTop: 4 }}>{sub}</div>
+              <div style={{ fontFamily: t.fMono, fontSize: 24, fontWeight: 700, color: k.startsWith("Excesos") && tot.speeding ? t.crimson : t.ink, marginTop: 6 }}>{v}</div>
+              <div style={{ fontFamily: t.fBody, fontSize: 14, color: t.mutedL, marginTop: 4 }}>{sub}</div>
             </div>
           ))}
         </div>
@@ -226,10 +226,10 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
               {insights.map((i, k) => (
                 <li key={k} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
                   <span aria-hidden style={{ flex: "0 0 auto", width: 8, height: 8, borderRadius: 4, marginTop: 7, background: i.tone === "bad" ? "#E04E2A" : i.tone === "warn" ? "#F6A623" : t.signal }} />
-                  <span style={{ fontFamily: t.fBody, fontSize: 14, lineHeight: 1.45 }}>
+                  <span style={{ fontFamily: t.fBody, fontSize: 16, lineHeight: 1.45 }}>
                     {i.text}
                     {i.vehicleId && (
-                      <button onClick={() => onOpenVehicle(i.vehicleId!)} style={{ marginLeft: 8, background: "none", border: "none", color: t.signal, fontFamily: t.fMono, fontSize: 11, cursor: "pointer", textDecoration: "underline", padding: 0 }}>
+                      <button onClick={() => onOpenVehicle(i.vehicleId!)} style={{ marginLeft: 8, background: "none", border: "none", color: t.signal, fontFamily: t.fMono, fontSize: 13, cursor: "pointer", textDecoration: "underline", padding: 0 }}>
                         ver recorrido
                       </button>
                     )}
@@ -270,7 +270,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
           )}
 
           <div className="lk-tablewrap" style={{ marginTop: 10 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 15 }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
                   {th(null, "Unidad", "left")}
@@ -283,7 +283,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
                   {th("vmax", "Vel. máx")}
                   {th("liters", editing ? "km/l" : "Litros est.")}
                   {th("last_ts", "Último reporte")}
-                  <th />
+                  <th className="lk-stick" />
                 </tr>
               </thead>
               <tbody>
@@ -308,7 +308,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
                             ) : null}
                             <div>
                             <div style={{ fontWeight: 700, color: t.ink }}>{name(r)}{r.alias && r.plate ? <span style={{ fontWeight: 400, color: t.mutedL }}> · {r.plate}</span> : null}</div>
-                            <div style={{ fontFamily: t.fMono, fontSize: 10, color: t.mutedL, marginTop: 2 }}>
+                            <div style={{ fontFamily: t.fMono, fontSize: 12, color: t.mutedL, marginTop: 2 }}>
                               {r.device_id}{idle ? " · poco uso" : ""}{!r.ign_reported ? " · sin ignición" : ""}{!r.speed_reported ? " · vel. calculada" : ""}
                             </div>
                             </div>
@@ -338,13 +338,13 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
                         ) : (
                           <>
                             <div>{nf0.format(r.liters)} L</div>
-                            <div style={{ fontSize: 10, color: t.mutedL }}>{r.cost != null ? mxn.format(r.cost) + " · " : ""}{nf1.format(kmlOf(r))} km/l{r.fuel_km_per_l == null ? "*" : ""}</div>
+                            <div style={{ fontSize: 12, color: t.mutedL }}>{r.cost != null ? mxn.format(r.cost) + " · " : ""}{nf1.format(kmlOf(r))} km/l{r.fuel_km_per_l == null ? "*" : ""}</div>
                           </>
                         )}
                       </td>
-                      <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontSize: 12, color: a.h > 24 ? t.crimson : t.ink, whiteSpace: "nowrap" }}>{a.txt}</td>
-                      <td style={{ padding: 10, textAlign: "right" }}>
-                        <button onClick={() => onOpenVehicle(r.id)} style={{ ...ghost, padding: "6px 10px", fontSize: 12, whiteSpace: "nowrap" }}>Ver recorrido</button>
+                      <td style={{ padding: 10, textAlign: "right", fontFamily: t.fMono, fontSize: 14, color: a.h > 24 ? t.crimson : t.ink, whiteSpace: "nowrap" }}>{a.txt}</td>
+                      <td className="lk-stick" style={{ padding: 10, textAlign: "right" }}>
+                        <button onClick={() => onOpenVehicle(r.id)} style={{ ...ghost, padding: "6px 10px", fontSize: 14, whiteSpace: "nowrap" }}>Ver recorrido</button>
                       </td>
                     </tr>
                   );
@@ -352,7 +352,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
               </tbody>
             </table>
           </div>
-          <p style={{ fontFamily: t.fBody, fontSize: 11, color: t.mutedL, margin: "10px 0 0" }}>
+          <p style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, margin: "10px 0 0" }}>
             Combustible estimado: km ÷ rendimiento de cada unidad (* = rendimiento por defecto de la flotilla). Fuera de horario: fuera de {horario}.
             “Vel. calculada”: el equipo no manda velocidad y se estima con la distancia entre reportes.
           </p>

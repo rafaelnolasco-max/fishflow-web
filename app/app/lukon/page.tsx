@@ -45,6 +45,7 @@ const RESPONSIVE_CSS = `
 .lk-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .lk-grid-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
 .lk-tablewrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.lk-tablewrap .lk-stick{ position:sticky; right:0; background:#FFFFFF; box-shadow:-10px 0 10px -10px rgba(0,13,50,.22); }
 .lk-main{ min-width:0; overflow-wrap:anywhere; }
 .lk-main img, .lk-main video, .lk-main canvas{ max-width:100%; }
 
@@ -434,7 +435,7 @@ function LukonDashboard() {
       </div>
 
       {/* ── Contenido ─────────────────────────────────────────────────────────── */}
-      <main className="lk-main" style={{ maxWidth: tab === "recorridos" ? 1200 : tab === "prospectos" || tab === "instalaciones" ? 1000 : 800, margin: "0 auto" }}>
+      <main className="lk-main" style={{ maxWidth: tab === "recorridos" ? 1400 : tab === "prospectos" || tab === "instalaciones" ? 1000 : 800, margin: "0 auto" }}>
 
         {/* ════ TAB: COBRAR ════════════════════════════════════════════════════ */}
         {tab === "cobrar" && (

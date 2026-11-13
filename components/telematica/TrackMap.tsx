@@ -228,12 +228,12 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
   const cur = pts[idx];
   const selPhoto = withData.find(v => v.id === vehicleId)?.photo_url ?? null;
 
-  const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
-  const input = { padding: "10px 12px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#FFFFFF", fontFamily: t.fBody, fontSize: 14, color: t.ink };
-  const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "10px 18px", fontFamily: t.fBody, fontWeight: 700, fontSize: 14, cursor: "pointer" };
+  const label = { fontFamily: t.fMono, fontSize: 12, color: t.mutedL, letterSpacing: "0.08em", textTransform: "uppercase" as const };
+  const input = { padding: "10px 12px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#FFFFFF", fontFamily: t.fBody, fontSize: 16, color: t.ink };
+  const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "10px 18px", fontFamily: t.fBody, fontWeight: 700, fontSize: 16, cursor: "pointer" };
 
   if (!withData.length) {
-    return <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.mutedL }}>Esta flotilla todavía no tiene recorridos. Sube sus archivos en “Cargar datos”.</p>;
+    return <p style={{ fontFamily: t.fBody, fontSize: 16, color: t.mutedL }}>Esta flotilla todavía no tiene recorridos. Sube sus archivos en “Cargar datos”.</p>;
   }
 
   return (
@@ -265,7 +265,7 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
         </button>
       </div>
 
-      {err && <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.crimson, marginBottom: 14 }}>{err}</p>}
+      {err && <p style={{ fontFamily: t.fBody, fontSize: 16, color: t.crimson, marginBottom: 14 }}>{err}</p>}
 
       {/* Tablero de la unidad */}
       {loading ? null : <VehicleDashboard pts={pts} t={t} />}
@@ -277,12 +277,12 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
           {(["oscuro", "claro"] as Basemap[]).map(b => (
             <button key={b} onClick={() => setBase(b)} aria-pressed={base === b} style={{
               background: base === b ? t.signal : "transparent", color: base === b ? t.ink : "#F6F9FE",
-              border: "none", borderRadius: 4, padding: "5px 10px", fontFamily: t.fMono, fontSize: 11, cursor: "pointer",
+              border: "none", borderRadius: 4, padding: "5px 10px", fontFamily: t.fMono, fontSize: 13, cursor: "pointer",
             }}>{b === "oscuro" ? "Oscuro" : "Claro"}</button>
           ))}
         </div>
         {!pts.length && !loading && (
-          <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#F6F9FE", fontFamily: t.fBody, fontSize: 14, zIndex: 500, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#F6F9FE", fontFamily: t.fBody, fontSize: 16, zIndex: 500, pointerEvents: "none" }}>
             Sin puntos en ese rango
           </div>
         )}
@@ -300,11 +300,11 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
               <button key={sp.label} onClick={() => setSpeed(i)} style={{
                 background: i === speed ? "#0E2150" : "transparent", color: i === speed ? t.signal : "#8DA2C8",
                 border: `1px solid ${i === speed ? t.signal : "#1E3A70"}`, borderRadius: 6, padding: "6px 10px",
-                fontFamily: t.fMono, fontSize: 11, cursor: "pointer",
+                fontFamily: t.fMono, fontSize: 13, cursor: "pointer",
               }}>{sp.label}</button>
             ))}
           </div>
-          <div style={{ fontFamily: t.fMono, fontSize: 13, marginLeft: "auto" }}>
+          <div style={{ fontFamily: t.fMono, fontSize: 15, marginLeft: "auto" }}>
             {cur ? `${fmtTs(cur.ts)} · ${cur.speed_kmh ?? 0} km/h` : "—"}
           </div>
         </div>
@@ -312,7 +312,7 @@ export default function TrackMap({ vehicles, t, initialVehicleId }: { vehicles: 
           onChange={e => { const v = Number(e.target.value); setPlaying(false); idxRef.current = v; setIdx(v); drawTo(v); }}
           aria-label="Posición en el recorrido"
           style={{ width: "100%", marginTop: 12, accentColor: t.signal }} />
-        <div style={{ fontFamily: t.fBody, fontSize: 12, color: "#8DA2C8", marginTop: 4, minHeight: 16, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div style={{ fontFamily: t.fBody, fontSize: 14, color: "#8DA2C8", marginTop: 4, minHeight: 16, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {cur?.address ?? ""}
         </div>
       </div>

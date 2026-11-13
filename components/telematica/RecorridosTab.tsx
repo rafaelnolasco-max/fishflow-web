@@ -152,9 +152,9 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
   // Al cambiar de flotilla: reporte mensual si tiene 3+ unidades con datos, si no el mapa.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (fleetId) { setView(fleetReady ? "mensual" : "mapa"); setFocusVehicle(undefined); } }, [fleetId]);
-  const h2 = { fontFamily: t.fMono, fontSize: 13, fontWeight: 500, color: t.mutedL, letterSpacing: "0.2em", textTransform: "uppercase" as const, margin: "0 0 28px" };
-  const label = { fontFamily: t.fMono, fontSize: 10, color: t.mutedL, letterSpacing: "0.15em", textTransform: "uppercase" as const };
-  const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "12px 22px", fontFamily: t.fBody, fontWeight: 700, fontSize: 14, cursor: "pointer" };
+  const h2 = { fontFamily: t.fMono, fontSize: 15, fontWeight: 500, color: t.mutedL, letterSpacing: "0.12em", textTransform: "uppercase" as const, margin: "0 0 28px" };
+  const label = { fontFamily: t.fMono, fontSize: 12, color: t.mutedL, letterSpacing: "0.08em", textTransform: "uppercase" as const };
+  const btn = { background: t.ink, color: t.signal, border: "none", borderRadius: 6, padding: "12px 22px", fontFamily: t.fBody, fontWeight: 700, fontSize: 16, cursor: "pointer" };
 
   return (
     <div>
@@ -164,7 +164,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
         <span style={label}>Flotilla (cliente)</span>
         <select value={fleetId} onChange={e => setFleetId(e.target.value)} disabled={loading || !fleets.length}
-          style={{ padding: "12px 14px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#FFFFFF", fontFamily: t.fBody, fontSize: 15, color: t.ink }}>
+          style={{ padding: "12px 14px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#FFFFFF", fontFamily: t.fBody, fontSize: 16, color: t.ink }}>
           {!fleets.length && <option value="">{loading ? "Cargando…" : "Sin flotillas dadas de alta"}</option>}
           {fleets.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
         </select>
@@ -176,7 +176,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
           <button key={v} onClick={() => setView(v)} style={{
             background: view === v ? t.ink : "transparent", color: view === v ? t.signal : t.mutedL,
             border: `1px solid ${view === v ? t.ink : t.lineL}`, borderRadius: 6, padding: "8px 16px",
-            fontFamily: t.fBody, fontWeight: 600, fontSize: 13, cursor: "pointer",
+            fontFamily: t.fBody, fontWeight: 600, fontSize: 15, cursor: "pointer",
           }}>{v === "mensual" ? "Reporte mensual" : v === "flotilla" ? "Flotilla" : v === "mapa" ? "Mapa por unidad" : "Cargar datos"}</button>
         ))}
       </div>
@@ -210,18 +210,18 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
         <input type="file" accept=".csv,.xlsx,.xls" multiple disabled={!fleetId || !!busy}
           style={{ display: "none" }}
           onChange={e => { const fs = Array.from(e.target.files ?? []); if (fs.length) onFiles(fs); e.target.value = ""; }} />
-        <div style={{ fontFamily: t.fBody, fontWeight: 600, fontSize: 15, color: t.ink }}>{dragOver ? "Suelta los archivos aquí" : "Arrastra aquí los exports CSV o XLSX, o haz clic para escogerlos"}</div>
-        <div style={{ fontFamily: t.fBody, fontSize: 13, color: t.mutedL, marginTop: 6 }}>
+        <div style={{ fontFamily: t.fBody, fontWeight: 600, fontSize: 16, color: t.ink }}>{dragOver ? "Suelta los archivos aquí" : "Arrastra aquí los exports CSV o XLSX, o haz clic para escogerlos"}</div>
+        <div style={{ fontFamily: t.fBody, fontSize: 15, color: t.mutedL, marginTop: 6 }}>
           Todos los archivos de la flotilla de un jalón; cada unidad se separa sola. Volver a subir un archivo no duplica datos.
         </div>
       </label>
 
-      {busy === "leyendo" && <p style={{ fontFamily: t.fMono, fontSize: 12, color: t.mutedL }}>Leyendo archivos…</p>}
+      {busy === "leyendo" && <p style={{ fontFamily: t.fMono, fontSize: 14, color: t.mutedL }}>Leyendo archivos…</p>}
 
       {items.length > 0 && (
         <div style={{ border: `1px solid ${t.lineL}`, borderRadius: 10, padding: 20, marginBottom: 24, background: "#FFFFFF" }}>
           <div className="lk-tablewrap">
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 15 }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
                   {["Archivo", "Equipo", "Registros", "Periodo", "Estado"].map(h => (
@@ -235,15 +235,15 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
                     <td style={{ padding: 10, color: t.ink3, maxWidth: 260 }}>
                       <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.filename}</div>
                       {it.missing.length > 0 && (
-                        <div style={{ fontFamily: t.fMono, fontSize: 10, color: "#B87500", marginTop: 2, whiteSpace: "normal" }}>
+                        <div style={{ fontFamily: t.fMono, fontSize: 12, color: "#B87500", marginTop: 2, whiteSpace: "normal" }}>
                           No trae: {it.missing.join(", ")}
                         </div>
                       )}
                     </td>
-                    <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 11 }}>{it.device_id}</td>
+                    <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 13 }}>{it.device_id}</td>
                     <td style={{ padding: 10, fontFamily: t.fMono }}>{nf.format(it.points.length)}</td>
-                    <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 11, color: t.mutedL }}>{fmtDay(it.ts_min)} – {fmtDay(it.ts_max)}</td>
-                    <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 11, color: it.status === "error" ? t.crimson : t.ink }}>
+                    <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 13, color: t.mutedL }}>{fmtDay(it.ts_min)} – {fmtDay(it.ts_max)}</td>
+                    <td style={{ padding: 10, fontFamily: t.fMono, fontSize: 13, color: it.status === "error" ? t.crimson : t.ink }}>
                       {it.status === "pendiente" && "Por subir"}
                       {it.status === "subiendo" && `${Math.round((it.sent / it.points.length) * 100)}%`}
                       {it.status === "listo" && `${nf.format(it.inserted)} nuevos`}
@@ -259,7 +259,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
               {busy === "subiendo" ? "Guardando…" : `Guardar ${items.filter(i => i.status === "pendiente" || i.status === "error").length} unidad(es) en ${fleet?.name ?? "la flotilla"}`}
             </button>
             {!busy && (
-              <button onClick={() => setItems([])} style={{ background: "none", border: "none", color: t.mutedL, fontFamily: t.fBody, fontSize: 13, cursor: "pointer", textDecoration: "underline" }}>
+              <button onClick={() => setItems([])} style={{ background: "none", border: "none", color: t.mutedL, fontFamily: t.fBody, fontSize: 15, cursor: "pointer", textDecoration: "underline" }}>
                 Limpiar lista
               </button>
             )}
@@ -268,7 +268,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
       )}
 
       {error && (
-        <p style={{ fontFamily: t.fBody, fontSize: 14, color: t.crimson, border: `1px solid ${t.crimson}44`, borderRadius: 8, padding: "12px 16px", marginBottom: 24 }}>
+        <p style={{ fontFamily: t.fBody, fontSize: 16, color: t.crimson, border: `1px solid ${t.crimson}44`, borderRadius: 8, padding: "12px 16px", marginBottom: 24 }}>
           {error}
         </p>
       )}
@@ -276,7 +276,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
       {/* Unidades de la flotilla */}
       <div style={{ ...label, margin: "8px 0 10px" }}>Unidades de {fleet?.name ?? "la flotilla"}</div>
       <div className="lk-tablewrap">
-        <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 13 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: t.fBody, fontSize: 15 }}>
           <thead>
             <tr style={{ borderBottom: `1px solid ${t.lineL}` }}>
               {["Unidad", "Equipo", "Registros", "Desde", "Hasta"].map(h => (
@@ -288,10 +288,10 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
             {(fleet?.vehicles ?? []).map(v => (
               <tr key={v.id} style={{ borderBottom: `1px solid ${t.paper2}` }}>
                 <td style={{ padding: 12, fontWeight: 600, color: t.ink }}>{v.alias ?? "—"}{v.plate ? ` · ${v.plate}` : ""}</td>
-                <td style={{ padding: 12, fontFamily: t.fMono, fontSize: 11, color: t.ink3 }}>{v.device_id}</td>
+                <td style={{ padding: 12, fontFamily: t.fMono, fontSize: 13, color: t.ink3 }}>{v.device_id}</td>
                 <td style={{ padding: 12, fontFamily: t.fMono, fontWeight: 600 }}>{nf.format(v.points)}</td>
-                <td style={{ padding: 12, fontFamily: t.fMono, fontSize: 11, color: t.mutedL }}>{fmtDay(v.ts_min)}</td>
-                <td style={{ padding: 12, fontFamily: t.fMono, fontSize: 11, color: t.mutedL }}>{fmtDay(v.ts_max)}</td>
+                <td style={{ padding: 12, fontFamily: t.fMono, fontSize: 13, color: t.mutedL }}>{fmtDay(v.ts_min)}</td>
+                <td style={{ padding: 12, fontFamily: t.fMono, fontSize: 13, color: t.mutedL }}>{fmtDay(v.ts_max)}</td>
               </tr>
             ))}
             {!fleet?.vehicles?.length && (
