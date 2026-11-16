@@ -133,7 +133,7 @@ async function syncAccount(sb: SupabaseClient, a: Account, opt: { dryRun: boolea
     const units = (vehicles ?? []) as { vehicle_id: string; device_id: string; last_ts: string | null }[];
     out.units = units.length;
     let minTs = null as string | null, maxTs = null as string | null;
-    let tokenRefreshed = false, stop = false;
+    let refreshing = null as Promise<string> | null, stop = false;
 
     await pool(units, CONCURRENCY, async (u) => {
       if (stop) return;
@@ -143,10 +143,10 @@ async function syncAccount(sb: SupabaseClient, a: Account, opt: { dryRun: boolea
       const from = new Date(now.getTime() - Math.min(backMs, MAX_BACK_H * 3600_000));
       const fields = { apikey: a.apikey!, token, equipo: u.device_id, fechaIni: local(from), fechaFin: local(new Date(now.getTime() + 3600_000)), format: "DateTime" };
       let r = await api("history/get", fields);
-      // Token vencido o inválido: se renueva una sola vez por corrida
-      if (r.status !== 200 && !Array.isArray(r.data) && /token/i.test(JSON.stringify(r.raw)) && !tokenRefreshed) {
-        tokenRefreshed = true;
-        token = await getToken(sb, a, true);
+      // Token vencido o inválido (30400): se renueva una sola vez por corrida, compartido entre unidades
+      if (r.status === 30400 || (r.status !== 200 && !Array.isArray(r.data) && /token/i.test(JSON.stringify(r.raw)))) {
+        refreshing ??= getToken(sb, a, true);
+        token = await refreshing;
         r = await api("history/get", { ...fields, token });
       }
       if (r.status !== 200 || !Array.isArray(r.data)) {
