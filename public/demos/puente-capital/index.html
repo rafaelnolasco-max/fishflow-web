@@ -198,6 +198,10 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
 .pie{background:var(--tinta);color:#B9C7C3;font-size:.88rem;padding:30px 0 40px}
 .pie p + p{margin-top:8px}
 .pie b{color:#fff}
+.ff-credit{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:none;opacity:.6;transition:opacity .2s;}
+.ff-credit:hover,.ff-credit:focus-visible{opacity:1;}
+.ff-credit__logo{width:22px;height:12px;flex:none;}
+.ff-credit b{font-weight:600;color:inherit}
 
 /* panel */
 .panel{padding:32px 0 70px}
@@ -434,7 +438,7 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
     <p><b>Puente Capital</b>, asesoría en crédito. Ciudad de México.</p>
     <p>Puente Capital no es una institución financiera ni otorga créditos. Asesora y gestiona solicitudes ante bancos e instituciones autorizadas. Ningún trámite garantiza la aprobación.</p>
     <p>Aviso de privacidad y términos: se redactan con los datos del responsable antes de publicar.</p>
-    <p>Sitio demo preparado por FishFlow.</p>
+    <p class="ff-credit-wrap"><a class="ff-credit" href="https://fishflow.mx/?utm_source=demo-puente-capital&amp;utm_medium=credito-footer&amp;utm_campaign=sitios-clientes" target="_blank" rel="noopener" title="Sitio hecho por FishFlow">Hecho con <svg class="ff-credit__logo" viewBox="170 70 860 460" aria-hidden="true"><path d="M600 300C760 100 1000 90 1000 300C1000 510 760 500 600 300C440 100 200 90 200 300C200 510 440 500 600 300Z" fill="none" stroke="currentColor" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/></svg><b>FishFlow</b></a></p>
   </div>
 </footer>
 </div>
@@ -470,7 +474,7 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
 
   /* ---------- datos ---------- */
   var DOCS = {
-    empresa:['Acta constitutiva y poderes','Constancia de situación fiscal','Identificación del representante legal','Comprobante de domicilio fiscal','Estados de cuenta bancarios (6 meses)','Estados financieros (2 ejercicios)','Última declaración anual','Autorización de consulta de buró'],
+    empresa:['Reporte de buró de crédito','Constancia de situación fiscal','Opinión de cumplimiento del SAT','Estados de cuenta bancarios'],
     personal:['Identificación oficial (INE)','Comprobante de domicilio','Comprobantes de ingresos (3 meses)','Estados de cuenta (3 meses)','Constancia de situación fiscal','Autorización de consulta de buró'],
     hipotecario:['Identificación oficial (INE)','Acta de nacimiento','Comprobante de domicilio','Comprobantes de ingresos (3 meses)','Estados de cuenta (6 meses)','Constancia de situación fiscal','Datos del inmueble que quieres comprar','Autorización de consulta de buró']
   };
@@ -480,9 +484,9 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
   };
   var leads = [
     {nombre:'Laura M.',origen:'Anuncio de Facebook',tipo:'Crédito hipotecario',monto:3200000,clave:'hipotecario',subidos:8,medio:'correo'},
-    {nombre:'Transportes del Valle',origen:'Anuncio de Facebook',tipo:'Arrendamiento',monto:6500000,clave:'empresa',subidos:5,medio:'llamada'},
+    {nombre:'Transportes del Valle',origen:'Anuncio de Facebook',tipo:'Arrendamiento',monto:6500000,clave:'empresa',subidos:2,medio:'llamada'},
     {nombre:'Jorge R.',origen:'Sitio web',tipo:'Crédito personal',monto:350000,clave:'personal',subidos:0,medio:'whatsapp'},
-    {nombre:'Clínica Dental Sonríe',origen:'Recomendación',tipo:'Crédito simple',monto:1800000,clave:'empresa',subidos:8,medio:'correo'},
+    {nombre:'Clínica Dental Sonríe',origen:'Recomendación',tipo:'Crédito simple',monto:1800000,clave:'empresa',subidos:4,medio:'correo'},
     {nombre:'Paola G.',origen:'Anuncio de Instagram',tipo:'Crédito automotriz',monto:420000,clave:'personal',subidos:3,medio:'whatsapp'}
   ];
   var miLead = null;           // la solicitud que se crea en esta sesión
