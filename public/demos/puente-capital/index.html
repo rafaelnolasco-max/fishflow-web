@@ -157,6 +157,9 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
 .campo{display:block;margin-top:14px}
 .campo span{display:block;font-weight:600;font-size:.95rem;margin-bottom:6px}
 .campo input,.campo select{width:100%;border:1.5px solid #9FB1AC;border-radius:10px;padding:12px 14px;background:#fff;min-height:48px}
+.campo-titulo{font-weight:600;font-size:.95rem;margin:16px 0 6px}
+.opciones-3{grid-template-columns:repeat(3,1fr)}
+.opciones-3 .opcion span{text-align:center;padding:12px 6px}
 .error{color:#A32020;font-size:.92rem;margin-top:10px}
 .pie-asistente{display:flex;justify-content:space-between;gap:10px;margin-top:24px}
 .legal{font-size:.86rem;color:#4A5D59;margin-top:14px}
@@ -332,7 +335,7 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
 <section class="seccion pre" id="precalifica">
   <div class="contenedor">
     <h2>Ver si califico</h2>
-    <p class="intro">Cinco preguntas. Al terminar sabes qué sigue y un asesor te contacta.</p>
+    <p class="intro">Cinco preguntas. Al terminar sabes qué sigue y un asesor te contacta por el medio que elijas.</p>
     <form class="asistente" id="asistente" novalidate>
       <div class="avance" id="avance" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 
@@ -366,7 +369,14 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
       <fieldset data-paso="4" class="oculto">
         <legend>¿A quién contactamos?</legend>
         <label class="campo"><span>Nombre</span><input name="nombre" autocomplete="name"></label>
-        <label class="campo"><span>WhatsApp</span><input name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="55 0000 0000"></label>
+        <label class="campo"><span>Correo electrónico</span><input name="correo" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"></label>
+        <label class="campo"><span>WhatsApp o teléfono</span><input name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="55 0000 0000"></label>
+        <p class="campo-titulo">¿Cómo prefieres que te contactemos?</p>
+        <div class="opciones opciones-3">
+          <label class="opcion"><input type="radio" name="medio" value="correo" checked><span>Correo</span></label>
+          <label class="opcion"><input type="radio" name="medio" value="whatsapp"><span>WhatsApp</span></label>
+          <label class="opcion"><input type="radio" name="medio" value="llamada"><span>Llamada</span></label>
+        </div>
         <p class="legal">Tus datos se usan solo para atender esta solicitud, conforme al aviso de privacidad.</p>
       </fieldset>
 
@@ -469,11 +479,11 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
     persona:[['Crédito hipotecario','hipotecario'],['Crédito personal','personal'],['Crédito automotriz','personal'],['Liquidez con garantía','hipotecario']]
   };
   var leads = [
-    {nombre:'Laura M.',origen:'Anuncio de Facebook',tipo:'Crédito hipotecario',monto:3200000,clave:'hipotecario',subidos:8},
-    {nombre:'Transportes del Valle',origen:'Anuncio de Facebook',tipo:'Arrendamiento',monto:6500000,clave:'empresa',subidos:5},
-    {nombre:'Jorge R.',origen:'Sitio web',tipo:'Crédito personal',monto:350000,clave:'personal',subidos:0},
-    {nombre:'Clínica Dental Sonríe',origen:'Recomendación',tipo:'Crédito simple',monto:1800000,clave:'empresa',subidos:8},
-    {nombre:'Paola G.',origen:'Anuncio de Instagram',tipo:'Crédito automotriz',monto:420000,clave:'personal',subidos:3}
+    {nombre:'Laura M.',origen:'Anuncio de Facebook',tipo:'Crédito hipotecario',monto:3200000,clave:'hipotecario',subidos:8,medio:'correo'},
+    {nombre:'Transportes del Valle',origen:'Anuncio de Facebook',tipo:'Arrendamiento',monto:6500000,clave:'empresa',subidos:5,medio:'llamada'},
+    {nombre:'Jorge R.',origen:'Sitio web',tipo:'Crédito personal',monto:350000,clave:'personal',subidos:0,medio:'whatsapp'},
+    {nombre:'Clínica Dental Sonríe',origen:'Recomendación',tipo:'Crédito simple',monto:1800000,clave:'empresa',subidos:8,medio:'correo'},
+    {nombre:'Paola G.',origen:'Anuncio de Instagram',tipo:'Crédito automotriz',monto:420000,clave:'personal',subidos:3,medio:'whatsapp'}
   ];
   var miLead = null;           // la solicitud que se crea en esta sesión
   var subidos = {};            // {clave:{indice:nombreArchivo}}
@@ -572,13 +582,19 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
     } else if (paso === 4){
       var nom = f.nombre.value.trim(), tel = f.tel.value.replace(/\D/g,'');
       if (!nom) return falla('Escribe tu nombre.');
-      if (tel.length < 10) return falla('Escribe tu WhatsApp a 10 dígitos.');
+      var correo = f.correo.value.trim(), medio = f.medio.value;
+      var correoOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+      if (correo && !correoOk) return falla('Revisa tu correo: parece incompleto.');
+      if (tel && tel.length < 10) return falla('Escribe tu teléfono a 10 dígitos.');
+      if (medio === 'correo' && !correo) return falla('Escribe tu correo para contactarte por ese medio.');
+      if (medio !== 'correo' && !tel) return falla('Escribe tu teléfono a 10 dígitos para contactarte por ese medio.');
+      var por = {correo:'por correo', whatsapp:'por WhatsApp', llamada:'por teléfono'}[medio];
       datos.nombre = nom;
       var revisar = datos.buro === 'Con algunos atrasos' || datos.ingreso === 'No';
       $('#res-txt').textContent = revisar
-        ? nom + ', tu caso necesita una revisión a detalle. Hay instituciones que atienden perfiles como el tuyo y un asesor te explica cuáles en menos de 24 horas hábiles.'
-        : nom + ', con lo que nos cuentas hay varias instituciones donde podemos presentar tu solicitud de ' + datos.tipo.toLowerCase() + ' por ' + pesos.format(datos.monto) + '. Un asesor te contacta en menos de 24 horas hábiles.';
-      miLead = {nombre:nom, origen:'Sitio web', tipo:datos.tipo, monto:datos.monto, clave:datos.clave, tuyo:true};
+        ? nom + ', tu caso necesita una revisión a detalle. Hay instituciones que atienden perfiles como el tuyo y un asesor te explica cuáles ' + por + ' en menos de 24 horas hábiles.'
+        : nom + ', con lo que nos cuentas hay varias instituciones donde podemos presentar tu solicitud de ' + datos.tipo.toLowerCase() + ' por ' + pesos.format(datos.monto) + '. Un asesor te contacta ' + por + ' en menos de 24 horas hábiles.';
+      miLead = {nombre:nom, origen:'Sitio web', tipo:datos.tipo, monto:datos.monto, clave:datos.clave, medio:medio, tuyo:true};
       leads = leads.filter(function(l){ return !l.tuyo; }); leads.unshift(miLead);
       $('#exp-tipo').value = datos.clave; pintarDocs();
     }
@@ -638,7 +654,7 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
   });
 
   /* ---------- panel ---------- */
-  var filtro = 'todos', abierto = -1;
+  var filtro = 'todos', abierto = -1, MEDIO = {correo:'correo', whatsapp:'WhatsApp', llamada:'llamada'};
   function estadoDe(l){
     var total = DOCS[l.clave].length, n = l.tuyo ? Object.keys(subidos[l.clave] || {}).length : l.subidos;
     var e = n >= total ? 'listo' : (n === 0 ? 'nuevo' : 'pend');
@@ -656,16 +672,17 @@ input[type=range]{width:100%;accent-color:var(--petroleo);height:36px}
       var s = est[i]; if (filtro !== 'todos' && s.e !== filtro) return '';
       var faltan = DOCS[l.clave].filter(function(d, k){ return l.tuyo ? !(subidos[l.clave]||{})[k] : k >= l.subidos; });
       return '<li class="lead'+(l.tuyo?' tuyo':'')+'"><button type="button" data-l="'+i+'" aria-expanded="'+(abierto===i)+'">'+
-        '<span class="quien"><b>'+esc(l.nombre)+(l.tuyo?' (tu solicitud)':'')+'</b><span>'+l.origen+'</span></span>'+
+        '<span class="quien"><b>'+esc(l.nombre)+(l.tuyo?' (tu solicitud)':'')+'</b><span>'+l.origen+'. Prefiere '+MEDIO[l.medio]+'</span></span>'+
         '<span class="que"><b>'+pesos.format(l.monto)+'</b><span>'+l.tipo+'</span></span>'+
         '<span class="exp"><span class="docs-txt">'+s.n+' de '+s.total+' documentos</span><span class="mini"><i style="width:'+(s.n/s.total*100)+'%"></i></span></span>'+
         '<span class="estado '+s.e+'">'+s.txt+'</span></button>'+
-        (abierto===i ? '<div class="detalle">'+(faltan.length ? '<b>Le falta subir:</b><ul>'+faltan.map(function(d){return '<li>'+d+'</li>';}).join('')+'</ul><button type="button" class="btn btn-petroleo" data-rec="1">Recordarle por WhatsApp</button>' : '<b>Expediente completo.</b> Puedes descargarlo en un solo PDF y presentarlo al banco.')+'</div>' : '')+
+        (abierto===i ? '<div class="detalle">'+(faltan.length ? '<b>Le falta subir:</b><ul>'+faltan.map(function(d){return '<li>'+d+'</li>';}).join('')+'</ul><button type="button" class="btn btn-petroleo" data-rec="'+l.medio+'">'+(l.medio==='llamada'?'Agendar llamada de seguimiento':'Recordarle por '+MEDIO[l.medio])+'</button>' : '<b>Expediente completo.</b> Puedes descargarlo en un solo PDF y presentarlo al banco.')+'</div>' : '')+
         '</li>';
     }).join('') || '<li class="lead" style="padding:18px">No hay solicitudes en este filtro.</li>';
   }
   $('#leads').addEventListener('click', function(e){
-    if (e.target.closest('[data-rec]')) return toast('Demo: en el sistema real el recordatorio sale por WhatsApp con la lista de lo que falta.');
+    var rb = e.target.closest('[data-rec]');
+    if (rb) return toast(rb.getAttribute('data-rec') === 'llamada' ? 'Demo: en el sistema real se agenda la llamada y te llega el aviso.' : 'Demo: en el sistema real el recordatorio sale por ' + MEDIO[rb.getAttribute('data-rec')] + ', el medio que eligió, con la lista de lo que falta.');
     var b = e.target.closest('[data-l]'); if (!b) return;
     var i = +b.getAttribute('data-l'); abierto = abierto === i ? -1 : i; pintarPanel();
   });
