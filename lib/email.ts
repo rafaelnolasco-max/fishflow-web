@@ -169,6 +169,7 @@ type SendArgs = {
   subject: string
   html: string
   replyTo?: string | null
+  cc?: string | string[]
   bcc?: string | string[]
   attachments?: Adjunto[]
   /** Etiqueta para los logs, ej. 'demo/mario-criterio'. */
@@ -189,6 +190,7 @@ export async function sendEmail({
   subject,
   html,
   replyTo,
+  cc,
   bcc,
   attachments,
   tag = 'email',
@@ -205,6 +207,7 @@ export async function sendEmail({
     subject,
     html,
     ...(replyTo ? { replyTo } : {}),
+    ...(cc && (Array.isArray(cc) ? cc.length : true) ? { cc: Array.isArray(cc) ? cc : [cc] } : {}),
     ...(bcc ? { bcc: Array.isArray(bcc) ? bcc : [bcc] } : {}),
     ...(attachments?.length
       ? {

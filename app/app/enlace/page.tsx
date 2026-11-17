@@ -44,9 +44,6 @@ const Section = (p: Omit<React.ComponentProps<typeof DSection>, "theme">) => <DS
 
 const META_VENDEDORES = 40;
 const META_CLIENTES_POR_VENDEDOR = 20;
-// Vendedoras que atienden prospectos aunque todavía no hayan capturado su Top 20.
-// Se suman a las opciones de "Asignar" en la lista de prospectos.
-const VENDEDORAS_EXTRA = ["Ivonne"];
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
@@ -207,6 +204,21 @@ export default function EnlaceDashboardPage() {
     fetchLeads();
   }, []);
 
+  // Directorio de agentes para "Asignar a" (RLS limita a Enlace)
+  const [agents, setAgents] = useState<{ name: string; email: string | null }[]>([]);
+  useEffect(() => {
+    supabase
+      .from("insurance_agents")
+      .select("name,email")
+      .eq("client_id", ENLACE_CLIENT_ID)
+      .eq("active", true)
+      .order("name")
+      .then(({ data, error }) => {
+        if (error) console.error(error);
+        else setAgents(data ?? []);
+      });
+  }, []);
+
   // Conteo de candidatas (postulaciones en hiring_applications) para el badge del tab.
   // Fetch ligero con count exact/head: no trae filas, solo el número.
   const [candidatasCount, setCandidatasCount] = useState<number>(0);
@@ -293,19 +305,8 @@ export default function EnlaceDashboardPage() {
     return vendorGroups.filter((g) => g.vendorName.toLowerCase().includes(q));
   }, [vendorGroups, search]);
 
-  // Vendedoras registradas (para asignar prospectos), dedup y sin el placeholder
-  const vendorOptions = useMemo(() => {
-    const seen = new Set<string>();
-    const out: string[] = [];
-    for (const raw of [...vendorGroups.map((g) => g.vendorName), ...VENDEDORAS_EXTRA]) {
-      const name = raw.trim();
-      const key = name.toLowerCase();
-      if (!name || key === "vendedor o representante por definir" || seen.has(key)) continue;
-      seen.add(key);
-      out.push(name);
-    }
-    return out.sort((a, b) => a.localeCompare(b));
-  }, [vendorGroups]);
+  // Agentes del directorio `insurance_agents` (con correo para el aviso de asignación)
+  const vendorOptions = useMemo(() => agents.map((a) => a.name), [agents]);
 
   const totalRegistros = rows.length;
   const totalVendedores = vendorGroups.length;
@@ -321,16 +322,24 @@ export default function EnlaceDashboardPage() {
     setExpanded(expanded === vendor ? null : vendor);
   }
 
-  // Asignar un prospecto a una vendedora (o desasignar con "")
+  // Asignar un prospecto a un agente (o desasignar con ""). El API guarda y le
+  // manda correo al agente con copia a Edna e Ivonne.
   async function assignLead(leadId: string, vendor: string) {
-    const patch = {
-      assigned_to: vendor || null,
-      assigned_at: vendor ? new Date().toISOString() : null,
-      status: vendor ? "asignado" : "nuevo",
-    };
-    const { error } = await supabase.from("leads").update(patch).eq("id", leadId);
-    if (error) { console.error(error); alert("No se pudo asignar: " + error.message); return; }
-    setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, assigned_to: patch.assigned_to, status: patch.status } : l)));
+    try {
+      const res = await fetch("/api/enlace/asignar-lead/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId, agent: vendor || null }),
+      });
+      const json = await res.json();
+      if (!res.ok) { alert("No se pudo asignar: " + (json.error ?? res.status)); return; }
+      setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, assigned_to: json.assigned_to, status: json.status } : l)));
+      if (json.aviso === "sin_correo") alert(`Asignado, pero ${vendor} no tiene correo registrado: no se le avisó.`);
+      if (json.aviso === "error") alert("Asignado, pero el correo de aviso no salió. Avísale por WhatsApp.");
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo asignar. Revisa tu conexión.");
+    }
   }
 
   // Cambiar el estatus del embudo (nuevo/asignado/contactado/cerrado)
