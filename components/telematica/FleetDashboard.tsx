@@ -53,8 +53,8 @@ function ago(ts: string | null) {
   return { txt: `hace ${Math.floor(h / 24)} d`, h };
 }
 
-export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }: {
-  clientId: string; fleetName: string; t: RecorridosTokens; onOpenVehicle: (vehicleId: string) => void;
+export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle, readOnly = false }: {
+  clientId: string; fleetName: string; t: RecorridosTokens; onOpenVehicle: (vehicleId: string) => void; readOnly?: boolean;
 }) {
   const [data, setData] = useState<Summary | null>(null);
   const [from, setFrom] = useState("");
@@ -244,7 +244,7 @@ export default function FleetDashboard({ clientId, fleetName, t, onOpenVehicle }
         <div style={card}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <div style={label}>Ranking de unidades · toca un encabezado para ordenar</div>
-            {!editing
+            {readOnly ? null : !editing
               ? <button style={ghost} onClick={startEdit}>Ajustes y nombres</button>
               : <div style={{ display: "flex", gap: 8 }}>
                   <button style={ghost} onClick={() => setEditing(false)} disabled={saving}>Cancelar</button>

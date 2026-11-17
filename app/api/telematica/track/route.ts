@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   if (vErr) return NextResponse.json({ error: vErr.message }, { status: 500 });
   if (!v) return NextResponse.json({ error: "Unidad no encontrada" }, { status: 404 });
 
-  const auth = await requireFleetAccess(v.client_id);
+  const auth = await requireFleetAccess(v.client_id, { allowPin: true });
   if (!auth.ok) return auth.response;
 
   const isDay = (s: string | null) => !!s && /^\d{4}-\d{2}-\d{2}$/.test(s);

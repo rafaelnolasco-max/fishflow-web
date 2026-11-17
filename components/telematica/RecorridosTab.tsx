@@ -48,7 +48,13 @@ function fmtDay(iso: string | null) {
 }
 const nf = new Intl.NumberFormat("es-MX");
 
-export default function RecorridosTab({ parentId, t }: { parentId: string; t: RecorridosTokens }) {
+/**
+ * readOnly + fleetsUrl: vista del cliente final (/flotilla/<slug>, acceso por NIP):
+ * una sola flotilla, sin selector, sin "Cargar datos" y sin "Ajustes y nombres".
+ */
+export default function RecorridosTab({ parentId, t, fleetsUrl, readOnly = false, title = "Recorridos" }: {
+  parentId?: string; t: RecorridosTokens; fleetsUrl?: string; readOnly?: boolean; title?: string;
+}) {
   const [fleets, setFleets] = useState<Fleet[]>([]);
   const [fleetId, setFleetId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,7 +68,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/telematica/fleets?parent=${parentId}`);
+      const res = await fetch(fleetsUrl ?? `/api/telematica/fleets?parent=${parentId}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error al cargar flotillas");
       setFleets(data.fleets ?? []);
@@ -72,7 +78,7 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
     } finally {
       setLoading(false);
     }
-  }, [parentId]);
+  }, [parentId, fleetsUrl]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -158,21 +164,23 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
 
   return (
     <div>
-      <h2 style={h2}>— Recorridos</h2>
+      <h2 style={h2}>— {title}</h2>
 
       {/* Flotilla */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
+      {!readOnly && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
         <span style={label}>Flotilla (cliente)</span>
         <select value={fleetId} onChange={e => setFleetId(e.target.value)} disabled={loading || !fleets.length}
           style={{ padding: "12px 14px", border: `1px solid ${t.lineL}`, borderRadius: 6, background: "#FFFFFF", fontFamily: t.fBody, fontSize: 16, color: t.ink }}>
           {!fleets.length && <option value="">{loading ? "Cargando…" : "Sin flotillas dadas de alta"}</option>}
           {fleets.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
         </select>
-      </div>
+      </div>}
+      {readOnly && loading && !fleets.length && <p style={{ fontFamily: t.fBody, fontSize: 16, color: t.mutedL }}>Cargando flotilla…</p>}
+      {readOnly && error && <p style={{ fontFamily: t.fBody, fontSize: 16, color: t.crimson }}>{error}</p>}
 
       {/* Vista */}
       <div style={{ display: "flex", gap: 6, marginBottom: 22, flexWrap: "wrap" }}>
-        {((fleetReady ? ["mensual", "flotilla", "mapa", "cargar"] : ["mapa", "cargar"]) as ("mensual" | "flotilla" | "mapa" | "cargar")[]).map(v => (
+        {((fleetReady ? ["mensual", "flotilla", "mapa", "cargar"] : ["mapa", "cargar"]) as ("mensual" | "flotilla" | "mapa" | "cargar")[]).filter(v => !readOnly || v !== "cargar").map(v => (
           <button key={v} onClick={() => setView(v)} style={{
             background: view === v ? t.ink : "transparent", color: view === v ? t.signal : t.mutedL,
             border: `1px solid ${view === v ? t.ink : t.lineL}`, borderRadius: 6, padding: "8px 16px",
@@ -185,11 +193,11 @@ export default function RecorridosTab({ parentId, t }: { parentId: string; t: Re
         <MonthlyReport key={fleet.id} clientId={fleet.id} fleetName={fleet.name} t={t} onOpenVehicle={openVehicle} />
       )}
       {view === "flotilla" && fleet && fleetReady && (
-        <FleetDashboard key={fleet.id} clientId={fleet.id} fleetName={fleet.name} t={t} onOpenVehicle={openVehicle} />
+        <FleetDashboard key={fleet.id} clientId={fleet.id} fleetName={fleet.name} t={t} onOpenVehicle={openVehicle} readOnly={readOnly} />
       )}
       {view === "mapa" && fleet && <TrackMap key={`${fleet.id}-${focusVehicle ?? ""}`} vehicles={fleet.vehicles} t={t} initialVehicleId={focusVehicle} />}
 
-      {view === "cargar" && (<>
+      {view === "cargar" && !readOnly && (<>
       {/* Archivos */}
       <label
         onDragOver={e => { e.preventDefault(); if (fleetId && !busy) setDragOver(true); }}

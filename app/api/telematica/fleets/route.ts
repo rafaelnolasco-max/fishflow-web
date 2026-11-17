@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireClientAccess } from "@/lib/apiAuth";
 import { supabaseAdmin } from "@/lib/telematicaAuth";
+import { fleetsWithVehicles } from "@/lib/telematicaFleets";
 
 export async function GET(req: NextRequest) {
   const parent = req.nextUrl.searchParams.get("parent");
@@ -17,30 +18,9 @@ export async function GET(req: NextRequest) {
     .select("id, name, slug, active").eq("parent_client_id", parent).order("name");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const ids = (fleets ?? []).map(f => f.id);
-  const { data: vehicles, error: vErr } = ids.length
-    ? await db.from("telematica_vehicles")
-        .select("id, client_id, device_id, plate, alias, photo_url, active").in("client_id", ids).order("alias")
-    : { data: [], error: null };
-  if (vErr) return NextResponse.json({ error: vErr.message }, { status: 500 });
-
-  // Puntos por unidad: suma del resumen diario (contar 400 mil puntos crudos unidad por unidad tardaba ~8 s)
-  const { data: daily, error: dErr } = ids.length
-    ? await db.rpc("telematica_points_by_vehicle", { p_clients: ids })
-    : { data: [], error: null };
-  if (dErr) return NextResponse.json({ error: dErr.message }, { status: 500 });
-  const pointsBy = new Map<string, number>();
-  for (const d of (daily ?? []) as { vehicle_id: string; points: number }[]) pointsBy.set(d.vehicle_id, Number(d.points));
-
-  const stats = await Promise.all((vehicles ?? []).map(async v => {
-    const [first, last] = await Promise.all([
-      db.from("telematica_points").select("ts").eq("vehicle_id", v.id).order("ts", { ascending: true }).limit(1),
-      db.from("telematica_points").select("ts").eq("vehicle_id", v.id).order("ts", { ascending: false }).limit(1),
-    ]);
-    return { ...v, points: pointsBy.get(v.id) ?? 0, ts_min: first.data?.[0]?.ts ?? null, ts_max: last.data?.[0]?.ts ?? null };
-  }));
-
-  return NextResponse.json({
-    fleets: (fleets ?? []).map(f => ({ ...f, vehicles: stats.filter(v => v.client_id === f.id) })),
-  });
+  try {
+    return NextResponse.json({ fleets: await fleetsWithVehicles(db, fleets ?? []) });
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
+  }
 }

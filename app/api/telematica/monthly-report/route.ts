@@ -9,7 +9,7 @@ import { requireFleetAccess, supabaseAdmin } from "@/lib/telematicaAuth";
 export async function GET(req: NextRequest) {
   const clientId = req.nextUrl.searchParams.get("client_id");
   if (!clientId) return NextResponse.json({ error: "Falta client_id" }, { status: 400 });
-  const auth = await requireFleetAccess(clientId);
+  const auth = await requireFleetAccess(clientId, { allowPin: true });
   if (!auth.ok) return auth.response;
 
   const db = supabaseAdmin();
