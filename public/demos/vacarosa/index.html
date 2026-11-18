@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vaca Rosa · Cremería del Centro · Pedidos en línea para restaurantes</title>
+<meta name="description" content="Pide tus quesos y jamones en línea, paga desde el celular, sigue tu pedido hasta tu cocina y saca tu factura sola. Vaca Rosa, Simón Bolívar 129-A, Centro." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23E8608A'/%3E%3Cellipse cx='32' cy='30' rx='15' ry='14' fill='%23FFF8F1'/%3E%3Cellipse cx='32' cy='42' rx='12' ry='8' fill='%23FFC2D4'/%3E%3Ccircle cx='27' cy='42' r='1.8' fill='%232A1A20'/%3E%3Ccircle cx='37' cy='42' r='1.8' fill='%232A1A20'/%3E%3Ccircle cx='26' cy='28' r='2.2' fill='%232A1A20'/%3E%3Ccircle cx='38' cy='28' r='2.2' fill='%232A1A20'/%3E%3Cpath d='M20 20l-6-7M44 20l6-7' stroke='%23FFF8F1' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23E8608A'/%3E%3Cellipse cx='32' cy='30' rx='15' ry='14' fill='%23FFF8F1'/%3E%3Cellipse cx='32' cy='42' rx='12' ry='8' fill='%23FFC2D4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===================== RESPONSIVE BASE (FishFlow) ===================== */
+*{box-sizing:border-box;}
+*,*::before,*::after{min-width:0;}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%;}
+img,svg,video,canvas,iframe{max-width:100%;}
+img,svg,video{display:block;height:auto;}
+.ff-container{width:100%;max-width:var(--ff-max,1280px);margin-inline:auto;padding-inline:var(--ff-pad,clamp(18px,4vw,56px));}
+.ff-grid{display:grid;gap:var(--ff-gap,18px);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ff-min,240px)),1fr));}
+.ff-grid--sm{--ff-min:170px;}
+.ff-grid--md{--ff-min:240px;}
+.ff-grid--lg{--ff-min:300px;}
+.ff-tablewrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ff-tablewrap > table{min-width:var(--ff-tablemin,520px);}
+.ff-shell{display:grid;gap:var(--ff-gap,24px);align-items:start;grid-template-columns:var(--ff-side,260px) minmax(0,1fr);}
+.ff-shell--3{grid-template-columns:var(--ff-side,260px) minmax(0,1fr) var(--ff-right,300px);}
+.ff-h1{font-size:clamp(34px,5.4vw,66px);line-height:1.02;letter-spacing:-.02em;}
+.ff-h2{font-size:clamp(28px,3.8vw,48px);line-height:1.06;letter-spacing:-.02em;}
+.ff-lede{font-size:clamp(15px,1.4vw,19px);line-height:1.55;}
+@media(max-width:900px){ .ff-shell,.ff-shell--3{grid-template-columns:1fr;} }
+@media(max-width:600px){
+  :root{--ff-pad:18px;}
+  .ff-hide-mobile{display:none !important;}
+  .ff-stack-mobile{flex-direction:column !important;align-items:stretch !important;}
+  .ff-stack-mobile > *{width:100% !important;}
+  .ff-grid{--ff-gap:14px;}
+}
+
+/* ===================== MARCA VACA ROSA ===================== */
+:root{
+  --rosa:#E8608A; --rosa-2:#FFC2D4; --rosa-3:#FFF0F4;
+  --tinta:#2A1A20; --crema:#FFF8F1; --crema-2:#F7EDE2; --linea:#EADBCF; --gris:#6E5A60;
+  --verde:#2F8F5B; --ambar:#E0A21B;
+  --f-display:"Fraunces",Georgia,serif;
+  --f-body:"Inter",system-ui,sans-serif;
+  --ff-max:1220px;
+}
+body{font-family:var(--f-body);background:var(--crema);color:var(--tinta);-webkit-font-smoothing:antialiased;line-height:1.5;}
+a{color:inherit;text-decoration:none;}
+h1,h2,h3,h4{font-family:var(--f-display);margin:0;font-weight:800;}
+button,input,select{font:inherit;color:inherit;}
+.btn{font-weight:600;font-size:15px;padding:13px 20px;border-radius:999px;border:1.5px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:transform .15s,background .15s;background:none;}
+.btn:hover{transform:translateY(-1px);}
+.btn--rosa{background:var(--rosa);color:#fff;}
+.btn--tinta{background:var(--tinta);color:#fff;}
+.btn--line{border-color:var(--tinta);color:var(--tinta);}
+.btn--sm{padding:9px 14px;font-size:13.5px;}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--rosa);}
+.sec{padding-block:clamp(52px,7vw,96px);}
+.sec .sub{color:var(--gris);max-width:58ch;margin:12px 0 32px;}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;background:var(--rosa-3);color:var(--rosa);}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:40;background:color-mix(in oklab,var(--crema) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--linea);}
+.nav__in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:10px;}
+.marca{display:flex;align-items:center;gap:10px;}
+.marca svg{width:44px;height:44px;}
+.marca b{font-family:var(--f-display);font-size:21px;line-height:1;display:block;}
+.marca small{font-size:11.5px;color:var(--gris);letter-spacing:.04em;}
+.nav__links{display:flex;gap:22px;font-size:14.5px;font-weight:500;}
+.nav__links a{color:var(--gris);}
+.nav__links a:hover{color:var(--tinta);}
+.burger{display:none;width:44px;height:44px;border-radius:12px;border:1.5px solid var(--tinta);background:none;font-size:20px;cursor:pointer;}
+.mobmenu{display:none;}
+@media(max-width:920px){
+  .nav__links,.nav .nav-cta{display:none;}
+  .burger{display:inline-grid;place-items:center;}
+  .mobmenu.open{display:flex;flex-direction:column;gap:4px;padding:8px var(--ff-pad,18px) 18px;border-top:1px solid var(--linea);}
+  .mobmenu a{padding:12px 4px;font-weight:600;border-bottom:1px solid var(--linea);}
+  .mobmenu .btn{margin-top:10px;}
+}
+
+/* HERO */
+.hero{background:var(--tinta);color:var(--crema);position:relative;overflow:hidden;}
+.hero__in{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(28px,4vw,60px);align-items:center;padding-block:clamp(48px,7vw,96px);}
+@media(max-width:900px){ .hero__in{grid-template-columns:1fr;} }
+.hero h1{margin:16px 0 18px;}
+.hero h1 em{font-style:italic;color:var(--rosa-2);}
+.hero p{color:#E3CFD6;max-width:52ch;margin:0 0 26px;}
+.hero__cta{display:flex;flex-wrap:wrap;gap:12px;}
+.hero__cta .btn--line{border-color:rgba(255,248,241,.4);color:var(--crema);}
+.hero__pts{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:26px;font-size:13.5px;color:#E3CFD6;}
+.hero__pts span::before{content:"✓ ";color:var(--rosa-2);font-weight:700;}
+.ticket{background:#fff;color:var(--tinta);border-radius:6px;padding:22px 22px 26px;font-family:ui-monospace,Menlo,monospace;font-size:13px;transform:rotate(2deg);box-shadow:0 30px 60px rgba(0,0,0,.35);position:relative;max-width:360px;margin-inline:auto;}
+.ticket::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:12px;background:radial-gradient(circle at 6px 0,transparent 6px,#fff 6.5px) 0 0/12px 12px repeat-x;}
+.ticket .c{text-align:center;}
+.ticket hr{border:0;border-top:1px dashed #bbb;margin:10px 0;}
+.ticket .r{display:flex;justify-content:space-between;gap:8px;}
+.ticket .st{margin-top:12px;display:grid;gap:6px;font-family:var(--f-body);font-size:12.5px;}
+.ticket .st div{display:flex;align-items:center;gap:8px;}
+.ticket .st i{width:10px;height:10px;border-radius:50%;background:var(--verde);display:inline-block;}
+.ticket .st .no i{background:#ddd;}
+
+/* BENEFICIOS */
+.ben{background:#fff;border:1px solid var(--linea);border-radius:18px;padding:22px;}
+.ben .ic{width:44px;height:44px;border-radius:12px;background:var(--rosa-3);display:grid;place-items:center;font-size:22px;margin-bottom:14px;}
+.ben h3{font-size:19px;margin-bottom:6px;}
+.ben p{margin:0;color:var(--gris);font-size:14.5px;}
+.tabs-aud{display:inline-flex;background:var(--crema-2);border-radius:999px;padding:4px;gap:4px;margin-bottom:26px;flex-wrap:wrap;}
+.tabs-aud button{border:0;background:none;padding:10px 18px;border-radius:999px;font-weight:600;cursor:pointer;font-size:14px;}
+.tabs-aud button.on{background:var(--tinta);color:#fff;}
+.aud{display:none;}
+.aud.on{display:grid;}
+
+/* PASOS */
+.pasos{counter-reset:p;}
+.paso{background:var(--crema-2);border-radius:18px;padding:22px;position:relative;}
+.paso::before{counter-increment:p;content:counter(p);font-family:var(--f-display);font-weight:800;font-size:15px;width:34px;height:34px;border-radius:50%;background:var(--rosa);color:#fff;display:grid;place-items:center;margin-bottom:12px;}
+.paso h3{font-size:18px;margin-bottom:6px;}
+.paso p{margin:0;color:var(--gris);font-size:14.5px;}
+
+/* PEDIDO */
+.bloque{background:#fff;border:1px solid var(--linea);border-radius:20px;padding:clamp(16px,2.4vw,26px);}
+.ped{--ff-side:1fr;--ff-right:360px;display:grid;gap:22px;grid-template-columns:minmax(0,1fr) 360px;align-items:start;}
+@media(max-width:900px){ .ped{grid-template-columns:1fr;} }
+.ped-top{display:flex;flex-wrap:wrap;gap:12px;align-items:end;justify-content:space-between;margin-bottom:16px;}
+.campo{display:grid;gap:6px;font-size:13px;font-weight:600;color:var(--gris);}
+.campo input,.campo select{border:1.5px solid var(--linea);border-radius:12px;padding:11px 12px;background:#fff;font-weight:500;color:var(--tinta);width:100%;}
+.campo input:focus,.campo select:focus{outline:2px solid var(--rosa-2);border-color:var(--rosa);}
+.corte{display:flex;align-items:center;gap:10px;background:var(--rosa-3);border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:16px;}
+.cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.cats button{border:1.5px solid var(--linea);background:#fff;border-radius:999px;padding:7px 14px;font-size:13.5px;font-weight:600;cursor:pointer;}
+.cats button.on{background:var(--tinta);border-color:var(--tinta);color:#fff;}
+.prods{--ff-min:210px;--ff-gap:12px;}
+.prod{border:1.5px solid var(--linea);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--crema);}
+.prod.sel{border-color:var(--rosa);background:var(--rosa-3);}
+.prod .n{font-weight:700;font-size:15px;line-height:1.25;}
+.prod .p{font-size:13.5px;color:var(--gris);}
+.prod .p b{color:var(--tinta);font-size:15px;}
+.prod select{border:1px solid var(--linea);border-radius:10px;padding:7px 8px;font-size:13px;background:#fff;}
+.qty{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto;}
+.qty button{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--tinta);background:#fff;font-size:18px;font-weight:700;cursor:pointer;}
+.qty span{font-weight:700;font-size:15px;text-align:center;flex:1;}
+.carrito{position:sticky;top:84px;}
+@media(max-width:900px){ .carrito{position:static;} }
+.carrito h3{font-size:22px;margin-bottom:4px;}
+.linea-c{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--linea);font-size:14px;}
+.linea-c small{display:block;color:var(--gris);font-size:12px;}
+.vacio{color:var(--gris);font-size:14px;padding:18px 0;}
+.tot{display:flex;justify-content:space-between;font-weight:700;font-size:18px;margin:14px 0 4px;}
+.nota{font-size:12.5px;color:var(--gris);margin:0 0 14px;}
+
+/* SEGUIMIENTO */
+.seg{display:grid;gap:22px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;}
+@media(max-width:900px){ .seg{grid-template-columns:1fr;} }
+.busca{display:flex;gap:10px;flex-wrap:wrap;}
+.busca input{flex:1 1 180px;border:1.5px solid var(--linea);border-radius:12px;padding:12px;font-weight:600;letter-spacing:.04em;}
+.linea-t{list-style:none;margin:20px 0 0;padding:0;}
+.linea-t li{display:grid;grid-template-columns:34px 1fr;gap:12px;padding-bottom:18px;position:relative;}
+.linea-t li::before{content:"";position:absolute;left:16px;top:34px;bottom:0;width:2px;background:var(--linea);}
+.linea-t li:last-child::before{display:none;}
+.linea-t .b{width:34px;height:34px;border-radius:50%;border:2px solid var(--linea);background:#fff;display:grid;place-items:center;font-size:15px;}
+.linea-t li.ok .b{background:var(--verde);border-color:var(--verde);color:#fff;}
+.linea-t li.ok::before{background:var(--verde);}
+.linea-t li.now .b{border-color:var(--rosa);background:var(--rosa-3);animation:lat 1.6s infinite;}
+@keyframes lat{50%{box-shadow:0 0 0 6px rgba(232,96,138,.18);}}
+.linea-t h4{font-family:var(--f-body);font-size:15px;font-weight:700;margin:6px 0 2px;}
+.linea-t p{margin:0;font-size:13.5px;color:var(--gris);}
+.accion{background:var(--crema-2);border-radius:16px;padding:18px;margin-top:6px;}
+.accion h4{font-size:18px;margin-bottom:6px;}
+.pagos{display:grid;gap:8px;margin:12px 0;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));}
+.pagos label{border:1.5px solid var(--linea);border-radius:12px;padding:10px;background:#fff;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;gap:8px;align-items:center;}
+.pagos label:has(input:checked){border-color:var(--rosa);background:var(--rosa-3);}
+table.t{width:100%;border-collapse:collapse;}
+table.t th,table.t td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--linea);font-size:13.5px;}
+table.t th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gris);}
+table.t td.n,table.t th.n{text-align:right;}
+.wa{background:#E7F7EE;border:1px solid #BFE6CF;border-radius:14px;padding:12px 14px;font-size:13.5px;}
+.wa b{color:#1D7A47;}
+
+/* FACTURA */
+.fac{display:grid;gap:22px;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:start;}
+@media(max-width:900px){ .fac{grid-template-columns:1fr;} }
+.fgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));}
+.cfdi{background:#fff;border:1px solid var(--linea);border-radius:18px;padding:22px;font-size:13.5px;}
+.cfdi .hd{display:flex;justify-content:space-between;gap:10px;align-items:start;border-bottom:2px solid var(--tinta);padding-bottom:12px;margin-bottom:12px;}
+.cfdi .uuid{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;word-break:break-all;color:var(--gris);}
+.cfdi .r{display:flex;justify-content:space-between;gap:10px;padding:5px 0;}
+.err{color:#B3261E;font-size:13px;margin-top:8px;min-height:18px;}
+.placeholder{border:2px dashed var(--linea);border-radius:18px;padding:30px;text-align:center;color:var(--gris);}
+
+/* CIERRE / PIE */
+.cierre{background:var(--rosa);color:#fff;text-align:center;}
+.cierre h2{color:#fff;}
+.cierre p{max-width:56ch;margin:14px auto 24px;color:#FFE8EF;}
+.cierre .btn{background:var(--tinta);color:#fff;}
+.pie{background:var(--tinta);color:#E3CFD6;}
+.pie .in{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;padding-block:30px;font-size:14px;}
+.ffnota{background:#1a0f13;color:#B9A2AA;font-size:12.5px;}
+.ffnota .in{display:flex;flex-wrap:wrap;gap:6px 20px;justify-content:space-between;padding-block:10px;}
+.ff-credit-wrap{display:block;flex-basis:100%;width:100%;box-sizing:border-box;text-align:center;font-size:12px;line-height:1.4;padding:12px 16px 10px;margin:0;}
+.ff-credit{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:none;opacity:.6;transition:opacity .2s;}
+.ff-credit:hover,.ff-credit:focus-visible{opacity:1;}
+.ff-credit__logo{width:22px;height:12px;flex:none;}
+.ff-credit b{font-weight:600;}
+
+/* PANEL DE JUAN */
+.abre-panel{position:fixed;right:16px;bottom:16px;z-index:50;background:var(--tinta);color:#fff;border:0;border-radius:999px;padding:13px 18px;font-weight:700;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);cursor:pointer;display:flex;gap:8px;align-items:center;}
+.abre-panel .pt{width:9px;height:9px;border-radius:50%;background:var(--rosa-2);}
+.panel{position:fixed;inset:0;z-index:60;background:rgba(42,26,32,.55);display:none;align-items:flex-end;justify-content:center;}
+.panel.open{display:flex;}
+.hoja{background:var(--crema);width:min(1100px,100%);max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:clamp(16px,2.6vw,28px);}
+@media(min-width:901px){ .panel{align-items:center;} .hoja{border-radius:22px;} }
+.p-top{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:14px;}
+.p-top b{font-family:var(--f-display);font-size:24px;display:block;}
+.p-top span{color:var(--gris);font-size:13.5px;}
+.ejem{background:var(--ambar);color:#fff;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;margin-left:6px;}
+.p-x{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--tinta);background:none;font-size:16px;cursor:pointer;flex:none;}
+.p-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.p-tab{border:1.5px solid var(--linea);background:#fff;border-radius:999px;padding:8px 14px;font-weight:600;font-size:13.5px;cursor:pointer;}
+.p-tab.on{background:var(--tinta);border-color:var(--tinta);color:#fff;}
+.p-pane{display:none;}
+.p-pane.on{display:block;}
+.kpi{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:16px;}
+.kpi .v{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;}
+.kpi .l{font-size:12.5px;color:var(--gris);margin-top:6px;}
+.est{font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap;}
+.est.o{background:#EEE;color:#555;}
+.est.s{background:#FFF3D6;color:#8A5A00;}
+.est.p{background:#E3F0FF;color:#1F4E89;}
+.est.c{background:var(--rosa-3);color:var(--rosa);}
+.est.e{background:#E7F7EE;color:#1D7A47;}
+.cel{max-width:340px;margin-inline:auto;background:var(--tinta);border-radius:34px;padding:12px;}
+.cel .scr{background:#fff;border-radius:24px;padding:16px;min-height:420px;}
+.ent{border:1px solid var(--linea);border-radius:14px;padding:12px;margin-bottom:10px;font-size:13.5px;}
+.ent b{display:block;font-size:14.5px;}
+.ent .btn{width:100%;margin-top:10px;}
+
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(20px);opacity:0;z-index:80;background:#1D7A47;color:#fff;border-radius:16px;padding:12px 16px;font-size:13.5px;max-width:min(420px,92vw);box-shadow:0 12px 30px rgba(0,0,0,.25);transition:.3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast small{display:block;opacity:.8;font-size:11.5px;margin-bottom:2px;}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="vaca" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="31" fill="#E8608A"/>
+    <path d="M17 21l-7-8M47 21l7-8" stroke="#FFF8F1" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="14" cy="27" rx="6" ry="3.6" fill="#FFF8F1" transform="rotate(-20 14 27)"/>
+    <ellipse cx="50" cy="27" rx="6" ry="3.6" fill="#FFF8F1" transform="rotate(20 50 27)"/>
+    <ellipse cx="32" cy="30" rx="16" ry="15" fill="#FFF8F1"/>
+    <path d="M22 19c4-2 8 0 8 4s-5 6-8 4-3-6 0-8z" fill="#2A1A20"/>
+    <ellipse cx="32" cy="43" rx="13" ry="9" fill="#FFC2D4"/>
+    <circle cx="27" cy="43" r="2" fill="#2A1A20"/><circle cx="37" cy="43" r="2" fill="#2A1A20"/>
+    <circle cx="25" cy="31" r="2.3" fill="#2A1A20"/><circle cx="39" cy="31" r="2.3" fill="#2A1A20"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <div class="nav__in ff-container">
+    <a class="marca" href="#top"><svg><use href="#vaca"/></svg><span><b>Vaca Rosa</b><small>Cremería · Centro CDMX</small></span></a>
+    <nav class="nav__links">
+      <a href="#beneficios">Beneficios</a><a href="#pedido">Hacer pedido</a><a href="#seguimiento">Mi pedido</a><a href="#factura">Facturar</a>
+    </nav>
+    <a class="btn btn--rosa nav-cta" href="#pedido">Pedir ahora →</a>
+    <button class="burger" id="burger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobmenu">☰</button>
+  </div>
+  <nav class="mobmenu" id="mobmenu">
+    <a href="#beneficios">Beneficios</a><a href="#pedido">Hacer pedido</a><a href="#seguimiento">Mi pedido</a><a href="#factura">Facturar</a>
+    <a class="btn btn--rosa" href="#pedido">Pedir ahora →</a>
+  </nav>
+</header>
+
+<section class="hero" id="top">
+  <div class="hero__in ff-container">
+    <div>
+      <span class="eyebrow" style="color:var(--rosa-2)">Surtido para restaurantes y fondas del Centro</span>
+      <h1 class="ff-h1">Tus quesos y jamones, <em>pedidos desde el celular</em> y en tu cocina el mismo día.</h1>
+      <p class="ff-lede">Haz tu pedido a cualquier hora, paga en línea con el peso exacto, ve cuándo sale tu pedido y cuándo llega, y saca tu factura sin pedírsela a nadie.</p>
+      <div class="hero__cta">
+        <a class="btn btn--rosa" href="#pedido">Hacer mi pedido →</a>
+        <a class="btn btn--line" href="#seguimiento">¿Dónde va mi pedido?</a>
+      </div>
+      <div class="hero__pts"><span>Pide antes de las 11 y llega hoy</span><span>Pagas lo que pesó, ni un gramo más</span><span>Factura al instante</span></div>
+    </div>
+    <div class="ff-hide-mobile" aria-hidden="true">
+      <div class="ticket">
+        <div class="c"><b>VACA ROSA</b><br>Pedido VR-2638 · Fonda Doña Lupe</div>
+        <hr>
+        <div class="r"><span>Queso Oaxaca 3.040 kg</span><span>$456.00</span></div>
+        <div class="r"><span>Jamón de pierna 2.010 kg</span><span>$321.60</span></div>
+        <div class="r"><span>Crema 2 L</span><span>$150.00</span></div>
+        <hr>
+        <div class="r"><b>TOTAL</b><b>$927.60</b></div>
+        <div class="st">
+          <div><i></i>Pedido recibido · 9:12</div>
+          <div><i></i>Pesado y pagado · 10:05</div>
+          <div><i></i>En camino en bici · 10:40</div>
+          <div class="no"><i></i>Entregado</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec ff-container" id="beneficios">
+  <span class="eyebrow">Beneficios</span>
+  <h2 class="ff-h2" style="margin-top:10px">Lo mismo de siempre, pero sin llamadas, sin notas y sin perseguir pagos.</h2>
+  <p class="sub">La misma cremería y el mismo trato de siempre. Lo que cambia es que pedir, cobrar, entregar y facturar se arreglan solos.</p>
+  <div class="tabs-aud" role="tablist">
+    <button class="on" type="button" data-aud="cli">Para tu restaurante</button>
+    <button type="button" data-aud="juan">Para Juan y la cremería</button>
+  </div>
+  <div class="aud on ff-grid ff-grid--md" data-aud="cli">
+    <div class="ben"><div class="ic">📱</div><h3>Pide a la hora que puedas</h3><p>Al cerrar cocina o a las 6 de la mañana. Sin llamar, sin esperar a que contesten y sin que se pierda el mensaje.</p></div>
+    <div class="ben"><div class="ic">🔁</div><h3>Repite tu pedido de la semana</h3><p>Un botón y queda listo tu surtido de siempre. Solo ajustas lo que cambió.</p></div>
+    <div class="ben"><div class="ic">⚖️</div><h3>Pagas lo que pesó</h3><p>Juan pesa tu pedido y te llega el total exacto. Pagas con tarjeta, OXXO, transferencia o a tu crédito semanal.</p></div>
+    <div class="ben"><div class="ic">🚲</div><h3>Sabes cuándo llega</h3><p>Te avisamos por WhatsApp cuando sale y cuando se entrega, y queda registrado quién lo recibió.</p></div>
+    <div class="ben"><div class="ic">🧾</div><h3>Tu factura, sola</h3><p>Con el folio y el total la sacas aquí mismo. También funciona con los tickets del mostrador.</p></div>
+    <div class="ben"><div class="ic">📊</div><h3>Tus compras en orden</h3><p>Historial de pedidos, pagos y facturas por mes, listo para tu contador.</p></div>
+  </div>
+  <div class="aud ff-grid ff-grid--md" data-aud="juan">
+    <div class="ben"><div class="ic">☎️</div><h3>Menos teléfono y WhatsApp</h3><p>Los pedidos llegan ordenados en una sola lista, con cantidades claras y presentación (rebanado, entero, en bloque).</p></div>
+    <div class="ben"><div class="ic">💵</div><h3>Cobras antes o al entregar</h3><p>El link de pago sale solo al pesar. Los restaurantes con crédito reciben su recordatorio semanal sin que tengas que llamarles.</p></div>
+    <div class="ben"><div class="ic">🧾</div><h3>Cero facturas a mano</h3><p>Cada cliente saca la suya. Se acaba capturar RFC y datos fiscales por WhatsApp al final del día.</p></div>
+    <div class="ben"><div class="ic">🚲</div><h3>Tus mandaderos, con control</h3><p>Cada repartidor recibe un link en su celular con sus entregas y marca “Entregado” con foto. No necesita instalar nada.</p></div>
+    <div class="ben"><div class="ic">⏰</div><h3>Hora de corte clara</h3><p>Lo que entra antes de las 11 se surte hoy y lo demás queda para mañana temprano. El día ya no se te desordena.</p></div>
+    <div class="ben"><div class="ic">📈</div><h3>Sabes qué se vende</h3><p>Qué restaurante compra más, qué producto se mueve y quién te debe, todo en un solo panel.</p></div>
+  </div>
+</section>
+
+<section class="sec" style="background:#fff;border-block:1px solid var(--linea)">
+  <div class="ff-container">
+    <span class="eyebrow">Cómo funciona</span>
+    <h2 class="ff-h2" style="margin-top:10px">Del pedido a tu cocina, en 5 pasos.</h2>
+    <div class="pasos ff-grid ff-grid--sm" style="margin-top:30px">
+      <div class="paso"><h3>Pides</h3><p>Eliges tus productos o repites el pedido de la semana.</p></div>
+      <div class="paso"><h3>Juan pesa</h3><p>Se surte y se pesa, y te llega el total exacto por WhatsApp.</p></div>
+      <div class="paso"><h3>Pagas</h3><p>En línea, en OXXO, por transferencia, al recibir o a tu crédito.</p></div>
+      <div class="paso"><h3>Llega</h3><p>Sale en bici o con el mandadero y ves cuándo va en camino.</p></div>
+      <div class="paso"><h3>Facturas</h3><p>Con un clic, cuando quieras. El CFDI te llega al correo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec ff-container" id="pedido">
+  <span class="eyebrow">Hacer pedido</span>
+  <h2 class="ff-h2" style="margin-top:10px">Arma tu pedido.</h2>
+  <p class="sub">Pruébalo: escoge tu restaurante, agrega productos y envía. Los precios son de ejemplo.</p>
+  <div class="ped">
+    <div class="bloque">
+      <div class="ped-top">
+        <label class="campo" style="flex:1 1 220px">¿Para qué negocio?
+          <select id="cliente"></select>
+        </label>
+        <button class="btn btn--line btn--sm" id="repetir" type="button">🔁 Repetir mi pedido de la semana</button>
+      </div>
+      <div class="corte" id="corte"></div>
+      <div class="cats" id="cats"></div>
+      <div class="ff-grid prods" id="prods"></div>
+    </div>
+    <aside class="bloque carrito">
+      <h3>Tu pedido</h3>
+      <div id="cart"></div>
+      <div class="tot"><span>Total estimado</span><span id="tEst">$0.00</span></div>
+      <p class="nota">El total final se ajusta al peso real cuando Juan surte tu pedido. Antes de pagar te llega el monto exacto.</p>
+      <label class="campo" style="margin-bottom:14px">Notas para la cremería
+        <input id="notas" placeholder="Ej. el Oaxaca deshebrado, por favor">
+      </label>
+      <button class="btn btn--rosa" id="enviar" type="button" style="width:100%" disabled>Enviar pedido →</button>
+    </aside>
+  </div>
+</section>
+
+<section class="sec" id="seguimiento" style="background:var(--crema-2)">
+  <div class="ff-container">
+    <span class="eyebrow">Mi pedido</span>
+    <h2 class="ff-h2" style="margin-top:10px">¿Dónde va mi pedido?</h2>
+    <p class="sub">Escribe tu folio. Prueba con <b>VR-2638</b>, o con el que te salga al enviar tu pedido. Los botones “Simular” hacen lo que en la vida real hacen Juan y el repartidor.</p>
+    <div class="seg">
+      <div class="bloque">
+        <div class="busca">
+          <input id="folio" value="VR-2638" aria-label="Folio del pedido">
+          <button class="btn btn--tinta" id="buscar" type="button">Buscar</button>
+        </div>
+        <div id="segInfo"></div>
+        <ol class="linea-t" id="linea"></ol>
+      </div>
+      <div id="segAccion"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec ff-container" id="factura">
+  <span class="eyebrow">Facturar</span>
+  <h2 class="ff-h2" style="margin-top:10px">Saca tu factura en un minuto.</h2>
+  <p class="sub">Sirve para pedidos en línea y para tickets del mostrador. Ponle el folio y el total; tus datos fiscales se guardan para la próxima.</p>
+  <div class="fac">
+    <form class="bloque" id="fForm" novalidate>
+      <div class="fgrid">
+        <label class="campo">Folio del pedido o ticket<input id="fFolio" placeholder="VR-2638 o 26391"></label>
+        <label class="campo">Total pagado<input id="fTotal" inputmode="decimal" placeholder="$927.60"></label>
+        <label class="campo">RFC<input id="fRfc" placeholder="XAXX010101000" maxlength="13" style="text-transform:uppercase"></label>
+        <label class="campo">Razón social<input id="fRazon" placeholder="Como aparece en tu constancia"></label>
+        <label class="campo">Código postal fiscal<input id="fCp" inputmode="numeric" maxlength="5" placeholder="06000"></label>
+        <label class="campo">Régimen fiscal
+          <select id="fReg">
+            <option value="626">626 · Régimen Simplificado de Confianza</option>
+            <option value="612">612 · Personas Físicas con Actividades Empresariales</option>
+            <option value="601">601 · General de Ley Personas Morales</option>
+          </select>
+        </label>
+        <label class="campo">Uso del CFDI
+          <select id="fUso"><option value="G01">G01 · Adquisición de mercancías</option><option value="G03">G03 · Gastos en general</option></select>
+        </label>
+        <label class="campo">Correo para recibirla<input id="fMail" type="email" placeholder="contabilidad@turestaurante.mx"></label>
+      </div>
+      <div class="err" id="fErr"></div>
+      <button class="btn btn--rosa" type="submit" style="margin-top:6px">Generar mi factura →</button>
+    </form>
+    <div id="fOut"><div class="placeholder">Aquí aparece tu factura timbrada,<br>lista para descargar en PDF y XML.</div></div>
+  </div>
+</section>
+
+<section class="sec cierre">
+  <div class="ff-container">
+    <h2 class="ff-h2">¿Tu restaurante ya compra en Vaca Rosa?</h2>
+    <p>Pide tu acceso y a partir de tu siguiente pedido ya puedes comprar, pagar y facturar desde aquí.</p>
+    <a class="btn" href="#pedido">Quiero pedir en línea →</a>
+  </div>
+</section>
+
+<footer class="pie"><div class="ff-container in">
+  <span><b>Vaca Rosa</b> · Cremería · Simón Bolívar 129-A, Centro, CDMX</span>
+  <span>Tel. 55 5518 7480</span>
+</div><p class="ff-credit-wrap"><a class="ff-credit" href="https://fishflow.mx/?utm_source=demo-vacarosa&amp;utm_medium=credito-footer&amp;utm_campaign=sitios-clientes" target="_blank" rel="noopener" title="Sitio hecho por FishFlow">Hecho con <svg class="ff-credit__logo" viewBox="170 70 860 460" aria-hidden="true"><path d="M600 300C760 100 1000 90 1000 300C1000 510 760 500 600 300C440 100 200 90 200 300C200 510 440 500 600 300Z" fill="none" stroke="currentColor" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/></svg><b>FishFlow</b></a></p>
+</footer>
+
+<div class="ffnota"><div class="ff-container in">
+  <span>Demo de trabajo preparado por <b>FishFlow</b> · Rafa Fish · Siempre Adelante</span>
+  <span>Precios, clientes y pedidos de ejemplo · no se cobra ni se timbra nada</span>
+</div></div>
+
+<button class="abre-panel" id="abrePanel" type="button"><span class="pt"></span>Panel de Juan</button>
+
+<div class="panel" id="panel" role="dialog" aria-modal="true" aria-label="Panel de Juan">
+  <div class="hoja">
+    <div class="p-top">
+      <div><b>Panel de Juan</b><span>Vaca Rosa · lo que ve la cremería <span class="ejem">Datos de ejemplo</span></span></div>
+      <button class="p-x" id="cierraPanel" type="button" aria-label="Cerrar el panel">✕</button>
+    </div>
+    <div class="p-tabs" role="tablist">
+      <button class="p-tab on" type="button" data-t="hoy">Pedidos de hoy</button>
+      <button class="p-tab" type="button" data-t="cobranza">Cobranza</button>
+      <button class="p-tab" type="button" data-t="repartidor">Celular del repartidor</button>
+      <button class="p-tab" type="button" data-t="ventas">Lo que más se vende</button>
+    </div>
+    <section class="p-pane on" data-p="hoy">
+      <div class="ff-grid ff-grid--sm" id="kpis" style="margin-bottom:16px"></div>
+      <div class="bloque"><div class="ff-tablewrap" style="--ff-tablemin:640px"><table class="t"><thead><tr><th>Folio</th><th>Restaurante</th><th>Estado</th><th>Pago</th><th>Repartidor</th><th class="n">Total</th></tr></thead><tbody id="tHoy"></tbody></table></div></div>
+    </section>
+    <section class="p-pane" data-p="cobranza">
+      <p style="margin:0 0 14px;color:var(--gris);font-size:14px">Restaurantes con crédito semanal. El recordatorio sale por WhatsApp con el estado de cuenta y su link de pago.</p>
+      <div class="bloque"><div class="ff-tablewrap" style="--ff-tablemin:600px"><table class="t"><thead><tr><th>Restaurante</th><th>Pedidos</th><th>Vence</th><th class="n">Saldo</th><th></th></tr></thead><tbody id="tCob"></tbody></table></div></div>
+    </section>
+    <section class="p-pane" data-p="repartidor">
+      <div class="ff-grid ff-grid--md" style="align-items:center">
+        <div>
+          <h3 style="font-size:24px;margin-bottom:8px">Así lo ve Beto en su celular</h3>
+          <p style="color:var(--gris);margin:0 0 10px">Un link, sin app. Ve sus entregas en orden, con dirección y si ya está pagado o hay que cobrar. Al entregar toma una foto y listo: al restaurante le llega el aviso.</p>
+          <p style="color:var(--gris);margin:0">Sirve igual para el mandadero de la tarde o para Juan cuando sale en bici.</p>
+        </div>
+        <div class="cel"><div class="scr" id="celRep"></div></div>
+      </div>
+    </section>
+    <section class="p-pane" data-p="ventas">
+      <div class="bloque"><div class="ff-tablewrap" style="--ff-tablemin:480px"><table class="t"><thead><tr><th>Producto</th><th class="n">Vendido este mes</th><th class="n">Venta</th></tr></thead><tbody>
+        <tr><td>Queso Oaxaca</td><td class="n">212 kg</td><td class="n">$31,800</td></tr>
+        <tr><td>Jamón de pierna</td><td class="n">148 kg</td><td class="n">$23,680</td></tr>
+        <tr><td>Queso Chihuahua</td><td class="n">96 kg</td><td class="n">$17,760</td></tr>
+        <tr><td>Crema</td><td class="n">180 L</td><td class="n">$13,500</td></tr>
+        <tr><td>Queso panela</td><td class="n">84 kg</td><td class="n">$10,080</td></tr>
+      </tbody></table></div></div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const mx=n=>n.toLocaleString('es-MX',{style:'currency',currency:'MXN'});
+const kg=n=>n.toLocaleString('es-MX',{minimumFractionDigits:3,maximumFractionDigits:3});
+
+/* ---------- menú móvil ---------- */
+const burger=$('#burger'), mob=$('#mobmenu');
+burger.addEventListener('click',()=>{const o=mob.classList.toggle('open');burger.setAttribute('aria-expanded',o?'true':'false');burger.setAttribute('aria-label',o?'Cerrar menú':'Abrir menú');burger.textContent=o?'✕':'☰';});
+mob.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{mob.classList.remove('open');burger.setAttribute('aria-expanded','false');burger.setAttribute('aria-label','Abrir menú');burger.textContent='☰';}));
+
+/* ---------- beneficios: pestañas ---------- */
+$$('.tabs-aud button').forEach(b=>b.addEventListener('click',()=>{
+  $$('.tabs-aud button').forEach(x=>x.classList.toggle('on',x===b));
+  $$('.aud').forEach(a=>a.classList.toggle('on',a.dataset.aud===b.dataset.aud));
+}));
+
+/* ---------- toast ---------- */
+let tt;
+function toast(html){const t=$('#toast');t.innerHTML=html;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),4200);}
+
+/* ---------- datos ---------- */
+const PROD=[
+ {id:'oax',n:'Queso Oaxaca',c:'Quesos',u:'kg',p:150,s:.5,pres:['Bola','Deshebrado']},
+ {id:'chi',n:'Queso Chihuahua (menonita)',c:'Quesos',u:'kg',p:185,s:.5,pres:['En bloque','Rebanado','Rallado']},
+ {id:'pan',n:'Queso panela',c:'Quesos',u:'kg',p:120,s:.5,pres:['Entero','En cubos']},
+ {id:'man',n:'Queso manchego',c:'Quesos',u:'kg',p:190,s:.5,pres:['En bloque','Rebanado']},
+ {id:'cot',n:'Queso cotija',c:'Quesos',u:'kg',p:210,s:.25,pres:['En trozo','Rallado']},
+ {id:'jpi',n:'Jamón de pierna',c:'Carnes frías',u:'kg',p:160,s:.5,pres:['Rebanado delgado','Rebanado grueso','En pieza']},
+ {id:'jvi',n:'Jamón virginia',c:'Carnes frías',u:'kg',p:140,s:.5,pres:['Rebanado delgado','En pieza']},
+ {id:'toc',n:'Tocino ahumado',c:'Carnes frías',u:'kg',p:210,s:.5,pres:['Rebanado']},
+ {id:'sal',n:'Salchicha de pavo',c:'Carnes frías',u:'kg',p:95,s:1,pres:['Paquete']},
+ {id:'cre',n:'Crema',c:'Lácteos',u:'L',p:75,s:1,pres:['Garrafa']},
+ {id:'mtq',n:'Mantequilla',c:'Lácteos',u:'kg',p:160,s:.5,pres:['Barra']},
+ {id:'nes',n:'Nescafé 1.1 kg',c:'Abarrotes',u:'pza',p:550,s:1,pres:null},
+ {id:'azu',n:'Azúcar',c:'Abarrotes',u:'kg',p:25,s:1,pres:null},
+];
+const CLI=['Fonda Doña Lupe','Tortas El Güero','Café La Palma','Restaurante Bolívar 40'];
+const SEMANA={oax:3,jpi:2,cre:2,chi:1};
+const PASOS=[
+ {t:'Pedido recibido',d:'Llegó a la cremería'},
+ {t:'Surtido y pesado',d:'Juan confirma el peso real y el total'},
+ {t:'Pagado',d:'Pago confirmado'},
+ {t:'En camino',d:'Salió a entregar'},
+ {t:'Entregado',d:'Recibido en tu negocio'},
+];
+let cart={}, cat='Todos';
+let next=2641;
+const ORD={
+ 'VR-2638':mkOrder('VR-2638','Fonda Doña Lupe',[['oax',3,'Deshebrado',3.04],['jpi',2,'Rebanado delgado',2.01],['cre',2,'Garrafa',2]],3,'Tarjeta','9:12'),
+ 'VR-2639':mkOrder('VR-2639','Tortas El Güero',[['jvi',4,'Rebanado delgado',4.07],['chi',2,'Rebanado',1.98]],2,'Crédito semanal','9:40'),
+ 'VR-2640':mkOrder('VR-2640','Café La Palma',[['nes',1,null,1],['azu',5,null,5],['mtq',1,'Barra',1]],1,null,'10:15'),
+};
+ORD['VR-2638'].rep='Beto (bici)';ORD['VR-2639'].rep='—';
+function mkOrder(f,cli,items,st,pago,hora){
+  return {f,cli,hora,st,pago,rep:st>=3?'Beto (bici)':'—',items:items.map(([id,q,pres,real])=>({id,q,pres,real}))};
+}
+function precio(id){return PROD.find(p=>p.id===id);}
+function totEst(o){return o.items.reduce((s,i)=>s+precio(i.id).p*i.q,0);}
+function totReal(o){return o.items.reduce((s,i)=>s+precio(i.id).p*(i.real??i.q),0);}
+
+/* ---------- pedido ---------- */
+$('#cliente').innerHTML=CLI.map(c=>`<option>${c}</option>`).join('');
+const h=new Date().getHours();
+$('#corte').innerHTML= h<11
+  ? '⏰ <span>Pide antes de las <b>11:00</b> y tu pedido <b>llega hoy</b>.</span>'
+  : '⏰ <span>Ya pasó la hora de corte (11:00): tu pedido <b>sale mañana temprano</b>.</span>';
+const cats=['Todos',...new Set(PROD.map(p=>p.c))];
+$('#cats').innerHTML=cats.map(c=>`<button type="button" class="${c===cat?'on':''}" data-c="${c}">${c}</button>`).join('');
+$('#cats').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;cat=b.dataset.c;$$('#cats button').forEach(x=>x.classList.toggle('on',x===b));drawProds();});
+function fmtQ(p,q){return p.u==='kg'?`${q.toLocaleString('es-MX')} kg`:p.u==='L'?`${q} L`:`${q} pza`;}
+function drawProds(){
+  $('#prods').innerHTML=PROD.filter(p=>cat==='Todos'||p.c===cat).map(p=>{
+    const it=cart[p.id], q=it?it.q:0;
+    return `<div class="prod ${q?'sel':''}">
+      <div class="n">${p.n}</div>
+      <div class="p"><b>${mx(p.p)}</b> / ${p.u}</div>
+      ${p.pres?`<select data-pres="${p.id}" aria-label="Presentación de ${p.n}">${p.pres.map(x=>`<option ${it&&it.pres===x?'selected':''}>${x}</option>`).join('')}</select>`:'<div style="height:31px"></div>'}
+      <div class="qty"><button type="button" data-m="${p.id}" aria-label="Menos ${p.n}">−</button><span>${q?fmtQ(p,q):'—'}</span><button type="button" data-a="${p.id}" aria-label="Más ${p.n}">+</button></div>
+    </div>`;}).join('');
+}
+$('#prods').addEventListener('click',e=>{
+  const a=e.target.closest('[data-a]'),m=e.target.closest('[data-m]');
+  if(a){const p=precio(a.dataset.a);const sel=$(`[data-pres="${p.id}"]`);cart[p.id]=cart[p.id]||{q:0,pres:sel?sel.value:null};cart[p.id].q=+(cart[p.id].q+p.s).toFixed(2);}
+  if(m){const p=precio(m.dataset.m);if(cart[p.id]){cart[p.id].q=+(cart[p.id].q-p.s).toFixed(2);if(cart[p.id].q<=0)delete cart[p.id];}}
+  if(a||m){drawProds();drawCart();}
+});
+$('#prods').addEventListener('change',e=>{const s=e.target.closest('[data-pres]');if(s&&cart[s.dataset.pres])cart[s.dataset.pres].pres=s.value;drawCart();});
+function drawCart(){
+  const ids=Object.keys(cart);
+  $('#cart').innerHTML=ids.length?ids.map(id=>{const p=precio(id),i=cart[id];return `<div class="linea-c"><span>${p.n}<small>${fmtQ(p,i.q)}${i.pres?' · '+i.pres:''}</small></span><span>${mx(p.p*i.q)}</span></div>`;}).join(''):'<div class="vacio">Todavía no agregas productos.</div>';
+  $('#tEst').textContent=mx(ids.reduce((s,id)=>s+precio(id).p*cart[id].q,0));
+  $('#enviar').disabled=!ids.length;
+}
+$('#repetir').addEventListener('click',()=>{
+  cart={};Object.entries(SEMANA).forEach(([id,q])=>{const p=precio(id);cart[id]={q,pres:p.pres?p.pres[0]:null};});
+  cat='Todos';$$('#cats button').forEach(x=>x.classList.toggle('on',x.dataset.c==='Todos'));
+  drawProds();drawCart();toast('<small>Vaca Rosa</small>Listo: cargamos tu pedido de la semana pasada. Ajusta lo que necesites.');
+});
+$('#enviar').addEventListener('click',()=>{
+  const f='VR-'+(next++), cli=$('#cliente').value;
+  const now=new Date(), hora=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  ORD[f]={f,cli,hora,st:0,pago:null,rep:'—',items:Object.entries(cart).map(([id,i])=>({id,q:i.q,pres:i.pres,real:null}))};
+  cart={};drawProds();drawCart();$('#notas').value='';
+  $('#folio').value=f;showOrder(f);drawPanel();
+  document.getElementById('seguimiento').scrollIntoView({behavior:'smooth'});
+  toast(`<small>WhatsApp · Vaca Rosa</small>¡Recibimos tu pedido <b>${f}</b>! Te avisamos el total en cuanto lo pesemos.`);
+});
+
+/* ---------- seguimiento ---------- */
+let cur=null;
+$('#buscar').addEventListener('click',()=>showOrder($('#folio').value.trim().toUpperCase()));
+$('#folio').addEventListener('keydown',e=>{if(e.key==='Enter')showOrder($('#folio').value.trim().toUpperCase());});
+function showOrder(f){
+  const o=ORD[f];
+  if(!o){$('#segInfo').innerHTML='<p class="err">No encontramos ese folio. Prueba con VR-2638.</p>';$('#linea').innerHTML='';$('#segAccion').innerHTML='';return;}
+  cur=f;
+  $('#segInfo').innerHTML=`<div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center"><span class="chip">${o.f}</span><b>${o.cli}</b><span style="color:var(--gris);font-size:13.5px">· pedido a las ${o.hora}</span></div>`;
+  $('#linea').innerHTML=PASOS.map((p,i)=>{
+    let d=p.d;
+    if(i===1&&o.st>=1)d=`Total exacto: <b>${mx(totReal(o))}</b>`;
+    if(i===2&&o.st>=2)d=`Pagado con ${o.pago}`;
+    if(i===3&&o.st>=3)d=`${o.rep} va para allá`;
+    if(i===4&&o.st>=4)d=`Recibió: ${o.recibio||'encargado de cocina'} · foto de entrega guardada`;
+    const cls=i<o.st||o.st===4?'ok':i===o.st?'now':'';
+    return `<li class="${cls}"><span class="b">${i<o.st||o.st===4?'✓':i+1}</span><div><h4>${p.t}</h4><p>${d}</p></div></li>`;
+  }).join('');
+  drawAccion(o);
+}
+function tabla(o,real){
+  return `<div class="ff-tablewrap" style="--ff-tablemin:380px;margin:10px 0"><table class="t"><thead><tr><th>Producto</th><th class="n">Pediste</th>${real?'<th class="n">Pesó</th>':''}<th class="n">Importe</th></tr></thead><tbody>${o.items.map(i=>{const p=precio(i.id);const q=real?(i.real??i.q):i.q;return `<tr><td>${p.n}${i.pres?`<br><small style="color:var(--gris)">${i.pres}</small>`:''}</td><td class="n">${fmtQ(p,i.q)}</td>${real?`<td class="n">${p.u==='kg'?kg(q)+' kg':fmtQ(p,q)}</td>`:''}<td class="n">${mx(p.p*q)}</td></tr>`;}).join('')}</tbody></table></div>`;
+}
+function drawAccion(o){
+  const A=$('#segAccion');
+  if(o.st===0){
+    A.innerHTML=`<div class="bloque"><div class="accion"><h4>Tu pedido está en la fila</h4><p style="margin:0;color:var(--gris);font-size:14px">Juan lo surte y lo pesa. En cuanto tenga el peso real te llega el total exacto y tu link de pago.</p>${tabla(o,false)}<div class="tot" style="font-size:16px"><span>Estimado</span><span>${mx(totEst(o))}</span></div></div>
+    <button class="btn btn--line btn--sm" id="sim" type="button" style="margin-top:14px">Simular: Juan pesa el pedido →</button></div>`;
+    $('#sim').onclick=()=>{o.items.forEach(i=>{const p=precio(i.id);i.real=p.u==='kg'?Math.round(i.q*(1+(Math.random()*.08-.03))*200)/200:i.q;});o.st=1;showOrder(o.f);drawPanel();
+      toast(`<small>WhatsApp · Vaca Rosa</small>Tu pedido <b>${o.f}</b> ya está pesado. Total: <b>${mx(totReal(o))}</b>. Págalo aquí 👉 vacarosa.mx/p/${o.f}`);};
+  } else if(o.st===1){
+    A.innerHTML=`<div class="bloque"><div class="accion"><h4>Paga tu pedido</h4><p style="margin:0;color:var(--gris);font-size:14px">Ya está pesado. Pagas exactamente lo que pesó.</p>${tabla(o,true)}<div class="tot"><span>Total a pagar</span><span>${mx(totReal(o))}</span></div>
+      <div class="pagos">
+        <label><input type="radio" name="pg" value="Tarjeta" checked> 💳 Tarjeta</label>
+        <label><input type="radio" name="pg" value="Transferencia SPEI"> 🏦 Transferencia</label>
+        <label><input type="radio" name="pg" value="OXXO"> 🏪 OXXO</label>
+        <label><input type="radio" name="pg" value="Pago al recibir"> 🚲 Al recibir</label>
+        <label><input type="radio" name="pg" value="Crédito semanal"> 📒 A mi crédito</label>
+      </div>
+      <button class="btn btn--rosa" id="pagar" type="button" style="width:100%">Pagar ${mx(totReal(o))} →</button>
+      <p class="nota" style="margin:10px 0 0">Cobro seguro con Mercado Pago. En este demo no se cobra nada.</p></div></div>`;
+    $('#pagar').onclick=()=>{o.pago=document.querySelector('input[name=pg]:checked').value;o.st=2;showOrder(o.f);drawPanel();
+      toast(`<small>WhatsApp · Vaca Rosa</small>${o.pago==='Pago al recibir'?'Listo, pagas al recibir':o.pago==='Crédito semanal'?'Cargado a tu crédito semanal':'¡Pago recibido!'} · Pedido <b>${o.f}</b>. Te avisamos cuando salga.`);};
+  } else if(o.st===2){
+    A.innerHTML=`<div class="bloque"><div class="accion"><h4>Listo para salir</h4><p style="margin:0;color:var(--gris);font-size:14px">Pagado con ${o.pago}. El pedido ya está empacado y espera al repartidor.</p></div>
+    <button class="btn btn--line btn--sm" id="sim" type="button" style="margin-top:14px">Simular: sale Beto en bici →</button></div>`;
+    $('#sim').onclick=()=>{o.st=3;o.rep='Beto (bici)';showOrder(o.f);drawPanel();toast(`<small>WhatsApp · Vaca Rosa</small>🚲 Tu pedido <b>${o.f}</b> ya va en camino con Beto.`);};
+  } else if(o.st===3){
+    A.innerHTML=`<div class="bloque"><div class="accion"><h4>🚲 En camino</h4><p style="margin:0 0 12px;color:var(--gris);font-size:14px">${o.rep} lleva tu pedido. ${o.pago==='Pago al recibir'?`Ten listo el pago: <b>${mx(totReal(o))}</b>.`:'Ya está pagado, solo hay que recibirlo.'}</p><div class="wa"><b>Así te llegó el aviso:</b><br>🚲 Tu pedido ${o.f} ya va en camino con Beto. Llega en unos 20 minutos.</div></div>
+    <button class="btn btn--line btn--sm" id="sim" type="button" style="margin-top:14px">Simular: Beto marca “Entregado” →</button></div>`;
+    $('#sim').onclick=()=>entregar(o);
+  } else {
+    A.innerHTML=`<div class="bloque"><div class="accion"><h4>✅ Entregado</h4><p style="margin:0 0 12px;color:var(--gris);font-size:14px">Recibió ${o.recibio||'el encargado de cocina'}. Queda la foto de entrega por si hay cualquier aclaración.</p>${tabla(o,true)}<div class="tot" style="font-size:16px"><span>Total</span><span>${mx(totReal(o))}</span></div></div>
+    <button class="btn btn--rosa" id="facEste" type="button" style="margin-top:14px;width:100%">🧾 Facturar este pedido</button></div>`;
+    $('#facEste').onclick=()=>{$('#fFolio').value=o.f;$('#fTotal').value=totReal(o).toFixed(2);document.getElementById('factura').scrollIntoView({behavior:'smooth'});setTimeout(()=>$('#fRfc').focus({preventScroll:true}),600);};
+  }
+}
+function entregar(o){o.st=4;o.recibio='Lupe (cocina)';if(cur===o.f)showOrder(o.f);drawPanel();toast(`<small>WhatsApp · Vaca Rosa</small>✅ Entregamos tu pedido <b>${o.f}</b>. ¿Necesitas factura? Sácala aquí 👉 vacarosa.mx/factura`);}
+
+/* ---------- factura ---------- */
+$('#fForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=$('#fFolio').value.trim().toUpperCase(), tot=parseFloat($('#fTotal').value.replace(/[$,\s]/g,'')), rfc=$('#fRfc').value.trim().toUpperCase(),
+        raz=$('#fRazon').value.trim(), cp=$('#fCp').value.trim(), mail=$('#fMail').value.trim();
+  const err=$('#fErr');
+  if(!f) return err.textContent='Escribe el folio de tu pedido o ticket.';
+  if(!(tot>0)) return err.textContent='Escribe el total que pagaste.';
+  const o=ORD[f];
+  if(o && Math.abs(totReal(o)-tot)>1) return err.textContent=`El total no coincide con el pedido ${f}. Revisa tu ticket (${mx(totReal(o))}).`;
+  if(o && o.st<2) return err.textContent='Ese pedido todavía no está pagado. Podrás facturarlo en cuanto se pague.';
+  if(!/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/.test(rfc)) return err.textContent='El RFC no tiene un formato válido (12 o 13 caracteres).';
+  if(!raz) return err.textContent='Escribe tu razón social tal como aparece en tu constancia.';
+  if(!/^\d{5}$/.test(cp)) return err.textContent='El código postal fiscal debe tener 5 dígitos.';
+  if(!/^\S+@\S+\.\S+$/.test(mail)) return err.textContent='Escribe un correo válido para mandarte la factura.';
+  err.textContent='';
+  const hex=n=>[...crypto.getRandomValues(new Uint8Array(n))].map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+  const uuid=`${hex(4)}-${hex(2)}-${hex(2)}-${hex(2)}-${hex(6)}`;
+  const reg=$('#fReg').selectedOptions[0].text, uso=$('#fUso').selectedOptions[0].text;
+  $('#fOut').innerHTML=`<div class="cfdi">
+    <div class="hd"><div style="display:flex;gap:10px;align-items:center"><svg style="width:40px;height:40px"><use href="#vaca"/></svg><div><b style="font-family:var(--f-display);font-size:18px">Vaca Rosa</b><br><span style="color:var(--gris);font-size:12px">Factura · CFDI 4.0</span></div></div><span class="est e">Timbrada ✓</span></div>
+    <div class="r"><span>Folio de origen</span><b>${f}</b></div>
+    <div class="r"><span>Receptor</span><b style="text-align:right">${raz.replace(/</g,'&lt;')}<br><small>${rfc}</small></b></div>
+    <div class="r"><span>Régimen</span><span style="text-align:right">${reg}</span></div>
+    <div class="r"><span>Uso</span><span style="text-align:right">${uso}</span></div>
+    <div class="r"><span>Forma de pago</span><span>${o&&o.pago?o.pago:'Según ticket'}</span></div>
+    <div class="r" style="border-top:1px solid var(--linea);margin-top:6px;padding-top:10px;font-size:16px"><b>Total</b><b>${mx(tot)}</b></div>
+    <p class="nota" style="margin:6px 0 12px">Impuestos desglosados según la clave SAT de cada producto.</p>
+    <div class="uuid">Folio fiscal (UUID): ${uuid}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn btn--tinta btn--sm" type="button" disabled>Descargar PDF</button><button class="btn btn--line btn--sm" type="button" disabled>Descargar XML</button></div>
+    <p class="nota" style="margin:10px 0 0">Enviada a ${mail.replace(/</g,'&lt;')}. Demo: no se timbró ante el SAT.</p>
+  </div>`;
+  toast('<small>Correo · Vaca Rosa</small>Tu factura ya está en tu correo, en PDF y XML.');
+});
+
+/* ---------- panel de Juan ---------- */
+const COB=[
+ {c:'Tortas El Güero',p:4,v:'Vie 20 nov',s:3480},
+ {c:'Restaurante Bolívar 40',p:6,v:'Lun 23 nov',s:6215.5},
+ {c:'Fonda Doña Lupe',p:3,v:'Vie 20 nov',s:0},
+];
+const ESTN=['Recibido','Pesado · por pagar','Pagado · por salir','En camino','Entregado'], ESTC=['o','s','p','c','e'];
+function drawPanel(){
+  const os=Object.values(ORD);
+  const venta=os.filter(o=>o.st>=1).reduce((s,o)=>s+totReal(o),0);
+  $('#kpis').innerHTML=[
+    [os.length,'Pedidos hoy'],[os.filter(o=>o.st<3).length,'Por surtir o salir'],[os.filter(o=>o.st===3).length,'En camino'],[mx(venta),'Vendido hoy']
+  ].map(([v,l])=>`<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  $('#tHoy').innerHTML=os.map(o=>`<tr><td><b>${o.f}</b><br><small style="color:var(--gris)">${o.hora}</small></td><td>${o.cli}</td><td><span class="est ${ESTC[o.st]}">${ESTN[o.st]}</span></td><td>${o.pago||'—'}</td><td>${o.rep}</td><td class="n">${mx(o.st>=1?totReal(o):totEst(o))}</td></tr>`).join('');
+  $('#tCob').innerHTML=COB.map((r,i)=>`<tr><td><b>${r.c}</b></td><td>${r.p}</td><td>${r.v}</td><td class="n">${mx(r.s)}</td><td class="n">${r.s?`<button class="btn btn--line btn--sm" data-rec="${i}" type="button">Mandar recordatorio</button>`:'<span class="est e">Al corriente</span>'}</td></tr>`).join('');
+  const ruta=os.filter(o=>o.st===2||o.st===3);
+  $('#celRep').innerHTML=`<div style="font-size:12px;color:var(--gris)">Vaca Rosa · Entregas de Beto</div><b style="font-size:18px;display:block;margin:4px 0 12px">${ruta.length?ruta.length+' por entregar':'Sin entregas pendientes'}</b>`+
+    (ruta.length?ruta.map(o=>`<div class="ent"><b>${o.f} · ${o.cli}</b>${o.pago==='Pago al recibir'?`<span class="est s">Cobrar ${mx(totReal(o))}</span>`:'<span class="est e">Ya pagado</span>'}<button class="btn btn--rosa btn--sm" type="button" data-ent="${o.f}">📷 Marcar entregado</button></div>`).join(''):'<p style="color:var(--gris);font-size:13.5px">Cuando un pedido está pagado y listo, aparece aquí.</p>');
+}
+$('#tCob').addEventListener('click',e=>{const b=e.target.closest('[data-rec]');if(!b)return;const r=COB[b.dataset.rec];b.outerHTML='<span class="est p">Enviado ✓</span>';toast(`<small>WhatsApp a ${r.c}</small>Hola, tu estado de cuenta de la semana es <b>${mx(r.s)}</b> (vence ${r.v}). Págalo aquí 👉 vacarosa.mx/cuenta`);});
+$('#celRep').addEventListener('click',e=>{const b=e.target.closest('[data-ent]');if(!b)return;const o=ORD[b.dataset.ent];if(o.st===2)o.rep='Beto (bici)';entregar(o);});
+const panel=$('#panel');
+$('#abrePanel').onclick=()=>{drawPanel();panel.classList.add('open');};
+$('#cierraPanel').onclick=()=>panel.classList.remove('open');
+panel.addEventListener('click',e=>{if(e.target===panel)panel.classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')panel.classList.remove('open');});
+$$('.p-tab').forEach(b=>b.addEventListener('click',()=>{$$('.p-tab').forEach(x=>x.classList.toggle('on',x===b));$$('.p-pane').forEach(p=>p.classList.toggle('on',p.dataset.p===b.dataset.t));}));
+
+drawProds();drawCart();showOrder('VR-2638');drawPanel();
+})();
+</script>
+</body>
+</html>
