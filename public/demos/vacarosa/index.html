@@ -193,6 +193,30 @@ table.t td.n,table.t th.n{text-align:right;}
 .err{color:#B3261E;font-size:13px;margin-top:8px;min-height:18px;}
 .placeholder{border:2px dashed var(--linea);border-radius:18px;padding:30px;text-align:center;color:var(--gris);}
 
+
+/* SUSCRIPCIÓN */
+.sus{background:var(--tinta);color:var(--crema);}
+.sus .eyebrow{color:var(--rosa-2);}
+.sus .sub{color:#E3CFD6;}
+.sus-ben{background:rgba(255,248,241,.06);border:1px solid rgba(255,248,241,.14);border-radius:18px;padding:22px;}
+.sus-ben h3{font-size:20px;margin-bottom:12px;color:#fff;}
+.sus-ben ul{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
+.sus-ben li{display:grid;grid-template-columns:26px 1fr;gap:8px;font-size:15px;color:#F1E3E8;}
+.sus-ben li b{color:#fff;}
+.sus .bloque{color:var(--tinta);}
+.dias{display:flex;gap:6px;flex-wrap:wrap;}
+.dias button{border:1.5px solid var(--linea);background:#fff;border-radius:10px;padding:8px 12px;font-weight:600;font-size:13.5px;cursor:pointer;}
+.dias button.on{background:var(--rosa);border-color:var(--rosa);color:#fff;}
+.sline{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px dashed var(--linea);}
+.sline .n{font-weight:600;font-size:14.5px;}
+.sline .n small{display:block;color:var(--gris);font-weight:500;font-size:12.5px;}
+.sline .qty{margin:0;gap:8px;flex:none;}
+.sline .qty span{min-width:70px;}
+.precio-mes{background:var(--rosa-3);border-radius:16px;padding:16px;margin:14px 0;}
+.precio-mes .big{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1;color:var(--tinta);}
+.precio-mes s{color:var(--gris);font-size:14px;}
+.ok-sus{background:#E7F7EE;border:1px solid #BFE6CF;border-radius:16px;padding:16px;font-size:14.5px;}
+
 /* CIERRE / PIE */
 .cierre{background:var(--rosa);color:#fff;text-align:center;}
 .cierre h2{color:#fff;}
@@ -265,13 +289,13 @@ table.t td.n,table.t th.n{text-align:right;}
   <div class="nav__in ff-container">
     <a class="marca" href="#top"><svg><use href="#vaca"/></svg><span><b>Vaca Rosa</b><small>Cremería · Centro CDMX</small></span></a>
     <nav class="nav__links">
-      <a href="#beneficios">Beneficios</a><a href="#pedido">Hacer pedido</a><a href="#seguimiento">Mi pedido</a><a href="#factura">Facturar</a>
+      <a href="#beneficios">Beneficios</a><a href="#pedido">Hacer pedido</a><a href="#suscripcion">Suscripción</a><a href="#seguimiento">Mi pedido</a><a href="#factura">Facturar</a>
     </nav>
     <a class="btn btn--rosa nav-cta" href="#pedido">Pedir ahora →</a>
     <button class="burger" id="burger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobmenu">☰</button>
   </div>
   <nav class="mobmenu" id="mobmenu">
-    <a href="#beneficios">Beneficios</a><a href="#pedido">Hacer pedido</a><a href="#seguimiento">Mi pedido</a><a href="#factura">Facturar</a>
+    <a href="#beneficios">Beneficios</a><a href="#pedido">Hacer pedido</a><a href="#suscripcion">Suscripción</a><a href="#seguimiento">Mi pedido</a><a href="#factura">Facturar</a>
     <a class="btn btn--rosa" href="#pedido">Pedir ahora →</a>
   </nav>
 </header>
@@ -286,7 +310,7 @@ table.t td.n,table.t th.n{text-align:right;}
         <a class="btn btn--rosa" href="#pedido">Hacer mi pedido →</a>
         <a class="btn btn--line" href="#seguimiento">¿Dónde va mi pedido?</a>
       </div>
-      <div class="hero__pts"><span>Pide antes de las 11 y llega hoy</span><span>Pagas lo que pesó, ni un gramo más</span><span>Factura al instante</span></div>
+      <div class="hero__pts"><span>Pide antes de las 11 y llega hoy</span><span>Pagas lo que pesó, ni un gramo más</span><span>Factura al instante</span><span>O suscríbete: lo mismo cada semana, un solo pago al mes</span></div>
     </div>
     <div class="ff-hide-mobile" aria-hidden="true">
       <div class="ticket">
@@ -319,17 +343,19 @@ table.t td.n,table.t th.n{text-align:right;}
   <div class="aud on ff-grid ff-grid--md" data-aud="cli">
     <div class="ben"><div class="ic">📱</div><h3>Pide a la hora que puedas</h3><p>Al cerrar cocina o a las 6 de la mañana. Sin llamar, sin esperar a que contesten y sin que se pierda el mensaje.</p></div>
     <div class="ben"><div class="ic">🔁</div><h3>Repite tu pedido de la semana</h3><p>Un botón y queda listo tu surtido de siempre. Solo ajustas lo que cambió.</p></div>
-    <div class="ben"><div class="ic">⚖️</div><h3>Pagas lo que pesó</h3><p>Juan pesa tu pedido y te llega el total exacto. Pagas con tarjeta, OXXO, transferencia o a tu crédito semanal.</p></div>
+    <div class="ben"><div class="ic">⚖️</div><h3>Pagas lo que pesó</h3><p>Juan pesa tu pedido y te llega el total exacto. Pagas con tarjeta, en OXXO, por transferencia o a tu crédito de la semana.</p></div>
     <div class="ben"><div class="ic">🚲</div><h3>Sabes cuándo llega</h3><p>Te avisamos por WhatsApp cuando sale y cuando se entrega, y queda registrado quién lo recibió.</p></div>
     <div class="ben"><div class="ic">🧾</div><h3>Tu factura, sola</h3><p>Con el folio y el total la sacas aquí mismo. También funciona con los tickets del mostrador.</p></div>
-    <div class="ben"><div class="ic">📊</div><h3>Tus compras en orden</h3><p>Historial de pedidos, pagos y facturas por mes, listo para tu contador.</p></div>
+    <div class="ben"><div class="ic">🔄</div><h3>Suscríbete y olvídate de pedir</h3><p>Si pides lo mismo cada semana, Juan te lo lleva solito y pagas una sola vez al mes. <a href="#suscripcion" style="color:var(--rosa);font-weight:600">Ver cómo →</a></p></div>
+    <div class="ben"><div class="ic">📊</div><h3>Tus compras en orden</h3><p>Todos tus pedidos, pagos y facturas del mes en un solo lugar. Tu contador te lo va a agradecer.</p></div>
   </div>
   <div class="aud ff-grid ff-grid--md" data-aud="juan">
-    <div class="ben"><div class="ic">☎️</div><h3>Menos teléfono y WhatsApp</h3><p>Los pedidos llegan ordenados en una sola lista, con cantidades claras y presentación (rebanado, entero, en bloque).</p></div>
+    <div class="ben"><div class="ic">☎️</div><h3>Menos teléfono y WhatsApp</h3><p>Los pedidos llegan en una sola lista, clarita: qué, cuánto y cómo lo quieren (rebanado, entero, en bloque).</p></div>
     <div class="ben"><div class="ic">💵</div><h3>Cobras antes o al entregar</h3><p>El link de pago sale solo al pesar. Los restaurantes con crédito reciben su recordatorio semanal sin que tengas que llamarles.</p></div>
-    <div class="ben"><div class="ic">🧾</div><h3>Cero facturas a mano</h3><p>Cada cliente saca la suya. Se acaba capturar RFC y datos fiscales por WhatsApp al final del día.</p></div>
-    <div class="ben"><div class="ic">🚲</div><h3>Tus mandaderos, con control</h3><p>Cada repartidor recibe un link en su celular con sus entregas y marca “Entregado” con foto. No necesita instalar nada.</p></div>
+    <div class="ben"><div class="ic">🧾</div><h3>Cero facturas a mano</h3><p>Cada cliente saca la suya. Se acabó andar copiando RFC y datos de WhatsApp al final del día.</p></div>
+    <div class="ben"><div class="ic">🚲</div><h3>Tus mandaderos, con control</h3><p>El repartidor ve sus entregas en su celular y, al entregar, toma una foto. No tiene que bajar ninguna aplicación.</p></div>
     <div class="ben"><div class="ic">⏰</div><h3>Hora de corte clara</h3><p>Lo que entra antes de las 11 se surte hoy y lo demás queda para mañana temprano. El día ya no se te desordena.</p></div>
+    <div class="ben"><div class="ic">📅</div><h3>Ventas seguras cada mes</h3><p>Con las suscripciones sabes desde el día 1 cuánto vas a vender y ya lo tienes cobrado.</p></div>
     <div class="ben"><div class="ic">📈</div><h3>Sabes qué se vende</h3><p>Qué restaurante compra más, qué producto se mueve y quién te debe, todo en un solo panel.</p></div>
   </div>
 </section>
@@ -344,6 +370,54 @@ table.t td.n,table.t th.n{text-align:right;}
       <div class="paso"><h3>Pagas</h3><p>En línea, en OXXO, por transferencia, al recibir o a tu crédito.</p></div>
       <div class="paso"><h3>Llega</h3><p>Sale en bici o con el mandadero y ves cuándo va en camino.</p></div>
       <div class="paso"><h3>Facturas</h3><p>Con un clic, cuando quieras. El CFDI te llega al correo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sus" id="suscripcion">
+  <div class="ff-container">
+    <span class="eyebrow">Nuevo · Suscripción</span>
+    <h2 class="ff-h2" style="margin-top:10px;color:#fff">¿Pides lo mismo cada semana? Suscríbete y olvídate.</h2>
+    <p class="sub">Eliges una sola vez lo que necesitas cada semana y qué día te llega. Juan te lo lleva solito, sin que tengas que pedirlo, y te cobra <b style="color:#fff">una sola vez al mes</b>.</p>
+    <div class="ff-grid ff-grid--lg" style="margin-bottom:28px">
+      <div class="sus-ben"><h3>Para tu restaurante</h3><ul>
+        <li><span>✅</span><span><b>Ya no tienes que acordarte de pedir.</b> Cada semana te llega lo mismo, el día que escogiste.</span></li>
+        <li><span>✅</span><span><b>Un solo pago al mes, y siempre es igual.</b> Aunque el mes tenga 4 o 5 semanas, pagas lo mismo. Sin sorpresas.</span></li>
+        <li><span>✅</span><span><b>Te sale 5% más barato</b> que pedir semana por semana.</span></li>
+        <li><span>✅</span><span><b>Te llega completo:</b> nunca menos de lo que pediste.</span></li>
+        <li><span>✅</span><span><b>¿Vas a cerrar una semana?</b> La pausas con un botón y no se te cobra.</span></li>
+        <li><span>✅</span><span><b>¿Necesitas más para un evento?</b> Agregas un pedido extra cuando quieras.</span></li>
+      </ul></div>
+      <div class="sus-ben"><h3>Para Juan</h3><ul>
+        <li><span>💰</span><span><b>Cobras al principio del mes.</b> El dinero entra solo y ya no persigues a nadie.</span></li>
+        <li><span>📅</span><span><b>Sabes desde el lunes cuánto vas a vender</b> y cuánto tienes que preparar cada día.</span></li>
+        <li><span>🧀</span><span><b>Le compras a tu proveedor lo justo.</b> Menos queso que se queda en el refri.</span></li>
+        <li><span>🤝</span><span><b>Tus clientes se quedan contigo.</b> Quien ya está suscrito no anda buscando otra cremería.</span></li>
+      </ul></div>
+    </div>
+    <div class="ped">
+      <div class="bloque">
+        <h3 style="font-size:22px;margin-bottom:4px">Arma tu suscripción</h3>
+        <p class="nota" style="margin:0 0 14px">Ya viene con tu pedido de cada semana. Súbele o bájale a lo que quieras.</p>
+        <label class="campo" style="margin-bottom:14px">¿Para qué negocio?<select id="sCli"></select></label>
+        <div id="sLista"></div>
+        <label class="campo" style="margin-top:16px">Agregar otro producto
+          <select id="sAdd"><option value="">Elige un producto…</option></select>
+        </label>
+      </div>
+      <aside class="bloque carrito">
+        <h3>¿Qué día te llega?</h3>
+        <div class="dias" id="sDias" style="margin:10px 0 16px"></div>
+        <div id="sRes"></div>
+        <div class="precio-mes">
+          <div style="font-size:13px;font-weight:600;color:var(--gris)">Pagas al mes</div>
+          <div class="big" id="sMes">$0</div>
+          <div><s id="sSin"></s> <span class="chip" style="background:#fff">Ahorras 5%</span></div>
+        </div>
+        <p class="nota">Se cobra una vez al mes, el día 1, con tarjeta. Puedes pausar o cancelar cuando quieras.</p>
+        <button class="btn btn--rosa" id="sBtn" type="button" style="width:100%">Suscribirme →</button>
+        <div id="sOk" style="margin-top:12px"></div>
+      </aside>
     </div>
   </div>
 </section>
@@ -381,7 +455,7 @@ table.t td.n,table.t th.n{text-align:right;}
   <div class="ff-container">
     <span class="eyebrow">Mi pedido</span>
     <h2 class="ff-h2" style="margin-top:10px">¿Dónde va mi pedido?</h2>
-    <p class="sub">Escribe tu folio. Prueba con <b>VR-2638</b>, o con el que te salga al enviar tu pedido. Los botones “Simular” hacen lo que en la vida real hacen Juan y el repartidor.</p>
+    <p class="sub">Escribe tu folio. Prueba con <b>VR-2638</b>, o con el que te salga al enviar tu pedido. Los botones que dicen “Probar” hacen lo que en la vida real harían Juan y el repartidor.</p>
     <div class="seg">
       <div class="bloque">
         <div class="busca">
@@ -399,7 +473,7 @@ table.t td.n,table.t th.n{text-align:right;}
 <section class="sec ff-container" id="factura">
   <span class="eyebrow">Facturar</span>
   <h2 class="ff-h2" style="margin-top:10px">Saca tu factura en un minuto.</h2>
-  <p class="sub">Sirve para pedidos en línea y para tickets del mostrador. Ponle el folio y el total; tus datos fiscales se guardan para la próxima.</p>
+  <p class="sub">Sirve para pedidos en línea y para tickets del mostrador. Pon el número de folio y el total; tus datos se guardan para la próxima vez.</p>
   <div class="fac">
     <form class="bloque" id="fForm" novalidate>
       <div class="fgrid">
@@ -423,7 +497,7 @@ table.t td.n,table.t th.n{text-align:right;}
       <div class="err" id="fErr"></div>
       <button class="btn btn--rosa" type="submit" style="margin-top:6px">Generar mi factura →</button>
     </form>
-    <div id="fOut"><div class="placeholder">Aquí aparece tu factura timbrada,<br>lista para descargar en PDF y XML.</div></div>
+    <div id="fOut"><div class="placeholder">Aquí aparece tu factura,<br>lista para descargar e imprimir.</div></div>
   </div>
 </section>
 
@@ -456,13 +530,21 @@ table.t td.n,table.t th.n{text-align:right;}
     </div>
     <div class="p-tabs" role="tablist">
       <button class="p-tab on" type="button" data-t="hoy">Pedidos de hoy</button>
-      <button class="p-tab" type="button" data-t="cobranza">Cobranza</button>
+      <button class="p-tab" type="button" data-t="subs">Suscripciones</button>
+      <button class="p-tab" type="button" data-t="cobranza">Quién me debe</button>
       <button class="p-tab" type="button" data-t="repartidor">Celular del repartidor</button>
       <button class="p-tab" type="button" data-t="ventas">Lo que más se vende</button>
     </div>
     <section class="p-pane on" data-p="hoy">
       <div class="ff-grid ff-grid--sm" id="kpis" style="margin-bottom:16px"></div>
       <div class="bloque"><div class="ff-tablewrap" style="--ff-tablemin:640px"><table class="t"><thead><tr><th>Folio</th><th>Restaurante</th><th>Estado</th><th>Pago</th><th>Repartidor</th><th class="n">Total</th></tr></thead><tbody id="tHoy"></tbody></table></div></div>
+    </section>
+    <section class="p-pane" data-p="subs">
+      <div class="ff-grid ff-grid--sm" id="kSubs" style="margin-bottom:16px"></div>
+      <div class="ff-grid ff-grid--lg" style="align-items:start">
+        <div class="bloque"><h3 style="font-size:19px;margin-bottom:8px">Restaurantes suscritos</h3><div class="ff-tablewrap" style="--ff-tablemin:460px"><table class="t"><thead><tr><th>Restaurante</th><th>Le llega</th><th>Cobro del mes</th><th class="n">Al mes</th></tr></thead><tbody id="tSubs"></tbody></table></div></div>
+        <div class="bloque"><h3 style="font-size:19px;margin-bottom:4px">Lo que preparas esta semana</h3><p class="nota" style="margin:0 0 8px">Ya sumado de todas las suscripciones. Con esto le pides a tu proveedor.</p><div id="prepSubs"></div></div>
+      </div>
     </section>
     <section class="p-pane" data-p="cobranza">
       <p style="margin:0 0 14px;color:var(--gris);font-size:14px">Restaurantes con crédito semanal. El recordatorio sale por WhatsApp con el estado de cuenta y su link de pago.</p>
@@ -628,29 +710,29 @@ function drawAccion(o){
   const A=$('#segAccion');
   if(o.st===0){
     A.innerHTML=`<div class="bloque"><div class="accion"><h4>Tu pedido está en la fila</h4><p style="margin:0;color:var(--gris);font-size:14px">Juan lo surte y lo pesa. En cuanto tenga el peso real te llega el total exacto y tu link de pago.</p>${tabla(o,false)}<div class="tot" style="font-size:16px"><span>Estimado</span><span>${mx(totEst(o))}</span></div></div>
-    <button class="btn btn--line btn--sm" id="sim" type="button" style="margin-top:14px">Simular: Juan pesa el pedido →</button></div>`;
+    <button class="btn btn--line btn--sm" id="sim" type="button" style="margin-top:14px">Probar: Juan pesa el pedido →</button></div>`;
     $('#sim').onclick=()=>{o.items.forEach(i=>{const p=precio(i.id);i.real=p.u==='kg'?Math.round(i.q*(1+(Math.random()*.08-.03))*200)/200:i.q;});o.st=1;showOrder(o.f);drawPanel();
       toast(`<small>WhatsApp · Vaca Rosa</small>Tu pedido <b>${o.f}</b> ya está pesado. Total: <b>${mx(totReal(o))}</b>. Págalo aquí 👉 vacarosa.mx/p/${o.f}`);};
   } else if(o.st===1){
     A.innerHTML=`<div class="bloque"><div class="accion"><h4>Paga tu pedido</h4><p style="margin:0;color:var(--gris);font-size:14px">Ya está pesado. Pagas exactamente lo que pesó.</p>${tabla(o,true)}<div class="tot"><span>Total a pagar</span><span>${mx(totReal(o))}</span></div>
       <div class="pagos">
         <label><input type="radio" name="pg" value="Tarjeta" checked> 💳 Tarjeta</label>
-        <label><input type="radio" name="pg" value="Transferencia SPEI"> 🏦 Transferencia</label>
+        <label><input type="radio" name="pg" value="Transferencia"> 🏦 Transferencia</label>
         <label><input type="radio" name="pg" value="OXXO"> 🏪 OXXO</label>
         <label><input type="radio" name="pg" value="Pago al recibir"> 🚲 Al recibir</label>
         <label><input type="radio" name="pg" value="Crédito semanal"> 📒 A mi crédito</label>
       </div>
       <button class="btn btn--rosa" id="pagar" type="button" style="width:100%">Pagar ${mx(totReal(o))} →</button>
-      <p class="nota" style="margin:10px 0 0">Cobro seguro con Mercado Pago. En este demo no se cobra nada.</p></div></div>`;
+      <p class="nota" style="margin:10px 0 0">El pago es seguro (con Mercado Pago). En esta muestra no se cobra nada.</p></div></div>`;
     $('#pagar').onclick=()=>{o.pago=document.querySelector('input[name=pg]:checked').value;o.st=2;showOrder(o.f);drawPanel();
       toast(`<small>WhatsApp · Vaca Rosa</small>${o.pago==='Pago al recibir'?'Listo, pagas al recibir':o.pago==='Crédito semanal'?'Cargado a tu crédito semanal':'¡Pago recibido!'} · Pedido <b>${o.f}</b>. Te avisamos cuando salga.`);};
   } else if(o.st===2){
     A.innerHTML=`<div class="bloque"><div class="accion"><h4>Listo para salir</h4><p style="margin:0;color:var(--gris);font-size:14px">Pagado con ${o.pago}. El pedido ya está empacado y espera al repartidor.</p></div>
-    <button class="btn btn--line btn--sm" id="sim" type="button" style="margin-top:14px">Simular: sale Beto en bici →</button></div>`;
+    <button class="btn btn--line btn--sm" id="sim" type="button" style="margin-top:14px">Probar: sale Beto en bici →</button></div>`;
     $('#sim').onclick=()=>{o.st=3;o.rep='Beto (bici)';showOrder(o.f);drawPanel();toast(`<small>WhatsApp · Vaca Rosa</small>🚲 Tu pedido <b>${o.f}</b> ya va en camino con Beto.`);};
   } else if(o.st===3){
     A.innerHTML=`<div class="bloque"><div class="accion"><h4>🚲 En camino</h4><p style="margin:0 0 12px;color:var(--gris);font-size:14px">${o.rep} lleva tu pedido. ${o.pago==='Pago al recibir'?`Ten listo el pago: <b>${mx(totReal(o))}</b>.`:'Ya está pagado, solo hay que recibirlo.'}</p><div class="wa"><b>Así te llegó el aviso:</b><br>🚲 Tu pedido ${o.f} ya va en camino con Beto. Llega en unos 20 minutos.</div></div>
-    <button class="btn btn--line btn--sm" id="sim" type="button" style="margin-top:14px">Simular: Beto marca “Entregado” →</button></div>`;
+    <button class="btn btn--line btn--sm" id="sim" type="button" style="margin-top:14px">Probar: Beto entrega el pedido →</button></div>`;
     $('#sim').onclick=()=>entregar(o);
   } else {
     A.innerHTML=`<div class="bloque"><div class="accion"><h4>✅ Entregado</h4><p style="margin:0 0 12px;color:var(--gris);font-size:14px">Recibió ${o.recibio||'el encargado de cocina'}. Queda la foto de entrega por si hay cualquier aclaración.</p>${tabla(o,true)}<div class="tot" style="font-size:16px"><span>Total</span><span>${mx(totReal(o))}</span></div></div>
@@ -680,20 +762,66 @@ $('#fForm').addEventListener('submit',e=>{
   const uuid=`${hex(4)}-${hex(2)}-${hex(2)}-${hex(2)}-${hex(6)}`;
   const reg=$('#fReg').selectedOptions[0].text, uso=$('#fUso').selectedOptions[0].text;
   $('#fOut').innerHTML=`<div class="cfdi">
-    <div class="hd"><div style="display:flex;gap:10px;align-items:center"><svg style="width:40px;height:40px"><use href="#vaca"/></svg><div><b style="font-family:var(--f-display);font-size:18px">Vaca Rosa</b><br><span style="color:var(--gris);font-size:12px">Factura · CFDI 4.0</span></div></div><span class="est e">Timbrada ✓</span></div>
+    <div class="hd"><div style="display:flex;gap:10px;align-items:center"><svg style="width:40px;height:40px"><use href="#vaca"/></svg><div><b style="font-family:var(--f-display);font-size:18px">Vaca Rosa</b><br><span style="color:var(--gris);font-size:12px">Factura electrónica válida ante el SAT</span></div></div><span class="est e">Lista ✓</span></div>
     <div class="r"><span>Folio de origen</span><b>${f}</b></div>
     <div class="r"><span>Receptor</span><b style="text-align:right">${raz.replace(/</g,'&lt;')}<br><small>${rfc}</small></b></div>
     <div class="r"><span>Régimen</span><span style="text-align:right">${reg}</span></div>
     <div class="r"><span>Uso</span><span style="text-align:right">${uso}</span></div>
     <div class="r"><span>Forma de pago</span><span>${o&&o.pago?o.pago:'Según ticket'}</span></div>
     <div class="r" style="border-top:1px solid var(--linea);margin-top:6px;padding-top:10px;font-size:16px"><b>Total</b><b>${mx(tot)}</b></div>
-    <p class="nota" style="margin:6px 0 12px">Impuestos desglosados según la clave SAT de cada producto.</p>
-    <div class="uuid">Folio fiscal (UUID): ${uuid}</div>
+    <p class="nota" style="margin:6px 0 12px">Con sus impuestos, como los pide el SAT.</p>
+    <div class="uuid">Folio fiscal: ${uuid}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn btn--tinta btn--sm" type="button" disabled>Descargar PDF</button><button class="btn btn--line btn--sm" type="button" disabled>Descargar XML</button></div>
-    <p class="nota" style="margin:10px 0 0">Enviada a ${mail.replace(/</g,'&lt;')}. Demo: no se timbró ante el SAT.</p>
+    <p class="nota" style="margin:10px 0 0">Enviada a ${mail.replace(/</g,'&lt;')}. Es una muestra: no se mandó al SAT.</p>
   </div>`;
-  toast('<small>Correo · Vaca Rosa</small>Tu factura ya está en tu correo, en PDF y XML.');
+  toast('<small>Correo · Vaca Rosa</small>Tu factura ya está en tu correo.');
 });
+
+
+/* ---------- suscripción ---------- */
+const DIAS=['Lun','Mar','Mié','Jue','Vie','Sáb'], DIASL={Lun:'lunes',Mar:'martes','Mié':'miércoles',Jue:'jueves',Vie:'viernes','Sáb':'sábado'};
+const SUBS=[
+ {c:'Tortas El Güero',d:'Lun',items:{jvi:4,chi:2,cre:1},cob:'Cobrado ✓'},
+ {c:'Restaurante Bolívar 40',d:'Mar',items:{oax:3,jpi:3,cre:2,mtq:1},cob:'Cobrado ✓'},
+ {c:'Café La Palma',d:'Jue',items:{nes:1,azu:5,pan:2},cob:'Cobrado ✓'},
+];
+let sItems={...SEMANA}, sDia='Lun';
+const semanal=it=>Object.entries(it).reduce((t,[id,q])=>t+precio(id).p*q,0);
+const mensual=it=>Math.round(semanal(it)*52/12*0.95);
+$('#sCli').innerHTML=CLI.map(c=>`<option>${c}</option>`).join('');
+$('#sAdd').innerHTML+=PROD.map(p=>`<option value="${p.id}">${p.n}</option>`).join('');
+$('#sDias').innerHTML=DIAS.map(d=>`<button type="button" data-d="${d}" class="${d===sDia?'on':''}">${d}</button>`).join('');
+$('#sDias').addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(!b)return;sDia=b.dataset.d;$$('#sDias button').forEach(x=>x.classList.toggle('on',x===b));drawSus();});
+$('#sAdd').addEventListener('change',e=>{const id=e.target.value;if(id){sItems[id]=(sItems[id]||0)+precio(id).s;e.target.value='';drawSus();}});
+$('#sLista').addEventListener('click',e=>{
+  const a=e.target.closest('[data-sa]'),m=e.target.closest('[data-sm]');
+  if(a){const p=precio(a.dataset.sa);sItems[p.id]=+(sItems[p.id]+p.s).toFixed(2);}
+  if(m){const p=precio(m.dataset.sm);sItems[p.id]=+(sItems[p.id]-p.s).toFixed(2);if(sItems[p.id]<=0)delete sItems[p.id];}
+  if(a||m)drawSus();
+});
+function drawSus(){
+  const ids=Object.keys(sItems);
+  $('#sLista').innerHTML=ids.length?ids.map(id=>{const p=precio(id);return `<div class="sline"><span class="n">${p.n}<small>${mx(p.p)} / ${p.u}</small></span><span class="qty"><button type="button" data-sm="${id}" aria-label="Menos ${p.n}">−</button><span>${fmtQ(p,sItems[id])}</span><button type="button" data-sa="${id}" aria-label="Más ${p.n}">+</button></span></div>`;}).join(''):'<div class="vacio">Agrega al menos un producto.</div>';
+  $('#sRes').innerHTML=ids.length?`<p style="margin:0;font-size:14.5px">Cada <b>${DIASL[sDia]}</b> te llega:</p><p style="margin:4px 0 0;color:var(--gris);font-size:13.5px">${ids.map(id=>fmtQ(precio(id),sItems[id])+' de '+precio(id).n.toLowerCase()).join(', ')}.</p>`:'';
+  $('#sMes').textContent=mx(mensual(sItems));
+  $('#sSin').textContent=mx(Math.round(semanal(sItems)*52/12));
+  $('#sBtn').disabled=!ids.length;
+}
+$('#sBtn').addEventListener('click',()=>{
+  const c=$('#sCli').value;
+  const prev=SUBS.findIndex(x=>x.c===c); const nuevo={c,d:sDia,items:{...sItems},cob:'Se cobra el día 1'};
+  if(prev>=0)SUBS[prev]=nuevo; else SUBS.push(nuevo);
+  $('#sOk').innerHTML=`<div class="ok-sus">✅ <b>¡Listo, ${c}!</b> Tu primera entrega es este <b>${DIASL[sDia]}</b>. Te cobramos <b>${mx(mensual(sItems))}</b> el día 1 de cada mes. Puedes pausar o cambiar tu pedido cuando quieras desde tu WhatsApp.</div>`;
+  drawPanel();
+  toast(`<small>WhatsApp · Vaca Rosa</small>¡Bienvenido a tu suscripción! Cada ${DIASL[sDia]} te llevamos tu pedido. Un solo cobro al mes: <b>${mx(mensual(sItems))}</b>.`);
+});
+function drawSubsPanel(){
+  const total=SUBS.reduce((t,x)=>t+mensual(x.items),0);
+  $('#kSubs').innerHTML=[[SUBS.length,'Restaurantes suscritos'],[mx(total),'Venta segura este mes'],[SUBS.length*4,'Entregas ya programadas']].map(([v,l])=>`<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  $('#tSubs').innerHTML=SUBS.map(x=>`<tr><td><b>${x.c}</b></td><td>Cada ${DIASL[x.d]}</td><td><span class="est ${x.cob.startsWith('Cobrado')?'e':'s'}">${x.cob}</span></td><td class="n">${mx(mensual(x.items))}</td></tr>`).join('');
+  const sum={};SUBS.forEach(x=>Object.entries(x.items).forEach(([id,q])=>sum[id]=(sum[id]||0)+q));
+  $('#prepSubs').innerHTML=Object.entries(sum).map(([id,q])=>`<div class="linea-c"><span>${precio(id).n}</span><b>${fmtQ(precio(id),q)}</b></div>`).join('');
+}
 
 /* ---------- panel de Juan ---------- */
 const COB=[
@@ -703,6 +831,7 @@ const COB=[
 ];
 const ESTN=['Recibido','Pesado · por pagar','Pagado · por salir','En camino','Entregado'], ESTC=['o','s','p','c','e'];
 function drawPanel(){
+  drawSubsPanel();
   const os=Object.values(ORD);
   const venta=os.filter(o=>o.st>=1).reduce((s,o)=>s+totReal(o),0);
   $('#kpis').innerHTML=[
@@ -723,7 +852,7 @@ panel.addEventListener('click',e=>{if(e.target===panel)panel.classList.remove('o
 document.addEventListener('keydown',e=>{if(e.key==='Escape')panel.classList.remove('open');});
 $$('.p-tab').forEach(b=>b.addEventListener('click',()=>{$$('.p-tab').forEach(x=>x.classList.toggle('on',x===b));$$('.p-pane').forEach(p=>p.classList.toggle('on',p.dataset.p===b.dataset.t));}));
 
-drawProds();drawCart();showOrder('VR-2638');drawPanel();
+drawProds();drawCart();drawSus();showOrder('VR-2638');drawPanel();
 })();
 </script>
 </body>
