@@ -30,7 +30,11 @@ function cambio(a: number, b: number) {
   return p === 0 ? " (igual que la semana anterior)" : ` (${p > 0 ? "+" : ""}${p}% vs. semana anterior)`;
 }
 
-export interface WeeklyReport { fleet: FleetContext; subject: string; html: string; hasData: boolean }
+export interface WeeklyReport {
+  fleet: FleetContext; subject: string; html: string; hasData: boolean;
+  /** Para WhatsApp: cifras de la plantilla y el detalle en texto. */
+  wa: { periodo: string; km: string; trabajando: string; atender: number; texto: string };
+}
 
 export async function buildWeekly(db: SupabaseClient, clientId: string, opts: { link?: string | null; ref?: Date } = {}): Promise<WeeklyReport | null> {
   const fleet = await loadFleet(db, clientId);
@@ -103,5 +107,45 @@ export async function buildWeekly(db: SupabaseClient, clientId: string, opts: { 
     cuerpo,
     nota: "Litros y costo son estimados con el rendimiento de cada unidad. Puedes hacerle preguntas a tu flotilla desde el reporte, en la pestaña Preguntar.",
   });
-  return { fleet, subject, html, hasData: rows.length > 0 };
+  const texto = [
+    `*${fleet.name}* · semana del ${periodo}`,
+    `${nf.format(T.km)} km${cambio(T.km, P.km)} · ${T.unidades_con_uso} de ${T.unidades} unidades trabajando`,
+    `Ralentí ${nf.format(T.horas_ralenti)} h · Excesos ${nf.format(T.excesos_velocidad)} · Fuera de horario ${nf.format(T.km_fuera_de_horario)} km · ${litros}`,
+    "",
+    "*Para atender*",
+    ...(atender.length ? atender.map(a => `• ${a}`) : ["Nada fuera de lo normal esta semana."]),
+    "",
+    "*Las que más recorrieron*",
+    ...top.map(u => `• ${u.unidad}: ${nf.format(u.km)} km`),
+    "",
+    "Pregúntame lo que quieras de tus unidades, por ejemplo: ¿quién manejó de noche?",
+  ].join("\n");
+  return {
+    fleet, subject, html, hasData: rows.length > 0,
+    wa: { periodo, km: nf.format(T.km), trabajando: `${T.unidades_con_uso} de ${T.unidades}`, atender: atender.length, texto },
+  };
+}
+
+/**
+ * Manda el resumen de cada flotilla de LUKON con datos esa semana.
+ * La usan el cron de los lunes y el envío de prueba del admin.
+ */
+export async function sendWeeklyAll(db: SupabaseClient, opts: { to: string[]; subjectPrefix?: string; link: string }) {
+  const { sendEmail, REPLY_TO } = await import("@/lib/email");
+  const { LUKON_ID } = await import("@/lib/installations");
+  const { data: fleets, error } = await db.from("clients").select("id, name").eq("parent_client_id", LUKON_ID).order("name");
+  if (error) throw new Error(error.message);
+  const sent: string[] = [], skipped: string[] = [], failed: string[] = [];
+  const reports: WeeklyReport[] = [];
+  for (const f of fleets ?? []) {
+    const r = await buildWeekly(db, f.id, { link: opts.link });
+    if (!r || !r.hasData) { skipped.push(f.name); continue; }
+    reports.push(r);
+    const res = await sendEmail({
+      from: "lukonReportes", to: opts.to, subject: `${opts.subjectPrefix ?? ""}${r.subject}`,
+      html: r.html, replyTo: REPLY_TO, tag: "lukon-resumen-semanal",
+    });
+    (res.ok ? sent : failed).push(f.name);
+  }
+  return { sent, skipped, failed, reports };
 }

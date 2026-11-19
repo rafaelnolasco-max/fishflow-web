@@ -18,6 +18,7 @@ import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email'
 import { notifySlack, slackEscape } from '@/lib/slack'
 import { handleInbound, isReviewContact } from '@/lib/whatsappBot'
+import { isFleetContact } from '@/lib/fleetWhatsApp'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -200,7 +201,7 @@ export async function POST(req: NextRequest) {
           .maybeSingle()
         const conversacionNueva =
           !previo || Date.now() - new Date(previo.created_at).getTime() > 24 * 60 * 60 * 1000
-        if (!conversacionNueva || (await isReviewContact(m.from))) continue
+        if (!conversacionNueva || (await isReviewContact(m.from)) || (await isFleetContact(m.from))) continue
 
         const quien = contact?.profile?.name
           ? `${contact.profile.name} (+${m.from})`

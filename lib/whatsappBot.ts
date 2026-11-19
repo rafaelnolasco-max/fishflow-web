@@ -19,6 +19,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { sendText } from '@/lib/whatsapp'
 import { generateReviewDraft } from '@/lib/reviewDraft'
 import { sendEmail } from '@/lib/email'
+import { handleFleetInbound } from '@/lib/fleetWhatsApp'
 
 // Mismo valor que FISHFLOW_CLIENT_ID de lib/supabase.ts (no se importa de ahí:
 // ese módulo crea un cliente de navegador al cargarse).
@@ -263,6 +264,8 @@ export async function handleInbound(args: {
       return
     }
     if (!text) return
+    // Contactos de flotillas de LUKON: los contesta el bot de su flotilla (lib/fleetWhatsApp.ts).
+    if (await handleFleetInbound(waId, text)) return
     if (await tryReviewFlow(waId, name, text)) return
     await assistant(waId, name, text)
   } catch (e) {
