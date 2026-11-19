@@ -378,6 +378,7 @@ table.t td.m{font-family:var(--f-mono);}
 .priv{font-size:11.5px;color:var(--muted);margin-top:10px;}
 .coachbar{background:linear-gradient(90deg,#FF4D2E,#B8239A);color:#fff;font-size:13px;font-weight:600;text-align:center;padding:8px 14px;display:none;}
 .coachbar.on{display:block;}
+#fCoach::placeholder{text-transform:none;}
 .coach-ok{font-size:12.5px;margin:-6px 0 12px;min-height:1em;}
 .coach-ok.y{color:#117A43;} .coach-ok.n{color:#C4252F;}
 .rank td.n{font-family:var(--f-display);color:var(--accent);width:28px;}
@@ -909,7 +910,7 @@ function drawSheet(){
       '<label class="fld"><span>Correo (ahí llega tu boleto)</span><input id="fEmail" type="email" value="'+esc(ck.email)+'" autocomplete="email"></label>'+
       '<label class="fld"><span>WhatsApp</span><input id="fPhone" type="tel" value="'+esc(ck.phone)+'" inputmode="tel" placeholder="10 dígitos"></label>'+
       (ck.type==="ymca" ? '<label class="fld"><span>Número de usuario YMCA</span><input id="fSocio" value="'+esc(ck.socio)+'" placeholder="Como aparece en tu credencial"></label><div class="note-ymca">Cada asistente con precio YMCA presenta su credencial vigente en la entrada.</div>' : '')+
-      '<label class="fld"><span>Código de tu instructor (opcional)</span><input id="fCoach" value="'+esc(ck.coach)+'" placeholder="Ej. COACH03" style="text-transform:uppercase"></label>'+
+      '<label class="fld"><span>Código de tu instructor (opcional)</span><input id="fCoach" value="'+esc(ck.coach)+'" placeholder="Te lo da tu instructor" style="text-transform:uppercase"></label>'+
       '<div class="coach-ok '+(ck.coach ? (coachBy(ck.coach)?"y":"n") : "")+'" id="coachOk">'+(ck.coach ? (coachBy(ck.coach) ? esc(coachOkTxt(coachBy(ck.coach))) : "Ese código no existe. Revísalo o déjalo vacío.") : "")+'</div>'+
       (ck.qty>1 ? '<div class="att"><div class="h">Nombre de cada persona (cada quien recibe su QR)</div>'+atts+'</div>' : '')+
       '<div class="err" id="err"></div>'+
