@@ -82,6 +82,8 @@ export const SENDERS = {
   lukonVentas:      'LUKON <ventas@gpslukon.com>',
   /** Reportes de instalación de GPS/dashcam al cliente (12-nov-2026). */
   lukonInstalaciones: 'LUKON <instalaciones@gpslukon.com>',
+  /** Resumen semanal de flotillas (Recorridos), lunes (19-nov-2026). */
+  lukonReportes: 'LUKON <reportes@gpslukon.com>',
 } as const
 
 export type SenderKey = keyof typeof SENDERS

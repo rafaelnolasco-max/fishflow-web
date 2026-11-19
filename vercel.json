@@ -35,6 +35,10 @@
     {
       "path": "/api/cron/lukon-unidades/",
       "schedule": "20 * * * *"
+    },
+    {
+      "path": "/api/cron/lukon-resumen-semanal/",
+      "schedule": "7 14 * * 1"
     }
   ]
 }

@@ -11,6 +11,7 @@ import { parseLukonRows, IMPORT_CHUNK, type TelematicaPoint } from "@/lib/telema
 import TrackMap from "./TrackMap";
 import FleetDashboard from "./FleetDashboard";
 import MonthlyReport from "./MonthlyReport";
+import FleetBot from "./FleetBot";
 
 // Con 3 o más unidades con datos, la flotilla abre en el tablero del dueño.
 const FLEET_VIEW_MIN = 3;
@@ -61,7 +62,7 @@ export default function RecorridosTab({ parentId, t, fleetsUrl, readOnly = false
   const [items, setItems] = useState<Item[]>([]);
   const [busy, setBusy] = useState<"" | "leyendo" | "subiendo">("");
   const [error, setError] = useState("");
-  const [view, setView] = useState<"mensual" | "flotilla" | "mapa" | "cargar">("mapa");
+  const [view, setView] = useState<"mensual" | "flotilla" | "mapa" | "preguntar" | "cargar">("mapa");
   const [focusVehicle, setFocusVehicle] = useState<string | undefined>(undefined);
   const [dragOver, setDragOver] = useState(false);
 
@@ -180,12 +181,12 @@ export default function RecorridosTab({ parentId, t, fleetsUrl, readOnly = false
 
       {/* Vista */}
       <div style={{ display: "flex", gap: 6, marginBottom: 22, flexWrap: "wrap" }}>
-        {((fleetReady ? ["mensual", "flotilla", "mapa", "cargar"] : ["mapa", "cargar"]) as ("mensual" | "flotilla" | "mapa" | "cargar")[]).filter(v => !readOnly || v !== "cargar").map(v => (
+        {((fleetReady ? ["mensual", "flotilla", "mapa", "preguntar", "cargar"] : ["mapa", "cargar"]) as ("mensual" | "flotilla" | "mapa" | "preguntar" | "cargar")[]).filter(v => !readOnly || v !== "cargar").map(v => (
           <button key={v} onClick={() => setView(v)} style={{
             background: view === v ? t.ink : "transparent", color: view === v ? t.signal : t.mutedL,
             border: `1px solid ${view === v ? t.ink : t.lineL}`, borderRadius: 6, padding: "8px 16px",
             fontFamily: t.fBody, fontWeight: 600, fontSize: 15, cursor: "pointer",
-          }}>{v === "mensual" ? "Reporte mensual" : v === "flotilla" ? "Flotilla" : v === "mapa" ? "Mapa por unidad" : "Cargar datos"}</button>
+          }}>{v === "mensual" ? "Reporte mensual" : v === "flotilla" ? "Flotilla" : v === "mapa" ? "Mapa por unidad" : v === "preguntar" ? "Preguntar" : "Cargar datos"}</button>
         ))}
       </div>
 
@@ -194,6 +195,9 @@ export default function RecorridosTab({ parentId, t, fleetsUrl, readOnly = false
       )}
       {view === "flotilla" && fleet && fleetReady && (
         <FleetDashboard key={fleet.id} clientId={fleet.id} fleetName={fleet.name} t={t} onOpenVehicle={openVehicle} readOnly={readOnly} />
+      )}
+      {view === "preguntar" && fleet && fleetReady && (
+        <FleetBot key={fleet.id} clientId={fleet.id} fleetName={fleet.name} t={t} />
       )}
       {view === "mapa" && fleet && <TrackMap key={`${fleet.id}-${focusVehicle ?? ""}`} vehicles={fleet.vehicles} t={t} initialVehicleId={focusVehicle} />}
 
