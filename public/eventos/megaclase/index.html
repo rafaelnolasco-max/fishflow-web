@@ -443,7 +443,7 @@ table.t td.m{font-family:var(--f-mono);}
         </div>
         <div class="hero__cta">
           <button class="btn btn--primary" data-buy>Comprar mi boleto →</button>
-          <span class="price-hint">Boleto <b>$600</b> · <b>$500</b> con el código de tu coach · sin cargos extra</span>
+          <span class="price-hint">Boleto <b>$600</b> · precio final, sin cargos extra</span>
         </div>
         <div class="urg" id="urg"><span class="pill soft">Cupo limitado</span><span class="cd" id="cd"></span></div>
       </div>
@@ -859,7 +859,7 @@ function renderUrg(stage){
 function renderCupo(){ renderUrg(INFO ? INFO.stage : "open"); }
 function paintCoachbar(){
   const c = coachBy(refCoach);
-  if (c){ const cb = $("#coachbar"); cb.textContent = "Vienes de parte de " + c.name + (EVENT.coachDisc ? " · tu boleto queda en " + fmt(TYPES.general.price - EVENT.coachDisc) : " · tu compra cuenta para su equipo"); cb.classList.add("on"); }
+  if (c){ const cb = $("#coachbar"); cb.textContent = "Vienes de parte de " + c.name + " · tu compra cuenta para su equipo"; cb.classList.add("on"); }
 }
 
 /* ---------------- Checkout ---------------- */
