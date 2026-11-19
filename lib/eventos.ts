@@ -39,6 +39,8 @@ export type EvtEvent = {
   fee_pct: number
   fee_fix: number
   coach_pct: number
+  /** Descuento por boleto (MXN) cuando el comprador usa un código de coach válido */
+  coach_discount: number
   installments: number
   folio_prefix: string
   mp_env: string
@@ -105,6 +107,11 @@ const EVENT_COPY: Record<string, { titulo: string; fecha: string; lugar: string;
   },
 }
 
+/** Precio por boleto: con código de coach válido se aplica el descuento del evento. */
+export function unitPriceFor(price: number, ev: Pick<EvtEvent, 'coach_discount'>, withCoach: boolean): number {
+  return withCoach ? Math.max(0, price - (ev.coach_discount || 0)) : price
+}
+
 export async function getEvent(slug: string): Promise<EvtEvent | null> {
   const { data, error } = await sbAdmin.from('evt_events').select('*').eq('slug', slug).maybeSingle()
   if (error) console.error('[eventos] getEvent:', error)
@@ -113,6 +120,7 @@ export async function getEvent(slug: string): Promise<EvtEvent | null> {
   return {
     ...data,
     fee_pct: Number(data.fee_pct), fee_fix: Number(data.fee_fix), coach_pct: Number(data.coach_pct),
+    coach_discount: Number(data.coach_discount ?? 0),
     platform_fee: Number(data.platform_fee ?? 0),
     excluded_payment_types: data.excluded_payment_types ?? [],
     last_chance_extra: Number(data.last_chance_extra ?? 0),

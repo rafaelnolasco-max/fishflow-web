@@ -40,6 +40,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
       fee_pct: ev.fee_pct,
       fee_fix: ev.fee_fix,
       coach_pct: ev.coach_pct,
+      coach_discount: ev.coach_discount,
       installments: ev.installments,
       excluded_payment_types: ev.excluded_payment_types,
       last_chance: ev.last_chance_open,

@@ -443,7 +443,7 @@ table.t td.m{font-family:var(--f-mono);}
         </div>
         <div class="hero__cta">
           <button class="btn btn--primary" data-buy>Comprar mi boleto →</button>
-          <span class="price-hint">Boleto <b>$600</b> · precio final, sin cargos extra</span>
+          <span class="price-hint">Boleto <b>$600</b> · <b>$500</b> con el código de tu coach · sin cargos extra</span>
         </div>
         <div class="urg" id="urg"><span class="pill soft">Cupo limitado</span><span class="cd" id="cd"></span></div>
       </div>
@@ -758,6 +758,7 @@ const EVENT = {
   ffFee: 30,                     // FishFlow: $30 por boleto vendido
   fixedCosts: [],                // costos fijos (artista…) desde la BD; se restan al final
   coachPct: 0.125,
+  coachDisc: 0,                  // descuento por boleto con código de coach (desde la BD)
   installments: 1
 };
 let TYPES = {
@@ -810,7 +811,7 @@ async function loadInfo(){
   try {
     INFO = await api("info/");
     EVENT.capacity = INFO.capacity; EVENT.maxPerOrder = INFO.max_per_order;
-    EVENT.feePct = Number(INFO.fee_pct); EVENT.feeFix = Number(INFO.fee_fix); EVENT.coachPct = Number(INFO.coach_pct);
+    EVENT.feePct = Number(INFO.fee_pct); EVENT.feeFix = Number(INFO.fee_fix); EVENT.coachPct = Number(INFO.coach_pct); EVENT.coachDisc = Number(INFO.coach_discount || 0);
     EVENT.installments = INFO.installments || 1;
     if (INFO.types && Object.keys(INFO.types).length){ const nt = {}; Object.keys(INFO.types).forEach(k => { nt[k] = Object.assign({}, TYPES[k] || {}, INFO.types[k]); }); TYPES = nt; }
     EVENT.lastChance = !!INFO.last_chance;
@@ -858,7 +859,7 @@ function renderUrg(stage){
 function renderCupo(){ renderUrg(INFO ? INFO.stage : "open"); }
 function paintCoachbar(){
   const c = coachBy(refCoach);
-  if (c){ const cb = $("#coachbar"); cb.textContent = "Vienes de parte de " + c.name + " · tu compra cuenta para su equipo"; cb.classList.add("on"); }
+  if (c){ const cb = $("#coachbar"); cb.textContent = "Vienes de parte de " + c.name + (EVENT.coachDisc ? " · tu boleto queda en " + fmt(TYPES.general.price - EVENT.coachDisc) : " · tu compra cuenta para su equipo"); cb.classList.add("on"); }
 }
 
 /* ---------------- Checkout ---------------- */
@@ -874,7 +875,8 @@ function openCheckout(type){
   drawSheet(); $("#sheetBg").classList.add("on"); document.body.style.overflow = "hidden";
 }
 function closeCheckout(){ $("#sheetBg").classList.remove("on"); document.body.style.overflow = ""; pinResolve = null; }
-function unit(){ return TYPES[ck.type].price; }
+function coachOkTxt(c){ return "✓ " + (EVENT.coachDisc ? "Descuento de " + fmt(EVENT.coachDisc) + " por boleto aplicado · " : "") + "tu compra cuenta para " + c.name; }
+function unit(){ const p = TYPES[ck.type].price; return coachBy(ck.coach) ? Math.max(0, p - EVENT.coachDisc) : p; }
 function unitSvc(){ return svcFor(unit()); }
 function total(){ return ck.qty * (unit() + unitSvc()); }
 function stepsBar(n){ return '<div class="steps">' + [1,2].map(i => '<i class="'+(i<=n?"on":"")+'"></i>').join("") + '</div>'; }
@@ -908,7 +910,7 @@ function drawSheet(){
       '<label class="fld"><span>WhatsApp</span><input id="fPhone" type="tel" value="'+esc(ck.phone)+'" inputmode="tel" placeholder="10 dígitos"></label>'+
       (ck.type==="ymca" ? '<label class="fld"><span>Número de usuario YMCA</span><input id="fSocio" value="'+esc(ck.socio)+'" placeholder="Como aparece en tu credencial"></label><div class="note-ymca">Cada asistente con precio YMCA presenta su credencial vigente en la entrada.</div>' : '')+
       '<label class="fld"><span>Código de tu instructor (opcional)</span><input id="fCoach" value="'+esc(ck.coach)+'" placeholder="Ej. COACH03" style="text-transform:uppercase"></label>'+
-      '<div class="coach-ok '+(ck.coach ? (coachBy(ck.coach)?"y":"n") : "")+'" id="coachOk">'+(ck.coach ? (coachBy(ck.coach) ? "✓ Tu compra cuenta para "+esc(coachBy(ck.coach).name) : "Ese código no existe. Revísalo o déjalo vacío.") : "")+'</div>'+
+      '<div class="coach-ok '+(ck.coach ? (coachBy(ck.coach)?"y":"n") : "")+'" id="coachOk">'+(ck.coach ? (coachBy(ck.coach) ? esc(coachOkTxt(coachBy(ck.coach))) : "Ese código no existe. Revísalo o déjalo vacío.") : "")+'</div>'+
       (ck.qty>1 ? '<div class="att"><div class="h">Nombre de cada persona (cada quien recibe su QR)</div>'+atts+'</div>' : '')+
       '<div class="err" id="err"></div>'+
       '<button class="btn btn--primary btn--block" data-next>Continuar · '+fmt(total())+'</button>';
@@ -1020,7 +1022,10 @@ document.addEventListener("input", e => {
   if (e.target.id === "fCoach"){
     const v = e.target.value.trim(), c = coachBy(v), el = $("#coachOk");
     el.className = "coach-ok " + (v ? (c ? "y" : "n") : "");
-    el.textContent = v ? (c ? "✓ Tu compra cuenta para " + c.name : "Ese código no existe. Revísalo o déjalo vacío.") : "";
+    el.textContent = v ? (c ? coachOkTxt(c) : "Ese código no existe. Revísalo o déjalo vacío.") : "";
+    ck.coach = v.toUpperCase();
+    const q = $(".qty small"); if (q) q.textContent = fmt(unit()+unitSvc()) + " por persona" + (unitSvc() ? "" : " · precio final");
+    const nb = $("[data-next]"); if (nb) nb.textContent = "Continuar · " + fmt(total());
   }
 });
 document.addEventListener("change", async e => {

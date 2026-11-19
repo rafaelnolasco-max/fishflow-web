@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { Preference } from 'mercadopago'
-import { APP_URL, getEvent, mpConfig, sbAdmin, soldAndHeld, svcFor } from '@/lib/eventos'
+import { APP_URL, getEvent, mpConfig, sbAdmin, soldAndHeld, svcFor, unitPriceFor } from '@/lib/eventos'
 
 export const runtime = 'nodejs'
 
@@ -62,8 +62,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
     if (qty > left)
       return NextResponse.json({ error: left > 0 ? `Ya no hay lugares suficientes para ${qty} boletos. Prueba con menos.` : 'Boletos agotados.' }, { status: 409 })
 
-    const svc = svcFor(tt.price, ev)
-    const total = qty * (tt.price + svc)
+    // Con código de coach válido el boleto lleva descuento (VIBRA 18-nov-2026: $600 → $500)
+    const price = unitPriceFor(tt.price, ev, !!coach)
+    const svc = svcFor(price, ev)
+    const total = qty * (price + svc)
     const atts = [name, ...attendees.slice(1, qty)]
 
     const { data: order, error: oErr } = await sbAdmin
@@ -77,7 +79,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
         socio: type === 'ymca' ? socio : null,
         coach_code: coach,
         qty,
-        unit_price: tt.price,
+        unit_price: price,
         unit_svc: svc,
         total,
         attendees: atts,
@@ -94,7 +96,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
     const pref = await new Preference(mp).create({
       body: {
         items: [
-          { id: `${slug}-${type}`, title: `${ev.name} · ${tt.label}`, quantity: qty, unit_price: tt.price, currency_id: 'MXN', category_id: 'tickets' },
+          { id: `${slug}-${type}`, title: `${ev.name} · ${tt.label}${price < tt.price ? ' (código de coach)' : ''}`, quantity: qty, unit_price: price, currency_id: 'MXN', category_id: 'tickets' },
           // Sin cargo por servicio (precio todo incluido) no se manda la línea: MP rechaza montos en 0
           ...(svc > 0 ? [{ id: `${slug}-svc`, title: 'Cargo por servicio', quantity: qty, unit_price: svc, currency_id: 'MXN' }] : []),
         ],
