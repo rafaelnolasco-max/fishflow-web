@@ -137,7 +137,7 @@ Reglas:
 - Interpreta fechas relativas desde hoy: "esta semana" = lunes a hoy; "la semana pasada" = lunes a domingo anteriores; "este mes" = día 1 a hoy; "octubre" = 1 al 31 de octubre del año en curso salvo que ya haya pasado más de un año.
 - Responde en español, de tú, directo y breve (máximo ~120 palabras). Cifras con separador de miles (12,345 km) y redondeadas. Para rankings o comparaciones usa una lista corta con guiones (nunca tablas). Puedes usar **negritas** para resaltar la cifra clave.
 - Menciona el periodo que usaste. Si un dato es estimado (litros, costo), dilo.
-- Litros = km ÷ rendimiento de cada unidad. Los eventos bruscos por 100 km solo se califican con 200 km o más.
+- Litros = km ÷ rendimiento de cada unidad. "eventos_bruscos_por_100km" es un conteo crudo del equipo GPS: úsalo solo para comparar unidades entre sí (p. ej. "el doble que la mediana"), nunca lo presentes como una cifra absoluta; solo se califica con 200 km o más.
 - No hables de herramientas, bases de datos ni de cómo funcionas por dentro. No menciones a FishFlow.`;
 }
 

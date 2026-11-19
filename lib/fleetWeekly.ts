@@ -61,7 +61,7 @@ export async function buildWeekly(db: SupabaseClient, clientId: string, opts: { 
     const sorted = rated.map(u => u.eventos_bruscos_por_100km!).sort((a, b) => a - b);
     const med = sorted[Math.floor(sorted.length / 2)];
     const rough = rated.filter(u => med > 0 && u.eventos_bruscos_por_100km! >= med * 1.5).sort((a, b) => b.eventos_bruscos_por_100km! - a.eventos_bruscos_por_100km!).slice(0, 3);
-    if (rough.length) atender.push(`Manejo más brusco que el resto (aceleraciones y frenadas por 100 km): ${rough.map(u => `${u.unidad} ${nf1.format(u.eventos_bruscos_por_100km!)}`).join("; ")} (mediana de la flotilla ${nf1.format(med)}).`);
+    if (rough.length) atender.push(`Manejo más brusco que el resto (aceleraciones y frenadas bruscas por km recorrido): ${rough.map(u => `${u.unidad} ${nf1.format(u.eventos_bruscos_por_100km! / med)} veces la mediana de la flotilla`).join("; ")}.`);
   }
   const idle = used.filter(u => u.pct_ralenti >= 30 && u.horas_ralenti >= 2).sort((a, b) => b.horas_ralenti - a.horas_ralenti).slice(0, 3);
   if (idle.length) atender.push(`Mucho ralentí (motor encendido sin moverse): ${idle.map(u => `${u.unidad} ${nf1.format(u.horas_ralenti)} h (${u.pct_ralenti}%)`).join("; ")}.`);
