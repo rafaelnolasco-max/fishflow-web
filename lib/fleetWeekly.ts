@@ -33,7 +33,7 @@ function cambio(a: number, b: number) {
 export interface WeeklyReport {
   fleet: FleetContext; subject: string; html: string; hasData: boolean;
   /** Para WhatsApp: cifras de la plantilla y el detalle en texto. */
-  wa: { periodo: string; km: string; trabajando: string; atender: number; texto: string };
+  wa: { desde: string; periodo: string; km: string; trabajando: string; atender: number; texto: string };
 }
 
 export async function buildWeekly(db: SupabaseClient, clientId: string, opts: { link?: string | null; ref?: Date } = {}): Promise<WeeklyReport | null> {
@@ -122,7 +122,7 @@ export async function buildWeekly(db: SupabaseClient, clientId: string, opts: { 
   ].join("\n");
   return {
     fleet, subject, html, hasData: rows.length > 0,
-    wa: { periodo, km: nf.format(T.km), trabajando: `${T.unidades_con_uso} de ${T.unidades}`, atender: atender.length, texto },
+    wa: { desde: w.desde, periodo, km: nf.format(T.km), trabajando: `${T.unidades_con_uso} de ${T.unidades}`, atender: atender.length, texto },
   };
 }
 

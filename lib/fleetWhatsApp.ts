@@ -44,10 +44,10 @@ async function pickFleet(waId: string, text: string, cs: Contact[]) {
   const t = norm(text);
   const named = cs.filter(c => norm(c.fleet).split(/\s+/).filter(w => w.length > 2 && w !== "grupo").some(w => t.includes(w)));
   if (named.length === 1) return named[0];
-  const { data } = await db().from("whatsapp_messages").select("ref")
+  const { data } = await db().from("whatsapp_messages").select("client_id")
     .eq("direction", "outbound").eq("template_name", WEEKLY_TEMPLATE).like("contact_wa_id", `%${last10(waId)}`)
-    .in("ref", cs.map(c => c.client_id)).order("created_at", { ascending: false }).limit(1);
-  return cs.find(c => c.client_id === data?.[0]?.ref) ?? null;
+    .in("client_id", cs.map(c => c.client_id)).order("created_at", { ascending: false }).limit(1);
+  return cs.find(c => c.client_id === data?.[0]?.client_id) ?? null;
 }
 
 /** Conversación reciente (24 h) con el contacto, para que el bot tenga contexto. */
@@ -110,7 +110,8 @@ export async function sendWeeklyWhatsApp(sb: SupabaseClient, reports: WeeklyRepo
       .eq("client_id", r.fleet.id).eq("active", true).eq("weekly_summary", true);
     for (const c of cs ?? []) {
       const res = await sendTemplate({
-        to: `52${c.phone}`, name: WEEKLY_TEMPLATE, clientId: r.fleet.id, ref: r.fleet.id,
+        // ref única por flotilla + semana + contacto: whatsapp_messages tiene índice único (template_name, ref).
+        to: `52${c.phone}`, name: WEEKLY_TEMPLATE, clientId: r.fleet.id, ref: `flotilla:${r.fleet.id}:${r.wa.desde}:${c.phone}`,
         params: [c.name?.split(" ")[0] || "equipo", r.fleet.name, r.wa.periodo, r.wa.km, r.wa.trabajando, String(r.wa.atender)],
       });
       ((res as { ok?: boolean })?.ok ? sent : failed).push(`${r.fleet.name} → ${c.name ?? c.phone}`);
