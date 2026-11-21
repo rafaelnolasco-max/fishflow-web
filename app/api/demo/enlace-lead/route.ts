@@ -33,6 +33,20 @@ const PLAN_LABEL: Record<string, string> = {
   vida: 'Protección de vida',
   gmm: 'Gastos médicos mayores',
   educacion: 'Ahorro educativo',
+  auto: 'Seguro de auto',
+}
+
+/** Etiquetas legibles de la página /auto (uso del vehículo y vencimiento de su póliza actual). */
+const AUTO_USO: Record<string, string> = {
+  particular: 'Particular',
+  plataforma: 'Plataforma (Uber, DiDi…)',
+  trabajo: 'Trabajo / reparto',
+}
+const AUTO_VENCE: Record<string, string> = {
+  este_mes: 'Este mes',
+  '1-3_meses': 'En 1 a 3 meses',
+  mas_3_meses: 'En más de 3 meses',
+  sin_seguro: 'No tiene seguro',
 }
 
 /**
@@ -61,9 +75,28 @@ function siguienteContacto(nowUtc: Date = new Date()): string {
 }
 
 /** Acuse de recibo para el PROSPECTO. Confirma, fija expectativa y deja salida por WhatsApp. */
-function prospectoHtml(d: { nombre: string; plan: string; cuando: string; wa: string }) {
+function prospectoHtml(d: { nombre: string; plan: string; cuando: string; wa: string; vehiculo?: string }) {
   const ui = emailUI('enlace')
   const primerNombre = d.nombre.trim().split(/\s+/)[0] || ''
+  if (d.vehiculo) {
+    return ui.layout({
+      audiencia: 'externo',
+      preheader: `Tu cotización de seguro de auto. Un asesor te contacta ${d.cuando}.`,
+      titulo: `Recibimos tus datos${primerNombre ? ', ' + primerNombre : ''}`,
+      cuerpo:
+        ui.p('Gracias por mandarnos los datos de tu auto. Con ellos preparamos tu cotización de seguro con el respaldo de Allianz.') +
+        ui.dato('Tu auto', d.vehiculo) +
+        ui.p(
+          `<strong>Un asesor te contacta ${escHtml(d.cuando)}</strong> para confirmar la versión de tu auto ` +
+            'y darte tus opciones de cobertura, sin compromiso.'
+        ) +
+        ui.p('¿Prefieres adelantarlo? Escríbenos directo:') +
+        ui.botones([{ texto: 'Hablar por WhatsApp', href: d.wa }]),
+      nota:
+        'Tus datos se usan únicamente para contactarte sobre tu solicitud. ' +
+        'Si no deseas que te contactemos, responde este correo y lo damos de baja.',
+    })
+  }
   return ui.layout({
     audiencia: 'externo',
     preheader: `Tu plan recomendado: ${d.plan}. Un asesor te contacta ${d.cuando}.`,
@@ -93,7 +126,7 @@ function adminHtml(d: Record<string, string>) {
   return ui.layout({
     audiencia: 'interno',
     preheader: `${d.repetido ? 'Lead repetido · ' : ''}${d.nombre} · ${d.plan}`,
-    etiqueta: d.repetido ? 'Prospecto repetido' : 'Nuevo prospecto',
+    etiqueta: d.repetido ? 'Prospecto repetido' : d.vehiculo ? 'Nuevo prospecto · Seguro de auto' : 'Nuevo prospecto',
     titulo: d.repetido
       ? 'Un prospecto volvió a llenar el cuestionario'
       : 'Llegó un prospecto desde tu página',
@@ -104,18 +137,19 @@ function adminHtml(d: Record<string, string>) {
         ['WhatsApp', d.whatsapp],
         ['Correo', d.email],
         ['Plan recomendado', d.plan],
-        ['Objetivo', d.objetivo],
-        ['Edad', d.edad],
-        ['Dependientes', d.dependientes],
-        ['Capacidad mensual', d.capacidad],
-        ['Ocupación', d.ocupacion],
+        ...((d.vehiculo
+          ? [['Auto', d.vehiculo], ['Código postal', d.cp], ['Uso', d.uso], ['Su seguro actual vence', d.vence]]
+          : [['Objetivo', d.objetivo], ['Edad', d.edad], ['Dependientes', d.dependientes],
+             ['Capacidad mensual', d.capacidad], ['Ocupación', d.ocupacion]]) as [string, string][]),
         ['Origen', d.origen],
       ]) +
       ui.botones([
         { texto: 'Escribirle por WhatsApp', href: tel ? `https://wa.me/52${tel}` : '' },
         { texto: 'Ver en el panel', href: 'https://www.fishflow.mx/app/enlace', estilo: 'secundario' },
       ]),
-    nota: 'Llegó desde el cuestionario de enlaceintegralseguros.com.',
+    nota: d.vehiculo
+      ? 'Llegó desde la página de seguro de auto (enlaceintegralseguros.com/auto).'
+      : 'Llegó desde el cuestionario de enlaceintegralseguros.com.',
   })
 }
 
@@ -150,6 +184,18 @@ export async function POST(req: Request) {
     const capacidad = (b.capacidad ?? '').toString().trim()
     const ocupacion = (b.ocupacion ?? '').toString().trim()
 
+    /* Página /auto: datos del vehículo. Se limpian de "·" porque el resumen
+       guardado en `leads.problem` usa ese separador y el panel lo parte por ahí. */
+    const limpio = (v: unknown, max = 60) => (v ?? '').toString().replace(/·/g, ' ').trim().slice(0, max)
+    const esAuto = segmento === 'auto'
+    const autoAnio = limpio(b.auto_anio, 10)
+    const autoMarca = limpio(b.auto_marca, 40)
+    const autoModelo = limpio(b.auto_modelo, 60)
+    const autoCp = limpio(b.auto_cp, 5).replace(/\D/g, '')
+    const autoUso = AUTO_USO[limpio(b.auto_uso, 20)] || limpio(b.auto_uso, 40)
+    const autoVence = AUTO_VENCE[limpio(b.auto_vence, 20)] || limpio(b.auto_vence, 40)
+    const vehiculo = esAuto ? [autoMarca, autoModelo, autoAnio].filter(Boolean).join(' ') : ''
+
     /* Atribucion. Los anuncios de la pauta mandan
          ?utm_source=facebook&utm_medium=paid&utm_campaign=lal1_sep2026&utm_content=<ppr|sat|tanda|universidad>
        y la landing los reenvia aqui. Sin esto no hay forma de separar un lead
@@ -181,16 +227,28 @@ export async function POST(req: Request) {
        entraba un viernes 22:00 leia dos promesas distintas. Una sola fuente. */
     const cuando = siguienteContacto()
 
-    const resumen = [
-      '[Landing Enlace Integral]',
-      `Plan: ${plan}`,
-      `WhatsApp: ${whatsapp}`,
-      `Objetivo: ${objetivo}`,
-      `Edad: ${edad}`,
-      `Dependientes: ${dependientes}`,
-      `Capacidad: ${capacidad}`,
-      `Ocupación: ${ocupacion}`,
-    ].join(' · ')
+    const resumen = (esAuto
+      ? [
+          '[Landing Enlace Integral · Auto]',
+          `Plan: ${plan}`,
+          `WhatsApp: ${whatsapp}`,
+          'Objetivo: auto',
+          `Auto: ${vehiculo}`,
+          `CP: ${autoCp}`,
+          `Uso: ${autoUso}`,
+          `Vence: ${autoVence}`,
+        ]
+      : [
+          '[Landing Enlace Integral]',
+          `Plan: ${plan}`,
+          `WhatsApp: ${whatsapp}`,
+          `Objetivo: ${objetivo}`,
+          `Edad: ${edad}`,
+          `Dependientes: ${dependientes}`,
+          `Capacidad: ${capacidad}`,
+          `Ocupación: ${ocupacion}`,
+        ]
+    ).join(' · ')
 
     // 1) Guardar en Supabase (best-effort; no bloquea al usuario si falla).
     //    Antes de insertar se busca al mismo prospecto (correo real o teléfono,
@@ -274,6 +332,7 @@ export async function POST(req: Request) {
         subject: `${repetido ? 'Lead repetido' : 'Nuevo lead'} — ${nombre} · ${plan}`,
         html: adminHtml({
           nombre, whatsapp, email, plan, objetivo, edad, dependientes, capacidad, ocupacion, origen,
+          vehiculo, cp: autoCp, uso: autoUso, vence: autoVence,
           repetido: repetido
             ? `Ya estaba registrado; es su envío #${repetido.veces + 1}. No se creó otro lead.`
             : '',
@@ -286,6 +345,7 @@ export async function POST(req: Request) {
         text: `${repetido ? 'Lead repetido' : 'Nuevo lead'} de Enlace — ${nombre}`,
         body: [
           `*Plan:* ${slackEscape(plan)}`,
+          vehiculo ? `*Auto:* ${slackEscape(vehiculo)}${autoCp ? ' · CP ' + slackEscape(autoCp) : ''}` : '',
           `*WhatsApp:* ${slackEscape(whatsapp || '—')}`,
           email ? `*Correo:* ${slackEscape(email)}` : '',
           origen ? `*Origen:* ${slackEscape(origen)}` : '',
@@ -299,14 +359,18 @@ export async function POST(req: Request) {
       //    acuse rebota, el lead ya quedó guardado y Enlace ya fue avisada.
       if (email && !repetido) {
         const wa = `https://wa.me/5215570475147?text=${encodeURIComponent(
-          `Hola, soy ${nombre}. Acabo de llenar el cuestionario y me interesa el ${plan}.`
+          vehiculo
+            ? `Hola, soy ${nombre}. Mandé los datos de mi auto (${vehiculo}) para cotizar el seguro.`
+            : `Hola, soy ${nombre}. Acabo de llenar el cuestionario y me interesa el ${plan}.`
         )}`
         const { error: ackErr } = await resend.emails.send({
           from: SENDERS.enlace,
           to: email,
           replyTo: ENLACE_DEFAULT_TO,
-          subject: 'Recibimos tus datos — Enlace Integral Seguros',
-          html: prospectoHtml({ nombre, plan, cuando, wa }),
+          subject: vehiculo
+            ? 'Recibimos los datos de tu auto — Enlace Integral Seguros'
+            : 'Recibimos tus datos — Enlace Integral Seguros',
+          html: prospectoHtml({ nombre, plan, cuando, wa, vehiculo }),
         })
         if (ackErr) console.error('[demo/enlace-lead] acuse al prospecto error:', ackErr)
       }

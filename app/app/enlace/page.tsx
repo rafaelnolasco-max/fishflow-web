@@ -807,7 +807,11 @@ export default function EnlaceDashboardPage() {
                         <div style={{ fontSize: 12.5, color: C.muted, marginTop: 8, lineHeight: 1.6 }}>
                           {tel && <>WhatsApp: <b style={{ color: C.carbon }}>{tel}</b><br /></>}
                           {mail && <>Correo: <b style={{ color: C.carbon }}>{mail}</b><br /></>}
-                          {leadField(l.problem, "Objetivo") && <>Objetivo: {leadField(l.problem, "Objetivo")} · </>}
+                          {leadField(l.problem, "Auto") && <>🚗 <b style={{ color: C.carbon }}>{leadField(l.problem, "Auto")}</b>
+                            {leadField(l.problem, "CP") && <> · CP {leadField(l.problem, "CP")}</>}
+                            {leadField(l.problem, "Uso") && <> · {leadField(l.problem, "Uso")}</>}
+                            {leadField(l.problem, "Vence") && <> · Seguro actual vence: {leadField(l.problem, "Vence")}</>}<br /></>}
+                          {leadField(l.problem, "Objetivo") && leadField(l.problem, "Objetivo") !== "auto" && <>Objetivo: {leadField(l.problem, "Objetivo")} · </>}
                           {leadField(l.problem, "Edad") && <>Edad: {leadField(l.problem, "Edad")} · </>}
                           {leadField(l.problem, "Capacidad") && <>Capacidad: {leadField(l.problem, "Capacidad")}</>}
                         </div>

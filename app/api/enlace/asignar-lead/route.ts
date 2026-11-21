@@ -108,8 +108,12 @@ export async function POST(req: Request) {
     const entro = new Date(lead.created_at).toLocaleString('es-MX', {
       timeZone: 'America/Mexico_City', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
     })
-    const msgWa = `Hola ${lead.name.split(' ')[0]}, soy ${nombreCorto} de Enlace Integral Seguros. ` +
-      `Vi que llenaste nuestro cuestionario sobre ${plan || 'tu plan'}. ¿Te puedo llamar para platicarte las opciones?`
+    const vehiculo = campo(problem, 'Auto')
+    const msgWa = vehiculo
+      ? `Hola ${lead.name.split(' ')[0]}, soy ${nombreCorto} de Enlace Integral Seguros. ` +
+        `Recibí los datos de tu ${vehiculo} para cotizar tu seguro de auto. ¿Te puedo llamar para confirmar la versión y darte opciones?`
+      : `Hola ${lead.name.split(' ')[0]}, soy ${nombreCorto} de Enlace Integral Seguros. ` +
+        `Vi que llenaste nuestro cuestionario sobre ${plan || 'tu plan'}. ¿Te puedo llamar para platicarte las opciones?`
 
     const ui = emailUI('enlace')
     const html = ui.layout({
@@ -124,10 +128,12 @@ export async function POST(req: Request) {
           ['WhatsApp', whatsapp],
           ['Correo', correo],
           ['Plan recomendado', plan],
-          ['Objetivo', bonito(campo(problem, 'Objetivo'))],
-          ['Edad', campo(problem, 'Edad')],
-          ['Dependientes', bonito(campo(problem, 'Dependientes'))],
-          ['Capacidad mensual', bonito(campo(problem, 'Capacidad'))],
+          ...((vehiculo
+            ? [['Auto', vehiculo], ['Código postal', campo(problem, 'CP')], ['Uso', campo(problem, 'Uso')],
+               ['Su seguro actual vence', campo(problem, 'Vence')]]
+            : [['Objetivo', bonito(campo(problem, 'Objetivo'))], ['Edad', campo(problem, 'Edad')],
+               ['Dependientes', bonito(campo(problem, 'Dependientes'))],
+               ['Capacidad mensual', bonito(campo(problem, 'Capacidad'))]]) as [string, string][]),
           ['Entró', entro],
           ['Asignado por', auth.email],
         ]) +
