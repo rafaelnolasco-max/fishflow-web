@@ -19,10 +19,16 @@ export const ENLACE_WEEKLY_TEMPLATE = "resumen_prospectos_semanal";
 const BOT_MODEL = process.env.ENLACE_BOT_MODEL || "claude-haiku-4-5-20251001";
 const MAX_ROUNDS = 5;
 
-/** Quién recibe el resumen y puede consultar. Números confirmados por Rafa (22-nov-2026). */
+/**
+ * Quién recibe el resumen. Números confirmados por Rafa (22-nov-2026); Rafa se agregó el 23-nov.
+ * `exclusivo`: todo lo que escriba ese número lo contesta el asistente de Enlace.
+ * Rafa NO es exclusivo: su número también es contacto del bot de flotillas de LUKON, así que
+ * solo le contesta el de Enlace si toca "Ver detalle" de este resumen o menciona Enlace/prospectos.
+ */
 export const ENLACE_WA_CONTACTS = [
-  { name: "Edna", phone: "5570475147" },
-  { name: "Ivonne", phone: "5516859769" },
+  { name: "Edna", phone: "5570475147", exclusivo: true },
+  { name: "Ivonne", phone: "5516859769", exclusivo: true },
+  { name: "Rafa", phone: "5514831644", exclusivo: false },
 ];
 
 const db = () => createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
@@ -30,8 +36,17 @@ const last10 = (s: string) => s.replace(/\D/g, "").slice(-10);
 const CDMX_MS = -6 * 3600e3; // CDMX sin horario de verano
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+/** ¿Lo atiende siempre el asistente de Enlace? (para no mandar el aviso de "nueva conversación"). */
 export function isEnlaceContact(waId: string) {
-  return ENLACE_WA_CONTACTS.some(c => c.phone === last10(waId));
+  return ENLACE_WA_CONTACTS.some(c => c.exclusivo && c.phone === last10(waId));
+}
+
+/** ¿El último resumen que recibió este número fue el de Enlace? */
+async function ultimoResumenEsEnlace(waId: string) {
+  const { data } = await db().from("whatsapp_messages").select("template_name")
+    .eq("direction", "outbound").not("template_name", "is", null).like("contact_wa_id", `%${last10(waId)}`)
+    .order("created_at", { ascending: false }).limit(1);
+  return data?.[0]?.template_name === ENLACE_WEEKLY_TEMPLATE;
 }
 
 // ─── Datos ────────────────────────────────────────────────────────────────────
@@ -270,9 +285,14 @@ const toWa = (s: string) => s.replace(/\*\*([^*]+)\*\*/g, "*$1*").replace(/^#+\s
 export async function handleEnlaceInbound(waId: string, text: string): Promise<boolean> {
   const c = ENLACE_WA_CONTACTS.find(x => x.phone === last10(waId));
   if (!c) return false;
+  const verDetalle = /^\s*ver detalle\s*$/i.test(text);
+  if (!c.exclusivo) {
+    const deEnlace = verDetalle ? await ultimoResumenEsEnlace(waId) : /enlace|prospect/i.test(text);
+    if (!deEnlace) return false;
+  }
   const reply = (body: string) => sendText({ to: waId, body, clientId: ENLACE_CLIENT_ID, sentBy: "bot" });
 
-  if (/^\s*ver detalle\s*$/i.test(text)) {
+  if (verDetalle) {
     const r = await buildEnlaceWeekly();
     await reply(r.total ? r.detalle : `No llegaron prospectos del ${r.periodo}.`);
     return true;
