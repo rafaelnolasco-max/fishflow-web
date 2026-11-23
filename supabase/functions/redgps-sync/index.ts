@@ -8,9 +8,12 @@
 //   history/get  apikey + token + equipo + fechaIni/fechaFin (máx. 15 días por equipo)
 // Cada cliente de RedGPS tiene su propia apikey y su propio usuario.
 //
-// Cuentas: tabla telematica_redgps_accounts (una por flotilla). Las llaves y
-// contraseñas viven en Vault y se leen con la RPC telematica_redgps_accounts_secrets()
-// (solo service_role). Una cuenta con enabled = false no se toca en el cron.
+// Cuentas: tabla telematica_redgps_accounts. Una flotilla puede tener varias
+// cuentas (la flotilla demo tiene una por coche): cada cuenta baja solo los
+// equipos de `device_ids` (null = todas las unidades de la flotilla).
+// Las llaves y contraseñas viven en Vault y se leen con la RPC
+// telematica_redgps_accounts_secrets() (solo service_role). Una cuenta con
+// enabled = false no se toca en el cron.
 //
 // Autenticación: verify_jwt = false + cabecera `x-redgps-token`, que se compara
 // contra el secreto `redgps_sync_token` del Vault.
@@ -32,7 +35,8 @@ const CONCURRENCY = 4;
 const CHUNK = 1000;
 
 interface Account {
-  client_id: string; slug: string; username: string | null; apikey: string | null; password: string | null;
+  id: string; client_id: string; slug: string; label: string | null; device_ids: string[] | null;
+  username: string | null; apikey: string | null; password: string | null;
   enabled: boolean; token: string | null; token_expires_at: string | null; fail_count: number;
 }
 interface Row { [k: string]: unknown }
@@ -107,7 +111,7 @@ async function getToken(sb: SupabaseClient, a: Account, force = false): Promise<
   a.token = r.data;
   a.token_expires_at = new Date(Date.now() + 5.5 * 3600_000).toISOString();
   const { error } = await sb.from("telematica_redgps_accounts")
-    .update({ token: a.token, token_expires_at: a.token_expires_at }).eq("client_id", a.client_id);
+    .update({ token: a.token, token_expires_at: a.token_expires_at }).eq("id", a.id);
   if (error) throw new Error(error.message);
   return a.token;
 }
@@ -121,7 +125,7 @@ async function pool<T>(items: T[], n: number, fn: (x: T) => Promise<void>) {
 
 async function syncAccount(sb: SupabaseClient, a: Account, opt: { dryRun: boolean; hours?: number; sample: number }) {
   const out = {
-    client: a.slug, ok: false, units: 0, units_with_data: 0, fetched: 0, inserted: 0, skipped_rows: 0,
+    client: a.label ? `${a.slug} · ${a.label}` : a.slug, ok: false, units: 0, units_with_data: 0, fetched: 0, inserted: 0, skipped_rows: 0,
     already_stored: 0, errors: [] as string[], samples: [] as unknown[], range: null as null | { from: string; to: string },
     stats_rows: null as number | null,
   };
@@ -130,7 +134,8 @@ async function syncAccount(sb: SupabaseClient, a: Account, opt: { dryRun: boolea
     let token = await getToken(sb, a);
     const { data: vehicles, error: vErr } = await sb.rpc("telematica_last_ts", { p_client: a.client_id });
     if (vErr) throw new Error(vErr.message);
-    const units = (vehicles ?? []) as { vehicle_id: string; device_id: string; last_ts: string | null }[];
+    let units = (vehicles ?? []) as { vehicle_id: string; device_id: string; last_ts: string | null }[];
+    if (a.device_ids?.length) units = units.filter(u => a.device_ids!.includes(u.device_id));
     out.units = units.length;
     let minTs = null as string | null, maxTs = null as string | null;
     let refreshing = null as Promise<string> | null, stop = false;
@@ -210,7 +215,7 @@ async function syncAccount(sb: SupabaseClient, a: Account, opt: { dryRun: boolea
       ...(out.ok ? { last_ok_at: now.toISOString(), last_error: null, fail_count: 0 }
                  : { last_error: out.errors.slice(0, 5).join(" · ").slice(0, 1000), fail_count: a.fail_count + 1 }),
       last_points: out.inserted,
-    }).eq("client_id", a.client_id);
+    }).eq("id", a.id);
     if (error) out.errors.push(error.message);
   }
   return out;
