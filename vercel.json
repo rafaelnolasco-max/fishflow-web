@@ -39,6 +39,10 @@
     {
       "path": "/api/cron/lukon-resumen-semanal/",
       "schedule": "7 14 * * 1"
+    },
+    {
+      "path": "/api/cron/enlace-resumen-semanal/",
+      "schedule": "2 15 * * 1"
     }
   ]
 }

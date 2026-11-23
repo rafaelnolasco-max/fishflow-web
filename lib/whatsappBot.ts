@@ -20,6 +20,7 @@ import { sendText } from '@/lib/whatsapp'
 import { generateReviewDraft } from '@/lib/reviewDraft'
 import { sendEmail } from '@/lib/email'
 import { handleFleetInbound } from '@/lib/fleetWhatsApp'
+import { handleEnlaceInbound } from '@/lib/enlaceWhatsApp'
 
 // Mismo valor que FISHFLOW_CLIENT_ID de lib/supabase.ts (no se importa de ahí:
 // ese módulo crea un cliente de navegador al cargarse).
@@ -264,6 +265,8 @@ export async function handleInbound(args: {
       return
     }
     if (!text) return
+    // Edna e Ivonne (Enlace Integral): asistente de consulta de prospectos (lib/enlaceWhatsApp.ts).
+    if (await handleEnlaceInbound(waId, text)) return
     // Contactos de flotillas de LUKON: los contesta el bot de su flotilla (lib/fleetWhatsApp.ts).
     if (await handleFleetInbound(waId, text)) return
     if (await tryReviewFlow(waId, name, text)) return

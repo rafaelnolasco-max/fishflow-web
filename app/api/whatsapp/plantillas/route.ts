@@ -7,6 +7,21 @@ import { requireAdmin } from "@/lib/apiAuth";
 import { WA_GRAPH_VERSION } from "@/lib/whatsapp";
 
 const CATALOGO: Record<string, Record<string, unknown>> = {
+  // Resumen de prospectos de Enlace Integral, lunes 9:00 a Edna e Ivonne (lib/enlaceWhatsApp.ts). 5 variables.
+  resumen_prospectos_semanal: {
+    name: "resumen_prospectos_semanal",
+    language: "es_MX",
+    category: "UTILITY",
+    components: [
+      {
+        type: "BODY",
+        text: "Hola {{1}}, este es el resumen de prospectos de Enlace Integral del {{2}}: {{3}} en total. Por campaña: {{4}}. Sin asignar: {{5}}. Toca Ver detalle para ver la lista o respóndeme cualquier pregunta sobre tus prospectos.",
+        example: { body_text: [["Edna", "16 nov al 22 nov", "23", "Ahorro 18, SAT 3, Orgánico 2", "9"]] },
+      },
+      { type: "FOOTER", text: "Enlace Integral Seguros" },
+      { type: "BUTTONS", buttons: [{ type: "QUICK_REPLY", text: "Ver detalle" }] },
+    ],
+  },
   // Resumen semanal de flotillas de LUKON (lib/fleetWhatsApp.ts). 6 variables.
   resumen_flotilla_semanal: {
     name: "resumen_flotilla_semanal",
