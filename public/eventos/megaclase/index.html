@@ -1053,9 +1053,12 @@ $$("#mnav a").forEach(a => a.addEventListener("click", closeMenu));
 function myOrders(){ return ls.get(ORDERS_KEY, []).filter(t => /^[a-f0-9]{32}$/.test(t)); }
 function rememberOrder(t){ const a = myOrders().filter(x => x !== t); a.push(t); ls.set(ORDERS_KEY, a.slice(-20)); }
 let mpReturn = null, pollN = 0, pollT = 0;
+// Liga compartida (?orden= sin datos de pago): se muestra solo esa compra y NO se guarda en este teléfono.
+let sharedView = null;
+const CLEAN_KEY = ORDERS_KEY + "_clean1";
 async function renderTickets(){
   const list = $("#tktList");
-  const tokens = myOrders();
+  const tokens = sharedView ? [sharedView] : myOrders();
   if (!tokens.length){
     $("#tktTitle").textContent = "Aún no tienes boletos";
     $("#tktSub").textContent = "Si ya compraste, abre la liga \"Ver mis boletos\" del correo que te llegó.";
@@ -1067,7 +1070,18 @@ async function renderTickets(){
     const pid = mpReturn && mpReturn.token === t ? mpReturn.payment_id : "";
     return api("orden/?t=" + t + (pid ? "&payment_id=" + encodeURIComponent(pid) : "")).then(o => Object.assign(o, {token: t})).catch(() => null);
   }));
-  const orders = res.filter(Boolean);
+  let orders = res.filter(Boolean);
+  // Limpieza única (22-nov-2026): antes, abrir la liga de otra persona guardaba su compra aquí.
+  // Nos quedamos solo con las compras del mismo correo que la compra más reciente (por fecha) guardada aquí.
+  if (!sharedView && !ls.get(CLEAN_KEY, false)){
+    const lastO = orders.filter(o => o.email).sort((x, y) => String(x.created || "").localeCompare(String(y.created || ""))).slice(-1)[0];
+    if (lastO){
+      const em = String(lastO.email).toLowerCase();
+      orders = orders.filter(o => !o.email || String(o.email).toLowerCase() === em);
+      ls.set(ORDERS_KEY, tokens.filter(t => orders.some(o => o.token === t)));
+    }
+    ls.set(CLEAN_KEY, true);
+  }
   const tks = [], pend = [], failed = [];
   orders.forEach(o => {
     if (o.status === "paid") o.tickets.forEach(t => tks.push(Object.assign({}, t, {token: o.token, email: o.email})));
@@ -1354,11 +1368,17 @@ paintPrices();
 // Regreso de Mercado Pago: ?orden=<token>&payment_id=…&status=…
 try {
   const u = new URLSearchParams(location.search), t = u.get("orden");
-  if (t && /^[a-f0-9]{32}$/.test(t)){
+  const fromMP = ["payment_id","collection_id","status","collection_status","preference_id"].some(k => u.has(k));
+  if (t && /^[a-f0-9]{32}$/.test(t) && fromMP){
+    // Regreso del pago: es la compra de quien está en este teléfono
     rememberOrder(t);
     mpReturn = { token: t, payment_id: u.get("payment_id") || u.get("collection_id") || "", status: u.get("status") || u.get("collection_status") || "" };
     if (mpReturn.payment_id === "null") mpReturn.payment_id = "";
     history.replaceState(null, "", location.pathname + "#boleto");
+  } else if (t && /^[a-f0-9]{32}$/.test(t)){
+    // Liga del correo o compartida: se ve, pero no se mezcla con los boletos de este teléfono
+    sharedView = t;
+    history.replaceState(null, "", location.pathname + "?orden=" + t + "#boleto");
   }
 } catch(e){}
 window.addEventListener("hashchange", () => { route(); window.scrollTo(0,0); });

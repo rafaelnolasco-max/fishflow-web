@@ -40,6 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       status: o.status,
       buyer: o.buyer_name,
       email: o.buyer_email,
+      created: o.created_at,
       type: o.ticket_type,
       qty: o.qty,
       total: Number(o.total),
