@@ -12,7 +12,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
-import { sendTemplate, sendText } from "@/lib/whatsapp";
+import { sendTemplate, sendText, templateAlreadySent } from "@/lib/whatsapp";
 
 export const ENLACE_CLIENT_ID = "e8094119-0414-4d46-8506-6ee1a52e852c";
 export const ENLACE_WEEKLY_TEMPLATE = "resumen_prospectos_semanal";
@@ -142,16 +142,18 @@ export async function buildEnlaceWeekly(now = new Date()) {
 /** Plantilla del lunes a Edna e Ivonne. ref única por semana + contacto (evita duplicados si el cron se repite). */
 export async function sendEnlaceWeekly(now = new Date()) {
   const r = await buildEnlaceWeekly(now);
-  const sent: string[] = [], failed: string[] = [];
+  const sent: string[] = [], failed: string[] = [], skipped: string[] = [];
   for (const c of ENLACE_WA_CONTACTS) {
+    const ref = `enlace-semanal:${r.desde}:${c.phone}`;
+    // Si el cron se repite (o se corre a mano), no volver a mandar a quien ya lo recibió esta semana.
+    if (await templateAlreadySent(ENLACE_WEEKLY_TEMPLATE, ref)) { skipped.push(c.name); continue; }
     const res = await sendTemplate({
-      to: `52${c.phone}`, name: ENLACE_WEEKLY_TEMPLATE, clientId: ENLACE_CLIENT_ID,
-      ref: `enlace-semanal:${r.desde}:${c.phone}`,
+      to: `52${c.phone}`, name: ENLACE_WEEKLY_TEMPLATE, clientId: ENLACE_CLIENT_ID, ref,
       params: [c.name, r.periodo, String(r.total), r.campanasTxt, String(r.sinAsignar)],
     });
     (res.ok ? sent : failed).push(c.name);
   }
-  return { ...r, sent, failed };
+  return { ...r, sent, failed, skipped };
 }
 
 // ─── Asistente de consulta ────────────────────────────────────────────────────
